@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(find:*)",
+      "Bash(dart fix:*)",
+      "Bash(dart analyze:*)",
+      "Bash(powershell -File:*)"
+    ]
+  }
+}
