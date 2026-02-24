@@ -1,0 +1,9 @@
+{
+  "buildCommand": "bash ./deploy.sh",
+  "outputDirectory": "build/web",
+  "framework": null,
+  "installCommand": "echo skip",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
