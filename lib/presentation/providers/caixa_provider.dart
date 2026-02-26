@@ -55,6 +55,8 @@ class CaixaProvider with ChangeNotifier {
       _filteredCaixas.where((c) => c.tipo == TipoCaixa.normal).toList();
   List<Caixa> get selfCheckouts =>
       _filteredCaixas.where((c) => c.tipo == TipoCaixa.self).toList();
+  List<Caixa> get balcoes =>
+      _filteredCaixas.where((c) => c.tipo == TipoCaixa.balcao).toList();
 
   CaixaProvider({
     required GetCaixas getCaixas,

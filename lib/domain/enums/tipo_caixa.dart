@@ -25,6 +25,12 @@ enum TipoCaixa {
     'Autoatendimento',
     Color(0xFF9C27B0),
     Icons.computer,
+  ),
+  balcao(
+    'Balcão',
+    'Fiscal de balcão',
+    Color(0xFF009688),
+    Icons.support_agent,
   );
 
   const TipoCaixa(this.nome, this.descricao, this.cor, this.icone);
@@ -45,6 +51,8 @@ enum TipoCaixa {
       case 'self_service':
       case 'selfcheckout':
         return TipoCaixa.self;
+      case 'balcao':
+        return TipoCaixa.balcao;
       case 'normal':
       case 'pdv':
       default:
@@ -63,6 +71,8 @@ enum TipoCaixa {
         return 'preferencial';
       case TipoCaixa.self:
         return 'self_service';
+      case TipoCaixa.balcao:
+        return 'balcao';
     }
   }
 

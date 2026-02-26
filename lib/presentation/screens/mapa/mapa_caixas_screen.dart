@@ -13,6 +13,8 @@ import '../alocacao/alocacao_screen.dart';
 import '../caixas/caixa_form_screen.dart';
 import '../caixas/widgets/caixa_card.dart';
 import 'widgets/caixa_list_item.dart';
+import 'widgets/balcao_list_item.dart';
+import 'widgets/pacote_section.dart';
 
 /// Tela de mapa de caixas — abas: Mapa | Caixas
 class MapaCaixasScreen extends StatefulWidget {
@@ -97,101 +99,142 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         controller: _tabController,
         children: [
           // ── ABA 1: MAPA ──────────────────────────────────────────────────
-          RefreshIndicator(
-            onRefresh: _loadData,
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(Dimensions.paddingMD),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Legenda
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(Dimensions.paddingMD),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildLegendItem('Ocupado', AppColors.statusAtivo),
-                          _buildLegendItem('Disponível', AppColors.success),
-                          _buildLegendItem('Inativo', AppColors.inactive),
-                          _buildLegendItem(
-                              'Manutenção', AppColors.statusAtencao),
-                        ],
+          Builder(builder: (context) {
+            // Apenas caixas com alocação ativa
+            final rapidos = caixaProvider.caixasRapidos
+                .where((c) => alocacaoProvider.getAlocacaoCaixa(c.id) != null)
+                .toList();
+            final normais = caixaProvider.caixasNormais
+                .where((c) => alocacaoProvider.getAlocacaoCaixa(c.id) != null)
+                .toList();
+            final selfs = caixaProvider.selfCheckouts
+                .where((c) => alocacaoProvider.getAlocacaoCaixa(c.id) != null)
+                .toList();
+            final balcoes = caixaProvider.balcoes;
+
+            return RefreshIndicator(
+              onRefresh: _loadData,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(Dimensions.paddingMD),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Legenda
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(Dimensions.paddingMD),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _buildLegendItem('Ocupado', AppColors.statusAtivo),
+                            _buildLegendItem('Disponível', AppColors.success),
+                            _buildLegendItem('Inativo', AppColors.inactive),
+                            _buildLegendItem(
+                                'Manutenção', AppColors.statusAtencao),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: Dimensions.spacingLG),
-
-                  // Caixas Rápidos
-                  if (caixaProvider.caixasRapidos.isNotEmpty) ...[
-                    _SectionHeader(
-                      label: 'Caixas Rápidos',
-                      count: caixaProvider.caixasRapidos.length,
-                    ),
-                    const SizedBox(height: Dimensions.spacingSM),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: caixaProvider.caixasRapidos.length,
-                      itemBuilder: (context, index) {
-                        final caixa = caixaProvider.caixasRapidos[index];
-                        final alocacao = alocacaoProvider.alocacoes
-                            .where((a) => a.caixaId == caixa.id)
-                            .firstOrNull;
-                        return CaixaListItem(caixa: caixa, alocacao: alocacao);
-                      },
-                    ),
                     const SizedBox(height: Dimensions.spacingLG),
-                  ],
 
-                  // Caixas Normais
-                  if (caixaProvider.caixasNormais.isNotEmpty) ...[
-                    _SectionHeader(
-                      label: 'Caixas Normais',
-                      count: caixaProvider.caixasNormais.length,
-                    ),
-                    const SizedBox(height: Dimensions.spacingSM),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: caixaProvider.caixasNormais.length,
-                      itemBuilder: (context, index) {
-                        final caixa = caixaProvider.caixasNormais[index];
-                        final alocacao = alocacaoProvider.alocacoes
-                            .where((a) => a.caixaId == caixa.id)
-                            .firstOrNull;
-                        return CaixaListItem(caixa: caixa, alocacao: alocacao);
-                      },
-                    ),
-                    const SizedBox(height: Dimensions.spacingLG),
-                  ],
+                    // Caixas Rápidos (apenas ocupados)
+                    if (rapidos.isNotEmpty) ...[
+                      _SectionHeader(
+                        label: 'Caixas Rápidos',
+                        count: rapidos.length,
+                      ),
+                      const SizedBox(height: Dimensions.spacingSM),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: rapidos.length,
+                        itemBuilder: (context, index) {
+                          final caixa = rapidos[index];
+                          final alocacao =
+                              alocacaoProvider.getAlocacaoCaixa(caixa.id);
+                          return CaixaListItem(
+                              caixa: caixa, alocacao: alocacao);
+                        },
+                      ),
+                      const SizedBox(height: Dimensions.spacingLG),
+                    ],
 
-                  // Self Checkouts
-                  if (caixaProvider.selfCheckouts.isNotEmpty) ...[
-                    _SectionHeader(
-                      label: 'Self Checkouts',
-                      count: caixaProvider.selfCheckouts.length,
-                    ),
-                    const SizedBox(height: Dimensions.spacingSM),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: caixaProvider.selfCheckouts.length,
-                      itemBuilder: (context, index) {
-                        final caixa = caixaProvider.selfCheckouts[index];
-                        final alocacao = alocacaoProvider.alocacoes
-                            .where((a) => a.caixaId == caixa.id)
-                            .firstOrNull;
-                        return CaixaListItem(caixa: caixa, alocacao: alocacao);
-                      },
-                    ),
+                    // Caixas Normais (apenas ocupados)
+                    if (normais.isNotEmpty) ...[
+                      _SectionHeader(
+                        label: 'Caixas Normais',
+                        count: normais.length,
+                      ),
+                      const SizedBox(height: Dimensions.spacingSM),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: normais.length,
+                        itemBuilder: (context, index) {
+                          final caixa = normais[index];
+                          final alocacao =
+                              alocacaoProvider.getAlocacaoCaixa(caixa.id);
+                          return CaixaListItem(
+                              caixa: caixa, alocacao: alocacao);
+                        },
+                      ),
+                      const SizedBox(height: Dimensions.spacingLG),
+                    ],
+
+                    // Self Checkouts (apenas ocupados)
+                    if (selfs.isNotEmpty) ...[
+                      _SectionHeader(
+                        label: 'Self Checkouts',
+                        count: selfs.length,
+                      ),
+                      const SizedBox(height: Dimensions.spacingSM),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: selfs.length,
+                        itemBuilder: (context, index) {
+                          final caixa = selfs[index];
+                          final alocacao =
+                              alocacaoProvider.getAlocacaoCaixa(caixa.id);
+                          return CaixaListItem(
+                              caixa: caixa, alocacao: alocacao);
+                        },
+                      ),
+                      const SizedBox(height: Dimensions.spacingLG),
+                    ],
+
+                    // Balcões (todos, com slots para até 3 fiscais)
+                    if (balcoes.isNotEmpty) ...[
+                      _SectionHeader(
+                        label: 'Balcões',
+                        count: balcoes.length,
+                      ),
+                      const SizedBox(height: Dimensions.spacingSM),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: balcoes.length,
+                        itemBuilder: (context, index) {
+                          final balcao = balcoes[index];
+                          final alocacoes =
+                              alocacaoProvider.getAlocacoesCaixa(balcao.id);
+                          return BalcaoListItem(
+                              balcao: balcao, alocacoes: alocacoes);
+                        },
+                      ),
+                      const SizedBox(height: Dimensions.spacingLG),
+                    ],
+
+                    // Pacotes — lista de presença de empacotadores
+                    const PacoteSection(),
+                    const SizedBox(height: Dimensions.spacingMD),
                   ],
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          }),
 
           // ── ABA 2: CAIXAS ────────────────────────────────────────────────
           _CaixasBody(onRefresh: _loadData),

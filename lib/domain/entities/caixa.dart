@@ -68,6 +68,7 @@ class Caixa extends Equatable {
 
   String get nomeExibicao {
     if (tipo == TipoCaixa.self) return 'Self $numero';
+    if (tipo == TipoCaixa.balcao) return 'Balcão $numero';
     return 'Cx $numero';
   }
 

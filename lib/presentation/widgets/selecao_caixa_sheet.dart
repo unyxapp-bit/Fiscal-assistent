@@ -54,6 +54,8 @@ class _SelecaoCaixaSheetState extends State<SelecaoCaixaSheet> {
         return Colors.orange;
       case TipoCaixa.self:
         return Colors.purple;
+      case TipoCaixa.balcao:
+        return const Color(0xFF009688);
     }
   }
 

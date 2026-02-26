@@ -25,7 +25,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
   final _lojaController = TextEditingController();
   final _observacoesController = TextEditingController();
 
-  // valor de TipoCaixa.toJson() — 'pdv' | 'rapido' | 'preferencial' | 'self_service'
+  // valor de TipoCaixa.toJson() — 'pdv' | 'rapido' | 'preferencial' | 'self_service' | 'balcao'
   String _tipoSelecionado = 'pdv';
   String? _localizacaoSelecionada;
   bool _emManutencao = false;
@@ -242,6 +242,24 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                               setState(() => _tipoSelecionado = 'self_service'),
                         ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: Dimensions.spacingSM),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _TipoCard(
+                          label: 'Balcão',
+                          descricao: 'Até 3 fiscais',
+                          icon: Icons.support_agent,
+                          color: const Color(0xFF009688),
+                          selected: _tipoSelecionado == 'balcao',
+                          onTap: () =>
+                              setState(() => _tipoSelecionado = 'balcao'),
+                        ),
+                      ),
+                      const SizedBox(width: Dimensions.spacingSM),
+                      const Expanded(child: SizedBox()),
                     ],
                   ),
                 ],

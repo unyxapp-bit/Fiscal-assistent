@@ -166,6 +166,13 @@ class AlocacaoProvider extends ChangeNotifier {
     }
   }
 
+  /// Retorna todas as alocações ativas de um caixa/balcão
+  List<Alocacao> getAlocacoesCaixa(String caixaId) {
+    return _alocacoes
+        .where((a) => a.caixaId == caixaId && a.liberadoEm == null)
+        .toList();
+  }
+
   /// Busca todas as alocações ativas de um período
   List<Alocacao> getAlocacoesAtivas() {
     return _alocacoes.where((a) => a.liberadoEm == null).toList();

@@ -20,6 +20,8 @@ import 'data/repositories/colaborador_repository.dart';
 import 'data/repositories/caixa_repository.dart';
 import 'data/repositories/alocacao_repository.dart';
 import 'data/repositories/registro_ponto_repository.dart';
+import 'data/datasources/remote/pacote_plantao_remote_datasource.dart';
+import 'data/repositories/pacote_plantao_repository.dart';
 
 // Use Cases - Fiscal
 import 'domain/usecases/fiscal/get_fiscal_profile.dart';
@@ -58,6 +60,7 @@ import 'presentation/providers/snapshot_provider.dart';
 import 'presentation/providers/cafe_provider.dart';
 import 'presentation/providers/escala_provider.dart';
 import 'presentation/providers/registro_ponto_provider.dart';
+import 'presentation/providers/pacote_plantao_provider.dart';
 
 // App Config
 import 'core/constants/colors.dart';
@@ -113,6 +116,12 @@ void main() async {
     final getCaixas = GetCaixas(caixaRepository);
     final toggleCaixaStatus = ToggleCaixaStatus(caixaRepository);
     final toggleCaixaManutencao = ToggleCaixaManutencao(caixaRepository);
+
+    // ==================== PACOTE PLANTAO ====================
+    final pacotePlantaoRemoteDataSource = PacotePlantaoRemoteDataSource();
+    final pacotePlantaoRepository = PacotePlantaoRepository(
+      remoteDataSource: pacotePlantaoRemoteDataSource,
+    );
 
     // ==================== ALOCACAO ====================
     final alocacaoRemoteDataSource = AlocacaoRemoteDataSource();
@@ -226,6 +235,13 @@ void main() async {
               repository: registroPontoRepository,
             ),
           ),
+
+          // Pacote Plantão
+          ChangeNotifierProvider(
+            create: (_) => PacotePlantaoProvider(
+              repository: pacotePlantaoRepository,
+            ),
+          ),
         ],
         child: const MyApp(),
       ),
@@ -300,6 +316,7 @@ class _AppHomeState extends State<_AppHome> {
 
   Future<void> _initProviders() async {
     final ctx = context;
+    final userId = ctx.read<AuthProvider>().user?.id ?? '';
     // Fire-and-forget: load all Supabase-backed providers in parallel
     await Future.wait([
       ctx.read<EntregaProvider>().load(),
@@ -309,6 +326,7 @@ class _AppHomeState extends State<_AppHome> {
       ctx.read<ProcedimentoProvider>().load(),
       ctx.read<CafeProvider>().load(),
       ctx.read<EscalaProvider>().load(),
+      if (userId.isNotEmpty) ctx.read<PacotePlantaoProvider>().load(userId),
     ]);
   }
 
