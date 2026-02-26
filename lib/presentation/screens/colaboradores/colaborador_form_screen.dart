@@ -264,7 +264,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
           style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
         ),
         value: _ativo,
-        activeColor: AppColors.success,
+        activeThumbColor: AppColors.success,
         onChanged: (val) => setState(() => _ativo = val),
       ),
     );

@@ -398,7 +398,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: widget.caixa.tipo.cor.withOpacity(0.15),
+                  color: widget.caixa.tipo.cor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(

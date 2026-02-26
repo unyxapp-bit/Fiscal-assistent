@@ -117,53 +117,57 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Avatar e Info Principal
+                // Cabeçalho de Perfil
                 Card(
                   child: Padding(
-                    padding: const EdgeInsets.all(Dimensions.paddingLG),
-                    child: Column(
+                    padding: const EdgeInsets.all(Dimensions.paddingMD),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // Avatar
+                        // Avatar com iniciais
                         CircleAvatar(
-                          radius: 50,
-                          backgroundColor: _getDepartamentoColor(widget.colaborador.departamento),
+                          radius: 38,
+                          backgroundColor: _getDepartamentoColor(
+                              widget.colaborador.departamento),
                           child: Text(
                             widget.colaborador.iniciais,
-                            style: AppTextStyles.h1.copyWith(color: Colors.white),
+                            style: AppTextStyles.h2
+                                .copyWith(color: Colors.white),
                           ),
                         ),
-
-                        const SizedBox(height: Dimensions.spacingMD),
-
-                        // Nome
-                        Text(
-                          widget.colaborador.nome,
-                          style: AppTextStyles.h2,
-                          textAlign: TextAlign.center,
+                        const SizedBox(width: Dimensions.spacingMD),
+                        // Nome e informações
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.colaborador.nome,
+                                style: AppTextStyles.h3,
+                              ),
+                              const SizedBox(height: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _getDepartamentoColor(
+                                      widget.colaborador.departamento),
+                                  borderRadius: BorderRadius.circular(
+                                      Dimensions.radiusSM),
+                                ),
+                                child: Text(
+                                  widget.colaborador.departamento.nome,
+                                  style: AppTextStyles.caption
+                                      .copyWith(color: Colors.white),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              _buildStatusChip(),
+                            ],
+                          ),
                         ),
-
-                        const SizedBox(height: Dimensions.spacingSM),
-
-                        // Departamento Badge
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: Dimensions.paddingSM,
-                            vertical: Dimensions.paddingXS,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _getDepartamentoColor(widget.colaborador.departamento),
-                            borderRadius: BorderRadius.circular(Dimensions.radiusSM),
-                          ),
-                          child: Text(
-                            widget.colaborador.departamento.nome,
-                            style: AppTextStyles.caption.copyWith(color: Colors.white),
-                          ),
-                        ),
-
-                        const SizedBox(height: Dimensions.spacingMD),
-
-                        // Status Atual
-                        _buildStatusChip(),
                       ],
                     ),
                   ),
@@ -171,78 +175,256 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
 
                 const SizedBox(height: Dimensions.spacingLG),
 
-                // Informações
-                const Text('Informações', style: AppTextStyles.h3),
-                const SizedBox(height: Dimensions.spacingSM),
-
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(Dimensions.paddingMD),
-                    child: Column(
-                      children: [
-                        _buildInfoRow('ID', widget.colaborador.id.substring(0, 8)),
-                        const Divider(height: 24),
-                        _buildInfoRow('Status', widget.colaborador.ativo ? 'Ativo' : 'Inativo'),
-                        const Divider(height: 24),
-                        _buildInfoRow('Criado em', _formatDate(widget.colaborador.createdAt)),
-                        if (widget.colaborador.observacoes != null && widget.colaborador.observacoes!.isNotEmpty) ...[
-                          const Divider(height: 24),
-                          _buildInfoRow('Observações', widget.colaborador.observacoes!),
-                        ],
-                      ],
+                // Menu de seções
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 2.4,
+                  children: [
+                    _buildMenuCard(
+                      icon: Icons.info_outline,
+                      label: 'Informações',
+                      color: AppColors.primary,
+                      onTap: () => _showInfoSheet(context),
                     ),
-                  ),
-                ),
-
-                const SizedBox(height: Dimensions.spacingLG),
-
-                // Alocações de Hoje
-                const Text('Alocações de Hoje', style: AppTextStyles.h3),
-                const SizedBox(height: Dimensions.spacingSM),
-
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(Dimensions.paddingMD),
-                    child: _buildHistoricoHoje(alocacaoProvider),
-                  ),
-                ),
-
-                const SizedBox(height: Dimensions.spacingLG),
-
-                // Registros de Ponto
-                const Text('Registros de Ponto', style: AppTextStyles.h3),
-                const SizedBox(height: Dimensions.spacingSM),
-                _buildRegistrosPonto(registroPontoProvider),
-
-                const SizedBox(height: Dimensions.spacingLG),
-
-                // Estatísticas
-                const Text('Estatísticas', style: AppTextStyles.h3),
-                const SizedBox(height: Dimensions.spacingSM),
-
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(Dimensions.paddingMD),
-                    child: Column(
-                      children: [
-                        _buildStatRow('Alocações Hoje',
-                            alocacaoProvider.alocacoes
-                                .where((a) => a.colaboradorId == widget.colaborador.id)
-                                .length
-                                .toString()),
-                        const Divider(height: 24),
-                        _buildStatRow('Registros de Ponto',
-                            registroPontoProvider.registros.length.toString()),
-                        const Divider(height: 24),
-                        _buildStatRow('Pontualidade', '--'),
-                      ],
+                    _buildMenuCard(
+                      icon: Icons.swap_horiz,
+                      label: 'Alocações',
+                      color: const Color(0xFF00BCD4),
+                      onTap: () =>
+                          _showAlocacoesSheet(context, alocacaoProvider),
                     ),
-                  ),
+                    _buildMenuCard(
+                      icon: Icons.access_time,
+                      label: 'Registros de Ponto',
+                      color: const Color(0xFF4CAF50),
+                      onTap: () =>
+                          _showRegistrosSheet(context, registroPontoProvider),
+                    ),
+                    _buildMenuCard(
+                      icon: Icons.bar_chart,
+                      label: 'Estatísticas',
+                      color: const Color(0xFF9C27B0),
+                      onTap: () => _showEstatisticasSheet(
+                          context, alocacaoProvider, registroPontoProvider),
+                    ),
+                  ],
                 ),
+
+                const SizedBox(height: Dimensions.spacingXL),
               ],
             ),
           );
         },
+      ),
+    );
+  }
+
+  // ── Menu cards ────────────────────────────────────────────────────────────
+
+  Widget _buildMenuCard({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+      child: Card(
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+          side: BorderSide(color: color.withValues(alpha: 0.3)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          child: Row(
+            children: [
+              Icon(icon, color: color, size: 22),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  style: AppTextStyles.body
+                      .copyWith(fontWeight: FontWeight.w600),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Icon(Icons.arrow_forward_ios, color: color, size: 13),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSheetHandle(String title) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Center(
+          child: Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: AppColors.cardBorder,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+        ),
+        Text(title, style: AppTextStyles.h3),
+        const SizedBox(height: Dimensions.spacingMD),
+      ],
+    );
+  }
+
+  // ── Bottom sheets ──────────────────────────────────────────────────────────
+
+  void _showInfoSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(Dimensions.paddingMD),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSheetHandle('Informações'),
+            _buildInfoRow('ID', widget.colaborador.id.substring(0, 8)),
+            const Divider(height: 24),
+            _buildInfoRow(
+                'Status', widget.colaborador.ativo ? 'Ativo' : 'Inativo'),
+            const Divider(height: 24),
+            _buildInfoRow(
+                'Criado em', _formatDate(widget.colaborador.createdAt)),
+            if (widget.colaborador.observacoes != null &&
+                widget.colaborador.observacoes!.isNotEmpty) ...[
+              const Divider(height: 24),
+              _buildInfoRow('Observações', widget.colaborador.observacoes!),
+            ],
+            const SizedBox(height: Dimensions.spacingMD),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showAlocacoesSheet(BuildContext context, AlocacaoProvider provider) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.5,
+        maxChildSize: 0.9,
+        builder: (_, controller) => Padding(
+          padding: const EdgeInsets.fromLTRB(
+            Dimensions.paddingMD,
+            Dimensions.paddingMD,
+            Dimensions.paddingMD,
+            0,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSheetHandle('Alocações de Hoje'),
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: controller,
+                  child: _buildHistoricoHoje(provider),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showRegistrosSheet(
+      BuildContext context, RegistroPontoProvider provider) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.6,
+        maxChildSize: 0.95,
+        builder: (_, controller) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                Dimensions.paddingMD,
+                Dimensions.paddingMD,
+                Dimensions.paddingMD,
+                0,
+              ),
+              child: _buildSheetHandle('Registros de Ponto'),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                controller: controller,
+                child: _buildRegistrosPonto(provider),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showEstatisticasSheet(
+    BuildContext context,
+    AlocacaoProvider alocacaoProvider,
+    RegistroPontoProvider registroPontoProvider,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(Dimensions.paddingMD),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSheetHandle('Estatísticas'),
+            _buildStatRow(
+              'Alocações Hoje',
+              alocacaoProvider.alocacoes
+                  .where((a) => a.colaboradorId == widget.colaborador.id)
+                  .length
+                  .toString(),
+            ),
+            const Divider(height: 24),
+            _buildStatRow(
+              'Registros de Ponto',
+              registroPontoProvider.registros.length.toString(),
+            ),
+            const Divider(height: 24),
+            _buildStatRow('Pontualidade', '--'),
+            const SizedBox(height: Dimensions.spacingMD),
+          ],
+        ),
       ),
     );
   }

@@ -202,7 +202,7 @@ class FormularioProvider with ChangeNotifier {
   /// Gera UUID v5 determinístico a partir de uma chave de template.
   /// Garante que o mesmo template sempre receba o mesmo UUID.
   static String _tmplUuid(String key) =>
-      const Uuid().v5(Uuid.NAMESPACE_URL, key);
+      const Uuid().v5(Namespace.url.value, key);
 
   List<Formulario> _buildTemplates() {
     final now = DateTime.now();

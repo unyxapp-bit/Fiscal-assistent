@@ -7,10 +7,14 @@ import '../../providers/auth_provider.dart';
 import '../../providers/caixa_provider.dart';
 import '../../providers/alocacao_provider.dart';
 import '../../providers/colaborador_provider.dart';
+import '../../widgets/common/loading_widget.dart';
+import '../../widgets/common/empty_state_widget.dart';
 import '../alocacao/alocacao_screen.dart';
-import 'widgets/caixa_grid_item.dart';
+import '../caixas/caixa_form_screen.dart';
+import '../caixas/widgets/caixa_card.dart';
+import 'widgets/caixa_list_item.dart';
 
-/// Tela de mapa visual dos caixas
+/// Tela de mapa de caixas — abas: Mapa | Caixas
 class MapaCaixasScreen extends StatefulWidget {
   const MapaCaixasScreen({super.key});
 
@@ -18,13 +22,27 @@ class MapaCaixasScreen extends StatefulWidget {
   State<MapaCaixasScreen> createState() => _MapaCaixasScreenState();
 }
 
-class _MapaCaixasScreenState extends State<MapaCaixasScreen> {
+class _MapaCaixasScreenState extends State<MapaCaixasScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  int _tabIndex = 0;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadData();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() => _tabIndex = _tabController.index);
+      }
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -46,6 +64,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen> {
   Widget build(BuildContext context) {
     final caixaProvider = Provider.of<CaixaProvider>(context);
     final alocacaoProvider = Provider.of<AlocacaoProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -54,141 +73,158 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen> {
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadData,
-          ),
+          if (_tabIndex == 0)
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _loadData,
+            ),
         ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(Dimensions.paddingMD),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Legenda
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(Dimensions.paddingMD),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildLegendItem('Ocupado', AppColors.statusAtivo),
-                      _buildLegendItem('Disponível', AppColors.success),
-                      _buildLegendItem('Inativo', AppColors.inactive),
-                      _buildLegendItem('Manutenção', AppColors.statusAtencao),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: Dimensions.spacingLG),
-
-              // Caixas Rápidos
-              if (caixaProvider.caixasRapidos.isNotEmpty) ...[
-                const Text('Caixas Rápidos', style: AppTextStyles.h3),
-                const SizedBox(height: Dimensions.spacingSM),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 1.5,
-                    crossAxisSpacing: Dimensions.spacingSM,
-                    mainAxisSpacing: Dimensions.spacingSM,
-                  ),
-                  itemCount: caixaProvider.caixasRapidos.length,
-                  itemBuilder: (context, index) {
-                    final caixa = caixaProvider.caixasRapidos[index];
-                    final alocacao = alocacaoProvider.alocacoes
-                        .where((a) => a.caixaId == caixa.id)
-                        .firstOrNull;
-                    
-                    return CaixaGridItem(
-                      caixa: caixa,
-                      alocacao: alocacao,
-                    );
-                  },
-                ),
-                const SizedBox(height: Dimensions.spacingLG),
-              ],
-
-              // Caixas Normais
-              if (caixaProvider.caixasNormais.isNotEmpty) ...[
-                const Text('Caixas Normais', style: AppTextStyles.h3),
-                const SizedBox(height: Dimensions.spacingSM),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 1.5,
-                    crossAxisSpacing: Dimensions.spacingSM,
-                    mainAxisSpacing: Dimensions.spacingSM,
-                  ),
-                  itemCount: caixaProvider.caixasNormais.length,
-                  itemBuilder: (context, index) {
-                    final caixa = caixaProvider.caixasNormais[index];
-                    final alocacao = alocacaoProvider.alocacoes
-                        .where((a) => a.caixaId == caixa.id)
-                        .firstOrNull;
-                    
-                    return CaixaGridItem(
-                      caixa: caixa,
-                      alocacao: alocacao,
-                    );
-                  },
-                ),
-                const SizedBox(height: Dimensions.spacingLG),
-              ],
-
-              // Self Checkouts
-              if (caixaProvider.selfCheckouts.isNotEmpty) ...[
-                const Text('Self Checkouts', style: AppTextStyles.h3),
-                const SizedBox(height: Dimensions.spacingSM),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    childAspectRatio: 1.2,
-                    crossAxisSpacing: Dimensions.spacingSM,
-                    mainAxisSpacing: Dimensions.spacingSM,
-                  ),
-                  itemCount: caixaProvider.selfCheckouts.length,
-                  itemBuilder: (context, index) {
-                    final caixa = caixaProvider.selfCheckouts[index];
-                    final alocacao = alocacaoProvider.alocacoes
-                        .where((a) => a.caixaId == caixa.id)
-                        .firstOrNull;
-                    
-                    return CaixaGridItem(
-                      caixa: caixa,
-                      alocacao: alocacao,
-                    );
-                  },
-                ),
-              ],
-            ],
-          ),
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: AppColors.primary,
+          unselectedLabelColor: AppColors.textSecondary,
+          indicatorColor: AppColors.primary,
+          indicatorWeight: 3,
+          tabs: const [
+            Tab(icon: Icon(Icons.map_outlined, size: 18), text: 'Mapa'),
+            Tab(
+                icon: Icon(Icons.point_of_sale_outlined, size: 18),
+                text: 'Caixas'),
+          ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          final authProvider = Provider.of<AuthProvider>(context, listen: false);
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => AlocacaoScreen(
-                fiscalId: authProvider.user?.id ?? '',
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // ── ABA 1: MAPA ──────────────────────────────────────────────────
+          RefreshIndicator(
+            onRefresh: _loadData,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(Dimensions.paddingMD),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Legenda
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(Dimensions.paddingMD),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildLegendItem('Ocupado', AppColors.statusAtivo),
+                          _buildLegendItem('Disponível', AppColors.success),
+                          _buildLegendItem('Inativo', AppColors.inactive),
+                          _buildLegendItem(
+                              'Manutenção', AppColors.statusAtencao),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: Dimensions.spacingLG),
+
+                  // Caixas Rápidos
+                  if (caixaProvider.caixasRapidos.isNotEmpty) ...[
+                    _SectionHeader(
+                      label: 'Caixas Rápidos',
+                      count: caixaProvider.caixasRapidos.length,
+                    ),
+                    const SizedBox(height: Dimensions.spacingSM),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: caixaProvider.caixasRapidos.length,
+                      itemBuilder: (context, index) {
+                        final caixa = caixaProvider.caixasRapidos[index];
+                        final alocacao = alocacaoProvider.alocacoes
+                            .where((a) => a.caixaId == caixa.id)
+                            .firstOrNull;
+                        return CaixaListItem(caixa: caixa, alocacao: alocacao);
+                      },
+                    ),
+                    const SizedBox(height: Dimensions.spacingLG),
+                  ],
+
+                  // Caixas Normais
+                  if (caixaProvider.caixasNormais.isNotEmpty) ...[
+                    _SectionHeader(
+                      label: 'Caixas Normais',
+                      count: caixaProvider.caixasNormais.length,
+                    ),
+                    const SizedBox(height: Dimensions.spacingSM),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: caixaProvider.caixasNormais.length,
+                      itemBuilder: (context, index) {
+                        final caixa = caixaProvider.caixasNormais[index];
+                        final alocacao = alocacaoProvider.alocacoes
+                            .where((a) => a.caixaId == caixa.id)
+                            .firstOrNull;
+                        return CaixaListItem(caixa: caixa, alocacao: alocacao);
+                      },
+                    ),
+                    const SizedBox(height: Dimensions.spacingLG),
+                  ],
+
+                  // Self Checkouts
+                  if (caixaProvider.selfCheckouts.isNotEmpty) ...[
+                    _SectionHeader(
+                      label: 'Self Checkouts',
+                      count: caixaProvider.selfCheckouts.length,
+                    ),
+                    const SizedBox(height: Dimensions.spacingSM),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: caixaProvider.selfCheckouts.length,
+                      itemBuilder: (context, index) {
+                        final caixa = caixaProvider.selfCheckouts[index];
+                        final alocacao = alocacaoProvider.alocacoes
+                            .where((a) => a.caixaId == caixa.id)
+                            .firstOrNull;
+                        return CaixaListItem(caixa: caixa, alocacao: alocacao);
+                      },
+                    ),
+                  ],
+                ],
               ),
             ),
-          );
-        },
-        icon: const Icon(Icons.add),
-        label: const Text('Alocar'),
-        backgroundColor: AppColors.primary,
+          ),
+
+          // ── ABA 2: CAIXAS ────────────────────────────────────────────────
+          _CaixasBody(onRefresh: _loadData),
+        ],
       ),
+      floatingActionButton: _tabIndex == 0
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => AlocacaoScreen(
+                      fiscalId: authProvider.user?.id ?? '',
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Alocar'),
+              backgroundColor: AppColors.primary,
+            )
+          : FloatingActionButton.extended(
+              onPressed: () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const CaixaFormScreen(),
+                  ),
+                );
+                _loadData();
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Novo Caixa'),
+              backgroundColor: AppColors.success,
+            ),
     );
   }
 
@@ -205,9 +241,208 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen> {
           ),
         ),
         const SizedBox(width: 4),
-        Text(
-          label,
-          style: AppTextStyles.caption,
+        Text(label, style: AppTextStyles.caption),
+      ],
+    );
+  }
+}
+
+// ── Aba "Caixas" ──────────────────────────────────────────────────────────────
+
+class _CaixasBody extends StatelessWidget {
+  final Future<void> Function() onRefresh;
+
+  const _CaixasBody({required this.onRefresh});
+
+  @override
+  Widget build(BuildContext context) {
+    final caixaProvider = Provider.of<CaixaProvider>(context);
+
+    if (caixaProvider.isLoading) {
+      return const LoadingWidget(message: 'Carregando caixas...');
+    }
+
+    return Column(
+      children: [
+        // Stats
+        _StatsBar(provider: caixaProvider),
+
+        // Filtro
+        _FilterBar(provider: caixaProvider),
+
+        // Lista
+        Expanded(
+          child: caixaProvider.caixas.isEmpty
+              ? const EmptyStateWidget(
+                  icon: Icons.point_of_sale,
+                  title: 'Nenhum caixa',
+                  message: 'Você não possui caixas cadastrados',
+                )
+              : RefreshIndicator(
+                  onRefresh: onRefresh,
+                  child: GridView.builder(
+                    padding: const EdgeInsets.all(Dimensions.paddingMD),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: Dimensions.spacingSM,
+                      mainAxisSpacing: Dimensions.spacingSM,
+                      childAspectRatio: 0.85,
+                    ),
+                    itemCount: caixaProvider.caixas.length,
+                    itemBuilder: (_, i) =>
+                        CaixaGridCard(caixa: caixaProvider.caixas[i]),
+                  ),
+                ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatsBar extends StatelessWidget {
+  final CaixaProvider provider;
+
+  const _StatsBar({required this.provider});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: AppColors.cardBackground,
+      padding: const EdgeInsets.all(Dimensions.paddingMD),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _StatItem(
+              label: 'Ativos',
+              value: provider.totalAtivos.toString(),
+              color: AppColors.success),
+          _StatItem(
+              label: 'Manutenção',
+              value: provider.totalEmManutencao.toString(),
+              color: Colors.orange),
+          _StatItem(
+              label: 'Inativos',
+              value: provider.totalInativos.toString(),
+              color: AppColors.textSecondary),
+          _StatItem(
+              label: 'Total',
+              value: provider.totalCaixas.toString(),
+              color: AppColors.primary),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatItem extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+
+  const _StatItem(
+      {required this.label, required this.value, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(value,
+            style: AppTextStyles.h3
+                .copyWith(color: color, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        Text(label,
+            style: AppTextStyles.caption
+                .copyWith(color: AppColors.textSecondary)),
+      ],
+    );
+  }
+}
+
+class _FilterBar extends StatelessWidget {
+  final CaixaProvider provider;
+
+  const _FilterBar({required this.provider});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(Dimensions.paddingMD),
+      child: GestureDetector(
+        onTap: () => provider.toggleFiltroAtivos(),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: Dimensions.paddingMD,
+            vertical: Dimensions.paddingSM,
+          ),
+          decoration: BoxDecoration(
+            color: provider.mostrarApenasAtivos
+                ? AppColors.primary
+                : AppColors.cardBackground,
+            borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+            border: Border.all(
+              color: provider.mostrarApenasAtivos
+                  ? AppColors.primary
+                  : AppColors.cardBorder,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.filter_list,
+                color: provider.mostrarApenasAtivos
+                    ? Colors.white
+                    : AppColors.textPrimary,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                provider.mostrarApenasAtivos ? 'Apenas Ativos' : 'Ver Todos',
+                style: AppTextStyles.label.copyWith(
+                  color: provider.mostrarApenasAtivos
+                      ? Colors.white
+                      : AppColors.textPrimary,
+                  fontWeight: provider.mostrarApenasAtivos
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Seção com cabeçalho e contador ────────────────────────────────────────────
+
+class _SectionHeader extends StatelessWidget {
+  final String label;
+  final int count;
+
+  const _SectionHeader({required this.label, required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text(label, style: AppTextStyles.h3),
+        const SizedBox(width: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: AppColors.backgroundSection,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(
+            '$count',
+            style: AppTextStyles.caption.copyWith(
+              fontWeight: FontWeight.bold,
+              color: AppColors.textSecondary,
+            ),
+          ),
         ),
       ],
     );

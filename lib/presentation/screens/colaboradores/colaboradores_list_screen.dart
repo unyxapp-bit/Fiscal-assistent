@@ -139,15 +139,20 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen> {
                         )
                       : RefreshIndicator(
                           onRefresh: _loadColaboradores,
-                          child: ListView.builder(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: Dimensions.paddingMD,
+                          child: GridView.builder(
+                            padding: const EdgeInsets.all(Dimensions.paddingMD),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
+                              childAspectRatio: 0.85,
                             ),
                             itemCount: colaboradorProvider.colaboradores.length,
                             itemBuilder: (context, index) {
                               final colaborador =
                                   colaboradorProvider.colaboradores[index];
-                              return ColaboradorListItem(
+                              return ColaboradorGridCard(
                                 colaborador: colaborador,
                                 onTap: () => _navigateToDetail(colaborador),
                                 onDelete: () => _deleteColaborador(

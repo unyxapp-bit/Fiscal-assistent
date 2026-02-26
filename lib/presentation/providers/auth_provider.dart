@@ -40,18 +40,26 @@ class AuthProvider with ChangeNotifier {
 
     notifyListeners();
 
-    _authDataSource.authStateChanges.listen((AuthState state) {
-      if (state.event == AuthChangeEvent.signedIn) {
-        _user = state.session?.user;
-        _status = AuthStatus.authenticated;
-        _errorMessage = null;
-      } else if (state.event == AuthChangeEvent.signedOut) {
-        _user = null;
-        _status = AuthStatus.unauthenticated;
-        _errorMessage = null;
-      }
-      notifyListeners();
-    });
+    _authDataSource.authStateChanges.listen(
+      (AuthState state) {
+        if (state.event == AuthChangeEvent.signedIn) {
+          _user = state.session?.user;
+          _status = AuthStatus.authenticated;
+          _errorMessage = null;
+        } else if (state.event == AuthChangeEvent.signedOut) {
+          _user = null;
+          _status = AuthStatus.unauthenticated;
+          _errorMessage = null;
+        }
+        notifyListeners();
+      },
+      onError: (e) {
+        // Erros de reconexão WebSocket do Supabase — não críticos
+        if (kDebugMode) {
+          print('[AuthProvider] WebSocket reconnect: $e');
+        }
+      },
+    );
   }
 
   Future<bool> signInWithEmail({

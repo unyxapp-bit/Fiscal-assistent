@@ -88,9 +88,9 @@ class RelatorioDiarioScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  const Row(
                     children: [
-                      const Icon(Icons.bar_chart, color: Colors.white, size: 24),
+                      Icon(Icons.bar_chart, color: Colors.white, size: 24),
                       const SizedBox(width: 8),
                       const Text(
                         'Resumo do Turno',
@@ -118,7 +118,7 @@ class RelatorioDiarioScreen extends StatelessWidget {
             const SizedBox(height: 20),
 
             // ── Seção: Presença ──────────────────────────────────────────
-            _SectionTitle(
+            const _SectionTitle(
               icon: Icons.people,
               label: 'Presença',
               color: AppColors.primary,
@@ -219,10 +219,10 @@ class RelatorioDiarioScreen extends StatelessWidget {
             const SizedBox(height: 20),
 
             // ── Seção: Pausas / Café ─────────────────────────────────────
-            _SectionTitle(
+            const _SectionTitle(
               icon: Icons.coffee,
               label: 'Pausas / Café',
-              color: const Color(0xFF8D6E63),
+              color: Color(0xFF8D6E63),
             ),
             const SizedBox(height: 10),
 
@@ -256,7 +256,7 @@ class RelatorioDiarioScreen extends StatelessWidget {
             const SizedBox(height: 20),
 
             // ── Seção: Alocações ─────────────────────────────────────────
-            _SectionTitle(
+            const _SectionTitle(
               icon: Icons.point_of_sale,
               label: 'Alocações no Caixa',
               color: AppColors.statusAtivo,
@@ -287,10 +287,10 @@ class RelatorioDiarioScreen extends StatelessWidget {
             const SizedBox(height: 20),
 
             // ── Seção: Entregas ──────────────────────────────────────────
-            _SectionTitle(
+            const _SectionTitle(
               icon: Icons.local_shipping,
               label: 'Entregas',
-              color: const Color(0xFFFF9800),
+              color: Color(0xFFFF9800),
             ),
             const SizedBox(height: 10),
 
@@ -318,7 +318,7 @@ class RelatorioDiarioScreen extends StatelessWidget {
             const SizedBox(height: 20),
 
             // ── Seção: Equipe ─────────────────────────────────────────────
-            _SectionTitle(
+            const _SectionTitle(
               icon: Icons.groups,
               label: 'Equipe',
               color: AppColors.primary,
@@ -356,7 +356,7 @@ class RelatorioDiarioScreen extends StatelessWidget {
 
             // ── Ausências Registradas ────────────────────────────────────
             if (snap != null && ausentes > 0) ...[
-              _SectionTitle(
+              const _SectionTitle(
                 icon: Icons.person_off,
                 label: 'Ausências Registradas',
                 color: AppColors.danger,

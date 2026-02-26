@@ -57,6 +57,13 @@ enum DepartamentoTipo {
     }
   }
 
-  /// Converte enum para string para salvar no banco
-  String toJson() => name;
+  /// Converte enum para string compatível com o banco
+  String toJson() {
+    switch (this) {
+      case DepartamentoTipo.self:
+        return 'self_service';
+      default:
+        return name;
+    }
+  }
 }

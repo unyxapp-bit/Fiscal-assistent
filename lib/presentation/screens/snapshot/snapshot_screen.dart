@@ -262,19 +262,14 @@ class _SnapshotScreenState extends State<SnapshotScreen> {
                       children: [
                         const SizedBox(height: 2),
                         Text(
-                          'Deveria estar desde ${_timeFormat.format(presenca.horarioEsperado.toLocal())}',
-                          style: AppTextStyles.caption,
-                        ),
-                        if (isAtrasado) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            '${presenca.minutosAtraso} min de atraso',
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.statusAtencao,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          _horarioSubtitle(presenca),
+                          style: AppTextStyles.caption.copyWith(
+                            color: _horarioSubtitleColor(presenca),
+                            fontWeight: _horarioSubtitleBold(presenca)
+                                ? FontWeight.w600
+                                : FontWeight.normal,
                           ),
-                        ],
+                        ),
                         if (presenca.foiSubstituido) ...[
                           const SizedBox(height: 2),
                           Row(
@@ -340,6 +335,72 @@ class _SnapshotScreenState extends State<SnapshotScreen> {
         ],
       ),
     );
+  }
+
+  // ── Helpers de horário ──────────────────────────────────────────────────
+
+  String _horarioSubtitle(dynamic presenca) {
+    final hora =
+        _timeFormat.format(presenca.horarioEsperado.toLocal());
+
+    if (presenca.status == StatusPresenca.confirmado) {
+      if (presenca.confirmadoEm != null) {
+        return 'Chegou às ${_timeFormat.format(presenca.confirmadoEm!.toLocal())}';
+      }
+      return 'Confirmado · esperado às $hora';
+    }
+
+    if (presenca.status == StatusPresenca.ausente) {
+      return 'Ausente · esperado às $hora';
+    }
+
+    final diff =
+        presenca.horarioEsperado.toLocal().difference(DateTime.now());
+    final minutos = diff.inMinutes;
+
+    if (minutos > 0) {
+      if (minutos >= 60) {
+        final h = minutos ~/ 60;
+        final m = minutos % 60;
+        final resto = m > 0 ? ' ${m}min' : '';
+        return 'Chega às $hora · em ${h}h$resto';
+      }
+      return 'Chega às $hora · em $minutos min';
+    } else if (minutos == 0) {
+      return 'Deveria chegar agora ($hora)';
+    } else {
+      final atraso = minutos.abs();
+      if (atraso >= 60) {
+        final h = atraso ~/ 60;
+        final m = atraso % 60;
+        final resto = m > 0 ? ' ${m}min' : '';
+        return 'Esperado às $hora · ${h}h$resto de atraso';
+      }
+      return 'Esperado às $hora · $atraso min de atraso';
+    }
+  }
+
+  Color _horarioSubtitleColor(dynamic presenca) {
+    if (presenca.status == StatusPresenca.confirmado) {
+      return AppColors.success;
+    }
+    if (presenca.status == StatusPresenca.ausente) {
+      return AppColors.danger;
+    }
+    final diff =
+        presenca.horarioEsperado.toLocal().difference(DateTime.now());
+    if (diff.inMinutes < 0) return AppColors.statusAtencao;
+    return AppColors.textSecondary;
+  }
+
+  bool _horarioSubtitleBold(dynamic presenca) {
+    if (presenca.status == StatusPresenca.confirmado ||
+        presenca.status == StatusPresenca.ausente) {
+      return false;
+    }
+    final diff =
+        presenca.horarioEsperado.toLocal().difference(DateTime.now());
+    return diff.inMinutes < 0; // negrito só se estiver atrasado
   }
 
   // ── Helpers de UI ───────────────────────────────────────────────────────

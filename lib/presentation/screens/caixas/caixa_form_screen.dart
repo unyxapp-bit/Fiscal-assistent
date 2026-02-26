@@ -10,14 +10,10 @@ import '../../../data/models/caixa_model.dart';
 import '../../providers/caixa_provider.dart';
 import '../../providers/auth_provider.dart';
 
-/// Tela de Formulário de Caixa
 class CaixaFormScreen extends StatefulWidget {
-  final Caixa? caixa; // Null para novo, preenchido para edição
+  final Caixa? caixa;
 
-  const CaixaFormScreen({
-    super.key,
-    this.caixa,
-  });
+  const CaixaFormScreen({super.key, this.caixa});
 
   @override
   State<CaixaFormScreen> createState() => _CaixaFormScreenState();
@@ -26,33 +22,37 @@ class CaixaFormScreen extends StatefulWidget {
 class _CaixaFormScreenState extends State<CaixaFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _numeroController = TextEditingController();
+  final _lojaController = TextEditingController();
   final _observacoesController = TextEditingController();
 
-  String _tipoSelecionado = 'normal';
+  // valor de TipoCaixa.toJson() — 'pdv' | 'rapido' | 'preferencial' | 'self_service'
+  String _tipoSelecionado = 'pdv';
+  String? _localizacaoSelecionada;
   bool _emManutencao = false;
   bool _ativo = true;
 
-  final List<Map<String, String>> _tipos = [
-    {'value': 'rapido', 'label': 'Caixa Rápido'},
-    {'value': 'normal', 'label': 'Caixa Normal'},
-    {'value': 'self', 'label': 'Self-Service'},
-  ];
+  static const _localizacoes = ['Entrada', 'Meio', 'Fundo', 'Outro'];
 
   @override
   void initState() {
     super.initState();
     if (widget.caixa != null) {
-      _numeroController.text = widget.caixa!.numero.toString();
-      _observacoesController.text = widget.caixa!.observacoes ?? '';
-      _tipoSelecionado = widget.caixa!.tipo.toJson();
-      _emManutencao = widget.caixa!.emManutencao;
-      _ativo = widget.caixa!.ativo;
+      final c = widget.caixa!;
+      _numeroController.text = c.numero.toString();
+      _lojaController.text = c.loja ?? '';
+      _observacoesController.text = c.observacoes ?? '';
+      _tipoSelecionado = c.tipo.toJson();
+      _localizacaoSelecionada =
+          _localizacoes.contains(c.localizacao) ? c.localizacao : null;
+      _emManutencao = c.emManutencao;
+      _ativo = c.ativo;
     }
   }
 
   @override
   void dispose() {
     _numeroController.dispose();
+    _lojaController.dispose();
     _observacoesController.dispose();
     super.dispose();
   }
@@ -79,18 +79,22 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
     if (numero == null) return;
 
     final agora = DateTime.now();
+    final loja = _lojaController.text.trim().isEmpty
+        ? null
+        : _lojaController.text.trim();
     final observacoes = _observacoesController.text.trim().isEmpty
         ? null
         : _observacoesController.text.trim();
 
     final Caixa caixa;
-
     if (widget.caixa == null) {
       caixa = CaixaModel(
         id: const Uuid().v4(),
         fiscalId: fiscalId,
         numero: numero,
         tipo: TipoCaixa.fromString(_tipoSelecionado),
+        loja: loja,
+        localizacao: _localizacaoSelecionada,
         ativo: _ativo,
         emManutencao: _emManutencao,
         observacoes: observacoes,
@@ -103,6 +107,8 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
         fiscalId: widget.caixa!.fiscalId,
         numero: numero,
         tipo: TipoCaixa.fromString(_tipoSelecionado),
+        loja: loja,
+        localizacao: _localizacaoSelecionada,
         ativo: _ativo,
         emManutencao: _emManutencao,
         observacoes: observacoes,
@@ -113,9 +119,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
 
     try {
       await caixaProvider.upsertCaixa(caixa);
-
       if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -126,7 +130,6 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
           backgroundColor: AppColors.success,
         ),
       );
-
       Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;
@@ -149,7 +152,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
         backgroundColor: AppColors.background,
         elevation: 0,
         title: Text(
-          isNovo ? 'Novo Caixa' : 'Editar Caixa',
+          isNovo ? 'Novo Caixa' : 'Editar Caixa ${widget.caixa?.numero ?? ''}',
           style: AppTextStyles.h3,
         ),
       ),
@@ -160,6 +163,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Número
               TextFormField(
                 controller: _numeroController,
                 decoration: const InputDecoration(
@@ -172,31 +176,109 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                   if (value == null || value.trim().isEmpty) {
                     return 'Número é obrigatório';
                   }
-                  final numero = int.tryParse(value);
-                  if (numero == null || numero < 1) {
-                    return 'Número inválido';
-                  }
+                  final n = int.tryParse(value);
+                  if (n == null || n < 1) return 'Número inválido';
                   return null;
                 },
               ),
 
               const SizedBox(height: Dimensions.spacingLG),
 
+              // Tipo
               const Text('Tipo de Caixa *', style: AppTextStyles.body),
               const SizedBox(height: Dimensions.spacingSM),
-              ..._tipos.map((tipo) {
-                return RadioListTile<String>(
-                  value: tipo['value']!,
-                  groupValue: _tipoSelecionado,
-                  title: Text(tipo['label']!),
-                  onChanged: (value) {
-                    setState(() => _tipoSelecionado = value!);
-                  },
-                );
-              }),
+              Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _TipoCard(
+                          label: 'Normal',
+                          descricao: 'Sem limite',
+                          icon: Icons.shopping_cart,
+                          color: const Color(0xFF2196F3),
+                          selected: _tipoSelecionado == 'pdv',
+                          onTap: () =>
+                              setState(() => _tipoSelecionado = 'pdv'),
+                        ),
+                      ),
+                      const SizedBox(width: Dimensions.spacingSM),
+                      Expanded(
+                        child: _TipoCard(
+                          label: 'Rápido',
+                          descricao: 'Até 15 vol.',
+                          icon: Icons.flash_on,
+                          color: const Color(0xFF4CAF50),
+                          selected: _tipoSelecionado == 'rapido',
+                          onTap: () =>
+                              setState(() => _tipoSelecionado = 'rapido'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: Dimensions.spacingSM),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _TipoCard(
+                          label: 'Preferencial',
+                          descricao: 'Idosos, PCD',
+                          icon: Icons.accessible_forward,
+                          color: const Color(0xFFFF9800),
+                          selected: _tipoSelecionado == 'preferencial',
+                          onTap: () =>
+                              setState(() => _tipoSelecionado = 'preferencial'),
+                        ),
+                      ),
+                      const SizedBox(width: Dimensions.spacingSM),
+                      Expanded(
+                        child: _TipoCard(
+                          label: 'Self Checkout',
+                          descricao: 'Autoatend.',
+                          icon: Icons.computer,
+                          color: const Color(0xFF9C27B0),
+                          selected: _tipoSelecionado == 'self_service',
+                          onTap: () =>
+                              setState(() => _tipoSelecionado = 'self_service'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
 
               const SizedBox(height: Dimensions.spacingLG),
 
+              // Loja
+              TextFormField(
+                controller: _lojaController,
+                decoration: const InputDecoration(
+                  labelText: 'Loja',
+                  hintText: 'Ex: Baependi, Matriz...',
+                  prefixIcon: Icon(Icons.store),
+                ),
+              ),
+
+              const SizedBox(height: Dimensions.spacingLG),
+
+              // Localização
+              DropdownButtonFormField<String>(
+                value: _localizacaoSelecionada,
+                decoration: const InputDecoration(
+                  labelText: 'Localização no mercado',
+                  prefixIcon: Icon(Icons.location_on),
+                ),
+                items: _localizacoes
+                    .map((loc) =>
+                        DropdownMenuItem(value: loc, child: Text(loc)))
+                    .toList(),
+                onChanged: (value) =>
+                    setState(() => _localizacaoSelecionada = value),
+              ),
+
+              const SizedBox(height: Dimensions.spacingLG),
+
+              // Switches
               Card(
                 child: Column(
                   children: [
@@ -233,6 +315,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
 
               const SizedBox(height: Dimensions.spacingLG),
 
+              // Observações
               TextFormField(
                 controller: _observacoesController,
                 decoration: const InputDecoration(
@@ -246,6 +329,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
 
               const SizedBox(height: Dimensions.spacingXL),
 
+              // Botões
               Row(
                 children: [
                   Expanded(
@@ -265,6 +349,87 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TipoCard extends StatelessWidget {
+  final String label;
+  final String descricao;
+  final IconData icon;
+  final Color color;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _TipoCard({
+    required this.label,
+    required this.descricao,
+    required this.icon,
+    required this.color,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+        decoration: BoxDecoration(
+          color: selected
+              ? color.withValues(alpha: 0.1)
+              : AppColors.backgroundSection,
+          borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+          border: Border.all(
+            color: selected ? color : Colors.transparent,
+            width: 2,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: selected
+                    ? color.withValues(alpha: 0.15)
+                    : AppColors.cardBorder.withValues(alpha: 0.3),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: selected ? color : AppColors.textSecondary,
+                size: 18,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: selected ? color : AppColors.textPrimary,
+                    ),
+                  ),
+                  Text(
+                    descricao,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

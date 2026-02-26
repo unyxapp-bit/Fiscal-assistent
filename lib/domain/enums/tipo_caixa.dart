@@ -2,9 +2,30 @@ import 'package:flutter/material.dart';
 
 /// Tipos de caixa (PDV) disponíveis
 enum TipoCaixa {
-  rapido('Caixa Rápido', '15 volumes', Color(0xFF4CAF50), Icons.flash_on),
-  normal('Caixa Normal', 'Sem limite', Color(0xFF2196F3), Icons.shopping_cart),
-  self('Self Checkout', 'Autoatendimento', Color(0xFF9C27B0), Icons.computer);
+  normal(
+    'Caixa Normal',
+    'Sem limite de volumes',
+    Color(0xFF2196F3),
+    Icons.shopping_cart,
+  ),
+  rapido(
+    'Caixa Rápido',
+    'Até 15 volumes',
+    Color(0xFF4CAF50),
+    Icons.flash_on,
+  ),
+  preferencial(
+    'Preferencial',
+    'Idosos, gestantes e PCD',
+    Color(0xFFFF9800),
+    Icons.accessible_forward,
+  ),
+  self(
+    'Self Checkout',
+    'Autoatendimento',
+    Color(0xFF9C27B0),
+    Icons.computer,
+  );
 
   const TipoCaixa(this.nome, this.descricao, this.cor, this.icone);
 
@@ -13,32 +34,41 @@ enum TipoCaixa {
   final Color cor;
   final IconData icone;
 
-  /// Converte string para enum
+  /// Converte string do banco para enum
   static TipoCaixa fromString(String value) {
-    switch (value.toLowerCase()) {
+    switch (value.toLowerCase().trim()) {
       case 'rapido':
         return TipoCaixa.rapido;
-      case 'normal':
-        return TipoCaixa.normal;
+      case 'preferencial':
+        return TipoCaixa.preferencial;
       case 'self':
       case 'self_service':
       case 'selfcheckout':
         return TipoCaixa.self;
+      case 'normal':
+      case 'pdv':
       default:
-        // Fallback para não crashar com valores desconhecidos do banco
         return TipoCaixa.normal;
     }
   }
 
-  /// Converte enum para string para salvar no banco
-  String toJson() => name;
+  /// Converte enum para string compatível com o banco
+  String toJson() {
+    switch (this) {
+      case TipoCaixa.normal:
+        return 'pdv';
+      case TipoCaixa.rapido:
+        return 'rapido';
+      case TipoCaixa.preferencial:
+        return 'preferencial';
+      case TipoCaixa.self:
+        return 'self_service';
+    }
+  }
 
-  /// Verifica se é caixa rápido
   bool get isRapido => this == TipoCaixa.rapido;
-
-  /// Verifica se é self checkout
   bool get isSelf => this == TipoCaixa.self;
+  bool get isPreferencial => this == TipoCaixa.preferencial;
 
-  /// Retorna limite de volumes (null = sem limite)
   int? get limiteVolumes => isRapido ? 15 : null;
 }

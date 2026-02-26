@@ -14,7 +14,6 @@ import '../../providers/entrega_provider.dart';
 import '../../providers/snapshot_provider.dart';
 import '../colaboradores/colaboradores_list_screen.dart';
 import '../colaboradores/colaboradores_status_screen.dart';
-import '../caixas/caixas_list_screen.dart';
 import '../alocacao/alocacao_screen.dart';
 import '../mapa/mapa_caixas_screen.dart';
 import '../notificacoes/notificacoes_screen.dart';
@@ -33,7 +32,6 @@ import '../../../data/services/seed_data_service.dart';
 import 'widgets/clock_widget.dart';
 import 'widgets/quick_action_button.dart';
 
-/// Tela principal - Dashboard
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -54,7 +52,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     final userId = authProvider.user!.id;
 
-    // Seed de dados iniciais (primeira vez)
     try {
       final caixaRemote =
           Provider.of<CaixaRemoteDataSource>(context, listen: false);
@@ -101,7 +98,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         'Usuário';
     final primeiroNome = nome.split(' ').first;
 
-    // ── Estatísticas ────────────────────────────────────────────────────────
     final totalAtivos = colaboradorProvider.totalAtivos;
     final totalCaixas = caixaProvider.totalAtivos;
     final alocados = alocacaoProvider.quantidadeAtivasAgora;
@@ -109,7 +105,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final emPausa = cafeProvider.totalAtivos;
     final emRota = entregaProvider.totalEmRota;
 
-    // ── Alertas ─────────────────────────────────────────────────────────────
     final alertas = <_AlertItem>[
       if (cafeProvider.totalEmAtraso > 0)
         _AlertItem(
@@ -148,413 +143,439 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
     ];
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
+    return DefaultTabController(
+      length: 4,
+      child: Scaffold(
         backgroundColor: AppColors.background,
-        elevation: 0,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              saudacao,
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-            Text(primeiroNome, style: AppTextStyles.h3),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const ProfileScreen()),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => authProvider.signOut(),
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(Dimensions.paddingMD),
-          child: Column(
+        appBar: AppBar(
+          backgroundColor: AppColors.background,
+          elevation: 0,
+          title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Relógio ─────────────────────────────────────────────────
-              const ClockWidget(),
-
-              const SizedBox(height: Dimensions.spacingXL),
-
-              // ── Card de estatísticas ─────────────────────────────────────
-              Card(
-                color: AppColors.cardBackground,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: Dimensions.paddingMD,
-                    vertical: Dimensions.paddingSM,
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          _StatItem(
-                            icon: Icons.people,
-                            label: 'Colaboradores',
-                            value: totalAtivos.toString(),
-                            color: AppColors.primary,
+              Text(
+                saudacao,
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary),
+              ),
+              Text(primeiroNome, style: AppTextStyles.h3),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings_outlined),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ProfileScreen()),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () => authProvider.signOut(),
+            ),
+          ],
+          bottom: TabBar(
+            labelColor: AppColors.primary,
+            unselectedLabelColor: AppColors.textSecondary,
+            indicatorColor: AppColors.primary,
+            indicatorWeight: 3,
+            labelStyle: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+            unselectedLabelStyle: const TextStyle(fontSize: 11),
+            tabs: [
+              const Tab(icon: Icon(Icons.home_outlined, size: 20), text: 'Início'),
+              const Tab(
+                icon: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Icon(Icons.apps_outlined, size: 20),
+                  ],
+                ),
+                text: 'Principal',
+              ),
+              Tab(
+                icon: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    const Icon(Icons.build_outlined, size: 20),
+                    if (cafeProvider.totalEmAtraso > 0 ||
+                        snapshotProvider.snapshotAtual == null)
+                      Positioned(
+                        top: -4,
+                        right: -6,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: AppColors.danger,
+                            shape: BoxShape.circle,
                           ),
-                          const _StatDivider(),
-                          _StatItem(
-                            icon: Icons.point_of_sale,
-                            label: 'Caixas',
-                            value: totalCaixas.toString(),
-                            color: AppColors.success,
-                          ),
-                          const _StatDivider(),
-                          _StatItem(
-                            icon: Icons.swap_horiz,
-                            label: 'Alocados',
-                            value: alocados.toString(),
-                            color: AppColors.statusAtivo,
-                          ),
-                        ],
+                        ),
                       ),
-                      const Divider(height: 1, thickness: 1),
-                      Row(
-                        children: [
-                          _StatItem(
-                            icon: Icons.check_circle,
-                            label: 'Livres',
-                            value: livres.toString(),
-                            color: AppColors.statusIntervalo,
+                  ],
+                ),
+                text: 'Operações',
+              ),
+              const Tab(
+                  icon: Icon(Icons.store_outlined, size: 20), text: 'Loja'),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            // ── ABA 1: INÍCIO ───────────────────────────────────────────────
+            RefreshIndicator(
+              onRefresh: _loadData,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(Dimensions.paddingMD),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const ClockWidget(),
+                    const SizedBox(height: Dimensions.spacingXL),
+
+                    // Stats
+                    Card(
+                      color: AppColors.cardBackground,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: Dimensions.paddingMD,
+                          vertical: Dimensions.paddingSM,
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                _StatItem(
+                                  icon: Icons.people,
+                                  label: 'Colaboradores',
+                                  value: totalAtivos.toString(),
+                                  color: AppColors.primary,
+                                ),
+                                const _StatDivider(),
+                                _StatItem(
+                                  icon: Icons.point_of_sale,
+                                  label: 'Caixas',
+                                  value: totalCaixas.toString(),
+                                  color: AppColors.success,
+                                ),
+                                const _StatDivider(),
+                                _StatItem(
+                                  icon: Icons.swap_horiz,
+                                  label: 'Alocados',
+                                  value: alocados.toString(),
+                                  color: AppColors.statusAtivo,
+                                ),
+                              ],
+                            ),
+                            const Divider(height: 1, thickness: 1),
+                            Row(
+                              children: [
+                                _StatItem(
+                                  icon: Icons.check_circle,
+                                  label: 'Livres',
+                                  value: livres.toString(),
+                                  color: AppColors.statusIntervalo,
+                                ),
+                                const _StatDivider(),
+                                _StatItem(
+                                  icon: Icons.coffee,
+                                  label: 'Em Pausa',
+                                  value: emPausa.toString(),
+                                  color: const Color(0xFF8D6E63),
+                                ),
+                                const _StatDivider(),
+                                _StatItem(
+                                  icon: Icons.local_shipping,
+                                  label: 'Em Rota',
+                                  value: emRota.toString(),
+                                  color: const Color(0xFFFF9800),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Alertas
+                    if (alertas.isNotEmpty) ...[
+                      const SizedBox(height: Dimensions.spacingMD),
+                      ...alertas.map((a) => _AlertCard(item: a)),
+                    ],
+
+                    const SizedBox(height: Dimensions.spacingXL),
+                  ],
+                ),
+              ),
+            ),
+
+            // ── ABA 2: PRINCIPAL ────────────────────────────────────────────
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(Dimensions.paddingMD),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: Dimensions.spacingSM),
+                  _GridAcoes(
+                    botoes: [
+                      _BotaoAcao(
+                        icon: Icons.swap_horiz,
+                        label: 'Alocar',
+                        color: AppColors.primary,
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => AlocacaoScreen(
+                              fiscalId: authProvider.user?.id ?? '',
+                            ),
                           ),
-                          const _StatDivider(),
-                          _StatItem(
-                            icon: Icons.coffee,
-                            label: 'Em Pausa',
-                            value: emPausa.toString(),
-                            color: const Color(0xFF8D6E63),
-                          ),
-                          const _StatDivider(),
-                          _StatItem(
-                            icon: Icons.local_shipping,
-                            label: 'Em Rota',
-                            value: emRota.toString(),
-                            color: const Color(0xFFFF9800),
-                          ),
-                        ],
+                        ),
+                      ),
+                      _BotaoAcao(
+                        icon: Icons.grid_view,
+                        label: 'Mapa / Caixas',
+                        color: AppColors.statusIntervalo,
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => const MapaCaixasScreen()),
+                        ),
+                      ),
+                      _BotaoAcao(
+                        icon: Icons.people,
+                        label: 'Colaboradores',
+                        color: AppColors.statusAtivo,
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) =>
+                                  const ColaboradoresListScreen()),
+                        ),
+                      ),
+                      _BotaoAcao(
+                        icon: Icons.bar_chart,
+                        label: 'Relatório',
+                        color: const Color(0xFF0097A7),
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) =>
+                                  const RelatorioDiarioScreen()),
+                        ),
+                      ),
+                      _BotaoAcao(
+                        icon: Icons.calendar_month,
+                        label: 'Escala',
+                        color: const Color(0xFFE91E63),
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => const EscalaScreen()),
+                        ),
                       ),
                     ],
                   ),
-                ),
+                ],
               ),
+            ),
 
-              const SizedBox(height: Dimensions.spacingMD),
-
-              // ── Card de alertas ──────────────────────────────────────────
-              if (alertas.isNotEmpty) ...[
-                Column(
-                  children: alertas
-                      .map((a) => _AlertCard(item: a))
-                      .toList(),
-                ),
-                const SizedBox(height: Dimensions.spacingMD),
-              ],
-
-              // ── Ações Principais ─────────────────────────────────────────
-              const Text('Principais', style: AppTextStyles.h3),
-              const SizedBox(height: Dimensions.spacingMD),
-
-              Row(
+            // ── ABA 3: OPERAÇÕES ────────────────────────────────────────────
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(Dimensions.paddingMD),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: QuickActionButton(
-                      icon: Icons.swap_horiz,
-                      label: 'Alocar',
-                      color: AppColors.primary,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => AlocacaoScreen(
-                            fiscalId: authProvider.user?.id ?? '',
+                  const SizedBox(height: Dimensions.spacingSM),
+                  _GridAcoes(
+                    botoes: [
+                      _BotaoAcao(
+                        icon: Icons.coffee,
+                        label: 'Café',
+                        color: const Color(0xFF8D6E63),
+                        badge: cafeProvider.totalEmAtraso > 0
+                            ? cafeProvider.totalEmAtraso.toString()
+                            : null,
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => const CafeScreen()),
+                        ),
+                      ),
+                      _BotaoAcao(
+                        icon: Icons.local_shipping,
+                        label: 'Entregas',
+                        color: const Color(0xFFFF9800),
+                        badge: entregaProvider.totalEmRota > 0
+                            ? entregaProvider.totalEmRota.toString()
+                            : null,
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => const EntregasScreen()),
+                        ),
+                      ),
+                      _BotaoAcao(
+                        icon: Icons.how_to_reg,
+                        label: 'Snapshot',
+                        color: const Color(0xFF4CAF50),
+                        badge: snapshotProvider.totalPendentes > 0
+                            ? snapshotProvider.totalPendentes.toString()
+                            : null,
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => const SnapshotScreen()),
+                        ),
+                      ),
+                      _BotaoAcao(
+                        icon: Icons.info,
+                        label: 'Status',
+                        color: const Color(0xFF00BCD4),
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) =>
+                                  const ColaboradoresStatusScreen()),
+                        ),
+                      ),
+                      _BotaoAcao(
+                        icon: Icons.note,
+                        label: 'Anotações',
+                        color: const Color(0xFFFF5722),
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => const NotasScreen()),
+                        ),
+                      ),
+                      _BotaoAcao(
+                        icon: Icons.description,
+                        label: 'Formulários',
+                        color: const Color(0xFF3F51B5),
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => const FormulariosScreen()),
+                        ),
+                      ),
+                      _BotaoAcao(
+                        icon: Icons.menu_book,
+                        label: 'Procedimentos',
+                        color: const Color(0xFF673AB7),
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => const ProcedimentosScreen()),
+                        ),
+                      ),
+                      _BotaoAcao(
+                        icon: Icons.notifications,
+                        label: 'Notificações',
+                        color: const Color(0xFF2196F3),
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => const NotificacoesScreen()),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // ── ABA 4: LOJA ─────────────────────────────────────────────────
+            RefreshIndicator(
+              onRefresh: _loadData,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(Dimensions.paddingMD),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: Dimensions.spacingSM),
+                    if (fiscalProvider.fiscal != null) ...[
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(Dimensions.paddingMD),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Informações da Loja',
+                                  style: AppTextStyles.h4),
+                              const SizedBox(height: Dimensions.spacingMD),
+                              _buildInfoRow(
+                                  'Loja',
+                                  fiscalProvider.fiscal!.loja ?? 'N/A'),
+                              const Divider(height: 24),
+                              _buildInfoRow(
+                                  'Fiscal', fiscalProvider.fiscal!.nome),
+                              const Divider(height: 24),
+                              _buildInfoRow(
+                                  'Email', fiscalProvider.fiscal!.email),
+                              const Divider(height: 24),
+                              _buildInfoRow(
+                                'Status',
+                                fiscalProvider.fiscal!.ativo
+                                    ? 'Ativo'
+                                    : 'Inativo',
+                                valueColor: fiscalProvider.fiscal!.ativo
+                                    ? AppColors.success
+                                    : AppColors.danger,
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: Dimensions.spacingSM),
-                  Expanded(
-                    child: QuickActionButton(
-                      icon: Icons.grid_view,
-                      label: 'Mapa',
-                      color: AppColors.statusIntervalo,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const MapaCaixasScreen()),
+                      const SizedBox(height: Dimensions.spacingMD),
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(Dimensions.paddingMD),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Equipe', style: AppTextStyles.h4),
+                              const SizedBox(height: Dimensions.spacingMD),
+                              _buildInfoRow('Total ativos',
+                                  totalAtivos.toString()),
+                              const Divider(height: 24),
+                              _buildInfoRow(
+                                  'Caixas', totalCaixas.toString()),
+                              const Divider(height: 24),
+                              _buildInfoRow(
+                                  'Alocados agora', alocados.toString()),
+                              const Divider(height: 24),
+                              _buildInfoRow('Em pausa', emPausa.toString()),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: Dimensions.spacingSM),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: QuickActionButton(
-                      icon: Icons.people,
-                      label: 'Colaboradores',
-                      color: AppColors.statusAtivo,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const ColaboradoresListScreen()),
+                    ] else
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 60),
+                          child: CircularProgressIndicator(),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: Dimensions.spacingSM),
-                  Expanded(
-                    child: QuickActionButton(
-                      icon: Icons.point_of_sale,
-                      label: 'Caixas',
-                      color: AppColors.success,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const CaixasListScreen()),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: Dimensions.spacingMD),
-
-              // ── Operações ────────────────────────────────────────────────
-              const Text('Operações', style: AppTextStyles.h3),
-              const SizedBox(height: Dimensions.spacingMD),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: QuickActionButton(
-                      icon: Icons.coffee,
-                      label: 'Café',
-                      color: const Color(0xFF8D6E63),
-                      badge: cafeProvider.totalEmAtraso > 0
-                          ? cafeProvider.totalEmAtraso.toString()
-                          : null,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const CafeScreen()),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: Dimensions.spacingSM),
-                  Expanded(
-                    child: QuickActionButton(
-                      icon: Icons.local_shipping,
-                      label: 'Entregas',
-                      color: const Color(0xFFFF9800),
-                      badge: entregaProvider.totalEmRota > 0
-                          ? entregaProvider.totalEmRota.toString()
-                          : null,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const EntregasScreen()),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: Dimensions.spacingSM),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: QuickActionButton(
-                      icon: Icons.how_to_reg,
-                      label: 'Snapshot',
-                      color: const Color(0xFF4CAF50),
-                      badge: snapshotProvider.totalPendentes > 0
-                          ? snapshotProvider.totalPendentes.toString()
-                          : null,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const SnapshotScreen()),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: Dimensions.spacingSM),
-                  Expanded(
-                    child: QuickActionButton(
-                      icon: Icons.info,
-                      label: 'Status',
-                      color: const Color(0xFF00BCD4),
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) =>
-                                const ColaboradoresStatusScreen()),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: Dimensions.spacingSM),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: QuickActionButton(
-                      icon: Icons.note,
-                      label: 'Anotações',
-                      color: const Color(0xFFFF5722),
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const NotasScreen()),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: Dimensions.spacingSM),
-                  Expanded(
-                    child: QuickActionButton(
-                      icon: Icons.description,
-                      label: 'Formulários',
-                      color: const Color(0xFF3F51B5),
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const FormulariosScreen()),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: Dimensions.spacingSM),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: QuickActionButton(
-                      icon: Icons.menu_book,
-                      label: 'Procedimentos',
-                      color: const Color(0xFF673AB7),
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const ProcedimentosScreen()),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: Dimensions.spacingSM),
-                  Expanded(
-                    child: QuickActionButton(
-                      icon: Icons.notifications,
-                      label: 'Notificações',
-                      color: const Color(0xFF2196F3),
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const NotificacoesScreen()),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: Dimensions.spacingSM),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: QuickActionButton(
-                      icon: Icons.history,
-                      label: 'Timeline',
-                      color: const Color(0xFF9C27B0),
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const TimelineScreen()),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: Dimensions.spacingSM),
-                  Expanded(
-                    child: QuickActionButton(
-                      icon: Icons.calendar_month,
-                      label: 'Escala',
-                      color: const Color(0xFFE91E63),
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const EscalaScreen()),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: Dimensions.spacingSM),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: QuickActionButton(
-                      icon: Icons.beach_access,
-                      label: 'Modo Folga',
-                      color: const Color(0xFF009688),
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const FolgaScreen()),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: Dimensions.spacingSM),
-                  Expanded(
-                    child: QuickActionButton(
-                      icon: Icons.bar_chart,
-                      label: 'Relatório',
-                      color: const Color(0xFF0097A7),
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const RelatorioDiarioScreen()),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: Dimensions.spacingXL),
-
-              // ── Status da Loja ───────────────────────────────────────────
-              if (fiscalProvider.fiscal != null) ...[
-                const Text('Status da Loja', style: AppTextStyles.h3),
-                const SizedBox(height: Dimensions.spacingMD),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(Dimensions.paddingMD),
-                    child: Column(
-                      children: [
-                        _buildInfoRow(
-                            'Loja', fiscalProvider.fiscal!.loja ?? 'N/A'),
-                        const Divider(height: 24),
-                        _buildInfoRow('Email', fiscalProvider.fiscal!.email),
-                        const Divider(height: 24),
-                        _buildInfoRow(
-                          'Status',
-                          fiscalProvider.fiscal!.ativo ? 'Ativo' : 'Inativo',
-                          valueColor: fiscalProvider.fiscal!.ativo
-                              ? AppColors.success
-                              : AppColors.danger,
+                    const SizedBox(height: Dimensions.spacingMD),
+                    _GridAcoes(
+                      botoes: [
+                        _BotaoAcao(
+                          icon: Icons.history,
+                          label: 'Timeline',
+                          color: const Color(0xFF9C27B0),
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) => const TimelineScreen()),
+                          ),
+                        ),
+                        _BotaoAcao(
+                          icon: Icons.beach_access,
+                          label: 'Modo Folga',
+                          color: const Color(0xFF009688),
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) => const FolgaScreen()),
+                          ),
                         ),
                       ],
                     ),
-                  ),
+                    const SizedBox(height: Dimensions.spacingXL),
+                  ],
                 ),
-              ],
-
-              const SizedBox(height: 24),
-            ],
-          ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -569,8 +590,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 AppTextStyles.body.copyWith(color: AppColors.textSecondary)),
         Text(
           value,
-          style: AppTextStyles.h4.copyWith(
-              color: valueColor ?? AppColors.textPrimary),
+          style:
+              AppTextStyles.h4.copyWith(color: valueColor ?? AppColors.textPrimary),
         ),
       ],
     );
@@ -581,6 +602,70 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (hora < 12) return 'Bom dia';
     if (hora < 18) return 'Boa tarde';
     return 'Boa noite';
+  }
+}
+
+// ── Helpers de layout ─────────────────────────────────────────────────────────
+
+class _BotaoAcao {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final String? badge;
+  final VoidCallback onPressed;
+
+  const _BotaoAcao({
+    required this.icon,
+    required this.label,
+    required this.color,
+    this.badge,
+    required this.onPressed,
+  });
+}
+
+class _GridAcoes extends StatelessWidget {
+  final List<_BotaoAcao> botoes;
+
+  const _GridAcoes({required this.botoes});
+
+  @override
+  Widget build(BuildContext context) {
+    final rows = <Widget>[];
+    for (var i = 0; i < botoes.length; i += 2) {
+      final a = botoes[i];
+      final b = i + 1 < botoes.length ? botoes[i + 1] : null;
+      rows.add(
+        Row(
+          children: [
+            Expanded(
+              child: QuickActionButton(
+                icon: a.icon,
+                label: a.label,
+                color: a.color,
+                badge: a.badge,
+                onPressed: a.onPressed,
+              ),
+            ),
+            const SizedBox(width: Dimensions.spacingSM),
+            Expanded(
+              child: b != null
+                  ? QuickActionButton(
+                      icon: b.icon,
+                      label: b.label,
+                      color: b.color,
+                      badge: b.badge,
+                      onPressed: b.onPressed,
+                    )
+                  : const SizedBox(),
+            ),
+          ],
+        ),
+      );
+      if (i + 2 < botoes.length) {
+        rows.add(const SizedBox(height: Dimensions.spacingSM));
+      }
+    }
+    return Column(children: rows);
   }
 }
 
@@ -611,8 +696,7 @@ class _AlertCard extends StatelessWidget {
       onTap: item.onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 6),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: item.color.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(10),
@@ -631,8 +715,7 @@ class _AlertCard extends StatelessWidget {
                     fontWeight: FontWeight.w600),
               ),
             ),
-            Icon(Icons.arrow_forward_ios,
-                color: item.color, size: 13),
+            Icon(Icons.arrow_forward_ios, color: item.color, size: 13),
           ],
         ),
       ),

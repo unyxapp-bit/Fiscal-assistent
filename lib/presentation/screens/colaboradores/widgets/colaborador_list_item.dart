@@ -5,6 +5,144 @@ import '../../../../core/constants/dimensions.dart';
 import '../../../../domain/entities/colaborador.dart';
 import '../../../../domain/enums/departamento_tipo.dart';
 
+/// Card compacto para exibição em grade (3 colunas)
+class ColaboradorGridCard extends StatelessWidget {
+  final Colaborador colaborador;
+  final VoidCallback onTap;
+  final VoidCallback? onDelete;
+
+  const ColaboradorGridCard({
+    super.key,
+    required this.colaborador,
+    required this.onTap,
+    this.onDelete,
+  });
+
+  Color _getDepartamentoColor() {
+    switch (colaborador.departamento) {
+      case DepartamentoTipo.caixa:
+        return Colors.blue;
+      case DepartamentoTipo.fiscal:
+        return Colors.orange;
+      case DepartamentoTipo.pacote:
+        return Colors.green;
+      case DepartamentoTipo.self:
+        return Colors.purple;
+      case DepartamentoTipo.gerencia:
+        return Colors.red;
+      case DepartamentoTipo.acougue:
+        return Colors.brown;
+      case DepartamentoTipo.padaria:
+        return Colors.amber;
+      case DepartamentoTipo.hortifruti:
+        return Colors.greenAccent;
+      case DepartamentoTipo.deposito:
+        return Colors.grey;
+      case DepartamentoTipo.limpeza:
+        return Colors.blueGrey;
+      case DepartamentoTipo.seguranca:
+        return Colors.indigo;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _getDepartamentoColor();
+    final dept = colaborador.departamento.nome;
+
+    return GestureDetector(
+      onTap: onTap,
+      onLongPress: onDelete != null
+          ? () => showModalBottomSheet(
+                context: context,
+                builder: (_) => SafeArea(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.edit),
+                        title: const Text('Editar'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          onTap();
+                        },
+                      ),
+                      ListTile(
+                        leading:
+                            const Icon(Icons.delete, color: Colors.red),
+                        title: const Text('Deletar',
+                            style: TextStyle(color: Colors.red)),
+                        onTap: () {
+                          Navigator.pop(context);
+                          onDelete!();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              )
+          : null,
+      child: Card(
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+          side: BorderSide(color: color.withValues(alpha: 0.3)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                backgroundColor: color,
+                radius: 22,
+                child: Text(
+                  colaborador.gerarIniciais(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                colaborador.nome.split(' ').first,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 4),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  dept,
+                  style: TextStyle(
+                    fontSize: 9,
+                    color: color,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Item da lista de colaboradores
 class ColaboradorListItem extends StatelessWidget {
   final Colaborador colaborador;

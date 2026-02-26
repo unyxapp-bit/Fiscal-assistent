@@ -69,8 +69,13 @@ class ColaboradorProvider with ChangeNotifier {
         _updateColaborador = updateColaborador,
         _repository = repository;
 
-  /// Carrega colaboradores
-  Future<void> loadColaboradores(String fiscalId) async {
+  /// Carrega colaboradores (pula se já carregado; use forceRefresh para recarregar)
+  Future<void> loadColaboradores(String fiscalId, {bool forceRefresh = false}) async {
+    if (!forceRefresh &&
+        _status == ColaboradorStatus.loaded &&
+        _colaboradores.isNotEmpty) {
+      return;
+    }
     try {
       if (kDebugMode) {
         print('[ColaboradorProvider] Iniciando loadColaboradores para fiscalId: $fiscalId');

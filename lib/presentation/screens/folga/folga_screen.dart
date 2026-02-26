@@ -5,6 +5,8 @@ import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../providers/fiscal_provider.dart';
+import '../escala/escala_screen.dart';
+import '../profile/profile_screen.dart';
 
 /// Tela exibida quando o fiscal está de folga
 class FolgaScreen extends StatelessWidget {
@@ -173,7 +175,12 @@ class FolgaScreen extends StatelessWidget {
                           width: double.infinity,
                           child: ElevatedButton.icon(
                             onPressed: () {
-                              Navigator.pushNamed(context, '/escala');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const EscalaScreen(),
+                                ),
+                              );
                             },
                             icon: const Icon(Icons.calendar_today),
                             label: const Text('Ver Escala Semanal'),
@@ -196,7 +203,12 @@ class FolgaScreen extends StatelessWidget {
                           width: double.infinity,
                           child: OutlinedButton.icon(
                             onPressed: () {
-                              Navigator.pushNamed(context, '/configuracoes');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const ProfileScreen(),
+                                ),
+                              );
                             },
                             icon: const Icon(Icons.settings),
                             label: const Text('Configurações'),

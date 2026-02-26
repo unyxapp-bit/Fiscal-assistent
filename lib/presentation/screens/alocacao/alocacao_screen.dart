@@ -150,7 +150,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     final caixa = disponiveis[i];
                     return ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: caixa.tipo.cor.withOpacity(0.15),
+                        backgroundColor: caixa.tipo.cor.withValues(alpha: 0.15),
                         child: Icon(caixa.tipo.icone, color: caixa.tipo.cor),
                       ),
                       title: Text(caixa.nomeExibicao, style: AppTextStyles.h4),
@@ -256,7 +256,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
               padding: const EdgeInsets.symmetric(
                   horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.07),
+                color: AppColors.primary.withValues(alpha: 0.07),
                 borderRadius:
                     BorderRadius.circular(Dimensions.borderRadius),
               ),
@@ -371,7 +371,7 @@ class _Header extends StatelessWidget {
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
         decoration: BoxDecoration(
-            color: color.withOpacity(0.15),
+            color: color.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(10)),
         child: Text('$count',
             style: TextStyle(
@@ -448,7 +448,7 @@ class _CardAlocado extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: AppColors.primary.withOpacity(0.12),
+          backgroundColor: AppColors.primary.withValues(alpha: 0.12),
           child: Text(turno.colaboradorNome[0].toUpperCase(),
               style: TextStyle(
                   color: AppColors.primary, fontWeight: FontWeight.bold)),
@@ -464,7 +464,7 @@ class _CardAlocado extends StatelessWidget {
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8)),
           child: Text('Ativo',
               style: AppTextStyles.caption.copyWith(
@@ -486,7 +486,7 @@ class _CardFolga extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: AppColors.inactive.withOpacity(0.15),
+          backgroundColor: AppColors.inactive.withValues(alpha: 0.15),
           child: Text(turno.colaboradorNome[0].toUpperCase(),
               style: const TextStyle(
                   color: AppColors.inactive, fontWeight: FontWeight.bold)),
