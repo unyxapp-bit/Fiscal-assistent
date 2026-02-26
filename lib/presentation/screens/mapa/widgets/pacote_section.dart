@@ -5,9 +5,13 @@ import '../../../../core/constants/colors.dart';
 import '../../../../core/constants/dimensions.dart';
 import '../../../../core/constants/text_styles.dart';
 import '../../../../domain/enums/departamento_tipo.dart';
+import '../../../../domain/entities/colaborador.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../providers/cafe_provider.dart';
 import '../../../providers/colaborador_provider.dart';
+import '../../../providers/escala_provider.dart';
 import '../../../providers/pacote_plantao_provider.dart';
+import 'pacote_detalhes_sheet.dart';
 
 const Color _kPacoteColor = Color(0xFF795548); // marrom
 
@@ -79,16 +83,16 @@ class PacoteSection extends StatelessWidget {
                 // Chips dos empacotadores no plantão
                 ...plantao.map((p) {
                   final colaborador = colaboradorProvider.colaboradores
-                      .cast()
+                      .cast<Colaborador?>()
                       .firstWhere(
-                        (c) => c.id == p.colaboradorId,
+                        (c) => c?.id == p.colaboradorId,
                         orElse: () => null,
                       );
                   final nome = colaborador?.nome ?? 'Empacotador';
                   final iniciais = colaborador?.iniciais ??
                       nome.substring(0, 1).toUpperCase();
 
-                  return Chip(
+                  return InputChip(
                     avatar: CircleAvatar(
                       backgroundColor: _kPacoteColor,
                       child: Text(
@@ -108,8 +112,12 @@ class PacoteSection extends StatelessWidget {
                     deleteIcon: const Icon(Icons.close, size: 16),
                     deleteIconColor: Colors.red,
                     onDeleted: () => plantaoProvider.remover(p.id),
-                    backgroundColor:
-                        _kPacoteColor.withValues(alpha: 0.1),
+                    onPressed: () => _showDetalhesEmpacotador(
+                      context,
+                      colaborador,
+                      p.id,
+                    ),
+                    backgroundColor: _kPacoteColor.withValues(alpha: 0.1),
                     side: BorderSide(
                         color: _kPacoteColor.withValues(alpha: 0.4)),
                   );
@@ -137,6 +145,36 @@ class PacoteSection extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showDetalhesEmpacotador(
+    BuildContext context,
+    Colaborador? colaborador,
+    String plantaoId,
+  ) {
+    if (colaborador == null) return;
+    final escalaProvider = Provider.of<EscalaProvider>(context, listen: false);
+    final cafeProvider = Provider.of<CafeProvider>(context, listen: false);
+
+    final turno = escalaProvider.turnosHoje
+        .where((t) => t.colaboradorId == colaborador.id)
+        .firstOrNull;
+    final pausa = cafeProvider.getPausaAtiva(colaborador.id);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => PacoteDetalhesSheet(
+        colaborador: colaborador,
+        plantaoId: plantaoId,
+        turno: turno,
+        pausa: pausa,
+        providerContext: context,
       ),
     );
   }

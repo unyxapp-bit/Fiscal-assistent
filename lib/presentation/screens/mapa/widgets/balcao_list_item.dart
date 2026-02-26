@@ -9,7 +9,10 @@ import '../../../../domain/entities/caixa.dart';
 import '../../../../domain/entities/colaborador.dart';
 import '../../../providers/alocacao_provider.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../providers/cafe_provider.dart';
 import '../../../providers/colaborador_provider.dart';
+import '../../../providers/escala_provider.dart';
+import 'colaborador_detalhes_sheet.dart';
 
 const int _kMaxFiscaisPorBalcao = 3;
 const Color _kBalcaoColor = Color(0xFF009688);
@@ -59,6 +62,43 @@ class BalcaoListItem extends StatelessWidget {
     if (confirmed == true) {
       await alocacaoProvider.liberarAlocacao(alocacao.id, 'Liberado pelo fiscal');
     }
+  }
+
+  void _showDetalhes(
+    BuildContext context,
+    Alocacao alocacao,
+    Colaborador? colaborador,
+  ) {
+    final escalaProvider = Provider.of<EscalaProvider>(context, listen: false);
+    final cafeProvider = Provider.of<CafeProvider>(context, listen: false);
+    final alocacaoProvider =
+        Provider.of<AlocacaoProvider>(context, listen: false);
+
+    final turno = colaborador != null
+        ? escalaProvider.turnosHoje
+            .where((t) => t.colaboradorId == colaborador.id)
+            .firstOrNull
+        : null;
+    final pausa =
+        colaborador != null ? cafeProvider.getPausaAtiva(colaborador.id) : null;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => ColaboradorDetalhesSheet(
+        caixa: balcao,
+        colaborador: colaborador,
+        alocacao: alocacao,
+        turno: turno,
+        pausa: pausa,
+        alocacaoProvider: alocacaoProvider,
+        providerContext: context,
+        liberarLabel: 'Liberar Balcão',
+      ),
+    );
   }
 
   @override
@@ -125,6 +165,20 @@ class BalcaoListItem extends StatelessWidget {
                       onLiberar: alocacao != null
                           ? () => _liberarSlot(context, alocacao)
                           : null,
+                      onTap: alocacao != null
+                          ? () {
+                              final col = Provider.of<ColaboradorProvider>(
+                                      context,
+                                      listen: false)
+                                  .colaboradores
+                                  .cast<Colaborador?>()
+                                  .firstWhere(
+                                    (c) => c?.id == alocacao.colaboradorId,
+                                    orElse: () => null,
+                                  );
+                              _showDetalhes(context, alocacao, col);
+                            }
+                          : null,
                     ),
                   ),
                 );
@@ -144,19 +198,25 @@ class _FiscalSlot extends StatelessWidget {
   final bool podeAdicionar;
   final VoidCallback onAdicionar;
   final VoidCallback? onLiberar;
+  final VoidCallback? onTap;
 
   const _FiscalSlot({
     required this.alocacao,
     required this.podeAdicionar,
     required this.onAdicionar,
     this.onLiberar,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     if (alocacao != null) {
       // Slot ocupado — mostra nome do colaborador + botão liberar
-      return _OcupadoSlot(alocacao: alocacao!, onLiberar: onLiberar!);
+      return _OcupadoSlot(
+        alocacao: alocacao!,
+        onLiberar: onLiberar!,
+        onTap: onTap,
+      );
     }
 
     if (podeAdicionar) {
@@ -172,8 +232,13 @@ class _FiscalSlot extends StatelessWidget {
 class _OcupadoSlot extends StatelessWidget {
   final Alocacao alocacao;
   final VoidCallback onLiberar;
+  final VoidCallback? onTap;
 
-  const _OcupadoSlot({required this.alocacao, required this.onLiberar});
+  const _OcupadoSlot({
+    required this.alocacao,
+    required this.onLiberar,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -184,42 +249,45 @@ class _OcupadoSlot extends StatelessWidget {
         .firstWhere((c) => c?.id == alocacao.colaboradorId, orElse: () => null);
     final nome = colaborador?.nome ?? 'Fiscal';
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-      decoration: BoxDecoration(
-        color: _kBalcaoColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: _kBalcaoColor.withValues(alpha: 0.4)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: _kBalcaoColor,
-            child: Text(
-              colaborador?.iniciais ?? nome.substring(0, 1).toUpperCase(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+        decoration: BoxDecoration(
+          color: _kBalcaoColor.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: _kBalcaoColor.withValues(alpha: 0.4)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: _kBalcaoColor,
+              child: Text(
+                colaborador?.iniciais ?? nome.substring(0, 1).toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            nome.split(' ').first,
-            style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w600),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 4),
-          GestureDetector(
-            onTap: onLiberar,
-            child: const Icon(Icons.logout, size: 16, color: Colors.red),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              nome.split(' ').first,
+              style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w600),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 4),
+            GestureDetector(
+              onTap: onLiberar,
+              child: const Icon(Icons.logout, size: 16, color: Colors.red),
+            ),
+          ],
+        ),
       ),
     );
   }
