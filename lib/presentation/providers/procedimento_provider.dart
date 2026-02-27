@@ -229,7 +229,7 @@ class ProcedimentoProvider with ChangeNotifier {
           descricao: 'Procedimento para processar e emitir fatura do cartão DM Card',
           categoria: 'caixa',
           passos: [
-            'Acessar o sistema CISS',
+            'Acessar o sistema',
             'Ir em Menu > Financeiro > Fatura DM Card',
             'Selecionar o período desejado',
             'Conferir os lançamentos do cartão',
@@ -240,11 +240,11 @@ class ProcedimentoProvider with ChangeNotifier {
         ),
         Procedimento(
           id: const Uuid().v4(),
-          titulo: 'EMISSÃO DE NOTA FISCAL (CISS)',
-          descricao: 'Como emitir nota fiscal completa no sistema CISS',
+          titulo: 'EMISSÃO DE NOTA FISCAL',
+          descricao: 'Como emitir nota fiscal completa no sistema',
           categoria: 'fiscal',
           passos: [
-            'Acessar CISS > Menu Fiscal',
+            'Acessar Sistema > Menu Fiscal',
             'Selecionar "Emissão de NF-e"',
             'Preencher dados do cliente (CNPJ/CPF, nome, endereço)',
             'Adicionar produtos e valores',
@@ -261,7 +261,7 @@ class ProcedimentoProvider with ChangeNotifier {
           categoria: 'fiscal',
           passos: [
             'Ter em mãos a nota fiscal original',
-            'Acessar CISS > Devolução',
+            'Acessar Sistema > Devolução',
             'Informar chave da NF-e original',
             'Selecionar produtos devolvidos',
             'Conferir motivo da devolução',
@@ -292,7 +292,7 @@ class ProcedimentoProvider with ChangeNotifier {
           descricao: 'Procedimento para imprimir etiquetas de controle de vasilhames',
           categoria: 'rotina',
           passos: [
-            'Acessar CISS > Relatórios',
+            'Acessar Sistema > Relatórios',
             'Selecionar "Vasilhames"',
             'Escolher tipo (cerveja, água, gás)',
             'Definir quantidade de etiquetas',
@@ -308,7 +308,7 @@ class ProcedimentoProvider with ChangeNotifier {
           categoria: 'caixa',
           passos: [
             'Receber cheque do cliente',
-            'Acessar CISS > Consulta de Cheques',
+            'Acessar Sistema > Consulta de Cheques',
             'Digitar número do cheque e banco',
             'Verificar situação (sem fundos, sustado, etc.)',
             'Se aprovado, registrar no sistema',
@@ -318,11 +318,11 @@ class ProcedimentoProvider with ChangeNotifier {
         ),
         Procedimento(
           id: const Uuid().v4(),
-          titulo: 'CADASTRO DE CLIENTES (CISS)',
+          titulo: 'CADASTRO DE CLIENTES',
           descricao: 'Procedimento para cadastrar novos clientes no sistema',
           categoria: 'caixa',
           passos: [
-            'Acessar CISS > Cadastros > Clientes',
+            'Acessar Sistema > Cadastros > Clientes',
             'Clicar em "Novo Cliente"',
             'Preencher dados pessoais (nome, CPF/CNPJ)',
             'Adicionar endereço completo',
@@ -334,8 +334,8 @@ class ProcedimentoProvider with ChangeNotifier {
         ),
         Procedimento(
           id: const Uuid().v4(),
-          titulo: 'EMITIR CUPOM FISCAL (CISS)',
-          descricao: 'Como emitir cupom fiscal padrão no sistema CISS',
+          titulo: 'EMITIR CUPOM FISCAL',
+          descricao: 'Como emitir cupom fiscal padrão no sistema',
           categoria: 'caixa',
           passos: [
             'Registrar produtos no caixa normalmente',
@@ -354,7 +354,7 @@ class ProcedimentoProvider with ChangeNotifier {
           categoria: 'caixa',
           passos: [
             'Cliente solicita nota fiscal após compra',
-            'Acessar CISS > NF-e rápida',
+            'Acessar Sistema > NF-e rápida',
             'Informar CPF/CNPJ do cliente',
             'Vincular ao cupom não fiscal',
             'Emitir e imprimir nota resumida',

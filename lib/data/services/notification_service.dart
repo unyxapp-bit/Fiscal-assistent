@@ -14,8 +14,8 @@ class NotificationService {
 
   static const _androidChannel = AndroidNotificationDetails(
     'fiscal_alerts',
-    'Alertas CISS',
-    channelDescription: 'Alertas de pausa e escala do CISS Fiscal Assistant',
+    'Alertas',
+    channelDescription: 'Alertas de pausa e escala do Fiscal Assistant',
     importance: Importance.high,
     priority: Priority.high,
     playSound: true,

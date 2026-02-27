@@ -387,7 +387,7 @@ class RelatorioDiarioScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                'CISS Fiscal Assistant • $dataFormatada às $horaFormatada',
+                'Fiscal Assistant • $dataFormatada às $horaFormatada',
                 textAlign: TextAlign.center,
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary),

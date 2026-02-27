@@ -45,7 +45,7 @@ class _SplashScreenState extends State<SplashScreen> {
             const SizedBox(height: 32),
 
             Text(
-              'CISS Fiscal',
+              'Fiscal',
               style: AppTextStyles.h1.copyWith(
                 color: AppColors.primary,
               ),
