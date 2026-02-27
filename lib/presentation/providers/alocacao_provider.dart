@@ -97,8 +97,10 @@ class AlocacaoProvider extends ChangeNotifier {
       );
 
       if (result.isSuccess) {
+        if (result.alocacao != null) {
+          _alocacoes.add(result.alocacao!);
+        }
         _loadingState = LoadingState.success;
-        // Alocação já foi adicionada via stream
       } else if (result.isPrecisaExcecao) {
         // Mostrar dialog de exceção
         _resultadoExcecao = result;
@@ -137,8 +139,8 @@ class AlocacaoProvider extends ChangeNotifier {
         alocacaoId: alocacaoId,
         motivo: motivo,
       );
+      _alocacoes.removeWhere((a) => a.id == alocacaoId);
       _loadingState = LoadingState.success;
-      // Alocação será removida da lista via stream
     } catch (e) {
       _error = 'Erro ao liberar: $e';
       _loadingState = LoadingState.error;

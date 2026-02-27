@@ -428,6 +428,18 @@ class _ColaboradorPickerSheet extends StatelessWidget {
                         caixaId: balcao.id,
                         fiscalId: authProvider.user?.id ?? '',
                       );
+                      // Se retornou excecao (já trabalhou aqui hoje),
+                      // retentar automaticamente com justificativa para balcão
+                      if (alocacaoProvider.mostrarDialogExcecao &&
+                          context.mounted) {
+                        alocacaoProvider.fecharDialogExcecao();
+                        await alocacaoProvider.alocarColaborador(
+                          colaboradorId: colaborador.id,
+                          caixaId: balcao.id,
+                          fiscalId: authProvider.user?.id ?? '',
+                          justificativa: 'Rotação de balcão',
+                        );
+                      }
                       if (alocacaoProvider.error != null &&
                           context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
