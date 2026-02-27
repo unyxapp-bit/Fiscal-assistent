@@ -11,7 +11,6 @@ import '../../providers/caixa_provider.dart';
 import '../../providers/alocacao_provider.dart';
 import '../../providers/cafe_provider.dart';
 import '../../providers/entrega_provider.dart';
-import '../../providers/snapshot_provider.dart';
 import '../../providers/escala_provider.dart';
 import '../colaboradores/colaboradores_list_screen.dart';
 import '../colaboradores/colaboradores_status_screen.dart';
@@ -24,7 +23,6 @@ import '../entregas/entregas_screen.dart';
 import '../procedimentos/procedimentos_screen.dart';
 import '../notas/notas_screen.dart';
 import '../formularios/formularios_screen.dart';
-import '../snapshot/snapshot_screen.dart';
 import '../folga/folga_screen.dart';
 import '../escala/escala_screen.dart';
 import '../relatorio/relatorio_diario_screen.dart';
@@ -73,7 +71,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           .loadAlocacoes(userId),
       Provider.of<CafeProvider>(context, listen: false).load(),
       Provider.of<EntregaProvider>(context, listen: false).load(),
-      Provider.of<SnapshotProvider>(context, listen: false).load(),
     ]);
 
     if (mounted) {
@@ -91,8 +88,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final alocacaoProvider = Provider.of<AlocacaoProvider>(context);
     final cafeProvider = Provider.of<CafeProvider>(context);
     final entregaProvider = Provider.of<EntregaProvider>(context);
-    final snapshotProvider = Provider.of<SnapshotProvider>(context);
-
     final escalaProvider = Provider.of<EscalaProvider>(context);
 
     final saudacao = _getSaudacao();
@@ -117,23 +112,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           color: AppColors.danger,
           onTap: () => Navigator.push(context,
               MaterialPageRoute(builder: (_) => const CafeScreen())),
-        ),
-      if (snapshotProvider.snapshotAtual == null)
-        _AlertItem(
-          icon: Icons.how_to_reg,
-          label: 'Check-in de presença não realizado hoje',
-          color: AppColors.statusAtencao,
-          onTap: () => Navigator.push(context,
-              MaterialPageRoute(builder: (_) => const SnapshotScreen())),
-        ),
-      if (snapshotProvider.totalAusentes > 0)
-        _AlertItem(
-          icon: Icons.person_off,
-          label:
-              '${snapshotProvider.totalAusentes} colaborador${snapshotProvider.totalAusentes > 1 ? 'es ausentes' : ' ausente'}',
-          color: AppColors.danger,
-          onTap: () => Navigator.push(context,
-              MaterialPageRoute(builder: (_) => const SnapshotScreen())),
         ),
       if (entregaProvider.totalSeparadas > 0)
         _AlertItem(
@@ -202,8 +180,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   clipBehavior: Clip.none,
                   children: [
                     const Icon(Icons.build_outlined, size: 20),
-                    if (cafeProvider.totalEmAtraso > 0 ||
-                        snapshotProvider.snapshotAtual == null)
+                    if (cafeProvider.totalEmAtraso > 0)
                       Positioned(
                         top: -4,
                         right: -6,
@@ -420,18 +397,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(
                               builder: (_) => const EntregasScreen()),
-                        ),
-                      ),
-                      _BotaoAcao(
-                        icon: Icons.how_to_reg,
-                        label: 'Snapshot',
-                        color: const Color(0xFF4CAF50),
-                        badge: snapshotProvider.totalPendentes > 0
-                            ? snapshotProvider.totalPendentes.toString()
-                            : null,
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) => const SnapshotScreen()),
                         ),
                       ),
                       _BotaoAcao(
@@ -672,11 +637,11 @@ class _MonitorTempoReal extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            const Row(
               children: [
-                const Icon(Icons.monitor_heart_outlined,
+                Icon(Icons.monitor_heart_outlined,
                     color: AppColors.primary, size: 18),
-                const SizedBox(width: 6),
+                SizedBox(width: 6),
                 Text('Monitor em tempo real', style: AppTextStyles.h4),
               ],
             ),

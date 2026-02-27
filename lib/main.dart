@@ -56,7 +56,6 @@ import 'presentation/providers/entrega_provider.dart';
 import 'presentation/providers/procedimento_provider.dart';
 import 'presentation/providers/nota_provider.dart';
 import 'presentation/providers/formulario_provider.dart';
-import 'presentation/providers/snapshot_provider.dart';
 import 'presentation/providers/cafe_provider.dart';
 import 'presentation/providers/escala_provider.dart';
 import 'presentation/providers/registro_ponto_provider.dart';
@@ -213,11 +212,6 @@ void main() async {
             create: (_) => FormularioProvider(),
           ),
 
-          // Module 20 - Snapshot
-          ChangeNotifierProvider(
-            create: (_) => SnapshotProvider(),
-          ),
-
           // Module 8 - Café / Intervalos
           ChangeNotifierProvider(
             create: (_) => CafeProvider(),
@@ -322,7 +316,6 @@ class _AppHomeState extends State<_AppHome> {
       ctx.read<EntregaProvider>().load(),
       ctx.read<NotaProvider>().load(),
       ctx.read<FormularioProvider>().load(),
-      ctx.read<SnapshotProvider>().load(),
       ctx.read<ProcedimentoProvider>().load(),
       ctx.read<CafeProvider>().load(),
       ctx.read<EscalaProvider>().load(),

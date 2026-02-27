@@ -4,8 +4,6 @@ import 'package:intl/intl.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
-import '../../../domain/enums/status_presenca.dart';
-import '../../providers/snapshot_provider.dart';
 import '../../providers/cafe_provider.dart';
 import '../../providers/alocacao_provider.dart';
 import '../../providers/entrega_provider.dart';
@@ -16,7 +14,6 @@ class RelatorioDiarioScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final snapshotProv = context.watch<SnapshotProvider>();
     final cafe = context.watch<CafeProvider>();
     final alocacao = context.watch<AlocacaoProvider>();
     final entrega = context.watch<EntregaProvider>();
@@ -26,22 +23,6 @@ class RelatorioDiarioScreen extends StatelessWidget {
     final dataFormatada =
         DateFormat("EEEE, d 'de' MMMM 'de' y", 'pt_BR').format(hoje);
     final horaFormatada = DateFormat('HH:mm').format(hoje);
-
-    final snap = snapshotProv.snapshotAtual;
-
-    // ── Métricas de presença ────────────────────────────────────────────────
-    final totalEscala = snap?.totalAtivos ?? 0;
-    final confirmados = snap?.totalConfirmados ?? 0;
-    final atrasados = snap?.presencas
-            .where((p) => p.status == StatusPresenca.atrasado)
-            .length ??
-        0;
-    final ausentes = snap?.totalAusentes ?? 0;
-    final pendentes = snap?.totalPendentes ?? 0;
-    final folgas = snap?.totalComFolga ?? 0;
-    final substituicoes =
-        snap?.presencas.where((p) => p.foiSubstituido).length ?? 0;
-    final percentual = snap?.percentualPresenca ?? 0.0;
 
     // ── Métricas de pausas ─────────────────────────────────────────────────
     final totalPausasHoje = cafe.totalHoje;
@@ -57,9 +38,6 @@ class RelatorioDiarioScreen extends StatelessWidget {
     final entregasSep = entrega.totalSeparadas;
     final entregasRota = entrega.totalEmRota;
     final entregasConc = entrega.totalEntregues;
-
-    // ── Colaboradores por departamento ─────────────────────────────────────
-    final colabs = colaborador.colaboradores;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -91,8 +69,8 @@ class RelatorioDiarioScreen extends StatelessWidget {
                   const Row(
                     children: [
                       Icon(Icons.bar_chart, color: Colors.white, size: 24),
-                      const SizedBox(width: 8),
-                      const Text(
+                      SizedBox(width: 8),
+                      Text(
                         'Resumo do Turno',
                         style: TextStyle(
                           color: Colors.white,
@@ -114,107 +92,6 @@ class RelatorioDiarioScreen extends StatelessWidget {
                 ],
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            // ── Seção: Presença ──────────────────────────────────────────
-            const _SectionTitle(
-              icon: Icons.people,
-              label: 'Presença',
-              color: AppColors.primary,
-            ),
-            const SizedBox(height: 10),
-
-            if (snap != null) ...[
-              // Barra de presença
-              Row(
-                children: [
-                  Expanded(
-                    child: LinearProgressIndicator(
-                      value: percentual / 100,
-                      backgroundColor:
-                          AppColors.inactive.withValues(alpha: 0.2),
-                      valueColor: AlwaysStoppedAnimation(
-                          _presencaColor(percentual)),
-                      minHeight: 10,
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    '${percentual.toStringAsFixed(0)}%',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: _presencaColor(percentual),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-            ] else ...[
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.inactive.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Text(
-                  'Nenhum snapshot criado hoje. Acesse a tela de Check-in para registrar.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                ),
-              ),
-              const SizedBox(height: 10),
-            ],
-
-            _MetricGrid(metrics: [
-              _MetricItem(
-                label: 'Escala Hoje',
-                value: '$totalEscala',
-                icon: Icons.calendar_today,
-                color: AppColors.primary,
-              ),
-              _MetricItem(
-                label: 'Confirmados',
-                value: '$confirmados',
-                icon: Icons.check_circle,
-                color: AppColors.success,
-              ),
-              _MetricItem(
-                label: 'Atrasados',
-                value: '$atrasados',
-                icon: Icons.schedule,
-                color: AppColors.statusAtencao,
-              ),
-              _MetricItem(
-                label: 'Ausências',
-                value: '$ausentes',
-                icon: Icons.cancel,
-                color: AppColors.danger,
-              ),
-              _MetricItem(
-                label: 'Pendentes',
-                value: '$pendentes',
-                icon: Icons.pending,
-                color: StatusPresenca.pendente.cor,
-              ),
-              _MetricItem(
-                label: 'Folgas',
-                value: '$folgas',
-                icon: Icons.beach_access,
-                color: AppColors.inactive,
-              ),
-            ]),
-
-            if (substituicoes > 0) ...[
-              const SizedBox(height: 8),
-              _InfoChip(
-                icon: Icons.swap_horiz,
-                label: '$substituicoes substituição${substituicoes > 1 ? 'ões' : ''} registrada${substituicoes > 1 ? 's' : ''}',
-                color: const Color(0xFF9C27B0),
-              ),
-            ],
 
             const SizedBox(height: 20),
 
@@ -354,30 +231,6 @@ class RelatorioDiarioScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // ── Ausências Registradas ────────────────────────────────────
-            if (snap != null && ausentes > 0) ...[
-              const _SectionTitle(
-                icon: Icons.person_off,
-                label: 'Ausências Registradas',
-                color: AppColors.danger,
-              ),
-              const SizedBox(height: 8),
-              ...snap.presencas
-                  .where((p) => p.status == StatusPresenca.ausente)
-                  .map((p) {
-                final nome = _nomeFromColabs(colabs, p.colaboradorId);
-                final nomeSubstituto = p.substituidoPor != null
-                    ? _nomeFromColabs(colabs, p.substituidoPor!)
-                    : null;
-                return _AbsenceRow(
-                  nome: nome,
-                  motivo: p.observacao,
-                  nomeSubstituto: nomeSubstituto,
-                );
-              }),
-              const SizedBox(height: 12),
-            ],
-
             // ── Rodapé ────────────────────────────────────────────────────
             Container(
               width: double.infinity,
@@ -399,20 +252,6 @@ class RelatorioDiarioScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _nomeFromColabs(List<dynamic> colabs, String id) {
-    try {
-      return (colabs.firstWhere((c) => c.id == id)).nome as String;
-    } catch (_) {
-      return id.length > 6 ? id.substring(0, 6).toUpperCase() : id;
-    }
-  }
-
-  Color _presencaColor(double pct) {
-    if (pct >= 90) return AppColors.success;
-    if (pct >= 70) return AppColors.statusAtencao;
-    return AppColors.danger;
   }
 
   String _calcularMediaDuracao(List<PausaCafe> pausas) {
@@ -452,42 +291,6 @@ class _SectionTitle extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(child: Divider(color: color.withValues(alpha: 0.3))),
       ],
-    );
-  }
-}
-
-class _InfoChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-
-  const _InfoChip({
-    required this.icon,
-    required this.label,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.25)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: color, size: 14),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-                fontSize: 12, color: color, fontWeight: FontWeight.w600),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -555,76 +358,6 @@ class _MetricGrid extends StatelessWidget {
             ),
           )
           .toList(),
-    );
-  }
-}
-
-class _AbsenceRow extends StatelessWidget {
-  final String nome;
-  final String? motivo;
-  final String? nomeSubstituto;
-
-  const _AbsenceRow({
-    required this.nome,
-    this.motivo,
-    this.nomeSubstituto,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.danger.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.danger.withValues(alpha: 0.15)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.person_off, color: AppColors.danger, size: 18),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  nome,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                if (motivo != null)
-                  Text(
-                    motivo!,
-                    style: AppTextStyles.caption
-                        .copyWith(color: AppColors.textSecondary),
-                  ),
-                if (nomeSubstituto != null)
-                  Text(
-                    'Substituído por $nomeSubstituto',
-                    style: AppTextStyles.caption
-                        .copyWith(color: AppColors.success),
-                  ),
-              ],
-            ),
-          ),
-          if (nomeSubstituto != null)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: AppColors.success.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Text(
-                'Coberto',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: AppColors.success,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-        ],
-      ),
     );
   }
 }
