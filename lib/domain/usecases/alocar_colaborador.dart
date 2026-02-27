@@ -158,12 +158,16 @@ class AlocarColaborador {
       }
 
       // 4. Verifica se colaborador já está alocado em outra caixa
-      final alocacaoAtiva =
-          await alocacaoRepository.getAlocacaoAtivaColaborador(colaboradorId);
-      if (alocacaoAtiva != null) {
-        return AlocarColaboradorResult.erro(
-          'Colaborador já está alocado em outra caixa',
-        );
+      // (balcão permite múltiplas alocações simultâneas)
+      final isCaixaBalcao = caixa.tipo.toString() == 'TipoCaixa.balcao';
+      if (!isCaixaBalcao) {
+        final alocacaoAtiva =
+            await alocacaoRepository.getAlocacaoAtivaColaborador(colaboradorId);
+        if (alocacaoAtiva != null) {
+          return AlocarColaboradorResult.erro(
+            'Colaborador já está alocado em outra caixa',
+          );
+        }
       }
 
       // 5. Verifica se colaborador já usou esta caixa hoje (regra 1 caixa por dia)

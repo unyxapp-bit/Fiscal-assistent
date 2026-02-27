@@ -14,10 +14,9 @@ import '../../../providers/colaborador_provider.dart';
 import '../../../providers/escala_provider.dart';
 import 'colaborador_detalhes_sheet.dart';
 
-const int _kMaxFiscaisPorBalcao = 3;
 const Color _kBalcaoColor = Color(0xFF009688);
 
-/// Card de balcão exibindo até 3 slots de fiscais alocados
+/// Card de balcão exibindo fiscais alocados (sem limite fixo)
 class BalcaoListItem extends StatelessWidget {
   final Caixa balcao;
   final List<Alocacao> alocacoes;
@@ -104,6 +103,7 @@ class BalcaoListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ocupados = alocacoes.length;
+    final podeAdicionar = balcao.ativo && !balcao.emManutencao;
 
     return Card(
       margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
@@ -137,7 +137,7 @@ class BalcaoListItem extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    '$ocupados/$_kMaxFiscaisPorBalcao fiscais',
+                    ocupados == 0 ? 'Vazio' : '$ocupados fiscal${ocupados > 1 ? 'is' : ''}',
                     style: AppTextStyles.caption.copyWith(
                       color: ocupados > 0 ? _kBalcaoColor : AppColors.textSecondary,
                       fontWeight: FontWeight.bold,
@@ -149,40 +149,37 @@ class BalcaoListItem extends StatelessWidget {
 
             const SizedBox(height: Dimensions.spacingMD),
 
-            // Slots de fiscais
-            Row(
-              children: List.generate(_kMaxFiscaisPorBalcao, (i) {
-                final alocacao = i < alocacoes.length ? alocacoes[i] : null;
-                return Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      right: i < _kMaxFiscaisPorBalcao - 1 ? 8 : 0,
-                    ),
-                    child: _FiscalSlot(
+            // Slots: um por alocação ativa + botão de adicionar
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                ...alocacoes.map((alocacao) {
+                  final col = Provider.of<ColaboradorProvider>(
+                          context, listen: false)
+                      .colaboradores
+                      .cast<Colaborador?>()
+                      .firstWhere(
+                        (c) => c?.id == alocacao.colaboradorId,
+                        orElse: () => null,
+                      );
+                  return SizedBox(
+                    width: 90,
+                    child: _OcupadoSlot(
                       alocacao: alocacao,
-                      podeAdicionar: ocupados < _kMaxFiscaisPorBalcao,
+                      onLiberar: () => _liberarSlot(context, alocacao),
+                      onTap: () => _showDetalhes(context, alocacao, col),
+                    ),
+                  );
+                }),
+                if (podeAdicionar)
+                  SizedBox(
+                    width: 90,
+                    child: _VazioSlot(
                       onAdicionar: () => _abrirPickerFiscal(context),
-                      onLiberar: alocacao != null
-                          ? () => _liberarSlot(context, alocacao)
-                          : null,
-                      onTap: alocacao != null
-                          ? () {
-                              final col = Provider.of<ColaboradorProvider>(
-                                      context,
-                                      listen: false)
-                                  .colaboradores
-                                  .cast<Colaborador?>()
-                                  .firstWhere(
-                                    (c) => c?.id == alocacao.colaboradorId,
-                                    orElse: () => null,
-                                  );
-                              _showDetalhes(context, alocacao, col);
-                            }
-                          : null,
                     ),
                   ),
-                );
-              }),
+              ],
             ),
           ],
         ),
@@ -191,43 +188,7 @@ class BalcaoListItem extends StatelessWidget {
   }
 }
 
-// ── Slot individual ────────────────────────────────────────────────────────────
-
-class _FiscalSlot extends StatelessWidget {
-  final Alocacao? alocacao;
-  final bool podeAdicionar;
-  final VoidCallback onAdicionar;
-  final VoidCallback? onLiberar;
-  final VoidCallback? onTap;
-
-  const _FiscalSlot({
-    required this.alocacao,
-    required this.podeAdicionar,
-    required this.onAdicionar,
-    this.onLiberar,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (alocacao != null) {
-      // Slot ocupado — mostra nome do colaborador + botão liberar
-      return _OcupadoSlot(
-        alocacao: alocacao!,
-        onLiberar: onLiberar!,
-        onTap: onTap,
-      );
-    }
-
-    if (podeAdicionar) {
-      // Slot vazio — botão para adicionar fiscal
-      return _VazioSlot(onAdicionar: onAdicionar);
-    }
-
-    // Slot desativado (balcão cheio mas mostra o slot extra como inativo)
-    return _VazioSlot(onAdicionar: onAdicionar, desabilitado: true);
-  }
-}
+// ── Slots ──────────────────────────────────────────────────────────────────────
 
 class _OcupadoSlot extends StatelessWidget {
   final Alocacao alocacao;
@@ -295,25 +256,20 @@ class _OcupadoSlot extends StatelessWidget {
 
 class _VazioSlot extends StatelessWidget {
   final VoidCallback onAdicionar;
-  final bool desabilitado;
 
-  const _VazioSlot({required this.onAdicionar, this.desabilitado = false});
+  const _VazioSlot({required this.onAdicionar});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: desabilitado ? null : onAdicionar,
+      onTap: onAdicionar,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         decoration: BoxDecoration(
-          color: desabilitado
-              ? AppColors.backgroundSection
-              : _kBalcaoColor.withValues(alpha: 0.05),
+          color: _kBalcaoColor.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: desabilitado
-                ? AppColors.cardBorder
-                : _kBalcaoColor.withValues(alpha: 0.3),
+            color: _kBalcaoColor.withValues(alpha: 0.3),
             style: BorderStyle.solid,
           ),
         ),
@@ -323,17 +279,13 @@ class _VazioSlot extends StatelessWidget {
             Icon(
               Icons.add_circle_outline,
               size: 28,
-              color: desabilitado
-                  ? AppColors.textSecondary.withValues(alpha: 0.4)
-                  : _kBalcaoColor.withValues(alpha: 0.6),
+              color: _kBalcaoColor.withValues(alpha: 0.6),
             ),
             const SizedBox(height: 4),
             Text(
               '+ Fiscal',
               style: AppTextStyles.caption.copyWith(
-                color: desabilitado
-                    ? AppColors.textSecondary.withValues(alpha: 0.4)
-                    : _kBalcaoColor,
+                color: _kBalcaoColor,
                 fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,
@@ -359,10 +311,9 @@ class _ColaboradorPickerSheet extends StatelessWidget {
         Provider.of<AlocacaoProvider>(context, listen: false);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    // Apenas colaboradores ativos e sem alocação ativa
+    // Balcão: mostra todos os colaboradores ativos (sem restrição de alocação)
     final disponiveis = colaboradorProvider.colaboradores
-        .where((c) =>
-            c.ativo && alocacaoProvider.getAlocacaoColaborador(c.id) == null)
+        .where((c) => c.ativo)
         .toList();
 
     return Padding(

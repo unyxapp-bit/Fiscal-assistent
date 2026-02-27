@@ -239,14 +239,16 @@ class SnapshotProvider with ChangeNotifier {
     final index = _snapshotAtual!.presencas
         .indexWhere((p) => p.colaboradorId == colaboradorId);
     if (index != -1) {
-      _snapshotAtual!.presencas[index] =
-          _snapshotAtual!.presencas[index].copyWith(
+      final nova = _snapshotAtual!.presencas[index].copyWith(
         status: StatusPresenca.confirmado,
         confirmadoEm: DateTime.now(),
         observacao: observacao,
       );
+      final novaLista = List<PresencaSnapshot>.from(_snapshotAtual!.presencas);
+      novaLista[index] = nova;
+      _snapshotAtual = _snapshotAtual!.copyWith(presencas: novaLista);
       notifyListeners();
-      await _syncPresenca(_snapshotAtual!.presencas[index]);
+      _syncPresenca(nova);
     }
   }
 
@@ -255,13 +257,15 @@ class SnapshotProvider with ChangeNotifier {
     final index = _snapshotAtual!.presencas
         .indexWhere((p) => p.colaboradorId == colaboradorId);
     if (index != -1) {
-      _snapshotAtual!.presencas[index] =
-          _snapshotAtual!.presencas[index].copyWith(
+      final nova = _snapshotAtual!.presencas[index].copyWith(
         status: StatusPresenca.ausente,
         observacao: observacao,
       );
+      final novaLista = List<PresencaSnapshot>.from(_snapshotAtual!.presencas);
+      novaLista[index] = nova;
+      _snapshotAtual = _snapshotAtual!.copyWith(presencas: novaLista);
       notifyListeners();
-      await _syncPresenca(_snapshotAtual!.presencas[index]);
+      _syncPresenca(nova);
     }
   }
 
@@ -270,13 +274,15 @@ class SnapshotProvider with ChangeNotifier {
     final index = _snapshotAtual!.presencas
         .indexWhere((p) => p.colaboradorId == colaboradorId);
     if (index != -1) {
-      _snapshotAtual!.presencas[index] =
-          _snapshotAtual!.presencas[index].copyWith(
+      final nova = _snapshotAtual!.presencas[index].copyWith(
         status: StatusPresenca.atrasado,
         confirmadoEm: DateTime.now(),
       );
+      final novaLista = List<PresencaSnapshot>.from(_snapshotAtual!.presencas);
+      novaLista[index] = nova;
+      _snapshotAtual = _snapshotAtual!.copyWith(presencas: novaLista);
       notifyListeners();
-      await _syncPresenca(_snapshotAtual!.presencas[index]);
+      _syncPresenca(nova);
     }
   }
 
@@ -291,14 +297,16 @@ class SnapshotProvider with ChangeNotifier {
         .indexWhere((p) => p.colaboradorId == colaboradorIdOriginal);
 
     if (indexOriginal != -1) {
-      _snapshotAtual!.presencas[indexOriginal] =
-          _snapshotAtual!.presencas[indexOriginal].copyWith(
+      final nova = _snapshotAtual!.presencas[indexOriginal].copyWith(
         status: StatusPresenca.ausente,
         substituidoPor: colaboradorIdSubstituto,
         observacao: 'Substituído por $nomeSubstituto',
       );
+      final novaLista = List<PresencaSnapshot>.from(_snapshotAtual!.presencas);
+      novaLista[indexOriginal] = nova;
+      _snapshotAtual = _snapshotAtual!.copyWith(presencas: novaLista);
       notifyListeners();
-      await _syncPresenca(_snapshotAtual!.presencas[indexOriginal]);
+      _syncPresenca(nova);
     }
   }
 
@@ -367,7 +375,7 @@ class SnapshotProvider with ChangeNotifier {
       }).eq('id', p.id);
     } catch (e) {
       debugPrint('[SnapshotProvider] ERRO ao sincronizar presença: $e');
-      rethrow;
+      // Estado local já atualizado — falha de sync não reverte a UI
     }
   }
 

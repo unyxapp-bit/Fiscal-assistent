@@ -38,7 +38,8 @@ class _SnapshotScreenState extends State<SnapshotScreen> {
     final colaboradorProvider =
         Provider.of<ColaboradorProvider>(context, listen: false);
 
-    if (authProvider.user != null && !snapshotProvider.temSnapshotAtivo) {
+    // Só cria novo snapshot se não há nenhum (mesmo finalizado mostra como leitura)
+    if (authProvider.user != null && snapshotProvider.snapshotAtual == null) {
       await snapshotProvider.criarSnapshot(
         authProvider.user!.id,
         DateTime.now(),
