@@ -717,6 +717,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
       colaboradorId: widget.colaborador!.id,
       colaboradorNome: widget.colaborador!.nome,
       duracaoMinutos: 10,
+      caixaId: widget.caixa.id,
     );
 
     if (mounted) {
@@ -782,8 +783,18 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
 
     if (confirm != true || !mounted) return;
 
+    final cafeProviderIntervalo =
+        Provider.of<CafeProvider>(widget.providerContext, listen: false);
+
     await widget.alocacaoProvider
         .liberarAlocacao(widget.alocacao!.id, 'intervalo');
+
+    cafeProviderIntervalo.iniciarPausa(
+      colaboradorId: widget.colaborador!.id,
+      colaboradorNome: widget.colaborador!.nome,
+      duracaoMinutos: duracaoMinutos,
+      caixaId: widget.caixa.id,
+    );
 
     final retornoEm =
         DateTime.now().add(Duration(minutes: duracaoMinutos));

@@ -12,6 +12,7 @@ import '../../providers/alocacao_provider.dart';
 import '../../providers/cafe_provider.dart';
 import '../../providers/entrega_provider.dart';
 import '../../providers/snapshot_provider.dart';
+import '../../providers/escala_provider.dart';
 import '../colaboradores/colaboradores_list_screen.dart';
 import '../colaboradores/colaboradores_status_screen.dart';
 import '../alocacao/alocacao_screen.dart';
@@ -91,6 +92,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final cafeProvider = Provider.of<CafeProvider>(context);
     final entregaProvider = Provider.of<EntregaProvider>(context);
     final snapshotProvider = Provider.of<SnapshotProvider>(context);
+
+    final escalaProvider = Provider.of<EscalaProvider>(context);
 
     final saudacao = _getSaudacao();
     final nome = fiscalProvider.fiscal?.nome ??
@@ -305,6 +308,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       const SizedBox(height: Dimensions.spacingMD),
                       ...alertas.map((a) => _AlertCard(item: a)),
                     ],
+
+                    // Monitor em tempo real
+                    const SizedBox(height: Dimensions.spacingMD),
+                    _MonitorTempoReal(
+                      cafeProvider: cafeProvider,
+                      colaboradorProvider: colaboradorProvider,
+                      caixaProvider: caixaProvider,
+                      escalaProvider: escalaProvider,
+                    ),
 
                     const SizedBox(height: Dimensions.spacingXL),
                   ],
@@ -603,6 +615,259 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (hora < 18) return 'Boa tarde';
     return 'Boa noite';
   }
+}
+
+// ── Monitor em tempo real ─────────────────────────────────────────────────────
+
+class _MonitorTempoReal extends StatelessWidget {
+  final CafeProvider cafeProvider;
+  final ColaboradorProvider colaboradorProvider;
+  final CaixaProvider caixaProvider;
+  final EscalaProvider escalaProvider;
+
+  const _MonitorTempoReal({
+    required this.cafeProvider,
+    required this.colaboradorProvider,
+    required this.caixaProvider,
+    required this.escalaProvider,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final pausasAtivas = cafeProvider.pausasAtivas;
+
+    // Próximos intervalos (≤15 min) — apenas colaboradores ativos no turno
+    final proximos = <_ProximoIntervalo>[];
+    for (final turno in escalaProvider.turnosHoje) {
+      if (turno.intervalo == null) continue;
+      final parts = turno.intervalo!.split(':');
+      if (parts.length < 2) continue;
+      final agora = DateTime.now();
+      final agoraMin = agora.hour * 60 + agora.minute;
+      final intervaloMin =
+          (int.tryParse(parts[0]) ?? 0) * 60 + (int.tryParse(parts[1]) ?? 0);
+      final diff = intervaloMin - agoraMin;
+      if (diff >= 0 && diff <= 15) {
+        final colab = colaboradorProvider.colaboradores
+            .cast<dynamic>()
+            .firstWhere((c) => c.id == turno.colaboradorId,
+                orElse: () => null);
+        if (colab != null) {
+          proximos.add(_ProximoIntervalo(
+            nome: colab.nome as String,
+            minutosRestantes: diff,
+            horario: turno.intervalo!,
+          ));
+        }
+      }
+    }
+
+    final semAlertas =
+        pausasAtivas.isEmpty && proximos.isEmpty;
+
+    return Card(
+      color: AppColors.cardBackground,
+      child: Padding(
+        padding: const EdgeInsets.all(Dimensions.paddingMD),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.monitor_heart_outlined,
+                    color: AppColors.primary, size: 18),
+                const SizedBox(width: 6),
+                Text('Monitor em tempo real', style: AppTextStyles.h4),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            if (semAlertas)
+              Row(
+                children: [
+                  const Icon(Icons.check_circle,
+                      color: AppColors.success, size: 16),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Tudo em ordem — nenhum alerta no momento',
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.success),
+                  ),
+                ],
+              )
+            else ...[
+              // Pausas ativas
+              if (pausasAtivas.isNotEmpty) ...[
+                Text(
+                  'EM PAUSA',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                ...pausasAtivas.map((p) {
+                  final caixa = p.caixaId != null
+                      ? caixaProvider.caixas
+                          .cast<dynamic>()
+                          .firstWhere((c) => c.id == p.caixaId,
+                              orElse: () => null)
+                      : null;
+                  final isCafe = p.duracaoMinutos <= 15;
+                  final cor = p.emAtraso
+                      ? AppColors.danger
+                      : Colors.orange.shade700;
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 6),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: cor.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: cor.withValues(alpha: 0.3)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          isCafe ? Icons.coffee : Icons.restaurant,
+                          color: cor,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                p.colaboradorNome,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: cor,
+                                ),
+                              ),
+                              Text(
+                                caixa != null
+                                    ? '${caixa.nomeExibicao} · ${p.minutosDecorridos}/${p.duracaoMinutos} min'
+                                    : '${p.minutosDecorridos}/${p.duracaoMinutos} min',
+                                style: AppTextStyles.caption.copyWith(
+                                    color: AppColors.textSecondary),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (p.emAtraso)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.danger,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              '+${p.minutosExcedidos}min',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () =>
+                              cafeProvider.finalizarPausa(p.colaboradorId),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.success.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                  color: AppColors.success
+                                      .withValues(alpha: 0.4)),
+                            ),
+                            child: const Text(
+                              'Retornou',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: AppColors.success,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ],
+
+              // Próximos intervalos
+              if (proximos.isNotEmpty) ...[
+                if (pausasAtivas.isNotEmpty) const SizedBox(height: 10),
+                Text(
+                  'INTERVALO EM BREVE',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                ...proximos.map((p) => Container(
+                      margin: const EdgeInsets.only(bottom: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.07),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                            color: Colors.orange.withValues(alpha: 0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.schedule,
+                              color: Colors.orange.shade700, size: 16),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              p.nome,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.orange.shade800,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            'às ${p.horario} · em ${p.minutosRestantes} min',
+                            style: AppTextStyles.caption.copyWith(
+                                color: Colors.orange.shade700),
+                          ),
+                        ],
+                      ),
+                    )),
+              ],
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProximoIntervalo {
+  final String nome;
+  final int minutosRestantes;
+  final String horario;
+
+  const _ProximoIntervalo({
+    required this.nome,
+    required this.minutosRestantes,
+    required this.horario,
+  });
 }
 
 // ── Helpers de layout ─────────────────────────────────────────────────────────

@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/caixa_provider.dart';
 import '../../providers/alocacao_provider.dart';
 import '../../providers/colaborador_provider.dart';
+import '../../providers/cafe_provider.dart';
 import '../../widgets/common/loading_widget.dart';
 import '../../widgets/common/empty_state_widget.dart';
 import '../alocacao/alocacao_screen.dart';
@@ -100,15 +101,23 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         children: [
           // ── ABA 1: MAPA ──────────────────────────────────────────────────
           Builder(builder: (context) {
-            // Apenas caixas com alocação ativa
+            final cafeProvider = Provider.of<CafeProvider>(context);
+
+            // Caixas com alocação ativa OU com pausa ativa (café/intervalo)
             final rapidos = caixaProvider.caixasRapidos
-                .where((c) => alocacaoProvider.getAlocacaoCaixa(c.id) != null)
+                .where((c) =>
+                    alocacaoProvider.getAlocacaoCaixa(c.id) != null ||
+                    cafeProvider.getPausaAtivaPorCaixa(c.id) != null)
                 .toList();
             final normais = caixaProvider.caixasNormais
-                .where((c) => alocacaoProvider.getAlocacaoCaixa(c.id) != null)
+                .where((c) =>
+                    alocacaoProvider.getAlocacaoCaixa(c.id) != null ||
+                    cafeProvider.getPausaAtivaPorCaixa(c.id) != null)
                 .toList();
             final selfs = caixaProvider.selfCheckouts
-                .where((c) => alocacaoProvider.getAlocacaoCaixa(c.id) != null)
+                .where((c) =>
+                    alocacaoProvider.getAlocacaoCaixa(c.id) != null ||
+                    cafeProvider.getPausaAtivaPorCaixa(c.id) != null)
                 .toList();
             final balcoes = caixaProvider.balcoes;
 

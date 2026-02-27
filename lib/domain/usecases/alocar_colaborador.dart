@@ -157,12 +157,6 @@ class AlocarColaborador {
         );
       }
 
-      if (!isOperadorSelf && isCaixaSelf) {
-        return AlocarColaboradorResult.erro(
-          'Apenas operadores de Self-checkout podem usar autoatendimento',
-        );
-      }
-
       // 4. Verifica se colaborador já está alocado em outra caixa
       final alocacaoAtiva =
           await alocacaoRepository.getAlocacaoAtivaColaborador(colaboradorId);

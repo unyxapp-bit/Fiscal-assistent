@@ -12,6 +12,8 @@ import '../../providers/auth_provider.dart';
 import '../../providers/colaborador_provider.dart';
 import '../../providers/alocacao_provider.dart';
 import '../../providers/cafe_provider.dart';
+import '../../providers/caixa_provider.dart';
+import '../../providers/pacote_plantao_provider.dart';
 
 class SnapshotScreen extends StatefulWidget {
   const SnapshotScreen({super.key});
@@ -45,7 +47,6 @@ class _SnapshotScreenState extends State<SnapshotScreen> {
     }
   }
 
-  /// Retorna o nome do colaborador a partir do ColaboradorProvider.
   String _nomeColaborador(String colaboradorId) {
     final colabs =
         Provider.of<ColaboradorProvider>(context, listen: false).colaboradores;
@@ -56,7 +57,6 @@ class _SnapshotScreenState extends State<SnapshotScreen> {
     }
   }
 
-  /// Retorna o departamento do colaborador via ColaboradorProvider.
   DepartamentoTipo? _departamentoColaborador(String colaboradorId) {
     final colabs =
         Provider.of<ColaboradorProvider>(context, listen: false).colaboradores;
@@ -174,7 +174,6 @@ class _SnapshotScreenState extends State<SnapshotScreen> {
               itemBuilder: (context, index) {
                 final presenca = snapshot.presencas[index];
 
-                // Folgas aparecem agrupadas no final com estilo diferente
                 if (presenca.status == StatusPresenca.folga) {
                   return Card(
                     margin: const EdgeInsets.only(bottom: 6),
@@ -206,6 +205,8 @@ class _SnapshotScreenState extends State<SnapshotScreen> {
                     presenca.minutosAtraso != null &&
                     presenca.minutosAtraso! > 10;
 
+                final isPendente = presenca.status == StatusPresenca.pendente;
+
                 return Card(
                   margin: const EdgeInsets.only(bottom: 8),
                   shape: RoundedRectangleBorder(
@@ -216,6 +217,10 @@ class _SnapshotScreenState extends State<SnapshotScreen> {
                         : BorderSide.none,
                   ),
                   child: ListTile(
+                    onTap: isPendente && !snapshot.finalizado
+                        ? () => _mostrarAcoesPresenca(
+                            context, presenca, snapshotProvider)
+                        : null,
                     leading: Stack(
                       clipBehavior: Clip.none,
                       children: [
@@ -350,6 +355,10 @@ class _SnapshotScreenState extends State<SnapshotScreen> {
       return 'Confirmado · esperado às $hora';
     }
 
+    if (presenca.status == StatusPresenca.atrasado) {
+      return 'Chegou atrasado · esperado às $hora';
+    }
+
     if (presenca.status == StatusPresenca.ausente) {
       return 'Ausente · esperado às $hora';
     }
@@ -384,6 +393,9 @@ class _SnapshotScreenState extends State<SnapshotScreen> {
     if (presenca.status == StatusPresenca.confirmado) {
       return AppColors.success;
     }
+    if (presenca.status == StatusPresenca.atrasado) {
+      return AppColors.statusAtencao;
+    }
     if (presenca.status == StatusPresenca.ausente) {
       return AppColors.danger;
     }
@@ -395,12 +407,13 @@ class _SnapshotScreenState extends State<SnapshotScreen> {
 
   bool _horarioSubtitleBold(dynamic presenca) {
     if (presenca.status == StatusPresenca.confirmado ||
-        presenca.status == StatusPresenca.ausente) {
+        presenca.status == StatusPresenca.ausente ||
+        presenca.status == StatusPresenca.atrasado) {
       return false;
     }
     final diff =
         presenca.horarioEsperado.toLocal().difference(DateTime.now());
-    return diff.inMinutes < 0; // negrito só se estiver atrasado
+    return diff.inMinutes < 0;
   }
 
   // ── Helpers de UI ───────────────────────────────────────────────────────
@@ -440,6 +453,11 @@ class _SnapshotScreenState extends State<SnapshotScreen> {
       return const Icon(Icons.check_circle, color: AppColors.success, size: 28);
     }
 
+    if (presenca.status == StatusPresenca.atrasado) {
+      return const Icon(Icons.schedule,
+          color: AppColors.statusAtencao, size: 28);
+    }
+
     if (presenca.status == StatusPresenca.ausente) {
       return IconButton(
         icon: const Icon(Icons.group_add, color: AppColors.primary),
@@ -452,48 +470,300 @@ class _SnapshotScreenState extends State<SnapshotScreen> {
       return const SizedBox.shrink();
     }
 
-    return PopupMenuButton<String>(
-      itemBuilder: (context) => [
-        const PopupMenuItem(
-          value: 'confirmar',
-          child: Row(children: [
-            Icon(Icons.check_circle_outline, color: AppColors.success),
-            SizedBox(width: 8),
-            Text('Confirmar Presente'),
-          ]),
+    // pendente — seta indicando que o tile é tappable
+    return const Icon(Icons.chevron_right,
+        color: AppColors.textSecondary, size: 20);
+  }
+
+  // ── Sheet de ações (pendente) ────────────────────────────────────────────
+
+  void _mostrarAcoesPresenca(
+    BuildContext context,
+    dynamic presenca,
+    SnapshotProvider provider,
+  ) {
+    final nome = _nomeColaborador(presenca.colaboradorId);
+    final dept = _departamentoColaborador(presenca.colaboradorId);
+    final hora = _timeFormat.format(presenca.horarioEsperado.toLocal());
+    final authProvider =
+        Provider.of<AuthProvider>(context, listen: false);
+    final alocacaoProvider =
+        Provider.of<AlocacaoProvider>(context, listen: false);
+    final pacoteProvider =
+        Provider.of<PacotePlantaoProvider>(context, listen: false);
+    final fiscalId = authProvider.user?.id ?? '';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetCtx) => Padding(
+        padding: EdgeInsets.only(
+          top: 20,
+          left: 16,
+          right: 16,
+          bottom: MediaQuery.of(sheetCtx).viewInsets.bottom + 20,
         ),
-        const PopupMenuItem(
-          value: 'atrasado',
-          child: Row(children: [
-            Icon(Icons.schedule, color: AppColors.statusAtencao),
-            SizedBox(width: 8),
-            Text('Chegou Atrasado'),
-          ]),
-        ),
-        const PopupMenuItem(
-          value: 'ausente',
-          child: Row(children: [
-            Icon(Icons.cancel, color: AppColors.danger),
-            SizedBox(width: 8),
-            Text('Marcar Ausente'),
-          ]),
-        ),
-      ],
-      onSelected: (value) {
-        if (value == 'confirmar') {
-          provider.confirmarPresenca(presenca.colaboradorId);
-        } else if (value == 'atrasado') {
-          provider.marcarAtrasado(presenca.colaboradorId);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Marcado como atrasado'),
-              backgroundColor: AppColors.statusAtencao,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Handle
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.cardBorder,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
             ),
-          );
-        } else if (value == 'ausente') {
-          _mostrarDialogoAusencia(context, presenca, provider);
-        }
-      },
+
+            // Avatar + info
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 24,
+                  backgroundColor:
+                      AppColors.primary.withValues(alpha: 0.12),
+                  child: Text(
+                    nome
+                        .split(' ')
+                        .take(2)
+                        .map((w) => w[0])
+                        .join()
+                        .toUpperCase(),
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(nome, style: AppTextStyles.h4),
+                      Text(
+                        '${dept?.nome ?? ''} · esperado às $hora',
+                        style: AppTextStyles.caption
+                            .copyWith(color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+            const Divider(height: 1),
+            const SizedBox(height: 12),
+
+            _AcaoBtn(
+              icon: Icons.check_circle_outline,
+              label: 'Confirmar presente',
+              color: AppColors.success,
+              onTap: () {
+                Navigator.pop(sheetCtx);
+                provider.confirmarPresenca(presenca.colaboradorId);
+              },
+            ),
+
+            const SizedBox(height: 8),
+
+            _AcaoBtn(
+              icon: Icons.person_pin,
+              label: 'Confirmar + Alocar em caixa',
+              color: AppColors.primary,
+              onTap: () {
+                Navigator.pop(sheetCtx);
+                provider.confirmarPresenca(presenca.colaboradorId);
+                _mostrarPickerCaixas(context, presenca.colaboradorId,
+                    fiscalId, alocacaoProvider);
+              },
+            ),
+
+            const SizedBox(height: 8),
+
+            _AcaoBtn(
+              icon: Icons.hourglass_top,
+              label: 'Aguardando caixa',
+              color: const Color(0xFF009688),
+              onTap: () {
+                Navigator.pop(sheetCtx);
+                provider.confirmarPresenca(presenca.colaboradorId,
+                    observacao: 'Aguardando caixa');
+              },
+            ),
+
+            if (dept == DepartamentoTipo.pacote) ...[
+              const SizedBox(height: 8),
+              _AcaoBtn(
+                icon: Icons.shopping_bag,
+                label: 'Presente + Em trabalho (Pacotes)',
+                color: const Color(0xFF795548),
+                onTap: () async {
+                  Navigator.pop(sheetCtx);
+                  await provider.confirmarPresenca(presenca.colaboradorId);
+                  await pacoteProvider.adicionar(
+                      fiscalId, presenca.colaboradorId);
+                },
+              ),
+            ],
+
+            const SizedBox(height: 8),
+
+            _AcaoBtn(
+              icon: Icons.schedule,
+              label: 'Chegou atrasado',
+              color: AppColors.statusAtencao,
+              onTap: () {
+                Navigator.pop(sheetCtx);
+                provider.marcarAtrasado(presenca.colaboradorId);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Marcado como atrasado'),
+                    backgroundColor: AppColors.statusAtencao,
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 8),
+
+            _AcaoBtn(
+              icon: Icons.cancel_outlined,
+              label: 'Marcar ausente',
+              color: AppColors.danger,
+              onTap: () {
+                Navigator.pop(sheetCtx);
+                _mostrarDialogoAusencia(context, presenca, provider);
+              },
+            ),
+
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Picker inline de caixas disponíveis ─────────────────────────────────
+
+  void _mostrarPickerCaixas(
+    BuildContext context,
+    String colaboradorId,
+    String fiscalId,
+    AlocacaoProvider alocacaoProvider,
+  ) {
+    final caixaProvider =
+        Provider.of<CaixaProvider>(context, listen: false);
+
+    final disponiveis = caixaProvider.caixas
+        .where((c) =>
+            c.ativo &&
+            !c.emManutencao &&
+            alocacaoProvider.getAlocacaoCaixa(c.id) == null)
+        .toList();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (pickerCtx) => Padding(
+        padding: EdgeInsets.only(
+          top: 16,
+          left: 16,
+          right: 16,
+          bottom: MediaQuery.of(pickerCtx).viewInsets.bottom + 16,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text('Alocar em caixa',
+                    style: AppTextStyles.subtitle
+                        .copyWith(fontWeight: FontWeight.bold)),
+                const Spacer(),
+                IconButton(
+                  onPressed: () => Navigator.pop(pickerCtx),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            if (disponiveis.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                    child: Text('Nenhum caixa disponível no momento')),
+              )
+            else
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(pickerCtx).size.height * 0.45,
+                ),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: disponiveis.length,
+                  itemBuilder: (_, i) {
+                    final caixa = disponiveis[i];
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor:
+                            AppColors.primary.withValues(alpha: 0.12),
+                        child: Text(
+                          '${caixa.numero}',
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      title: Text(caixa.nomeExibicao),
+                      subtitle: Text(caixa.tipo.nome),
+                      onTap: () async {
+                        Navigator.pop(pickerCtx);
+                        await alocacaoProvider.alocarColaborador(
+                          colaboradorId: colaboradorId,
+                          caixaId: caixa.id,
+                          fiscalId: fiscalId,
+                        );
+                        if (alocacaoProvider.error != null &&
+                            context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(alocacaoProvider.error!),
+                              backgroundColor: AppColors.danger,
+                            ),
+                          );
+                        } else if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  'Alocado em ${caixa.nomeExibicao}'),
+                              backgroundColor: AppColors.success,
+                            ),
+                          );
+                        }
+                      },
+                    );
+                  },
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -561,7 +831,6 @@ class _SnapshotScreenState extends State<SnapshotScreen> {
     final snapshot =
         Provider.of<SnapshotProvider>(context, listen: false).snapshotAtual;
 
-    // IDs que já estão no snapshot (evitar duplicar)
     final idsNoSnapshot = snapshot?.presencas
             .where((p) =>
                 p.status != StatusPresenca.ausente &&
@@ -573,8 +842,8 @@ class _SnapshotScreenState extends State<SnapshotScreen> {
     return colabProvider.colaboradores
         .where((c) => c.ativo)
         .where((c) => dept == null || c.departamento == dept)
-        .where((c) => c.id != colaboradorId) // não ele mesmo
-        .where((c) => !idsNoSnapshot.contains(c.id)) // não no snapshot ativo
+        .where((c) => c.id != colaboradorId)
+        .where((c) => !idsNoSnapshot.contains(c.id))
         .where((c) => alocProvider.getAlocacaoColaborador(c.id) == null)
         .where((c) => !cafeProvider.colaboradorEmPausa(c.id))
         .toList()
@@ -604,7 +873,6 @@ class _SnapshotScreenState extends State<SnapshotScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
               Row(
                 children: [
                   const Icon(Icons.group_add, color: AppColors.primary),
@@ -700,6 +968,54 @@ class _SnapshotScreenState extends State<SnapshotScreen> {
               ],
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Botão de ação no sheet ─────────────────────────────────────────────────────
+
+class _AcaoBtn extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _AcaoBtn({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.07),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withValues(alpha: 0.25)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

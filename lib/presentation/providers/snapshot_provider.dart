@@ -233,7 +233,8 @@ class SnapshotProvider with ChangeNotifier {
 
   // ─── Ações de presença ───────────────────────────────────────────────────
 
-  void confirmarPresenca(String colaboradorId) {
+  Future<void> confirmarPresenca(String colaboradorId,
+      {String? observacao}) async {
     if (_snapshotAtual == null) return;
     final index = _snapshotAtual!.presencas
         .indexWhere((p) => p.colaboradorId == colaboradorId);
@@ -242,13 +243,14 @@ class SnapshotProvider with ChangeNotifier {
           _snapshotAtual!.presencas[index].copyWith(
         status: StatusPresenca.confirmado,
         confirmadoEm: DateTime.now(),
+        observacao: observacao,
       );
       notifyListeners();
-      _syncPresenca(_snapshotAtual!.presencas[index]);
+      await _syncPresenca(_snapshotAtual!.presencas[index]);
     }
   }
 
-  void marcarAusente(String colaboradorId, String? observacao) {
+  Future<void> marcarAusente(String colaboradorId, String? observacao) async {
     if (_snapshotAtual == null) return;
     final index = _snapshotAtual!.presencas
         .indexWhere((p) => p.colaboradorId == colaboradorId);
@@ -259,11 +261,11 @@ class SnapshotProvider with ChangeNotifier {
         observacao: observacao,
       );
       notifyListeners();
-      _syncPresenca(_snapshotAtual!.presencas[index]);
+      await _syncPresenca(_snapshotAtual!.presencas[index]);
     }
   }
 
-  void marcarAtrasado(String colaboradorId) {
+  Future<void> marcarAtrasado(String colaboradorId) async {
     if (_snapshotAtual == null) return;
     final index = _snapshotAtual!.presencas
         .indexWhere((p) => p.colaboradorId == colaboradorId);
@@ -274,7 +276,7 @@ class SnapshotProvider with ChangeNotifier {
         confirmadoEm: DateTime.now(),
       );
       notifyListeners();
-      _syncPresenca(_snapshotAtual!.presencas[index]);
+      await _syncPresenca(_snapshotAtual!.presencas[index]);
     }
   }
 
@@ -296,7 +298,7 @@ class SnapshotProvider with ChangeNotifier {
         observacao: 'Substituído por $nomeSubstituto',
       );
       notifyListeners();
-      _syncPresenca(_snapshotAtual!.presencas[indexOriginal]);
+      await _syncPresenca(_snapshotAtual!.presencas[indexOriginal]);
     }
   }
 
@@ -354,16 +356,19 @@ class SnapshotProvider with ChangeNotifier {
 
   // ─── Sync / Parse ────────────────────────────────────────────────────────
 
-  void _syncPresenca(PresencaSnapshot p) {
-    SupabaseClientManager.client.from(_tableP).update({
-      'status': p.status.name,
-      'confirmado_em': p.confirmadoEm?.toIso8601String(),
-      'minutos_atraso': p.minutosAtraso,
-      'observacao': p.observacao,
-      'substituido_por': p.substituidoPor,
-    }).eq('id', p.id).then((_) {}).catchError((e) {
-      if (kDebugMode) debugPrint('[SnapshotProvider] Erro ao sync: $e');
-    });
+  Future<void> _syncPresenca(PresencaSnapshot p) async {
+    try {
+      await SupabaseClientManager.client.from(_tableP).update({
+        'status': p.status.name,
+        'confirmado_em': p.confirmadoEm?.toIso8601String(),
+        'minutos_atraso': p.minutosAtraso,
+        'observacao': p.observacao,
+        'substituido_por': p.substituidoPor,
+      }).eq('id', p.id);
+    } catch (e) {
+      debugPrint('[SnapshotProvider] ERRO ao sincronizar presença: $e');
+      rethrow;
+    }
   }
 
   PresencaSnapshot _presencaFromMap(Map<String, dynamic> m) =>

@@ -9,6 +9,7 @@ class PausaCafe {
   final String id;
   final String colaboradorId;
   final String colaboradorNome;
+  final String? caixaId; // caixa de onde saiu para a pausa
   final DateTime iniciadoEm;
   final int duracaoMinutos; // padrão 15
   DateTime? finalizadoEm;
@@ -18,6 +19,7 @@ class PausaCafe {
     required this.id,
     required this.colaboradorId,
     required this.colaboradorNome,
+    this.caixaId,
     required this.iniciadoEm,
     this.duracaoMinutos = 15,
     this.finalizadoEm,
@@ -28,6 +30,7 @@ class PausaCafe {
         id: m['id'] as String,
         colaboradorId: m['colaborador_id'] as String,
         colaboradorNome: m['colaborador_nome'] as String,
+        caixaId: m['caixa_id'] as String?,
         iniciadoEm: DateTime.parse(m['iniciado_em'] as String),
         duracaoMinutos: m['duracao_minutos'] as int? ?? 15,
         finalizadoEm: m['finalizado_em'] != null
@@ -40,6 +43,7 @@ class PausaCafe {
         'fiscal_id': fiscalId,
         'colaborador_id': colaboradorId,
         'colaborador_nome': colaboradorNome,
+        'caixa_id': caixaId,
         'iniciado_em': iniciadoEm.toIso8601String(),
         'duracao_minutos': duracaoMinutos,
         'finalizado_em': finalizadoEm?.toIso8601String(),
@@ -109,6 +113,16 @@ class CafeProvider with ChangeNotifier {
     }
   }
 
+  /// Retorna a pausa ativa associada a um caixa específico
+  PausaCafe? getPausaAtivaPorCaixa(String caixaId) {
+    try {
+      return _pausas
+          .firstWhere((p) => p.ativo && p.caixaId == caixaId);
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// Carrega pausas de hoje do Supabase (ativas + histórico do dia).
   Future<void> load() async {
     try {
@@ -127,6 +141,13 @@ class CafeProvider with ChangeNotifier {
         ..clear()
         ..addAll((rows as List)
             .map((r) => PausaCafe.fromMap(r as Map<String, dynamic>)));
+
+      // Bug 2: evitar re-disparar alerta para pausas que já expiraram
+      // enquanto o app estava fechado
+      for (final pausa in _pausas.where((p) => p.ativo && p.expirou)) {
+        pausa.alertaDisparado = true;
+      }
+
       notifyListeners();
     } catch (e) {
       if (kDebugMode) debugPrint('[CafeProvider] Erro ao carregar: $e');
@@ -163,6 +184,7 @@ class CafeProvider with ChangeNotifier {
     required String colaboradorId,
     required String colaboradorNome,
     int duracaoMinutos = 15,
+    String? caixaId,
   }) {
     if (colaboradorEmPausa(colaboradorId)) return;
 
@@ -170,6 +192,7 @@ class CafeProvider with ChangeNotifier {
       id: const Uuid().v4(),
       colaboradorId: colaboradorId,
       colaboradorNome: colaboradorNome,
+      caixaId: caixaId,
       iniciadoEm: DateTime.now(),
       duracaoMinutos: duracaoMinutos,
     );

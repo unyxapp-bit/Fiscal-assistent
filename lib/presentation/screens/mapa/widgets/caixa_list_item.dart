@@ -36,8 +36,29 @@ class CaixaListItem extends StatelessWidget {
             .firstOrNull
         : null;
 
+    final pausaCaixa = cafeProvider.getPausaAtivaPorCaixa(caixa.id);
     final isOcupado = alocacao != null;
-    final statusColor = _statusColor(isOcupado);
+    final isEmPausa = pausaCaixa != null && !isOcupado;
+
+    // Colaborador em pausa (para buscar turno mesmo sem alocação ativa)
+    final colaboradorEmPausa = isEmPausa && pausaCaixa.colaboradorId.isNotEmpty
+        ? colaboradorProvider.colaboradores
+            .where((c) => c.id == pausaCaixa.colaboradorId)
+            .firstOrNull
+        : null;
+
+    final colaboradorRef = colaborador ?? colaboradorEmPausa;
+
+    final turno = colaboradorRef != null
+        ? escalaProvider.turnosHoje
+            .where((t) => t.colaboradorId == colaboradorRef.id)
+            .firstOrNull
+        : null;
+
+    // Aviso 15 min antes do intervalo (apenas para caixas ocupados)
+    final proximoIntervalo = isOcupado && _proximoIntervalo(turno);
+
+    final statusColor = _statusColor(isOcupado, isEmPausa);
 
     return Card(
       margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
@@ -56,10 +77,16 @@ class CaixaListItem extends StatelessWidget {
               left: BorderSide(color: statusColor, width: 5),
             ),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
                     // Avatar com número do caixa
                     Container(
                       width: 44,
@@ -118,12 +145,12 @@ class CaixaListItem extends StatelessWidget {
                                 const SizedBox(width: 2),
                                 Expanded(
                                   child: Text(
-                                  [caixa.loja, caixa.localizacao]
-                                      .whereType<String>()
-                                      .join(' · '),
-                                  style: AppTextStyles.caption.copyWith(
-                                      color: AppColors.textSecondary),
-                                ),
+                                    [caixa.loja, caixa.localizacao]
+                                        .whereType<String>()
+                                        .join(' · '),
+                                    style: AppTextStyles.caption.copyWith(
+                                        color: AppColors.textSecondary),
+                                  ),
                                 ),
                               ],
                             ),
@@ -179,14 +206,76 @@ class CaixaListItem extends StatelessWidget {
                               ],
                             ),
                           ],
+
+                          // Colaborador em pausa (sem alocação ativa)
+                          if (isEmPausa && colaboradorEmPausa != null) ...[
+                            const SizedBox(height: 5),
+                            const Divider(height: 1, thickness: 0.5),
+                            const SizedBox(height: 5),
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 10,
+                                  backgroundColor:
+                                      Colors.orange.withValues(alpha: 0.2),
+                                  child: Text(
+                                    colaboradorEmPausa.iniciais.length > 1
+                                        ? colaboradorEmPausa.iniciais[0]
+                                        : colaboradorEmPausa.iniciais,
+                                    style: const TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.orange,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    colaboradorEmPausa.nome,
+                                    style: AppTextStyles.caption
+                                        .copyWith(fontWeight: FontWeight.w600),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ],
                       ),
                     ),
 
                     const SizedBox(width: 8),
 
-              // ── Trailing: badge de status ──────────────
-              _buildTrailing(isOcupado),
+                    // ── Trailing: badge de status ──────────────
+                    _buildTrailing(isOcupado, isEmPausa, pausaCaixa),
+                  ],
+                ),
+              ),
+
+              // ── Faixa: aviso de próximo intervalo ──────────
+              if (proximoIntervalo)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 4),
+                  color: Colors.orange.shade100,
+                  child: Row(
+                    children: [
+                      Icon(Icons.schedule,
+                          size: 12, color: Colors.orange.shade800),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Intervalo em breve (${_minutosParaIntervalo(turno)} min)',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.orange.shade800,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
             ],
           ),
         ),
@@ -194,7 +283,8 @@ class CaixaListItem extends StatelessWidget {
     );
   }
 
-  Widget _buildTrailing(bool isOcupado) {
+  Widget _buildTrailing(
+      bool isOcupado, bool isEmPausa, PausaCafe? pausaCaixa) {
     if (caixa.emManutencao) {
       return _StatusChip(
           label: 'Manutenção',
@@ -229,16 +319,68 @@ class CaixaListItem extends StatelessWidget {
         ],
       );
     }
+    if (isEmPausa && pausaCaixa != null) {
+      final isCafe = pausaCaixa.duracaoMinutos <= 15;
+      final label = isCafe
+          ? 'Café ${pausaCaixa.minutosDecorridos}min'
+          : 'Intervalo ${pausaCaixa.minutosDecorridos}min';
+      final cor =
+          pausaCaixa.emAtraso ? AppColors.danger : Colors.orange.shade700;
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          _StatusChip(
+            label: isCafe ? 'Em Café' : 'Em Intervalo',
+            color: cor,
+            icon: isCafe ? Icons.coffee : Icons.restaurant,
+          ),
+          const SizedBox(height: 3),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              color: cor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      );
+    }
     return _StatusChip(
         label: 'Disponível',
         color: AppColors.success,
         icon: Icons.check_circle_outline);
   }
 
-  Color _statusColor(bool isOcupado) {
+  bool _proximoIntervalo(TurnoLocal? turno) {
+    if (turno?.intervalo == null) return false;
+    final parts = turno!.intervalo!.split(':');
+    if (parts.length < 2) return false;
+    final agora = DateTime.now();
+    final agoraMin = agora.hour * 60 + agora.minute;
+    final intervaloMin =
+        (int.tryParse(parts[0]) ?? 0) * 60 + (int.tryParse(parts[1]) ?? 0);
+    final diff = intervaloMin - agoraMin;
+    return diff >= 0 && diff <= 15;
+  }
+
+  int _minutosParaIntervalo(TurnoLocal? turno) {
+    if (turno?.intervalo == null) return 0;
+    final parts = turno!.intervalo!.split(':');
+    if (parts.length < 2) return 0;
+    final agora = DateTime.now();
+    final agoraMin = agora.hour * 60 + agora.minute;
+    final intervaloMin =
+        (int.tryParse(parts[0]) ?? 0) * 60 + (int.tryParse(parts[1]) ?? 0);
+    return (intervaloMin - agoraMin).clamp(0, 99);
+  }
+
+  Color _statusColor(bool isOcupado, bool isEmPausa) {
     if (caixa.emManutencao) return AppColors.statusAtencao;
     if (!caixa.ativo) return AppColors.inactive;
     if (isOcupado) return AppColors.statusAtivo;
+    if (isEmPausa) return Colors.orange;
     return AppColors.success;
   }
 
