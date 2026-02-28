@@ -5,10 +5,19 @@ import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../providers/procedimento_provider.dart';
 
-/// Tela de Formulário de Procedimento
-/// Permite criar ou editar um procedimento
+// Entrada interna para cada passo (chave única + controller)
+class _PassoEntry {
+  final Key key = UniqueKey();
+  final TextEditingController controller;
+
+  _PassoEntry(String text) : controller = TextEditingController(text: text);
+  _PassoEntry.empty() : controller = TextEditingController();
+
+  void dispose() => controller.dispose();
+}
+
 class ProcedimentoFormScreen extends StatefulWidget {
-  final Procedimento? procedimento; // Null para novo, preenchido para edição
+  final Procedimento? procedimento;
 
   const ProcedimentoFormScreen({
     super.key,
@@ -16,7 +25,8 @@ class ProcedimentoFormScreen extends StatefulWidget {
   });
 
   @override
-  State<ProcedimentoFormScreen> createState() => _ProcedimentoFormScreenState();
+  State<ProcedimentoFormScreen> createState() =>
+      _ProcedimentoFormScreenState();
 }
 
 class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
@@ -27,36 +37,33 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
 
   String _categoriaSelecionada = 'rotina';
   bool _favorito = false;
-  final List<TextEditingController> _passosControllers = [];
+  final List<_PassoEntry> _passos = [];
 
-  final List<Map<String, String>> _categorias = [
-    {'value': 'abertura', 'label': 'Abertura'},
-    {'value': 'fechamento', 'label': 'Fechamento'},
-    {'value': 'emergencia', 'label': 'Emergência'},
-    {'value': 'rotina', 'label': 'Rotina'},
-    {'value': 'fiscal', 'label': 'Fiscal'},
-    {'value': 'caixa', 'label': 'Caixa'},
+  static const _categorias = [
+    ('abertura', 'Abertura'),
+    ('fechamento', 'Fechamento'),
+    ('emergencia', 'Emergência'),
+    ('rotina', 'Rotina'),
+    ('fiscal', 'Fiscal'),
+    ('caixa', 'Caixa'),
   ];
 
   @override
   void initState() {
     super.initState();
-    if (widget.procedimento != null) {
-      _tituloController.text = widget.procedimento!.titulo;
-      _descricaoController.text = widget.procedimento!.descricao;
-      _categoriaSelecionada = widget.procedimento!.categoria;
-      _favorito = widget.procedimento!.favorito;
+    final proc = widget.procedimento;
+    if (proc != null) {
+      _tituloController.text = proc.titulo;
+      _descricaoController.text = proc.descricao;
+      _categoriaSelecionada = proc.categoria;
+      _favorito = proc.favorito;
       _tempoEstimadoController.text =
-          widget.procedimento!.tempoEstimado?.toString() ?? '';
-
-      // Carregar passos
-      for (var passo in widget.procedimento!.passos) {
-        final controller = TextEditingController(text: passo);
-        _passosControllers.add(controller);
+          proc.tempoEstimado?.toString() ?? '';
+      for (final passo in proc.passos) {
+        _passos.add(_PassoEntry(passo));
       }
     } else {
-      // Adicionar um passo inicial vazio para novos procedimentos
-      _passosControllers.add(TextEditingController());
+      _passos.add(_PassoEntry.empty());
     }
   }
 
@@ -65,40 +72,45 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
     _tituloController.dispose();
     _descricaoController.dispose();
     _tempoEstimadoController.dispose();
-    for (var controller in _passosControllers) {
-      controller.dispose();
+    for (final entry in _passos) {
+      entry.dispose();
     }
     super.dispose();
   }
 
   void _adicionarPasso() {
-    setState(() {
-      _passosControllers.add(TextEditingController());
-    });
+    setState(() => _passos.add(_PassoEntry.empty()));
   }
 
   void _removerPasso(int index) {
-    if (_passosControllers.length > 1) {
-      setState(() {
-        _passosControllers[index].dispose();
-        _passosControllers.removeAt(index);
-      });
-    } else {
+    if (_passos.length <= 1) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Deve haver pelo menos 1 passo'),
           backgroundColor: AppColors.warning,
         ),
       );
+      return;
     }
+    setState(() {
+      _passos[index].dispose();
+      _passos.removeAt(index);
+    });
+  }
+
+  void _onReorder(int oldIndex, int newIndex) {
+    setState(() {
+      if (newIndex > oldIndex) newIndex--;
+      final entry = _passos.removeAt(oldIndex);
+      _passos.insert(newIndex, entry);
+    });
   }
 
   void _salvar() {
     if (!_formKey.currentState!.validate()) return;
 
-    // Validar passos
-    final passos = _passosControllers
-        .map((c) => c.text.trim())
+    final passos = _passos
+        .map((e) => e.controller.text.trim())
         .where((p) => p.isNotEmpty)
         .toList();
 
@@ -112,26 +124,19 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
       return;
     }
 
-    final provider = Provider.of<ProcedimentoProvider>(context, listen: false);
+    final provider =
+        Provider.of<ProcedimentoProvider>(context, listen: false);
 
     if (widget.procedimento == null) {
-      // Criar novo procedimento
+      // Favorito passado diretamente na criação (sem toggleFavorito)
       provider.adicionarProcedimento(
         titulo: _tituloController.text.trim(),
         descricao: _descricaoController.text.trim(),
         categoria: _categoriaSelecionada,
         passos: passos,
         tempoEstimado: int.tryParse(_tempoEstimadoController.text),
+        favorito: _favorito,
       );
-
-      // Se marcado como favorito, adicionar aos favoritos
-      if (_favorito) {
-        final procedimentos = provider.procedimentos;
-        if (procedimentos.isNotEmpty) {
-          provider.toggleFavorito(procedimentos.last.id);
-        }
-      }
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Procedimento criado com sucesso!'),
@@ -139,7 +144,6 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
         ),
       );
     } else {
-      // Editar procedimento existente
       provider.editarProcedimento(
         id: widget.procedimento!.id,
         titulo: _tituloController.text.trim(),
@@ -149,7 +153,6 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
         tempoEstimado: int.tryParse(_tempoEstimadoController.text),
         favorito: _favorito,
       );
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Procedimento atualizado com sucesso!'),
@@ -182,7 +185,7 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Título
+              // ── Título ─────────────────────────────────────────────────
               TextFormField(
                 controller: _tituloController,
                 decoration: const InputDecoration(
@@ -190,6 +193,7 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                   hintText: 'Ex: Emissão de Nota Fiscal',
                   prefixIcon: Icon(Icons.title),
                 ),
+                textCapitalization: TextCapitalization.sentences,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Título é obrigatório';
@@ -200,7 +204,7 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
 
               const SizedBox(height: Dimensions.spacingLG),
 
-              // Descrição
+              // ── Descrição ───────────────────────────────────────────────
               TextFormField(
                 controller: _descricaoController,
                 decoration: const InputDecoration(
@@ -214,7 +218,7 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
 
               const SizedBox(height: Dimensions.spacingLG),
 
-              // Categoria (Dropdown)
+              // ── Categoria ───────────────────────────────────────────────
               DropdownButtonFormField<String>(
                 initialValue: _categoriaSelecionada,
                 decoration: const InputDecoration(
@@ -223,8 +227,16 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                 ),
                 items: _categorias.map((cat) {
                   return DropdownMenuItem(
-                    value: cat['value'],
-                    child: Text(cat['label']!),
+                    value: cat.$1,
+                    child: Row(
+                      children: [
+                        Icon(cat.$1.categoriaIcon,
+                            size: 16,
+                            color: cat.$1.categoriaColor),
+                        const SizedBox(width: 8),
+                        Text(cat.$2),
+                      ],
+                    ),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -236,11 +248,11 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
 
               const SizedBox(height: Dimensions.spacingLG),
 
-              // Tempo Estimado
+              // ── Tempo estimado ──────────────────────────────────────────
               TextFormField(
                 controller: _tempoEstimadoController,
                 decoration: const InputDecoration(
-                  labelText: 'Tempo Estimado (minutos)',
+                  labelText: 'Tempo estimado (minutos)',
                   hintText: 'Ex: 15',
                   prefixIcon: Icon(Icons.timer),
                   suffixText: 'min',
@@ -250,101 +262,128 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
 
               const SizedBox(height: Dimensions.spacingLG),
 
-              // Favorito (Checkbox)
+              // ── Favorito ───────────────────────────────────────────────
               Card(
                 child: CheckboxListTile(
                   value: _favorito,
-                  onChanged: (value) => setState(() => _favorito = value ?? false),
+                  onChanged: (v) =>
+                      setState(() => _favorito = v ?? false),
                   title: const Text('Marcar como favorito'),
                   secondary: Icon(
                     _favorito ? Icons.star : Icons.star_outline,
-                    color: _favorito ? Colors.orange : AppColors.textSecondary,
+                    color: _favorito
+                        ? Colors.orange
+                        : AppColors.textSecondary,
                   ),
                 ),
               ),
 
               const SizedBox(height: Dimensions.spacingXL),
 
-              // Passos
+              // ── Passos (reordenáveis) ───────────────────────────────────
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text('Passos *', style: AppTextStyles.h4),
                   IconButton(
-                    icon: const Icon(Icons.add_circle, color: AppColors.primary),
+                    icon: const Icon(Icons.add_circle,
+                        color: AppColors.primary),
                     onPressed: _adicionarPasso,
                     tooltip: 'Adicionar passo',
                   ),
                 ],
               ),
-
+              Text(
+                'Segure e arraste ≡ para reordenar',
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary),
+              ),
               const SizedBox(height: Dimensions.spacingSM),
 
-              // Lista de passos
-              ListView.builder(
+              // ReorderableListView com shrinkWrap dentro do scroll pai
+              ReorderableListView(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: _passosControllers.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: Dimensions.spacingSM),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Número do passo
-                        Container(
-                          width: 32,
-                          height: 32,
-                          margin: const EdgeInsets.only(top: 12),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(16),
+                buildDefaultDragHandles: false,
+                onReorder: _onReorder,
+                children: [
+                  for (int i = 0; i < _passos.length; i++)
+                    Padding(
+                      key: _passos[i].key,
+                      padding: const EdgeInsets.only(
+                          bottom: Dimensions.spacingSM),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Handle de arraste
+                          ReorderableDragStartListener(
+                            index: i,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(top: 16, right: 4),
+                              child: Icon(Icons.drag_handle,
+                                  color: AppColors.inactive),
+                            ),
                           ),
-                          child: Center(
-                            child: Text(
-                              '${index + 1}',
-                              style: AppTextStyles.label.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+
+                          // Número do passo
+                          Container(
+                            width: 32,
+                            height: 32,
+                            margin: const EdgeInsets.only(top: 12),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Center(
+                              child: Text(
+                                '${i + 1}',
+                                style: AppTextStyles.label.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: Dimensions.spacingSM),
+                          const SizedBox(width: Dimensions.spacingSM),
 
-                        // Campo de texto do passo
-                        Expanded(
-                          child: TextFormField(
-                            controller: _passosControllers[index],
-                            decoration: InputDecoration(
-                              hintText: 'Digite o passo ${index + 1}',
-                              suffixIcon: _passosControllers.length > 1
-                                  ? IconButton(
-                                      icon: const Icon(
-                                        Icons.remove_circle,
-                                        color: AppColors.danger,
-                                      ),
-                                      onPressed: () => _removerPasso(index),
-                                    )
-                                  : null,
+                          // Campo de texto
+                          Expanded(
+                            child: TextFormField(
+                              controller: _passos[i].controller,
+                              decoration: InputDecoration(
+                                hintText: 'Digite o passo ${i + 1}',
+                                suffixIcon: _passos.length > 1
+                                    ? IconButton(
+                                        icon: const Icon(
+                                          Icons.remove_circle,
+                                          color: AppColors.danger,
+                                        ),
+                                        onPressed: () => _removerPasso(i),
+                                      )
+                                    : null,
+                              ),
+                              maxLines: 2,
                             ),
-                            maxLines: 2,
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  );
-                },
+                ],
               ),
 
               const SizedBox(height: Dimensions.spacingXL),
 
-              // Botões
+              // ── Botões ─────────────────────────────────────────────────
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize:
+                            const Size.fromHeight(Dimensions.buttonHeight),
+                      ),
                       child: const Text('Cancelar'),
                     ),
                   ),
@@ -352,6 +391,12 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _salvar,
+                      style: ElevatedButton.styleFrom(
+                        minimumSize:
+                            const Size.fromHeight(Dimensions.buttonHeight),
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                      ),
                       child: Text(isNovo ? 'Criar' : 'Salvar'),
                     ),
                   ),

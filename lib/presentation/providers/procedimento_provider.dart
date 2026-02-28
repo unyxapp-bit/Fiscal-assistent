@@ -1,8 +1,72 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/datasources/remote/supabase_client.dart';
+import '../../core/constants/colors.dart';
 
-/// Model para Procedimento
+// ── Extension de helpers por categoria ────────────────────────────────────────
+
+extension CategoriaExt on String {
+  Color get categoriaColor {
+    switch (this) {
+      case 'abertura':
+        return AppColors.success;
+      case 'fechamento':
+        return AppColors.danger;
+      case 'emergencia':
+        return AppColors.statusAtencao;
+      case 'rotina':
+        return AppColors.primary;
+      case 'fiscal':
+        return Colors.purple;
+      case 'caixa':
+        return AppColors.statusCafe;
+      default:
+        return AppColors.inactive;
+    }
+  }
+
+  IconData get categoriaIcon {
+    switch (this) {
+      case 'abertura':
+        return Icons.lock_open;
+      case 'fechamento':
+        return Icons.lock;
+      case 'emergencia':
+        return Icons.warning;
+      case 'rotina':
+        return Icons.checklist;
+      case 'fiscal':
+        return Icons.person;
+      case 'caixa':
+        return Icons.point_of_sale;
+      default:
+        return Icons.help;
+    }
+  }
+
+  String get categoriaNome {
+    switch (this) {
+      case 'abertura':
+        return 'Abertura';
+      case 'fechamento':
+        return 'Fechamento';
+      case 'emergencia':
+        return 'Emergência';
+      case 'rotina':
+        return 'Rotina';
+      case 'fiscal':
+        return 'Fiscal';
+      case 'caixa':
+        return 'Caixa';
+      default:
+        return this;
+    }
+  }
+}
+
+// ── Model ─────────────────────────────────────────────────────────────────────
+
 class Procedimento {
   final String id;
   final String titulo;
@@ -43,11 +107,11 @@ class Procedimento {
   }
 }
 
-/// Provider para gerenciar procedimentos com persistência no Supabase
+// ── Provider ──────────────────────────────────────────────────────────────────
+
 class ProcedimentoProvider with ChangeNotifier {
   static const _table = 'procedimentos';
 
-  // Seed keys estáveis para os pré-carregados
   static const _seeds = [
     'proc_fatura_dmcard',
     'proc_emissao_nf',
@@ -62,13 +126,54 @@ class ProcedimentoProvider with ChangeNotifier {
 
   final List<Procedimento> _procedimentos = [];
 
+  // ── Estado de busca/filtro ─────────────────────────────────────────────────
+  String _searchQuery = '';
+  String? _filtroCategoria;
+
+  // ── Getters públicos ───────────────────────────────────────────────────────
+
   List<Procedimento> get procedimentos => _procedimentos;
+
+  String? get filtroCategoria => _filtroCategoria;
+  String get searchQuery => _searchQuery;
+
+  List<Procedimento> get procedimentosFiltrados {
+    var result = List<Procedimento>.from(_procedimentos);
+    if (_filtroCategoria != null) {
+      result = result.where((p) => p.categoria == _filtroCategoria).toList();
+    }
+    if (_searchQuery.isNotEmpty) {
+      result = result
+          .where((p) =>
+              p.titulo.toLowerCase().contains(_searchQuery) ||
+              p.descricao.toLowerCase().contains(_searchQuery))
+          .toList();
+    }
+    return result;
+  }
+
   List<Procedimento> get favoritos =>
       _procedimentos.where((p) => p.favorito).toList();
 
+  int countByCategoria(String cat) =>
+      _procedimentos.where((p) => p.categoria == cat).length;
+
   String get _fiscalId => SupabaseClientManager.currentUserId!;
 
-  /// Carrega procedimentos do Supabase. Faz seed dos pré-carregados na 1ª vez.
+  // ── Busca/filtro ───────────────────────────────────────────────────────────
+
+  void setSearchQuery(String q) {
+    _searchQuery = q.toLowerCase().trim();
+    notifyListeners();
+  }
+
+  void setFiltroCategoria(String? cat) {
+    _filtroCategoria = cat;
+    notifyListeners();
+  }
+
+  // ── CRUD ───────────────────────────────────────────────────────────────────
+
   Future<void> load() async {
     try {
       final rows = await SupabaseClientManager.client
@@ -86,17 +191,20 @@ class ProcedimentoProvider with ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
-      if (kDebugMode) debugPrint('[ProcedimentoProvider] Erro ao carregar: $e');
+      if (kDebugMode) {
+        debugPrint('[ProcedimentoProvider] Erro ao carregar: $e');
+      }
     }
   }
 
-  /// Adiciona procedimento
+  /// Adiciona procedimento — favorito é passado diretamente (sem toggleFavorito posterior)
   void adicionarProcedimento({
     required String titulo,
     required String descricao,
     required String categoria,
     required List<String> passos,
     int? tempoEstimado,
+    bool favorito = false,
   }) {
     final proc = Procedimento(
       id: const Uuid().v4(),
@@ -104,6 +212,7 @@ class ProcedimentoProvider with ChangeNotifier {
       descricao: descricao,
       categoria: categoria,
       passos: passos,
+      favorito: favorito,
       tempoEstimado: tempoEstimado,
     );
     _procedimentos.add(proc);
@@ -111,7 +220,6 @@ class ProcedimentoProvider with ChangeNotifier {
     _upsert(proc, seedKey: null);
   }
 
-  /// Toggle favorito
   void toggleFavorito(String id) {
     final index = _procedimentos.indexWhere((p) => p.id == id);
     if (index != -1) {
@@ -123,12 +231,13 @@ class ProcedimentoProvider with ChangeNotifier {
           .eq('id', id)
           .then((_) {})
           .catchError((e) {
-        if (kDebugMode) debugPrint('[ProcedimentoProvider] Erro ao toggle: $e');
+        if (kDebugMode) {
+          debugPrint('[ProcedimentoProvider] Erro ao toggle: $e');
+        }
       });
     }
   }
 
-  /// Edita procedimento existente
   void editarProcedimento({
     required String id,
     required String titulo,
@@ -155,7 +264,6 @@ class ProcedimentoProvider with ChangeNotifier {
     }
   }
 
-  /// Remove procedimento
   void removerProcedimento(String id) {
     _procedimentos.removeWhere((p) => p.id == id);
     notifyListeners();
@@ -165,9 +273,13 @@ class ProcedimentoProvider with ChangeNotifier {
         .eq('id', id)
         .then((_) {})
         .catchError((e) {
-      if (kDebugMode) debugPrint('[ProcedimentoProvider] Erro ao remover: $e');
+      if (kDebugMode) {
+        debugPrint('[ProcedimentoProvider] Erro ao remover: $e');
+      }
     });
   }
+
+  // ── Internos ───────────────────────────────────────────────────────────────
 
   void _upsert(Procedimento p, {String? seedKey}) {
     SupabaseClientManager.client.from(_table).upsert({
@@ -182,7 +294,9 @@ class ProcedimentoProvider with ChangeNotifier {
       'tempo_estimado': p.tempoEstimado,
       'updated_at': DateTime.now().toIso8601String(),
     }).then((_) {}).catchError((e) {
-      if (kDebugMode) debugPrint('[ProcedimentoProvider] Erro ao sync: $e');
+      if (kDebugMode) {
+        debugPrint('[ProcedimentoProvider] Erro ao sync: $e');
+      }
     });
   }
 
@@ -207,7 +321,9 @@ class ProcedimentoProvider with ChangeNotifier {
       await SupabaseClientManager.client.from(_table).insert(data);
       _procedimentos.addAll(templates);
     } catch (e) {
-      if (kDebugMode) debugPrint('[ProcedimentoProvider] Erro ao seed: $e');
+      if (kDebugMode) {
+        debugPrint('[ProcedimentoProvider] Erro ao seed: $e');
+      }
       _procedimentos.addAll(templates);
     }
   }

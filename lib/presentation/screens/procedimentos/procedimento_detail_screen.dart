@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
@@ -6,9 +7,7 @@ import '../../../core/constants/dimensions.dart';
 import '../../providers/procedimento_provider.dart';
 import 'procedimento_form_screen.dart';
 
-/// Tela de Detalhes do Procedimento
-/// Exibe informações completas de um procedimento
-class ProcedimentoDetailScreen extends StatelessWidget {
+class ProcedimentoDetailScreen extends StatefulWidget {
   final Procedimento procedimento;
 
   const ProcedimentoDetailScreen({
@@ -17,31 +16,73 @@ class ProcedimentoDetailScreen extends StatelessWidget {
   });
 
   @override
+  State<ProcedimentoDetailScreen> createState() =>
+      _ProcedimentoDetailScreenState();
+}
+
+class _ProcedimentoDetailScreenState
+    extends State<ProcedimentoDetailScreen> {
+  // Passos marcados como concluídos (estado apenas em memória)
+  final Set<int> _passosConcluidos = {};
+
+  void _copiar(BuildContext context, Procedimento proc) {
+    final buf = StringBuffer();
+    buf.writeln(proc.titulo);
+    if (proc.descricao.isNotEmpty) {
+      buf.writeln();
+      buf.writeln(proc.descricao);
+    }
+    buf.writeln();
+    for (var i = 0; i < proc.passos.length; i++) {
+      buf.writeln('${i + 1}. ${proc.passos[i]}');
+    }
+    Clipboard.setData(ClipboardData(text: buf.toString().trim()));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Copiado para área de transferência')),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ProcedimentoProvider>(context);
     final proc = provider.procedimentos.firstWhere(
-      (p) => p.id == procedimento.id,
-      orElse: () => procedimento,
+      (p) => p.id == widget.procedimento.id,
+      orElse: () => widget.procedimento,
     );
+
+    final total = proc.passos.length;
+    final concluidos = _passosConcluidos.length;
+    final progresso = total > 0 ? concluidos / total : 0.0;
+    final tudo = progresso == 1.0 && total > 0;
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
-        title: const Text('Detalhes do Procedimento', style: AppTextStyles.h3),
+        title: const Text('Detalhes', style: AppTextStyles.h3),
         actions: [
-          // Botão de editar
+          // Copiar
+          IconButton(
+            icon: const Icon(Icons.copy),
+            tooltip: 'Copiar procedimento',
+            onPressed: () => _copiar(context, proc),
+          ),
+          // Reiniciar execução (só se algum passo foi marcado)
+          if (_passosConcluidos.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.restart_alt),
+              tooltip: 'Reiniciar execução',
+              onPressed: () =>
+                  setState(() => _passosConcluidos.clear()),
+            ),
+          // Editar
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => ProcedimentoFormScreen(procedimento: proc),
-                ),
-              );
-            },
             tooltip: 'Editar procedimento',
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => ProcedimentoFormScreen(procedimento: proc),
+            )),
           ),
         ],
       ),
@@ -50,7 +91,7 @@ class ProcedimentoDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Cabeçalho com título e favorito
+            // ── Cabeçalho ──────────────────────────────────────────────────
             Card(
               elevation: Dimensions.cardElevation,
               child: Padding(
@@ -62,19 +103,21 @@ class ProcedimentoDetailScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: Text(
-                            proc.titulo,
-                            style: AppTextStyles.h2,
-                          ),
+                          child: Text(proc.titulo,
+                              style: AppTextStyles.h2),
                         ),
-                        // Botão de favoritar
                         IconButton(
                           icon: Icon(
-                            proc.favorito ? Icons.star : Icons.star_outline,
-                            color: proc.favorito ? Colors.orange : AppColors.textSecondary,
+                            proc.favorito
+                                ? Icons.star
+                                : Icons.star_outline,
+                            color: proc.favorito
+                                ? Colors.orange
+                                : AppColors.textSecondary,
                             size: Dimensions.iconXL,
                           ),
-                          onPressed: () => provider.toggleFavorito(proc.id),
+                          onPressed: () =>
+                              provider.toggleFavorito(proc.id),
                           tooltip: proc.favorito
                               ? 'Remover dos favoritos'
                               : 'Adicionar aos favoritos',
@@ -83,27 +126,28 @@ class ProcedimentoDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: Dimensions.spacingSM),
 
-                    // Badge da categoria
+                    // Badge categoria
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: Dimensions.paddingSM,
                         vertical: Dimensions.paddingXS,
                       ),
                       decoration: BoxDecoration(
-                        color: _getCategoriaColor(proc.categoria),
-                        borderRadius: BorderRadius.circular(Dimensions.radiusSM),
+                        color: proc.categoria.categoriaColor,
+                        borderRadius:
+                            BorderRadius.circular(Dimensions.radiusSM),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            _getCategoriaIcon(proc.categoria),
+                            proc.categoria.categoriaIcon,
                             color: Colors.white,
                             size: Dimensions.iconSM,
                           ),
                           const SizedBox(width: Dimensions.spacingXXS),
                           Text(
-                            _getCategoriaNome(proc.categoria),
+                            proc.categoria.categoriaNome,
                             style: AppTextStyles.label.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -118,17 +162,14 @@ class ProcedimentoDetailScreen extends StatelessWidget {
                       const SizedBox(height: Dimensions.spacingSM),
                       Row(
                         children: [
-                          const Icon(
-                            Icons.timer,
-                            size: Dimensions.iconMD,
-                            color: AppColors.textSecondary,
-                          ),
+                          const Icon(Icons.timer,
+                              size: Dimensions.iconMD,
+                              color: AppColors.textSecondary),
                           const SizedBox(width: Dimensions.spacingXS),
                           Text(
                             'Tempo estimado: ${proc.tempoEstimado} minutos',
                             style: AppTextStyles.body.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
+                                color: AppColors.textSecondary),
                           ),
                         ],
                       ),
@@ -140,7 +181,7 @@ class ProcedimentoDetailScreen extends StatelessWidget {
 
             const SizedBox(height: Dimensions.spacingLG),
 
-            // Descrição
+            // ── Descrição ─────────────────────────────────────────────────
             if (proc.descricao.isNotEmpty) ...[
               const Text('Descrição', style: AppTextStyles.h4),
               const SizedBox(height: Dimensions.spacingSM),
@@ -148,133 +189,148 @@ class ProcedimentoDetailScreen extends StatelessWidget {
                 elevation: Dimensions.cardElevation,
                 child: Padding(
                   padding: const EdgeInsets.all(Dimensions.paddingMD),
-                  child: Text(
-                    proc.descricao,
-                    style: AppTextStyles.body,
-                  ),
+                  child: Text(proc.descricao, style: AppTextStyles.body),
                 ),
               ),
               const SizedBox(height: Dimensions.spacingLG),
             ],
 
-            // Passos
-            const Text('Passos', style: AppTextStyles.h4),
+            // ── Passos com progresso ───────────────────────────────────────
+            Row(
+              children: [
+                const Text('Passos', style: AppTextStyles.h4),
+                const Spacer(),
+                if (total > 0)
+                  Text(
+                    '$concluidos/$total',
+                    style: AppTextStyles.caption.copyWith(
+                      color: tudo
+                          ? AppColors.success
+                          : AppColors.textSecondary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+              ],
+            ),
             const SizedBox(height: Dimensions.spacingSM),
 
-            // Lista de passos numerados
+            // Barra de progresso
+            if (total > 0) ...[
+              LinearProgressIndicator(
+                value: progresso,
+                backgroundColor: AppColors.inactive.withValues(alpha: 0.2),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  tudo ? AppColors.success : AppColors.primary,
+                ),
+                borderRadius: BorderRadius.circular(4),
+                minHeight: 6,
+              ),
+              const SizedBox(height: Dimensions.spacingMD),
+            ],
+
+            // Lista de passos com checkboxes
             Card(
               elevation: Dimensions.cardElevation,
-              child: Padding(
-                padding: const EdgeInsets.all(Dimensions.paddingMD),
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: proc.passos.length,
-                  separatorBuilder: (context, index) => const Divider(
-                    height: Dimensions.spacingLG,
-                  ),
-                  itemBuilder: (context, index) {
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Número do passo
-                        Container(
-                          width: 36,
-                          height: 36,
+              child: Column(
+                children: proc.passos.asMap().entries.map((entry) {
+                  final i = entry.key;
+                  final passo = entry.value;
+                  final concluido = _passosConcluidos.contains(i);
+                  return Column(
+                    children: [
+                      CheckboxListTile(
+                        value: concluido,
+                        onChanged: (v) => setState(() {
+                          if (v == true) {
+                            _passosConcluidos.add(i);
+                          } else {
+                            _passosConcluidos.remove(i);
+                          }
+                        }),
+                        title: Text(
+                          passo,
+                          style: AppTextStyles.body.copyWith(
+                            decoration: concluido
+                                ? TextDecoration.lineThrough
+                                : null,
+                            color: concluido
+                                ? AppColors.inactive
+                                : AppColors.textPrimary,
+                          ),
+                        ),
+                        secondary: Container(
+                          width: 28,
+                          height: 28,
                           decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(18),
+                            color: concluido
+                                ? AppColors.success
+                                    .withValues(alpha: 0.15)
+                                : AppColors.primary
+                                    .withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(14),
                           ),
                           child: Center(
                             child: Text(
-                              '${index + 1}',
-                              style: AppTextStyles.body.copyWith(
-                                color: Colors.white,
+                              '${i + 1}',
+                              style: AppTextStyles.caption.copyWith(
+                                color: concluido
+                                    ? AppColors.success
+                                    : AppColors.primary,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: Dimensions.spacingMD),
-
-                        // Texto do passo
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                              top: Dimensions.paddingXS,
-                            ),
-                            child: Text(
-                              proc.passos[index],
-                              style: AppTextStyles.body,
-                            ),
-                          ),
+                        controlAffinity:
+                            ListTileControlAffinity.trailing,
+                        activeColor: AppColors.success,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: Dimensions.paddingMD,
+                          vertical: Dimensions.paddingXS,
                         ),
-                      ],
-                    );
-                  },
-                ),
+                      ),
+                      if (i < proc.passos.length - 1)
+                        const Divider(
+                            height: 1, indent: 16, endIndent: 16),
+                    ],
+                  );
+                }).toList(),
               ),
             ),
+
+            // Banner de conclusão
+            if (tudo) ...[
+              const SizedBox(height: Dimensions.spacingMD),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(Dimensions.paddingMD),
+                decoration: BoxDecoration(
+                  color: AppColors.success.withValues(alpha: 0.1),
+                  borderRadius:
+                      BorderRadius.circular(Dimensions.radiusMD),
+                  border: Border.all(
+                      color: AppColors.success.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.check_circle,
+                        color: AppColors.success),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Procedimento concluído!',
+                      style:
+                          AppTextStyles.h4.copyWith(color: AppColors.success),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
+            const SizedBox(height: Dimensions.spacingXL),
           ],
         ),
       ),
     );
-  }
-
-  Color _getCategoriaColor(String categoria) {
-    switch (categoria) {
-      case 'abertura':
-        return AppColors.success;
-      case 'fechamento':
-        return AppColors.danger;
-      case 'emergencia':
-        return AppColors.statusAtencao;
-      case 'rotina':
-        return AppColors.primary;
-      case 'fiscal':
-        return Colors.purple;
-      case 'caixa':
-        return AppColors.statusCafe;
-      default:
-        return AppColors.inactive;
-    }
-  }
-
-  IconData _getCategoriaIcon(String categoria) {
-    switch (categoria) {
-      case 'abertura':
-        return Icons.lock_open;
-      case 'fechamento':
-        return Icons.lock;
-      case 'emergencia':
-        return Icons.warning;
-      case 'rotina':
-        return Icons.checklist;
-      case 'fiscal':
-        return Icons.person;
-      case 'caixa':
-        return Icons.point_of_sale;
-      default:
-        return Icons.help;
-    }
-  }
-
-  String _getCategoriaNome(String categoria) {
-    switch (categoria) {
-      case 'abertura':
-        return 'Abertura';
-      case 'fechamento':
-        return 'Fechamento';
-      case 'emergencia':
-        return 'Emergência';
-      case 'rotina':
-        return 'Rotina';
-      case 'fiscal':
-        return 'Fiscal';
-      case 'caixa':
-        return 'Caixa';
-      default:
-        return categoria;
-    }
   }
 }
