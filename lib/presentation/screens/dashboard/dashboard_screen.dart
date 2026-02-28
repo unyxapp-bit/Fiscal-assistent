@@ -13,6 +13,7 @@ import '../../providers/cafe_provider.dart';
 import '../../providers/entrega_provider.dart';
 import '../../providers/escala_provider.dart';
 import '../../providers/nota_provider.dart';
+import '../../providers/formulario_provider.dart';
 import '../colaboradores/colaboradores_list_screen.dart';
 import '../colaboradores/colaboradores_status_screen.dart';
 import '../alocacao/alocacao_screen.dart';
@@ -73,6 +74,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       Provider.of<CafeProvider>(context, listen: false).load(),
       Provider.of<EntregaProvider>(context, listen: false).load(),
       Provider.of<NotaProvider>(context, listen: false).load(),
+      Provider.of<FormularioProvider>(context, listen: false).load(),
     ]);
 
     if (mounted) {

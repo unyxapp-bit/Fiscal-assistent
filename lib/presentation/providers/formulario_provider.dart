@@ -10,11 +10,15 @@ class FormularioProvider with ChangeNotifier {
   final List<Formulario> _formularios = [];
   final List<RespostaFormulario> _respostas = [];
 
+  // ─── Getters ───────────────────────────────────────────────────────────────
+
   List<Formulario> get formularios => _formularios;
   List<Formulario> get templates =>
       _formularios.where((f) => f.template).toList();
+
+  /// Todos os personalizados (ativos e inativos).
   List<Formulario> get personalizados =>
-      _formularios.where((f) => !f.template && f.ativo).toList();
+      _formularios.where((f) => !f.template).toList();
 
   List<RespostaFormulario> get respostas => _respostas;
 
@@ -23,18 +27,28 @@ class FormularioProvider with ChangeNotifier {
 
   String get _fiscalId => SupabaseClientManager.currentUserId!;
 
-  List<RespostaFormulario> respostasPorFormulario(String formularioId) {
-    return _respostas
-        .where((r) => r.formularioId == formularioId)
-        .toList()
-      ..sort((a, b) => b.preenchidoEm.compareTo(a.preenchidoEm));
+  List<RespostaFormulario> respostasPorFormulario(String formularioId) =>
+      _respostas
+          .where((r) => r.formularioId == formularioId)
+          .toList()
+        ..sort((a, b) => b.preenchidoEm.compareTo(a.preenchidoEm));
+
+  int totalRespostasPorFormulario(String formularioId) =>
+      respostasPorFormulario(formularioId).length;
+
+  /// Respostas registradas hoje para o formulário.
+  int respostasHoje(String formularioId) {
+    final hoje = DateTime.now();
+    return _respostas.where((r) {
+      return r.formularioId == formularioId &&
+          r.preenchidoEm.year == hoje.year &&
+          r.preenchidoEm.month == hoje.month &&
+          r.preenchidoEm.day == hoje.day;
+    }).length;
   }
 
-  int totalRespostasPorFormulario(String formularioId) {
-    return respostasPorFormulario(formularioId).length;
-  }
+  // ─── Load ──────────────────────────────────────────────────────────────────
 
-  /// Carrega formularios e respostas do Supabase. Faz seed dos templates na 1ª vez.
   Future<void> load() async {
     try {
       final rows = await SupabaseClientManager.client
@@ -46,13 +60,11 @@ class FormularioProvider with ChangeNotifier {
       _formularios.clear();
 
       if (rows.isEmpty) {
-        // Primeiro acesso: seed templates
         await _seedTemplates();
       } else {
         _formularios.addAll(rows.map(_fromMapF));
       }
 
-      // Carregar respostas
       final rowsR = await SupabaseClientManager.client
           .from(_tableR)
           .select()
@@ -69,7 +81,8 @@ class FormularioProvider with ChangeNotifier {
     }
   }
 
-  // CRUD Formulários
+  // ─── CRUD Formulários ──────────────────────────────────────────────────────
+
   void adicionarFormulario(Formulario formulario) {
     _formularios.add(formulario);
     notifyListeners();
@@ -99,7 +112,38 @@ class FormularioProvider with ChangeNotifier {
     });
   }
 
-  // CRUD Respostas
+  /// Duplica um template como formulário personalizado.
+  void duplicarTemplate(Formulario template) {
+    final now = DateTime.now();
+    final copia = Formulario(
+      id: const Uuid().v4(),
+      titulo: '${template.titulo} (cópia)',
+      descricao: template.descricao,
+      template: false,
+      ativo: true,
+      campos: template.campos,
+      createdAt: now,
+      updatedAt: now,
+    );
+    adicionarFormulario(copia);
+  }
+
+  /// Ativa/desativa um formulário personalizado sem deletar.
+  void toggleAtivo(String id) {
+    final index = _formularios.indexWhere((f) => f.id == id);
+    if (index != -1) {
+      final atualizado = _formularios[index].copyWith(
+        ativo: !_formularios[index].ativo,
+        updatedAt: DateTime.now(),
+      );
+      _formularios[index] = atualizado;
+      notifyListeners();
+      _upsertF(atualizado);
+    }
+  }
+
+  // ─── CRUD Respostas ────────────────────────────────────────────────────────
+
   void adicionarResposta(RespostaFormulario resposta) {
     _respostas.add(resposta);
     notifyListeners();
@@ -110,7 +154,9 @@ class FormularioProvider with ChangeNotifier {
       'valores': resposta.valores,
       'preenchido_em': resposta.preenchidoEm.toIso8601String(),
     }).then((_) {}).catchError((e) {
-      if (kDebugMode) debugPrint('[FormularioProvider] Erro ao salvar resposta: $e');
+      if (kDebugMode) {
+        debugPrint('[FormularioProvider] Erro ao salvar resposta: $e');
+      }
     });
   }
 
@@ -123,9 +169,13 @@ class FormularioProvider with ChangeNotifier {
         .eq('id', id)
         .then((_) {})
         .catchError((e) {
-      if (kDebugMode) debugPrint('[FormularioProvider] Erro ao deletar resposta: $e');
+      if (kDebugMode) {
+        debugPrint('[FormularioProvider] Erro ao deletar resposta: $e');
+      }
     });
   }
+
+  // ─── Sync ─────────────────────────────────────────────────────────────────
 
   void _upsertF(Formulario f) {
     SupabaseClientManager.client.from(_tableF).upsert({
@@ -135,58 +185,27 @@ class FormularioProvider with ChangeNotifier {
       'descricao': f.descricao,
       'template': f.template,
       'ativo': f.ativo,
-      'campos': f.campos,
-      'updated_at': DateTime.now().toIso8601String(),
+      'campos': f.campos.map((c) => c.toMap()).toList(),
+      'created_at': f.createdAt.toIso8601String(),
+      'updated_at': f.updatedAt.toIso8601String(),
     }).then((_) {}).catchError((e) {
-      if (kDebugMode) debugPrint('[FormularioProvider] Erro ao sincronizar: $e');
+      if (kDebugMode) {
+        debugPrint('[FormularioProvider] Erro ao sincronizar: $e');
+      }
     });
   }
 
-  Future<void> _seedTemplates() async {
-    final templates = _buildTemplates();
-    try {
-      final data = templates
-          .map((f) => {
-                'id': f.id,
-                'fiscal_id': _fiscalId,
-                'seed_key': f.id, // use local id as seed_key
-                'titulo': f.titulo,
-                'descricao': f.descricao,
-                'template': true,
-                'ativo': true,
-                'campos': f.campos,
-                'created_at': f.createdAt.toIso8601String(),
-                'updated_at': f.updatedAt.toIso8601String(),
-              })
-          .toList();
-
-      await SupabaseClientManager.client.from(_tableF).insert(data);
-      _formularios.addAll(templates);
-    } catch (e) {
-      if (kDebugMode) debugPrint('[FormularioProvider] Erro ao seed: $e');
-      // Fallback: use local templates only
-      _formularios.addAll(templates);
-    }
-  }
+  // ─── Parse ────────────────────────────────────────────────────────────────
 
   Formulario _fromMapF(Map<String, dynamic> m) {
-    // Suporta dois formatos de campos:
-    //   - Antigo: ["string", "string", ...]
-    //   - Novo:   [{"id": "...", "type": "...", "label": "..."}, ...]
     final rawCampos = m['campos'] as List? ?? [];
-    final campos = rawCampos.map<String>((c) {
-      if (c is String) return c;
-      if (c is Map) return (c['label'] ?? c['id'] ?? c.toString()).toString();
-      return c.toString();
-    }).toList();
-
     return Formulario(
       id: m['id'] as String,
       titulo: m['titulo'] as String,
       descricao: m['descricao'] as String? ?? '',
       template: m['template'] as bool? ?? false,
       ativo: m['ativo'] as bool? ?? true,
-      campos: campos,
+      campos: rawCampos.map<CampoFormulario>(CampoFormulario.fromRaw).toList(),
       createdAt: DateTime.parse(m['created_at'] as String),
       updatedAt: DateTime.parse(m['updated_at'] as String),
     );
@@ -199,130 +218,234 @@ class FormularioProvider with ChangeNotifier {
         preenchidoEm: DateTime.parse(m['preenchido_em'] as String),
       );
 
-  /// Gera UUID v5 determinístico a partir de uma chave de template.
-  /// Garante que o mesmo template sempre receba o mesmo UUID.
+  // ─── Templates ────────────────────────────────────────────────────────────
+
   static String _tmplUuid(String key) =>
       const Uuid().v5(Namespace.url.value, key);
 
+  static CampoFormulario _c(
+    String tmplKey,
+    String label, {
+    TipoCampo tipo = TipoCampo.texto,
+    bool obrigatorio = true,
+    List<String> opcoes = const [],
+  }) =>
+      CampoFormulario(
+        id: const Uuid().v5(Namespace.url.value, '$tmplKey:$label'),
+        label: label,
+        tipo: tipo,
+        obrigatorio: obrigatorio,
+        opcoes: opcoes,
+      );
+
+  Future<void> _seedTemplates() async {
+    final templates = _buildTemplates();
+    try {
+      final data = templates
+          .map((f) => {
+                'id': f.id,
+                'fiscal_id': _fiscalId,
+                'seed_key': f.id,
+                'titulo': f.titulo,
+                'descricao': f.descricao,
+                'template': true,
+                'ativo': true,
+                'campos': f.campos.map((c) => c.toMap()).toList(),
+                'created_at': f.createdAt.toIso8601String(),
+                'updated_at': f.updatedAt.toIso8601String(),
+              })
+          .toList();
+      await SupabaseClientManager.client.from(_tableF).insert(data);
+      _formularios.addAll(templates);
+    } catch (e) {
+      if (kDebugMode) debugPrint('[FormularioProvider] Erro ao seed: $e');
+      _formularios.addAll(templates);
+    }
+  }
+
   List<Formulario> _buildTemplates() {
     final now = DateTime.now();
+    const ab = 'tmpl_abertura';
+    const fe = 'tmpl_fechamento';
+    const oc = 'tmpl_ocorrencia';
+    const rc = 'tmpl_reclamacao';
+    const pf = 'tmpl_produto_falta';
+    const td = 'tmpl_troca_devolucao';
+    const af = 'tmpl_avaliacao_fornecedor';
+    const tp = 'tmpl_temperatura';
+    const vs = 'tmpl_vistoria_seguranca';
+    const ac = 'tmpl_avaliacao_colaborador';
+
     return [
       Formulario(
-        id: _tmplUuid('tmpl_abertura'),
+        id: _tmplUuid(ab),
         titulo: 'Checklist de Abertura',
         descricao: 'Verificações necessárias para abertura da loja',
         template: true,
         campos: [
-          'Luzes ligadas', 'Sistemas operacionais', 'Caixas abertos',
-          'Estoque verificado', 'Limpeza conferida', 'Colaboradores presentes',
+          _c(ab, 'Luzes ligadas', tipo: TipoCampo.simNao),
+          _c(ab, 'Sistemas operacionais', tipo: TipoCampo.simNao),
+          _c(ab, 'Caixas abertos', tipo: TipoCampo.simNao),
+          _c(ab, 'Estoque verificado', tipo: TipoCampo.simNao),
+          _c(ab, 'Limpeza conferida', tipo: TipoCampo.simNao),
+          _c(ab, 'Colaboradores presentes', tipo: TipoCampo.simNao),
         ],
         createdAt: now,
         updatedAt: now,
       ),
       Formulario(
-        id: _tmplUuid('tmpl_fechamento'),
+        id: _tmplUuid(fe),
         titulo: 'Checklist de Fechamento',
         descricao: 'Procedimentos para fechamento correto da loja',
         template: true,
         campos: [
-          'Caixas fechados', 'Fechamento de caixa conferido', 'Sistemas desligados',
-          'Luzes apagadas', 'Alarme ativado', 'Portas trancadas',
+          _c(fe, 'Caixas fechados', tipo: TipoCampo.simNao),
+          _c(fe, 'Fechamento de caixa conferido', tipo: TipoCampo.simNao),
+          _c(fe, 'Sistemas desligados', tipo: TipoCampo.simNao),
+          _c(fe, 'Luzes apagadas', tipo: TipoCampo.simNao),
+          _c(fe, 'Alarme ativado', tipo: TipoCampo.simNao),
+          _c(fe, 'Portas trancadas', tipo: TipoCampo.simNao),
         ],
         createdAt: now,
         updatedAt: now,
       ),
       Formulario(
-        id: _tmplUuid('tmpl_ocorrencia'),
+        id: _tmplUuid(oc),
         titulo: 'Registro de Ocorrência',
         descricao: 'Documento para registrar incidentes e ocorrências',
         template: true,
         campos: [
-          'Data e hora', 'Tipo de ocorrência', 'Descrição detalhada',
-          'Pessoas envolvidas', 'Ação tomada', 'Responsável',
+          _c(oc, 'Data e hora'),
+          _c(oc, 'Tipo de ocorrência',
+              tipo: TipoCampo.opcoes,
+              opcoes: [
+                'Roubo/Furto',
+                'Acidente',
+                'Briga',
+                'Problema com cliente',
+                'Falha de sistema',
+                'Outro'
+              ]),
+          _c(oc, 'Descrição detalhada'),
+          _c(oc, 'Pessoas envolvidas'),
+          _c(oc, 'Ação tomada'),
+          _c(oc, 'Responsável'),
         ],
         createdAt: now,
         updatedAt: now,
       ),
       Formulario(
-        id: _tmplUuid('tmpl_reclamacao'),
+        id: _tmplUuid(rc),
         titulo: 'Reclamação de Cliente',
         descricao: 'Registrar reclamações e feedback negativo de clientes',
         template: true,
         campos: [
-          'Nome do cliente', 'Telefone de contato', 'Produto/Serviço',
-          'Motivo da reclamação', 'Solução proposta', 'Status de resolução',
+          _c(rc, 'Nome do cliente'),
+          _c(rc, 'Telefone de contato', obrigatorio: false),
+          _c(rc, 'Produto / Serviço'),
+          _c(rc, 'Motivo da reclamação'),
+          _c(rc, 'Solução proposta'),
+          _c(rc, 'Status de resolução',
+              tipo: TipoCampo.opcoes,
+              opcoes: ['Aberto', 'Em andamento', 'Resolvido', 'Escalado']),
         ],
         createdAt: now,
         updatedAt: now,
       ),
       Formulario(
-        id: _tmplUuid('tmpl_produto_falta'),
+        id: _tmplUuid(pf),
         titulo: 'Solicitação de Produto em Falta',
         descricao: 'Registrar produtos esgotados para reposição',
         template: true,
         campos: [
-          'Nome do produto', 'Código/SKU', 'Seção/Departamento',
-          'Quantidade estimada necessária', 'Urgência', 'Observações',
+          _c(pf, 'Nome do produto'),
+          _c(pf, 'Código / SKU', obrigatorio: false),
+          _c(pf, 'Seção / Departamento'),
+          _c(pf, 'Quantidade estimada', tipo: TipoCampo.numero),
+          _c(pf, 'Urgência',
+              tipo: TipoCampo.opcoes,
+              opcoes: ['Alta', 'Média', 'Baixa']),
+          _c(pf, 'Observações', obrigatorio: false),
         ],
         createdAt: now,
         updatedAt: now,
       ),
       Formulario(
-        id: _tmplUuid('tmpl_troca_devolucao'),
+        id: _tmplUuid(td),
         titulo: 'Troca / Devolução',
         descricao: 'Controle de trocas e devoluções de produtos',
         template: true,
         campos: [
-          'Nome do cliente', 'Número do cupom/NF', 'Produto devolvido',
-          'Motivo da troca', 'Produto escolhido (troca)', 'Valor do estorno (devolução)',
+          _c(td, 'Nome do cliente'),
+          _c(td, 'Número do cupom / NF'),
+          _c(td, 'Produto devolvido'),
+          _c(td, 'Motivo da troca'),
+          _c(td, 'Produto escolhido (troca)', obrigatorio: false),
+          _c(td, 'Valor do estorno (devolução)', obrigatorio: false),
         ],
         createdAt: now,
         updatedAt: now,
       ),
       Formulario(
-        id: _tmplUuid('tmpl_avaliacao_fornecedor'),
+        id: _tmplUuid(af),
         titulo: 'Avaliação de Fornecedor',
         descricao: 'Avaliar a qualidade e pontualidade de fornecedores',
         template: true,
         campos: [
-          'Nome do fornecedor', 'Data da entrega', 'Produto(s) entregue(s)',
-          'Qualidade (1-5)', 'Pontualidade (1-5)', 'Observações',
+          _c(af, 'Nome do fornecedor'),
+          _c(af, 'Data da entrega'),
+          _c(af, 'Produto(s) entregue(s)'),
+          _c(af, 'Qualidade (1–5)', tipo: TipoCampo.numero),
+          _c(af, 'Pontualidade (1–5)', tipo: TipoCampo.numero),
+          _c(af, 'Observações', obrigatorio: false),
         ],
         createdAt: now,
         updatedAt: now,
       ),
       Formulario(
-        id: _tmplUuid('tmpl_temperatura'),
+        id: _tmplUuid(tp),
         titulo: 'Controle de Temperatura',
         descricao: 'Registro de temperatura de equipamentos e produtos',
         template: true,
         campos: [
-          'Equipamento/Local', 'Temperatura registrada (°C)', 'Horário',
-          'Responsável', 'Dentro da faixa ideal?', 'Ação corretiva (se aplicável)',
+          _c(tp, 'Equipamento / Local'),
+          _c(tp, 'Temperatura (°C)', tipo: TipoCampo.numero),
+          _c(tp, 'Horário'),
+          _c(tp, 'Responsável'),
+          _c(tp, 'Dentro da faixa ideal?', tipo: TipoCampo.simNao),
+          _c(tp, 'Ação corretiva', obrigatorio: false),
         ],
         createdAt: now,
         updatedAt: now,
       ),
       Formulario(
-        id: _tmplUuid('tmpl_vistoria_seguranca'),
+        id: _tmplUuid(vs),
         titulo: 'Vistoria de Segurança',
         descricao: 'Checklist de segurança do estabelecimento',
         template: true,
         campos: [
-          'Câmeras funcionando', 'Extintores verificados', 'Saídas de emergência livres',
-          'Iluminação de emergência', 'Equipamentos de segurança', 'Observações',
+          _c(vs, 'Câmeras funcionando', tipo: TipoCampo.simNao),
+          _c(vs, 'Extintores verificados', tipo: TipoCampo.simNao),
+          _c(vs, 'Saídas de emergência livres', tipo: TipoCampo.simNao),
+          _c(vs, 'Iluminação de emergência', tipo: TipoCampo.simNao),
+          _c(vs, 'Equipamentos de segurança ok', tipo: TipoCampo.simNao),
+          _c(vs, 'Observações', obrigatorio: false),
         ],
         createdAt: now,
         updatedAt: now,
       ),
       Formulario(
-        id: _tmplUuid('tmpl_avaliacao_colaborador'),
+        id: _tmplUuid(ac),
         titulo: 'Avaliação de Colaborador',
         descricao: 'Avaliação de desempenho de colaboradores',
         template: true,
         campos: [
-          'Nome do colaborador', 'Departamento', 'Pontualidade (1-5)',
-          'Produtividade (1-5)', 'Atendimento ao cliente (1-5)', 'Observações e feedbacks',
+          _c(ac, 'Nome do colaborador'),
+          _c(ac, 'Departamento'),
+          _c(ac, 'Pontualidade (1–5)', tipo: TipoCampo.numero),
+          _c(ac, 'Produtividade (1–5)', tipo: TipoCampo.numero),
+          _c(ac, 'Atendimento ao cliente (1–5)', tipo: TipoCampo.numero),
+          _c(ac, 'Observações e feedbacks', obrigatorio: false),
         ],
         createdAt: now,
         updatedAt: now,
@@ -331,17 +454,16 @@ class FormularioProvider with ChangeNotifier {
   }
 }
 
-// Make RespostaFormulario.id generable
+// ── Helper de criação de resposta ─────────────────────────────────────────────
 extension RespostaFormularioEx on RespostaFormulario {
   static RespostaFormulario create({
     required String formularioId,
     required Map<String, dynamic> valores,
-  }) {
-    return RespostaFormulario(
-      id: const Uuid().v4(),
-      formularioId: formularioId,
-      valores: valores,
-      preenchidoEm: DateTime.now(),
-    );
-  }
+  }) =>
+      RespostaFormulario(
+        id: const Uuid().v4(),
+        formularioId: formularioId,
+        valores: valores,
+        preenchidoEm: DateTime.now(),
+      );
 }
