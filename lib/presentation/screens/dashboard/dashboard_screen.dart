@@ -12,6 +12,7 @@ import '../../providers/alocacao_provider.dart';
 import '../../providers/cafe_provider.dart';
 import '../../providers/entrega_provider.dart';
 import '../../providers/escala_provider.dart';
+import '../../providers/nota_provider.dart';
 import '../colaboradores/colaboradores_list_screen.dart';
 import '../colaboradores/colaboradores_status_screen.dart';
 import '../alocacao/alocacao_screen.dart';
@@ -71,6 +72,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           .loadAlocacoes(userId),
       Provider.of<CafeProvider>(context, listen: false).load(),
       Provider.of<EntregaProvider>(context, listen: false).load(),
+      Provider.of<NotaProvider>(context, listen: false).load(),
     ]);
 
     if (mounted) {
@@ -89,6 +91,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final cafeProvider = Provider.of<CafeProvider>(context);
     final entregaProvider = Provider.of<EntregaProvider>(context);
     final escalaProvider = Provider.of<EscalaProvider>(context);
+    final notaProvider = Provider.of<NotaProvider>(context);
 
     final saudacao = _getSaudacao();
     final nome = fiscalProvider.fiscal?.nome ??
@@ -121,6 +124,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
           color: AppColors.statusAtencao,
           onTap: () => Navigator.push(context,
               MaterialPageRoute(builder: (_) => const EntregasScreen())),
+        ),
+      if (notaProvider.totalLembretesVencidos > 0)
+        _AlertItem(
+          icon: Icons.alarm_off,
+          label:
+              '${notaProvider.totalLembretesVencidos} lembrete${notaProvider.totalLembretesVencidos > 1 ? 's vencidos' : ' vencido'}',
+          color: AppColors.danger,
+          onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const NotasScreen())),
         ),
     ];
 
@@ -413,6 +425,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         icon: Icons.note,
                         label: 'Anotações',
                         color: const Color(0xFFFF5722),
+                        badge: notaProvider.totalTarefasPendentes > 0
+                            ? notaProvider.totalTarefasPendentes.toString()
+                            : null,
                         onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(
                               builder: (_) => const NotasScreen()),

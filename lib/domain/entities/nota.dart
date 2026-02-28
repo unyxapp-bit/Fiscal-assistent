@@ -25,6 +25,12 @@ class Nota {
     required this.updatedAt,
   });
 
+  /// True quando a nota tem data passada e ainda não foi concluída.
+  bool get isVencido =>
+      dataLembrete != null &&
+      dataLembrete!.isBefore(DateTime.now()) &&
+      !concluida;
+
   Nota copyWith({
     String? id,
     String? titulo,

@@ -7,10 +7,9 @@ import '../../../domain/entities/nota.dart';
 import '../../../domain/enums/tipo_lembrete.dart';
 import '../../providers/nota_provider.dart';
 
-/// Tela de Formulário de Nota
-/// Criar ou editar anotações, tarefas e lembretes
+/// Tela de Formulário de Nota — criar ou editar anotações, tarefas e lembretes.
 class NotaFormScreen extends StatefulWidget {
-  final Nota? nota; // null = nova, preenchido = edição
+  final Nota? nota;
 
   const NotaFormScreen({super.key, this.nota});
 
@@ -25,6 +24,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
 
   TipoLembrete _tipo = TipoLembrete.anotacao;
   bool _importante = false;
+  bool _lembreteAtivo = true;
   DateTime? _dataLembrete;
 
   bool get _isEdicao => widget.nota != null;
@@ -37,6 +37,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
       _conteudoController.text = widget.nota!.conteudo;
       _tipo = widget.nota!.tipo;
       _importante = widget.nota!.importante;
+      _lembreteAtivo = widget.nota!.lembreteAtivo;
       _dataLembrete = widget.nota!.dataLembrete;
     }
   }
@@ -52,19 +53,18 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
     final now = DateTime.now();
     final data = await showDatePicker(
       context: context,
-      initialDate: _dataLembrete ?? now,
+      initialDate: _dataLembrete != null && _dataLembrete!.isAfter(now)
+          ? _dataLembrete!
+          : now,
       firstDate: now,
-      lastDate: now.add(const Duration(days: 365)),
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: const ColorScheme.light(primary: AppColors.primary),
-          ),
-          child: child!,
-        );
-      },
+      lastDate: now.add(const Duration(days: 365 * 2)),
+      builder: (context, child) => Theme(
+        data: ThemeData.light().copyWith(
+          colorScheme: const ColorScheme.light(primary: AppColors.primary),
+        ),
+        child: child!,
+      ),
     );
-
     if (data == null || !mounted) return;
 
     final hora = await showTimePicker(
@@ -72,26 +72,18 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
       initialTime: _dataLembrete != null
           ? TimeOfDay.fromDateTime(_dataLembrete!)
           : TimeOfDay.now(),
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: const ColorScheme.light(primary: AppColors.primary),
-          ),
-          child: child!,
-        );
-      },
+      builder: (context, child) => Theme(
+        data: ThemeData.light().copyWith(
+          colorScheme: const ColorScheme.light(primary: AppColors.primary),
+        ),
+        child: child!,
+      ),
     );
-
     if (hora == null) return;
 
     setState(() {
       _dataLembrete = DateTime(
-        data.year,
-        data.month,
-        data.day,
-        hora.hour,
-        hora.minute,
-      );
+          data.year, data.month, data.day, hora.hour, hora.minute);
     });
   }
 
@@ -99,6 +91,8 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final provider = Provider.of<NotaProvider>(context, listen: false);
+    final hasDate =
+        _tipo == TipoLembrete.lembrete || _tipo == TipoLembrete.tarefa;
 
     if (_isEdicao) {
       final notaAtualizada = widget.nota!.copyWith(
@@ -106,33 +100,31 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
         conteudo: _conteudoController.text.trim(),
         tipo: _tipo,
         importante: _importante,
-        dataLembrete: _tipo == TipoLembrete.lembrete ? _dataLembrete : null,
+        lembreteAtivo: _tipo == TipoLembrete.lembrete ? _lembreteAtivo : true,
+        dataLembrete: hasDate ? _dataLembrete : null,
         updatedAt: DateTime.now(),
       );
       provider.atualizarNota(notaAtualizada);
-
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Nota atualizada!'),
-          backgroundColor: AppColors.success,
-        ),
+            content: Text('Nota atualizada!'),
+            backgroundColor: AppColors.success),
       );
     } else {
       provider.adicionarNota(
         _tituloController.text.trim(),
         _conteudoController.text.trim(),
         _tipo,
-        dataLembrete: _tipo == TipoLembrete.lembrete ? _dataLembrete : null,
+        dataLembrete: hasDate ? _dataLembrete : null,
         importante: _importante,
+        lembreteAtivo: _tipo == TipoLembrete.lembrete ? _lembreteAtivo : true,
       );
-
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${_tipo.nome} criada!'),
-          backgroundColor: AppColors.success,
-        ),
+            content: Text('${_tipo.nome} criada!'),
+            backgroundColor: AppColors.success),
       );
     }
 
@@ -142,13 +134,16 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
   String _formatDataLembrete(DateTime dt) {
     final dia = dt.day.toString().padLeft(2, '0');
     final mes = dt.month.toString().padLeft(2, '0');
-    final hora = dt.hour.toString().padLeft(2, '0');
-    final min = dt.minute.toString().padLeft(2, '0');
-    return '$dia/$mes/${dt.year} às $hora:$min';
+    final h = dt.hour.toString().padLeft(2, '0');
+    final m = dt.minute.toString().padLeft(2, '0');
+    return '$dia/$mes/${dt.year} às $h:$m';
   }
 
   @override
   Widget build(BuildContext context) {
+    final showDate =
+        _tipo == TipoLembrete.lembrete || _tipo == TipoLembrete.tarefa;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -165,7 +160,8 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
               color: _importante ? Colors.orange : null,
             ),
             onPressed: () => setState(() => _importante = !_importante),
-            tooltip: _importante ? 'Remover destaque' : 'Marcar como importante',
+            tooltip:
+                _importante ? 'Remover destaque' : 'Marcar como importante',
           ),
         ],
       ),
@@ -176,45 +172,46 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Seletor de Tipo
+              // ── Seletor de Tipo ─────────────────────────────────────────
               const Text('Tipo', style: AppTextStyles.h4),
               const SizedBox(height: Dimensions.spacingSM),
               Row(
                 children: TipoLembrete.values.map((tipo) {
-                  final selecionado = _tipo == tipo;
+                  final sel = _tipo == tipo;
                   return Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: InkWell(
                         onTap: () => setState(() => _tipo = tipo),
-                        borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+                        borderRadius:
+                            BorderRadius.circular(Dimensions.radiusMD),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                            vertical: Dimensions.paddingSM,
-                          ),
+                              vertical: Dimensions.paddingSM),
                           decoration: BoxDecoration(
-                            color: selecionado
+                            color: sel
                                 ? tipo.cor.withValues(alpha: 0.15)
                                 : Colors.transparent,
                             border: Border.all(
-                              color: selecionado ? tipo.cor : AppColors.inactive,
-                              width: selecionado ? 2 : 1,
+                              color: sel ? tipo.cor : AppColors.inactive,
+                              width: sel ? 2 : 1,
                             ),
-                            borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+                            borderRadius:
+                                BorderRadius.circular(Dimensions.radiusMD),
                           ),
                           child: Column(
                             children: [
-                              Icon(
-                                tipo.icone,
-                                color: selecionado ? tipo.cor : AppColors.inactive,
-                                size: 20,
-                              ),
+                              Icon(tipo.icone,
+                                  color: sel ? tipo.cor : AppColors.inactive,
+                                  size: 20),
                               const SizedBox(height: 4),
                               Text(
                                 tipo.nome,
                                 style: AppTextStyles.caption.copyWith(
-                                  color: selecionado ? tipo.cor : AppColors.textSecondary,
-                                  fontWeight: selecionado
+                                  color: sel
+                                      ? tipo.cor
+                                      : AppColors.textSecondary,
+                                  fontWeight: sel
                                       ? FontWeight.bold
                                       : FontWeight.normal,
                                 ),
@@ -231,7 +228,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
 
               const SizedBox(height: Dimensions.spacingLG),
 
-              // Título
+              // ── Título ──────────────────────────────────────────────────
               TextFormField(
                 controller: _tituloController,
                 decoration: InputDecoration(
@@ -244,17 +241,14 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                   prefixIcon: const Icon(Icons.title),
                 ),
                 textCapitalization: TextCapitalization.sentences,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Título é obrigatório';
-                  }
-                  return null;
-                },
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? 'Título é obrigatório'
+                    : null,
               ),
 
               const SizedBox(height: Dimensions.spacingMD),
 
-              // Conteúdo
+              // ── Conteúdo ────────────────────────────────────────────────
               TextFormField(
                 controller: _conteudoController,
                 decoration: InputDecoration(
@@ -272,25 +266,24 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                 maxLines: 4,
                 textCapitalization: TextCapitalization.sentences,
                 validator: _tipo == TipoLembrete.anotacao
-                    ? (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Conteúdo é obrigatório para anotações';
-                        }
-                        return null;
-                      }
+                    ? (v) => (v == null || v.trim().isEmpty)
+                        ? 'Conteúdo é obrigatório para anotações'
+                        : null
                     : null,
               ),
 
-              // Data/Hora para Lembretes
-              if (_tipo == TipoLembrete.lembrete) ...[
+              // ── Data / Prazo (Lembrete e Tarefa) ────────────────────────
+              if (showDate) ...[
                 const SizedBox(height: Dimensions.spacingMD),
                 Card(
                   child: ListTile(
-                    leading: const Icon(
-                      Icons.alarm,
-                      color: AppColors.primary,
+                    leading:
+                        const Icon(Icons.alarm, color: AppColors.primary),
+                    title: Text(
+                      _tipo == TipoLembrete.tarefa
+                          ? 'Prazo (opcional)'
+                          : 'Data e Hora do Lembrete',
                     ),
-                    title: const Text('Data e Hora do Lembrete'),
                     subtitle: Text(
                       _dataLembrete != null
                           ? _formatDataLembrete(_dataLembrete!)
@@ -320,16 +313,31 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                 ),
               ],
 
+              // ── Toggle notificação (só Lembrete) ─────────────────────────
+              if (_tipo == TipoLembrete.lembrete) ...[
+                SwitchListTile(
+                  title: const Text('Notificação ativa'),
+                  subtitle:
+                      const Text('Desative se não quiser ser notificado'),
+                  value: _lembreteAtivo,
+                  onChanged: (v) => setState(() => _lembreteAtivo = v),
+                  activeColor: AppColors.primary,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ],
+
               const SizedBox(height: Dimensions.spacingMD),
 
-              // Banner de importante
+              // ── Banner de importante ────────────────────────────────────
               if (_importante)
                 Container(
                   padding: const EdgeInsets.all(Dimensions.paddingSM),
                   decoration: BoxDecoration(
                     color: Colors.orange.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(Dimensions.radiusMD),
-                    border: Border.all(color: Colors.orange.withValues(alpha: 0.5)),
+                    borderRadius:
+                        BorderRadius.circular(Dimensions.radiusMD),
+                    border: Border.all(
+                        color: Colors.orange.withValues(alpha: 0.5)),
                   ),
                   child: Row(
                     children: [
@@ -348,14 +356,15 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
 
               const SizedBox(height: Dimensions.spacingXL),
 
-              // Botões
+              // ── Botões ──────────────────────────────────────────────────
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
                       style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(Dimensions.buttonHeight),
+                        minimumSize:
+                            const Size.fromHeight(Dimensions.buttonHeight),
                       ),
                       child: const Text('Cancelar'),
                     ),
@@ -365,7 +374,8 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                     child: ElevatedButton(
                       onPressed: _salvar,
                       style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(Dimensions.buttonHeight),
+                        minimumSize:
+                            const Size.fromHeight(Dimensions.buttonHeight),
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                       ),
