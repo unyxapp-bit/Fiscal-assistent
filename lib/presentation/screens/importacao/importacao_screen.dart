@@ -34,6 +34,7 @@ class _ImportacaoScreenState extends State<ImportacaoScreen> {
       type: FileType.custom,
       allowedExtensions: ['txt'],
       allowMultiple: false,
+      withData: true, // garante que os bytes estão disponíveis no Android
     );
 
     if (result == null || result.files.isEmpty) return;
@@ -42,10 +43,11 @@ class _ImportacaoScreenState extends State<ImportacaoScreen> {
     String content;
 
     try {
-      if (picked.path != null) {
-        content = await File(picked.path!).readAsString();
-      } else if (picked.bytes != null) {
+      // Prefere bytes (sempre disponível com withData: true)
+      if (picked.bytes != null) {
         content = String.fromCharCodes(picked.bytes!);
+      } else if (picked.path != null) {
+        content = await File(picked.path!).readAsString();
       } else {
         return;
       }
@@ -70,8 +72,12 @@ class _ImportacaoScreenState extends State<ImportacaoScreen> {
       _nomeArquivo = picked.name;
     });
 
-    // Analisa automaticamente após carregar o arquivo
-    await _analisar();
+    // Só analisa automaticamente se a API estiver configurada
+    final provider =
+        Provider.of<ImportacaoProvider>(context, listen: false);
+    if (provider.configurado) {
+      await _analisar();
+    }
   }
 
   Future<void> _analisar() async {
@@ -218,9 +224,7 @@ class _ImportacaoScreenState extends State<ImportacaoScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: provider.carregando || !provider.configurado
-                    ? null
-                    : _selecionarArquivo,
+                onPressed: provider.carregando ? null : _selecionarArquivo,
                 icon: provider.carregando
                     ? const SizedBox(
                         width: 18,
@@ -324,15 +328,13 @@ class _ImportacaoScreenState extends State<ImportacaoScreen> {
               style: const TextStyle(fontSize: 13),
             ),
 
-            // Botão analisar (só aparece quando há texto colado manualmente)
-            if (_textCtrl.text.isNotEmpty && _nomeArquivo == null) ...[
+            // Botão analisar — aparece quando há conteúdo e ainda não foi analisado
+            if (_textCtrl.text.isNotEmpty && provider.eventos.isEmpty) ...[
               const SizedBox(height: Dimensions.spacingMD),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: provider.carregando || !provider.configurado
-                      ? null
-                      : _analisar,
+                  onPressed: provider.carregando ? null : _analisar,
                   icon: const Icon(Icons.auto_awesome, size: 18),
                   label: const Text('Analisar com IA'),
                   style: OutlinedButton.styleFrom(
