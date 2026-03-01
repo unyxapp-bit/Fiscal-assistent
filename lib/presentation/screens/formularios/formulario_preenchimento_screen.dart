@@ -246,7 +246,7 @@ class _FormularioPreenchimentoScreenState
 
   Widget _buildCampo(int index, CampoFormulario campo) {
     final label = campo.label;
-    final obrigLabel = campo.obrigatorio ? ' *' : ' (opcional)';
+    const obrigLabel = '';
 
     switch (campo.tipo) {
       case TipoCampo.texto:
