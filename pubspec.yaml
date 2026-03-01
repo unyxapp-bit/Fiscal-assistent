@@ -25,6 +25,9 @@ dependencies:
   # HTTP
   http: ^1.2.0
 
+  # File Picker
+  file_picker: ^8.0.0
+
   # Utils
   uuid: ^4.2.2
   equatable: ^2.0.5

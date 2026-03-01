@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
@@ -16,6 +18,7 @@ class ImportacaoScreen extends StatefulWidget {
 
 class _ImportacaoScreenState extends State<ImportacaoScreen> {
   final _textCtrl = TextEditingController();
+  String? _nomeArquivo;
 
   @override
   void dispose() {
@@ -25,11 +28,57 @@ class _ImportacaoScreenState extends State<ImportacaoScreen> {
 
   // ── Ações ─────────────────────────────────────────────────────────────────
 
+  /// Abre o gerenciador de arquivos, lê o .txt e dispara a análise.
+  Future<void> _selecionarArquivo() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['txt'],
+      allowMultiple: false,
+    );
+
+    if (result == null || result.files.isEmpty) return;
+
+    final picked = result.files.single;
+    String content;
+
+    try {
+      if (picked.path != null) {
+        content = await File(picked.path!).readAsString();
+      } else if (picked.bytes != null) {
+        content = String.fromCharCodes(picked.bytes!);
+      } else {
+        return;
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao ler arquivo: $e')),
+      );
+      return;
+    }
+
+    if (content.trim().isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Arquivo vazio ou inválido')),
+      );
+      return;
+    }
+
+    setState(() {
+      _textCtrl.text = content;
+      _nomeArquivo = picked.name;
+    });
+
+    // Analisa automaticamente após carregar o arquivo
+    await _analisar();
+  }
+
   Future<void> _analisar() async {
     final text = _textCtrl.text.trim();
     if (text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cole uma conversa antes de analisar')),
+        const SnackBar(content: Text('Nenhum conteúdo para analisar')),
       );
       return;
     }
@@ -48,6 +97,7 @@ class _ImportacaoScreenState extends State<ImportacaoScreen> {
 
     if (!mounted) return;
     _textCtrl.clear();
+    setState(() => _nomeArquivo = null);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -57,6 +107,12 @@ class _ImportacaoScreenState extends State<ImportacaoScreen> {
         backgroundColor: AppColors.success,
       ),
     );
+  }
+
+  void _limpar() {
+    Provider.of<ImportacaoProvider>(context, listen: false).limpar();
+    _textCtrl.clear();
+    setState(() => _nomeArquivo = null);
   }
 
   // ── Build ─────────────────────────────────────────────────────────────────
@@ -72,12 +128,9 @@ class _ImportacaoScreenState extends State<ImportacaoScreen> {
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
-          if (provider.eventos.isNotEmpty)
+          if (provider.eventos.isNotEmpty || _nomeArquivo != null)
             TextButton(
-              onPressed: () {
-                provider.limpar();
-                _textCtrl.clear();
-              },
+              onPressed: _limpar,
               child: const Text('Limpar',
                   style: TextStyle(color: AppColors.danger)),
             ),
@@ -100,7 +153,8 @@ class _ImportacaoScreenState extends State<ImportacaoScreen> {
                   borderRadius:
                       BorderRadius.circular(Dimensions.radiusMD),
                   border: Border.all(
-                      color: AppColors.statusAtencao.withValues(alpha: 0.4)),
+                      color:
+                          AppColors.statusAtencao.withValues(alpha: 0.4)),
                 ),
                 child: Row(
                   children: [
@@ -111,104 +165,62 @@ class _ImportacaoScreenState extends State<ImportacaoScreen> {
                       child: Text(
                         'Adicione sua chave Claude no arquivo .env:\n'
                         'CLAUDE_API_KEY=sk-ant-...',
-                        style: AppTextStyles.caption.copyWith(
-                            color: AppColors.statusAtencao),
+                        style: AppTextStyles.caption
+                            .copyWith(color: AppColors.statusAtencao),
                       ),
                     ),
                   ],
                 ),
               ),
 
-            // ── Como usar ──────────────────────────────────────────────
+            // ── Como exportar ──────────────────────────────────────────
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(Dimensions.paddingMD),
               decoration: BoxDecoration(
                 color: AppColors.primary.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(Dimensions.radiusMD),
-                border:
-                    Border.all(color: AppColors.primary.withValues(alpha: 0.15)),
+                border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.15)),
               ),
-              child: Row(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.auto_awesome,
-                      color: AppColors.primary, size: 18),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'Cole uma conversa do grupo de trabalho. '
-                      'A IA extrai ocorrências, faltas, atestados e tarefas '
-                      'e salva nos módulos corretos automaticamente.',
-                      style: AppTextStyles.caption
-                          .copyWith(color: AppColors.primary),
-                    ),
+                  Row(
+                    children: [
+                      const Icon(Icons.info_outline,
+                          color: AppColors.primary, size: 18),
+                      const SizedBox(width: 8),
+                      Text('Como exportar do WhatsApp',
+                          style: AppTextStyles.h4
+                              .copyWith(color: AppColors.primary)),
+                    ],
                   ),
+                  const SizedBox(height: 8),
+                  ...[
+                    '1. Abra o grupo no WhatsApp',
+                    '2. Toque nos 3 pontos → Mais → Exportar conversa',
+                    '3. Escolha "Sem mídia" e salve o arquivo',
+                    '4. Toque no botão abaixo e selecione o arquivo',
+                  ].map((s) => Padding(
+                        padding: const EdgeInsets.only(bottom: 3),
+                        child: Text(s,
+                            style: AppTextStyles.caption
+                                .copyWith(color: AppColors.primary)),
+                      )),
                 ],
               ),
             ),
 
             const SizedBox(height: Dimensions.spacingLG),
 
-            // ── Campo de texto ─────────────────────────────────────────
-            Text('Conversa do WhatsApp', style: AppTextStyles.h4),
-            const SizedBox(height: Dimensions.spacingSM),
-            TextField(
-              controller: _textCtrl,
-              maxLines: 8,
-              minLines: 5,
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                hintText:
-                    '28/01/2026 08:33 - Vanessa: O caixa da Talita faltou 9,90\n'
-                    '28/01/2026 09:00 - Ana: Ingrid não veio hoje\n'
-                    '28/01/2026 09:05 - Ana: Precisa lavar os carrinhos',
-                hintStyle: AppTextStyles.caption
-                    .copyWith(color: AppColors.inactive),
-                filled: true,
-                fillColor: AppColors.cardBackground,
-                border: OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(Dimensions.radiusMD),
-                  borderSide:
-                      const BorderSide(color: AppColors.cardBorder),
-                ),
-                contentPadding: const EdgeInsets.all(Dimensions.paddingMD),
-              ),
-              style: const TextStyle(fontSize: 13),
-            ),
-            const SizedBox(height: 6),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${_textCtrl.text.length} caracteres',
-                  style: AppTextStyles.caption
-                      .copyWith(color: AppColors.textSecondary),
-                ),
-                if (_textCtrl.text.isNotEmpty)
-                  TextButton.icon(
-                    onPressed: () {
-                      _textCtrl.clear();
-                      setState(() {});
-                    },
-                    icon: const Icon(Icons.clear, size: 16),
-                    label: const Text('Limpar'),
-                    style: TextButton.styleFrom(
-                        foregroundColor: AppColors.danger),
-                  ),
-              ],
-            ),
-
-            const SizedBox(height: Dimensions.spacingMD),
-
-            // ── Botão analisar ──────────────────────────────────────────
+            // ── Botão principal: selecionar arquivo ────────────────────
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: provider.carregando || !provider.configurado
                     ? null
-                    : _analisar,
+                    : _selecionarArquivo,
                 icon: provider.carregando
                     ? const SizedBox(
                         width: 18,
@@ -216,9 +228,11 @@ class _ImportacaoScreenState extends State<ImportacaoScreen> {
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white),
                       )
-                    : const Icon(Icons.auto_awesome),
+                    : const Icon(Icons.folder_open),
                 label: Text(
-                  provider.carregando ? 'Analisando...' : 'Analisar com IA',
+                  provider.carregando
+                      ? 'Analisando...'
+                      : 'Selecionar arquivo .txt',
                   style: const TextStyle(
                       fontWeight: FontWeight.w600, fontSize: 15),
                 ),
@@ -231,6 +245,105 @@ class _ImportacaoScreenState extends State<ImportacaoScreen> {
                 ),
               ),
             ),
+
+            // ── Nome do arquivo selecionado ────────────────────────────
+            if (_nomeArquivo != null) ...[
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.check_circle,
+                      color: AppColors.success, size: 16),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      _nomeArquivo!,
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.success),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Text(
+                    '${_textCtrl.text.length} caracteres',
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+            ],
+
+            // ── Divisor: ou cole manualmente ───────────────────────────
+            const SizedBox(height: Dimensions.spacingLG),
+            Row(
+              children: [
+                const Expanded(child: Divider()),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Text(
+                    'ou cole manualmente',
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textSecondary),
+                  ),
+                ),
+                const Expanded(child: Divider()),
+              ],
+            ),
+            const SizedBox(height: Dimensions.spacingMD),
+
+            // ── Campo de texto manual ──────────────────────────────────
+            TextField(
+              controller: _textCtrl,
+              maxLines: 6,
+              minLines: 3,
+              onChanged: (_) => setState(() => _nomeArquivo = null),
+              decoration: InputDecoration(
+                hintText:
+                    '28/01/2026 08:33 - Vanessa: O caixa da Talita faltou 9,90\n'
+                    '28/01/2026 09:00 - Ana: Ingrid não veio hoje',
+                hintStyle: AppTextStyles.caption
+                    .copyWith(color: AppColors.inactive),
+                filled: true,
+                fillColor: AppColors.cardBackground,
+                border: OutlineInputBorder(
+                  borderRadius:
+                      BorderRadius.circular(Dimensions.radiusMD),
+                  borderSide:
+                      const BorderSide(color: AppColors.cardBorder),
+                ),
+                contentPadding:
+                    const EdgeInsets.all(Dimensions.paddingMD),
+                suffixIcon: _textCtrl.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, size: 18),
+                        onPressed: () {
+                          _textCtrl.clear();
+                          setState(() => _nomeArquivo = null);
+                        },
+                      )
+                    : null,
+              ),
+              style: const TextStyle(fontSize: 13),
+            ),
+
+            // Botão analisar (só aparece quando há texto colado manualmente)
+            if (_textCtrl.text.isNotEmpty && _nomeArquivo == null) ...[
+              const SizedBox(height: Dimensions.spacingMD),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: provider.carregando || !provider.configurado
+                      ? null
+                      : _analisar,
+                  icon: const Icon(Icons.auto_awesome, size: 18),
+                  label: const Text('Analisar com IA'),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize:
+                        const Size.fromHeight(Dimensions.buttonHeight),
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary),
+                  ),
+                ),
+              ),
+            ],
 
             // ── Erro ───────────────────────────────────────────────────
             if (provider.erro != null) ...[
@@ -301,15 +414,12 @@ class _ImportacaoScreenState extends State<ImportacaoScreen> {
 
               const SizedBox(height: Dimensions.spacingMD),
 
-              // ── Botões de ação ────────────────────────────────────────
+              // ── Botões de ação ────────────────────────────────────
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () {
-                        provider.limpar();
-                        _textCtrl.clear();
-                      },
+                      onPressed: _limpar,
                       icon: const Icon(Icons.close, size: 18),
                       label: const Text('Descartar'),
                       style: OutlinedButton.styleFrom(
@@ -402,8 +512,9 @@ class _EventoCard extends StatelessWidget {
     final cor = _cor(evento.tipo);
     final destino =
         evento.tipo.vaiParaOcorrencia ? 'Ocorrência' : 'Nota';
-    final destinoCor =
-        evento.tipo.vaiParaOcorrencia ? AppColors.danger : AppColors.primary;
+    final destinoCor = evento.tipo.vaiParaOcorrencia
+        ? AppColors.danger
+        : AppColors.primary;
 
     return Card(
       margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
@@ -414,14 +525,13 @@ class _EventoCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                // Ícone do tipo
                 CircleAvatar(
                   radius: 18,
                   backgroundColor: cor.withValues(alpha: 0.12),
-                  child: Icon(_icone(evento.tipo), color: cor, size: 18),
+                  child:
+                      Icon(_icone(evento.tipo), color: cor, size: 18),
                 ),
                 const SizedBox(width: 10),
-
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -429,7 +539,6 @@ class _EventoCard extends StatelessWidget {
                       Text(evento.tipo.label,
                           style: AppTextStyles.h4),
                       const SizedBox(height: 2),
-                      // Badge destino
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
@@ -449,8 +558,6 @@ class _EventoCard extends StatelessWidget {
                     ],
                   ),
                 ),
-
-                // Botão remover
                 IconButton(
                   icon: const Icon(Icons.close,
                       size: 18, color: AppColors.inactive),
@@ -462,10 +569,8 @@ class _EventoCard extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            // Descrição
             Text(evento.descricao, style: AppTextStyles.body),
 
-            // Detalhes extras
             if (evento.nomeColaborador != null ||
                 evento.valor != null ||
                 evento.dataEvento != null) ...[
@@ -520,8 +625,8 @@ class _Chip extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           texto,
-          style:
-              AppTextStyles.caption.copyWith(color: c, fontWeight: FontWeight.w500),
+          style: AppTextStyles.caption
+              .copyWith(color: c, fontWeight: FontWeight.w500),
         ),
       ],
     );
