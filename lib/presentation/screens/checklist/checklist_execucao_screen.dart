@@ -20,9 +20,19 @@ class ChecklistExecucaoScreen extends StatelessWidget {
       orElse: () => provider.todas.first,
     );
 
-    final isAbertura = exec.tipo == 'abertura';
-    final cor = isAbertura ? AppColors.success : AppColors.danger;
-    final titulo = isAbertura ? 'Abertura da Loja' : 'Fechamento da Loja';
+    // Resolve título e cor a partir do template (com fallback legado)
+    ChecklistTemplate? template;
+    try {
+      template = provider.templates.firstWhere((t) => t.id == exec.tipo);
+    } catch (_) {}
+    final titulo = template?.titulo ??
+        (exec.tipo == 'abertura'
+            ? 'Abertura da Loja'
+            : exec.tipo == 'fechamento'
+                ? 'Fechamento da Loja'
+                : 'Checklist');
+    final cor = template?.cor ??
+        (exec.tipo == 'abertura' ? AppColors.success : AppColors.danger);
     final progresso = exec.progresso;
     final concluido = exec.concluido;
 

@@ -5,6 +5,7 @@ import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../providers/checklist_provider.dart';
 import 'checklist_execucao_screen.dart';
+import 'checklist_template_form_screen.dart';
 
 class ChecklistScreen extends StatelessWidget {
   const ChecklistScreen({super.key});
@@ -15,24 +16,24 @@ class ChecklistScreen extends StatelessWidget {
     return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')} às $h:$m';
   }
 
+  // ── Card de cada template ─────────────────────────────────────────────────
+
   Widget _buildCard(
     BuildContext context,
     ChecklistProvider provider,
-    String tipo,
-    String titulo,
-    IconData icone,
-    Color cor,
+    ChecklistTemplate template,
   ) {
-    final execucao = provider.execucaoHoje(tipo);
+    final execucao = provider.execucaoHoje(template.id);
     final concluido = execucao?.concluido == true;
     final emAndamento = execucao != null && !concluido;
+    final cor = template.cor;
 
     return Card(
       margin: const EdgeInsets.only(bottom: Dimensions.spacingMD),
       child: InkWell(
         borderRadius: BorderRadius.circular(Dimensions.radiusMD),
         onTap: () {
-          final exec = execucao ?? provider.iniciar(tipo);
+          final exec = execucao ?? provider.iniciar(template.id);
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (_) => ChecklistExecucaoScreen(execucaoId: exec.id),
@@ -46,16 +47,19 @@ class ChecklistScreen extends StatelessWidget {
             children: [
               Row(
                 children: [
+                  // Ícone
                   CircleAvatar(
                     backgroundColor: cor.withValues(alpha: 0.15),
-                    child: Icon(icone, color: cor),
+                    child: Icon(template.icone, color: cor),
                   ),
                   const SizedBox(width: Dimensions.spacingMD),
+
+                  // Título e status
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(titulo, style: AppTextStyles.h4),
+                        Text(template.titulo, style: AppTextStyles.h4),
                         Text(
                           execucao == null
                               ? 'Não iniciado hoje'
@@ -73,7 +77,8 @@ class ChecklistScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // Status icon
+
+                  // Status icon + menu
                   Icon(
                     concluido
                         ? Icons.check_circle
@@ -85,17 +90,46 @@ class ChecklistScreen extends StatelessWidget {
                         : emAndamento
                             ? AppColors.statusAtencao
                             : AppColors.inactive,
-                    size: 28,
+                    size: 26,
+                  ),
+                  const SizedBox(width: 4),
+                  PopupMenuButton<String>(
+                    icon: const Icon(Icons.more_vert,
+                        color: AppColors.textSecondary, size: 20),
+                    onSelected: (v) =>
+                        _onMenu(context, v, template, provider),
+                    itemBuilder: (_) => [
+                      const PopupMenuItem(
+                        value: 'editar',
+                        child: Row(children: [
+                          Icon(Icons.edit, size: 18),
+                          SizedBox(width: 8),
+                          Text('Editar'),
+                        ]),
+                      ),
+                      if (!template.isDefault)
+                        const PopupMenuItem(
+                          value: 'deletar',
+                          child: Row(children: [
+                            Icon(Icons.delete_outline,
+                                size: 18, color: AppColors.danger),
+                            SizedBox(width: 8),
+                            Text('Deletar',
+                                style: TextStyle(color: AppColors.danger)),
+                          ]),
+                        ),
+                    ],
                   ),
                 ],
               ),
 
-              // Barra de progresso (se iniciado)
+              // Barra de progresso
               if (execucao != null) ...[
                 const SizedBox(height: Dimensions.spacingMD),
                 LinearProgressIndicator(
                   value: execucao.progresso,
-                  backgroundColor: AppColors.inactive.withValues(alpha: 0.2),
+                  backgroundColor:
+                      AppColors.inactive.withValues(alpha: 0.2),
                   valueColor: AlwaysStoppedAnimation<Color>(
                     concluido ? AppColors.success : cor,
                   ),
@@ -117,7 +151,7 @@ class ChecklistScreen extends StatelessWidget {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    final exec = execucao ?? provider.iniciar(tipo);
+                    final exec = execucao ?? provider.iniciar(template.id);
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) =>
@@ -154,9 +188,50 @@ class ChecklistScreen extends StatelessWidget {
     );
   }
 
+  void _onMenu(
+    BuildContext context,
+    String value,
+    ChecklistTemplate template,
+    ChecklistProvider provider,
+  ) {
+    switch (value) {
+      case 'editar':
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) =>
+              ChecklistTemplateFormScreen(template: template),
+        ));
+      case 'deletar':
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Deletar checklist'),
+            content: Text(
+                'Deletar "${template.titulo}"? As execuções já registradas não serão afetadas.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () {
+                  provider.deletarTemplate(template.id);
+                  Navigator.pop(ctx);
+                },
+                child: const Text('Deletar',
+                    style: TextStyle(color: AppColors.danger)),
+              ),
+            ],
+          ),
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ChecklistProvider>(context);
+    final templates = provider.templates;
+    final total = templates.length;
+    final concluidos = provider.totalConcluidosHoje;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -170,7 +245,7 @@ class ChecklistScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Resumo do dia
+            // ── Resumo do dia ─────────────────────────────────────────────
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(Dimensions.paddingMD),
@@ -192,11 +267,24 @@ class ChecklistScreen extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  Text(
-                    '${provider.foiConcluidoHoje('abertura') ? '✓' : '○'} Abertura  '
-                    '${provider.foiConcluidoHoje('fechamento') ? '✓' : '○'} Fechamento',
-                    style: AppTextStyles.caption
-                        .copyWith(color: AppColors.textSecondary),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: concluidos == total && total > 0
+                          ? AppColors.success.withValues(alpha: 0.1)
+                          : AppColors.inactive.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '$concluidos / $total concluídos',
+                      style: AppTextStyles.caption.copyWith(
+                        color: concluidos == total && total > 0
+                            ? AppColors.success
+                            : AppColors.textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -206,44 +294,69 @@ class ChecklistScreen extends StatelessWidget {
             const Text('Turno de Hoje', style: AppTextStyles.h3),
             const SizedBox(height: Dimensions.spacingMD),
 
-            // Card Abertura
-            _buildCard(
-              context,
-              provider,
-              'abertura',
-              'Abertura da Loja',
-              Icons.lock_open,
-              AppColors.success,
-            ),
+            // ── Cards de templates ────────────────────────────────────────
+            if (templates.isEmpty)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 40),
+                  child: Column(
+                    children: [
+                      const Icon(Icons.checklist,
+                          size: 56, color: AppColors.inactive),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Nenhum checklist criado',
+                        style: AppTextStyles.h4
+                            .copyWith(color: AppColors.textSecondary),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Use o botão + para criar o primeiro',
+                        style: AppTextStyles.body
+                            .copyWith(color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              ...templates.map(
+                  (t) => _buildCard(context, provider, t)),
 
-            // Card Fechamento
-            _buildCard(
-              context,
-              provider,
-              'fechamento',
-              'Fechamento da Loja',
-              Icons.lock,
-              AppColors.danger,
-            ),
-
-            // Histórico recente
-            if (provider.todas.length > 2) ...[
+            // ── Histórico recente ─────────────────────────────────────────
+            if (provider.todas.length > templates.length) ...[
               const SizedBox(height: Dimensions.spacingMD),
               const Text('Histórico Recente', style: AppTextStyles.h3),
               const SizedBox(height: Dimensions.spacingSM),
-              ...provider.todas.skip(2).take(5).map((exec) {
-                final cor =
-                    exec.tipo == 'abertura' ? AppColors.success : AppColors.danger;
+              ...provider.todas.skip(templates.length).take(8).map((exec) {
+                // Tenta resolver template para nome/cor
+                ChecklistTemplate? tmpl;
+                try {
+                  tmpl = provider.templates
+                      .firstWhere((t) => t.id == exec.tipo);
+                } catch (_) {}
+                final nomeExec = tmpl?.titulo ??
+                    (exec.tipo == 'abertura'
+                        ? 'Abertura da Loja'
+                        : exec.tipo == 'fechamento'
+                            ? 'Fechamento da Loja'
+                            : exec.tipo);
+                final corExec = tmpl?.cor ??
+                    (exec.tipo == 'abertura'
+                        ? AppColors.success
+                        : AppColors.danger);
+                final iconeExec = tmpl?.icone ??
+                    (exec.tipo == 'abertura'
+                        ? Icons.lock_open
+                        : Icons.lock);
+
                 return ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: Icon(
-                    exec.tipo == 'abertura' ? Icons.lock_open : Icons.lock,
-                    color: exec.concluido ? cor : AppColors.inactive,
+                    iconeExec,
+                    color: exec.concluido ? corExec : AppColors.inactive,
                   ),
-                  title: Text(
-                    exec.tipo == 'abertura' ? 'Abertura' : 'Fechamento',
-                    style: AppTextStyles.body,
-                  ),
+                  title: Text(nomeExec, style: AppTextStyles.body),
                   subtitle: Text(
                     '${exec.data.day.toString().padLeft(2, '0')}/${exec.data.month.toString().padLeft(2, '0')} · '
                     '${exec.marcados}/${exec.totalItens} itens',
@@ -254,8 +367,9 @@ class ChecklistScreen extends StatelessWidget {
                     exec.concluido
                         ? Icons.check_circle
                         : Icons.cancel_outlined,
-                    color:
-                        exec.concluido ? AppColors.success : AppColors.inactive,
+                    color: exec.concluido
+                        ? AppColors.success
+                        : AppColors.inactive,
                     size: 20,
                   ),
                   onTap: () => Navigator.of(context).push(
@@ -269,6 +383,14 @@ class ChecklistScreen extends StatelessWidget {
             ],
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => const ChecklistTemplateFormScreen(),
+        )),
+        backgroundColor: AppColors.primary,
+        icon: const Icon(Icons.add),
+        label: const Text('Novo Checklist'),
       ),
     );
   }

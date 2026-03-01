@@ -444,16 +444,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       ),
                       _BotaoAcao(
-                        icon: Icons.info,
-                        label: 'Status',
-                        color: const Color(0xFF00BCD4),
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) =>
-                                  const ColaboradoresListScreen()),
-                        ),
-                      ),
-                      _BotaoAcao(
                         icon: Icons.report_problem,
                         label: 'Ocorrências',
                         color: AppColors.danger,
@@ -469,8 +459,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         icon: Icons.checklist,
                         label: 'Checklist',
                         color: AppColors.success,
-                        badge: (!checklistProvider.foiConcluidoHoje('abertura') ||
-                                !checklistProvider.foiConcluidoHoje('fechamento'))
+                        badge: checklistProvider.templates.isNotEmpty &&
+                                checklistProvider.totalConcluidosHoje <
+                                    checklistProvider.templates.length
                             ? '!'
                             : null,
                         onPressed: () => Navigator.of(context).push(
