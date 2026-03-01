@@ -59,6 +59,9 @@ class ColaboradorProvider with ChangeNotifier {
 
   int get totalAtivos => _colaboradores.where((c) => c.ativo).length;
 
+  /// Lista completa sem filtros (usada pela geração automática de escala)
+  List<Colaborador> get todosColaboradores => _colaboradores;
+
   ColaboradorProvider({
     required GetColaboradores getColaboradores,
     required CreateColaborador createColaborador,

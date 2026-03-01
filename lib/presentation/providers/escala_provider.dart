@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
+import '../../domain/entities/colaborador.dart';
 import '../../domain/enums/departamento_tipo.dart';
 import '../../data/datasources/remote/supabase_client.dart';
 
@@ -116,8 +117,10 @@ class EscalaProvider with ChangeNotifier {
   static const _table = 'turnos_escala';
 
   final List<TurnoLocal> _turnos = [];
+  bool _gerando = false;
 
   List<TurnoLocal> get turnos => List.unmodifiable(_turnos);
+  bool get gerando => _gerando;
 
   String get _fiscalId => SupabaseClientManager.currentUserId!;
 
@@ -242,6 +245,136 @@ class EscalaProvider with ChangeNotifier {
         .catchError((e) {
       if (kDebugMode) debugPrint('[EscalaProvider] Erro ao remover: $e');
     });
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+
+  static String _dateKey(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  static String? _parseTime(dynamic v) {
+    if (v == null) return null;
+    final s = v as String;
+    return s.length > 5 ? s.substring(0, 5) : s;
+  }
+
+  // ── Geração automática ─────────────────────────────────────────────────────
+
+  /// Gera a escala da semana a partir dos registros de ponto de todos os
+  /// colaboradores ativos. Faz uma única query ao Supabase para a semana inteira.
+  ///
+  /// Retorna um mapa com as chaves 'criados' e 'semRegistro'.
+  Future<Map<String, int>> gerarEscalaDaSemana({
+    required List<Colaborador> colaboradores,
+    required DateTime segunda,
+    bool substituirExistentes = false,
+  }) async {
+    _gerando = true;
+    notifyListeners();
+
+    int criados = 0;
+    int semRegistro = 0;
+
+    try {
+      final ativos = colaboradores.where((c) => c.ativo).toList();
+      if (ativos.isEmpty) {
+        _gerando = false;
+        notifyListeners();
+        return {'criados': 0, 'semRegistro': 0};
+      }
+
+      final segundaNorm =
+          DateTime(segunda.year, segunda.month, segunda.day);
+      final fim = segundaNorm.add(const Duration(days: 6));
+
+      // Única query para todos os colaboradores no intervalo da semana
+      final rows = await SupabaseClientManager.client
+          .from('registros_ponto')
+          .select()
+          .inFilter('colaborador_id', ativos.map((c) => c.id).toList())
+          .gte('data', _dateKey(segundaNorm))
+          .lte('data', _dateKey(fim));
+
+      // Map: colaboradorId → dateKey → linha do banco
+      final regMap = <String, Map<String, Map<String, dynamic>>>{};
+      for (final row in (rows as List)) {
+        final m = row as Map<String, dynamic>;
+        final cId = m['colaborador_id'] as String;
+        final dk = (m['data'] as String).substring(0, 10);
+        regMap.putIfAbsent(cId, () => <String, Map<String, dynamic>>{})[dk] = m;
+      }
+
+      final novosTurnos = <TurnoLocal>[];
+
+      for (final colab in ativos) {
+        for (int d = 0; d < 7; d++) {
+          final dia = DateTime(
+              segundaNorm.year, segundaNorm.month, segundaNorm.day + d);
+
+          // Pular se já existe e não queremos substituir
+          if (!substituirExistentes && getTurno(colab.id, dia) != null) {
+            continue;
+          }
+
+          final dk = _dateKey(dia);
+          final reg = regMap[colab.id]?[dk];
+
+          if (reg != null) {
+            final obs = (reg['observacao'] as String?)?.toUpperCase();
+            final folga = obs == 'FOLGA';
+            final feriado = obs == 'FERIADO';
+
+            final existente = getTurno(colab.id, dia);
+            novosTurnos.add(TurnoLocal(
+              id: existente?.id ?? const Uuid().v4(),
+              colaboradorId: colab.id,
+              colaboradorNome: colab.nome,
+              departamento: colab.departamento,
+              data: dia,
+              entrada: folga || feriado ? null : _parseTime(reg['entrada']),
+              intervalo: folga || feriado
+                  ? null
+                  : _parseTime(reg['intervalo_saida']),
+              retorno: folga || feriado
+                  ? null
+                  : _parseTime(reg['intervalo_retorno']),
+              saida: folga || feriado ? null : _parseTime(reg['saida']),
+              folga: folga,
+              feriado: feriado,
+            ));
+            criados++;
+          } else {
+            semRegistro++;
+          }
+        }
+      }
+
+      // Atualizar estado local em lote
+      for (final nt in novosTurnos) {
+        _turnos.removeWhere((t) =>
+            t.colaboradorId == nt.colaboradorId &&
+            t.data.year == nt.data.year &&
+            t.data.month == nt.data.month &&
+            t.data.day == nt.data.day);
+        _turnos.add(nt);
+      }
+
+      // Bulk upsert para o Supabase
+      if (novosTurnos.isNotEmpty) {
+        await SupabaseClientManager.client
+            .from(_table)
+            .upsert(novosTurnos.map((t) => t.toMap(_fiscalId)).toList());
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[EscalaProvider] Erro ao gerar escala: $e');
+      }
+    } finally {
+      _gerando = false;
+      notifyListeners();
+    }
+
+    return {'criados': criados, 'semRegistro': semRegistro};
   }
 
   /// Remove todos os turnos de uma data
