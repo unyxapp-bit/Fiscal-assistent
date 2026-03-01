@@ -23,7 +23,6 @@ import '../checklist/checklist_screen.dart';
 import '../passagem_turno/passagem_turno_screen.dart';
 import '../guia_rapido/guia_rapido_screen.dart';
 import '../colaboradores/colaboradores_list_screen.dart';
-import '../colaboradores/colaboradores_status_screen.dart';
 import '../alocacao/alocacao_screen.dart';
 import '../mapa/mapa_caixas_screen.dart';
 import '../notificacoes/notificacoes_screen.dart';
@@ -451,7 +450,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(
                               builder: (_) =>
-                                  const ColaboradoresStatusScreen()),
+                                  const ColaboradoresListScreen()),
                         ),
                       ),
                       _BotaoAcao(
