@@ -60,6 +60,9 @@ import 'presentation/providers/cafe_provider.dart';
 import 'presentation/providers/escala_provider.dart';
 import 'presentation/providers/registro_ponto_provider.dart';
 import 'presentation/providers/pacote_plantao_provider.dart';
+import 'presentation/providers/ocorrencia_provider.dart';
+import 'presentation/providers/checklist_provider.dart';
+import 'presentation/providers/passagem_turno_provider.dart';
 
 // App Config
 import 'core/constants/colors.dart';
@@ -236,6 +239,21 @@ void main() async {
               repository: pacotePlantaoRepository,
             ),
           ),
+
+          // Ocorrências
+          ChangeNotifierProvider(
+            create: (_) => OcorrenciaProvider(),
+          ),
+
+          // Checklist de Turno
+          ChangeNotifierProvider(
+            create: (_) => ChecklistProvider(),
+          ),
+
+          // Passagem de Turno
+          ChangeNotifierProvider(
+            create: (_) => PassagemTurnoProvider(),
+          ),
         ],
         child: const MyApp(),
       ),
@@ -319,6 +337,9 @@ class _AppHomeState extends State<_AppHome> {
       ctx.read<ProcedimentoProvider>().load(),
       ctx.read<CafeProvider>().load(),
       ctx.read<EscalaProvider>().load(),
+      ctx.read<OcorrenciaProvider>().load(),
+      ctx.read<ChecklistProvider>().load(),
+      ctx.read<PassagemTurnoProvider>().load(),
       if (userId.isNotEmpty) ctx.read<PacotePlantaoProvider>().load(userId),
     ]);
   }

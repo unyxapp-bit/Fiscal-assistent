@@ -15,6 +15,13 @@ import '../../providers/escala_provider.dart';
 import '../../providers/nota_provider.dart';
 import '../../providers/formulario_provider.dart';
 import '../../providers/procedimento_provider.dart';
+import '../../providers/ocorrencia_provider.dart';
+import '../../providers/checklist_provider.dart';
+import '../../providers/passagem_turno_provider.dart';
+import '../ocorrencias/ocorrencias_screen.dart';
+import '../checklist/checklist_screen.dart';
+import '../passagem_turno/passagem_turno_screen.dart';
+import '../guia_rapido/guia_rapido_screen.dart';
 import '../colaboradores/colaboradores_list_screen.dart';
 import '../colaboradores/colaboradores_status_screen.dart';
 import '../alocacao/alocacao_screen.dart';
@@ -77,6 +84,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       Provider.of<NotaProvider>(context, listen: false).load(),
       Provider.of<FormularioProvider>(context, listen: false).load(),
       Provider.of<ProcedimentoProvider>(context, listen: false).load(),
+      Provider.of<OcorrenciaProvider>(context, listen: false).load(),
+      Provider.of<ChecklistProvider>(context, listen: false).load(),
+      Provider.of<PassagemTurnoProvider>(context, listen: false).load(),
     ]);
 
     if (mounted) {
@@ -96,6 +106,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final entregaProvider = Provider.of<EntregaProvider>(context);
     final escalaProvider = Provider.of<EscalaProvider>(context);
     final notaProvider = Provider.of<NotaProvider>(context);
+    final ocorrenciaProvider = Provider.of<OcorrenciaProvider>(context);
+    final checklistProvider = Provider.of<ChecklistProvider>(context);
 
     final saudacao = _getSaudacao();
     final nome = fiscalProvider.fiscal?.nome ??
@@ -137,6 +149,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
           color: AppColors.danger,
           onTap: () => Navigator.push(context,
               MaterialPageRoute(builder: (_) => const NotasScreen())),
+        ),
+      if (ocorrenciaProvider.totalAbertas > 0)
+        _AlertItem(
+          icon: Icons.report_problem,
+          label:
+              '${ocorrenciaProvider.totalAbertas} ocorrência${ocorrenciaProvider.totalAbertas > 1 ? 's abertas' : ' aberta'}',
+          color: AppColors.statusAtencao,
+          onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const OcorrenciasScreen())),
+        ),
+      if (!checklistProvider.foiConcluidoHoje('abertura'))
+        _AlertItem(
+          icon: Icons.checklist,
+          label: 'Checklist de abertura pendente',
+          color: AppColors.primary,
+          onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const ChecklistScreen())),
         ),
     ];
 
@@ -423,6 +452,49 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           MaterialPageRoute(
                               builder: (_) =>
                                   const ColaboradoresStatusScreen()),
+                        ),
+                      ),
+                      _BotaoAcao(
+                        icon: Icons.report_problem,
+                        label: 'Ocorrências',
+                        color: AppColors.danger,
+                        badge: ocorrenciaProvider.totalAbertas > 0
+                            ? ocorrenciaProvider.totalAbertas.toString()
+                            : null,
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => const OcorrenciasScreen()),
+                        ),
+                      ),
+                      _BotaoAcao(
+                        icon: Icons.checklist,
+                        label: 'Checklist',
+                        color: AppColors.success,
+                        badge: (!checklistProvider.foiConcluidoHoje('abertura') ||
+                                !checklistProvider.foiConcluidoHoje('fechamento'))
+                            ? '!'
+                            : null,
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => const ChecklistScreen()),
+                        ),
+                      ),
+                      _BotaoAcao(
+                        icon: Icons.handshake,
+                        label: 'Passagem Turno',
+                        color: AppColors.primary,
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => const PassagemTurnoScreen()),
+                        ),
+                      ),
+                      _BotaoAcao(
+                        icon: Icons.help_outline,
+                        label: 'Guia Rápido',
+                        color: const Color(0xFF607D8B),
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => const GuiaRapidoScreen()),
                         ),
                       ),
                       _BotaoAcao(
