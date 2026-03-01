@@ -101,12 +101,12 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
           child: ListTile(
             leading: CircleAvatar(
               backgroundColor: oc.gravidade.cor.withValues(alpha: 0.15),
-              child: Icon(oc.tipo.icone, color: oc.gravidade.cor, size: 20),
+              child: Icon(iconForTipo(oc.tipo), color: oc.gravidade.cor, size: 20),
             ),
             title: Row(
               children: [
                 Expanded(
-                  child: Text(oc.tipo.nome, style: AppTextStyles.h4),
+                  child: Text(oc.tipo, style: AppTextStyles.h4),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(

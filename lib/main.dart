@@ -63,6 +63,7 @@ import 'presentation/providers/pacote_plantao_provider.dart';
 import 'presentation/providers/ocorrencia_provider.dart';
 import 'presentation/providers/checklist_provider.dart';
 import 'presentation/providers/passagem_turno_provider.dart';
+import 'presentation/providers/guia_rapido_provider.dart';
 
 // App Config
 import 'core/constants/colors.dart';
@@ -254,6 +255,11 @@ void main() async {
           ChangeNotifierProvider(
             create: (_) => PassagemTurnoProvider(),
           ),
+
+          // Guia Rápido
+          ChangeNotifierProvider(
+            create: (_) => GuiaRapidoProvider(),
+          ),
         ],
         child: const MyApp(),
       ),
@@ -340,6 +346,7 @@ class _AppHomeState extends State<_AppHome> {
       ctx.read<OcorrenciaProvider>().load(),
       ctx.read<ChecklistProvider>().load(),
       ctx.read<PassagemTurnoProvider>().load(),
+      ctx.read<GuiaRapidoProvider>().load(),
       if (userId.isNotEmpty) ctx.read<PacotePlantaoProvider>().load(userId),
     ]);
   }

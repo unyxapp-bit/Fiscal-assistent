@@ -4,77 +4,41 @@ import 'package:uuid/uuid.dart';
 import '../../data/datasources/remote/supabase_client.dart';
 import '../../core/constants/colors.dart';
 
-// ── Enums ─────────────────────────────────────────────────────────────────────
+// ── Sugestões de tipo (apenas para quick-select na tela de registro) ───────────
 
-enum TipoOcorrencia {
-  briga,
-  furto,
-  erroCaixa,
-  equipamento,
-  reclamacao,
-  ausencia,
-  outro;
+const kTiposSugestao = [
+  'Briga/Conflito',
+  'Furto/Perda',
+  'Erro de Caixa',
+  'Equipamento',
+  'Reclamação',
+  'Ausência',
+  'Acidente',
+  'Fraude',
+  'Outro',
+];
 
-  String get nome {
-    switch (this) {
-      case TipoOcorrencia.briga:
-        return 'Briga/Conflito';
-      case TipoOcorrencia.furto:
-        return 'Furto/Perda';
-      case TipoOcorrencia.erroCaixa:
-        return 'Erro de Caixa';
-      case TipoOcorrencia.equipamento:
-        return 'Equipamento';
-      case TipoOcorrencia.reclamacao:
-        return 'Reclamação';
-      case TipoOcorrencia.ausencia:
-        return 'Ausência';
-      case TipoOcorrencia.outro:
-        return 'Outro';
-    }
+// ── Helper de ícone por tipo (keyword matching) ────────────────────────────────
+
+IconData iconForTipo(String tipo) {
+  final t = tipo.toLowerCase();
+  if (t.contains('briga') || t.contains('conflito') || t.contains('briga')) {
+    return Icons.warning_amber;
   }
-
-  String get dbKey {
-    switch (this) {
-      case TipoOcorrencia.briga:
-        return 'briga';
-      case TipoOcorrencia.furto:
-        return 'furto';
-      case TipoOcorrencia.erroCaixa:
-        return 'erro_caixa';
-      case TipoOcorrencia.equipamento:
-        return 'equipamento';
-      case TipoOcorrencia.reclamacao:
-        return 'reclamacao';
-      case TipoOcorrencia.ausencia:
-        return 'ausencia';
-      case TipoOcorrencia.outro:
-        return 'outro';
-    }
+  if (t.contains('furto') || t.contains('perda') || t.contains('roubo') || t.contains('fraude')) {
+    return Icons.security;
   }
-
-  IconData get icone {
-    switch (this) {
-      case TipoOcorrencia.briga:
-        return Icons.warning_amber;
-      case TipoOcorrencia.furto:
-        return Icons.security;
-      case TipoOcorrencia.erroCaixa:
-        return Icons.point_of_sale;
-      case TipoOcorrencia.equipamento:
-        return Icons.build;
-      case TipoOcorrencia.reclamacao:
-        return Icons.sentiment_dissatisfied;
-      case TipoOcorrencia.ausencia:
-        return Icons.person_off;
-      case TipoOcorrencia.outro:
-        return Icons.more_horiz;
-    }
+  if (t.contains('caixa')) return Icons.point_of_sale;
+  if (t.contains('equipamento') || t.contains('tecnico') || t.contains('maquina')) {
+    return Icons.build;
   }
-
-  static TipoOcorrencia fromString(String s) => TipoOcorrencia.values
-      .firstWhere((t) => t.dbKey == s, orElse: () => TipoOcorrencia.outro);
+  if (t.contains('reclama')) return Icons.sentiment_dissatisfied;
+  if (t.contains('aus') || t.contains('falta') || t.contains('person')) return Icons.person_off;
+  if (t.contains('acid') || t.contains('lesao') || t.contains('queda')) return Icons.local_hospital;
+  return Icons.more_horiz;
 }
+
+// ── Gravidade (mantida como enum, só para UX) ─────────────────────────────────
 
 enum GravidadeOcorrencia {
   baixa,
@@ -114,7 +78,7 @@ enum GravidadeOcorrencia {
 
 class Ocorrencia {
   final String id;
-  final TipoOcorrencia tipo;
+  final String tipo; // texto livre
   final String? caixaId;
   final String descricao;
   final GravidadeOcorrencia gravidade;
@@ -178,14 +142,14 @@ class OcorrenciaProvider with ChangeNotifier {
   }
 
   void registrar({
-    required TipoOcorrencia tipo,
+    required String tipo,
     String? caixaId,
     required String descricao,
     required GravidadeOcorrencia gravidade,
   }) {
     final oc = Ocorrencia(
       id: const Uuid().v4(),
-      tipo: tipo,
+      tipo: tipo.trim().isEmpty ? 'Outro' : tipo.trim(),
       caixaId: caixaId,
       descricao: descricao,
       gravidade: gravidade,
@@ -237,7 +201,7 @@ class OcorrenciaProvider with ChangeNotifier {
     SupabaseClientManager.client.from(_table).upsert({
       'id': o.id,
       'fiscal_id': _fiscalId,
-      'tipo': o.tipo.dbKey,
+      'tipo': o.tipo, // agora salva o texto livre diretamente
       'caixa_id': o.caixaId,
       'descricao': o.descricao,
       'gravidade': o.gravidade.name,
@@ -253,7 +217,7 @@ class OcorrenciaProvider with ChangeNotifier {
 
   Ocorrencia _fromMap(Map<String, dynamic> m) => Ocorrencia(
         id: m['id'] as String,
-        tipo: TipoOcorrencia.fromString(m['tipo'] as String? ?? 'outro'),
+        tipo: m['tipo'] as String? ?? 'Outro',
         caixaId: m['caixa_id'] as String?,
         descricao: m['descricao'] as String? ?? '',
         gravidade: GravidadeOcorrencia.fromString(

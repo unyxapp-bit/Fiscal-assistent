@@ -7,18 +7,18 @@ import '../../providers/ocorrencia_provider.dart';
 
 class OcorrenciaFormScreen extends StatefulWidget {
   const OcorrenciaFormScreen({super.key});
-
   @override
   State<OcorrenciaFormScreen> createState() => _OcorrenciaFormScreenState();
 }
 
 class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
+  final _tipoCtrl = TextEditingController();
   final _descricaoCtrl = TextEditingController();
-  TipoOcorrencia _tipo = TipoOcorrencia.outro;
   GravidadeOcorrencia _gravidade = GravidadeOcorrencia.media;
 
   @override
   void dispose() {
+    _tipoCtrl.dispose();
     _descricaoCtrl.dispose();
     super.dispose();
   }
@@ -26,32 +26,27 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
   void _salvar() {
     final descricao = _descricaoCtrl.text.trim();
     if (descricao.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Descreva o que aconteceu'),
-          backgroundColor: AppColors.danger,
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Descreva o que aconteceu'),
+        backgroundColor: AppColors.danger,
+      ));
       return;
     }
-
     Provider.of<OcorrenciaProvider>(context, listen: false).registrar(
-      tipo: _tipo,
+      tipo: _tipoCtrl.text.trim().isEmpty ? 'Outro' : _tipoCtrl.text.trim(),
       descricao: descricao,
       gravidade: _gravidade,
     );
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Ocorrência registrada!'),
-        backgroundColor: AppColors.success,
-      ),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text('Ocorrência registrada!'),
+      backgroundColor: AppColors.success,
+    ));
     Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
+    final tipoAtual = _tipoCtrl.text.trim();
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -64,53 +59,68 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Tipo ──────────────────────────────────────────────────────
-            const Text('Tipo de ocorrência *', style: AppTextStyles.h4),
+            // ── Tipo livre ────────────────────────────────────────────────
+            const Text('Tipo de ocorrência', style: AppTextStyles.h4),
             const SizedBox(height: Dimensions.spacingSM),
+            TextField(
+              controller: _tipoCtrl,
+              decoration: InputDecoration(
+                hintText: 'Ex: Briga, Erro de Caixa, Furto...',
+                prefixIcon: Icon(iconForTipo(tipoAtual), color: AppColors.danger),
+                suffixIcon: tipoAtual.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, size: 18),
+                        onPressed: () {
+                          _tipoCtrl.clear();
+                          setState(() {});
+                        },
+                      )
+                    : null,
+              ),
+              textCapitalization: TextCapitalization.sentences,
+              onChanged: (_) => setState(() {}),
+            ),
+            const SizedBox(height: Dimensions.spacingSM),
+            Text(
+              'Sugestões:',
+              style: AppTextStyles.caption
+                  .copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 6),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: TipoOcorrencia.values.map((tipo) {
-                final sel = _tipo == tipo;
+              spacing: 6,
+              runSpacing: 6,
+              children: kTiposSugestao.map((s) {
+                final sel = tipoAtual == s;
                 return GestureDetector(
-                  onTap: () => setState(() => _tipo = tipo),
+                  onTap: () {
+                    _tipoCtrl.text = s;
+                    setState(() {});
+                  },
                   child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
+                    duration: const Duration(milliseconds: 130),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 8),
+                        horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: sel
-                          ? AppColors.primary.withValues(alpha: 0.12)
+                          ? AppColors.danger.withValues(alpha: 0.12)
                           : Colors.transparent,
                       border: Border.all(
-                        color: sel ? AppColors.primary : AppColors.inactive,
+                        color: sel ? AppColors.danger : AppColors.inactive,
                         width: sel ? 2 : 1,
                       ),
-                      borderRadius:
-                          BorderRadius.circular(Dimensions.radiusMD),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(tipo.icone,
-                            size: 16,
-                            color: sel
-                                ? AppColors.primary
-                                : AppColors.textSecondary),
-                        const SizedBox(width: 6),
-                        Text(
-                          tipo.nome,
-                          style: TextStyle(
-                            color: sel
-                                ? AppColors.primary
-                                : AppColors.textSecondary,
-                            fontWeight: sel
-                                ? FontWeight.w600
-                                : FontWeight.normal,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      s,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight:
+                            sel ? FontWeight.w600 : FontWeight.normal,
+                        color: sel
+                            ? AppColors.danger
+                            : AppColors.textSecondary,
+                      ),
                     ),
                   ),
                 );
@@ -120,7 +130,7 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
             const SizedBox(height: Dimensions.spacingLG),
 
             // ── Gravidade ─────────────────────────────────────────────────
-            const Text('Gravidade *', style: AppTextStyles.h4),
+            const Text('Gravidade', style: AppTextStyles.h4),
             const SizedBox(height: Dimensions.spacingSM),
             Row(
               children: GravidadeOcorrencia.values.map((g) {
@@ -145,28 +155,28 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
                           borderRadius:
                               BorderRadius.circular(Dimensions.radiusMD),
                         ),
-                        child: Column(
-                          children: [
-                            Icon(
-                              sel
-                                  ? Icons.radio_button_checked
-                                  : Icons.radio_button_unchecked,
-                              color: sel ? g.cor : AppColors.inactive,
-                              size: 18,
+                        child: Column(children: [
+                          Icon(
+                            sel
+                                ? Icons.radio_button_checked
+                                : Icons.radio_button_unchecked,
+                            color: sel ? g.cor : AppColors.inactive,
+                            size: 18,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            g.nome,
+                            style: TextStyle(
+                              color: sel
+                                  ? g.cor
+                                  : AppColors.textSecondary,
+                              fontWeight: sel
+                                  ? FontWeight.w600
+                                  : FontWeight.normal,
+                              fontSize: 13,
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              g.nome,
-                              style: TextStyle(
-                                color: sel ? g.cor : AppColors.textSecondary,
-                                fontWeight: sel
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ]),
                       ),
                     ),
                   ),
@@ -183,7 +193,7 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
               controller: _descricaoCtrl,
               decoration: const InputDecoration(
                 hintText:
-                    'Descreva a ocorrência com detalhes: quem, o quê, onde...',
+                    'Descreva com detalhes: quem, o quê, onde...',
                 alignLabelWithHint: true,
               ),
               maxLines: 5,
@@ -193,34 +203,32 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
             const SizedBox(height: Dimensions.spacingXL),
 
             // ── Botões ────────────────────────────────────────────────────
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize:
-                          const Size.fromHeight(Dimensions.buttonHeight),
-                    ),
-                    child: const Text('Cancelar'),
+            Row(children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize:
+                        const Size.fromHeight(Dimensions.buttonHeight),
+                  ),
+                  child: const Text('Cancelar'),
+                ),
+              ),
+              const SizedBox(width: Dimensions.spacingSM),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _salvar,
+                  icon: const Icon(Icons.save),
+                  label: const Text('Registrar'),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize:
+                        const Size.fromHeight(Dimensions.buttonHeight),
+                    backgroundColor: AppColors.danger,
+                    foregroundColor: Colors.white,
                   ),
                 ),
-                const SizedBox(width: Dimensions.spacingSM),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _salvar,
-                    icon: const Icon(Icons.save),
-                    label: const Text('Registrar'),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize:
-                          const Size.fromHeight(Dimensions.buttonHeight),
-                      backgroundColor: AppColors.danger,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ]),
           ],
         ),
       ),
