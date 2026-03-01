@@ -14,6 +14,7 @@ analyzer:
     - "Dados e modulos/**"
     - "**/*.g.dart"
     - "**/*.freezed.dart"
+    - "FISCAL_ASSISTANT_IMPORT_SCREEN.dart"
 
 linter:
   # The lint rules applied to this project can be customized in the
