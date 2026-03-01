@@ -78,30 +78,14 @@ class _FormularioPreenchimentoScreenState
   }
 
   void _enviar() {
-    // 1. Coletar valores de texto/numero
+    // Coletar valores de texto/numero
     for (final campo in widget.formulario.campos) {
       if (campo.tipo == TipoCampo.texto || campo.tipo == TipoCampo.numero) {
         _valores[campo.label] = _textCtrls[campo.label]!.text.trim();
       }
     }
 
-    // 2. Validar obrigatórios
-    for (final campo in widget.formulario.campos) {
-      if (!campo.obrigatorio) continue;
-      final val = _valores[campo.label];
-      final vazio = val == null || (val is String && val.isEmpty);
-      if (vazio) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Preencha o campo "${campo.label}"'),
-            backgroundColor: AppColors.danger,
-          ),
-        );
-        return;
-      }
-    }
-
-    // 3. Salvar
+    // Salvar
     final resposta = RespostaFormulario(
       id: const Uuid().v4(),
       formularioId: widget.formulario.id,
@@ -185,7 +169,7 @@ class _FormularioPreenchimentoScreenState
             ],
 
             Text(
-              '${widget.formulario.campos.length} campos para preencher',
+              '${widget.formulario.campos.length} campos — todos opcionais',
               style: AppTextStyles.caption
                   .copyWith(color: AppColors.textSecondary),
             ),

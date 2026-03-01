@@ -227,7 +227,7 @@ class FormularioProvider with ChangeNotifier {
     String tmplKey,
     String label, {
     TipoCampo tipo = TipoCampo.texto,
-    bool obrigatorio = true,
+    bool obrigatorio = false,
     List<String> opcoes = const [],
   }) =>
       CampoFormulario(
