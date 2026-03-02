@@ -10,8 +10,9 @@ import '../../providers/nota_provider.dart';
 /// Tela de Formulário de Nota — criar ou editar anotações, tarefas e lembretes.
 class NotaFormScreen extends StatefulWidget {
   final Nota? nota;
+  final TipoLembrete? tipoInicial;
 
-  const NotaFormScreen({super.key, this.nota});
+  const NotaFormScreen({super.key, this.nota, this.tipoInicial});
 
   @override
   State<NotaFormScreen> createState() => _NotaFormScreenState();
@@ -39,6 +40,8 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
       _importante = widget.nota!.importante;
       _lembreteAtivo = widget.nota!.lembreteAtivo;
       _dataLembrete = widget.nota!.dataLembrete;
+    } else if (widget.tipoInicial != null) {
+      _tipo = widget.tipoInicial!;
     }
   }
 

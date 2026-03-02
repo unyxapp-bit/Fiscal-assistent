@@ -27,6 +27,69 @@ class _NotasScreenState extends State<NotasScreen> {
     super.dispose();
   }
 
+  // ── Verifica se há filtros não-padrão ativos ────────────────────────────────
+  bool _filtroAtivo(NotaProvider provider) {
+    return provider.filtroTipo != null ||
+        provider.mostrarApenasPendentes ||
+        provider.ordenacao != OrdenacaoNota.importancia;
+  }
+
+  // ── Bottom sheet para escolher tipo ao criar ─────────────────────────────────
+  void _mostrarMenuCriar(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.inactive,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text('Criar nova', style: AppTextStyles.h4),
+            const SizedBox(height: 8),
+            ...TipoLembrete.values.map((tipo) {
+              const descricoes = {
+                TipoLembrete.anotacao: 'Texto livre para registros',
+                TipoLembrete.tarefa: 'Item a fazer, com prazo opcional',
+                TipoLembrete.lembrete: 'Alerta em data e hora específicos',
+              };
+              return ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: CircleAvatar(
+                  backgroundColor: tipo.cor.withValues(alpha: 0.15),
+                  child: Icon(tipo.icone, color: tipo.cor),
+                ),
+                title: Text(tipo.nome),
+                subtitle: Text(descricoes[tipo]!),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => NotaFormScreen(tipoInicial: tipo),
+                    ),
+                  );
+                },
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
   // ── Bottom sheet de filtros / ordenação ─────────────────────────────────────
   void _abrirMenuFiltro(BuildContext context, NotaProvider provider) {
     showModalBottomSheet(
@@ -236,6 +299,12 @@ class _NotasScreenState extends State<NotasScreen> {
       },
       child: Card(
         margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
+        shape: nota.importante
+            ? RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+                side: const BorderSide(color: Colors.orange, width: 1.5),
+              )
+            : null,
         child: InkWell(
           borderRadius: BorderRadius.circular(Dimensions.radiusMD),
           onTap: () => Navigator.of(context).push(
@@ -515,7 +584,25 @@ class _NotasScreenState extends State<NotasScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_list),
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                const Icon(Icons.filter_list),
+                if (_filtroAtivo(provider))
+                  Positioned(
+                    right: -2,
+                    top: -2,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
             tooltip: 'Filtros e ordenação',
             onPressed: () => _abrirMenuFiltro(context, provider),
           ),
@@ -564,10 +651,16 @@ class _NotasScreenState extends State<NotasScreen> {
               children: [
                 Expanded(
                   child: _StatCard(
-                    label: 'Pendentes',
-                    value: provider.totalTarefasPendentes.toString(),
+                    label: 'Tarefas',
+                    value: provider.tarefas.isEmpty
+                        ? '0'
+                        : '${provider.tarefasConcluidas.length}/${provider.tarefas.length}',
                     color: TipoLembrete.tarefa.cor,
                     icon: TipoLembrete.tarefa.icone,
+                    progresso: provider.tarefas.isEmpty
+                        ? null
+                        : provider.tarefasConcluidas.length /
+                            provider.tarefas.length,
                   ),
                 ),
                 const SizedBox(width: Dimensions.spacingSM),
@@ -629,38 +722,80 @@ class _NotasScreenState extends State<NotasScreen> {
           // ── Lista ───────────────────────────────────────────────────────────
           Expanded(
             child: provider.notas.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                ? RefreshIndicator(
+                    onRefresh: provider.load,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
                       children: [
-                        const Icon(Icons.note_outlined,
-                            size: 64, color: AppColors.inactive),
-                        const SizedBox(height: 16),
-                        Text(
-                          provider.searchQuery.isNotEmpty
-                              ? 'Nenhum resultado'
-                              : 'Nenhuma anotação',
-                          style: AppTextStyles.body
-                              .copyWith(color: AppColors.textSecondary),
+                        SizedBox(
+                          height: 320,
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.note_outlined,
+                                    size: 64, color: AppColors.inactive),
+                                const SizedBox(height: 16),
+                                Text(
+                                  provider.searchQuery.isNotEmpty
+                                      ? 'Nenhum resultado para "${provider.searchQuery}"'
+                                      : 'Nenhuma anotação ainda',
+                                  style: AppTextStyles.body
+                                      .copyWith(color: AppColors.textSecondary),
+                                  textAlign: TextAlign.center,
+                                ),
+                                if (provider.searchQuery.isEmpty) ...[
+                                  const SizedBox(height: 24),
+                                  const Text('Criar:', style: AppTextStyles.label),
+                                  const SizedBox(height: 8),
+                                  Wrap(
+                                    spacing: 8,
+                                    children: TipoLembrete.values
+                                        .map((tipo) => OutlinedButton.icon(
+                                              icon: Icon(tipo.icone,
+                                                  size: 16, color: tipo.cor),
+                                              label: Text(tipo.nome,
+                                                  style: TextStyle(
+                                                      color: tipo.cor)),
+                                              style: OutlinedButton.styleFrom(
+                                                side:
+                                                    BorderSide(color: tipo.cor),
+                                              ),
+                                              onPressed: () =>
+                                                  Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: (_) => NotaFormScreen(
+                                                      tipoInicial: tipo),
+                                                ),
+                                              ),
+                                            ))
+                                        .toList(),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   )
-                : ListView(
-                    padding: const EdgeInsets.fromLTRB(
-                        Dimensions.paddingMD,
-                        0,
-                        Dimensions.paddingMD,
-                        Dimensions.paddingMD),
-                    children: _buildListItems(provider),
+                : RefreshIndicator(
+                    onRefresh: provider.load,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(
+                          Dimensions.paddingMD,
+                          0,
+                          Dimensions.paddingMD,
+                          Dimensions.paddingMD),
+                      children: _buildListItems(provider),
+                    ),
                   ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const NotaFormScreen()),
-        ),
+        onPressed: () => _mostrarMenuCriar(context),
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.add),
       ),
@@ -675,12 +810,14 @@ class _StatCard extends StatelessWidget {
   final String value;
   final Color color;
   final IconData icon;
+  final double? progresso;
 
   const _StatCard({
     required this.label,
     required this.value,
     required this.color,
     required this.icon,
+    this.progresso,
   });
 
   @override
@@ -699,6 +836,18 @@ class _StatCard extends StatelessWidget {
             ),
             Text(label,
                 style: AppTextStyles.caption, textAlign: TextAlign.center),
+            if (progresso != null) ...[
+              const SizedBox(height: 6),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: progresso,
+                  minHeight: 4,
+                  backgroundColor: color.withValues(alpha: 0.15),
+                  valueColor: AlwaysStoppedAnimation<Color>(color),
+                ),
+              ),
+            ],
           ],
         ),
       ),
