@@ -552,18 +552,51 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: Dimensions.spacingSM),
+
+                    // Banner de saúde do turno
+                    _BannerSaudeTurno(
+                      critico: cafeProvider.totalEmAtraso > 0 ||
+                          notaProvider.totalLembretesVencidos > 0,
+                      atencao: ocorrenciaProvider.totalAbertas > 0 ||
+                          entregaProvider.totalSeparadas > 0 ||
+                          !checklistProvider.foiConcluidoHoje('abertura'),
+                    ),
+                    const SizedBox(height: Dimensions.spacingMD),
+
                     if (fiscalProvider.fiscal != null) ...[
+                      // Card Informações da Loja
                       Card(
                         child: Padding(
                           padding: const EdgeInsets.all(Dimensions.paddingMD),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Informações da Loja',
-                                  style: AppTextStyles.h4),
+                              Row(
+                                children: [
+                                  const Expanded(
+                                    child: Text('Informações da Loja',
+                                        style: AppTextStyles.h4),
+                                  ),
+                                  TextButton.icon(
+                                    onPressed: () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                          builder: (_) =>
+                                              const ProfileScreen()),
+                                    ),
+                                    icon: const Icon(Icons.edit_outlined,
+                                        size: 16),
+                                    label: const Text('Editar',
+                                        style: TextStyle(fontSize: 13)),
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: AppColors.primary,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 4),
+                                    ),
+                                  ),
+                                ],
+                              ),
                               const SizedBox(height: Dimensions.spacingMD),
-                              _buildInfoRow(
-                                  'Loja',
+                              _buildInfoRow('Loja',
                                   fiscalProvider.fiscal!.loja ?? 'N/A'),
                               const Divider(height: 24),
                               _buildInfoRow(
@@ -571,6 +604,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               const Divider(height: 24),
                               _buildInfoRow(
                                   'Email', fiscalProvider.fiscal!.email),
+                              const Divider(height: 24),
+                              _buildInfoRow(
+                                'Telefone',
+                                fiscalProvider.fiscal!.telefone ??
+                                    'Não informado',
+                                valueColor:
+                                    fiscalProvider.fiscal!.telefone == null
+                                        ? AppColors.textSecondary
+                                        : null,
+                              ),
                               const Divider(height: 24),
                               _buildInfoRow(
                                 'Status',
@@ -586,24 +629,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       ),
                       const SizedBox(height: Dimensions.spacingMD),
+
+                      // Card Ocupação do Turno
                       Card(
                         child: Padding(
                           padding: const EdgeInsets.all(Dimensions.paddingMD),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Equipe', style: AppTextStyles.h4),
+                              const Text('Ocupação do Turno',
+                                  style: AppTextStyles.h4),
                               const SizedBox(height: Dimensions.spacingMD),
-                              _buildInfoRow('Total ativos',
-                                  totalAtivos.toString()),
-                              const Divider(height: 24),
-                              _buildInfoRow(
-                                  'Caixas', totalCaixas.toString()),
-                              const Divider(height: 24),
-                              _buildInfoRow(
-                                  'Alocados agora', alocados.toString()),
-                              const Divider(height: 24),
-                              _buildInfoRow('Em pausa', emPausa.toString()),
+                              _OcupacaoBar(
+                                alocados: alocados,
+                                totalCaixas: totalCaixas,
+                                emPausa: emPausa,
+                                emRota: emRota,
+                              ),
                             ],
                           ),
                         ),
@@ -615,7 +657,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: CircularProgressIndicator(),
                         ),
                       ),
+
+                    // Cabeçalho da seção Ferramentas
                     const SizedBox(height: Dimensions.spacingMD),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          left: 4, bottom: Dimensions.spacingSM),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.build_outlined,
+                              size: 16, color: AppColors.textSecondary),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Ferramentas',
+                            style: AppTextStyles.caption.copyWith(
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.8,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     _GridAcoes(
                       botoes: [
                         _BotaoAcao(
@@ -1092,6 +1155,208 @@ class _StatDivider extends StatelessWidget {
       width: 1,
       height: 40,
       color: AppColors.cardBorder,
+    );
+  }
+}
+
+// ── Banner de saúde do turno ──────────────────────────────────────────────────
+
+class _BannerSaudeTurno extends StatelessWidget {
+  final bool critico;
+  final bool atencao;
+
+  const _BannerSaudeTurno({
+    required this.critico,
+    required this.atencao,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final Color cor;
+    final IconData icone;
+    final String titulo;
+    final String subtitulo;
+
+    if (critico) {
+      cor = AppColors.danger;
+      icone = Icons.error_outline;
+      titulo = 'Turno com alertas críticos';
+      subtitulo = 'Verifique pausas em atraso ou lembretes vencidos';
+    } else if (atencao) {
+      cor = AppColors.warning;
+      icone = Icons.warning_amber_outlined;
+      titulo = 'Turno requer atenção';
+      subtitulo = 'Há ocorrências, entregas ou checklist pendentes';
+    } else {
+      cor = AppColors.success;
+      icone = Icons.check_circle_outline;
+      titulo = 'Tudo em ordem';
+      subtitulo = 'Nenhum alerta ativo no momento';
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+          horizontal: Dimensions.paddingMD, vertical: Dimensions.paddingSM),
+      decoration: BoxDecoration(
+        color: cor.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+        border: Border.all(color: cor.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        children: [
+          Icon(icone, color: cor, size: 28),
+          const SizedBox(width: Dimensions.spacingMD),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  titulo,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: cor,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitulo,
+                  style: AppTextStyles.caption
+                      .copyWith(color: cor.withValues(alpha: 0.8)),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Barra de ocupação dos caixas ─────────────────────────────────────────────
+
+class _OcupacaoBar extends StatelessWidget {
+  final int alocados;
+  final int totalCaixas;
+  final int emPausa;
+  final int emRota;
+
+  const _OcupacaoBar({
+    required this.alocados,
+    required this.totalCaixas,
+    required this.emPausa,
+    required this.emRota,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final double progresso =
+        totalCaixas > 0 ? (alocados / totalCaixas).clamp(0.0, 1.0) : 0.0;
+    final int percentual = (progresso * 100).round();
+
+    final Color corBarra = percentual >= 90
+        ? AppColors.danger
+        : percentual >= 60
+            ? AppColors.warning
+            : AppColors.success;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '$alocados de $totalCaixas caixas ocupados',
+              style: AppTextStyles.body.copyWith(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+            ),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+              decoration: BoxDecoration(
+                color: corBarra.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(20),
+                border:
+                    Border.all(color: corBarra.withValues(alpha: 0.4)),
+              ),
+              child: Text(
+                '$percentual%',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: corBarra,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: Dimensions.spacingSM),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(Dimensions.radiusSM),
+          child: LinearProgressIndicator(
+            value: progresso,
+            minHeight: 10,
+            backgroundColor: AppColors.cardBorder,
+            valueColor: AlwaysStoppedAnimation<Color>(corBarra),
+          ),
+        ),
+        const SizedBox(height: Dimensions.spacingMD),
+        const Divider(height: 1),
+        const SizedBox(height: Dimensions.spacingMD),
+        Row(
+          children: [
+            Expanded(
+              child: _buildStatRow(
+                Icons.coffee_outlined,
+                'Em Pausa',
+                emPausa.toString(),
+                const Color(0xFF8D6E63),
+              ),
+            ),
+            const SizedBox(width: Dimensions.spacingMD),
+            Expanded(
+              child: _buildStatRow(
+                Icons.local_shipping_outlined,
+                'Em Rota',
+                emRota.toString(),
+                const Color(0xFFFF9800),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatRow(
+      IconData icon, String label, String value, Color color) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: color),
+        const SizedBox(width: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+            Text(
+              label,
+              style: const TextStyle(
+                  fontSize: 11, color: AppColors.textSecondary),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
