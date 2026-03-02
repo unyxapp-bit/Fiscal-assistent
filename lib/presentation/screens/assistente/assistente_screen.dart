@@ -99,13 +99,39 @@ class _AssistenteScreenState extends State<AssistenteScreen> {
         _scrollToBottom();
       }
     } catch (e) {
+      final errorMsg = _parseGeminiError(e);
+      debugPrint('[AssistenteIA] erro: $e');
       setState(() {
-        _history[_history.length - 1] = Content.model(
-            [TextPart('Erro ao conectar com o assistente. Tente novamente.')]);
+        _history[_history.length - 1] =
+            Content.model([TextPart('⚠️ $errorMsg')]);
       });
     } finally {
       setState(() => _isGenerating = false);
     }
+  }
+
+  String _parseGeminiError(Object e) {
+    final msg = e.toString();
+    if (msg.contains('API_KEY_INVALID') || msg.contains('API key not valid')) {
+      return 'Chave de API inválida. Verifique o GEMINI_API_KEY no arquivo .env.';
+    }
+    if (msg.contains('PERMISSION_DENIED') || msg.contains('403')) {
+      return 'Acesso negado (403). A chave não tem permissão para usar este modelo.';
+    }
+    if (msg.contains('RESOURCE_EXHAUSTED') || msg.contains('429')) {
+      return 'Limite de requisições atingido (429). Aguarde um momento e tente novamente.';
+    }
+    if (msg.contains('404') || msg.contains('not found')) {
+      return 'Modelo não encontrado (404). Verifique se "gemini-1.5-flash" está disponível.';
+    }
+    if (msg.contains('SocketException') || msg.contains('NetworkException')) {
+      return 'Sem conexão com a internet. Verifique sua rede.';
+    }
+    if (msg.contains('TimeoutException')) {
+      return 'Tempo de resposta esgotado. Tente novamente.';
+    }
+    // Erro desconhecido — mostra o texto real para diagnóstico
+    return 'Erro: $msg';
   }
 
   @override
