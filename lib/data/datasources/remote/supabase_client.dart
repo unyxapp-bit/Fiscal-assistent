@@ -6,15 +6,16 @@ class SupabaseClientManager {
   static SupabaseClient? _instance;
 
   static Future<void> initialize() async {
-    final url = dotenv.env['SUPABASE_URL'];
-    final anonKey = dotenv.env['SUPABASE_ANON_KEY'];
+    // Tenta carregar do .env, com fallback para valores hardcoded
+    final url = dotenv.env['SUPABASE_URL'] ?? 'https://rpbqquxnnpsiyredhkvv.supabase.co';
+    final anonKey = dotenv.env['SUPABASE_ANON_KEY'] ?? 'sb_publishable_ysgHVMVFL_9LA1kEGa1FGQ_HlHIn3dV';
 
-    if (url == null || url.isEmpty) {
-      throw Exception('SUPABASE_URL não encontrada no arquivo .env');
+    if (url.isEmpty) {
+      throw Exception('SUPABASE_URL não configurada');
     }
 
-    if (anonKey == null || anonKey.isEmpty) {
-      throw Exception('SUPABASE_ANON_KEY não encontrada no arquivo .env');
+    if (anonKey.isEmpty) {
+      throw Exception('SUPABASE_ANON_KEY não configurada');
     }
 
     // Debug: mostra se as chaves foram carregadas (apenas primeiros/últimos caracteres)
