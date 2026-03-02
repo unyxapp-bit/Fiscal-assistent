@@ -22,6 +22,7 @@ import '../ocorrencias/ocorrencias_screen.dart';
 import '../checklist/checklist_screen.dart';
 import '../passagem_turno/passagem_turno_screen.dart';
 import '../guia_rapido/guia_rapido_screen.dart';
+import '../assistente/assistente_screen.dart';
 import '../colaboradores/colaboradores_list_screen.dart';
 import '../alocacao/alocacao_screen.dart';
 import '../mapa/mapa_caixas_screen.dart';
@@ -524,6 +525,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(
                               builder: (_) => const NotificacoesScreen()),
+                        ),
+                      ),
+                      _BotaoAcao(
+                        icon: Icons.support_agent,
+                        label: 'Assistente',
+                        color: const Color(0xFF6750A4),
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => const AssistenteScreen()),
                         ),
                       ),
                     ],
