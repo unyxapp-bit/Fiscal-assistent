@@ -17,6 +17,7 @@ class EntregasScreen extends StatefulWidget {
 class _EntregasScreenState extends State<EntregasScreen> {
   String _filtroStatus = 'todos';
   String _filtroCidade = 'todas';
+  bool _ordenacaoDescendente = true;
 
   static const _statusOptions = [
     ('todos', 'Todos'),
@@ -32,13 +33,17 @@ class _EntregasScreenState extends State<EntregasScreen> {
   }
 
   List<Entrega> _aplicarFiltros(List<Entrega> entregas) {
-    return entregas.where((e) {
+    final filtradas = entregas.where((e) {
       final statusOk =
           _filtroStatus == 'todos' || e.status == _filtroStatus;
       final cidadeOk =
           _filtroCidade == 'todas' || e.cidade == _filtroCidade;
       return statusOk && cidadeOk;
     }).toList();
+    filtradas.sort((a, b) => _ordenacaoDescendente
+        ? b.separadoEm.compareTo(a.separadoEm)
+        : a.separadoEm.compareTo(b.separadoEm));
+    return filtradas;
   }
 
   @override
@@ -55,6 +60,18 @@ class _EntregasScreenState extends State<EntregasScreen> {
         elevation: 0,
         actions: [
           IconButton(
+            icon: Icon(
+              _ordenacaoDescendente
+                  ? Icons.arrow_downward
+                  : Icons.arrow_upward,
+            ),
+            tooltip: _ordenacaoDescendente
+                ? 'Mais recentes primeiro'
+                : 'Mais antigos primeiro',
+            onPressed: () =>
+                setState(() => _ordenacaoDescendente = !_ordenacaoDescendente),
+          ),
+          IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
               Navigator.push(
@@ -68,7 +85,11 @@ class _EntregasScreenState extends State<EntregasScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: RefreshIndicator(
+        onRefresh: () =>
+            Provider.of<EntregaProvider>(context, listen: false).load(),
+        child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(Dimensions.paddingMD),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,13 +241,30 @@ class _EntregasScreenState extends State<EntregasScreen> {
                       const SizedBox(height: 16),
                       Text(
                         provider.entregas.isEmpty
-                            ? 'Nenhuma entrega'
+                            ? 'Nenhuma entrega cadastrada'
                             : 'Nenhuma entrega com os filtros selecionados',
                         style: AppTextStyles.body.copyWith(
                           color: AppColors.textSecondary,
                         ),
                         textAlign: TextAlign.center,
                       ),
+                      if (provider.entregas.isEmpty) ...[
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const EntregaFormScreen(),
+                            ),
+                          ),
+                          icon: const Icon(Icons.add),
+                          label: const Text('Cadastrar Entrega'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -238,59 +276,102 @@ class _EntregasScreenState extends State<EntregasScreen> {
                 itemCount: entregasFiltradas.length,
                 itemBuilder: (context, index) {
                   final entrega = entregasFiltradas[index];
-                  return Card(
-                    margin:
-                        const EdgeInsets.only(bottom: Dimensions.spacingSM),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: _getStatusColor(entrega.status),
-                        child: Icon(
-                          _getStatusIcon(entrega.status),
-                          color: Colors.white,
+                  return Dismissible(
+                    key: Key(entrega.id),
+                    direction: DismissDirection.endToStart,
+                    confirmDismiss: (_) async {
+                      return await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('Excluir Entrega'),
+                          content: Text(
+                              'Deseja excluir a entrega de "${entrega.clienteNome}"?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: const Text('Cancelar'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () => Navigator.pop(ctx, true),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.danger,
+                                foregroundColor: Colors.white,
+                              ),
+                              child: const Text('Excluir'),
+                            ),
+                          ],
                         ),
+                      ) ??
+                          false;
+                    },
+                    onDismissed: (_) => provider.removerEntrega(entrega.id),
+                    background: Container(
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.only(right: 20),
+                      margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
+                      decoration: BoxDecoration(
+                        color: AppColors.danger,
+                        borderRadius:
+                            BorderRadius.circular(Dimensions.borderRadius),
                       ),
-                      title: Text(entrega.clienteNome),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 4),
-                          Text('NF: ${entrega.numeroNota}'),
-                          Text('${entrega.bairro} - ${entrega.cidade}'),
-                        ],
-                      ),
-                      trailing: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _getStatusColor(entrega.status)
-                              .withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          _getStatusLabel(entrega.status),
-                          style: AppTextStyles.caption.copyWith(
-                            color: _getStatusColor(entrega.status),
-                            fontWeight: FontWeight.bold,
+                      child: const Icon(Icons.delete_outline,
+                          color: Colors.white, size: 28),
+                    ),
+                    child: Card(
+                      margin:
+                          const EdgeInsets.only(bottom: Dimensions.spacingSM),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: _getStatusColor(entrega.status),
+                          child: Icon(
+                            _getStatusIcon(entrega.status),
+                            color: Colors.white,
                           ),
                         ),
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                EntregaDetailScreen(entrega: entrega),
+                        title: Text(entrega.clienteNome),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 4),
+                            Text('NF: ${entrega.numeroNota}'),
+                            Text('${entrega.bairro} - ${entrega.cidade}'),
+                          ],
+                        ),
+                        trailing: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
                           ),
-                        );
-                      },
+                          decoration: BoxDecoration(
+                            color: _getStatusColor(entrega.status)
+                                .withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            _getStatusLabel(entrega.status),
+                            style: AppTextStyles.caption.copyWith(
+                              color: _getStatusColor(entrega.status),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  EntregaDetailScreen(entrega: entrega),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   );
                 },
               ),
           ],
         ),
+      ),
       ),
     );
   }

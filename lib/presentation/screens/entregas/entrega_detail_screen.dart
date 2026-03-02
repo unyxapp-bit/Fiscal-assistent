@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
@@ -168,6 +169,37 @@ class EntregaDetailScreen extends StatelessWidget {
     );
   }
 
+  void _excluirEntrega(BuildContext context) {
+    final provider = Provider.of<EntregaProvider>(context, listen: false);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Excluir Entrega'),
+        content: const Text(
+          'Tem certeza que deseja excluir esta entrega? Esta ação não pode ser desfeita.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              provider.removerEntrega(entrega.id);
+              Navigator.pop(ctx);
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _editarEntrega(BuildContext context) {
     Navigator.push(
       context,
@@ -201,6 +233,12 @@ class EntregaDetailScreen extends StatelessWidget {
               onPressed: () => _editarEntrega(context),
               tooltip: 'Editar',
             ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            onPressed: () => _excluirEntrega(context),
+            tooltip: 'Excluir',
+            color: AppColors.danger,
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -271,10 +309,46 @@ class EntregaDetailScreen extends StatelessWidget {
                     ),
                     if (entrega.telefone != null && entrega.telefone!.isNotEmpty) ...[
                       const Divider(height: 24),
-                      _buildInfoRow(
-                        Icons.phone,
-                        'Telefone',
-                        entrega.telefone!,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.phone,
+                              color: AppColors.primary,
+                              size: Dimensions.iconMD),
+                          const SizedBox(width: Dimensions.spacingSM),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Telefone',
+                                  style: AppTextStyles.caption.copyWith(
+                                      color: AppColors.textSecondary),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(entrega.telefone!,
+                                    style: AppTextStyles.body),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.copy_outlined, size: 18),
+                            tooltip: 'Copiar número',
+                            color: AppColors.textSecondary,
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            onPressed: () {
+                              Clipboard.setData(
+                                  ClipboardData(text: entrega.telefone!));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Número copiado'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ],
                     const Divider(height: 24),
