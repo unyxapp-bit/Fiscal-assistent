@@ -45,7 +45,7 @@ class _AssistenteScreenState extends State<AssistenteScreen> {
   }
 
   void _initGemini() {
-    final apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
+    final apiKey = dotenv.env['GEMINI_API_KEY'] ?? 'AIzaSyCuVRU2IzD301Qq0Nm5HscuwPsixfgLCvw';
     _model = GenerativeModel(
       model: 'gemini-1.5-flash',
       apiKey: apiKey,
