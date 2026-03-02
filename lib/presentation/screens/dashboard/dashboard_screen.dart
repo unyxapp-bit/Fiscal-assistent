@@ -21,7 +21,6 @@ import '../../providers/passagem_turno_provider.dart';
 import '../ocorrencias/ocorrencias_screen.dart';
 import '../checklist/checklist_screen.dart';
 import '../passagem_turno/passagem_turno_screen.dart';
-import '../importacao/importacao_screen.dart';
 import '../guia_rapido/guia_rapido_screen.dart';
 import '../colaboradores/colaboradores_list_screen.dart';
 import '../alocacao/alocacao_screen.dart';
@@ -525,15 +524,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(
                               builder: (_) => const NotificacoesScreen()),
-                        ),
-                      ),
-                      _BotaoAcao(
-                        icon: Icons.chat_bubble_outline,
-                        label: 'Importar',
-                        color: const Color(0xFF00897B),
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) => const ImportacaoScreen()),
                         ),
                       ),
                     ],

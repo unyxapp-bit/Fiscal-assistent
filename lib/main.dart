@@ -64,7 +64,6 @@ import 'presentation/providers/ocorrencia_provider.dart';
 import 'presentation/providers/checklist_provider.dart';
 import 'presentation/providers/passagem_turno_provider.dart';
 import 'presentation/providers/guia_rapido_provider.dart';
-import 'presentation/providers/importacao_provider.dart';
 
 // App Config
 import 'core/constants/colors.dart';
@@ -262,10 +261,6 @@ void main() async {
             create: (_) => GuiaRapidoProvider(),
           ),
 
-          // Importação WhatsApp
-          ChangeNotifierProvider(
-            create: (_) => ImportacaoProvider(),
-          ),
         ],
         child: const MyApp(),
       ),

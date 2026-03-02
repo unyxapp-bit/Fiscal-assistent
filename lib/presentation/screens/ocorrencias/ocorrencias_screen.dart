@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
@@ -27,6 +28,22 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
   void dispose() {
     _tabCtrl.dispose();
     super.dispose();
+  }
+
+  void _compartilharOcorrencia(Ocorrencia oc) {
+    final fmt = _formatDateTime(oc.registradaEm);
+    final buf = StringBuffer();
+    buf.writeln('⚠️ *Ocorrência — ${oc.gravidade.nome}*');
+    buf.writeln();
+    buf.writeln('Tipo: ${oc.tipo}');
+    if (oc.caixaId != null && oc.caixaId!.isNotEmpty) {
+      buf.writeln('Caixa: ${oc.caixaId}');
+    }
+    buf.writeln();
+    buf.writeln(oc.descricao);
+    buf.writeln();
+    buf.write('🕐 Registrada em: $fmt');
+    Share.share(buf.toString(), subject: 'Ocorrência ${oc.gravidade.nome}');
   }
 
   String _formatDateTime(DateTime dt) {
@@ -155,6 +172,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
             trailing: PopupMenuButton<String>(
               onSelected: (v) {
                 if (v == 'resolver') provider.resolver(oc.id);
+                if (v == 'compartilhar') _compartilharOcorrencia(oc);
                 if (v == 'deletar') _confirmarDelete(ctx, oc, provider);
               },
               itemBuilder: (_) => [
@@ -168,6 +186,14 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                       Text('Marcar como resolvida'),
                     ]),
                   ),
+                const PopupMenuItem(
+                  value: 'compartilhar',
+                  child: Row(children: [
+                    Icon(Icons.share, size: 18),
+                    SizedBox(width: 8),
+                    Text('Compartilhar'),
+                  ]),
+                ),
                 const PopupMenuItem(
                   value: 'deletar',
                   child: Row(children: [

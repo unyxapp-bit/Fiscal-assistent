@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
@@ -402,6 +403,16 @@ class _NotasScreenState extends State<NotasScreen> {
                       ),
                     ),
                   const PopupMenuItem(
+                    value: 'compartilhar',
+                    child: Row(
+                      children: [
+                        Icon(Icons.share, size: 18),
+                        SizedBox(width: 8),
+                        Text('Compartilhar'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
                     value: 'delete',
                     child: Row(
                       children: [
@@ -433,9 +444,28 @@ class _NotasScreenState extends State<NotasScreen> {
         provider.toggleImportante(nota.id);
       case 'toggle_lembrete_ativo':
         provider.toggleLembreteAtivo(nota.id);
+      case 'compartilhar':
+        _compartilharNota(nota);
       case 'delete':
         _confirmarDelete(context, nota, provider);
     }
+  }
+
+  void _compartilharNota(Nota nota) {
+    final buf = StringBuffer();
+    buf.writeln('*${nota.titulo}*');
+    if (nota.conteudo.isNotEmpty) {
+      buf.writeln();
+      buf.writeln(nota.conteudo);
+    }
+    if (nota.dataLembrete != null) {
+      final fmt = DateFormat('dd/MM/yyyy HH:mm').format(nota.dataLembrete!);
+      buf.writeln();
+      buf.write('📅 ${nota.tipo.nome}: $fmt');
+    } else {
+      buf.write('\n_${nota.tipo.nome}_');
+    }
+    Share.share(buf.toString(), subject: nota.titulo);
   }
 
   String _formatData(DateTime dt) {
