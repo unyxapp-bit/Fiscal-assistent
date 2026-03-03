@@ -31,10 +31,12 @@ class PausaCafe {
         colaboradorId: m['colaborador_id'] as String,
         colaboradorNome: m['colaborador_nome'] as String,
         caixaId: m['caixa_id'] as String?,
-        iniciadoEm: DateTime.parse(m['iniciado_em'] as String),
+        // .toLocal() — Supabase retorna timestamptz com +00:00 (UTC);
+        // convertemos para hora local antes de usar em cálculos e exibição.
+        iniciadoEm: DateTime.parse(m['iniciado_em'] as String).toLocal(),
         duracaoMinutos: m['duracao_minutos'] as int? ?? 15,
         finalizadoEm: m['finalizado_em'] != null
-            ? DateTime.parse(m['finalizado_em'] as String)
+            ? DateTime.parse(m['finalizado_em'] as String).toLocal()
             : null,
       );
 
@@ -44,9 +46,11 @@ class PausaCafe {
         'colaborador_id': colaboradorId,
         'colaborador_nome': colaboradorNome,
         'caixa_id': caixaId,
-        'iniciado_em': iniciadoEm.toIso8601String(),
+        // .toUtc() — garante que o Supabase armazene o instante correto em UTC
+        // em vez de interpretar a hora local como UTC.
+        'iniciado_em': iniciadoEm.toUtc().toIso8601String(),
         'duracao_minutos': duracaoMinutos,
-        'finalizado_em': finalizadoEm?.toIso8601String(),
+        'finalizado_em': finalizadoEm?.toUtc().toIso8601String(),
       };
 
   bool get ativo => finalizadoEm == null;
@@ -127,8 +131,10 @@ class CafeProvider with ChangeNotifier {
   Future<void> load() async {
     try {
       final hoje = DateTime.now();
+      // .toUtc() — converte meia-noite local para UTC, garantindo que o filtro
+      // do Supabase (timestamptz) compare na mesma base temporal.
       final inicioDia =
-          DateTime(hoje.year, hoje.month, hoje.day).toIso8601String();
+          DateTime(hoje.year, hoje.month, hoje.day).toUtc().toIso8601String();
 
       final rows = await SupabaseClientManager.client
           .from(_table)
@@ -218,7 +224,7 @@ class CafeProvider with ChangeNotifier {
 
     SupabaseClientManager.client
         .from(_table)
-        .update({'finalizado_em': pausa.finalizadoEm!.toIso8601String()})
+        .update({'finalizado_em': pausa.finalizadoEm!.toUtc().toIso8601String()})
         .eq('id', pausa.id)
         .then((_) {})
         .catchError((e) {
