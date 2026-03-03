@@ -24,6 +24,8 @@ class _ChecklistTemplateFormScreenState
   late String _corHex;
   late List<String> _itens;
   final List<TextEditingController> _itemCtrls = [];
+  late PeriodizacaoChecklist _periodizacao;
+  String? _horarioNotificacao; // "HH:mm" quando _periodizacao == horarioEspecifico
 
   bool get _editando => widget.template != null;
 
@@ -36,6 +38,8 @@ class _ChecklistTemplateFormScreenState
     _iconeKey = t?.iconeKey ?? kChecklistIcones.first.$1;
     _corHex = t?.corHex ?? '4CAF50';
     _itens = List<String>.from(t?.itens ?? ['']);
+    _periodizacao = t?.periodizacao ?? PeriodizacaoChecklist.qualquerHorario;
+    _horarioNotificacao = t?.horarioNotificacao;
     _syncControllers();
   }
 
@@ -98,6 +102,10 @@ class _ChecklistTemplateFormScreenState
 
     final provider = Provider.of<ChecklistProvider>(context, listen: false);
 
+    final horario = _periodizacao == PeriodizacaoChecklist.horarioEspecifico
+        ? _horarioNotificacao
+        : null;
+
     if (_editando) {
       final atualizado = widget.template!.copyWith(
         titulo: titulo,
@@ -105,6 +113,9 @@ class _ChecklistTemplateFormScreenState
         iconeKey: _iconeKey,
         corHex: _corHex,
         itens: itens,
+        periodizacao: _periodizacao,
+        horarioNotificacao: horario,
+        clearHorario: horario == null,
       );
       provider.atualizarTemplate(atualizado);
     } else {
@@ -116,6 +127,8 @@ class _ChecklistTemplateFormScreenState
         corHex: _corHex,
         itens: itens,
         createdAt: DateTime.now(),
+        periodizacao: _periodizacao,
+        horarioNotificacao: horario,
       );
       provider.adicionarTemplate(novo);
     }
@@ -258,6 +271,70 @@ class _ChecklistTemplateFormScreenState
                 );
               }).toList(),
             ),
+            const SizedBox(height: Dimensions.spacingLG),
+
+            // ── Periodização ──────────────────────────────────────────────
+            Text('Quando notificar?', style: AppTextStyles.h4),
+            const SizedBox(height: 4),
+            Text(
+              'O alerta aparece somente durante o horário escolhido.',
+              style: AppTextStyles.caption
+                  .copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: Dimensions.spacingSM),
+            ...PeriodizacaoChecklist.values.map((p) {
+              return RadioListTile<PeriodizacaoChecklist>(
+                value: p,
+                groupValue: _periodizacao,
+                title: Text(p.label, style: AppTextStyles.body),
+                activeColor: AppColors.primary,
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+                onChanged: (v) {
+                  if (v == null) return;
+                  setState(() {
+                    _periodizacao = v;
+                    if (v != PeriodizacaoChecklist.horarioEspecifico) {
+                      _horarioNotificacao = null;
+                    }
+                  });
+                },
+              );
+            }),
+            if (_periodizacao == PeriodizacaoChecklist.horarioEspecifico) ...[
+              const SizedBox(height: 4),
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final parts = _horarioNotificacao?.split(':');
+                  final initial = parts != null && parts.length == 2
+                      ? TimeOfDay(
+                          hour: int.tryParse(parts[0]) ?? 8,
+                          minute: int.tryParse(parts[1]) ?? 0,
+                        )
+                      : const TimeOfDay(hour: 8, minute: 0);
+                  final picked = await showTimePicker(
+                    context: context,
+                    initialTime: initial,
+                  );
+                  if (picked != null) {
+                    setState(() {
+                      _horarioNotificacao =
+                          '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+                    });
+                  }
+                },
+                icon: const Icon(Icons.access_time, size: 18),
+                label: Text(
+                  _horarioNotificacao != null
+                      ? 'Horário: $_horarioNotificacao  (±30 min)'
+                      : 'Selecionar horário',
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                ),
+              ),
+            ],
+
             const SizedBox(height: Dimensions.spacingLG),
 
             // ── Itens ─────────────────────────────────────────────────────

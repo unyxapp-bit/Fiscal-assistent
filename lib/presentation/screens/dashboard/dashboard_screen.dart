@@ -170,10 +170,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           onTap: () => Navigator.push(context,
               MaterialPageRoute(builder: (_) => const OcorrenciasScreen())),
         ),
-      if (!checklistProvider.foiConcluidoHoje('abertura'))
+      for (final t in checklistProvider.templatesPendentesAgora)
         _AlertItem(
           icon: Icons.checklist,
-          label: 'Checklist de abertura pendente',
+          label: 'Checklist pendente: ${t.titulo}',
           color: AppColors.primary,
           onTap: () => Navigator.push(context,
               MaterialPageRoute(builder: (_) => const ChecklistScreen())),
@@ -480,9 +480,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         icon: Icons.checklist,
                         label: 'Checklist',
                         color: AppColors.success,
-                        badge: checklistProvider.templates.isNotEmpty &&
-                                checklistProvider.totalConcluidosHoje <
-                                    checklistProvider.templates.length
+                        badge: checklistProvider.templatesPendentesAgora.isNotEmpty
                             ? '!'
                             : null,
                         onPressed: () => Navigator.of(context).push(
@@ -570,7 +568,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           notaProvider.totalLembretesVencidos > 0,
                       atencao: ocorrenciaProvider.totalAbertas > 0 ||
                           entregaProvider.totalSeparadas > 0 ||
-                          !checklistProvider.foiConcluidoHoje('abertura'),
+                          checklistProvider.templatesPendentesAgora.isNotEmpty,
                     ),
                     const SizedBox(height: Dimensions.spacingMD),
 

@@ -123,6 +123,27 @@ class ChecklistScreen extends StatelessWidget {
                 ],
               ),
 
+              // Badge de periodização
+              if (template.periodizacao !=
+                  PeriodizacaoChecklist.qualquerHorario) ...[
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    const SizedBox(width: 52), // alinha com o título
+                    const Icon(Icons.schedule, size: 12, color: AppColors.textSecondary),
+                    const SizedBox(width: 4),
+                    Text(
+                      template.periodizacao ==
+                              PeriodizacaoChecklist.horarioEspecifico
+                          ? 'Horário: ${template.horarioNotificacao ?? '--:--'} (±30 min)'
+                          : template.periodizacao.label,
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ],
+
               // Barra de progresso
               if (execucao != null) ...[
                 const SizedBox(height: Dimensions.spacingMD),

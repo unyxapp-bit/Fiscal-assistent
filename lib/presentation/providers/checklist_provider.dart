@@ -56,6 +56,56 @@ IconData iconeChecklistParaKey(String key) =>
     kChecklistIcones.where((e) => e.$1 == key).firstOrNull?.$2 ??
     Icons.checklist;
 
+// ── PeriodizacaoChecklist ──────────────────────────────────────────────────────
+
+enum PeriodizacaoChecklist {
+  qualquerHorario,
+  abertura, // 06:00 – 12:00
+  fechamento, // 17:00 – 23:59
+  horarioEspecifico, // HH:mm ± 30 min
+}
+
+extension PeriodizacaoChecklistX on PeriodizacaoChecklist {
+  String get label {
+    switch (this) {
+      case PeriodizacaoChecklist.qualquerHorario:
+        return 'Sempre';
+      case PeriodizacaoChecklist.abertura:
+        return 'Abertura (06h–12h)';
+      case PeriodizacaoChecklist.fechamento:
+        return 'Fechamento (17h–00h)';
+      case PeriodizacaoChecklist.horarioEspecifico:
+        return 'Horário específico';
+    }
+  }
+
+  String get toValue {
+    switch (this) {
+      case PeriodizacaoChecklist.qualquerHorario:
+        return 'qualquer_horario';
+      case PeriodizacaoChecklist.abertura:
+        return 'abertura';
+      case PeriodizacaoChecklist.fechamento:
+        return 'fechamento';
+      case PeriodizacaoChecklist.horarioEspecifico:
+        return 'horario_especifico';
+    }
+  }
+
+  static PeriodizacaoChecklist fromValue(String? v) {
+    switch (v) {
+      case 'abertura':
+        return PeriodizacaoChecklist.abertura;
+      case 'fechamento':
+        return PeriodizacaoChecklist.fechamento;
+      case 'horario_especifico':
+        return PeriodizacaoChecklist.horarioEspecifico;
+      default:
+        return PeriodizacaoChecklist.qualquerHorario;
+    }
+  }
+}
+
 // ── ChecklistTemplate ─────────────────────────────────────────────────────────
 
 class ChecklistTemplate {
@@ -67,6 +117,11 @@ class ChecklistTemplate {
   final List<String> itens;
   final bool isDefault;
   final DateTime createdAt;
+  final PeriodizacaoChecklist periodizacao;
+
+  /// Horário no formato "HH:mm" — usado apenas quando [periodizacao] ==
+  /// [PeriodizacaoChecklist.horarioEspecifico].
+  final String? horarioNotificacao;
 
   ChecklistTemplate({
     required this.id,
@@ -77,6 +132,8 @@ class ChecklistTemplate {
     required this.itens,
     this.isDefault = false,
     required this.createdAt,
+    this.periodizacao = PeriodizacaoChecklist.qualquerHorario,
+    this.horarioNotificacao,
   });
 
   IconData get icone => iconeChecklistParaKey(iconeKey);
@@ -88,6 +145,9 @@ class ChecklistTemplate {
     String? iconeKey,
     String? corHex,
     List<String>? itens,
+    PeriodizacaoChecklist? periodizacao,
+    String? horarioNotificacao,
+    bool clearHorario = false,
   }) =>
       ChecklistTemplate(
         id: id,
@@ -98,6 +158,9 @@ class ChecklistTemplate {
         itens: itens ?? List<String>.from(this.itens),
         isDefault: isDefault,
         createdAt: createdAt,
+        periodizacao: periodizacao ?? this.periodizacao,
+        horarioNotificacao:
+            clearHorario ? null : (horarioNotificacao ?? this.horarioNotificacao),
       );
 
   Map<String, dynamic> toMap(String fiscalId) => {
@@ -110,6 +173,8 @@ class ChecklistTemplate {
         'itens': itens,
         'is_default': isDefault,
         'created_at': createdAt.toIso8601String(),
+        'periodizacao': periodizacao.toValue,
+        'horario_notificacao': horarioNotificacao,
       };
 
   static ChecklistTemplate fromMap(Map<String, dynamic> m) =>
@@ -122,6 +187,9 @@ class ChecklistTemplate {
         itens: List<String>.from(m['itens'] as List? ?? []),
         isDefault: m['is_default'] as bool? ?? false,
         createdAt: DateTime.parse(m['created_at'] as String),
+        periodizacao:
+            PeriodizacaoChecklistX.fromValue(m['periodizacao'] as String?),
+        horarioNotificacao: m['horario_notificacao'] as String?,
       );
 }
 
@@ -221,6 +289,40 @@ class ChecklistProvider with ChangeNotifier {
 
   int get totalConcluidosHoje =>
       _templates.where((t) => foiConcluidoHoje(t.id)).length;
+
+  /// Retorna true se a janela de notificação do template está ativa agora.
+  /// Independe de o checklist já ter sido concluído.
+  bool estaNoJanela(String templateId) {
+    final t = _templates.where((t) => t.id == templateId).firstOrNull;
+    if (t == null) return true;
+    final agora = DateTime.now();
+    final agoraMin = agora.hour * 60 + agora.minute;
+    switch (t.periodizacao) {
+      case PeriodizacaoChecklist.qualquerHorario:
+        return true;
+      case PeriodizacaoChecklist.abertura:
+        return agoraMin >= 6 * 60 && agoraMin <= 12 * 60;
+      case PeriodizacaoChecklist.fechamento:
+        return agoraMin >= 17 * 60 && agoraMin <= 23 * 60 + 59;
+      case PeriodizacaoChecklist.horarioEspecifico:
+        final h = t.horarioNotificacao;
+        if (h == null) return true;
+        final parts = h.split(':');
+        if (parts.length < 2) return true;
+        final targetMin =
+            (int.tryParse(parts[0]) ?? 0) * 60 + (int.tryParse(parts[1]) ?? 0);
+        return (agoraMin - targetMin).abs() <= 30;
+    }
+  }
+
+  /// Retorna true se o template deve mostrar alerta agora:
+  /// não concluído hoje E dentro da janela de notificação.
+  bool deveNotificarAgora(String templateId) =>
+      !foiConcluidoHoje(templateId) && estaNoJanela(templateId);
+
+  /// Templates com checklist pendente cuja janela de notificação está ativa.
+  List<ChecklistTemplate> get templatesPendentesAgora =>
+      _templates.where((t) => deveNotificarAgora(t.id)).toList();
 
   // ── Load ───────────────────────────────────────────────────────────────────
 
@@ -423,6 +525,7 @@ class ChecklistProvider with ChangeNotifier {
         itens: List<String>.from(_itensAbertura),
         isDefault: true,
         createdAt: now,
+        periodizacao: PeriodizacaoChecklist.abertura,
       ),
       ChecklistTemplate(
         id: const Uuid().v5(ns, 'checklist:fechamento'),
@@ -433,6 +536,7 @@ class ChecklistProvider with ChangeNotifier {
         itens: List<String>.from(_itensFechamento),
         isDefault: true,
         createdAt: now,
+        periodizacao: PeriodizacaoChecklist.fechamento,
       ),
     ];
   }
