@@ -4,16 +4,50 @@ import 'package:intl/intl.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
+import '../../../domain/entities/colaborador.dart';
 import '../../providers/cafe_provider.dart';
 import '../../providers/colaborador_provider.dart';
 
-class CafeScreen extends StatelessWidget {
+class CafeScreen extends StatefulWidget {
   const CafeScreen({super.key});
+
+  @override
+  State<CafeScreen> createState() => _CafeScreenState();
+}
+
+class _CafeScreenState extends State<CafeScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<CafeProvider>(
       builder: (context, provider, _) {
+        final colaboradorProvider =
+            Provider.of<ColaboradorProvider>(context, listen: false);
+
+        // IDs que já passaram por pausa hoje (ativa ou finalizada)
+        final jaFizeramPausa = {
+          ...provider.pausasAtivas.map((p) => p.colaboradorId),
+          ...provider.pausasFinalizadas.map((p) => p.colaboradorId),
+        };
+
+        final totalDisponiveis = colaboradorProvider.colaboradores
+            .where((c) => c.ativo && !jaFizeramPausa.contains(c.id))
+            .length;
+
         final temAlertas = provider.totalEmAtraso > 0;
 
         return Scaffold(
@@ -30,125 +64,69 @@ class CafeScreen extends StatelessWidget {
                   label: const Text('Limpar'),
                 ),
             ],
-          ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(Dimensions.paddingMD),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Stats Row
-                Row(
-                  children: [
-                    Expanded(
-                      child: _StatsCard(
-                        label: 'No Café',
-                        value: provider.totalAtivos.toString(),
-                        icon: Icons.coffee,
-                        color: AppColors.statusCafe,
-                      ),
-                    ),
-                    const SizedBox(width: Dimensions.spacingSM),
-                    Expanded(
-                      child: _StatsCard(
-                        label: 'Em Atraso',
-                        value: provider.totalEmAtraso.toString(),
-                        icon: Icons.timer_off,
-                        color: AppColors.danger,
-                      ),
-                    ),
-                    const SizedBox(width: Dimensions.spacingSM),
-                    Expanded(
-                      child: _StatsCard(
-                        label: 'Pausas Hoje',
-                        value: provider.totalHoje.toString(),
-                        icon: Icons.history,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ],
+            bottom: TabBar(
+              controller: _tabController,
+              labelColor: AppColors.primary,
+              unselectedLabelColor: AppColors.textSecondary,
+              indicatorColor: AppColors.primary,
+              indicatorWeight: 3,
+              tabs: [
+                Tab(
+                  icon: const Icon(Icons.people_outline, size: 18),
+                  text: 'Disponíveis ($totalDisponiveis)',
                 ),
-
-                // Alert banner
-                if (temAlertas) ...[
-                  const SizedBox(height: Dimensions.spacingMD),
-                  Container(
-                    padding: const EdgeInsets.all(Dimensions.paddingMD),
-                    decoration: BoxDecoration(
-                      color: AppColors.alertCritical,
-                      borderRadius:
-                          BorderRadius.circular(Dimensions.borderRadius),
-                      border: Border.all(color: AppColors.danger),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.warning_amber,
-                            color: AppColors.danger),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            '${provider.totalEmAtraso} colaborador(es) excederam o tempo de intervalo!',
-                            style: AppTextStyles.body
-                                .copyWith(color: AppColors.danger),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-
-                // Active breaks
-                if (provider.pausasAtivas.isNotEmpty) ...[
-                  const SizedBox(height: Dimensions.spacingLG),
-                  const Text('Em Intervalo Agora', style: AppTextStyles.h3),
-                  const SizedBox(height: Dimensions.spacingSM),
-                  ...provider.pausasAtivas.map(
-                    (pausa) => _PausaAtivaCard(
-                      pausa: pausa,
-                      onFinalizar: () =>
-                          provider.finalizarPausa(pausa.colaboradorId),
-                    ),
-                  ),
-                ],
-
-                const SizedBox(height: Dimensions.spacingLG),
-
-                // History
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Histórico de Hoje', style: AppTextStyles.h3),
-                    Text(
-                      '${provider.pausasFinalizadas.length} pausas',
-                      style: AppTextStyles.caption
-                          .copyWith(color: AppColors.textSecondary),
-                    ),
-                  ],
+                Tab(
+                  icon: const Icon(Icons.coffee, size: 18),
+                  text: 'Em Intervalo (${provider.pausasAtivas.length})',
                 ),
-                const SizedBox(height: Dimensions.spacingSM),
-
-                if (provider.pausasFinalizadas.isEmpty &&
-                    provider.pausasAtivas.isEmpty)
-                  const _EmptyState()
-                else if (provider.pausasFinalizadas.isEmpty)
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Text(
-                        'Nenhuma pausa finalizada ainda',
-                        style: AppTextStyles.caption
-                            .copyWith(color: AppColors.textSecondary),
-                      ),
-                    ),
-                  )
-                else
-                  ...provider.pausasFinalizadas.reversed.map(
-                    (pausa) => _PausaHistoricoCard(
-                      pausa: pausa,
-                      onRemover: () => provider.removerRegistro(pausa.id),
-                    ),
-                  ),
+                Tab(
+                  icon: const Icon(Icons.check_circle_outline, size: 18),
+                  text: 'Já fez (${provider.pausasFinalizadas.length})',
+                ),
               ],
             ),
+          ),
+          body: Column(
+            children: [
+              // Banner de alerta — visível em qualquer aba
+              if (temAlertas)
+                Container(
+                  margin: const EdgeInsets.fromLTRB(
+                      Dimensions.paddingMD, 12, Dimensions.paddingMD, 0),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.alertCritical,
+                    borderRadius:
+                        BorderRadius.circular(Dimensions.borderRadius),
+                    border: Border.all(color: AppColors.danger),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.warning_amber, color: AppColors.danger),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '${provider.totalEmAtraso} colaborador(es) excederam o tempo de intervalo!',
+                          style: AppTextStyles.body
+                              .copyWith(color: AppColors.danger),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+              // Conteúdo das abas
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _TabDisponiveis(provider: provider),
+                    _TabEmIntervalo(provider: provider),
+                    _TabHistorico(provider: provider),
+                  ],
+                ),
+              ),
+            ],
           ),
           floatingActionButton: FloatingActionButton.extended(
             onPressed: () => _mostrarSeletorPausa(context, provider),
@@ -202,57 +180,196 @@ class CafeScreen extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Stats Card
+// Aba 1: Disponíveis para Pausa
 // ---------------------------------------------------------------------------
-class _StatsCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData icon;
-  final Color color;
+class _TabDisponiveis extends StatelessWidget {
+  final CafeProvider provider;
 
-  const _StatsCard({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
+  const _TabDisponiveis({required this.provider});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Dimensions.paddingMD),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(8),
+    final colaboradorProvider =
+        Provider.of<ColaboradorProvider>(context, listen: false);
+
+    final jaFizeramPausa = {
+      ...provider.pausasAtivas.map((p) => p.colaboradorId),
+      ...provider.pausasFinalizadas.map((p) => p.colaboradorId),
+    };
+
+    final disponiveis = colaboradorProvider.colaboradores
+        .where((c) => c.ativo && !jaFizeramPausa.contains(c.id))
+        .toList();
+
+    if (disponiveis.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.check_circle_outline,
+                  size: 64,
+                  color: AppColors.success.withValues(alpha: 0.7)),
+              const SizedBox(height: 16),
+              Text(
+                'Todos os colaboradores já fizeram o intervalo hoje!',
+                style: AppTextStyles.body
+                    .copyWith(color: AppColors.textSecondary),
+                textAlign: TextAlign.center,
               ),
-              child: Icon(icon, color: color, size: 22),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style:
-                  AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              value,
-              style: AppTextStyles.h2.copyWith(color: color),
-            ),
-          ],
+            ],
+          ),
         ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(Dimensions.paddingMD),
+      itemCount: disponiveis.length,
+      itemBuilder: (_, i) {
+        final c = disponiveis[i];
+        return Card(
+          margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: AppColors.backgroundSection,
+              child: Text(
+                c.iniciais.isNotEmpty ? c.iniciais[0] : '?',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            title: Text(c.nome, style: AppTextStyles.body),
+            subtitle: Text(
+              c.departamento.nome,
+              style: AppTextStyles.caption
+                  .copyWith(color: AppColors.textSecondary),
+            ),
+            trailing: TextButton.icon(
+              onPressed: () => _abrirSeletorRapido(context, c),
+              icon: const Icon(Icons.coffee, size: 16),
+              label: const Text('Pausa'),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.statusCafe,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _abrirSeletorRapido(BuildContext context, Colaborador colaborador) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => _SeletorRapidoSheet(
+        colaborador: colaborador,
+        cafeProvider: provider,
       ),
     );
   }
 }
 
 // ---------------------------------------------------------------------------
-// Active Break Card with countdown
+// Aba 2: Em Intervalo agora
+// ---------------------------------------------------------------------------
+class _TabEmIntervalo extends StatelessWidget {
+  final CafeProvider provider;
+
+  const _TabEmIntervalo({required this.provider});
+
+  @override
+  Widget build(BuildContext context) {
+    if (provider.pausasAtivas.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.coffee_outlined,
+                  size: 64, color: AppColors.inactive.withValues(alpha: 0.7)),
+              const SizedBox(height: 16),
+              Text(
+                'Nenhum colaborador em intervalo no momento',
+                style: AppTextStyles.body
+                    .copyWith(color: AppColors.textSecondary),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(Dimensions.paddingMD),
+      itemCount: provider.pausasAtivas.length,
+      itemBuilder: (_, i) {
+        final pausa = provider.pausasAtivas[i];
+        return _PausaAtivaCard(
+          pausa: pausa,
+          onFinalizar: () => provider.finalizarPausa(pausa.colaboradorId),
+        );
+      },
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Aba 3: Histórico (já fez pausa)
+// ---------------------------------------------------------------------------
+class _TabHistorico extends StatelessWidget {
+  final CafeProvider provider;
+
+  const _TabHistorico({required this.provider});
+
+  @override
+  Widget build(BuildContext context) {
+    if (provider.pausasFinalizadas.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.history,
+                  size: 64, color: AppColors.inactive.withValues(alpha: 0.7)),
+              const SizedBox(height: 16),
+              Text(
+                'Nenhuma pausa finalizada hoje',
+                style: AppTextStyles.body
+                    .copyWith(color: AppColors.textSecondary),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final finalizadas = provider.pausasFinalizadas.reversed.toList();
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(Dimensions.paddingMD),
+      itemCount: finalizadas.length,
+      itemBuilder: (_, i) {
+        final pausa = finalizadas[i];
+        return _PausaHistoricoCard(
+          pausa: pausa,
+          onRemover: () => provider.removerRegistro(pausa.id),
+        );
+      },
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Card: pausa ativa com countdown e progress bar
 // ---------------------------------------------------------------------------
 class _PausaAtivaCard extends StatelessWidget {
   final PausaCafe pausa;
@@ -268,6 +385,9 @@ class _PausaAtivaCard extends StatelessWidget {
         ? 1.0
         : pausa.tempoDecorrido.inSeconds /
             Duration(minutes: pausa.duracaoMinutos).inSeconds;
+
+    final retornoPrevisto = pausa.iniciadoEm
+        .add(Duration(minutes: pausa.duracaoMinutos));
 
     final restante = pausa.tempoRestante;
     final label = emAtraso
@@ -289,7 +409,10 @@ class _PausaAtivaCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   backgroundColor: cor.withValues(alpha: 0.15),
-                  child: Icon(Icons.coffee, color: cor),
+                  child: Icon(
+                    emAtraso ? Icons.timer_off : Icons.coffee,
+                    color: cor,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -297,10 +420,27 @@ class _PausaAtivaCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(pausa.colaboradorNome, style: AppTextStyles.h4),
-                      Text(
-                        '${pausa.duracaoMinutos} min • iniciado ${DateFormat("HH:mm").format(pausa.iniciadoEm)}',
-                        style: AppTextStyles.caption
-                            .copyWith(color: AppColors.textSecondary),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Text(
+                            'Saiu às ${DateFormat("HH:mm").format(pausa.iniciadoEm)}',
+                            style: AppTextStyles.caption.copyWith(
+                                color: AppColors.textSecondary),
+                          ),
+                          const SizedBox(width: 6),
+                          Text('·',
+                              style: AppTextStyles.caption
+                                  .copyWith(color: AppColors.textSecondary)),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Retorna ${DateFormat("HH:mm").format(retornoPrevisto)}',
+                            style: AppTextStyles.caption.copyWith(
+                                color: emAtraso
+                                    ? AppColors.danger
+                                    : AppColors.textSecondary),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -344,7 +484,7 @@ class _PausaAtivaCard extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// History Card
+// Card: histórico de pausa finalizada
 // ---------------------------------------------------------------------------
 class _PausaHistoricoCard extends StatelessWidget {
   final PausaCafe pausa;
@@ -369,7 +509,7 @@ class _PausaHistoricoCard extends StatelessWidget {
         ),
         title: Text(pausa.colaboradorNome, style: AppTextStyles.body),
         subtitle: Text(
-          '${DateFormat("HH:mm").format(pausa.iniciadoEm)} → ${DateFormat("HH:mm").format(pausa.finalizadoEm!)} • ${duracao.inMinutes} min',
+          '${DateFormat("HH:mm").format(pausa.iniciadoEm)} → ${DateFormat("HH:mm").format(pausa.finalizadoEm!)} · ${duracao.inMinutes} min',
           style:
               AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
         ),
@@ -403,46 +543,91 @@ class _PausaHistoricoCard extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Empty State
+// Seletor rápido: escolhe só a duração para um colaborador pré-definido
 // ---------------------------------------------------------------------------
-class _EmptyState extends StatelessWidget {
-  const _EmptyState();
+class _SeletorRapidoSheet extends StatelessWidget {
+  final Colaborador colaborador;
+  final CafeProvider cafeProvider;
+
+  const _SeletorRapidoSheet({
+    required this.colaborador,
+    required this.cafeProvider,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          children: [
-            const Icon(
-              Icons.coffee_outlined,
-              size: 64,
-              color: AppColors.inactive,
+    return Padding(
+      padding: EdgeInsets.only(
+        top: 8,
+        left: 24,
+        right: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Handle
+          Center(
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.divider,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
-            const SizedBox(height: 16),
-            Text(
-              'Nenhuma pausa para café hoje',
-              style: AppTextStyles.body
-                  .copyWith(color: AppColors.textSecondary),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Toque em "Iniciar Pausa" para registrar um intervalo',
-              style: AppTextStyles.caption
-                  .copyWith(color: AppColors.textSecondary),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+          ),
+          Text(
+            'Iniciar pausa para',
+            style:
+                AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 2),
+          Text(colaborador.nome, style: AppTextStyles.h3),
+          Text(
+            colaborador.departamento.nome,
+            style:
+                AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 24),
+          const Text('Escolha a duração:', style: AppTextStyles.label),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [10, 15, 20, 30].map((d) {
+              final isCafe = d <= 15;
+              return ElevatedButton.icon(
+                onPressed: () {
+                  cafeProvider.iniciarPausa(
+                    colaboradorId: colaborador.id,
+                    colaboradorNome: colaborador.nome,
+                    duracaoMinutos: d,
+                  );
+                  Navigator.pop(context);
+                },
+                icon: Icon(
+                  isCafe ? Icons.coffee : Icons.restaurant,
+                  size: 16,
+                ),
+                label: Text('$d min'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.statusCafe,
+                  foregroundColor: Colors.white,
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 8),
+        ],
       ),
     );
   }
 }
 
 // ---------------------------------------------------------------------------
-// Bottom Sheet: Selecionar colaborador e duração
+// Seletor completo (FAB): escolhe colaborador + duração
 // ---------------------------------------------------------------------------
 class _SeletorPausaSheet extends StatefulWidget {
   final CafeProvider cafeProvider;
@@ -464,9 +649,14 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
   Widget build(BuildContext context) {
     final colaboradorProvider =
         Provider.of<ColaboradorProvider>(context, listen: false);
+
+    // Exclui: quem está em pausa ativa OU quem já finalizou uma pausa hoje
     final colaboradores = colaboradorProvider.colaboradores
         .where(
-          (c) => !widget.cafeProvider.colaboradorEmPausa(c.id),
+          (c) =>
+              !widget.cafeProvider.colaboradorEmPausa(c.id) &&
+              !widget.cafeProvider.pausasFinalizadas
+                  .any((p) => p.colaboradorId == c.id),
         )
         .toList();
 
@@ -506,7 +696,8 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
                   selected: selecionado,
                   selectedColor: AppColors.statusCafe,
                   labelStyle: TextStyle(
-                    color: selecionado ? Colors.white : AppColors.textPrimary,
+                    color:
+                        selecionado ? Colors.white : AppColors.textPrimary,
                     fontWeight: selecionado
                         ? FontWeight.bold
                         : FontWeight.normal,
@@ -521,12 +712,12 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
             const Text('Colaborador', style: AppTextStyles.label),
             const SizedBox(height: 8),
 
-            // Colaboradores
+            // Colaboradores disponíveis
             Expanded(
               child: colaboradores.isEmpty
                   ? Center(
                       child: Text(
-                        'Todos os colaboradores estão em pausa',
+                        'Todos os colaboradores já fizeram ou estão em pausa',
                         style: AppTextStyles.caption
                             .copyWith(color: AppColors.textSecondary),
                         textAlign: TextAlign.center,
