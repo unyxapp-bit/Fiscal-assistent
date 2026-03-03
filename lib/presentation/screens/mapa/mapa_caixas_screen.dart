@@ -10,6 +10,7 @@ import '../../providers/alocacao_provider.dart';
 import '../../providers/colaborador_provider.dart';
 import '../../providers/cafe_provider.dart';
 import '../../providers/escala_provider.dart';
+import '../../providers/pacote_plantao_provider.dart';
 import '../../widgets/common/loading_widget.dart';
 import '../../widgets/common/empty_state_widget.dart';
 import '../alocacao/alocacao_screen.dart';
@@ -68,8 +69,10 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
     if (!mounted) return;
     final escala = Provider.of<EscalaProvider>(context, listen: false);
     final alocacao = Provider.of<AlocacaoProvider>(context, listen: false);
+    final plantao = Provider.of<PacotePlantaoProvider>(context, listen: false);
     final agora = DateTime.now();
 
+    // ── Caixas ──────────────────────────────────────────────────────────────
     for (final turno in escala.turnosHoje) {
       if (turno.saida == null || turno.folga || turno.feriado) continue;
       if (_saidasProcessadas.contains(turno.colaboradorId)) continue;
@@ -95,6 +98,40 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
               '${turno.colaboradorNome} atingiu o horário de saída e foi liberado(a) do caixa'),
+          backgroundColor: AppColors.success,
+          duration: const Duration(seconds: 5),
+        ));
+      }
+    }
+
+    // ── Pacotes ─────────────────────────────────────────────────────────────
+    for (final p in plantao.plantao.toList()) {
+      if (_saidasProcessadas.contains(p.colaboradorId)) continue;
+
+      final turno = escala.turnosHoje
+          .where((t) => t.colaboradorId == p.colaboradorId)
+          .firstOrNull;
+      if (turno?.saida == null ||
+          (turno?.folga ?? false) ||
+          (turno?.feriado ?? false)) {
+        continue;
+      }
+
+      final partes = turno!.saida!.split(':');
+      final h = int.tryParse(partes[0]) ?? -1;
+      final m = int.tryParse(partes.length > 1 ? partes[1] : '') ?? -1;
+      if (h < 0 || m < 0) continue;
+
+      final saidaHoje = DateTime(agora.year, agora.month, agora.day, h, m);
+      if (!agora.isAfter(saidaHoje)) continue;
+
+      _saidasProcessadas.add(p.colaboradorId);
+      plantao.remover(p.id);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+              '${turno.colaboradorNome} atingiu o horário de saída e foi removido(a) do plantão de pacotes'),
           backgroundColor: AppColors.success,
           duration: const Duration(seconds: 5),
         ));

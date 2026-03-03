@@ -25,13 +25,43 @@ class PacoteSection extends StatelessWidget {
     final colaboradorProvider =
         Provider.of<ColaboradorProvider>(context, listen: false);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final escalaProvider = Provider.of<EscalaProvider>(context, listen: false);
+    // listen: true — CafeProvider notifica a cada segundo via Timer.periodic,
+    // fazendo o countdown de intervalo atualizar automaticamente.
+    final cafeProvider = Provider.of<CafeProvider>(context);
+
+    // Função local: positivo = minutos atrasado, negativo = minutos restantes
+    int? calcMinIntervalo(TurnoLocal? turno) {
+      if (turno?.intervalo == null) return null;
+      final parts = turno!.intervalo!.split(':');
+      if (parts.length < 2) return null;
+      final agora = DateTime.now();
+      final agoraMin = agora.hour * 60 + agora.minute;
+      final intervaloMin =
+          (int.tryParse(parts[0]) ?? 0) * 60 + (int.tryParse(parts[1]) ?? 0);
+      return agoraMin - intervaloMin;
+    }
 
     final plantao = plantaoProvider.plantao;
+
+    // Verifica se algum empacotador está em atenção (15+ min atrasado)
+    final hayAtencao = plantao.any((p) {
+      final turno = escalaProvider.turnosHoje
+          .where((t) => t.colaboradorId == p.colaboradorId)
+          .firstOrNull;
+      final pausa = cafeProvider.getPausaAtiva(p.colaboradorId);
+      if (pausa != null) return false;
+      final min = calcMinIntervalo(turno);
+      return min != null && min >= 15;
+    });
 
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-        side: const BorderSide(color: _kPacoteColor, width: 2),
+        side: BorderSide(
+          color: hayAtencao ? AppColors.danger : _kPacoteColor,
+          width: hayAtencao ? 2.5 : 2,
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(Dimensions.paddingMD),
@@ -41,12 +71,16 @@ class PacoteSection extends StatelessWidget {
             // Cabeçalho
             Row(
               children: [
-                const Icon(Icons.shopping_bag, color: _kPacoteColor, size: 20),
+                Icon(
+                  Icons.shopping_bag,
+                  color: hayAtencao ? AppColors.danger : _kPacoteColor,
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   'Pacotes',
                   style: AppTextStyles.subtitle.copyWith(
-                    color: _kPacoteColor,
+                    color: hayAtencao ? AppColors.danger : _kPacoteColor,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -92,22 +126,80 @@ class PacoteSection extends StatelessWidget {
                   final iniciais = colaborador?.iniciais ??
                       nome.substring(0, 1).toUpperCase();
 
+                  // Estado de intervalo
+                  final turno = escalaProvider.turnosHoje
+                      .where((t) => t.colaboradorId == p.colaboradorId)
+                      .firstOrNull;
+                  final pausaAtiva = cafeProvider.getPausaAtiva(p.colaboradorId);
+                  final isEmPausa = pausaAtiva != null;
+                  final minIntervalo =
+                      isEmPausa ? null : calcMinIntervalo(turno);
+                  final emAtencao = minIntervalo != null && minIntervalo >= 15;
+
+                  // Cor e label dinâmicos
+                  final Color chipColor;
+                  final String chipLabel;
+                  final IconData chipAvatarIcon;
+
+                  if (isEmPausa) {
+                    final isCafe = pausaAtiva.duracaoMinutos <= 15;
+                    chipColor = Colors.orange;
+                    chipLabel =
+                        '${nome.split(' ').first} · ${pausaAtiva.minutosDecorridos}min';
+                    chipAvatarIcon = isCafe ? Icons.coffee : Icons.restaurant;
+                  } else if (emAtencao) {
+                    chipColor = AppColors.danger;
+                    chipLabel =
+                        '${nome.split(' ').first} · ${minIntervalo}min';
+                    chipAvatarIcon = Icons.warning_amber_rounded;
+                  } else if (minIntervalo != null && minIntervalo >= 0) {
+                    // Atraso leve (0–14 min)
+                    chipColor = Colors.amber.shade700;
+                    chipLabel =
+                        '${nome.split(' ').first} · ${minIntervalo}min';
+                    chipAvatarIcon = Icons.schedule;
+                  } else if (minIntervalo != null && minIntervalo > -60) {
+                    // Countdown (1–59 min antes)
+                    chipColor = Colors.orange.shade600;
+                    chipLabel =
+                        '${nome.split(' ').first} · ${-minIntervalo}min';
+                    chipAvatarIcon = Icons.schedule;
+                  } else {
+                    chipColor = _kPacoteColor;
+                    chipLabel = nome.split(' ').first;
+                    chipAvatarIcon = Icons.person;
+                  }
+
+                  final bool showIcon =
+                      isEmPausa || emAtencao || (minIntervalo != null);
+
                   return InputChip(
-                    avatar: CircleAvatar(
-                      backgroundColor: _kPacoteColor,
-                      child: Text(
-                        iniciais,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                    avatar: showIcon
+                        ? CircleAvatar(
+                            backgroundColor: chipColor,
+                            child: Icon(
+                              chipAvatarIcon,
+                              size: 11,
+                              color: Colors.white,
+                            ),
+                          )
+                        : CircleAvatar(
+                            backgroundColor: chipColor,
+                            child: Text(
+                              iniciais,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                     label: Text(
-                      nome.split(' ').first,
-                      style: AppTextStyles.caption
-                          .copyWith(fontWeight: FontWeight.w600),
+                      chipLabel,
+                      style: AppTextStyles.caption.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: chipColor,
+                      ),
                     ),
                     deleteIcon: const Icon(Icons.close, size: 16),
                     deleteIconColor: Colors.red,
@@ -117,9 +209,8 @@ class PacoteSection extends StatelessWidget {
                       colaborador,
                       p.id,
                     ),
-                    backgroundColor: _kPacoteColor.withValues(alpha: 0.1),
-                    side: BorderSide(
-                        color: _kPacoteColor.withValues(alpha: 0.4)),
+                    backgroundColor: chipColor.withValues(alpha: 0.1),
+                    side: BorderSide(color: chipColor.withValues(alpha: 0.4)),
                   );
                 }),
 
@@ -143,6 +234,36 @@ class PacoteSection extends StatelessWidget {
                 ),
               ],
             ),
+
+            // Banner de atenção — aparece quando há atraso ≥ 15 min
+            if (hayAtencao) ...[
+              const SizedBox(height: 8),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.danger.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.warning_amber_rounded,
+                        size: 14, color: AppColors.danger),
+                    SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'Empacotador(es) em atraso para o intervalo',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.danger,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),
