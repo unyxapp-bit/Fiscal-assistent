@@ -35,7 +35,8 @@ import '../formularios/formularios_screen.dart';
 import '../folga/folga_screen.dart';
 import '../escala/escala_screen.dart';
 import '../relatorio/relatorio_diario_screen.dart';
-import '../profile/profile_screen.dart';
+// profile_screen.dart usado via ConfiguracoesScreen
+import '../configuracoes/configuracoes_screen.dart';
 import '../../../data/services/seed_data_service.dart';
 import 'widgets/clock_widget.dart';
 import 'widgets/quick_action_button.dart';
@@ -52,6 +53,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  void _abrirBriefingTurno(BuildContext context, String fiscalId) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => _BriefingTurnoSheet(fiscalId: fiscalId),
+    );
   }
 
   Future<void> _loadData() async {
@@ -190,7 +202,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             IconButton(
               icon: const Icon(Icons.settings_outlined),
               onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                MaterialPageRoute(builder: (_) => const ConfiguracoesScreen()),
               ),
             ),
             IconButton(
@@ -258,6 +270,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const ClockWidget(),
+                    const SizedBox(height: Dimensions.spacingMD),
+
+                    // Botão Começar Turno
+                    _ComecaTurnoButton(
+                      onPressed: () => _abrirBriefingTurno(
+                        context,
+                        authProvider.user?.id ?? '',
+                      ),
+                    ),
                     const SizedBox(height: Dimensions.spacingXL),
 
                     // Stats
@@ -554,72 +575,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     const SizedBox(height: Dimensions.spacingMD),
 
                     if (fiscalProvider.fiscal != null) ...[
-                      // Card Informações da Loja
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(Dimensions.paddingMD),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  const Expanded(
-                                    child: Text('Informações da Loja',
-                                        style: AppTextStyles.h4),
-                                  ),
-                                  TextButton.icon(
-                                    onPressed: () => Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                          builder: (_) =>
-                                              const ProfileScreen()),
-                                    ),
-                                    icon: const Icon(Icons.edit_outlined,
-                                        size: 16),
-                                    label: const Text('Editar',
-                                        style: TextStyle(fontSize: 13)),
-                                    style: TextButton.styleFrom(
-                                      foregroundColor: AppColors.primary,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 4),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: Dimensions.spacingMD),
-                              _buildInfoRow('Loja',
-                                  fiscalProvider.fiscal!.loja ?? 'N/A'),
-                              const Divider(height: 24),
-                              _buildInfoRow(
-                                  'Fiscal', fiscalProvider.fiscal!.nome),
-                              const Divider(height: 24),
-                              _buildInfoRow(
-                                  'Email', fiscalProvider.fiscal!.email),
-                              const Divider(height: 24),
-                              _buildInfoRow(
-                                'Telefone',
-                                fiscalProvider.fiscal!.telefone ??
-                                    'Não informado',
-                                valueColor:
-                                    fiscalProvider.fiscal!.telefone == null
-                                        ? AppColors.textSecondary
-                                        : null,
-                              ),
-                              const Divider(height: 24),
-                              _buildInfoRow(
-                                'Status',
-                                fiscalProvider.fiscal!.ativo
-                                    ? 'Ativo'
-                                    : 'Inativo',
-                                valueColor: fiscalProvider.fiscal!.ativo
-                                    ? AppColors.success
-                                    : AppColors.danger,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: Dimensions.spacingMD),
-
                       // Card Ocupação do Turno
                       Card(
                         child: Padding(
@@ -702,21 +657,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value, {Color? valueColor}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label,
-            style:
-                AppTextStyles.body.copyWith(color: AppColors.textSecondary)),
-        Text(
-          value,
-          style:
-              AppTextStyles.h4.copyWith(color: valueColor ?? AppColors.textPrimary),
-        ),
-      ],
-    );
-  }
 
   String _getSaudacao() {
     final hora = DateTime.now().hour;
@@ -1347,6 +1287,437 @@ class _OcupacaoBar extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+// ── Botão Começar Turno ───────────────────────────────────────────────────────
+
+class _ComecaTurnoButton extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _ComecaTurnoButton({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColors.primary,
+              AppColors.primary.withValues(alpha: 0.75),
+            ],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: 0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.play_arrow_rounded,
+                  color: Colors.white, size: 24),
+            ),
+            const SizedBox(width: 14),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Começar Turno',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Ver briefing do turno e iniciar',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios,
+                color: Colors.white54, size: 14),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Briefing de início de turno ───────────────────────────────────────────────
+
+class _BriefingTurnoSheet extends StatelessWidget {
+  final String fiscalId;
+
+  const _BriefingTurnoSheet({required this.fiscalId});
+
+  @override
+  Widget build(BuildContext context) {
+    final escalaProvider = Provider.of<EscalaProvider>(context, listen: false);
+    final notaProvider = Provider.of<NotaProvider>(context, listen: false);
+
+    final agora = DateTime.now();
+    final horaFormatada =
+        '${agora.hour.toString().padLeft(2, '0')}:${agora.minute.toString().padLeft(2, '0')}';
+
+    final turnosHoje = escalaProvider.turnosHoje;
+    final presentes =
+        turnosHoje.where((t) => !t.folga && !t.feriado).toList();
+    final defolga = turnosHoje.where((t) => t.folga || t.feriado).toList();
+    final notasImportantes =
+        notaProvider.notas.where((n) => n.importante && !n.concluida).toList();
+
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.75,
+      maxChildSize: 0.95,
+      minChildSize: 0.5,
+      builder: (_, controller) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Handle
+            Center(
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.divider,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+
+            // Título
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.play_arrow_rounded,
+                      color: AppColors.primary, size: 22),
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Briefing do Turno', style: AppTextStyles.h3),
+                    Text(
+                      'Início às $horaFormatada',
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            Expanded(
+              child: ListView(
+                controller: controller,
+                children: [
+                  // ── Colaboradores presentes ──────────────────────────────
+                  _BriefingSection(
+                    icon: Icons.people,
+                    iconColor: AppColors.success,
+                    title:
+                        'Presentes hoje (${presentes.length})',
+                    child: presentes.isEmpty
+                        ? Text('Nenhum colaborador na escala de hoje',
+                            style: AppTextStyles.caption
+                                .copyWith(color: AppColors.textSecondary))
+                        : Column(
+                            children: presentes
+                                .map((t) => _BriefingColabTile(
+                                      nome: t.colaboradorNome,
+                                      detalhe: t.entrada != null
+                                          ? 'Entrada: ${t.entrada}'
+                                          : t.departamento.toString(),
+                                      cor: AppColors.success,
+                                    ))
+                                .toList(),
+                          ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // ── De folga ─────────────────────────────────────────────
+                  _BriefingSection(
+                    icon: Icons.beach_access,
+                    iconColor: AppColors.textSecondary,
+                    title: 'De folga / feriado (${defolga.length})',
+                    child: defolga.isEmpty
+                        ? Text('Nenhum colaborador de folga hoje',
+                            style: AppTextStyles.caption
+                                .copyWith(color: AppColors.textSecondary))
+                        : Column(
+                            children: defolga
+                                .map((t) => _BriefingColabTile(
+                                      nome: t.colaboradorNome,
+                                      detalhe: t.feriado
+                                          ? 'Feriado'
+                                          : 'Folga',
+                                      cor: AppColors.textSecondary,
+                                    ))
+                                .toList(),
+                          ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // ── Notas importantes ────────────────────────────────────
+                  _BriefingSection(
+                    icon: Icons.warning_amber_rounded,
+                    iconColor: Colors.orange,
+                    title:
+                        'Avisos importantes (${notasImportantes.length})',
+                    child: notasImportantes.isEmpty
+                        ? Text('Sem anotações importantes no momento',
+                            style: AppTextStyles.caption
+                                .copyWith(color: AppColors.textSecondary))
+                        : Column(
+                            children: notasImportantes
+                                .map((n) => Container(
+                                      margin:
+                                          const EdgeInsets.only(bottom: 6),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.orange
+                                            .withValues(alpha: 0.08),
+                                        borderRadius:
+                                            BorderRadius.circular(8),
+                                        border: Border.all(
+                                            color: Colors.orange
+                                                .withValues(alpha: 0.3)),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          const Icon(
+                                              Icons.priority_high,
+                                              size: 14,
+                                              color: Colors.orange),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              n.titulo,
+                                              style: const TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.orange,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ))
+                                .toList(),
+                          ),
+                  ),
+
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+
+            // ── Botões de ação ─────────────────────────────────────────────
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => AlocacaoScreen(fiscalId: fiscalId),
+                      ));
+                    },
+                    icon: const Icon(Icons.swap_horiz, size: 18),
+                    label: const Text('Ir para Alocar'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      side: const BorderSide(color: AppColors.primary),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () =>
+                        _confirmarInicio(context, presentes, defolga, notasImportantes, horaFormatada),
+                    icon: const Icon(Icons.play_arrow_rounded, size: 18),
+                    label: const Text('Confirmar Início'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _confirmarInicio(
+    BuildContext context,
+    List<dynamic> presentes,
+    List<dynamic> defolga,
+    List<dynamic> notasImportantes,
+    String horaFormatada,
+  ) {
+    final passagemProvider =
+        Provider.of<PassagemTurnoProvider>(context, listen: false);
+
+    final resumo =
+        'Início de turno às $horaFormatada\nPresentes: ${presentes.length} colaborador(es)';
+
+    final pendencias = notasImportantes.isNotEmpty
+        ? notasImportantes.map((n) => '• ${n.titulo}').join('\n')
+        : 'Nenhuma pendência registrada';
+
+    final recados = defolga.isNotEmpty
+        ? 'De folga/feriado: ${defolga.map((t) => t.colaboradorNome).join(', ')}'
+        : 'Nenhum colaborador de folga hoje';
+
+    passagemProvider.registrar(
+      resumo: resumo,
+      pendencias: pendencias,
+      recados: recados,
+    );
+
+    Navigator.pop(context);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Turno iniciado às $horaFormatada — registrado na timeline'),
+        backgroundColor: AppColors.success,
+        duration: const Duration(seconds: 4),
+        action: SnackBarAction(
+          label: 'Ver',
+          textColor: Colors.white,
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const TimelineScreen()),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BriefingSection extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final Widget child;
+
+  const _BriefingSection({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(Dimensions.paddingMD),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: iconColor, size: 16),
+                const SizedBox(width: 8),
+                Text(title,
+                    style: AppTextStyles.label.copyWith(
+                        fontWeight: FontWeight.bold, color: iconColor)),
+              ],
+            ),
+            const SizedBox(height: 10),
+            child,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BriefingColabTile extends StatelessWidget {
+  final String nome;
+  final String detalhe;
+  final Color cor;
+
+  const _BriefingColabTile({
+    required this.nome,
+    required this.detalhe,
+    required this.cor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 14,
+            backgroundColor: cor.withValues(alpha: 0.12),
+            child: Text(
+              nome.isNotEmpty ? nome[0].toUpperCase() : '?',
+              style: TextStyle(
+                  fontSize: 12, fontWeight: FontWeight.bold, color: cor),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(nome,
+                    style: const TextStyle(
+                        fontSize: 13, fontWeight: FontWeight.w600)),
+                Text(detalhe,
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textSecondary)),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
