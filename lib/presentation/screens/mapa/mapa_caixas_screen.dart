@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -8,6 +9,7 @@ import '../../providers/caixa_provider.dart';
 import '../../providers/alocacao_provider.dart';
 import '../../providers/colaborador_provider.dart';
 import '../../providers/cafe_provider.dart';
+import '../../providers/escala_provider.dart';
 import '../../widgets/common/loading_widget.dart';
 import '../../widgets/common/empty_state_widget.dart';
 import '../alocacao/alocacao_screen.dart';
@@ -30,6 +32,9 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
   late TabController _tabController;
   int _tabIndex = 0;
 
+  Timer? _timerSaidas;
+  final Set<String> _saidasProcessadas = {};
+
   @override
   void initState() {
     super.initState();
@@ -39,13 +44,62 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         setState(() => _tabIndex = _tabController.index);
       }
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _loadData();
+      _iniciarTimerSaidas();
+    });
   }
 
   @override
   void dispose() {
+    _timerSaidas?.cancel();
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _iniciarTimerSaidas() {
+    _verificarSaidasAutomaticas();
+    _timerSaidas = Timer.periodic(const Duration(minutes: 1), (_) {
+      _verificarSaidasAutomaticas();
+    });
+  }
+
+  void _verificarSaidasAutomaticas() {
+    if (!mounted) return;
+    final escala = Provider.of<EscalaProvider>(context, listen: false);
+    final alocacao = Provider.of<AlocacaoProvider>(context, listen: false);
+    final agora = DateTime.now();
+
+    for (final turno in escala.turnosHoje) {
+      if (turno.saida == null || turno.folga || turno.feriado) continue;
+      if (_saidasProcessadas.contains(turno.colaboradorId)) continue;
+
+      final partes = turno.saida!.split(':');
+      final h = int.tryParse(partes[0]) ?? -1;
+      final m = int.tryParse(partes.length > 1 ? partes[1] : '') ?? -1;
+      if (h < 0 || m < 0) continue;
+
+      final saidaHoje = DateTime(agora.year, agora.month, agora.day, h, m);
+      if (!agora.isAfter(saidaHoje)) continue;
+
+      final alocacaoAtiva = alocacao.getAlocacaoColaborador(turno.colaboradorId);
+      if (alocacaoAtiva == null) continue;
+
+      _saidasProcessadas.add(turno.colaboradorId);
+      alocacao.liberarAlocacao(
+        alocacaoAtiva.id,
+        'Encerramento automático — horário de saída atingido (${turno.saida})',
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+              '${turno.colaboradorNome} atingiu o horário de saída e foi liberado(a) do caixa'),
+          backgroundColor: AppColors.success,
+          duration: const Duration(seconds: 5),
+        ));
+      }
+    }
   }
 
   Future<void> _loadData() async {
@@ -60,6 +114,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
           .loadAlocacoes(userId),
       Provider.of<ColaboradorProvider>(context, listen: false)
           .loadColaboradores(userId),
+      Provider.of<EscalaProvider>(context, listen: false).load(),
     ]);
   }
 
