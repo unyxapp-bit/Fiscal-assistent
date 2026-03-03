@@ -55,10 +55,12 @@ class CaixaListItem extends StatelessWidget {
             .firstOrNull
         : null;
 
-    // Aviso 15 min antes do intervalo (apenas para caixas ocupados)
-    final proximoIntervalo = isOcupado && _proximoIntervalo(turno);
+    // Situação do intervalo agendado (apenas quando ocupado e não em pausa real)
+    final int? minIntervalo =
+        isOcupado && !isEmPausa ? _calcMinIntervalo(turno) : null;
+    final bool emAtencao = minIntervalo != null && minIntervalo >= 15;
 
-    final statusColor = _statusColor(isOcupado, isEmPausa);
+    final statusColor = _statusColor(isOcupado, isEmPausa, emAtencao: emAtencao);
 
     return Card(
       margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
@@ -249,33 +251,15 @@ class CaixaListItem extends StatelessWidget {
                     const SizedBox(width: 8),
 
                     // ── Trailing: badge de status ──────────────
-                    _buildTrailing(isOcupado, isEmPausa, pausaCaixa),
+                    _buildTrailing(isOcupado, isEmPausa, pausaCaixa,
+                        emAtencao: emAtencao, minIntervalo: minIntervalo),
                   ],
                 ),
               ),
 
-              // ── Faixa: aviso de próximo intervalo ──────────
-              if (proximoIntervalo)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 4),
-                  color: Colors.orange.shade100,
-                  child: Row(
-                    children: [
-                      Icon(Icons.schedule,
-                          size: 12, color: Colors.orange.shade800),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Intervalo em breve (${_minutosParaIntervalo(turno)} min)',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.orange.shade800,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              // ── Faixa: situação do intervalo agendado ──────────
+              if (minIntervalo != null && minIntervalo > -60)
+                _buildIntervaloBar(minIntervalo),
             ],
           ),
         ),
@@ -284,7 +268,12 @@ class CaixaListItem extends StatelessWidget {
   }
 
   Widget _buildTrailing(
-      bool isOcupado, bool isEmPausa, PausaCafe? pausaCaixa) {
+    bool isOcupado,
+    bool isEmPausa,
+    PausaCafe? pausaCaixa, {
+    bool emAtencao = false,
+    int? minIntervalo,
+  }) {
     if (caixa.emManutencao) {
       return _StatusChip(
           label: 'Manutenção',
@@ -304,10 +293,16 @@ class CaixaListItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          _StatusChip(
-              label: 'Ocupado',
-              color: AppColors.statusAtivo,
-              icon: Icons.person),
+          emAtencao
+              ? _StatusChip(
+                  label: '${minIntervalo}min atraso',
+                  color: AppColors.danger,
+                  icon: Icons.warning_amber_rounded,
+                )
+              : _StatusChip(
+                  label: 'Ocupado',
+                  color: AppColors.statusAtivo,
+                  icon: Icons.person),
           const SizedBox(height: 3),
           Text(
             'desde $h:$m',
@@ -353,33 +348,71 @@ class CaixaListItem extends StatelessWidget {
         icon: Icons.check_circle_outline);
   }
 
-  bool _proximoIntervalo(TurnoLocal? turno) {
-    if (turno?.intervalo == null) return false;
+  Widget _buildIntervaloBar(int min) {
+    final Color cor;
+    final IconData icone;
+    final String texto;
+
+    if (min < 0) {
+      // Countdown: faltam minutos
+      cor = Colors.orange.shade800;
+      icone = Icons.schedule;
+      texto = 'Intervalo em ${-min}min';
+    } else if (min < 15) {
+      // Atraso leve (0–14 min)
+      cor = Colors.orange.shade900;
+      icone = Icons.warning_amber;
+      texto = '${min}min em atraso para o intervalo';
+    } else {
+      // Em atenção (15+ min)
+      cor = AppColors.danger;
+      icone = Icons.error_outline;
+      texto = '${min}min sem intervalo — Em Atenção';
+    }
+
+    final bgColor = min >= 15
+        ? AppColors.danger.withValues(alpha: 0.08)
+        : min >= 0
+            ? Colors.orange.shade100
+            : Colors.orange.shade50;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      color: bgColor,
+      child: Row(
+        children: [
+          Icon(icone, size: 13, color: cor),
+          const SizedBox(width: 5),
+          Text(
+            texto,
+            style: TextStyle(
+              fontSize: 11,
+              color: cor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Positivo = minutos ATRASADO; Negativo = minutos RESTANTES; null = sem horário
+  int? _calcMinIntervalo(TurnoLocal? turno) {
+    if (turno?.intervalo == null) return null;
     final parts = turno!.intervalo!.split(':');
-    if (parts.length < 2) return false;
+    if (parts.length < 2) return null;
     final agora = DateTime.now();
     final agoraMin = agora.hour * 60 + agora.minute;
     final intervaloMin =
         (int.tryParse(parts[0]) ?? 0) * 60 + (int.tryParse(parts[1]) ?? 0);
-    final diff = intervaloMin - agoraMin;
-    return diff >= 0 && diff <= 15;
+    return agoraMin - intervaloMin; // negativo = falta tempo, positivo = atrasado
   }
 
-  int _minutosParaIntervalo(TurnoLocal? turno) {
-    if (turno?.intervalo == null) return 0;
-    final parts = turno!.intervalo!.split(':');
-    if (parts.length < 2) return 0;
-    final agora = DateTime.now();
-    final agoraMin = agora.hour * 60 + agora.minute;
-    final intervaloMin =
-        (int.tryParse(parts[0]) ?? 0) * 60 + (int.tryParse(parts[1]) ?? 0);
-    return (intervaloMin - agoraMin).clamp(0, 99);
-  }
-
-  Color _statusColor(bool isOcupado, bool isEmPausa) {
+  Color _statusColor(bool isOcupado, bool isEmPausa,
+      {bool emAtencao = false}) {
     if (caixa.emManutencao) return AppColors.statusAtencao;
     if (!caixa.ativo) return AppColors.inactive;
-    if (isOcupado) return AppColors.statusAtivo;
+    if (isOcupado) return emAtencao ? AppColors.danger : AppColors.statusAtivo;
     if (isEmPausa) return Colors.orange;
     return AppColors.success;
   }
