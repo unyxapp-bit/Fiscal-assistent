@@ -394,16 +394,21 @@ class _FormularioPreenchimentoScreenState
                   ],
                 ),
                 const SizedBox(height: 8),
-                ...campo.opcoes.map(
-                  (opcao) => RadioListTile<String>(
-                    value: opcao,
-                    groupValue: valor,
-                    title: Text(opcao),
-                    activeColor: AppColors.primary,
-                    contentPadding: EdgeInsets.zero,
-                    dense: true,
-                    onChanged: (v) =>
-                        setState(() => _valores[label] = v),
+                RadioGroup<String>(
+                  groupValue: valor,
+                  onChanged: (v) => setState(() => _valores[label] = v),
+                  child: Column(
+                    children: campo.opcoes
+                        .map(
+                          (opcao) => RadioListTile<String>(
+                            value: opcao,
+                            title: Text(opcao),
+                            activeColor: AppColors.primary,
+                            contentPadding: EdgeInsets.zero,
+                            dense: true,
+                          ),
+                        )
+                        .toList(),
                   ),
                 ),
               ],

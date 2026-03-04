@@ -118,33 +118,37 @@ class _NotasScreenState extends State<NotasScreen> {
                 const SizedBox(height: 16),
                 const Text('Ordenar por', style: AppTextStyles.h4),
                 const SizedBox(height: 8),
-                ...OrdenacaoNota.values.map((o) {
-                  final labels = {
-                    OrdenacaoNota.importancia: 'Importância',
-                    OrdenacaoNota.dataCriacao: 'Data de criação',
-                    OrdenacaoNota.dataVencimento: 'Prazo / vencimento',
-                    OrdenacaoNota.tipo: 'Tipo',
-                  };
-                  return RadioListTile<OrdenacaoNota>(
-                    value: o,
-                    groupValue: provider.ordenacao,
-                    title: Text(labels[o]!),
-                    activeColor: AppColors.primary,
-                    contentPadding: EdgeInsets.zero,
-                    visualDensity: VisualDensity.compact,
-                    onChanged: (v) {
-                      if (v != null) {
-                        provider.setOrdenacao(v);
-                        setModalState(() {});
-                      }
-                    },
-                  );
-                }),
+                RadioGroup<OrdenacaoNota>(
+                  groupValue: provider.ordenacao,
+                  onChanged: (v) {
+                    if (v != null) {
+                      provider.setOrdenacao(v);
+                      setModalState(() {});
+                    }
+                  },
+                  child: Column(
+                    children: OrdenacaoNota.values.map((o) {
+                      const labels = {
+                        OrdenacaoNota.importancia: 'Importância',
+                        OrdenacaoNota.dataCriacao: 'Data de criação',
+                        OrdenacaoNota.dataVencimento: 'Prazo / vencimento',
+                        OrdenacaoNota.tipo: 'Tipo',
+                      };
+                      return RadioListTile<OrdenacaoNota>(
+                        value: o,
+                        title: Text(labels[o]!),
+                        activeColor: AppColors.primary,
+                        contentPadding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
+                      );
+                    }).toList(),
+                  ),
+                ),
                 const Divider(),
                 SwitchListTile(
                   title: const Text('Apenas pendentes'),
                   value: provider.mostrarApenasPendentes,
-                  activeColor: AppColors.primary,
+                  activeThumbColor: AppColors.primary,
                   contentPadding: EdgeInsets.zero,
                   onChanged: (v) {
                     provider.setMostrarApenasPendentes(v);

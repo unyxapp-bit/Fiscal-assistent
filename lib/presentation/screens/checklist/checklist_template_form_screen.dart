@@ -148,7 +148,7 @@ class _ChecklistTemplateFormScreenState
         actions: [
           TextButton(
             onPressed: _salvar,
-            child: Text(
+            child: const Text(
               'Salvar',
               style: TextStyle(
                   color: AppColors.primary, fontWeight: FontWeight.bold),
@@ -190,7 +190,7 @@ class _ChecklistTemplateFormScreenState
             const SizedBox(height: Dimensions.spacingLG),
 
             // ── Cor ───────────────────────────────────────────────────────
-            Text('Cor', style: AppTextStyles.h4),
+            const Text('Cor', style: AppTextStyles.h4),
             const SizedBox(height: Dimensions.spacingSM),
             Wrap(
               spacing: 10,
@@ -230,7 +230,7 @@ class _ChecklistTemplateFormScreenState
             const SizedBox(height: Dimensions.spacingLG),
 
             // ── Ícone ─────────────────────────────────────────────────────
-            Text('Ícone', style: AppTextStyles.h4),
+            const Text('Ícone', style: AppTextStyles.h4),
             const SizedBox(height: Dimensions.spacingSM),
             Wrap(
               spacing: 8,
@@ -278,7 +278,7 @@ class _ChecklistTemplateFormScreenState
             const SizedBox(height: Dimensions.spacingLG),
 
             // ── Periodização ──────────────────────────────────────────────
-            Text('Quando notificar?', style: AppTextStyles.h4),
+            const Text('Quando notificar?', style: AppTextStyles.h4),
             const SizedBox(height: 4),
             Text(
               'O alerta aparece somente durante o horário escolhido.',
@@ -286,25 +286,29 @@ class _ChecklistTemplateFormScreenState
                   .copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: Dimensions.spacingSM),
-            ...PeriodizacaoChecklist.values.map((p) {
-              return RadioListTile<PeriodizacaoChecklist>(
-                value: p,
-                groupValue: _periodizacao,
-                title: Text(p.label, style: AppTextStyles.body),
-                activeColor: AppColors.primary,
-                contentPadding: EdgeInsets.zero,
-                dense: true,
-                onChanged: (v) {
-                  if (v == null) return;
-                  setState(() {
-                    _periodizacao = v;
-                    if (v != PeriodizacaoChecklist.horarioEspecifico) {
-                      _horarioNotificacao = null;
-                    }
-                  });
-                },
-              );
-            }),
+            RadioGroup<PeriodizacaoChecklist>(
+              groupValue: _periodizacao,
+              onChanged: (v) {
+                if (v == null) return;
+                setState(() {
+                  _periodizacao = v;
+                  if (v != PeriodizacaoChecklist.horarioEspecifico) {
+                    _horarioNotificacao = null;
+                  }
+                });
+              },
+              child: Column(
+                children: PeriodizacaoChecklist.values.map((p) {
+                  return RadioListTile<PeriodizacaoChecklist>(
+                    value: p,
+                    title: Text(p.label, style: AppTextStyles.body),
+                    activeColor: AppColors.primary,
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                  );
+                }).toList(),
+              ),
+            ),
             if (_periodizacao == PeriodizacaoChecklist.horarioEspecifico) ...[
               const SizedBox(height: 4),
               OutlinedButton.icon(
@@ -345,7 +349,7 @@ class _ChecklistTemplateFormScreenState
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Itens do checklist', style: AppTextStyles.h4),
+                const Text('Itens do checklist', style: AppTextStyles.h4),
                 TextButton.icon(
                   onPressed: _addItem,
                   icon: const Icon(Icons.add, size: 18),

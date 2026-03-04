@@ -318,9 +318,9 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                           // Handle de arraste
                           ReorderableDragStartListener(
                             index: i,
-                            child: Padding(
+                            child: const Padding(
                               padding:
-                                  const EdgeInsets.only(top: 16, right: 4),
+                                  EdgeInsets.only(top: 16, right: 4),
                               child: Icon(Icons.drag_handle,
                                   color: AppColors.inactive),
                             ),

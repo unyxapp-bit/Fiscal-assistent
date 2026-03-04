@@ -281,7 +281,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
 
               // Localização
               DropdownButtonFormField<String>(
-                value: _localizacaoSelecionada,
+                initialValue: _localizacaoSelecionada,
                 decoration: const InputDecoration(
                   labelText: 'Localização no mercado',
                   prefixIcon: Icon(Icons.location_on),

@@ -275,13 +275,13 @@ class CaixaListItem extends StatelessWidget {
     int? minIntervalo,
   }) {
     if (caixa.emManutencao) {
-      return _StatusChip(
+      return const _StatusChip(
           label: 'Manutenção',
           color: AppColors.statusAtencao,
           icon: Icons.build);
     }
     if (!caixa.ativo) {
-      return _StatusChip(
+      return const _StatusChip(
           label: 'Inativo',
           color: AppColors.inactive,
           icon: Icons.power_off);
@@ -299,7 +299,7 @@ class CaixaListItem extends StatelessWidget {
                   color: AppColors.danger,
                   icon: Icons.warning_amber_rounded,
                 )
-              : _StatusChip(
+              : const _StatusChip(
                   label: 'Ocupado',
                   color: AppColors.statusAtivo,
                   icon: Icons.person),
@@ -342,7 +342,7 @@ class CaixaListItem extends StatelessWidget {
         ],
       );
     }
-    return _StatusChip(
+    return const _StatusChip(
         label: 'Disponível',
         color: AppColors.success,
         icon: Icons.check_circle_outline);

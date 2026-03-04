@@ -179,7 +179,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
             children: [
               const Icon(Icons.shopping_bag, color: _kPacoteColor, size: 22),
               const SizedBox(width: 8),
-              Text('Pacotes', style: AppTextStyles.h2),
+              const Text('Pacotes', style: AppTextStyles.h2),
               const SizedBox(width: 8),
               Container(
                 padding:
@@ -277,7 +277,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
               ),
             )
           else if (jornada.status == 'sem_ponto')
-            InfoRow(
+            const InfoRow(
               icon: Icons.access_time,
               label: 'Plantão iniciado',
               value: 'Sem registro de ponto hoje',

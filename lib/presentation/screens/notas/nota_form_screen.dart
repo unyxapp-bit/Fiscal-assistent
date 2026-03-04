@@ -324,7 +324,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                       const Text('Desative se não quiser ser notificado'),
                   value: _lembreteAtivo,
                   onChanged: (v) => setState(() => _lembreteAtivo = v),
-                  activeColor: AppColors.primary,
+                  activeThumbColor: AppColors.primary,
                   contentPadding: EdgeInsets.zero,
                 ),
               ],

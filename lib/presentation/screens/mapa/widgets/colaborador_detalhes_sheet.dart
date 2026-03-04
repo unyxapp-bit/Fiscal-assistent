@@ -758,6 +758,8 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
 
     final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(widget.providerContext);
+    final cafeProviderIntervalo =
+        Provider.of<CafeProvider>(widget.providerContext, listen: false);
 
     final confirm = await showDialog<bool>(
       context: context,
@@ -782,9 +784,6 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     );
 
     if (confirm != true || !mounted) return;
-
-    final cafeProviderIntervalo =
-        Provider.of<CafeProvider>(widget.providerContext, listen: false);
 
     await widget.alocacaoProvider
         .liberarAlocacao(widget.alocacao!.id, 'intervalo');

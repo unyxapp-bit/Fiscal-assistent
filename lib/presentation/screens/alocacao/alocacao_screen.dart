@@ -450,7 +450,7 @@ class _CardAlocado extends StatelessWidget {
         leading: CircleAvatar(
           backgroundColor: AppColors.primary.withValues(alpha: 0.12),
           child: Text(turno.colaboradorNome[0].toUpperCase(),
-              style: TextStyle(
+              style: const TextStyle(
                   color: AppColors.primary, fontWeight: FontWeight.bold)),
         ),
         title: Text(turno.colaboradorNome, style: AppTextStyles.h4),
