@@ -213,11 +213,15 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                 .toList();
             final balcoes = caixaProvider.balcoes;
 
-            return RefreshIndicator(
+            return LayoutBuilder(
+              builder: (context, constraints) => RefreshIndicator(
               onRefresh: _loadData,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(Dimensions.paddingMD),
+                padding: EdgeInsets.symmetric(
+                  horizontal: Dimensions.hPad(constraints.maxWidth),
+                  vertical: Dimensions.paddingMD,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -334,7 +338,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                   ],
                 ),
               ),
-            );
+            ));
           }),
 
           // ── ABA 2: CAIXAS ────────────────────────────────────────────────
@@ -424,18 +428,29 @@ class _CaixasBody extends StatelessWidget {
                 )
               : RefreshIndicator(
                   onRefresh: onRefresh,
-                  child: GridView.builder(
-                    padding: const EdgeInsets.all(Dimensions.paddingMD),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: Dimensions.spacingSM,
-                      mainAxisSpacing: Dimensions.spacingSM,
-                      childAspectRatio: 0.85,
-                    ),
-                    itemCount: caixaProvider.caixas.length,
-                    itemBuilder: (_, i) =>
-                        CaixaGridCard(caixa: caixaProvider.caixas[i]),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final w = MediaQuery.sizeOf(context).width;
+                      final cols = w >= Dimensions.breakpointWide
+                          ? 6
+                          : w >= Dimensions.breakpointTablet
+                              ? 4
+                              : 3;
+                      return GridView.builder(
+                        padding:
+                            const EdgeInsets.all(Dimensions.paddingMD),
+                        gridDelegate:
+                            SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: cols,
+                          crossAxisSpacing: Dimensions.spacingSM,
+                          mainAxisSpacing: Dimensions.spacingSM,
+                          childAspectRatio: 0.85,
+                        ),
+                        itemCount: caixaProvider.caixas.length,
+                        itemBuilder: (_, i) =>
+                            CaixaGridCard(caixa: caixaProvider.caixas[i]),
+                      );
+                    },
                   ),
                 ),
         ),

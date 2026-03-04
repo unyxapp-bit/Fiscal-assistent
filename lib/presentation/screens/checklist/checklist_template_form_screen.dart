@@ -156,8 +156,12 @@ class _ChecklistTemplateFormScreenState
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(Dimensions.paddingMD),
+      body: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+        padding: EdgeInsets.symmetric(
+          horizontal: Dimensions.hPad(constraints.maxWidth),
+          vertical: Dimensions.paddingMD,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -427,7 +431,7 @@ class _ChecklistTemplateFormScreenState
             const SizedBox(height: Dimensions.spacingMD),
           ],
         ),
-      ),
+      )),
     );
   }
 }

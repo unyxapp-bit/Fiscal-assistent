@@ -23,8 +23,12 @@ class ConfiguracoesScreen extends StatelessWidget {
         builder: (context, fiscalProvider, _) {
           final fiscal = fiscalProvider.fiscal;
 
-          return ListView(
-            padding: const EdgeInsets.all(Dimensions.paddingMD),
+          return LayoutBuilder(
+            builder: (context, constraints) => ListView(
+            padding: EdgeInsets.symmetric(
+              horizontal: Dimensions.hPad(constraints.maxWidth),
+              vertical: Dimensions.paddingMD,
+            ),
             children: [
               // ── Informações da Loja ────────────────────────────────────────
               Card(
@@ -130,7 +134,7 @@ class ConfiguracoesScreen extends StatelessWidget {
                 ),
               ),
             ],
-          );
+          ));
         },
       ),
     );

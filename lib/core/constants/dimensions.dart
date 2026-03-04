@@ -59,4 +59,19 @@ class Dimensions {
   static const double radiusSM = 8.0;
   static const double radiusMD = 12.0;
   static const double radiusLG = 16.0;
+  static const double radiusSheet = 20.0;
+
+  // Responsive breakpoints
+  static const double breakpointTablet = 600.0;
+  static const double breakpointWide = 900.0;
+
+  /// Largura máxima do conteúdo em telas grandes (centraliza em tablets).
+  static const double maxContentWidth = 680.0;
+
+  /// Padding horizontal que centraliza o conteúdo em telas largas.
+  /// Em telefones: paddingMD (16px). Em tablets: margem calculada para fixar em maxContentWidth.
+  static double hPad(double screenWidth) =>
+      screenWidth > maxContentWidth
+          ? (screenWidth - maxContentWidth) / 2
+          : paddingMD;
 }

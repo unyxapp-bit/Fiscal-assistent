@@ -60,7 +60,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => _BriefingTurnoSheet(fiscalId: fiscalId),
     );

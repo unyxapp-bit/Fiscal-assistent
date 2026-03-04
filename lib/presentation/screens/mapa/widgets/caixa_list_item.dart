@@ -438,7 +438,7 @@ class CaixaListItem extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => ColaboradorDetalhesSheet(
         caixa: caixa,

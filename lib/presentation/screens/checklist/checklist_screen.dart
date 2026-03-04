@@ -261,8 +261,12 @@ class ChecklistScreen extends StatelessWidget {
         backgroundColor: AppColors.background,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(Dimensions.paddingMD),
+      body: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+        padding: EdgeInsets.symmetric(
+          horizontal: Dimensions.hPad(constraints.maxWidth),
+          vertical: Dimensions.paddingMD,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -404,7 +408,7 @@ class ChecklistScreen extends StatelessWidget {
             ],
           ],
         ),
-      ),
+      )),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => const ChecklistTemplateFormScreen(),

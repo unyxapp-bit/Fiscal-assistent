@@ -291,7 +291,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => Padding(
         padding: const EdgeInsets.all(Dimensions.paddingMD),
@@ -324,7 +324,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => DraggableScrollableSheet(
         expand: false,
@@ -360,7 +360,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => DraggableScrollableSheet(
         expand: false,
@@ -399,7 +399,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => Padding(
         padding: const EdgeInsets.all(Dimensions.paddingMD),

@@ -39,7 +39,7 @@ class _NotasScreenState extends State<NotasScreen> {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (ctx) => Padding(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
@@ -95,7 +95,7 @@ class _NotasScreenState extends State<NotasScreen> {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (ctx) {
         return StatefulBuilder(builder: (ctx, setModalState) {

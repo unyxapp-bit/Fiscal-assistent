@@ -172,7 +172,7 @@ class _CafeScreenState extends State<CafeScreen>
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (ctx) => _SeletorPausaSheet(cafeProvider: cafeProvider),
     );
@@ -264,7 +264,7 @@ class _TabDisponiveis extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => _SeletorRapidoSheet(
         colaborador: colaborador,

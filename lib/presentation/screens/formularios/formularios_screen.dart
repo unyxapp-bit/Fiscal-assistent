@@ -520,7 +520,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (ctx) => DraggableScrollableSheet(
         initialChildSize: 0.7,
