@@ -48,11 +48,24 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardScreenState extends State<DashboardScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 4, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) setState(() {});
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   void _abrirBriefingTurno(BuildContext context, String fiscalId) {
@@ -180,92 +193,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
     ];
 
-    return DefaultTabController(
-      length: 4,
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        appBar: AppBar(
-          backgroundColor: AppColors.background,
-          elevation: 0,
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                saudacao,
-                style: AppTextStyles.caption
-                    .copyWith(color: AppColors.textSecondary),
-              ),
-              Text(primeiroNome, style: AppTextStyles.h3),
-            ],
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings_outlined),
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ConfiguracoesScreen()),
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () => authProvider.signOut(),
-            ),
-          ],
-          bottom: TabBar(
-            labelColor: AppColors.primary,
-            unselectedLabelColor: AppColors.textSecondary,
-            indicatorColor: AppColors.primary,
-            indicatorWeight: 3,
-            labelStyle: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-            ),
-            unselectedLabelStyle: const TextStyle(fontSize: 11),
-            tabs: [
-              const Tab(icon: Icon(Icons.home_outlined, size: 20), text: 'Início'),
-              const Tab(
-                icon: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Icon(Icons.apps_outlined, size: 20),
-                  ],
-                ),
-                text: 'Principal',
-              ),
-              Tab(
-                icon: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    const Icon(Icons.build_outlined, size: 20),
-                    if (cafeProvider.totalEmAtraso > 0)
-                      Positioned(
-                        top: -4,
-                        right: -6,
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: AppColors.danger,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                text: 'Operações',
-              ),
-              const Tab(
-                  icon: Icon(Icons.store_outlined, size: 20), text: 'Loja'),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: [
+    // ── Tabs compartilhadas entre phone e tablet ────────────────────────────
+    final tabBarView = TabBarView(
+      controller: _tabController,
+      children: [
             // ── ABA 1: INÍCIO ───────────────────────────────────────────────
-            RefreshIndicator(
+            LayoutBuilder(
+              builder: (context, constraints) => RefreshIndicator(
               onRefresh: _loadData,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(Dimensions.paddingMD),
+                padding: EdgeInsets.symmetric(
+                  horizontal: Dimensions.hPad(constraints.maxWidth),
+                  vertical: Dimensions.paddingMD,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -329,14 +270,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   icon: Icons.coffee,
                                   label: 'Em Pausa',
                                   value: emPausa.toString(),
-                                  color: const Color(0xFF8D6E63),
+                                  color: AppColors.coffee,
                                 ),
                                 const _StatDivider(),
                                 _StatItem(
                                   icon: Icons.local_shipping,
                                   label: 'Em Rota',
                                   value: emRota.toString(),
-                                  color: const Color(0xFFFF9800),
+                                  color: AppColors.statusCafe,
                                 ),
                               ],
                             ),
@@ -364,7 +305,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
               ),
-            ),
+            )),
 
             // ── ABA 2: PRINCIPAL ────────────────────────────────────────────
             SingleChildScrollView(
@@ -409,7 +350,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       _BotaoAcao(
                         icon: Icons.bar_chart,
                         label: 'Relatório',
-                        color: const Color(0xFF0097A7),
+                        color: AppColors.cyan,
                         onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(
                               builder: (_) =>
@@ -419,7 +360,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       _BotaoAcao(
                         icon: Icons.calendar_month,
                         label: 'Escala',
-                        color: const Color(0xFFE91E63),
+                        color: AppColors.pink,
                         onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(
                               builder: (_) => const EscalaScreen()),
@@ -443,7 +384,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       _BotaoAcao(
                         icon: Icons.coffee,
                         label: 'Café',
-                        color: const Color(0xFF8D6E63),
+                        color: AppColors.coffee,
                         badge: cafeProvider.totalEmAtraso > 0
                             ? cafeProvider.totalEmAtraso.toString()
                             : null,
@@ -455,7 +396,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       _BotaoAcao(
                         icon: Icons.local_shipping,
                         label: 'Entregas',
-                        color: const Color(0xFFFF9800),
+                        color: AppColors.statusCafe,
                         badge: entregaProvider.totalEmRota > 0
                             ? entregaProvider.totalEmRota.toString()
                             : null,
@@ -500,7 +441,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       _BotaoAcao(
                         icon: Icons.help_outline,
                         label: 'Guia Rápido',
-                        color: const Color(0xFF607D8B),
+                        color: AppColors.blueGrey,
                         onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(
                               builder: (_) => const GuiaRapidoScreen()),
@@ -509,7 +450,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       _BotaoAcao(
                         icon: Icons.note,
                         label: 'Anotações',
-                        color: const Color(0xFFFF5722),
+                        color: AppColors.statusSaida,
                         badge: notaProvider.totalTarefasPendentes > 0
                             ? notaProvider.totalTarefasPendentes.toString()
                             : null,
@@ -521,7 +462,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       _BotaoAcao(
                         icon: Icons.description,
                         label: 'Formulários',
-                        color: const Color(0xFF3F51B5),
+                        color: AppColors.indigo,
                         onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(
                               builder: (_) => const FormulariosScreen()),
@@ -530,7 +471,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       _BotaoAcao(
                         icon: Icons.menu_book,
                         label: 'Procedimentos',
-                        color: const Color(0xFF673AB7),
+                        color: AppColors.deepPurple,
                         onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(
                               builder: (_) => const ProcedimentosScreen()),
@@ -539,7 +480,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       _BotaoAcao(
                         icon: Icons.notifications,
                         label: 'Notificações',
-                        color: const Color(0xFF2196F3),
+                        color: AppColors.primary,
                         onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(
                               builder: (_) => const NotificacoesScreen()),
@@ -627,7 +568,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         _BotaoAcao(
                           icon: Icons.history,
                           label: 'Timeline',
-                          color: const Color(0xFF9C27B0),
+                          color: AppColors.statusSelf,
                           onPressed: () => Navigator.of(context).push(
                             MaterialPageRoute(
                                 builder: (_) => const TimelineScreen()),
@@ -636,7 +577,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         _BotaoAcao(
                           icon: Icons.beach_access,
                           label: 'Modo Folga',
-                          color: const Color(0xFF009688),
+                          color: AppColors.teal,
                           onPressed: () => Navigator.of(context).push(
                             MaterialPageRoute(
                                 builder: (_) => const FolgaScreen()),
@@ -649,9 +590,156 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
             ),
-          ],
-        ),
-      ),
+      ],
+    );
+
+    // ── Layout adaptativo ───────────────────────────────────────────────────
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isTablet = constraints.maxWidth >= Dimensions.breakpointTablet;
+
+        // ── TABLET: NavigationRail + TabBarView ─────────────────────────────
+        if (isTablet) {
+          return Scaffold(
+            backgroundColor: AppColors.background,
+            body: Row(
+              children: [
+                NavigationRail(
+                  selectedIndex: _tabController.index,
+                  onDestinationSelected: (i) => _tabController.animateTo(i),
+                  labelType: NavigationRailLabelType.all,
+                  backgroundColor: AppColors.cardBackground,
+                  leading: Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(saudacao,
+                            style: AppTextStyles.caption
+                                .copyWith(color: AppColors.textSecondary)),
+                        Text(primeiroNome, style: AppTextStyles.h4),
+                        const SizedBox(height: 8),
+                        IconButton(
+                          icon: const Icon(Icons.settings_outlined),
+                          tooltip: 'Configurações',
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) => const ConfiguracoesScreen()),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.logout),
+                          tooltip: 'Sair',
+                          onPressed: () => authProvider.signOut(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  destinations: [
+                    const NavigationRailDestination(
+                      icon: Icon(Icons.home_outlined),
+                      label: Text('Início'),
+                    ),
+                    const NavigationRailDestination(
+                      icon: Icon(Icons.apps_outlined),
+                      label: Text('Principal'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Badge(
+                        isLabelVisible: cafeProvider.totalEmAtraso > 0,
+                        backgroundColor: AppColors.danger,
+                        child: const Icon(Icons.build_outlined),
+                      ),
+                      label: const Text('Operações'),
+                    ),
+                    const NavigationRailDestination(
+                      icon: Icon(Icons.store_outlined),
+                      label: Text('Loja'),
+                    ),
+                  ],
+                ),
+                const VerticalDivider(width: 1, thickness: 1),
+                Expanded(child: tabBarView),
+              ],
+            ),
+          );
+        }
+
+        // ── PHONE: AppBar com TabBar ────────────────────────────────────────
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          appBar: AppBar(
+            backgroundColor: AppColors.background,
+            elevation: 0,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(saudacao,
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textSecondary)),
+                Text(primeiroNome, style: AppTextStyles.h3),
+              ],
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.settings_outlined),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (_) => const ConfiguracoesScreen()),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.logout),
+                onPressed: () => authProvider.signOut(),
+              ),
+            ],
+            bottom: TabBar(
+              controller: _tabController,
+              labelColor: AppColors.primary,
+              unselectedLabelColor: AppColors.textSecondary,
+              indicatorColor: AppColors.primary,
+              indicatorWeight: 3,
+              labelStyle: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+              unselectedLabelStyle: const TextStyle(fontSize: 11),
+              tabs: [
+                const Tab(
+                    icon: Icon(Icons.home_outlined, size: 20), text: 'Início'),
+                const Tab(
+                    icon: Icon(Icons.apps_outlined, size: 20),
+                    text: 'Principal'),
+                Tab(
+                  icon: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      const Icon(Icons.build_outlined, size: 20),
+                      if (cafeProvider.totalEmAtraso > 0)
+                        Positioned(
+                          top: -4,
+                          right: -6,
+                          child: Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(
+                              color: AppColors.danger,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  text: 'Operações',
+                ),
+                const Tab(
+                    icon: Icon(Icons.store_outlined, size: 20), text: 'Loja'),
+              ],
+            ),
+          ),
+          body: tabBarView,
+        );
+      },
     );
   }
 

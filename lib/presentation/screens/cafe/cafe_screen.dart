@@ -224,36 +224,62 @@ class _TabDisponiveis extends StatelessWidget {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(Dimensions.paddingMD),
-      itemCount: disponiveis.length,
-      itemBuilder: (_, i) {
-        final c = disponiveis[i];
-        return Card(
-          margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: AppColors.backgroundSection,
-              child: Text(
-                c.iniciais.isNotEmpty ? c.iniciais[0] : '?',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isTablet = constraints.maxWidth >= Dimensions.breakpointTablet;
+        Widget itemBuilder(BuildContext _, int i) {
+          final c = disponiveis[i];
+          return Card(
+            margin: isTablet
+                ? EdgeInsets.zero
+                : const EdgeInsets.only(bottom: Dimensions.spacingSM),
+            child: ListTile(
+              leading: CircleAvatar(
+                backgroundColor: AppColors.backgroundSection,
+                child: Text(
+                  c.iniciais.isNotEmpty ? c.iniciais[0] : '?',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              title: Text(c.nome, style: AppTextStyles.body),
+              subtitle: Text(
+                c.departamento.nome,
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary),
+              ),
+              trailing: TextButton.icon(
+                onPressed: () => _abrirSeletorRapido(context, c),
+                icon: const Icon(Icons.coffee, size: 16),
+                label: const Text('Pausa'),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.statusCafe,
+                ),
               ),
             ),
-            title: Text(c.nome, style: AppTextStyles.body),
-            subtitle: Text(
-              c.departamento.nome,
-              style: AppTextStyles.caption
-                  .copyWith(color: AppColors.textSecondary),
+          );
+        }
+
+        if (isTablet) {
+          return GridView.builder(
+            padding: EdgeInsets.symmetric(
+              horizontal: Dimensions.hPad(constraints.maxWidth),
+              vertical: Dimensions.paddingMD,
             ),
-            trailing: TextButton.icon(
-              onPressed: () => _abrirSeletorRapido(context, c),
-              icon: const Icon(Icons.coffee, size: 16),
-              label: const Text('Pausa'),
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.statusCafe,
-              ),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: Dimensions.spacingSM,
+              mainAxisSpacing: Dimensions.spacingSM,
+              childAspectRatio: 3.2,
             ),
-          ),
+            itemCount: disponiveis.length,
+            itemBuilder: itemBuilder,
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(Dimensions.paddingMD),
+          itemCount: disponiveis.length,
+          itemBuilder: itemBuilder,
         );
       },
     );
@@ -306,14 +332,42 @@ class _TabEmIntervalo extends StatelessWidget {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(Dimensions.paddingMD),
-      itemCount: provider.pausasAtivas.length,
-      itemBuilder: (_, i) {
-        final pausa = provider.pausasAtivas[i];
-        return _PausaAtivaCard(
-          pausa: pausa,
-          onFinalizar: () => provider.finalizarPausa(pausa.colaboradorId),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isTablet = constraints.maxWidth >= Dimensions.breakpointTablet;
+        if (isTablet) {
+          return GridView.builder(
+            padding: EdgeInsets.symmetric(
+              horizontal: Dimensions.hPad(constraints.maxWidth),
+              vertical: Dimensions.paddingMD,
+            ),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: Dimensions.spacingSM,
+              mainAxisSpacing: Dimensions.spacingSM,
+              childAspectRatio: 1.6,
+            ),
+            itemCount: provider.pausasAtivas.length,
+            itemBuilder: (_, i) {
+              final pausa = provider.pausasAtivas[i];
+              return _PausaAtivaCard(
+                pausa: pausa,
+                onFinalizar: () =>
+                    provider.finalizarPausa(pausa.colaboradorId),
+              );
+            },
+          );
+        }
+        return ListView.builder(
+          padding: const EdgeInsets.all(Dimensions.paddingMD),
+          itemCount: provider.pausasAtivas.length,
+          itemBuilder: (_, i) {
+            final pausa = provider.pausasAtivas[i];
+            return _PausaAtivaCard(
+              pausa: pausa,
+              onFinalizar: () => provider.finalizarPausa(pausa.colaboradorId),
+            );
+          },
         );
       },
     );
@@ -354,16 +408,21 @@ class _TabHistorico extends StatelessWidget {
 
     final finalizadas = provider.pausasFinalizadas.reversed.toList();
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(Dimensions.paddingMD),
-      itemCount: finalizadas.length,
-      itemBuilder: (_, i) {
-        final pausa = finalizadas[i];
-        return _PausaHistoricoCard(
-          pausa: pausa,
-          onRemover: () => provider.removerRegistro(pausa.id),
-        );
-      },
+    return LayoutBuilder(
+      builder: (context, constraints) => ListView.builder(
+        padding: EdgeInsets.symmetric(
+          horizontal: Dimensions.hPad(constraints.maxWidth),
+          vertical: Dimensions.paddingMD,
+        ),
+        itemCount: finalizadas.length,
+        itemBuilder: (_, i) {
+          final pausa = finalizadas[i];
+          return _PausaHistoricoCard(
+            pausa: pausa,
+            onRemover: () => provider.removerRegistro(pausa.id),
+          );
+        },
+      ),
     );
   }
 }

@@ -41,6 +41,15 @@ class AppColors {
   static const Color statusSaida = Color(0xFFFF5722); // Laranja saída
   static const Color statusFolga = Color(0xFF9E9E9E); // Cinza folga
 
+  // Cores de módulo (botões do Dashboard)
+  static const Color coffee     = Color(0xFF8D6E63); // Café/pausa
+  static const Color teal       = Color(0xFF009688); // Modo Folga
+  static const Color cyan       = Color(0xFF0097A7); // Relatório
+  static const Color pink       = Color(0xFFE91E63); // Escala
+  static const Color blueGrey   = Color(0xFF607D8B); // Guia Rápido
+  static const Color indigo     = Color(0xFF3F51B5); // Formulários
+  static const Color deepPurple = Color(0xFF673AB7); // Procedimentos
+
   // Aliases adicionais
   static const Color info = statusInfo;
   static const Color warning = statusAtencao;
