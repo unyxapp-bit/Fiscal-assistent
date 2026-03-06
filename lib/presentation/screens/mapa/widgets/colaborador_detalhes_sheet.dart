@@ -12,7 +12,9 @@ import '../../../providers/alocacao_provider.dart';
 import '../../../providers/escala_provider.dart';
 import '../../../providers/cafe_provider.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../providers/evento_turno_provider.dart';
 import '../../../providers/registro_ponto_provider.dart';
+import '../../../../domain/entities/evento_turno.dart';
 import '../../alocacao/alocacao_screen.dart';
 import '../../../../data/services/notification_service.dart';
 
@@ -437,8 +439,25 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                         onPressed: jaMarcado
                             ? null
                             : () {
+                                final eventoProvider =
+                                    Provider.of<EventoTurnoProvider>(
+                                        widget.providerContext,
+                                        listen: false);
+                                final fiscalId =
+                                    Provider.of<AuthProvider>(
+                                            widget.providerContext,
+                                            listen: false)
+                                        .user
+                                        ?.id ??
+                                    '';
                                 widget.alocacaoProvider.marcarIntervaloFeito(
                                     widget.colaborador!.id);
+                                eventoProvider.registrar(
+                                  fiscalId: fiscalId,
+                                  tipo: TipoEvento.intervaloMarcadoFeito,
+                                  colaboradorNome: widget.colaborador!.nome,
+                                  caixaNome: widget.caixa.nomeExibicao,
+                                );
                                 Navigator.of(context).pop();
                               },
                         icon: Icon(
@@ -469,19 +488,36 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
 
             ElevatedButton.icon(
               onPressed: () async {
-                Navigator.of(context).pop();
+                final eventoProvider = Provider.of<EventoTurnoProvider>(
+                    widget.providerContext,
+                    listen: false);
+                final fiscalId =
+                    Provider.of<AuthProvider>(widget.providerContext,
+                            listen: false)
+                        .user
+                        ?.id ??
+                    '';
+                final navigator = Navigator.of(context);
+                final messenger =
+                    ScaffoldMessenger.of(widget.providerContext);
+
+                navigator.pop();
                 await widget.alocacaoProvider.liberarAlocacao(
                   widget.alocacao!.id,
                   'Liberado pelo mapa visual',
                 );
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Colaborador liberado!'),
-                      backgroundColor: AppColors.success,
-                    ),
-                  );
-                }
+                eventoProvider.registrar(
+                  fiscalId: fiscalId,
+                  tipo: TipoEvento.colaboradorLiberado,
+                  colaboradorNome: widget.colaborador?.nome,
+                  caixaNome: widget.caixa.nomeExibicao,
+                );
+                messenger.showSnackBar(
+                  const SnackBar(
+                    content: Text('Colaborador liberado!'),
+                    backgroundColor: AppColors.success,
+                  ),
+                );
               },
               icon: const Icon(Icons.exit_to_app),
               label: Text(widget.liberarLabel),
@@ -671,6 +707,8 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
 
     final authProvider =
         Provider.of<AuthProvider>(widget.providerContext, listen: false);
+    final eventoProvider =
+        Provider.of<EventoTurnoProvider>(widget.providerContext, listen: false);
     final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(widget.providerContext);
 
@@ -709,6 +747,21 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
       justificativa: 'Troca de colaborador',
     );
 
+    eventoProvider.registrar(
+      fiscalId: fiscalId,
+      tipo: TipoEvento.colaboradorLiberado,
+      colaboradorNome: widget.colaborador?.nome,
+      caixaNome: widget.caixa.nomeExibicao,
+      detalhe: 'troca',
+    );
+    eventoProvider.registrar(
+      fiscalId: fiscalId,
+      tipo: TipoEvento.colaboradorAlocado,
+      colaboradorNome: novo.nome,
+      caixaNome: widget.caixa.nomeExibicao,
+      detalhe: 'troca',
+    );
+
     if (mounted) {
       navigator.pop();
       messenger.showSnackBar(
@@ -726,6 +779,13 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
   Future<void> _enviarParaCafe() async {
     final cafeProvider =
         Provider.of<CafeProvider>(widget.providerContext, listen: false);
+    final eventoProvider =
+        Provider.of<EventoTurnoProvider>(widget.providerContext, listen: false);
+    final fiscalId =
+        Provider.of<AuthProvider>(widget.providerContext, listen: false)
+                .user
+                ?.id ??
+            '';
     final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(widget.providerContext);
 
@@ -761,6 +821,14 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
       colaboradorNome: widget.colaborador!.nome,
       duracaoMinutos: 10,
       caixaId: widget.caixa.id,
+    );
+
+    eventoProvider.registrar(
+      fiscalId: fiscalId,
+      tipo: TipoEvento.cafeIniciado,
+      colaboradorNome: widget.colaborador!.nome,
+      caixaNome: widget.caixa.nomeExibicao,
+      detalhe: '10 min',
     );
 
     if (mounted) {
@@ -803,6 +871,13 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     final messenger = ScaffoldMessenger.of(widget.providerContext);
     final cafeProviderIntervalo =
         Provider.of<CafeProvider>(widget.providerContext, listen: false);
+    final eventoProviderIntervalo =
+        Provider.of<EventoTurnoProvider>(widget.providerContext, listen: false);
+    final fiscalIdIntervalo =
+        Provider.of<AuthProvider>(widget.providerContext, listen: false)
+                .user
+                ?.id ??
+            '';
 
     final confirm = await showDialog<bool>(
       context: context,
@@ -836,6 +911,14 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
       colaboradorNome: widget.colaborador!.nome,
       duracaoMinutos: duracaoMinutos,
       caixaId: widget.caixa.id,
+    );
+
+    eventoProviderIntervalo.registrar(
+      fiscalId: fiscalIdIntervalo,
+      tipo: TipoEvento.intervaloIniciado,
+      colaboradorNome: widget.colaborador!.nome,
+      caixaNome: widget.caixa.nomeExibicao,
+      detalhe: '$duracaoMinutos min',
     );
 
     final retornoEm =

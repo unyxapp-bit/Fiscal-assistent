@@ -5,311 +5,174 @@ import 'package:intl/intl.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
-import '../../providers/alocacao_provider.dart';
-import '../../providers/colaborador_provider.dart';
-import '../../providers/caixa_provider.dart';
+import '../../../domain/entities/evento_turno.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/evento_turno_provider.dart';
+import '../relatorios/relatorios_dia_screen.dart';
 
-class TimelineScreen extends StatefulWidget {
+class TimelineScreen extends StatelessWidget {
   const TimelineScreen({super.key});
 
   @override
-  State<TimelineScreen> createState() => _TimelineScreenState();
-}
-
-class _TimelineScreenState extends State<TimelineScreen> {
-  String? _filtroColaboradorId;
-  String _filtroTipo = 'todos'; // todos | alocado | liberado
-
-  static const _tipoOptions = [
-    ('todos', 'Todos'),
-    ('alocado', 'Alocações'),
-    ('liberado', 'Liberações'),
-  ];
-
-  @override
   Widget build(BuildContext context) {
-    final alocacaoProvider = Provider.of<AlocacaoProvider>(context);
-    final colaboradorProvider = Provider.of<ColaboradorProvider>(context);
-    final caixaProvider = Provider.of<CaixaProvider>(context);
+    return Consumer<EventoTurnoProvider>(
+      builder: (context, eventoProvider, _) {
+        final authProvider =
+            Provider.of<AuthProvider>(context, listen: false);
+        final fiscalId = authProvider.user?.id ?? '';
+        final eventos = eventoProvider.eventos;
 
-    final todasAlocacoes = alocacaoProvider.alocacoes;
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          appBar: AppBar(
+            title: const Text('Timeline de Hoje'),
+            backgroundColor: AppColors.background,
+            elevation: 0,
+            actions: [
+              if (eventoProvider.relatorios.isNotEmpty)
+                IconButton(
+                  icon: const Icon(Icons.history),
+                  tooltip: 'Relatórios do Dia',
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const RelatoriosDiaScreen()),
+                  ),
+                ),
+              if (eventos.isNotEmpty)
+                IconButton(
+                  icon: const Icon(Icons.share),
+                  tooltip: 'Exportar Timeline',
+                  onPressed: () => _exportarTimeline(context, eventos),
+                ),
+            ],
+          ),
+          body: eventos.isEmpty
+              ? _buildVazia(eventoProvider.turnoAtivo)
+              : _buildLista(eventos),
+          floatingActionButton: eventoProvider.turnoAtivo
+              ? FloatingActionButton.extended(
+                  onPressed: () =>
+                      _confirmarFinalTurno(context, eventoProvider, fiscalId),
+                  icon: const Icon(Icons.flag),
+                  label: const Text('Final de Turno'),
+                  backgroundColor: AppColors.danger,
+                  foregroundColor: Colors.white,
+                )
+              : null,
+        );
+      },
+    );
+  }
 
-    // Filtrar por colaborador
-    var eventosFiltrados = _filtroColaboradorId == null
-        ? todasAlocacoes
-        : todasAlocacoes
-            .where((a) => a.colaboradorId == _filtroColaboradorId)
-            .toList();
-
-    // Filtrar por tipo
-    if (_filtroTipo == 'alocado') {
-      eventosFiltrados =
-          eventosFiltrados.where((a) => a.liberadoEm == null).toList();
-    } else if (_filtroTipo == 'liberado') {
-      eventosFiltrados =
-          eventosFiltrados.where((a) => a.liberadoEm != null).toList();
-    }
-
-    // Colaboradores que aparecem na timeline (para filtro)
-    final colaboradoresNaTimeline = colaboradorProvider.colaboradores
-        .where(
-          (c) => todasAlocacoes.any((a) => a.colaboradorId == c.id),
-        )
-        .toList();
-
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Timeline de Hoje'),
-        backgroundColor: AppColors.background,
-        elevation: 0,
-        actions: [
-          if (todasAlocacoes.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.share),
-              tooltip: 'Exportar Timeline',
-              onPressed: () => _exportarTimeline(
-                context,
-                todasAlocacoes,
-                colaboradorProvider,
-                caixaProvider,
-              ),
-            ),
-        ],
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildVazia(bool turnoAtivo) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // ---- Filtros ----
-          if (todasAlocacoes.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  Dimensions.paddingMD, Dimensions.paddingMD, Dimensions.paddingMD, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Filtro por tipo
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: _tipoOptions.map((opt) {
-                        final sel = _filtroTipo == opt.$1;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: FilterChip(
-                            label: Text(opt.$2),
-                            selected: sel,
-                            selectedColor: AppColors.primary,
-                            labelStyle: TextStyle(
-                              color: sel ? Colors.white : AppColors.textPrimary,
-                              fontWeight:
-                                  sel ? FontWeight.bold : FontWeight.normal,
-                            ),
-                            checkmarkColor: Colors.white,
-                            onSelected: (_) =>
-                                setState(() => _filtroTipo = opt.$1),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-
-                  // Filtro por colaborador
-                  if (colaboradoresNaTimeline.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: FilterChip(
-                              label: const Text('Todos'),
-                              selected: _filtroColaboradorId == null,
-                              selectedColor: AppColors.statusIntervalo,
-                              labelStyle: TextStyle(
-                                color: _filtroColaboradorId == null
-                                    ? Colors.white
-                                    : AppColors.textPrimary,
-                                fontWeight: _filtroColaboradorId == null
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                              checkmarkColor: Colors.white,
-                              onSelected: (_) =>
-                                  setState(() => _filtroColaboradorId = null),
-                            ),
-                          ),
-                          ...colaboradoresNaTimeline.map((c) {
-                            final sel = _filtroColaboradorId == c.id;
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 8),
-                              child: FilterChip(
-                                label: Text(c.nome.split(' ').first),
-                                selected: sel,
-                                selectedColor: AppColors.statusIntervalo,
-                                labelStyle: TextStyle(
-                                  color: sel
-                                      ? Colors.white
-                                      : AppColors.textPrimary,
-                                  fontWeight: sel
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                ),
-                                checkmarkColor: Colors.white,
-                                onSelected: (_) =>
-                                    setState(() => _filtroColaboradorId = c.id),
-                              ),
-                            );
-                          }),
-                        ],
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: Dimensions.spacingSM),
-                  Text(
-                    '${eventosFiltrados.length} evento(s)',
-                    style: AppTextStyles.caption
-                        .copyWith(color: AppColors.textSecondary),
-                  ),
-                ],
-              ),
-            ),
-
-          // ---- Lista de eventos ----
-          Expanded(
-            child: eventosFiltrados.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.timeline,
-                          size: 64,
-                          color: AppColors.inactive,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          todasAlocacoes.isEmpty
-                              ? 'Nenhum evento hoje'
-                              : 'Nenhum evento com os filtros selecionados',
-                          style: AppTextStyles.body.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(Dimensions.paddingMD),
-                    itemCount: eventosFiltrados.length,
-                    itemBuilder: (context, index) {
-                      final alocacao = eventosFiltrados[index];
-                      final colaborador = colaboradorProvider.colaboradores
-                          .where((c) => c.id == alocacao.colaboradorId)
-                          .firstOrNull;
-                      final caixa = caixaProvider.caixas
-                          .where((c) => c.id == alocacao.caixaId)
-                          .firstOrNull;
-
-                      final timeFormat = DateFormat('HH:mm');
-                      final liberado = alocacao.liberadoEm != null;
-
-                      return Card(
-                        margin: const EdgeInsets.only(
-                            bottom: Dimensions.spacingSM),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: liberado
-                                ? AppColors.inactive
-                                : AppColors.statusAtivo,
-                            child: Icon(
-                              liberado ? Icons.logout : Icons.swap_horiz,
-                              color: Colors.white,
-                            ),
-                          ),
-                          title: Text(
-                            '${colaborador?.nome ?? "Colaborador"} → ${caixa?.nomeExibicao ?? "Caixa"}',
-                            style: AppTextStyles.h4,
-                          ),
-                          subtitle: Text(
-                            liberado
-                                ? 'Alocado: ${timeFormat.format(alocacao.alocadoEm)} • Liberado: ${timeFormat.format(alocacao.liberadoEm!)}'
-                                : 'Alocado às ${timeFormat.format(alocacao.alocadoEm)}',
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          trailing: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: (liberado
-                                      ? AppColors.inactive
-                                      : AppColors.success)
-                                  .withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              liberado ? 'Liberado' : 'Alocado',
-                              style: AppTextStyles.caption.copyWith(
-                                color: liberado
-                                    ? AppColors.inactive
-                                    : AppColors.success,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+          Icon(
+            turnoAtivo ? Icons.timeline : Icons.play_circle_outline,
+            size: 64,
+            color: AppColors.inactive,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            turnoAtivo
+                ? 'Nenhum evento registrado ainda'
+                : 'Inicie o turno no Briefing para registrar eventos',
+            style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
     );
   }
 
-  void _exportarTimeline(
+  Widget _buildLista(List<EventoTurno> eventos) {
+    final fmt = DateFormat('HH:mm');
+    return ListView.builder(
+      padding: const EdgeInsets.all(Dimensions.paddingMD),
+      itemCount: eventos.length,
+      itemBuilder: (context, index) {
+        // Invertemos a lista para mostrar os mais recentes no topo
+        final evento = eventos[eventos.length - 1 - index];
+        return _EventoCard(evento: evento, fmt: fmt);
+      },
+    );
+  }
+
+  Future<void> _confirmarFinalTurno(
     BuildContext context,
-    List alocacoes,
-    ColaboradorProvider colaboradorProvider,
-    CaixaProvider caixaProvider,
-  ) {
-    final timeFormat = DateFormat('HH:mm');
-    final dateFormat = DateFormat('dd/MM/yyyy');
-    final hoje = dateFormat.format(DateTime.now());
+    EventoTurnoProvider eventoProvider,
+    String fiscalId,
+  ) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Encerrar Turno'),
+        content: const Text(
+            'Deseja encerrar o turno agora?\nUm relatório será gerado e salvo automaticamente.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.danger,
+                foregroundColor: Colors.white),
+            child: const Text('Encerrar'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar != true || !context.mounted) return;
+
+    final relatorio = await eventoProvider.encerrarTurno(fiscalId);
+
+    if (!context.mounted) return;
+
+    if (relatorio != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Turno encerrado! Relatório salvo.'),
+          backgroundColor: AppColors.success,
+          action: SnackBarAction(
+            label: 'Ver Relatório',
+            textColor: Colors.white,
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const RelatoriosDiaScreen()),
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  void _exportarTimeline(BuildContext context, List<EventoTurno> eventos) {
+    final fmt = DateFormat('HH:mm');
+    final dateFmt = DateFormat('dd/MM/yyyy');
+    final hoje = dateFmt.format(DateTime.now());
 
     final buffer = StringBuffer();
-    buffer.writeln('TIMELINE DE HOJE - $hoje');
+    buffer.writeln('TIMELINE DE HOJE — $hoje');
     buffer.writeln('=' * 40);
-    buffer.writeln('Total de eventos: ${alocacoes.length}');
+    buffer.writeln('Total de eventos: ${eventos.length}');
     buffer.writeln();
 
-    for (final alocacao in alocacoes) {
-      final colaborador = colaboradorProvider.colaboradores
-          .where((c) => c.id == alocacao.colaboradorId)
-          .firstOrNull;
-      final caixa = caixaProvider.caixas
-          .where((c) => c.id == alocacao.caixaId)
-          .firstOrNull;
-
-      final nomeColaborador = colaborador?.nome ?? 'Colaborador';
-      final nomeCaixa = caixa?.nomeExibicao ?? 'Caixa';
-      final horario = timeFormat.format(alocacao.alocadoEm);
-      final status = alocacao.liberadoEm != null
-          ? '[Liberado ${timeFormat.format(alocacao.liberadoEm!)}]'
-          : '[Ativo]';
-
-      buffer.writeln('$horario | $nomeColaborador → $nomeCaixa $status');
+    for (final e in eventos) {
+      final hora = fmt.format(e.timestamp);
+      final partes = [hora, e.tipo.label];
+      if (e.colaboradorNome != null) partes.add(e.colaboradorNome!);
+      if (e.caixaNome != null) partes.add(e.caixaNome!);
+      if (e.detalhe != null) partes.add('(${e.detalhe})');
+      buffer.writeln(partes.join(' | '));
     }
 
     final texto = buffer.toString();
-
-    // Copia para clipboard
     Clipboard.setData(ClipboardData(text: texto));
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -319,30 +182,135 @@ class _TimelineScreenState extends State<TimelineScreen> {
         action: SnackBarAction(
           label: 'Ver',
           textColor: Colors.white,
-          onPressed: () => _mostrarDialogoExport(context, texto),
+          onPressed: () => showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('Timeline Exportada'),
+              content: SingleChildScrollView(
+                child: Text(texto,
+                    style:
+                        const TextStyle(fontFamily: 'monospace', fontSize: 12)),
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text('Fechar')),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
+}
 
-  void _mostrarDialogoExport(BuildContext context, String texto) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Timeline Exportada'),
-        content: SingleChildScrollView(
-          child: Text(
-            texto,
-            style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+// ─── Card de evento na timeline ─────────────────────────────────────────────
+
+class _EventoCard extends StatelessWidget {
+  final EventoTurno evento;
+  final DateFormat fmt;
+
+  const _EventoCard({required this.evento, required this.fmt});
+
+  @override
+  Widget build(BuildContext context) {
+    final (icon, color) = _iconeCor(evento.tipo);
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Indicador de linha
+        Column(
+          children: [
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: color.withValues(alpha: 0.15),
+              child: Icon(icon, size: 16, color: color),
+            ),
+            Container(
+              width: 2,
+              height: 40,
+              color: AppColors.cardBorder,
+            ),
+          ],
+        ),
+        const SizedBox(width: 12),
+
+        // Conteúdo
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(evento.tipo.label,
+                          style: AppTextStyles.subtitle.copyWith(color: color)),
+                    ),
+                    Text(
+                      fmt.format(evento.timestamp),
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+                if (evento.colaboradorNome != null) ...[
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      const Icon(Icons.person_outline,
+                          size: 12, color: AppColors.textSecondary),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          evento.colaboradorNome! +
+                              (evento.caixaNome != null
+                                  ? ' → ${evento.caixaNome}'
+                                  : ''),
+                          style: AppTextStyles.caption,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+                if (evento.detalhe != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    evento.detalhe!,
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Fechar'),
-          ),
-        ],
-      ),
+      ],
     );
+  }
+
+  (IconData, Color) _iconeCor(TipoEvento tipo) {
+    return switch (tipo) {
+      TipoEvento.turnoIniciado => (Icons.play_circle, AppColors.statusAtivo),
+      TipoEvento.colaboradorAlocado =>
+        (Icons.swap_horiz, AppColors.primary),
+      TipoEvento.colaboradorLiberado =>
+        (Icons.exit_to_app, AppColors.statusSaida),
+      TipoEvento.cafeIniciado => (Icons.coffee, AppColors.statusCafe),
+      TipoEvento.cafeEncerrado =>
+        (Icons.check_circle, AppColors.statusCafe),
+      TipoEvento.intervaloIniciado =>
+        (Icons.restaurant, AppColors.statusAtencao),
+      TipoEvento.intervaloEncerrado =>
+        (Icons.check_circle, AppColors.statusAtencao),
+      TipoEvento.intervaloMarcadoFeito =>
+        (Icons.check_circle_outline, Colors.green),
+      TipoEvento.empacotadorAdicionado =>
+        (Icons.inventory_2, const Color(0xFF795548)),
+      TipoEvento.empacotadorRemovido =>
+        (Icons.remove_circle_outline, const Color(0xFF795548)),
+    };
   }
 }

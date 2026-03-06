@@ -18,6 +18,8 @@ import '../../providers/procedimento_provider.dart';
 import '../../providers/ocorrencia_provider.dart';
 import '../../providers/checklist_provider.dart';
 import '../../providers/passagem_turno_provider.dart';
+import '../../providers/evento_turno_provider.dart';
+import '../../../domain/entities/evento_turno.dart';
 import '../ocorrencias/ocorrencias_screen.dart';
 import '../checklist/checklist_screen.dart';
 import '../passagem_turno/passagem_turno_screen.dart';
@@ -111,6 +113,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       Provider.of<OcorrenciaProvider>(context, listen: false).load(),
       Provider.of<ChecklistProvider>(context, listen: false).load(),
       Provider.of<PassagemTurnoProvider>(context, listen: false).load(),
+      Provider.of<EventoTurnoProvider>(context, listen: false).load(userId),
     ]);
 
     if (mounted) {
@@ -1688,6 +1691,11 @@ class _BriefingTurnoSheet extends StatelessWidget {
   ) {
     final passagemProvider =
         Provider.of<PassagemTurnoProvider>(context, listen: false);
+    final eventoProvider =
+        Provider.of<EventoTurnoProvider>(context, listen: false);
+    final authProvider =
+        Provider.of<AuthProvider>(context, listen: false);
+    final fiscalId = authProvider.user?.id ?? '';
 
     final resumo =
         'Início de turno às $horaFormatada\nPresentes: ${presentes.length} colaborador(es)';
@@ -1704,6 +1712,13 @@ class _BriefingTurnoSheet extends StatelessWidget {
       resumo: resumo,
       pendencias: pendencias,
       recados: recados,
+    );
+
+    eventoProvider.registrar(
+      fiscalId: fiscalId,
+      tipo: TipoEvento.turnoIniciado,
+      detalhe:
+          '${presentes.length} presente(s). ${defolga.isNotEmpty ? recados : ''}',
     );
 
     Navigator.pop(context);

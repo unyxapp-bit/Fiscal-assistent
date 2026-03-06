@@ -10,12 +10,16 @@ import 'tables/colaboradores_table.dart';
 import 'tables/caixas_table.dart';
 import 'tables/turnos_table.dart';
 import 'tables/alocacoes_table.dart';
+import 'tables/eventos_turno_table.dart';
+import 'tables/relatorios_dia_table.dart';
 
 // Imports dos DAOs
 import 'daos/fiscal_dao.dart';
 import 'daos/colaborador_dao.dart';
 import 'daos/caixa_dao.dart';
 import 'daos/alocacao_dao.dart';
+import 'daos/evento_turno_dao.dart';
+import 'daos/relatorio_dia_dao.dart';
 
 // Este arquivo será gerado pelo build_runner
 part 'database.g.dart';
@@ -28,19 +32,23 @@ part 'database.g.dart';
     Caixas,
     TurnosEscala,
     Alocacoes,
+    EventosTurno,
+    RelatoriosDia,
   ],
   daos: [
     FiscalDao,
     ColaboradorDao,
     CaixaDao,
     AlocacaoDao,
+    EventoTurnoDao,
+    RelatorioDiaDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration {
@@ -49,7 +57,10 @@ class AppDatabase extends _$AppDatabase {
         await m.createAll();
       },
       onUpgrade: (Migrator m, int from, int to) async {
-        // Futuras migrations vão aqui
+        if (from < 2) {
+          await m.createTable(eventosTurno);
+          await m.createTable(relatoriosDia);
+        }
       },
       beforeOpen: (details) async {
         // Habilitar foreign keys

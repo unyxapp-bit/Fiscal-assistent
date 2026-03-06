@@ -6,9 +6,12 @@ import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../../domain/entities/caixa.dart';
 import '../../../domain/enums/departamento_tipo.dart';
+import '../../../domain/entities/evento_turno.dart';
 import '../../providers/alocacao_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/caixa_provider.dart';
 import '../../providers/escala_provider.dart';
+import '../../providers/evento_turno_provider.dart';
 import '../../providers/pacote_plantao_provider.dart';
 
 /// Tela de alocação — lista colaboradores disponíveis agora e permite
@@ -238,6 +241,11 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     TurnoLocal turno,
     PacotePlantaoProvider pacoteProvider,
   ) async {
+    final eventoProvider =
+        Provider.of<EventoTurnoProvider>(context, listen: false);
+    final fiscalId =
+        Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+
     Navigator.of(sheetCtx).pop();
 
     await pacoteProvider.adicionar(widget.fiscalId, turno.colaboradorId);
@@ -250,6 +258,11 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
         backgroundColor: AppColors.danger,
       ));
     } else {
+      eventoProvider.registrar(
+        fiscalId: fiscalId,
+        tipo: TipoEvento.empacotadorAdicionado,
+        colaboradorNome: turno.colaboradorNome,
+      );
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
             '${turno.colaboradorNome} adicionado ao plantão de empacotadores!'),
@@ -264,6 +277,11 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     Caixa caixa,
     AlocacaoProvider alocacaoProvider,
   ) async {
+    final eventoProvider =
+        Provider.of<EventoTurnoProvider>(context, listen: false);
+    final fiscalId =
+        Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+
     Navigator.of(sheetCtx).pop();
 
     await alocacaoProvider.alocarColaborador(
@@ -280,6 +298,12 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
         backgroundColor: AppColors.danger,
       ));
     } else {
+      eventoProvider.registrar(
+        fiscalId: fiscalId,
+        tipo: TipoEvento.colaboradorAlocado,
+        colaboradorNome: turno.colaboradorNome,
+        caixaNome: caixa.nomeExibicao,
+      );
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content:
             Text('${turno.colaboradorNome} alocado em ${caixa.nomeExibicao}!'),

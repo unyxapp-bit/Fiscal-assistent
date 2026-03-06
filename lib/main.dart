@@ -64,6 +64,8 @@ import 'presentation/providers/ocorrencia_provider.dart';
 import 'presentation/providers/checklist_provider.dart';
 import 'presentation/providers/passagem_turno_provider.dart';
 import 'presentation/providers/guia_rapido_provider.dart';
+import 'presentation/providers/evento_turno_provider.dart';
+import 'data/datasources/local/database.dart';
 
 // App Config
 import 'core/constants/colors.dart';
@@ -119,6 +121,9 @@ void main() async {
     final getCaixas = GetCaixas(caixaRepository);
     final toggleCaixaStatus = ToggleCaixaStatus(caixaRepository);
     final toggleCaixaManutencao = ToggleCaixaManutencao(caixaRepository);
+
+    // ==================== LOCAL DATABASE ====================
+    final appDatabase = AppDatabase();
 
     // ==================== PACOTE PLANTAO ====================
     final pacotePlantaoRemoteDataSource = PacotePlantaoRemoteDataSource();
@@ -259,6 +264,14 @@ void main() async {
           // Guia Rápido
           ChangeNotifierProvider(
             create: (_) => GuiaRapidoProvider(),
+          ),
+
+          // Eventos de Turno + Relatórios
+          ChangeNotifierProvider(
+            create: (_) => EventoTurnoProvider(
+              eventoDao: appDatabase.eventoTurnoDao,
+              relatorioDao: appDatabase.relatorioDiaDao,
+            ),
           ),
 
         ],

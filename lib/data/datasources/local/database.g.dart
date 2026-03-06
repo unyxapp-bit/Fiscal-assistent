@@ -747,7 +747,10 @@ class $ColaboradoresTable extends Colaboradores
   @override
   late final GeneratedColumn<String> fiscalId = GeneratedColumn<String>(
       'fiscal_id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES fiscais (id) ON DELETE CASCADE'));
   static const VerificationMeta _nomeMeta = const VerificationMeta('nome');
   @override
   late final GeneratedColumn<String> nome = GeneratedColumn<String>(
@@ -1272,7 +1275,10 @@ class $CaixasTable extends Caixas with TableInfo<$CaixasTable, CaixaTable> {
   @override
   late final GeneratedColumn<String> fiscalId = GeneratedColumn<String>(
       'fiscal_id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES fiscais (id) ON DELETE CASCADE'));
   static const VerificationMeta _numeroMeta = const VerificationMeta('numero');
   @override
   late final GeneratedColumn<int> numero = GeneratedColumn<int>(
@@ -1796,7 +1802,10 @@ class $TurnosEscalaTable extends TurnosEscala
   @override
   late final GeneratedColumn<String> colaboradorId = GeneratedColumn<String>(
       'colaborador_id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES colaboradores (id) ON DELETE CASCADE'));
   static const VerificationMeta _dataMeta = const VerificationMeta('data');
   @override
   late final GeneratedColumn<DateTime> data = GeneratedColumn<DateTime>(
@@ -2420,13 +2429,19 @@ class $AlocacoesTable extends Alocacoes
   @override
   late final GeneratedColumn<String> colaboradorId = GeneratedColumn<String>(
       'colaborador_id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES colaboradores (id) ON DELETE CASCADE'));
   static const VerificationMeta _caixaIdMeta =
       const VerificationMeta('caixaId');
   @override
   late final GeneratedColumn<String> caixaId = GeneratedColumn<String>(
       'caixa_id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES caixas (id) ON DELETE CASCADE'));
   static const VerificationMeta _turnoEscalaIdMeta =
       const VerificationMeta('turnoEscalaId');
   @override
@@ -2989,6 +3004,1073 @@ class AlocacoesCompanion extends UpdateCompanion<AlocacaoTable> {
   }
 }
 
+class $EventosTurnoTable extends EventosTurno
+    with TableInfo<$EventosTurnoTable, EventoTurnoTable> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $EventosTurnoTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _fiscalIdMeta =
+      const VerificationMeta('fiscalId');
+  @override
+  late final GeneratedColumn<String> fiscalId = GeneratedColumn<String>(
+      'fiscal_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _tipoMeta = const VerificationMeta('tipo');
+  @override
+  late final GeneratedColumn<String> tipo = GeneratedColumn<String>(
+      'tipo', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _timestampMeta =
+      const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+      'timestamp', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _colaboradorNomeMeta =
+      const VerificationMeta('colaboradorNome');
+  @override
+  late final GeneratedColumn<String> colaboradorNome = GeneratedColumn<String>(
+      'colaborador_nome', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _caixaNomeMeta =
+      const VerificationMeta('caixaNome');
+  @override
+  late final GeneratedColumn<String> caixaNome = GeneratedColumn<String>(
+      'caixa_nome', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _detalheMeta =
+      const VerificationMeta('detalhe');
+  @override
+  late final GeneratedColumn<String> detalhe = GeneratedColumn<String>(
+      'detalhe', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        fiscalId,
+        tipo,
+        timestamp,
+        colaboradorNome,
+        caixaNome,
+        detalhe,
+        createdAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'eventos_turno';
+  @override
+  VerificationContext validateIntegrity(Insertable<EventoTurnoTable> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('fiscal_id')) {
+      context.handle(_fiscalIdMeta,
+          fiscalId.isAcceptableOrUnknown(data['fiscal_id']!, _fiscalIdMeta));
+    } else if (isInserting) {
+      context.missing(_fiscalIdMeta);
+    }
+    if (data.containsKey('tipo')) {
+      context.handle(
+          _tipoMeta, tipo.isAcceptableOrUnknown(data['tipo']!, _tipoMeta));
+    } else if (isInserting) {
+      context.missing(_tipoMeta);
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    } else if (isInserting) {
+      context.missing(_timestampMeta);
+    }
+    if (data.containsKey('colaborador_nome')) {
+      context.handle(
+          _colaboradorNomeMeta,
+          colaboradorNome.isAcceptableOrUnknown(
+              data['colaborador_nome']!, _colaboradorNomeMeta));
+    }
+    if (data.containsKey('caixa_nome')) {
+      context.handle(_caixaNomeMeta,
+          caixaNome.isAcceptableOrUnknown(data['caixa_nome']!, _caixaNomeMeta));
+    }
+    if (data.containsKey('detalhe')) {
+      context.handle(_detalheMeta,
+          detalhe.isAcceptableOrUnknown(data['detalhe']!, _detalheMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  EventoTurnoTable map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return EventoTurnoTable(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      fiscalId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}fiscal_id'])!,
+      tipo: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tipo'])!,
+      timestamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+      colaboradorNome: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}colaborador_nome']),
+      caixaNome: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}caixa_nome']),
+      detalhe: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}detalhe']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $EventosTurnoTable createAlias(String alias) {
+    return $EventosTurnoTable(attachedDatabase, alias);
+  }
+}
+
+class EventoTurnoTable extends DataClass
+    implements Insertable<EventoTurnoTable> {
+  final String id;
+  final String fiscalId;
+
+  /// Tipo do evento: turno_iniciado, colab_alocado, colab_liberado,
+  /// cafe_iniciado, cafe_encerrado, intervalo_iniciado, intervalo_encerrado,
+  /// intervalo_marcado_feito, empacotador_adicionado, empacotador_removido
+  final String tipo;
+  final DateTime timestamp;
+
+  /// Nome do colaborador envolvido (snapshot histórico)
+  final String? colaboradorNome;
+
+  /// Nome do caixa envolvido (snapshot histórico)
+  final String? caixaNome;
+
+  /// Informação extra (motivo, duração, etc.)
+  final String? detalhe;
+  final DateTime createdAt;
+  const EventoTurnoTable(
+      {required this.id,
+      required this.fiscalId,
+      required this.tipo,
+      required this.timestamp,
+      this.colaboradorNome,
+      this.caixaNome,
+      this.detalhe,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['fiscal_id'] = Variable<String>(fiscalId);
+    map['tipo'] = Variable<String>(tipo);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    if (!nullToAbsent || colaboradorNome != null) {
+      map['colaborador_nome'] = Variable<String>(colaboradorNome);
+    }
+    if (!nullToAbsent || caixaNome != null) {
+      map['caixa_nome'] = Variable<String>(caixaNome);
+    }
+    if (!nullToAbsent || detalhe != null) {
+      map['detalhe'] = Variable<String>(detalhe);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  EventosTurnoCompanion toCompanion(bool nullToAbsent) {
+    return EventosTurnoCompanion(
+      id: Value(id),
+      fiscalId: Value(fiscalId),
+      tipo: Value(tipo),
+      timestamp: Value(timestamp),
+      colaboradorNome: colaboradorNome == null && nullToAbsent
+          ? const Value.absent()
+          : Value(colaboradorNome),
+      caixaNome: caixaNome == null && nullToAbsent
+          ? const Value.absent()
+          : Value(caixaNome),
+      detalhe: detalhe == null && nullToAbsent
+          ? const Value.absent()
+          : Value(detalhe),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory EventoTurnoTable.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return EventoTurnoTable(
+      id: serializer.fromJson<String>(json['id']),
+      fiscalId: serializer.fromJson<String>(json['fiscalId']),
+      tipo: serializer.fromJson<String>(json['tipo']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      colaboradorNome: serializer.fromJson<String?>(json['colaboradorNome']),
+      caixaNome: serializer.fromJson<String?>(json['caixaNome']),
+      detalhe: serializer.fromJson<String?>(json['detalhe']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'fiscalId': serializer.toJson<String>(fiscalId),
+      'tipo': serializer.toJson<String>(tipo),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'colaboradorNome': serializer.toJson<String?>(colaboradorNome),
+      'caixaNome': serializer.toJson<String?>(caixaNome),
+      'detalhe': serializer.toJson<String?>(detalhe),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  EventoTurnoTable copyWith(
+          {String? id,
+          String? fiscalId,
+          String? tipo,
+          DateTime? timestamp,
+          Value<String?> colaboradorNome = const Value.absent(),
+          Value<String?> caixaNome = const Value.absent(),
+          Value<String?> detalhe = const Value.absent(),
+          DateTime? createdAt}) =>
+      EventoTurnoTable(
+        id: id ?? this.id,
+        fiscalId: fiscalId ?? this.fiscalId,
+        tipo: tipo ?? this.tipo,
+        timestamp: timestamp ?? this.timestamp,
+        colaboradorNome: colaboradorNome.present
+            ? colaboradorNome.value
+            : this.colaboradorNome,
+        caixaNome: caixaNome.present ? caixaNome.value : this.caixaNome,
+        detalhe: detalhe.present ? detalhe.value : this.detalhe,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  EventoTurnoTable copyWithCompanion(EventosTurnoCompanion data) {
+    return EventoTurnoTable(
+      id: data.id.present ? data.id.value : this.id,
+      fiscalId: data.fiscalId.present ? data.fiscalId.value : this.fiscalId,
+      tipo: data.tipo.present ? data.tipo.value : this.tipo,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      colaboradorNome: data.colaboradorNome.present
+          ? data.colaboradorNome.value
+          : this.colaboradorNome,
+      caixaNome: data.caixaNome.present ? data.caixaNome.value : this.caixaNome,
+      detalhe: data.detalhe.present ? data.detalhe.value : this.detalhe,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EventoTurnoTable(')
+          ..write('id: $id, ')
+          ..write('fiscalId: $fiscalId, ')
+          ..write('tipo: $tipo, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('colaboradorNome: $colaboradorNome, ')
+          ..write('caixaNome: $caixaNome, ')
+          ..write('detalhe: $detalhe, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, fiscalId, tipo, timestamp,
+      colaboradorNome, caixaNome, detalhe, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is EventoTurnoTable &&
+          other.id == this.id &&
+          other.fiscalId == this.fiscalId &&
+          other.tipo == this.tipo &&
+          other.timestamp == this.timestamp &&
+          other.colaboradorNome == this.colaboradorNome &&
+          other.caixaNome == this.caixaNome &&
+          other.detalhe == this.detalhe &&
+          other.createdAt == this.createdAt);
+}
+
+class EventosTurnoCompanion extends UpdateCompanion<EventoTurnoTable> {
+  final Value<String> id;
+  final Value<String> fiscalId;
+  final Value<String> tipo;
+  final Value<DateTime> timestamp;
+  final Value<String?> colaboradorNome;
+  final Value<String?> caixaNome;
+  final Value<String?> detalhe;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const EventosTurnoCompanion({
+    this.id = const Value.absent(),
+    this.fiscalId = const Value.absent(),
+    this.tipo = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.colaboradorNome = const Value.absent(),
+    this.caixaNome = const Value.absent(),
+    this.detalhe = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  EventosTurnoCompanion.insert({
+    required String id,
+    required String fiscalId,
+    required String tipo,
+    required DateTime timestamp,
+    this.colaboradorNome = const Value.absent(),
+    this.caixaNome = const Value.absent(),
+    this.detalhe = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        fiscalId = Value(fiscalId),
+        tipo = Value(tipo),
+        timestamp = Value(timestamp);
+  static Insertable<EventoTurnoTable> custom({
+    Expression<String>? id,
+    Expression<String>? fiscalId,
+    Expression<String>? tipo,
+    Expression<DateTime>? timestamp,
+    Expression<String>? colaboradorNome,
+    Expression<String>? caixaNome,
+    Expression<String>? detalhe,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (fiscalId != null) 'fiscal_id': fiscalId,
+      if (tipo != null) 'tipo': tipo,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (colaboradorNome != null) 'colaborador_nome': colaboradorNome,
+      if (caixaNome != null) 'caixa_nome': caixaNome,
+      if (detalhe != null) 'detalhe': detalhe,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  EventosTurnoCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? fiscalId,
+      Value<String>? tipo,
+      Value<DateTime>? timestamp,
+      Value<String?>? colaboradorNome,
+      Value<String?>? caixaNome,
+      Value<String?>? detalhe,
+      Value<DateTime>? createdAt,
+      Value<int>? rowid}) {
+    return EventosTurnoCompanion(
+      id: id ?? this.id,
+      fiscalId: fiscalId ?? this.fiscalId,
+      tipo: tipo ?? this.tipo,
+      timestamp: timestamp ?? this.timestamp,
+      colaboradorNome: colaboradorNome ?? this.colaboradorNome,
+      caixaNome: caixaNome ?? this.caixaNome,
+      detalhe: detalhe ?? this.detalhe,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (fiscalId.present) {
+      map['fiscal_id'] = Variable<String>(fiscalId.value);
+    }
+    if (tipo.present) {
+      map['tipo'] = Variable<String>(tipo.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (colaboradorNome.present) {
+      map['colaborador_nome'] = Variable<String>(colaboradorNome.value);
+    }
+    if (caixaNome.present) {
+      map['caixa_nome'] = Variable<String>(caixaNome.value);
+    }
+    if (detalhe.present) {
+      map['detalhe'] = Variable<String>(detalhe.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EventosTurnoCompanion(')
+          ..write('id: $id, ')
+          ..write('fiscalId: $fiscalId, ')
+          ..write('tipo: $tipo, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('colaboradorNome: $colaboradorNome, ')
+          ..write('caixaNome: $caixaNome, ')
+          ..write('detalhe: $detalhe, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $RelatoriosDiaTable extends RelatoriosDia
+    with TableInfo<$RelatoriosDiaTable, RelatorioDiaTable> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RelatoriosDiaTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _fiscalIdMeta =
+      const VerificationMeta('fiscalId');
+  @override
+  late final GeneratedColumn<String> fiscalId = GeneratedColumn<String>(
+      'fiscal_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _dataStrMeta =
+      const VerificationMeta('dataStr');
+  @override
+  late final GeneratedColumn<String> dataStr = GeneratedColumn<String>(
+      'data_str', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _turnoIniciadoEmMeta =
+      const VerificationMeta('turnoIniciadoEm');
+  @override
+  late final GeneratedColumn<DateTime> turnoIniciadoEm =
+      GeneratedColumn<DateTime>('turno_iniciado_em', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _turnoEncerradoEmMeta =
+      const VerificationMeta('turnoEncerradoEm');
+  @override
+  late final GeneratedColumn<DateTime> turnoEncerradoEm =
+      GeneratedColumn<DateTime>('turno_encerrado_em', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _totalAlocacoesMeta =
+      const VerificationMeta('totalAlocacoes');
+  @override
+  late final GeneratedColumn<int> totalAlocacoes = GeneratedColumn<int>(
+      'total_alocacoes', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _totalColaboradoresMeta =
+      const VerificationMeta('totalColaboradores');
+  @override
+  late final GeneratedColumn<int> totalColaboradores = GeneratedColumn<int>(
+      'total_colaboradores', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _totalCafesMeta =
+      const VerificationMeta('totalCafes');
+  @override
+  late final GeneratedColumn<int> totalCafes = GeneratedColumn<int>(
+      'total_cafes', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _totalIntervalosMeta =
+      const VerificationMeta('totalIntervalos');
+  @override
+  late final GeneratedColumn<int> totalIntervalos = GeneratedColumn<int>(
+      'total_intervalos', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _totalEmpacotadoresMeta =
+      const VerificationMeta('totalEmpacotadores');
+  @override
+  late final GeneratedColumn<int> totalEmpacotadores = GeneratedColumn<int>(
+      'total_empacotadores', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _eventosJsonMeta =
+      const VerificationMeta('eventosJson');
+  @override
+  late final GeneratedColumn<String> eventosJson = GeneratedColumn<String>(
+      'eventos_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        fiscalId,
+        dataStr,
+        turnoIniciadoEm,
+        turnoEncerradoEm,
+        totalAlocacoes,
+        totalColaboradores,
+        totalCafes,
+        totalIntervalos,
+        totalEmpacotadores,
+        eventosJson,
+        createdAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'relatorios_dia';
+  @override
+  VerificationContext validateIntegrity(Insertable<RelatorioDiaTable> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('fiscal_id')) {
+      context.handle(_fiscalIdMeta,
+          fiscalId.isAcceptableOrUnknown(data['fiscal_id']!, _fiscalIdMeta));
+    } else if (isInserting) {
+      context.missing(_fiscalIdMeta);
+    }
+    if (data.containsKey('data_str')) {
+      context.handle(_dataStrMeta,
+          dataStr.isAcceptableOrUnknown(data['data_str']!, _dataStrMeta));
+    } else if (isInserting) {
+      context.missing(_dataStrMeta);
+    }
+    if (data.containsKey('turno_iniciado_em')) {
+      context.handle(
+          _turnoIniciadoEmMeta,
+          turnoIniciadoEm.isAcceptableOrUnknown(
+              data['turno_iniciado_em']!, _turnoIniciadoEmMeta));
+    } else if (isInserting) {
+      context.missing(_turnoIniciadoEmMeta);
+    }
+    if (data.containsKey('turno_encerrado_em')) {
+      context.handle(
+          _turnoEncerradoEmMeta,
+          turnoEncerradoEm.isAcceptableOrUnknown(
+              data['turno_encerrado_em']!, _turnoEncerradoEmMeta));
+    } else if (isInserting) {
+      context.missing(_turnoEncerradoEmMeta);
+    }
+    if (data.containsKey('total_alocacoes')) {
+      context.handle(
+          _totalAlocacoesMeta,
+          totalAlocacoes.isAcceptableOrUnknown(
+              data['total_alocacoes']!, _totalAlocacoesMeta));
+    }
+    if (data.containsKey('total_colaboradores')) {
+      context.handle(
+          _totalColaboradoresMeta,
+          totalColaboradores.isAcceptableOrUnknown(
+              data['total_colaboradores']!, _totalColaboradoresMeta));
+    }
+    if (data.containsKey('total_cafes')) {
+      context.handle(
+          _totalCafesMeta,
+          totalCafes.isAcceptableOrUnknown(
+              data['total_cafes']!, _totalCafesMeta));
+    }
+    if (data.containsKey('total_intervalos')) {
+      context.handle(
+          _totalIntervalosMeta,
+          totalIntervalos.isAcceptableOrUnknown(
+              data['total_intervalos']!, _totalIntervalosMeta));
+    }
+    if (data.containsKey('total_empacotadores')) {
+      context.handle(
+          _totalEmpacotadoresMeta,
+          totalEmpacotadores.isAcceptableOrUnknown(
+              data['total_empacotadores']!, _totalEmpacotadoresMeta));
+    }
+    if (data.containsKey('eventos_json')) {
+      context.handle(
+          _eventosJsonMeta,
+          eventosJson.isAcceptableOrUnknown(
+              data['eventos_json']!, _eventosJsonMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  RelatorioDiaTable map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RelatorioDiaTable(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      fiscalId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}fiscal_id'])!,
+      dataStr: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}data_str'])!,
+      turnoIniciadoEm: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}turno_iniciado_em'])!,
+      turnoEncerradoEm: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}turno_encerrado_em'])!,
+      totalAlocacoes: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}total_alocacoes'])!,
+      totalColaboradores: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}total_colaboradores'])!,
+      totalCafes: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}total_cafes'])!,
+      totalIntervalos: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}total_intervalos'])!,
+      totalEmpacotadores: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}total_empacotadores'])!,
+      eventosJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}eventos_json'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $RelatoriosDiaTable createAlias(String alias) {
+    return $RelatoriosDiaTable(attachedDatabase, alias);
+  }
+}
+
+class RelatorioDiaTable extends DataClass
+    implements Insertable<RelatorioDiaTable> {
+  final String id;
+  final String fiscalId;
+
+  /// Data do turno (yyyy-MM-dd como texto para facilitar)
+  final String dataStr;
+  final DateTime turnoIniciadoEm;
+  final DateTime turnoEncerradoEm;
+  final int totalAlocacoes;
+  final int totalColaboradores;
+  final int totalCafes;
+  final int totalIntervalos;
+  final int totalEmpacotadores;
+
+  /// Eventos do turno serializados como JSON
+  final String eventosJson;
+  final DateTime createdAt;
+  const RelatorioDiaTable(
+      {required this.id,
+      required this.fiscalId,
+      required this.dataStr,
+      required this.turnoIniciadoEm,
+      required this.turnoEncerradoEm,
+      required this.totalAlocacoes,
+      required this.totalColaboradores,
+      required this.totalCafes,
+      required this.totalIntervalos,
+      required this.totalEmpacotadores,
+      required this.eventosJson,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['fiscal_id'] = Variable<String>(fiscalId);
+    map['data_str'] = Variable<String>(dataStr);
+    map['turno_iniciado_em'] = Variable<DateTime>(turnoIniciadoEm);
+    map['turno_encerrado_em'] = Variable<DateTime>(turnoEncerradoEm);
+    map['total_alocacoes'] = Variable<int>(totalAlocacoes);
+    map['total_colaboradores'] = Variable<int>(totalColaboradores);
+    map['total_cafes'] = Variable<int>(totalCafes);
+    map['total_intervalos'] = Variable<int>(totalIntervalos);
+    map['total_empacotadores'] = Variable<int>(totalEmpacotadores);
+    map['eventos_json'] = Variable<String>(eventosJson);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  RelatoriosDiaCompanion toCompanion(bool nullToAbsent) {
+    return RelatoriosDiaCompanion(
+      id: Value(id),
+      fiscalId: Value(fiscalId),
+      dataStr: Value(dataStr),
+      turnoIniciadoEm: Value(turnoIniciadoEm),
+      turnoEncerradoEm: Value(turnoEncerradoEm),
+      totalAlocacoes: Value(totalAlocacoes),
+      totalColaboradores: Value(totalColaboradores),
+      totalCafes: Value(totalCafes),
+      totalIntervalos: Value(totalIntervalos),
+      totalEmpacotadores: Value(totalEmpacotadores),
+      eventosJson: Value(eventosJson),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory RelatorioDiaTable.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RelatorioDiaTable(
+      id: serializer.fromJson<String>(json['id']),
+      fiscalId: serializer.fromJson<String>(json['fiscalId']),
+      dataStr: serializer.fromJson<String>(json['dataStr']),
+      turnoIniciadoEm: serializer.fromJson<DateTime>(json['turnoIniciadoEm']),
+      turnoEncerradoEm: serializer.fromJson<DateTime>(json['turnoEncerradoEm']),
+      totalAlocacoes: serializer.fromJson<int>(json['totalAlocacoes']),
+      totalColaboradores: serializer.fromJson<int>(json['totalColaboradores']),
+      totalCafes: serializer.fromJson<int>(json['totalCafes']),
+      totalIntervalos: serializer.fromJson<int>(json['totalIntervalos']),
+      totalEmpacotadores: serializer.fromJson<int>(json['totalEmpacotadores']),
+      eventosJson: serializer.fromJson<String>(json['eventosJson']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'fiscalId': serializer.toJson<String>(fiscalId),
+      'dataStr': serializer.toJson<String>(dataStr),
+      'turnoIniciadoEm': serializer.toJson<DateTime>(turnoIniciadoEm),
+      'turnoEncerradoEm': serializer.toJson<DateTime>(turnoEncerradoEm),
+      'totalAlocacoes': serializer.toJson<int>(totalAlocacoes),
+      'totalColaboradores': serializer.toJson<int>(totalColaboradores),
+      'totalCafes': serializer.toJson<int>(totalCafes),
+      'totalIntervalos': serializer.toJson<int>(totalIntervalos),
+      'totalEmpacotadores': serializer.toJson<int>(totalEmpacotadores),
+      'eventosJson': serializer.toJson<String>(eventosJson),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  RelatorioDiaTable copyWith(
+          {String? id,
+          String? fiscalId,
+          String? dataStr,
+          DateTime? turnoIniciadoEm,
+          DateTime? turnoEncerradoEm,
+          int? totalAlocacoes,
+          int? totalColaboradores,
+          int? totalCafes,
+          int? totalIntervalos,
+          int? totalEmpacotadores,
+          String? eventosJson,
+          DateTime? createdAt}) =>
+      RelatorioDiaTable(
+        id: id ?? this.id,
+        fiscalId: fiscalId ?? this.fiscalId,
+        dataStr: dataStr ?? this.dataStr,
+        turnoIniciadoEm: turnoIniciadoEm ?? this.turnoIniciadoEm,
+        turnoEncerradoEm: turnoEncerradoEm ?? this.turnoEncerradoEm,
+        totalAlocacoes: totalAlocacoes ?? this.totalAlocacoes,
+        totalColaboradores: totalColaboradores ?? this.totalColaboradores,
+        totalCafes: totalCafes ?? this.totalCafes,
+        totalIntervalos: totalIntervalos ?? this.totalIntervalos,
+        totalEmpacotadores: totalEmpacotadores ?? this.totalEmpacotadores,
+        eventosJson: eventosJson ?? this.eventosJson,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  RelatorioDiaTable copyWithCompanion(RelatoriosDiaCompanion data) {
+    return RelatorioDiaTable(
+      id: data.id.present ? data.id.value : this.id,
+      fiscalId: data.fiscalId.present ? data.fiscalId.value : this.fiscalId,
+      dataStr: data.dataStr.present ? data.dataStr.value : this.dataStr,
+      turnoIniciadoEm: data.turnoIniciadoEm.present
+          ? data.turnoIniciadoEm.value
+          : this.turnoIniciadoEm,
+      turnoEncerradoEm: data.turnoEncerradoEm.present
+          ? data.turnoEncerradoEm.value
+          : this.turnoEncerradoEm,
+      totalAlocacoes: data.totalAlocacoes.present
+          ? data.totalAlocacoes.value
+          : this.totalAlocacoes,
+      totalColaboradores: data.totalColaboradores.present
+          ? data.totalColaboradores.value
+          : this.totalColaboradores,
+      totalCafes:
+          data.totalCafes.present ? data.totalCafes.value : this.totalCafes,
+      totalIntervalos: data.totalIntervalos.present
+          ? data.totalIntervalos.value
+          : this.totalIntervalos,
+      totalEmpacotadores: data.totalEmpacotadores.present
+          ? data.totalEmpacotadores.value
+          : this.totalEmpacotadores,
+      eventosJson:
+          data.eventosJson.present ? data.eventosJson.value : this.eventosJson,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RelatorioDiaTable(')
+          ..write('id: $id, ')
+          ..write('fiscalId: $fiscalId, ')
+          ..write('dataStr: $dataStr, ')
+          ..write('turnoIniciadoEm: $turnoIniciadoEm, ')
+          ..write('turnoEncerradoEm: $turnoEncerradoEm, ')
+          ..write('totalAlocacoes: $totalAlocacoes, ')
+          ..write('totalColaboradores: $totalColaboradores, ')
+          ..write('totalCafes: $totalCafes, ')
+          ..write('totalIntervalos: $totalIntervalos, ')
+          ..write('totalEmpacotadores: $totalEmpacotadores, ')
+          ..write('eventosJson: $eventosJson, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      fiscalId,
+      dataStr,
+      turnoIniciadoEm,
+      turnoEncerradoEm,
+      totalAlocacoes,
+      totalColaboradores,
+      totalCafes,
+      totalIntervalos,
+      totalEmpacotadores,
+      eventosJson,
+      createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RelatorioDiaTable &&
+          other.id == this.id &&
+          other.fiscalId == this.fiscalId &&
+          other.dataStr == this.dataStr &&
+          other.turnoIniciadoEm == this.turnoIniciadoEm &&
+          other.turnoEncerradoEm == this.turnoEncerradoEm &&
+          other.totalAlocacoes == this.totalAlocacoes &&
+          other.totalColaboradores == this.totalColaboradores &&
+          other.totalCafes == this.totalCafes &&
+          other.totalIntervalos == this.totalIntervalos &&
+          other.totalEmpacotadores == this.totalEmpacotadores &&
+          other.eventosJson == this.eventosJson &&
+          other.createdAt == this.createdAt);
+}
+
+class RelatoriosDiaCompanion extends UpdateCompanion<RelatorioDiaTable> {
+  final Value<String> id;
+  final Value<String> fiscalId;
+  final Value<String> dataStr;
+  final Value<DateTime> turnoIniciadoEm;
+  final Value<DateTime> turnoEncerradoEm;
+  final Value<int> totalAlocacoes;
+  final Value<int> totalColaboradores;
+  final Value<int> totalCafes;
+  final Value<int> totalIntervalos;
+  final Value<int> totalEmpacotadores;
+  final Value<String> eventosJson;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const RelatoriosDiaCompanion({
+    this.id = const Value.absent(),
+    this.fiscalId = const Value.absent(),
+    this.dataStr = const Value.absent(),
+    this.turnoIniciadoEm = const Value.absent(),
+    this.turnoEncerradoEm = const Value.absent(),
+    this.totalAlocacoes = const Value.absent(),
+    this.totalColaboradores = const Value.absent(),
+    this.totalCafes = const Value.absent(),
+    this.totalIntervalos = const Value.absent(),
+    this.totalEmpacotadores = const Value.absent(),
+    this.eventosJson = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RelatoriosDiaCompanion.insert({
+    required String id,
+    required String fiscalId,
+    required String dataStr,
+    required DateTime turnoIniciadoEm,
+    required DateTime turnoEncerradoEm,
+    this.totalAlocacoes = const Value.absent(),
+    this.totalColaboradores = const Value.absent(),
+    this.totalCafes = const Value.absent(),
+    this.totalIntervalos = const Value.absent(),
+    this.totalEmpacotadores = const Value.absent(),
+    this.eventosJson = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        fiscalId = Value(fiscalId),
+        dataStr = Value(dataStr),
+        turnoIniciadoEm = Value(turnoIniciadoEm),
+        turnoEncerradoEm = Value(turnoEncerradoEm);
+  static Insertable<RelatorioDiaTable> custom({
+    Expression<String>? id,
+    Expression<String>? fiscalId,
+    Expression<String>? dataStr,
+    Expression<DateTime>? turnoIniciadoEm,
+    Expression<DateTime>? turnoEncerradoEm,
+    Expression<int>? totalAlocacoes,
+    Expression<int>? totalColaboradores,
+    Expression<int>? totalCafes,
+    Expression<int>? totalIntervalos,
+    Expression<int>? totalEmpacotadores,
+    Expression<String>? eventosJson,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (fiscalId != null) 'fiscal_id': fiscalId,
+      if (dataStr != null) 'data_str': dataStr,
+      if (turnoIniciadoEm != null) 'turno_iniciado_em': turnoIniciadoEm,
+      if (turnoEncerradoEm != null) 'turno_encerrado_em': turnoEncerradoEm,
+      if (totalAlocacoes != null) 'total_alocacoes': totalAlocacoes,
+      if (totalColaboradores != null) 'total_colaboradores': totalColaboradores,
+      if (totalCafes != null) 'total_cafes': totalCafes,
+      if (totalIntervalos != null) 'total_intervalos': totalIntervalos,
+      if (totalEmpacotadores != null) 'total_empacotadores': totalEmpacotadores,
+      if (eventosJson != null) 'eventos_json': eventosJson,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RelatoriosDiaCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? fiscalId,
+      Value<String>? dataStr,
+      Value<DateTime>? turnoIniciadoEm,
+      Value<DateTime>? turnoEncerradoEm,
+      Value<int>? totalAlocacoes,
+      Value<int>? totalColaboradores,
+      Value<int>? totalCafes,
+      Value<int>? totalIntervalos,
+      Value<int>? totalEmpacotadores,
+      Value<String>? eventosJson,
+      Value<DateTime>? createdAt,
+      Value<int>? rowid}) {
+    return RelatoriosDiaCompanion(
+      id: id ?? this.id,
+      fiscalId: fiscalId ?? this.fiscalId,
+      dataStr: dataStr ?? this.dataStr,
+      turnoIniciadoEm: turnoIniciadoEm ?? this.turnoIniciadoEm,
+      turnoEncerradoEm: turnoEncerradoEm ?? this.turnoEncerradoEm,
+      totalAlocacoes: totalAlocacoes ?? this.totalAlocacoes,
+      totalColaboradores: totalColaboradores ?? this.totalColaboradores,
+      totalCafes: totalCafes ?? this.totalCafes,
+      totalIntervalos: totalIntervalos ?? this.totalIntervalos,
+      totalEmpacotadores: totalEmpacotadores ?? this.totalEmpacotadores,
+      eventosJson: eventosJson ?? this.eventosJson,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (fiscalId.present) {
+      map['fiscal_id'] = Variable<String>(fiscalId.value);
+    }
+    if (dataStr.present) {
+      map['data_str'] = Variable<String>(dataStr.value);
+    }
+    if (turnoIniciadoEm.present) {
+      map['turno_iniciado_em'] = Variable<DateTime>(turnoIniciadoEm.value);
+    }
+    if (turnoEncerradoEm.present) {
+      map['turno_encerrado_em'] = Variable<DateTime>(turnoEncerradoEm.value);
+    }
+    if (totalAlocacoes.present) {
+      map['total_alocacoes'] = Variable<int>(totalAlocacoes.value);
+    }
+    if (totalColaboradores.present) {
+      map['total_colaboradores'] = Variable<int>(totalColaboradores.value);
+    }
+    if (totalCafes.present) {
+      map['total_cafes'] = Variable<int>(totalCafes.value);
+    }
+    if (totalIntervalos.present) {
+      map['total_intervalos'] = Variable<int>(totalIntervalos.value);
+    }
+    if (totalEmpacotadores.present) {
+      map['total_empacotadores'] = Variable<int>(totalEmpacotadores.value);
+    }
+    if (eventosJson.present) {
+      map['eventos_json'] = Variable<String>(eventosJson.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RelatoriosDiaCompanion(')
+          ..write('id: $id, ')
+          ..write('fiscalId: $fiscalId, ')
+          ..write('dataStr: $dataStr, ')
+          ..write('turnoIniciadoEm: $turnoIniciadoEm, ')
+          ..write('turnoEncerradoEm: $turnoEncerradoEm, ')
+          ..write('totalAlocacoes: $totalAlocacoes, ')
+          ..write('totalColaboradores: $totalColaboradores, ')
+          ..write('totalCafes: $totalCafes, ')
+          ..write('totalIntervalos: $totalIntervalos, ')
+          ..write('totalEmpacotadores: $totalEmpacotadores, ')
+          ..write('eventosJson: $eventosJson, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2997,17 +4079,70 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CaixasTable caixas = $CaixasTable(this);
   late final $TurnosEscalaTable turnosEscala = $TurnosEscalaTable(this);
   late final $AlocacoesTable alocacoes = $AlocacoesTable(this);
+  late final $EventosTurnoTable eventosTurno = $EventosTurnoTable(this);
+  late final $RelatoriosDiaTable relatoriosDia = $RelatoriosDiaTable(this);
   late final FiscalDao fiscalDao = FiscalDao(this as AppDatabase);
   late final ColaboradorDao colaboradorDao =
       ColaboradorDao(this as AppDatabase);
   late final CaixaDao caixaDao = CaixaDao(this as AppDatabase);
   late final AlocacaoDao alocacaoDao = AlocacaoDao(this as AppDatabase);
+  late final EventoTurnoDao eventoTurnoDao =
+      EventoTurnoDao(this as AppDatabase);
+  late final RelatorioDiaDao relatorioDiaDao =
+      RelatorioDiaDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [fiscais, colaboradores, caixas, turnosEscala, alocacoes];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+        fiscais,
+        colaboradores,
+        caixas,
+        turnosEscala,
+        alocacoes,
+        eventosTurno,
+        relatoriosDia
+      ];
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
+        [
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('fiscais',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('colaboradores', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('fiscais',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('caixas', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('colaboradores',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('turnos_escala', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('colaboradores',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('alocacoes', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('caixas',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('alocacoes', kind: UpdateKind.delete),
+            ],
+          ),
+        ],
+      );
 }
 
 typedef $$FiscaisTableCreateCompanionBuilder = FiscaisCompanion Function({
@@ -3044,6 +4179,40 @@ typedef $$FiscaisTableUpdateCompanionBuilder = FiscaisCompanion Function({
   Value<DateTime?> lastSyncAt,
   Value<int> rowid,
 });
+
+final class $$FiscaisTableReferences
+    extends BaseReferences<_$AppDatabase, $FiscaisTable, FiscalTable> {
+  $$FiscaisTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$ColaboradoresTable, List<ColaboradorTable>>
+      _colaboradoresRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.colaboradores,
+              aliasName: $_aliasNameGenerator(
+                  db.fiscais.id, db.colaboradores.fiscalId));
+
+  $$ColaboradoresTableProcessedTableManager get colaboradoresRefs {
+    final manager = $$ColaboradoresTableTableManager($_db, $_db.colaboradores)
+        .filter((f) => f.fiscalId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_colaboradoresRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$CaixasTable, List<CaixaTable>> _caixasRefsTable(
+          _$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.caixas,
+          aliasName: $_aliasNameGenerator(db.fiscais.id, db.caixas.fiscalId));
+
+  $$CaixasTableProcessedTableManager get caixasRefs {
+    final manager = $$CaixasTableTableManager($_db, $_db.caixas)
+        .filter((f) => f.fiscalId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_caixasRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
 
 class $$FiscaisTableFilterComposer
     extends Composer<_$AppDatabase, $FiscaisTable> {
@@ -3099,6 +4268,48 @@ class $$FiscaisTableFilterComposer
 
   ColumnFilters<DateTime> get lastSyncAt => $composableBuilder(
       column: $table.lastSyncAt, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> colaboradoresRefs(
+      Expression<bool> Function($$ColaboradoresTableFilterComposer f) f) {
+    final $$ColaboradoresTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.colaboradores,
+        getReferencedColumn: (t) => t.fiscalId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ColaboradoresTableFilterComposer(
+              $db: $db,
+              $table: $db.colaboradores,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> caixasRefs(
+      Expression<bool> Function($$CaixasTableFilterComposer f) f) {
+    final $$CaixasTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.caixas,
+        getReferencedColumn: (t) => t.fiscalId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$CaixasTableFilterComposer(
+              $db: $db,
+              $table: $db.caixas,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$FiscaisTableOrderingComposer
@@ -3211,6 +4422,48 @@ class $$FiscaisTableAnnotationComposer
 
   GeneratedColumn<DateTime> get lastSyncAt => $composableBuilder(
       column: $table.lastSyncAt, builder: (column) => column);
+
+  Expression<T> colaboradoresRefs<T extends Object>(
+      Expression<T> Function($$ColaboradoresTableAnnotationComposer a) f) {
+    final $$ColaboradoresTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.colaboradores,
+        getReferencedColumn: (t) => t.fiscalId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ColaboradoresTableAnnotationComposer(
+              $db: $db,
+              $table: $db.colaboradores,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<T> caixasRefs<T extends Object>(
+      Expression<T> Function($$CaixasTableAnnotationComposer a) f) {
+    final $$CaixasTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.caixas,
+        getReferencedColumn: (t) => t.fiscalId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$CaixasTableAnnotationComposer(
+              $db: $db,
+              $table: $db.caixas,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$FiscaisTableTableManager extends RootTableManager<
@@ -3222,9 +4475,9 @@ class $$FiscaisTableTableManager extends RootTableManager<
     $$FiscaisTableAnnotationComposer,
     $$FiscaisTableCreateCompanionBuilder,
     $$FiscaisTableUpdateCompanionBuilder,
-    (FiscalTable, BaseReferences<_$AppDatabase, $FiscaisTable, FiscalTable>),
+    (FiscalTable, $$FiscaisTableReferences),
     FiscalTable,
-    PrefetchHooks Function()> {
+    PrefetchHooks Function({bool colaboradoresRefs, bool caixasRefs})> {
   $$FiscaisTableTableManager(_$AppDatabase db, $FiscaisTable table)
       : super(TableManagerState(
           db: db,
@@ -3304,9 +4557,49 @@ class $$FiscaisTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) =>
+                  (e.readTable(table), $$FiscaisTableReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: (
+              {colaboradoresRefs = false, caixasRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (colaboradoresRefs) db.colaboradores,
+                if (caixasRefs) db.caixas
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (colaboradoresRefs)
+                    await $_getPrefetchedData<FiscalTable, $FiscaisTable,
+                            ColaboradorTable>(
+                        currentTable: table,
+                        referencedTable: $$FiscaisTableReferences
+                            ._colaboradoresRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$FiscaisTableReferences(db, table, p0)
+                                .colaboradoresRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.fiscalId == item.id),
+                        typedResults: items),
+                  if (caixasRefs)
+                    await $_getPrefetchedData<FiscalTable, $FiscaisTable,
+                            CaixaTable>(
+                        currentTable: table,
+                        referencedTable:
+                            $$FiscaisTableReferences._caixasRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$FiscaisTableReferences(db, table, p0).caixasRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.fiscalId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
         ));
 }
 
@@ -3319,9 +4612,9 @@ typedef $$FiscaisTableProcessedTableManager = ProcessedTableManager<
     $$FiscaisTableAnnotationComposer,
     $$FiscaisTableCreateCompanionBuilder,
     $$FiscaisTableUpdateCompanionBuilder,
-    (FiscalTable, BaseReferences<_$AppDatabase, $FiscaisTable, FiscalTable>),
+    (FiscalTable, $$FiscaisTableReferences),
     FiscalTable,
-    PrefetchHooks Function()>;
+    PrefetchHooks Function({bool colaboradoresRefs, bool caixasRefs})>;
 typedef $$ColaboradoresTableCreateCompanionBuilder = ColaboradoresCompanion
     Function({
   required String id,
@@ -3351,6 +4644,58 @@ typedef $$ColaboradoresTableUpdateCompanionBuilder = ColaboradoresCompanion
   Value<int> rowid,
 });
 
+final class $$ColaboradoresTableReferences extends BaseReferences<_$AppDatabase,
+    $ColaboradoresTable, ColaboradorTable> {
+  $$ColaboradoresTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $FiscaisTable _fiscalIdTable(_$AppDatabase db) =>
+      db.fiscais.createAlias(
+          $_aliasNameGenerator(db.colaboradores.fiscalId, db.fiscais.id));
+
+  $$FiscaisTableProcessedTableManager get fiscalId {
+    final $_column = $_itemColumn<String>('fiscal_id')!;
+
+    final manager = $$FiscaisTableTableManager($_db, $_db.fiscais)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_fiscalIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static MultiTypedResultKey<$TurnosEscalaTable, List<TurnoTable>>
+      _turnosEscalaRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.turnosEscala,
+              aliasName: $_aliasNameGenerator(
+                  db.colaboradores.id, db.turnosEscala.colaboradorId));
+
+  $$TurnosEscalaTableProcessedTableManager get turnosEscalaRefs {
+    final manager = $$TurnosEscalaTableTableManager($_db, $_db.turnosEscala)
+        .filter(
+            (f) => f.colaboradorId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_turnosEscalaRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$AlocacoesTable, List<AlocacaoTable>>
+      _alocacoesRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.alocacoes,
+              aliasName: $_aliasNameGenerator(
+                  db.colaboradores.id, db.alocacoes.colaboradorId));
+
+  $$AlocacoesTableProcessedTableManager get alocacoesRefs {
+    final manager = $$AlocacoesTableTableManager($_db, $_db.alocacoes).filter(
+        (f) => f.colaboradorId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_alocacoesRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
 class $$ColaboradoresTableFilterComposer
     extends Composer<_$AppDatabase, $ColaboradoresTable> {
   $$ColaboradoresTableFilterComposer({
@@ -3362,9 +4707,6 @@ class $$ColaboradoresTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get fiscalId => $composableBuilder(
-      column: $table.fiscalId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get nome => $composableBuilder(
       column: $table.nome, builder: (column) => ColumnFilters(column));
@@ -3390,6 +4732,68 @@ class $$ColaboradoresTableFilterComposer
 
   ColumnFilters<DateTime> get lastSyncAt => $composableBuilder(
       column: $table.lastSyncAt, builder: (column) => ColumnFilters(column));
+
+  $$FiscaisTableFilterComposer get fiscalId {
+    final $$FiscaisTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.fiscalId,
+        referencedTable: $db.fiscais,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$FiscaisTableFilterComposer(
+              $db: $db,
+              $table: $db.fiscais,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  Expression<bool> turnosEscalaRefs(
+      Expression<bool> Function($$TurnosEscalaTableFilterComposer f) f) {
+    final $$TurnosEscalaTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.turnosEscala,
+        getReferencedColumn: (t) => t.colaboradorId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TurnosEscalaTableFilterComposer(
+              $db: $db,
+              $table: $db.turnosEscala,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> alocacoesRefs(
+      Expression<bool> Function($$AlocacoesTableFilterComposer f) f) {
+    final $$AlocacoesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.alocacoes,
+        getReferencedColumn: (t) => t.colaboradorId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AlocacoesTableFilterComposer(
+              $db: $db,
+              $table: $db.alocacoes,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$ColaboradoresTableOrderingComposer
@@ -3403,9 +4807,6 @@ class $$ColaboradoresTableOrderingComposer
   });
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get fiscalId => $composableBuilder(
-      column: $table.fiscalId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get nome => $composableBuilder(
       column: $table.nome, builder: (column) => ColumnOrderings(column));
@@ -3432,6 +4833,26 @@ class $$ColaboradoresTableOrderingComposer
 
   ColumnOrderings<DateTime> get lastSyncAt => $composableBuilder(
       column: $table.lastSyncAt, builder: (column) => ColumnOrderings(column));
+
+  $$FiscaisTableOrderingComposer get fiscalId {
+    final $$FiscaisTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.fiscalId,
+        referencedTable: $db.fiscais,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$FiscaisTableOrderingComposer(
+              $db: $db,
+              $table: $db.fiscais,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$ColaboradoresTableAnnotationComposer
@@ -3445,9 +4866,6 @@ class $$ColaboradoresTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get fiscalId =>
-      $composableBuilder(column: $table.fiscalId, builder: (column) => column);
 
   GeneratedColumn<String> get nome =>
       $composableBuilder(column: $table.nome, builder: (column) => column);
@@ -3472,6 +4890,68 @@ class $$ColaboradoresTableAnnotationComposer
 
   GeneratedColumn<DateTime> get lastSyncAt => $composableBuilder(
       column: $table.lastSyncAt, builder: (column) => column);
+
+  $$FiscaisTableAnnotationComposer get fiscalId {
+    final $$FiscaisTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.fiscalId,
+        referencedTable: $db.fiscais,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$FiscaisTableAnnotationComposer(
+              $db: $db,
+              $table: $db.fiscais,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  Expression<T> turnosEscalaRefs<T extends Object>(
+      Expression<T> Function($$TurnosEscalaTableAnnotationComposer a) f) {
+    final $$TurnosEscalaTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.turnosEscala,
+        getReferencedColumn: (t) => t.colaboradorId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TurnosEscalaTableAnnotationComposer(
+              $db: $db,
+              $table: $db.turnosEscala,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<T> alocacoesRefs<T extends Object>(
+      Expression<T> Function($$AlocacoesTableAnnotationComposer a) f) {
+    final $$AlocacoesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.alocacoes,
+        getReferencedColumn: (t) => t.colaboradorId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AlocacoesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.alocacoes,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$ColaboradoresTableTableManager extends RootTableManager<
@@ -3483,12 +4963,10 @@ class $$ColaboradoresTableTableManager extends RootTableManager<
     $$ColaboradoresTableAnnotationComposer,
     $$ColaboradoresTableCreateCompanionBuilder,
     $$ColaboradoresTableUpdateCompanionBuilder,
-    (
-      ColaboradorTable,
-      BaseReferences<_$AppDatabase, $ColaboradoresTable, ColaboradorTable>
-    ),
+    (ColaboradorTable, $$ColaboradoresTableReferences),
     ColaboradorTable,
-    PrefetchHooks Function()> {
+    PrefetchHooks Function(
+        {bool fiscalId, bool turnosEscalaRefs, bool alocacoesRefs})> {
   $$ColaboradoresTableTableManager(_$AppDatabase db, $ColaboradoresTable table)
       : super(TableManagerState(
           db: db,
@@ -3552,9 +5030,79 @@ class $$ColaboradoresTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable(table),
+                    $$ColaboradoresTableReferences(db, table, e)
+                  ))
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: (
+              {fiscalId = false,
+              turnosEscalaRefs = false,
+              alocacoesRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (turnosEscalaRefs) db.turnosEscala,
+                if (alocacoesRefs) db.alocacoes
+              ],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (fiscalId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.fiscalId,
+                    referencedTable:
+                        $$ColaboradoresTableReferences._fiscalIdTable(db),
+                    referencedColumn:
+                        $$ColaboradoresTableReferences._fiscalIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (turnosEscalaRefs)
+                    await $_getPrefetchedData<ColaboradorTable, $ColaboradoresTable,
+                            TurnoTable>(
+                        currentTable: table,
+                        referencedTable: $$ColaboradoresTableReferences
+                            ._turnosEscalaRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ColaboradoresTableReferences(db, table, p0)
+                                .turnosEscalaRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.colaboradorId == item.id),
+                        typedResults: items),
+                  if (alocacoesRefs)
+                    await $_getPrefetchedData<ColaboradorTable,
+                            $ColaboradoresTable, AlocacaoTable>(
+                        currentTable: table,
+                        referencedTable: $$ColaboradoresTableReferences
+                            ._alocacoesRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ColaboradoresTableReferences(db, table, p0)
+                                .alocacoesRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.colaboradorId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
         ));
 }
 
@@ -3567,12 +5115,10 @@ typedef $$ColaboradoresTableProcessedTableManager = ProcessedTableManager<
     $$ColaboradoresTableAnnotationComposer,
     $$ColaboradoresTableCreateCompanionBuilder,
     $$ColaboradoresTableUpdateCompanionBuilder,
-    (
-      ColaboradorTable,
-      BaseReferences<_$AppDatabase, $ColaboradoresTable, ColaboradorTable>
-    ),
+    (ColaboradorTable, $$ColaboradoresTableReferences),
     ColaboradorTable,
-    PrefetchHooks Function()>;
+    PrefetchHooks Function(
+        {bool fiscalId, bool turnosEscalaRefs, bool alocacoesRefs})>;
 typedef $$CaixasTableCreateCompanionBuilder = CaixasCompanion Function({
   required String id,
   required String fiscalId,
@@ -3600,6 +5146,39 @@ typedef $$CaixasTableUpdateCompanionBuilder = CaixasCompanion Function({
   Value<int> rowid,
 });
 
+final class $$CaixasTableReferences
+    extends BaseReferences<_$AppDatabase, $CaixasTable, CaixaTable> {
+  $$CaixasTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $FiscaisTable _fiscalIdTable(_$AppDatabase db) => db.fiscais
+      .createAlias($_aliasNameGenerator(db.caixas.fiscalId, db.fiscais.id));
+
+  $$FiscaisTableProcessedTableManager get fiscalId {
+    final $_column = $_itemColumn<String>('fiscal_id')!;
+
+    final manager = $$FiscaisTableTableManager($_db, $_db.fiscais)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_fiscalIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static MultiTypedResultKey<$AlocacoesTable, List<AlocacaoTable>>
+      _alocacoesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+          db.alocacoes,
+          aliasName: $_aliasNameGenerator(db.caixas.id, db.alocacoes.caixaId));
+
+  $$AlocacoesTableProcessedTableManager get alocacoesRefs {
+    final manager = $$AlocacoesTableTableManager($_db, $_db.alocacoes)
+        .filter((f) => f.caixaId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_alocacoesRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
 class $$CaixasTableFilterComposer
     extends Composer<_$AppDatabase, $CaixasTable> {
   $$CaixasTableFilterComposer({
@@ -3611,9 +5190,6 @@ class $$CaixasTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get fiscalId => $composableBuilder(
-      column: $table.fiscalId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get numero => $composableBuilder(
       column: $table.numero, builder: (column) => ColumnFilters(column));
@@ -3638,6 +5214,47 @@ class $$CaixasTableFilterComposer
 
   ColumnFilters<DateTime> get lastSyncAt => $composableBuilder(
       column: $table.lastSyncAt, builder: (column) => ColumnFilters(column));
+
+  $$FiscaisTableFilterComposer get fiscalId {
+    final $$FiscaisTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.fiscalId,
+        referencedTable: $db.fiscais,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$FiscaisTableFilterComposer(
+              $db: $db,
+              $table: $db.fiscais,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  Expression<bool> alocacoesRefs(
+      Expression<bool> Function($$AlocacoesTableFilterComposer f) f) {
+    final $$AlocacoesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.alocacoes,
+        getReferencedColumn: (t) => t.caixaId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AlocacoesTableFilterComposer(
+              $db: $db,
+              $table: $db.alocacoes,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$CaixasTableOrderingComposer
@@ -3651,9 +5268,6 @@ class $$CaixasTableOrderingComposer
   });
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get fiscalId => $composableBuilder(
-      column: $table.fiscalId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get numero => $composableBuilder(
       column: $table.numero, builder: (column) => ColumnOrderings(column));
@@ -3679,6 +5293,26 @@ class $$CaixasTableOrderingComposer
 
   ColumnOrderings<DateTime> get lastSyncAt => $composableBuilder(
       column: $table.lastSyncAt, builder: (column) => ColumnOrderings(column));
+
+  $$FiscaisTableOrderingComposer get fiscalId {
+    final $$FiscaisTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.fiscalId,
+        referencedTable: $db.fiscais,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$FiscaisTableOrderingComposer(
+              $db: $db,
+              $table: $db.fiscais,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$CaixasTableAnnotationComposer
@@ -3692,9 +5326,6 @@ class $$CaixasTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get fiscalId =>
-      $composableBuilder(column: $table.fiscalId, builder: (column) => column);
 
   GeneratedColumn<int> get numero =>
       $composableBuilder(column: $table.numero, builder: (column) => column);
@@ -3719,6 +5350,47 @@ class $$CaixasTableAnnotationComposer
 
   GeneratedColumn<DateTime> get lastSyncAt => $composableBuilder(
       column: $table.lastSyncAt, builder: (column) => column);
+
+  $$FiscaisTableAnnotationComposer get fiscalId {
+    final $$FiscaisTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.fiscalId,
+        referencedTable: $db.fiscais,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$FiscaisTableAnnotationComposer(
+              $db: $db,
+              $table: $db.fiscais,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  Expression<T> alocacoesRefs<T extends Object>(
+      Expression<T> Function($$AlocacoesTableAnnotationComposer a) f) {
+    final $$AlocacoesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.alocacoes,
+        getReferencedColumn: (t) => t.caixaId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AlocacoesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.alocacoes,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$CaixasTableTableManager extends RootTableManager<
@@ -3730,9 +5402,9 @@ class $$CaixasTableTableManager extends RootTableManager<
     $$CaixasTableAnnotationComposer,
     $$CaixasTableCreateCompanionBuilder,
     $$CaixasTableUpdateCompanionBuilder,
-    (CaixaTable, BaseReferences<_$AppDatabase, $CaixasTable, CaixaTable>),
+    (CaixaTable, $$CaixasTableReferences),
     CaixaTable,
-    PrefetchHooks Function()> {
+    PrefetchHooks Function({bool fiscalId, bool alocacoesRefs})> {
   $$CaixasTableTableManager(_$AppDatabase db, $CaixasTable table)
       : super(TableManagerState(
           db: db,
@@ -3796,9 +5468,57 @@ class $$CaixasTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) =>
+                  (e.readTable(table), $$CaixasTableReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({fiscalId = false, alocacoesRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (alocacoesRefs) db.alocacoes],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (fiscalId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.fiscalId,
+                    referencedTable: $$CaixasTableReferences._fiscalIdTable(db),
+                    referencedColumn:
+                        $$CaixasTableReferences._fiscalIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (alocacoesRefs)
+                    await $_getPrefetchedData<CaixaTable, $CaixasTable,
+                            AlocacaoTable>(
+                        currentTable: table,
+                        referencedTable:
+                            $$CaixasTableReferences._alocacoesRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$CaixasTableReferences(db, table, p0)
+                                .alocacoesRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.caixaId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
         ));
 }
 
@@ -3811,9 +5531,9 @@ typedef $$CaixasTableProcessedTableManager = ProcessedTableManager<
     $$CaixasTableAnnotationComposer,
     $$CaixasTableCreateCompanionBuilder,
     $$CaixasTableUpdateCompanionBuilder,
-    (CaixaTable, BaseReferences<_$AppDatabase, $CaixasTable, CaixaTable>),
+    (CaixaTable, $$CaixasTableReferences),
     CaixaTable,
-    PrefetchHooks Function()>;
+    PrefetchHooks Function({bool fiscalId, bool alocacoesRefs})>;
 typedef $$TurnosEscalaTableCreateCompanionBuilder = TurnosEscalaCompanion
     Function({
   required String id,
@@ -3847,6 +5567,26 @@ typedef $$TurnosEscalaTableUpdateCompanionBuilder = TurnosEscalaCompanion
   Value<int> rowid,
 });
 
+final class $$TurnosEscalaTableReferences
+    extends BaseReferences<_$AppDatabase, $TurnosEscalaTable, TurnoTable> {
+  $$TurnosEscalaTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ColaboradoresTable _colaboradorIdTable(_$AppDatabase db) =>
+      db.colaboradores.createAlias($_aliasNameGenerator(
+          db.turnosEscala.colaboradorId, db.colaboradores.id));
+
+  $$ColaboradoresTableProcessedTableManager get colaboradorId {
+    final $_column = $_itemColumn<String>('colaborador_id')!;
+
+    final manager = $$ColaboradoresTableTableManager($_db, $_db.colaboradores)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_colaboradorIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
 class $$TurnosEscalaTableFilterComposer
     extends Composer<_$AppDatabase, $TurnosEscalaTable> {
   $$TurnosEscalaTableFilterComposer({
@@ -3861,9 +5601,6 @@ class $$TurnosEscalaTableFilterComposer
 
   ColumnFilters<String> get escalaId => $composableBuilder(
       column: $table.escalaId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get colaboradorId => $composableBuilder(
-      column: $table.colaboradorId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get data => $composableBuilder(
       column: $table.data, builder: (column) => ColumnFilters(column));
@@ -3894,6 +5631,26 @@ class $$TurnosEscalaTableFilterComposer
 
   ColumnFilters<DateTime> get lastSyncAt => $composableBuilder(
       column: $table.lastSyncAt, builder: (column) => ColumnFilters(column));
+
+  $$ColaboradoresTableFilterComposer get colaboradorId {
+    final $$ColaboradoresTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.colaboradorId,
+        referencedTable: $db.colaboradores,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ColaboradoresTableFilterComposer(
+              $db: $db,
+              $table: $db.colaboradores,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$TurnosEscalaTableOrderingComposer
@@ -3910,10 +5667,6 @@ class $$TurnosEscalaTableOrderingComposer
 
   ColumnOrderings<String> get escalaId => $composableBuilder(
       column: $table.escalaId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get colaboradorId => $composableBuilder(
-      column: $table.colaboradorId,
-      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get data => $composableBuilder(
       column: $table.data, builder: (column) => ColumnOrderings(column));
@@ -3945,6 +5698,26 @@ class $$TurnosEscalaTableOrderingComposer
 
   ColumnOrderings<DateTime> get lastSyncAt => $composableBuilder(
       column: $table.lastSyncAt, builder: (column) => ColumnOrderings(column));
+
+  $$ColaboradoresTableOrderingComposer get colaboradorId {
+    final $$ColaboradoresTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.colaboradorId,
+        referencedTable: $db.colaboradores,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ColaboradoresTableOrderingComposer(
+              $db: $db,
+              $table: $db.colaboradores,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$TurnosEscalaTableAnnotationComposer
@@ -3961,9 +5734,6 @@ class $$TurnosEscalaTableAnnotationComposer
 
   GeneratedColumn<String> get escalaId =>
       $composableBuilder(column: $table.escalaId, builder: (column) => column);
-
-  GeneratedColumn<String> get colaboradorId => $composableBuilder(
-      column: $table.colaboradorId, builder: (column) => column);
 
   GeneratedColumn<DateTime> get data =>
       $composableBuilder(column: $table.data, builder: (column) => column);
@@ -3991,6 +5761,26 @@ class $$TurnosEscalaTableAnnotationComposer
 
   GeneratedColumn<DateTime> get lastSyncAt => $composableBuilder(
       column: $table.lastSyncAt, builder: (column) => column);
+
+  $$ColaboradoresTableAnnotationComposer get colaboradorId {
+    final $$ColaboradoresTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.colaboradorId,
+        referencedTable: $db.colaboradores,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ColaboradoresTableAnnotationComposer(
+              $db: $db,
+              $table: $db.colaboradores,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$TurnosEscalaTableTableManager extends RootTableManager<
@@ -4002,9 +5792,9 @@ class $$TurnosEscalaTableTableManager extends RootTableManager<
     $$TurnosEscalaTableAnnotationComposer,
     $$TurnosEscalaTableCreateCompanionBuilder,
     $$TurnosEscalaTableUpdateCompanionBuilder,
-    (TurnoTable, BaseReferences<_$AppDatabase, $TurnosEscalaTable, TurnoTable>),
+    (TurnoTable, $$TurnosEscalaTableReferences),
     TurnoTable,
-    PrefetchHooks Function()> {
+    PrefetchHooks Function({bool colaboradorId})> {
   $$TurnosEscalaTableTableManager(_$AppDatabase db, $TurnosEscalaTable table)
       : super(TableManagerState(
           db: db,
@@ -4076,9 +5866,47 @@ class $$TurnosEscalaTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable(table),
+                    $$TurnosEscalaTableReferences(db, table, e)
+                  ))
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({colaboradorId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (colaboradorId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.colaboradorId,
+                    referencedTable:
+                        $$TurnosEscalaTableReferences._colaboradorIdTable(db),
+                    referencedColumn: $$TurnosEscalaTableReferences
+                        ._colaboradorIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
         ));
 }
 
@@ -4091,9 +5919,9 @@ typedef $$TurnosEscalaTableProcessedTableManager = ProcessedTableManager<
     $$TurnosEscalaTableAnnotationComposer,
     $$TurnosEscalaTableCreateCompanionBuilder,
     $$TurnosEscalaTableUpdateCompanionBuilder,
-    (TurnoTable, BaseReferences<_$AppDatabase, $TurnosEscalaTable, TurnoTable>),
+    (TurnoTable, $$TurnosEscalaTableReferences),
     TurnoTable,
-    PrefetchHooks Function()>;
+    PrefetchHooks Function({bool colaboradorId})>;
 typedef $$AlocacoesTableCreateCompanionBuilder = AlocacoesCompanion Function({
   required String id,
   required String colaboradorId,
@@ -4123,6 +5951,40 @@ typedef $$AlocacoesTableUpdateCompanionBuilder = AlocacoesCompanion Function({
   Value<int> rowid,
 });
 
+final class $$AlocacoesTableReferences
+    extends BaseReferences<_$AppDatabase, $AlocacoesTable, AlocacaoTable> {
+  $$AlocacoesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ColaboradoresTable _colaboradorIdTable(_$AppDatabase db) =>
+      db.colaboradores.createAlias($_aliasNameGenerator(
+          db.alocacoes.colaboradorId, db.colaboradores.id));
+
+  $$ColaboradoresTableProcessedTableManager get colaboradorId {
+    final $_column = $_itemColumn<String>('colaborador_id')!;
+
+    final manager = $$ColaboradoresTableTableManager($_db, $_db.colaboradores)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_colaboradorIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static $CaixasTable _caixaIdTable(_$AppDatabase db) => db.caixas
+      .createAlias($_aliasNameGenerator(db.alocacoes.caixaId, db.caixas.id));
+
+  $$CaixasTableProcessedTableManager get caixaId {
+    final $_column = $_itemColumn<String>('caixa_id')!;
+
+    final manager = $$CaixasTableTableManager($_db, $_db.caixas)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_caixaIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
 class $$AlocacoesTableFilterComposer
     extends Composer<_$AppDatabase, $AlocacoesTable> {
   $$AlocacoesTableFilterComposer({
@@ -4134,12 +5996,6 @@ class $$AlocacoesTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get colaboradorId => $composableBuilder(
-      column: $table.colaboradorId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get caixaId => $composableBuilder(
-      column: $table.caixaId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get turnoEscalaId => $composableBuilder(
       column: $table.turnoEscalaId, builder: (column) => ColumnFilters(column));
@@ -4165,6 +6021,46 @@ class $$AlocacoesTableFilterComposer
 
   ColumnFilters<DateTime> get lastSyncAt => $composableBuilder(
       column: $table.lastSyncAt, builder: (column) => ColumnFilters(column));
+
+  $$ColaboradoresTableFilterComposer get colaboradorId {
+    final $$ColaboradoresTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.colaboradorId,
+        referencedTable: $db.colaboradores,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ColaboradoresTableFilterComposer(
+              $db: $db,
+              $table: $db.colaboradores,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$CaixasTableFilterComposer get caixaId {
+    final $$CaixasTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.caixaId,
+        referencedTable: $db.caixas,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$CaixasTableFilterComposer(
+              $db: $db,
+              $table: $db.caixas,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$AlocacoesTableOrderingComposer
@@ -4178,13 +6074,6 @@ class $$AlocacoesTableOrderingComposer
   });
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get colaboradorId => $composableBuilder(
-      column: $table.colaboradorId,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get caixaId => $composableBuilder(
-      column: $table.caixaId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get turnoEscalaId => $composableBuilder(
       column: $table.turnoEscalaId,
@@ -4211,6 +6100,46 @@ class $$AlocacoesTableOrderingComposer
 
   ColumnOrderings<DateTime> get lastSyncAt => $composableBuilder(
       column: $table.lastSyncAt, builder: (column) => ColumnOrderings(column));
+
+  $$ColaboradoresTableOrderingComposer get colaboradorId {
+    final $$ColaboradoresTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.colaboradorId,
+        referencedTable: $db.colaboradores,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ColaboradoresTableOrderingComposer(
+              $db: $db,
+              $table: $db.colaboradores,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$CaixasTableOrderingComposer get caixaId {
+    final $$CaixasTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.caixaId,
+        referencedTable: $db.caixas,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$CaixasTableOrderingComposer(
+              $db: $db,
+              $table: $db.caixas,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$AlocacoesTableAnnotationComposer
@@ -4224,12 +6153,6 @@ class $$AlocacoesTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get colaboradorId => $composableBuilder(
-      column: $table.colaboradorId, builder: (column) => column);
-
-  GeneratedColumn<String> get caixaId =>
-      $composableBuilder(column: $table.caixaId, builder: (column) => column);
 
   GeneratedColumn<String> get turnoEscalaId => $composableBuilder(
       column: $table.turnoEscalaId, builder: (column) => column);
@@ -4254,6 +6177,46 @@ class $$AlocacoesTableAnnotationComposer
 
   GeneratedColumn<DateTime> get lastSyncAt => $composableBuilder(
       column: $table.lastSyncAt, builder: (column) => column);
+
+  $$ColaboradoresTableAnnotationComposer get colaboradorId {
+    final $$ColaboradoresTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.colaboradorId,
+        referencedTable: $db.colaboradores,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ColaboradoresTableAnnotationComposer(
+              $db: $db,
+              $table: $db.colaboradores,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$CaixasTableAnnotationComposer get caixaId {
+    final $$CaixasTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.caixaId,
+        referencedTable: $db.caixas,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$CaixasTableAnnotationComposer(
+              $db: $db,
+              $table: $db.caixas,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$AlocacoesTableTableManager extends RootTableManager<
@@ -4265,12 +6228,9 @@ class $$AlocacoesTableTableManager extends RootTableManager<
     $$AlocacoesTableAnnotationComposer,
     $$AlocacoesTableCreateCompanionBuilder,
     $$AlocacoesTableUpdateCompanionBuilder,
-    (
-      AlocacaoTable,
-      BaseReferences<_$AppDatabase, $AlocacoesTable, AlocacaoTable>
-    ),
+    (AlocacaoTable, $$AlocacoesTableReferences),
     AlocacaoTable,
-    PrefetchHooks Function()> {
+    PrefetchHooks Function({bool colaboradorId, bool caixaId})> {
   $$AlocacoesTableTableManager(_$AppDatabase db, $AlocacoesTable table)
       : super(TableManagerState(
           db: db,
@@ -4338,9 +6298,56 @@ class $$AlocacoesTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable(table),
+                    $$AlocacoesTableReferences(db, table, e)
+                  ))
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({colaboradorId = false, caixaId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (colaboradorId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.colaboradorId,
+                    referencedTable:
+                        $$AlocacoesTableReferences._colaboradorIdTable(db),
+                    referencedColumn:
+                        $$AlocacoesTableReferences._colaboradorIdTable(db).id,
+                  ) as T;
+                }
+                if (caixaId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.caixaId,
+                    referencedTable:
+                        $$AlocacoesTableReferences._caixaIdTable(db),
+                    referencedColumn:
+                        $$AlocacoesTableReferences._caixaIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
         ));
 }
 
@@ -4353,11 +6360,518 @@ typedef $$AlocacoesTableProcessedTableManager = ProcessedTableManager<
     $$AlocacoesTableAnnotationComposer,
     $$AlocacoesTableCreateCompanionBuilder,
     $$AlocacoesTableUpdateCompanionBuilder,
-    (
-      AlocacaoTable,
-      BaseReferences<_$AppDatabase, $AlocacoesTable, AlocacaoTable>
-    ),
+    (AlocacaoTable, $$AlocacoesTableReferences),
     AlocacaoTable,
+    PrefetchHooks Function({bool colaboradorId, bool caixaId})>;
+typedef $$EventosTurnoTableCreateCompanionBuilder = EventosTurnoCompanion
+    Function({
+  required String id,
+  required String fiscalId,
+  required String tipo,
+  required DateTime timestamp,
+  Value<String?> colaboradorNome,
+  Value<String?> caixaNome,
+  Value<String?> detalhe,
+  Value<DateTime> createdAt,
+  Value<int> rowid,
+});
+typedef $$EventosTurnoTableUpdateCompanionBuilder = EventosTurnoCompanion
+    Function({
+  Value<String> id,
+  Value<String> fiscalId,
+  Value<String> tipo,
+  Value<DateTime> timestamp,
+  Value<String?> colaboradorNome,
+  Value<String?> caixaNome,
+  Value<String?> detalhe,
+  Value<DateTime> createdAt,
+  Value<int> rowid,
+});
+
+class $$EventosTurnoTableFilterComposer
+    extends Composer<_$AppDatabase, $EventosTurnoTable> {
+  $$EventosTurnoTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get fiscalId => $composableBuilder(
+      column: $table.fiscalId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tipo => $composableBuilder(
+      column: $table.tipo, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get colaboradorNome => $composableBuilder(
+      column: $table.colaboradorNome,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get caixaNome => $composableBuilder(
+      column: $table.caixaNome, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get detalhe => $composableBuilder(
+      column: $table.detalhe, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$EventosTurnoTableOrderingComposer
+    extends Composer<_$AppDatabase, $EventosTurnoTable> {
+  $$EventosTurnoTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get fiscalId => $composableBuilder(
+      column: $table.fiscalId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tipo => $composableBuilder(
+      column: $table.tipo, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get colaboradorNome => $composableBuilder(
+      column: $table.colaboradorNome,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get caixaNome => $composableBuilder(
+      column: $table.caixaNome, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get detalhe => $composableBuilder(
+      column: $table.detalhe, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$EventosTurnoTableAnnotationComposer
+    extends Composer<_$AppDatabase, $EventosTurnoTable> {
+  $$EventosTurnoTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get fiscalId =>
+      $composableBuilder(column: $table.fiscalId, builder: (column) => column);
+
+  GeneratedColumn<String> get tipo =>
+      $composableBuilder(column: $table.tipo, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<String> get colaboradorNome => $composableBuilder(
+      column: $table.colaboradorNome, builder: (column) => column);
+
+  GeneratedColumn<String> get caixaNome =>
+      $composableBuilder(column: $table.caixaNome, builder: (column) => column);
+
+  GeneratedColumn<String> get detalhe =>
+      $composableBuilder(column: $table.detalhe, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$EventosTurnoTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $EventosTurnoTable,
+    EventoTurnoTable,
+    $$EventosTurnoTableFilterComposer,
+    $$EventosTurnoTableOrderingComposer,
+    $$EventosTurnoTableAnnotationComposer,
+    $$EventosTurnoTableCreateCompanionBuilder,
+    $$EventosTurnoTableUpdateCompanionBuilder,
+    (
+      EventoTurnoTable,
+      BaseReferences<_$AppDatabase, $EventosTurnoTable, EventoTurnoTable>
+    ),
+    EventoTurnoTable,
+    PrefetchHooks Function()> {
+  $$EventosTurnoTableTableManager(_$AppDatabase db, $EventosTurnoTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$EventosTurnoTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$EventosTurnoTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$EventosTurnoTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> fiscalId = const Value.absent(),
+            Value<String> tipo = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<String?> colaboradorNome = const Value.absent(),
+            Value<String?> caixaNome = const Value.absent(),
+            Value<String?> detalhe = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              EventosTurnoCompanion(
+            id: id,
+            fiscalId: fiscalId,
+            tipo: tipo,
+            timestamp: timestamp,
+            colaboradorNome: colaboradorNome,
+            caixaNome: caixaNome,
+            detalhe: detalhe,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String fiscalId,
+            required String tipo,
+            required DateTime timestamp,
+            Value<String?> colaboradorNome = const Value.absent(),
+            Value<String?> caixaNome = const Value.absent(),
+            Value<String?> detalhe = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              EventosTurnoCompanion.insert(
+            id: id,
+            fiscalId: fiscalId,
+            tipo: tipo,
+            timestamp: timestamp,
+            colaboradorNome: colaboradorNome,
+            caixaNome: caixaNome,
+            detalhe: detalhe,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$EventosTurnoTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $EventosTurnoTable,
+    EventoTurnoTable,
+    $$EventosTurnoTableFilterComposer,
+    $$EventosTurnoTableOrderingComposer,
+    $$EventosTurnoTableAnnotationComposer,
+    $$EventosTurnoTableCreateCompanionBuilder,
+    $$EventosTurnoTableUpdateCompanionBuilder,
+    (
+      EventoTurnoTable,
+      BaseReferences<_$AppDatabase, $EventosTurnoTable, EventoTurnoTable>
+    ),
+    EventoTurnoTable,
+    PrefetchHooks Function()>;
+typedef $$RelatoriosDiaTableCreateCompanionBuilder = RelatoriosDiaCompanion
+    Function({
+  required String id,
+  required String fiscalId,
+  required String dataStr,
+  required DateTime turnoIniciadoEm,
+  required DateTime turnoEncerradoEm,
+  Value<int> totalAlocacoes,
+  Value<int> totalColaboradores,
+  Value<int> totalCafes,
+  Value<int> totalIntervalos,
+  Value<int> totalEmpacotadores,
+  Value<String> eventosJson,
+  Value<DateTime> createdAt,
+  Value<int> rowid,
+});
+typedef $$RelatoriosDiaTableUpdateCompanionBuilder = RelatoriosDiaCompanion
+    Function({
+  Value<String> id,
+  Value<String> fiscalId,
+  Value<String> dataStr,
+  Value<DateTime> turnoIniciadoEm,
+  Value<DateTime> turnoEncerradoEm,
+  Value<int> totalAlocacoes,
+  Value<int> totalColaboradores,
+  Value<int> totalCafes,
+  Value<int> totalIntervalos,
+  Value<int> totalEmpacotadores,
+  Value<String> eventosJson,
+  Value<DateTime> createdAt,
+  Value<int> rowid,
+});
+
+class $$RelatoriosDiaTableFilterComposer
+    extends Composer<_$AppDatabase, $RelatoriosDiaTable> {
+  $$RelatoriosDiaTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get fiscalId => $composableBuilder(
+      column: $table.fiscalId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get dataStr => $composableBuilder(
+      column: $table.dataStr, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get turnoIniciadoEm => $composableBuilder(
+      column: $table.turnoIniciadoEm,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get turnoEncerradoEm => $composableBuilder(
+      column: $table.turnoEncerradoEm,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get totalAlocacoes => $composableBuilder(
+      column: $table.totalAlocacoes,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get totalColaboradores => $composableBuilder(
+      column: $table.totalColaboradores,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get totalCafes => $composableBuilder(
+      column: $table.totalCafes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get totalIntervalos => $composableBuilder(
+      column: $table.totalIntervalos,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get totalEmpacotadores => $composableBuilder(
+      column: $table.totalEmpacotadores,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get eventosJson => $composableBuilder(
+      column: $table.eventosJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$RelatoriosDiaTableOrderingComposer
+    extends Composer<_$AppDatabase, $RelatoriosDiaTable> {
+  $$RelatoriosDiaTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get fiscalId => $composableBuilder(
+      column: $table.fiscalId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get dataStr => $composableBuilder(
+      column: $table.dataStr, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get turnoIniciadoEm => $composableBuilder(
+      column: $table.turnoIniciadoEm,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get turnoEncerradoEm => $composableBuilder(
+      column: $table.turnoEncerradoEm,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get totalAlocacoes => $composableBuilder(
+      column: $table.totalAlocacoes,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get totalColaboradores => $composableBuilder(
+      column: $table.totalColaboradores,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get totalCafes => $composableBuilder(
+      column: $table.totalCafes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get totalIntervalos => $composableBuilder(
+      column: $table.totalIntervalos,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get totalEmpacotadores => $composableBuilder(
+      column: $table.totalEmpacotadores,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get eventosJson => $composableBuilder(
+      column: $table.eventosJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$RelatoriosDiaTableAnnotationComposer
+    extends Composer<_$AppDatabase, $RelatoriosDiaTable> {
+  $$RelatoriosDiaTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get fiscalId =>
+      $composableBuilder(column: $table.fiscalId, builder: (column) => column);
+
+  GeneratedColumn<String> get dataStr =>
+      $composableBuilder(column: $table.dataStr, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get turnoIniciadoEm => $composableBuilder(
+      column: $table.turnoIniciadoEm, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get turnoEncerradoEm => $composableBuilder(
+      column: $table.turnoEncerradoEm, builder: (column) => column);
+
+  GeneratedColumn<int> get totalAlocacoes => $composableBuilder(
+      column: $table.totalAlocacoes, builder: (column) => column);
+
+  GeneratedColumn<int> get totalColaboradores => $composableBuilder(
+      column: $table.totalColaboradores, builder: (column) => column);
+
+  GeneratedColumn<int> get totalCafes => $composableBuilder(
+      column: $table.totalCafes, builder: (column) => column);
+
+  GeneratedColumn<int> get totalIntervalos => $composableBuilder(
+      column: $table.totalIntervalos, builder: (column) => column);
+
+  GeneratedColumn<int> get totalEmpacotadores => $composableBuilder(
+      column: $table.totalEmpacotadores, builder: (column) => column);
+
+  GeneratedColumn<String> get eventosJson => $composableBuilder(
+      column: $table.eventosJson, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$RelatoriosDiaTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $RelatoriosDiaTable,
+    RelatorioDiaTable,
+    $$RelatoriosDiaTableFilterComposer,
+    $$RelatoriosDiaTableOrderingComposer,
+    $$RelatoriosDiaTableAnnotationComposer,
+    $$RelatoriosDiaTableCreateCompanionBuilder,
+    $$RelatoriosDiaTableUpdateCompanionBuilder,
+    (
+      RelatorioDiaTable,
+      BaseReferences<_$AppDatabase, $RelatoriosDiaTable, RelatorioDiaTable>
+    ),
+    RelatorioDiaTable,
+    PrefetchHooks Function()> {
+  $$RelatoriosDiaTableTableManager(_$AppDatabase db, $RelatoriosDiaTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RelatoriosDiaTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$RelatoriosDiaTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$RelatoriosDiaTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> fiscalId = const Value.absent(),
+            Value<String> dataStr = const Value.absent(),
+            Value<DateTime> turnoIniciadoEm = const Value.absent(),
+            Value<DateTime> turnoEncerradoEm = const Value.absent(),
+            Value<int> totalAlocacoes = const Value.absent(),
+            Value<int> totalColaboradores = const Value.absent(),
+            Value<int> totalCafes = const Value.absent(),
+            Value<int> totalIntervalos = const Value.absent(),
+            Value<int> totalEmpacotadores = const Value.absent(),
+            Value<String> eventosJson = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              RelatoriosDiaCompanion(
+            id: id,
+            fiscalId: fiscalId,
+            dataStr: dataStr,
+            turnoIniciadoEm: turnoIniciadoEm,
+            turnoEncerradoEm: turnoEncerradoEm,
+            totalAlocacoes: totalAlocacoes,
+            totalColaboradores: totalColaboradores,
+            totalCafes: totalCafes,
+            totalIntervalos: totalIntervalos,
+            totalEmpacotadores: totalEmpacotadores,
+            eventosJson: eventosJson,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String fiscalId,
+            required String dataStr,
+            required DateTime turnoIniciadoEm,
+            required DateTime turnoEncerradoEm,
+            Value<int> totalAlocacoes = const Value.absent(),
+            Value<int> totalColaboradores = const Value.absent(),
+            Value<int> totalCafes = const Value.absent(),
+            Value<int> totalIntervalos = const Value.absent(),
+            Value<int> totalEmpacotadores = const Value.absent(),
+            Value<String> eventosJson = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              RelatoriosDiaCompanion.insert(
+            id: id,
+            fiscalId: fiscalId,
+            dataStr: dataStr,
+            turnoIniciadoEm: turnoIniciadoEm,
+            turnoEncerradoEm: turnoEncerradoEm,
+            totalAlocacoes: totalAlocacoes,
+            totalColaboradores: totalColaboradores,
+            totalCafes: totalCafes,
+            totalIntervalos: totalIntervalos,
+            totalEmpacotadores: totalEmpacotadores,
+            eventosJson: eventosJson,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$RelatoriosDiaTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $RelatoriosDiaTable,
+    RelatorioDiaTable,
+    $$RelatoriosDiaTableFilterComposer,
+    $$RelatoriosDiaTableOrderingComposer,
+    $$RelatoriosDiaTableAnnotationComposer,
+    $$RelatoriosDiaTableCreateCompanionBuilder,
+    $$RelatoriosDiaTableUpdateCompanionBuilder,
+    (
+      RelatorioDiaTable,
+      BaseReferences<_$AppDatabase, $RelatoriosDiaTable, RelatorioDiaTable>
+    ),
+    RelatorioDiaTable,
     PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
@@ -4373,4 +6887,8 @@ class $AppDatabaseManager {
       $$TurnosEscalaTableTableManager(_db, _db.turnosEscala);
   $$AlocacoesTableTableManager get alocacoes =>
       $$AlocacoesTableTableManager(_db, _db.alocacoes);
+  $$EventosTurnoTableTableManager get eventosTurno =>
+      $$EventosTurnoTableTableManager(_db, _db.eventosTurno);
+  $$RelatoriosDiaTableTableManager get relatoriosDia =>
+      $$RelatoriosDiaTableTableManager(_db, _db.relatoriosDia);
 }

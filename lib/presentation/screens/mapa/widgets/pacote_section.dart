@@ -6,10 +6,12 @@ import '../../../../core/constants/dimensions.dart';
 import '../../../../core/constants/text_styles.dart';
 import '../../../../domain/enums/departamento_tipo.dart';
 import '../../../../domain/entities/colaborador.dart';
+import '../../../../domain/entities/evento_turno.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/cafe_provider.dart';
 import '../../../providers/colaborador_provider.dart';
 import '../../../providers/escala_provider.dart';
+import '../../../providers/evento_turno_provider.dart';
 import '../../../providers/pacote_plantao_provider.dart';
 import 'pacote_detalhes_sheet.dart';
 
@@ -25,6 +27,8 @@ class PacoteSection extends StatelessWidget {
     final colaboradorProvider =
         Provider.of<ColaboradorProvider>(context, listen: false);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final eventoProvider =
+        Provider.of<EventoTurnoProvider>(context, listen: false);
     final escalaProvider = Provider.of<EscalaProvider>(context, listen: false);
     // listen: true — CafeProvider notifica a cada segundo via Timer.periodic,
     // fazendo o countdown de intervalo atualizar automaticamente.
@@ -203,7 +207,14 @@ class PacoteSection extends StatelessWidget {
                     ),
                     deleteIcon: const Icon(Icons.close, size: 16),
                     deleteIconColor: Colors.red,
-                    onDeleted: () => plantaoProvider.remover(p.id),
+                    onDeleted: () {
+                      eventoProvider.registrar(
+                        fiscalId: authProvider.user?.id ?? '',
+                        tipo: TipoEvento.empacotadorRemovido,
+                        colaboradorNome: nome,
+                      );
+                      plantaoProvider.remover(p.id);
+                    },
                     onPressed: () => _showDetalhesEmpacotador(
                       context,
                       colaborador,
@@ -426,8 +437,16 @@ class _EmpacotadorPickerSheet extends StatelessWidget {
                           .copyWith(color: AppColors.textSecondary),
                     ),
                     onTap: () async {
+                      final eventoProviderPicker =
+                          Provider.of<EventoTurnoProvider>(context,
+                              listen: false);
                       Navigator.pop(context);
                       await plantaoProvider.adicionar(fiscalId, colaborador.id);
+                      eventoProviderPicker.registrar(
+                        fiscalId: fiscalId,
+                        tipo: TipoEvento.empacotadorAdicionado,
+                        colaboradorNome: colaborador.nome,
+                      );
                     },
                   );
                 },

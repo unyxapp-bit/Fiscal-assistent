@@ -5,8 +5,11 @@ import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../../domain/entities/colaborador.dart';
+import '../../../domain/entities/evento_turno.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/cafe_provider.dart';
 import '../../providers/colaborador_provider.dart';
+import '../../providers/evento_turno_provider.dart';
 
 class CafeScreen extends StatefulWidget {
   const CafeScreen({super.key});
@@ -334,6 +337,24 @@ class _TabEmIntervalo extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
+        final eventoProvider =
+            Provider.of<EventoTurnoProvider>(context, listen: false);
+        final fiscalId =
+            Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+
+        void finalizarComEvento(PausaCafe pausa) {
+          final tipo = pausa.duracaoMinutos <= 15
+              ? TipoEvento.cafeEncerrado
+              : TipoEvento.intervaloEncerrado;
+          eventoProvider.registrar(
+            fiscalId: fiscalId,
+            tipo: tipo,
+            colaboradorNome: pausa.colaboradorNome,
+            detalhe: '${pausa.duracaoMinutos} min',
+          );
+          provider.finalizarPausa(pausa.colaboradorId);
+        }
+
         final isTablet = constraints.maxWidth >= Dimensions.breakpointTablet;
         if (isTablet) {
           return GridView.builder(
@@ -352,8 +373,7 @@ class _TabEmIntervalo extends StatelessWidget {
               final pausa = provider.pausasAtivas[i];
               return _PausaAtivaCard(
                 pausa: pausa,
-                onFinalizar: () =>
-                    provider.finalizarPausa(pausa.colaboradorId),
+                onFinalizar: () => finalizarComEvento(pausa),
               );
             },
           );
@@ -365,7 +385,7 @@ class _TabEmIntervalo extends StatelessWidget {
             final pausa = provider.pausasAtivas[i];
             return _PausaAtivaCard(
               pausa: pausa,
-              onFinalizar: () => provider.finalizarPausa(pausa.colaboradorId),
+              onFinalizar: () => finalizarComEvento(pausa),
             );
           },
         );
@@ -659,10 +679,26 @@ class _SeletorRapidoSheet extends StatelessWidget {
               final isCafe = d <= 15;
               return ElevatedButton.icon(
                 onPressed: () {
+                  final eventoProvider = Provider.of<EventoTurnoProvider>(
+                      context,
+                      listen: false);
+                  final fiscalId =
+                      Provider.of<AuthProvider>(context, listen: false)
+                              .user
+                              ?.id ??
+                          '';
                   cafeProvider.iniciarPausa(
                     colaboradorId: colaborador.id,
                     colaboradorNome: colaborador.nome,
                     duracaoMinutos: d,
+                  );
+                  eventoProvider.registrar(
+                    fiscalId: fiscalId,
+                    tipo: isCafe
+                        ? TipoEvento.cafeIniciado
+                        : TipoEvento.intervaloIniciado,
+                    colaboradorNome: colaborador.nome,
+                    detalhe: '$d min',
                   );
                   Navigator.pop(context);
                 },
@@ -828,10 +864,26 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
                 onPressed: _colaboradorSelecionadoId == null
                     ? null
                     : () {
+                        final eventoProvider = Provider.of<EventoTurnoProvider>(
+                            context,
+                            listen: false);
+                        final fiscalId =
+                            Provider.of<AuthProvider>(context, listen: false)
+                                    .user
+                                    ?.id ??
+                                '';
                         widget.cafeProvider.iniciarPausa(
                           colaboradorId: _colaboradorSelecionadoId!,
                           colaboradorNome: _colaboradorSelecionadoNome!,
                           duracaoMinutos: _duracaoSelecionada,
+                        );
+                        eventoProvider.registrar(
+                          fiscalId: fiscalId,
+                          tipo: _duracaoSelecionada <= 15
+                              ? TipoEvento.cafeIniciado
+                              : TipoEvento.intervaloIniciado,
+                          colaboradorNome: _colaboradorSelecionadoNome!,
+                          detalhe: '$_duracaoSelecionada min',
                         );
                         Navigator.pop(context);
                       },
