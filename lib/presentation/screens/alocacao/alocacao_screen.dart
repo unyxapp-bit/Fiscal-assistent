@@ -5,9 +5,11 @@ import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../../domain/entities/caixa.dart';
+import '../../../domain/enums/departamento_tipo.dart';
 import '../../providers/alocacao_provider.dart';
 import '../../providers/caixa_provider.dart';
 import '../../providers/escala_provider.dart';
+import '../../providers/pacote_plantao_provider.dart';
 
 /// Tela de alocação — lista colaboradores disponíveis agora e permite
 /// alocar em um caixa com dois toques.
@@ -33,6 +35,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
       Provider.of<AlocacaoProvider>(context, listen: false)
           .loadAlocacoes(widget.fiscalId),
       Provider.of<EscalaProvider>(context, listen: false).load(),
+      Provider.of<PacotePlantaoProvider>(context, listen: false)
+          .load(widget.fiscalId),
     ]);
   }
 
@@ -72,6 +76,10 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     final caixaProvider = Provider.of<CaixaProvider>(context, listen: false);
     final alocacaoProvider =
         Provider.of<AlocacaoProvider>(context, listen: false);
+    final pacoteProvider =
+        Provider.of<PacotePlantaoProvider>(context, listen: false);
+
+    final isEmpacotador = turno.departamento == DepartamentoTipo.pacote;
 
     final disponiveis = caixaProvider.caixas
         .where((c) =>
@@ -85,7 +93,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius: BorderRadius.vertical(
+            top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (sheetCtx) => DraggableScrollableSheet(
         expand: false,
@@ -122,7 +131,9 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       children: [
                         Text(turno.colaboradorNome, style: AppTextStyles.h4),
                         Text(
-                          'Selecione o caixa',
+                          isEmpacotador
+                              ? 'Alocar como empacotador ou em caixa'
+                              : 'Selecione o caixa',
                           style: AppTextStyles.caption
                               .copyWith(color: AppColors.textSecondary),
                         ),
@@ -133,49 +144,118 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
               ),
             ),
             const Divider(height: 1),
-            if (disponiveis.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(24),
-                child: Text(
-                  'Nenhum caixa disponível no momento.',
-                  style: AppTextStyles.body,
-                ),
-              )
-            else
-              Expanded(
-                child: ListView.builder(
-                  controller: scrollCtrl,
-                  itemCount: disponiveis.length,
-                  itemBuilder: (_, i) {
-                    final caixa = disponiveis[i];
-                    return ListTile(
+            Expanded(
+              child: ListView(
+                controller: scrollCtrl,
+                children: [
+                  // ── Opção Empacotador (apenas para depto. pacote) ─────────
+                  if (isEmpacotador)
+                    ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: caixa.tipo.cor.withValues(alpha: 0.15),
-                        child: Icon(caixa.tipo.icone, color: caixa.tipo.cor),
+                        backgroundColor:
+                            const Color(0xFF795548).withValues(alpha: 0.15),
+                        child: const Icon(Icons.inventory_2,
+                            color: Color(0xFF795548)),
                       ),
-                      title: Text(caixa.nomeExibicao, style: AppTextStyles.h4),
-                      subtitle: Text(caixa.tipo.nome,
+                      title: const Text('Empacotador',
+                          style: TextStyle(fontWeight: FontWeight.w600)),
+                      subtitle: Text('Adicionar ao plantão de empacotadores',
                           style: AppTextStyles.caption
                               .copyWith(color: AppColors.textSecondary)),
                       trailing: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
+                          backgroundColor: const Color(0xFF795548),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 14, vertical: 8),
                         ),
-                        onPressed: () => _confirmarAlocacao(
-                            sheetCtx, turno, caixa, alocacaoProvider),
+                        onPressed: () => _alocarComoEmpacotador(
+                            sheetCtx, turno, pacoteProvider),
                         child: const Text('Alocar'),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  if (isEmpacotador && disponiveis.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 4),
+                      child: Row(children: [
+                        const Expanded(child: Divider()),
+                        Padding(
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 8),
+                          child: Text('ou em caixa',
+                              style: AppTextStyles.caption.copyWith(
+                                  color: AppColors.textSecondary)),
+                        ),
+                        const Expanded(child: Divider()),
+                      ]),
+                    ),
+                  // ── Caixas disponíveis ────────────────────────────────────
+                  if (disponiveis.isEmpty && !isEmpacotador)
+                    const Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text(
+                        'Nenhum caixa disponível no momento.',
+                        style: AppTextStyles.body,
+                      ),
+                    )
+                  else
+                    ...disponiveis.map((caixa) => ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor:
+                                caixa.tipo.cor.withValues(alpha: 0.15),
+                            child:
+                                Icon(caixa.tipo.icone, color: caixa.tipo.cor),
+                          ),
+                          title: Text(caixa.nomeExibicao,
+                              style: AppTextStyles.h4),
+                          subtitle: Text(caixa.tipo.nome,
+                              style: AppTextStyles.caption.copyWith(
+                                  color: AppColors.textSecondary)),
+                          trailing: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 8),
+                            ),
+                            onPressed: () => _confirmarAlocacao(
+                                sheetCtx, turno, caixa, alocacaoProvider),
+                            child: const Text('Alocar'),
+                          ),
+                        )),
+                ],
               ),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _alocarComoEmpacotador(
+    BuildContext sheetCtx,
+    TurnoLocal turno,
+    PacotePlantaoProvider pacoteProvider,
+  ) async {
+    Navigator.of(sheetCtx).pop();
+
+    await pacoteProvider.adicionar(widget.fiscalId, turno.colaboradorId);
+
+    if (!mounted) return;
+
+    if (pacoteProvider.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(pacoteProvider.error!),
+        backgroundColor: AppColors.danger,
+      ));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+            '${turno.colaboradorNome} adicionado ao plantão de empacotadores!'),
+        backgroundColor: const Color(0xFF795548),
+      ));
+    }
   }
 
   Future<void> _confirmarAlocacao(
@@ -212,6 +292,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
   Widget build(BuildContext context) {
     final escalaProvider = Provider.of<EscalaProvider>(context);
     final alocacaoProvider = Provider.of<AlocacaoProvider>(context);
+    final pacoteProvider = Provider.of<PacotePlantaoProvider>(context);
 
     final agora = DateTime.now();
     final dataLabel =
@@ -221,7 +302,15 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     final turnosHoje = escalaProvider.turnosHoje;
 
     final disponiveis = turnosHoje
-        .where((t) => _estaDisponivel(t, alocacaoProvider))
+        .where((t) {
+          if (!_estaDisponivel(t, alocacaoProvider)) return false;
+          // Empacotador já no plantão não aparece como disponível
+          if (t.departamento == DepartamentoTipo.pacote &&
+              pacoteProvider.isNaLista(t.colaboradorId)) {
+            return false;
+          }
+          return true;
+        })
         .toList()
       ..sort((a, b) => (a.entrada ?? '').compareTo(b.entrada ?? ''));
 

@@ -1535,6 +1535,7 @@ class _BriefingTurnoSheet extends StatelessWidget {
                   _BriefingSection(
                     icon: Icons.people,
                     iconColor: AppColors.success,
+                    collapsible: true,
                     title:
                         'Presentes hoje (${presentes.length})',
                     child: presentes.isEmpty
@@ -1560,6 +1561,7 @@ class _BriefingTurnoSheet extends StatelessWidget {
                   _BriefingSection(
                     icon: Icons.beach_access,
                     iconColor: AppColors.textSecondary,
+                    collapsible: true,
                     title: 'De folga / feriado (${defolga.length})',
                     child: defolga.isEmpty
                         ? Text('Nenhum colaborador de folga hoje',
@@ -1723,39 +1725,66 @@ class _BriefingTurnoSheet extends StatelessWidget {
   }
 }
 
-class _BriefingSection extends StatelessWidget {
+class _BriefingSection extends StatefulWidget {
   final IconData icon;
   final Color iconColor;
   final String title;
   final Widget child;
+  final bool collapsible;
 
   const _BriefingSection({
     required this.icon,
     required this.iconColor,
     required this.title,
     required this.child,
+    this.collapsible = false,
   });
 
   @override
+  State<_BriefingSection> createState() => _BriefingSectionState();
+}
+
+class _BriefingSectionState extends State<_BriefingSection> {
+  bool _expanded = false;
+
+  @override
   Widget build(BuildContext context) {
+    final showChild = !widget.collapsible || _expanded;
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Dimensions.paddingMD),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: iconColor, size: 16),
-                const SizedBox(width: 8),
-                Text(title,
-                    style: AppTextStyles.label.copyWith(
-                        fontWeight: FontWeight.bold, color: iconColor)),
+      child: InkWell(
+        onTap: widget.collapsible
+            ? () => setState(() => _expanded = !_expanded)
+            : null,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(Dimensions.paddingMD),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(widget.icon, color: widget.iconColor, size: 16),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(widget.title,
+                        style: AppTextStyles.label.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: widget.iconColor)),
+                  ),
+                  if (widget.collapsible)
+                    Icon(
+                      _expanded ? Icons.expand_less : Icons.expand_more,
+                      color: widget.iconColor,
+                      size: 18,
+                    ),
+                ],
+              ),
+              if (showChild) ...[
+                const SizedBox(height: 10),
+                widget.child,
               ],
-            ),
-            const SizedBox(height: 10),
-            child,
-          ],
+            ],
+          ),
         ),
       ),
     );

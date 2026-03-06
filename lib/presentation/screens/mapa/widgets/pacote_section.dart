@@ -306,6 +306,8 @@ class PacoteSection extends StatelessWidget {
     PacotePlantaoProvider plantaoProvider,
     ColaboradorProvider colaboradorProvider,
   ) {
+    final escalaProvider =
+        Provider.of<EscalaProvider>(context, listen: false);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -316,6 +318,7 @@ class PacoteSection extends StatelessWidget {
         fiscalId: fiscalId,
         plantaoProvider: plantaoProvider,
         colaboradorProvider: colaboradorProvider,
+        escalaProvider: escalaProvider,
       ),
     );
   }
@@ -327,12 +330,26 @@ class _EmpacotadorPickerSheet extends StatelessWidget {
   final String fiscalId;
   final PacotePlantaoProvider plantaoProvider;
   final ColaboradorProvider colaboradorProvider;
+  final EscalaProvider escalaProvider;
 
   const _EmpacotadorPickerSheet({
     required this.fiscalId,
     required this.plantaoProvider,
     required this.colaboradorProvider,
+    required this.escalaProvider,
   });
+
+  String _horarios(TurnoLocal? turno) {
+    if (turno == null) return 'Sem escala hoje';
+    final partes = <String>[];
+    if (turno.entrada != null && turno.saida != null) {
+      partes.add('${turno.entrada}–${turno.saida}');
+    }
+    if (turno.intervalo != null) {
+      partes.add('Intervalo: ${turno.intervalo}');
+    }
+    return partes.isEmpty ? 'Sem horário' : partes.join('  •  ');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -387,6 +404,9 @@ class _EmpacotadorPickerSheet extends StatelessWidget {
                 itemCount: disponiveis.length,
                 itemBuilder: (_, i) {
                   final colaborador = disponiveis[i];
+                  final turno = escalaProvider.turnosHoje
+                      .where((t) => t.colaboradorId == colaborador.id)
+                      .firstOrNull;
                   return ListTile(
                     leading: CircleAvatar(
                       backgroundColor: _kPacoteColor,
@@ -400,11 +420,14 @@ class _EmpacotadorPickerSheet extends StatelessWidget {
                       ),
                     ),
                     title: Text(colaborador.nome),
-                    subtitle: Text(colaborador.departamento.nome),
+                    subtitle: Text(
+                      _horarios(turno),
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.textSecondary),
+                    ),
                     onTap: () async {
                       Navigator.pop(context);
-                      await plantaoProvider.adicionar(
-                          fiscalId, colaborador.id);
+                      await plantaoProvider.adicionar(fiscalId, colaborador.id);
                     },
                   );
                 },
