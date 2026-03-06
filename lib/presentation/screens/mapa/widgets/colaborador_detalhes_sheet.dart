@@ -418,6 +418,49 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                       ),
                     ],
                   ),
+                  // ── Botão "Intervalo já feito" ─────────────────────────
+                  Builder(builder: (context) {
+                    if (widget.turno?.intervalo == null) return const SizedBox.shrink();
+                    final parts = widget.turno!.intervalo!.split(':');
+                    if (parts.length < 2) return const SizedBox.shrink();
+                    final agora = DateTime.now();
+                    final agoraMin = agora.hour * 60 + agora.minute;
+                    final intervaloMin = (int.tryParse(parts[0]) ?? 0) * 60 +
+                        (int.tryParse(parts[1]) ?? 0);
+                    final minPassado = agoraMin - intervaloMin;
+                    if (minPassado <= 0) return const SizedBox.shrink();
+                    final jaMarcado = widget.alocacaoProvider
+                        .isIntervaloMarcado(widget.colaborador!.id);
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: OutlinedButton.icon(
+                        onPressed: jaMarcado
+                            ? null
+                            : () {
+                                widget.alocacaoProvider.marcarIntervaloFeito(
+                                    widget.colaborador!.id);
+                                Navigator.of(context).pop();
+                              },
+                        icon: Icon(
+                          jaMarcado
+                              ? Icons.check_circle
+                              : Icons.check_circle_outline,
+                          size: 18,
+                        ),
+                        label: Text(jaMarcado
+                            ? 'Intervalo já registrado'
+                            : 'Intervalo já feito'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.green.shade700,
+                          side: BorderSide(
+                              color: jaMarcado
+                                  ? Colors.green.shade200
+                                  : Colors.green.shade700),
+                          minimumSize: const Size(double.infinity, 40),
+                        ),
+                      ),
+                    );
+                  }),
                 ],
               ),
             ),

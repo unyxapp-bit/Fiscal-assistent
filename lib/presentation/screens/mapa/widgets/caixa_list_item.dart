@@ -56,8 +56,12 @@ class CaixaListItem extends StatelessWidget {
         : null;
 
     // Situação do intervalo agendado (apenas quando ocupado e não em pausa real)
+    final bool intervaloJaFeito = colaborador != null &&
+        alocacaoProvider.isIntervaloMarcado(colaborador.id);
     final int? minIntervalo =
-        isOcupado && !isEmPausa ? _calcMinIntervalo(turno) : null;
+        isOcupado && !isEmPausa && !intervaloJaFeito
+            ? _calcMinIntervalo(turno)
+            : null;
     final bool emAtencao = minIntervalo != null && minIntervalo >= 15;
 
     final statusColor = _statusColor(isOcupado, isEmPausa, emAtencao: emAtencao);

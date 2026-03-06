@@ -35,6 +35,10 @@ class AlocacaoProvider extends ChangeNotifier {
   Colaborador? _colaboradorExcecao;
   Caixa? _caixaExcecao;
 
+  /// IDs de colaboradores cujo intervalo foi manualmente marcado como feito.
+  /// Memória de sessão — resetado ao liberar a alocação.
+  final Set<String> _intervalosMarcados = {};
+
   // Getters
   List<Alocacao> get alocacoes => _alocacoes;
   LoadingState get loadingState => _loadingState;
@@ -44,6 +48,14 @@ class AlocacaoProvider extends ChangeNotifier {
   AlocarColaboradorResult? get resultadoExcecao => _resultadoExcecao;
   Colaborador? get colaboradorExcecao => _colaboradorExcecao;
   Caixa? get caixaExcecao => _caixaExcecao;
+
+  bool isIntervaloMarcado(String colaboradorId) =>
+      _intervalosMarcados.contains(colaboradorId);
+
+  void marcarIntervaloFeito(String colaboradorId) {
+    _intervalosMarcados.add(colaboradorId);
+    notifyListeners();
+  }
 
   // Computados
   int get quantidadeAlocacoes => _alocacoes.length;
@@ -139,6 +151,9 @@ class AlocacaoProvider extends ChangeNotifier {
         alocacaoId: alocacaoId,
         motivo: motivo,
       );
+      final liberada = _alocacoes.firstWhere((a) => a.id == alocacaoId,
+          orElse: () => _alocacoes.first);
+      _intervalosMarcados.remove(liberada.colaboradorId);
       _alocacoes.removeWhere((a) => a.id == alocacaoId);
       _loadingState = LoadingState.success;
     } catch (e) {
