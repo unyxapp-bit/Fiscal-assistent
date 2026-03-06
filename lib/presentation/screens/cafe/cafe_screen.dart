@@ -91,30 +91,36 @@ class _CafeScreenState extends State<CafeScreen>
           ),
           body: Column(
             children: [
-              // Banner de alerta — visível em qualquer aba
+              // Banner de alerta — visível em qualquer aba; clique vai para "Em Intervalo"
               if (temAlertas)
-                Container(
-                  margin: const EdgeInsets.fromLTRB(
-                      Dimensions.paddingMD, 12, Dimensions.paddingMD, 0),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.alertCritical,
-                    borderRadius:
-                        BorderRadius.circular(Dimensions.borderRadius),
-                    border: Border.all(color: AppColors.danger),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.warning_amber, color: AppColors.danger),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          '${provider.totalEmAtraso} colaborador(es) excederam o tempo de intervalo!',
-                          style: AppTextStyles.body
-                              .copyWith(color: AppColors.danger),
+                GestureDetector(
+                  onTap: () => _tabController.animateTo(1),
+                  child: Container(
+                    margin: const EdgeInsets.fromLTRB(
+                        Dimensions.paddingMD, 12, Dimensions.paddingMD, 0),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.alertCritical,
+                      borderRadius:
+                          BorderRadius.circular(Dimensions.borderRadius),
+                      border: Border.all(color: AppColors.danger),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.warning_amber,
+                            color: AppColors.danger),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            '${provider.totalEmAtraso} colaborador(es) excederam o tempo de intervalo!',
+                            style: AppTextStyles.body
+                                .copyWith(color: AppColors.danger),
+                          ),
                         ),
-                      ),
-                    ],
+                        const Icon(Icons.arrow_forward_ios,
+                            size: 14, color: AppColors.danger),
+                      ],
+                    ),
                   ),
                 ),
 
