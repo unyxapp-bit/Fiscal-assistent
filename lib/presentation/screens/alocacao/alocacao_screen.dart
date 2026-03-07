@@ -12,6 +12,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/caixa_provider.dart';
 import '../../providers/escala_provider.dart';
 import '../../providers/evento_turno_provider.dart';
+import '../../providers/cafe_provider.dart';
 import '../../providers/pacote_plantao_provider.dart';
 
 /// Tela de alocação — lista colaboradores disponíveis agora e permite
@@ -41,6 +42,22 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
       Provider.of<PacotePlantaoProvider>(context, listen: false)
           .load(widget.fiscalId),
     ]);
+  }
+
+  int _minutos(String hora) {
+    final p = hora.split(':');
+    if (p.length != 2) return 0;
+    return (int.tryParse(p[0]) ?? 0) * 60 + (int.tryParse(p[1]) ?? 0);
+  }
+
+  /// Retorna quantos minutos faltam para o colaborador chegar.
+  /// Retorna null se já está no horário ou não tem entrada definida.
+  int? _minutosParaChegar(TurnoLocal turno) {
+    if (turno.entrada == null) return null;
+    final agora = DateTime.now();
+    final minAgora = agora.hour * 60 + agora.minute;
+    final diff = _minutos(turno.entrada!) - minAgora;
+    return diff > 0 ? diff : null;
   }
 
   /// True se o colaborador está na janela de trabalho agora e não alocado.
@@ -317,6 +334,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     final escalaProvider = Provider.of<EscalaProvider>(context);
     final alocacaoProvider = Provider.of<AlocacaoProvider>(context);
     final pacoteProvider = Provider.of<PacotePlantaoProvider>(context);
+    final cafeProvider = Provider.of<CafeProvider>(context);
 
     final agora = DateTime.now();
     final dataLabel =
@@ -333,6 +351,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
               pacoteProvider.isNaLista(t.colaboradorId)) {
             return false;
           }
+          // Colaborador em pausa/intervalo não aparece como disponível
+          if (cafeProvider.colaboradorEmPausa(t.colaboradorId)) return false;
           return true;
         })
         .toList()
@@ -345,6 +365,24 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
         .toList();
 
     final folgas = turnosHoje.where((t) => t.folga || t.feriado).toList();
+
+    // Colaboradores que chegam nas próximas 3h (além da janela de 30 min)
+    final aChegar = turnosHoje
+        .where((t) {
+          if (!t.trabalhando || t.folga || t.feriado) return false;
+          if (alocacaoProvider.getAlocacaoColaborador(t.colaboradorId) != null) {
+            return false;
+          }
+          if (t.departamento == DepartamentoTipo.pacote &&
+              pacoteProvider.isNaLista(t.colaboradorId)) {
+            return false;
+          }
+          final min = _minutosParaChegar(t);
+          if (min == null) return false;
+          return min > 30 && min <= 180;
+        })
+        .toList()
+      ..sort((a, b) => (a.entrada ?? '').compareTo(b.entrada ?? ''));
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -416,6 +454,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 ...disponiveis.map((t) => _CardDisponivel(
                       turno: t,
                       onAlocar: () => _abrirSeletorCaixa(t),
+                      minutosParaChegar: _minutosParaChegar(t),
                     )),
 
               // Já alocados
@@ -436,6 +475,21 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     alocadoEm: al?.alocadoEm,
                   );
                 }),
+              ],
+
+              // A caminho
+              if (aChegar.isNotEmpty) ...[
+                const SizedBox(height: Dimensions.spacingLG),
+                _Header(
+                    icon: Icons.directions_walk,
+                    label: 'A caminho',
+                    count: aChegar.length,
+                    color: AppColors.statusAtencao),
+                const SizedBox(height: 8),
+                ...aChegar.map((t) => _CardAChegar(
+                      turno: t,
+                      minutosParaChegar: _minutosParaChegar(t) ?? 0,
+                    )),
               ],
 
               // Folgas
@@ -497,16 +551,25 @@ class _Header extends StatelessWidget {
 class _CardDisponivel extends StatelessWidget {
   final TurnoLocal turno;
   final VoidCallback onAlocar;
-  const _CardDisponivel({required this.turno, required this.onAlocar});
+  final int? minutosParaChegar;
+  const _CardDisponivel(
+      {required this.turno, required this.onAlocar, this.minutosParaChegar});
+
+  String _chegaEm(int min) {
+    if (min >= 60) return 'Chega em ${min ~/ 60}h ${min % 60}min';
+    return 'Chega em ${min}min';
+  }
 
   @override
   Widget build(BuildContext context) {
+    final chegando = minutosParaChegar != null && minutosParaChegar! > 0;
     return Card(
       color: AppColors.cardBackground,
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: AppColors.statusAtivo,
+          backgroundColor:
+              chegando ? AppColors.statusAtencao : AppColors.statusAtivo,
           child: Text(turno.colaboradorNome[0].toUpperCase(),
               style: const TextStyle(
                   color: Colors.white, fontWeight: FontWeight.bold)),
@@ -517,6 +580,7 @@ class _CardDisponivel extends StatelessWidget {
             turno.departamento.nome,
             if (turno.entrada != null && turno.saida != null)
               '${turno.entrada}–${turno.saida}',
+            if (chegando) _chegaEm(minutosParaChegar!),
           ].join('  •  '),
           style:
               AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
@@ -582,6 +646,57 @@ class _CardAlocado extends StatelessWidget {
           child: Text('Ativo',
               style: AppTextStyles.caption.copyWith(
                   color: AppColors.primary, fontWeight: FontWeight.bold)),
+        ),
+      ),
+    );
+  }
+}
+
+class _CardAChegar extends StatelessWidget {
+  final TurnoLocal turno;
+  final int minutosParaChegar;
+  const _CardAChegar(
+      {required this.turno, required this.minutosParaChegar});
+
+  String _chegaEm() {
+    if (minutosParaChegar >= 60) {
+      return 'Chega em ${minutosParaChegar ~/ 60}h ${minutosParaChegar % 60}min';
+    }
+    return 'Chega em ${minutosParaChegar}min';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: AppColors.cardBackground,
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: AppColors.statusAtencao.withValues(alpha: 0.15),
+          child: Text(turno.colaboradorNome[0].toUpperCase(),
+              style: const TextStyle(
+                  color: AppColors.statusAtencao,
+                  fontWeight: FontWeight.bold)),
+        ),
+        title: Text(turno.colaboradorNome, style: AppTextStyles.h4),
+        subtitle: Text(
+          [
+            turno.departamento.nome,
+            if (turno.entrada != null && turno.saida != null)
+              '${turno.entrada}–${turno.saida}',
+          ].join('  •  '),
+          style:
+              AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+        ),
+        trailing: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+              color: AppColors.statusAtencao.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8)),
+          child: Text(_chegaEm(),
+              style: AppTextStyles.caption.copyWith(
+                  color: AppColors.statusAtencao,
+                  fontWeight: FontWeight.bold)),
         ),
       ),
     );
