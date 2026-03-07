@@ -1,4 +1,6 @@
+import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
@@ -91,6 +93,64 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
     }
   }
 
+  Future<void> _preencherViaClipboard() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    final texto = data?.text?.trim();
+
+    if (texto == null || texto.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Área de transferência está vazia.')),
+      );
+      return;
+    }
+
+    final linhas = const CsvToListConverter(eol: '\n').convert(texto);
+
+    if (linhas.length < 2) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Formato CSV inválido.')),
+      );
+      return;
+    }
+
+    final cabecalhos = linhas[0].map((e) => e.toString().trim()).toList();
+    final valores = linhas[1].map((e) => e.toString().trim()).toList();
+
+    if (cabecalhos.length != valores.length) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('CSV com colunas inconsistentes.')),
+      );
+      return;
+    }
+
+    final mapa = {
+      for (var i = 0; i < cabecalhos.length; i++) cabecalhos[i]: valores[i],
+    };
+
+    setState(() {
+      if (mapa['cliente_nome'] != null) _nomeClienteController.text = mapa['cliente_nome']!;
+      if (mapa['bairro'] != null) _bairroController.text = mapa['bairro']!;
+      if (mapa['endereco'] != null) _enderecoController.text = mapa['endereco']!;
+      if (mapa['telefone'] != null) _telefoneController.text = mapa['telefone']!;
+      if (mapa['numero_nota'] != null) _numeroNFController.text = mapa['numero_nota']!;
+      if (mapa['observacoes'] != null) _observacoesController.text = mapa['observacoes']!;
+      if (mapa['cidade'] != null && _cidades.contains(mapa['cidade'])) {
+        _cidadeSelecionada = mapa['cidade']!;
+      }
+    });
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Formulário preenchido via CSV!'),
+        backgroundColor: AppColors.success,
+      ),
+    );
+  }
+
   Future<void> _salvar() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -172,6 +232,13 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
           isNova ? 'Nova Entrega' : 'Editar Entrega',
           style: AppTextStyles.h3,
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.content_paste_rounded),
+            tooltip: 'Preencher via CSV (Clipboard)',
+            onPressed: _preencherViaClipboard,
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(Dimensions.paddingMD),
