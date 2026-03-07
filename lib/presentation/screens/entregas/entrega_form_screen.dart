@@ -93,37 +93,121 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
     }
   }
 
-  Future<void> _preencherViaClipboard() async {
-    final data = await Clipboard.getData(Clipboard.kTextPlain);
-    final texto = data?.text?.trim();
+  /// Abre bottom sheet com campo de texto para colar o CSV.
+  Future<void> _abrirSheetCsv() async {
+    // Tenta pré-preencher com o que está no clipboard
+    final clipData = await Clipboard.getData(Clipboard.kTextPlain);
+    final csvController = TextEditingController(text: clipData?.text?.trim() ?? '');
 
-    if (texto == null || texto.isEmpty) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Área de transferência está vazia.')),
-      );
-      return;
-    }
+    if (!mounted) return;
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetCtx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: MediaQuery.of(sheetCtx).viewInsets.bottom + 24,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Handle
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const Text('Preencher via CSV', style: AppTextStyles.h3),
+              const SizedBox(height: 4),
+              Text(
+                'Cole abaixo o texto copiado do sistema de pedidos.',
+                style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: csvController,
+                maxLines: 6,
+                decoration: InputDecoration(
+                  hintText: 'fiscal_id,cliente_nome,bairro,...\n[dados da entrega]',
+                  hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  contentPadding: const EdgeInsets.all(12),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.clear, size: 18),
+                    onPressed: () => csvController.clear(),
+                    tooltip: 'Limpar',
+                  ),
+                ),
+                style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.auto_fix_high),
+                  label: const Text('Preencher Formulário'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size.fromHeight(48),
+                  ),
+                  onPressed: () {
+                    final erro = _aplicarCsv(csvController.text.trim());
+                    Navigator.of(sheetCtx).pop();
+                    if (!mounted) return;
+                    if (erro != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(erro), backgroundColor: AppColors.danger),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Formulário preenchido com sucesso!'),
+                          backgroundColor: AppColors.success,
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    csvController.dispose();
+  }
+
+  /// Faz o parse do CSV e preenche os controllers.
+  /// Retorna uma mensagem de erro ou null em caso de sucesso.
+  String? _aplicarCsv(String texto) {
+    if (texto.isEmpty) return 'Nenhum texto para processar.';
 
     final linhas = const CsvToListConverter(eol: '\n').convert(texto);
-
-    if (linhas.length < 2) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Formato CSV inválido.')),
-      );
-      return;
-    }
+    if (linhas.length < 2) return 'Formato CSV inválido (esperado cabeçalho + dados).';
 
     final cabecalhos = linhas[0].map((e) => e.toString().trim()).toList();
     final valores = linhas[1].map((e) => e.toString().trim()).toList();
 
     if (cabecalhos.length != valores.length) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('CSV com colunas inconsistentes.')),
-      );
-      return;
+      return 'Número de colunas inconsistente (${cabecalhos.length} cabeçalhos, ${valores.length} valores).';
     }
 
     final mapa = {
@@ -131,24 +215,37 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
     };
 
     setState(() {
-      if (mapa['cliente_nome'] != null) _nomeClienteController.text = mapa['cliente_nome']!;
-      if (mapa['bairro'] != null) _bairroController.text = mapa['bairro']!;
-      if (mapa['endereco'] != null) _enderecoController.text = mapa['endereco']!;
-      if (mapa['telefone'] != null) _telefoneController.text = mapa['telefone']!;
-      if (mapa['numero_nota'] != null) _numeroNFController.text = mapa['numero_nota']!;
-      if (mapa['observacoes'] != null) _observacoesController.text = mapa['observacoes']!;
-      if (mapa['cidade'] != null && _cidades.contains(mapa['cidade'])) {
-        _cidadeSelecionada = mapa['cidade']!;
+      if (mapa['cliente_nome']?.isNotEmpty == true) {
+        _nomeClienteController.text = mapa['cliente_nome']!;
+      }
+      if (mapa['bairro']?.isNotEmpty == true) {
+        _bairroController.text = mapa['bairro']!;
+      }
+      if (mapa['endereco']?.isNotEmpty == true) {
+        _enderecoController.text = mapa['endereco']!;
+      }
+      if (mapa['telefone']?.isNotEmpty == true) {
+        _telefoneController.text = mapa['telefone']!;
+      }
+      if (mapa['numero_nota']?.isNotEmpty == true) {
+        _numeroNFController.text = mapa['numero_nota']!;
+      }
+      if (mapa['observacoes']?.isNotEmpty == true) {
+        _observacoesController.text = mapa['observacoes']!;
+      }
+      // Comparação case-insensitive para cidade (ex: BAEPENDI → Baependi)
+      if (mapa['cidade']?.isNotEmpty == true) {
+        final cidadeNormalizada = _cidades.firstWhere(
+          (c) => c.toLowerCase() == mapa['cidade']!.toLowerCase(),
+          orElse: () => '',
+        );
+        if (cidadeNormalizada.isNotEmpty) {
+          _cidadeSelecionada = cidadeNormalizada;
+        }
       }
     });
 
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Formulário preenchido via CSV!'),
-        backgroundColor: AppColors.success,
-      ),
-    );
+    return null;
   }
 
   Future<void> _salvar() async {
@@ -235,8 +332,8 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.content_paste_rounded),
-            tooltip: 'Preencher via CSV (Clipboard)',
-            onPressed: _preencherViaClipboard,
+            tooltip: 'Preencher via CSV',
+            onPressed: _abrirSheetCsv,
           ),
         ],
       ),
