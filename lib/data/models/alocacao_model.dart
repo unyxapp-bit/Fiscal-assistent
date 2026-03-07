@@ -14,6 +14,7 @@ class AlocacaoModel extends Equatable {
   final String? alocadoPor;
   final String? observacoes;
   final DateTime createdAt;
+  final bool intervaloMarcadoFeito;
 
   const AlocacaoModel({
     required this.id,
@@ -26,6 +27,7 @@ class AlocacaoModel extends Equatable {
     this.alocadoPor,
     this.observacoes,
     required this.createdAt,
+    this.intervaloMarcadoFeito = false,
   });
 
   /// Cria AlocacaoModel a partir de JSON (Supabase)
@@ -49,6 +51,7 @@ class AlocacaoModel extends Equatable {
       alocadoPor: json['alocado_por'] as String?,
       observacoes: json['observacoes'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
+      intervaloMarcadoFeito: json['intervalo_marcado_feito'] as bool? ?? false,
     );
   }
 
@@ -64,6 +67,7 @@ class AlocacaoModel extends Equatable {
       alocadoPor: entity.alocadoPor,
       observacoes: entity.observacoes,
       createdAt: entity.createdAt,
+      intervaloMarcadoFeito: entity.intervaloMarcadoFeito,
     );
   }
 
@@ -101,6 +105,7 @@ class AlocacaoModel extends Equatable {
       alocadoPor: alocadoPor,
       observacoes: observacoes,
       createdAt: createdAt,
+      intervaloMarcadoFeito: intervaloMarcadoFeito,
     );
   }
 
@@ -116,6 +121,7 @@ class AlocacaoModel extends Equatable {
     String? alocadoPor,
     String? observacoes,
     DateTime? createdAt,
+    bool? intervaloMarcadoFeito,
   }) {
     return AlocacaoModel(
       id: id ?? this.id,
@@ -128,6 +134,7 @@ class AlocacaoModel extends Equatable {
       alocadoPor: alocadoPor ?? this.alocadoPor,
       observacoes: observacoes ?? this.observacoes,
       createdAt: createdAt ?? this.createdAt,
+      intervaloMarcadoFeito: intervaloMarcadoFeito ?? this.intervaloMarcadoFeito,
     );
   }
 

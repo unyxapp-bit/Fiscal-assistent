@@ -114,6 +114,17 @@ class AlocacaoRemoteDataSource {
     }
   }
 
+  /// Marca intervalo como feito para uma alocação específica
+  Future<void> marcarIntervaloFeito(String alocacaoId) async {
+    try {
+      await _client
+          .from('alocacoes')
+          .update({'intervalo_marcado_feito': true}).eq('id', alocacaoId);
+    } catch (e) {
+      throw ServerException('Erro ao marcar intervalo feito: $e');
+    }
+  }
+
   /// Busca histórico de alocações
   Future<List<AlocacaoModel>> getHistorico(String fiscalId) async {
     try {

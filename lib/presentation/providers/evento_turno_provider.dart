@@ -1,24 +1,19 @@
 import 'dart:convert';
-import 'package:drift/drift.dart' show Value;
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
-import '../../data/datasources/local/daos/evento_turno_dao.dart';
-import '../../data/datasources/local/daos/relatorio_dia_dao.dart';
-import '../../data/datasources/local/database.dart';
+import '../../data/datasources/remote/supabase_client.dart';
 import '../../domain/entities/evento_turno.dart';
 import '../../domain/entities/relatorio_dia.dart';
 
 /// Provider responsável por registrar todos os eventos do turno e
 /// gerar o relatório ao encerrar.
+/// 
+/// ✅ Migrado para usar **apenas Supabase** (removido SQLite/Drift)
 class EventoTurnoProvider with ChangeNotifier {
-  final EventoTurnoDao _eventoDao;
-  final RelatorioDiaDao _relatorioDao;
+  EventoTurnoProvider();
 
-  EventoTurnoProvider({
-    required EventoTurnoDao eventoDao,
-    required RelatorioDiaDao relatorioDao,
-  })  : _eventoDao = eventoDao,
-        _relatorioDao = relatorioDao;
+  SupabaseClient get _supabase => SupabaseClientManager.client;
 
   List<EventoTurno> _eventos = [];
   List<RelatorioDia> _relatorios = [];
@@ -32,31 +27,54 @@ class EventoTurnoProvider with ChangeNotifier {
   DateTime? get turnoIniciadoEm => _turnoIniciadoEm;
   bool get isLoading => _isLoading;
 
-  /// Carrega eventos de hoje e relatórios anteriores do banco
+  /// Carrega eventos de hoje e relatórios anteriores apenas do Supabase
+  /// ✅ Versão simplificada (removido SQLite)
   Future<void> load(String fiscalId) async {
     _isLoading = true;
     notifyListeners();
 
-    final rows = await _eventoDao.getEventosHoje(fiscalId);
-    _eventos = rows.map(_fromTable).toList();
+    try {
+      // Carrega eventos de hoje do Supabase
+      final hoje = DateTime.now();
+      final inicioDia = DateTime(hoje.year, hoje.month, hoje.day);
+      final supaRows = await _supabase
+          .from('eventos_turno')
+          .select()
+          .eq('fiscal_id', fiscalId)
+          .gte('timestamp', inicioDia.toIso8601String())
+          .order('timestamp', ascending: true);
+      _eventos = (supaRows as List).map(_eventoFromSupabase).toList();
 
-    // Verifica se há turno ativo (turno_iniciado nos eventos de hoje)
-    final inicio = _eventos
-        .where((e) => e.tipo == TipoEvento.turnoIniciado)
-        .lastOrNull;
-    if (inicio != null) {
-      _turnoAtivo = true;
-      _turnoIniciadoEm = inicio.timestamp;
+      // Verifica se há turno ativo (turno_iniciado nos eventos de hoje)
+      final inicio = _eventos
+          .where((e) => e.tipo == TipoEvento.turnoIniciado)
+          .lastOrNull;
+      if (inicio != null) {
+        _turnoAtivo = true;
+        _turnoIniciadoEm = inicio.timestamp;
+      }
+
+      // Carrega relatórios anteriores do Supabase
+      final supaRels = await _supabase
+          .from('relatorios_dia')
+          .select()
+          .eq('fiscal_id', fiscalId)
+          .order('turno_iniciado_em', ascending: false)
+          .limit(30);
+      _relatorios =
+          (supaRels as List).map(_relatorioFromSupabase).toList();
+    } catch (e) {
+      debugPrint('[EventoTurnoProvider] Erro ao carregar: $e');
+      _eventos = [];
+      _relatorios = [];
     }
-
-    final relRows = await _relatorioDao.getUltimos(fiscalId);
-    _relatorios = relRows.map(_relFromTable).toList();
 
     _isLoading = false;
     notifyListeners();
   }
 
-  /// Registra um evento e persiste no banco
+  /// Registra um evento apenas no Supabase
+  /// ✅ Versão simplificada (removido SQLite)
   Future<void> registrar({
     required String fiscalId,
     required TipoEvento tipo,
@@ -74,15 +92,21 @@ class EventoTurnoProvider with ChangeNotifier {
       detalhe: detalhe,
     );
 
-    await _eventoDao.inserir(EventosTurnoCompanion.insert(
-      id: evento.id,
-      fiscalId: evento.fiscalId,
-      tipo: evento.tipo.valor,
-      timestamp: evento.timestamp,
-      colaboradorNome: Value(evento.colaboradorNome),
-      caixaNome: Value(evento.caixaNome),
-      detalhe: Value(evento.detalhe),
-    ));
+    // Insere direto no Supabase
+    try {
+      await _supabase.from('eventos_turno').insert({
+        'id': evento.id,
+        'fiscal_id': evento.fiscalId,
+        'tipo': evento.tipo.valor,
+        'timestamp': evento.timestamp.toIso8601String(),
+        'colaborador_nome': evento.colaboradorNome,
+        'caixa_nome': evento.caixaNome,
+        'detalhe': evento.detalhe,
+      });
+    } catch (e) {
+      debugPrint('[EventoTurnoProvider] Erro ao registrar evento: $e');
+      rethrow;
+    }
 
     _eventos.add(evento);
 
@@ -95,6 +119,7 @@ class EventoTurnoProvider with ChangeNotifier {
   }
 
   /// Encerra o turno e gera o relatório
+  /// ✅ Versão simplificada (removido SQLite)
   Future<RelatorioDia?> encerrarTurno(String fiscalId) async {
     if (!_turnoAtivo || _turnoIniciadoEm == null) return null;
 
@@ -138,19 +163,25 @@ class EventoTurnoProvider with ChangeNotifier {
       eventos: List.from(_eventos),
     );
 
-    await _relatorioDao.inserir(RelatoriosDiaCompanion.insert(
-      id: relatorio.id,
-      fiscalId: relatorio.fiscalId,
-      dataStr: relatorio.dataStr,
-      turnoIniciadoEm: relatorio.turnoIniciadoEm,
-      turnoEncerradoEm: relatorio.turnoEncerradoEm,
-      totalAlocacoes: Value(relatorio.totalAlocacoes),
-      totalColaboradores: Value(relatorio.totalColaboradores),
-      totalCafes: Value(relatorio.totalCafes),
-      totalIntervalos: Value(relatorio.totalIntervalos),
-      totalEmpacotadores: Value(relatorio.totalEmpacotadores),
-      eventosJson: Value(eventosJson),
-    ));
+    // Insere direto no Supabase
+    try {
+      await _supabase.from('relatorios_dia').insert({
+        'id': relatorio.id,
+        'fiscal_id': relatorio.fiscalId,
+        'data_str': relatorio.dataStr,
+        'turno_iniciado_em': relatorio.turnoIniciadoEm.toIso8601String(),
+        'turno_encerrado_em': relatorio.turnoEncerradoEm.toIso8601String(),
+        'total_alocacoes': relatorio.totalAlocacoes,
+        'total_colaboradores': relatorio.totalColaboradores,
+        'total_cafes': relatorio.totalCafes,
+        'total_intervalos': relatorio.totalIntervalos,
+        'total_empacotadores': relatorio.totalEmpacotadores,
+        'eventos_json': eventosJson,
+      });
+    } catch (e) {
+      debugPrint('[EventoTurnoProvider] Erro ao encerrar turno: $e');
+      rethrow;
+    }
 
     _relatorios = [relatorio, ..._relatorios];
     _turnoAtivo = false;
@@ -161,35 +192,38 @@ class EventoTurnoProvider with ChangeNotifier {
 
   // ── Helpers de conversão ───────────────────────────────────────────────
 
-  EventoTurno _fromTable(EventoTurnoTable row) => EventoTurno(
-        id: row.id,
-        fiscalId: row.fiscalId,
-        tipo: TipoEvento.fromValor(row.tipo),
-        timestamp: row.timestamp,
-        colaboradorNome: row.colaboradorNome,
-        caixaNome: row.caixaNome,
-        detalhe: row.detalhe,
+  EventoTurno _eventoFromSupabase(dynamic json) => EventoTurno(
+        id: json['id'] as String,
+        fiscalId: json['fiscal_id'] as String,
+        tipo: TipoEvento.fromValor(json['tipo'] as String),
+        timestamp: DateTime.parse(json['timestamp'] as String),
+        colaboradorNome: json['colaborador_nome'] as String?,
+        caixaNome: json['caixa_nome'] as String?,
+        detalhe: json['detalhe'] as String?,
       );
 
-  RelatorioDia _relFromTable(RelatorioDiaTable row) {
+  RelatorioDia _relatorioFromSupabase(dynamic json) {
     List<EventoTurno> evs = [];
     try {
-      final list = jsonDecode(row.eventosJson) as List<dynamic>;
-      evs = list
-          .map((j) => EventoTurno.fromJson(j as Map<String, dynamic>))
-          .toList();
+      final raw = json['eventos_json'];
+      if (raw != null) {
+        final list = jsonDecode(raw as String) as List<dynamic>;
+        evs = list
+            .map((j) => EventoTurno.fromJson(j as Map<String, dynamic>))
+            .toList();
+      }
     } catch (_) {}
     return RelatorioDia(
-      id: row.id,
-      fiscalId: row.fiscalId,
-      dataStr: row.dataStr,
-      turnoIniciadoEm: row.turnoIniciadoEm,
-      turnoEncerradoEm: row.turnoEncerradoEm,
-      totalAlocacoes: row.totalAlocacoes,
-      totalColaboradores: row.totalColaboradores,
-      totalCafes: row.totalCafes,
-      totalIntervalos: row.totalIntervalos,
-      totalEmpacotadores: row.totalEmpacotadores,
+      id: json['id'] as String,
+      fiscalId: json['fiscal_id'] as String,
+      dataStr: json['data_str'] as String,
+      turnoIniciadoEm: DateTime.parse(json['turno_iniciado_em'] as String),
+      turnoEncerradoEm: DateTime.parse(json['turno_encerrado_em'] as String),
+      totalAlocacoes: (json['total_alocacoes'] as num?)?.toInt() ?? 0,
+      totalColaboradores: (json['total_colaboradores'] as num?)?.toInt() ?? 0,
+      totalCafes: (json['total_cafes'] as num?)?.toInt() ?? 0,
+      totalIntervalos: (json['total_intervalos'] as num?)?.toInt() ?? 0,
+      totalEmpacotadores: (json['total_empacotadores'] as num?)?.toInt() ?? 0,
       eventos: evs,
     );
   }

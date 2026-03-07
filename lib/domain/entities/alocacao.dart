@@ -10,6 +10,7 @@ class Alocacao {
   final String? alocadoPor;
   final String? observacoes;
   final DateTime createdAt;
+  final bool intervaloMarcadoFeito;
 
   const Alocacao({
     required this.id,
@@ -22,6 +23,7 @@ class Alocacao {
     this.alocadoPor,
     this.observacoes,
     DateTime? createdAt,
+    this.intervaloMarcadoFeito = false,
   }) : createdAt = createdAt ?? alocadoEm;
 
   /// Verifica se a alocação está ativa
@@ -52,6 +54,7 @@ class Alocacao {
     String? alocadoPor,
     String? observacoes,
     DateTime? createdAt,
+    bool? intervaloMarcadoFeito,
   }) {
     return Alocacao(
       id: id ?? this.id,
@@ -64,6 +67,7 @@ class Alocacao {
       alocadoPor: alocadoPor ?? this.alocadoPor,
       observacoes: observacoes ?? this.observacoes,
       createdAt: createdAt ?? this.createdAt,
+      intervaloMarcadoFeito: intervaloMarcadoFeito ?? this.intervaloMarcadoFeito,
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../data/repositories/alocacao_repository.dart';
 import '../../domain/entities/alocacao.dart';
 import '../../domain/entities/colaborador.dart';
 import '../../domain/entities/caixa.dart';
@@ -19,11 +20,13 @@ class AlocacaoProvider extends ChangeNotifier {
   final AlocarColaborador alocarColaboradorUseCase;
   final LiberarAlocacao liberarAlocacaoUseCase;
   final GetAlocacoesAtivas getAlocacoesAtivasUseCase;
+  final AlocacaoRepository repository;
 
   AlocacaoProvider({
     required this.alocarColaboradorUseCase,
     required this.liberarAlocacaoUseCase,
     required this.getAlocacoesAtivasUseCase,
+    required this.repository,
   });
 
   // Estado
@@ -52,9 +55,18 @@ class AlocacaoProvider extends ChangeNotifier {
   bool isIntervaloMarcado(String colaboradorId) =>
       _intervalosMarcados.contains(colaboradorId);
 
-  void marcarIntervaloFeito(String colaboradorId) {
+  Future<void> marcarIntervaloFeito(String colaboradorId) async {
     _intervalosMarcados.add(colaboradorId);
     notifyListeners();
+    // Persiste no Supabase: encontra a alocação ativa do colaborador
+    final alocacao = getAlocacaoColaborador(colaboradorId);
+    if (alocacao != null) {
+      try {
+        await repository.marcarIntervaloFeito(alocacao.id);
+      } catch (_) {
+        // Falha silenciosa — estado local já foi atualizado
+      }
+    }
   }
 
   // Computados
@@ -73,6 +85,12 @@ class AlocacaoProvider extends ChangeNotifier {
 
     try {
       _alocacoes = await getAlocacoesAtivasUseCase(fiscalId);
+      // Restaura _intervalosMarcados a partir dos dados carregados
+      _intervalosMarcados.addAll(
+        _alocacoes
+            .where((a) => a.intervaloMarcadoFeito && a.liberadoEm == null)
+            .map((a) => a.colaboradorId),
+      );
       _loadingState = LoadingState.success;
     } catch (e) {
       _error = 'Erro ao carregar alocações: $e';

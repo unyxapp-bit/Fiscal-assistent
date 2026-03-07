@@ -5,7 +5,8 @@
       "Bash(find:*)",
       "Bash(dart fix:*)",
       "Bash(dart analyze:*)",
-      "Bash(powershell -File:*)"
+      "Bash(powershell -File:*)",
+      "Bash(flutter analyze lib/presentation/screens/mapa/widgets/pacote_section.dart)"
     ]
   }
 }

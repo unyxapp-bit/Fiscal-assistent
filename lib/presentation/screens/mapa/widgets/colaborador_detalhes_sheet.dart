@@ -438,7 +438,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                       child: OutlinedButton.icon(
                         onPressed: jaMarcado
                             ? null
-                            : () {
+                            : () async {
                                 final eventoProvider =
                                     Provider.of<EventoTurnoProvider>(
                                         widget.providerContext,
@@ -450,15 +450,18 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                                         .user
                                         ?.id ??
                                     '';
-                                widget.alocacaoProvider.marcarIntervaloFeito(
-                                    widget.colaborador!.id);
+                                await widget.alocacaoProvider
+                                    .marcarIntervaloFeito(
+                                        widget.colaborador!.id);
                                 eventoProvider.registrar(
                                   fiscalId: fiscalId,
                                   tipo: TipoEvento.intervaloMarcadoFeito,
                                   colaboradorNome: widget.colaborador!.nome,
                                   caixaNome: widget.caixa.nomeExibicao,
                                 );
-                                Navigator.of(context).pop();
+                                if (context.mounted) {
+                                  Navigator.of(context).pop();
+                                }
                               },
                         icon: Icon(
                           jaMarcado

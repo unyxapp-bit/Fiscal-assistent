@@ -38,6 +38,10 @@ class AlocacaoRepository {
     return remote.toEntity();
   }
 
+  Future<void> marcarIntervaloFeito(String alocacaoId) async {
+    await remoteDataSource.marcarIntervaloFeito(alocacaoId);
+  }
+
   Future<List<Alocacao>> getHistorico(String fiscalId) async {
     final remote = await remoteDataSource.getHistorico(fiscalId);
     return remote.map((m) => m.toEntity()).toList();
