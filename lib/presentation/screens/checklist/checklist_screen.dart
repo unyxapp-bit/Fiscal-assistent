@@ -253,6 +253,9 @@ class ChecklistScreen extends StatelessWidget {
     final templates = provider.templates;
     final total = templates.length;
     final concluidos = provider.totalConcluidosHoje;
+    // Templates ainda não concluídos hoje (ocultar os já finalizados)
+    final pendentes = templates.where((t) => !provider.foiConcluidoHoje(t.id)).toList();
+    final concluidosHoje = templates.where((t) => provider.foiConcluidoHoje(t.id)).toList();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -344,9 +347,45 @@ class ChecklistScreen extends StatelessWidget {
                   ),
                 ),
               )
+            else if (pendentes.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Row(
+                  children: [
+                    const Icon(Icons.check_circle,
+                        color: AppColors.success, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Todos os checklists de hoje foram concluídos!',
+                      style: AppTextStyles.body
+                          .copyWith(color: AppColors.success),
+                    ),
+                  ],
+                ),
+              )
             else
-              ...templates.map(
-                  (t) => _buildCard(context, provider, t)),
+              ...pendentes.map((t) => _buildCard(context, provider, t)),
+
+            // ── Concluídos hoje (recolhido) ───────────────────────────────
+            if (concluidosHoje.isNotEmpty) ...[
+              const SizedBox(height: Dimensions.spacingMD),
+              ExpansionTile(
+                leading: const Icon(Icons.check_circle,
+                    color: AppColors.success, size: 20),
+                title: Text(
+                  'Concluídos hoje (${concluidosHoje.length})',
+                  style: AppTextStyles.body.copyWith(
+                    color: AppColors.success,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                tilePadding: EdgeInsets.zero,
+                childrenPadding: EdgeInsets.zero,
+                children: concluidosHoje
+                    .map((t) => _buildCard(context, provider, t))
+                    .toList(),
+              ),
+            ],
 
             // ── Histórico recente ─────────────────────────────────────────
             if (provider.todas.length > templates.length) ...[

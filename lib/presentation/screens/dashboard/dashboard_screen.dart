@@ -135,6 +135,8 @@ class _DashboardScreenState extends State<DashboardScreen>
     final notaProvider = Provider.of<NotaProvider>(context);
     final ocorrenciaProvider = Provider.of<OcorrenciaProvider>(context);
     final checklistProvider = Provider.of<ChecklistProvider>(context);
+    final eventoProvider = Provider.of<EventoTurnoProvider>(context);
+    final turnoJaIniciado = eventoProvider.turnoIniciadoEm != null;
 
     final saudacao = _getSaudacao();
     final nome = fiscalProvider.fiscal?.nome ??
@@ -216,14 +218,16 @@ class _DashboardScreenState extends State<DashboardScreen>
                     const ClockWidget(),
                     const SizedBox(height: Dimensions.spacingMD),
 
-                    // Botão Começar Turno
-                    _ComecaTurnoButton(
-                      onPressed: () => _abrirBriefingTurno(
-                        context,
-                        authProvider.user?.id ?? '',
+                    // Botão Começar Turno — oculto após confirmar início
+                    if (!turnoJaIniciado) ...[
+                      _ComecaTurnoButton(
+                        onPressed: () => _abrirBriefingTurno(
+                          context,
+                          authProvider.user?.id ?? '',
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: Dimensions.spacingXL),
+                      const SizedBox(height: Dimensions.spacingXL),
+                    ],
 
                     // Stats
                     Card(
