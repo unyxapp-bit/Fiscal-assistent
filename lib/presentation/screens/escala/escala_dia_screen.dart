@@ -18,20 +18,30 @@ class EscalaDiaScreen extends StatelessWidget {
     final provider = Provider.of<EscalaProvider>(context);
     final turnos = provider.getTurnosByData(data);
 
+    int _entradaOrd(TurnoLocal t) {
+      if (t.entrada == null) return 9999;
+      final p = t.entrada!.split(':');
+      if (p.length != 2) return 9999;
+      return (int.tryParse(p[0]) ?? 99) * 60 + (int.tryParse(p[1]) ?? 99);
+    }
+
     final caixas = turnos
         .where((t) =>
             t.departamento == DepartamentoTipo.caixa ||
             t.departamento == DepartamentoTipo.self)
-        .toList();
+        .toList()
+      ..sort((a, b) => _entradaOrd(a).compareTo(_entradaOrd(b)));
     final fiscais = turnos
         .where((t) => t.departamento == DepartamentoTipo.fiscal)
-        .toList();
+        .toList()
+      ..sort((a, b) => _entradaOrd(a).compareTo(_entradaOrd(b)));
     final outros = turnos
         .where((t) =>
             t.departamento != DepartamentoTipo.caixa &&
             t.departamento != DepartamentoTipo.self &&
             t.departamento != DepartamentoTipo.fiscal)
-        .toList();
+        .toList()
+      ..sort((a, b) => _entradaOrd(a).compareTo(_entradaOrd(b)));
 
     final dateFormat =
         DateFormat("EEEE, dd 'de' MMMM 'de' yyyy", 'pt_BR');
