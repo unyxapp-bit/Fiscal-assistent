@@ -311,6 +311,20 @@ class _EventoCard extends StatelessWidget {
         (Icons.inventory_2, const Color(0xFF795548)),
       TipoEvento.empacotadorRemovido =>
         (Icons.remove_circle_outline, const Color(0xFF795548)),
+      TipoEvento.checklistConcluido =>
+        (Icons.checklist, AppColors.success),
+      TipoEvento.entregaCadastrada =>
+        (Icons.local_shipping, AppColors.primary),
+      TipoEvento.entregaStatusAlterado =>
+        (Icons.swap_horiz, AppColors.primary),
+      TipoEvento.ocorrenciaRegistrada =>
+        (Icons.warning_amber, AppColors.danger),
+      TipoEvento.ocorrenciaResolvida =>
+        (Icons.check_circle, AppColors.success),
+      TipoEvento.anotacaoCriada =>
+        (Icons.note_add, const Color(0xFF7B1FA2)),
+      TipoEvento.formularioRespondido =>
+        (Icons.assignment_turned_in, AppColors.primary),
     };
   }
 }

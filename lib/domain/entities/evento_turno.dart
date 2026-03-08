@@ -9,7 +9,14 @@ enum TipoEvento {
   intervaloEncerrado('intervalo_encerrado', 'Intervalo encerrado'),
   intervaloMarcadoFeito('intervalo_marcado_feito', 'Intervalo marcado como feito'),
   empacotadorAdicionado('empacotador_adicionado', 'Empacotador adicionado'),
-  empacotadorRemovido('empacotador_removido', 'Empacotador removido');
+  empacotadorRemovido('empacotador_removido', 'Empacotador removido'),
+  checklistConcluido('checklist_concluido', 'Checklist concluído'),
+  entregaCadastrada('entrega_cadastrada', 'Entrega cadastrada'),
+  entregaStatusAlterado('entrega_status', 'Status de entrega atualizado'),
+  ocorrenciaRegistrada('ocorrencia_registrada', 'Ocorrência registrada'),
+  ocorrenciaResolvida('ocorrencia_resolvida', 'Ocorrência resolvida'),
+  anotacaoCriada('anotacao_criada', 'Anotação criada'),
+  formularioRespondido('formulario_respondido', 'Formulário respondido');
 
   final String valor;
   final String label;

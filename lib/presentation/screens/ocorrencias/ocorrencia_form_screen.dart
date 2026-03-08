@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
+import '../../../domain/entities/evento_turno.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/evento_turno_provider.dart';
 import '../../providers/ocorrencia_provider.dart';
 
 class OcorrenciaFormScreen extends StatefulWidget {
@@ -32,11 +35,21 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
       ));
       return;
     }
+    final tipo = _tipoCtrl.text.trim().isEmpty ? 'Outro' : _tipoCtrl.text.trim();
     Provider.of<OcorrenciaProvider>(context, listen: false).registrar(
-      tipo: _tipoCtrl.text.trim().isEmpty ? 'Outro' : _tipoCtrl.text.trim(),
+      tipo: tipo,
       descricao: descricao,
       gravidade: _gravidade,
     );
+    final eventoProvider = Provider.of<EventoTurnoProvider>(context, listen: false);
+    if (eventoProvider.turnoAtivo) {
+      final fiscalId = Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+      eventoProvider.registrar(
+        fiscalId: fiscalId,
+        tipo: TipoEvento.ocorrenciaRegistrada,
+        detalhe: '$tipo — ${_gravidade.nome}',
+      );
+    }
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text('Ocorrência registrada!'),
       backgroundColor: AppColors.success,

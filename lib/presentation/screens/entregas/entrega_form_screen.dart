@@ -5,7 +5,10 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
+import '../../../domain/entities/evento_turno.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/entrega_provider.dart';
+import '../../providers/evento_turno_provider.dart';
 
 /// Tela de Formulário de Entrega
 /// Permite cadastrar ou editar uma entrega
@@ -271,6 +274,16 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
       );
 
       if (!mounted) return;
+
+      final eventoProvider = Provider.of<EventoTurnoProvider>(context, listen: false);
+      if (eventoProvider.turnoAtivo) {
+        final fiscalId = Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+        eventoProvider.registrar(
+          fiscalId: fiscalId,
+          tipo: TipoEvento.entregaCadastrada,
+          detalhe: 'NF ${_numeroNFController.text.trim()} — ${_nomeClienteController.text.trim()}',
+        );
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

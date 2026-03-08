@@ -5,6 +5,9 @@ import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../../domain/entities/nota.dart';
 import '../../../domain/enums/tipo_lembrete.dart';
+import '../../../domain/entities/evento_turno.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/evento_turno_provider.dart';
 import '../../providers/nota_provider.dart';
 
 /// Tela de Formulário de Nota — criar ou editar anotações, tarefas e lembretes.
@@ -124,6 +127,15 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
         lembreteAtivo: _tipo == TipoLembrete.lembrete ? _lembreteAtivo : true,
       );
       if (!mounted) return;
+      final eventoProvider = Provider.of<EventoTurnoProvider>(context, listen: false);
+      if (eventoProvider.turnoAtivo) {
+        final fiscalId = Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+        eventoProvider.registrar(
+          fiscalId: fiscalId,
+          tipo: TipoEvento.anotacaoCriada,
+          detalhe: '${_tipo.nome}: ${_tituloController.text.trim()}',
+        );
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text('${_tipo.nome} criada!'),

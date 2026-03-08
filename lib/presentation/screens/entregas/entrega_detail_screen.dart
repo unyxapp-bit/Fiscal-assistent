@@ -4,7 +4,10 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
+import '../../../domain/entities/evento_turno.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/entrega_provider.dart';
+import '../../providers/evento_turno_provider.dart';
 import 'entrega_form_screen.dart';
 
 /// Tela de Detalhes da Entrega
@@ -78,6 +81,15 @@ class EntregaDetailScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               provider.atualizarStatus(entrega.id, 'em_rota');
+              final eventoProvider = Provider.of<EventoTurnoProvider>(context, listen: false);
+              if (eventoProvider.turnoAtivo) {
+                final fiscalId = Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+                eventoProvider.registrar(
+                  fiscalId: fiscalId,
+                  tipo: TipoEvento.entregaStatusAlterado,
+                  detalhe: 'NF ${entrega.numeroNota} → Em Rota',
+                );
+              }
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -113,6 +125,15 @@ class EntregaDetailScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               provider.atualizarStatus(entrega.id, 'entregue');
+              final eventoProvider = Provider.of<EventoTurnoProvider>(context, listen: false);
+              if (eventoProvider.turnoAtivo) {
+                final fiscalId = Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+                eventoProvider.registrar(
+                  fiscalId: fiscalId,
+                  tipo: TipoEvento.entregaStatusAlterado,
+                  detalhe: 'NF ${entrega.numeroNota} → Entregue',
+                );
+              }
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(

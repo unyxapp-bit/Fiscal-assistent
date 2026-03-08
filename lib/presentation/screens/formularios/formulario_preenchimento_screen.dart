@@ -5,6 +5,9 @@ import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../../domain/entities/formulario.dart';
+import '../../../domain/entities/evento_turno.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/evento_turno_provider.dart';
 import '../../providers/formulario_provider.dart';
 
 class FormularioPreenchimentoScreen extends StatefulWidget {
@@ -97,6 +100,15 @@ class _FormularioPreenchimentoScreenState
         .adicionarResposta(resposta);
 
     if (!mounted) return;
+    final eventoProvider = Provider.of<EventoTurnoProvider>(context, listen: false);
+    if (eventoProvider.turnoAtivo) {
+      final fiscalId = Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+      eventoProvider.registrar(
+        fiscalId: fiscalId,
+        tipo: TipoEvento.formularioRespondido,
+        detalhe: widget.formulario.titulo,
+      );
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Formulário enviado com sucesso!'),

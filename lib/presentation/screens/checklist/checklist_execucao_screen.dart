@@ -3,7 +3,10 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
+import '../../../domain/entities/evento_turno.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/checklist_provider.dart';
+import '../../providers/evento_turno_provider.dart';
 
 class ChecklistExecucaoScreen extends StatelessWidget {
   final String execucaoId;
@@ -47,6 +50,15 @@ class ChecklistExecucaoScreen extends StatelessWidget {
             TextButton.icon(
               onPressed: () {
                 provider.concluir(execucaoId);
+                final eventoProvider = Provider.of<EventoTurnoProvider>(context, listen: false);
+                if (eventoProvider.turnoAtivo) {
+                  final fiscalId = Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+                  eventoProvider.registrar(
+                    fiscalId: fiscalId,
+                    tipo: TipoEvento.checklistConcluido,
+                    detalhe: titulo,
+                  );
+                }
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('$titulo concluído!'),

@@ -4,6 +4,9 @@ import 'package:share_plus/share_plus.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
+import '../../../domain/entities/evento_turno.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/evento_turno_provider.dart';
 import '../../providers/ocorrencia_provider.dart';
 import 'ocorrencia_form_screen.dart';
 
@@ -171,7 +174,18 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
             isThreeLine: true,
             trailing: PopupMenuButton<String>(
               onSelected: (v) {
-                if (v == 'resolver') provider.resolver(oc.id);
+                if (v == 'resolver') {
+                  provider.resolver(oc.id);
+                  final eventoProvider = Provider.of<EventoTurnoProvider>(ctx, listen: false);
+                  if (eventoProvider.turnoAtivo) {
+                    final fiscalId = Provider.of<AuthProvider>(ctx, listen: false).user?.id ?? '';
+                    eventoProvider.registrar(
+                      fiscalId: fiscalId,
+                      tipo: TipoEvento.ocorrenciaResolvida,
+                      detalhe: '${oc.tipo} — ${oc.gravidade.nome}',
+                    );
+                  }
+                }
                 if (v == 'compartilhar') _compartilharOcorrencia(oc);
                 if (v == 'deletar') _confirmarDelete(ctx, oc, provider);
               },
