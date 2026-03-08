@@ -101,7 +101,7 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
           : TabBarView(
               controller: _tabCtrl,
               children: [
-                _buildListaTab(colaboradorProvider),
+                _buildListaTab(colaboradorProvider, alocacaoProvider),
                 _buildStatusTab(
                     colaboradorProvider, caixaProvider, alocacaoProvider),
               ],
@@ -119,7 +119,7 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
 
   // ── Aba 1: Lista ─────────────────────────────────────────────────────────
 
-  Widget _buildListaTab(ColaboradorProvider provider) {
+  Widget _buildListaTab(ColaboradorProvider provider, AlocacaoProvider alocacaoProvider) {
     return Column(
       children: [
         // Busca
@@ -179,6 +179,7 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
                               : width < 900
                                   ? 4
                                   : 5;
+                      final showDetails = crossAxisCount >= 4;
                       return GridView.builder(
                         padding: const EdgeInsets.all(Dimensions.paddingMD),
                         gridDelegate:
@@ -186,7 +187,7 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
                           crossAxisCount: crossAxisCount,
                           crossAxisSpacing: 8,
                           mainAxisSpacing: 8,
-                          childAspectRatio: 0.85,
+                          childAspectRatio: showDetails ? 0.68 : 0.85,
                         ),
                         itemCount: provider.colaboradores.length,
                         itemBuilder: (context, index) {
@@ -199,6 +200,10 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
                               colaborador.id,
                               colaborador.nome,
                             ),
+                            alocacaoAtual: showDetails
+                                ? alocacaoProvider.getAlocacaoColaborador(colaborador.id)
+                                : null,
+                            showDetails: showDetails,
                           );
                         },
                       );
