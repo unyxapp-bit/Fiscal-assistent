@@ -169,26 +169,38 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
                 )
               : RefreshIndicator(
                   onRefresh: _loadData,
-                  child: GridView.builder(
-                    padding: const EdgeInsets.all(Dimensions.paddingMD),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 8,
-                      childAspectRatio: 0.85,
-                    ),
-                    itemCount: provider.colaboradores.length,
-                    itemBuilder: (context, index) {
-                      final colaborador = provider.colaboradores[index];
-                      return ColaboradorGridCard(
-                        colaborador: colaborador,
-                        onTap: () => _navigateToDetail(colaborador),
-                        onDelete: () => _deleteColaborador(
-                          context,
-                          colaborador.id,
-                          colaborador.nome,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final width = constraints.maxWidth;
+                      final crossAxisCount = width < 400
+                          ? 2
+                          : width < 650
+                              ? 3
+                              : width < 900
+                                  ? 4
+                                  : 5;
+                      return GridView.builder(
+                        padding: const EdgeInsets.all(Dimensions.paddingMD),
+                        gridDelegate:
+                            SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                          childAspectRatio: 0.85,
                         ),
+                        itemCount: provider.colaboradores.length,
+                        itemBuilder: (context, index) {
+                          final colaborador = provider.colaboradores[index];
+                          return ColaboradorGridCard(
+                            colaborador: colaborador,
+                            onTap: () => _navigateToDetail(colaborador),
+                            onDelete: () => _deleteColaborador(
+                              context,
+                              colaborador.id,
+                              colaborador.nome,
+                            ),
+                          );
+                        },
                       );
                     },
                   ),
