@@ -285,23 +285,28 @@ class EscalaProvider with ChangeNotifier {
 
       final segundaNorm =
           DateTime(segunda.year, segunda.month, segunda.day);
-      final fim = segundaNorm.add(const Duration(days: 6));
 
-      // Única query para todos os colaboradores no intervalo da semana
+      // Busca todos os registros dos colaboradores (sem filtro de data),
+      // ordenados do mais recente para o mais antigo, para usar como template
+      // de qualquer semana independente do ano.
+      final umAnoAtras = segundaNorm.subtract(const Duration(days: 365 * 2));
       final rows = await SupabaseClientManager.client
           .from('registros_ponto')
           .select()
           .inFilter('colaborador_id', ativos.map((c) => c.id).toList())
-          .gte('data', _dateKey(segundaNorm))
-          .lte('data', _dateKey(fim));
+          .gte('data', _dateKey(umAnoAtras))
+          .order('data', ascending: false);
 
-      // Map: colaboradorId → dateKey → linha do banco
-      final regMap = <String, Map<String, Map<String, dynamic>>>{};
+      // Map: colaboradorId → weekday (1=Seg…7=Dom) → linha mais recente
+      final regMap = <String, Map<int, Map<String, dynamic>>>{};
       for (final row in (rows as List)) {
         final m = row as Map<String, dynamic>;
         final cId = m['colaborador_id'] as String;
-        final dk = (m['data'] as String).substring(0, 10);
-        regMap.putIfAbsent(cId, () => <String, Map<String, dynamic>>{})[dk] = m;
+        final date = DateTime.parse((m['data'] as String).substring(0, 10));
+        final wd = date.weekday; // 1=Seg, 7=Dom
+        regMap.putIfAbsent(cId, () => <int, Map<String, dynamic>>{});
+        // Só guarda o mais recente (já ordenado desc)
+        regMap[cId]!.putIfAbsent(wd, () => m);
       }
 
       final novosTurnos = <TurnoLocal>[];
@@ -316,8 +321,7 @@ class EscalaProvider with ChangeNotifier {
             continue;
           }
 
-          final dk = _dateKey(dia);
-          final reg = regMap[colab.id]?[dk];
+          final reg = regMap[colab.id]?[dia.weekday];
 
           if (reg != null) {
             final obs = (reg['observacao'] as String?)?.toUpperCase();
