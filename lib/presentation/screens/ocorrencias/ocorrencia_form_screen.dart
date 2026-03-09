@@ -7,6 +7,7 @@ import '../../../domain/entities/evento_turno.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/evento_turno_provider.dart';
 import '../../providers/ocorrencia_provider.dart';
+import '../../../core/utils/app_notif.dart';
 
 class OcorrenciaFormScreen extends StatefulWidget {
   const OcorrenciaFormScreen({super.key});
@@ -29,10 +30,13 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
   void _salvar() {
     final descricao = _descricaoCtrl.text.trim();
     if (descricao.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Descreva o que aconteceu'),
-        backgroundColor: AppColors.danger,
-      ));
+      AppNotif.show(
+        context,
+        titulo: 'Campo Inválido',
+        mensagem: 'Descreva o que aconteceu',
+        tipo: 'alerta',
+        cor: AppColors.danger,
+      );
       return;
     }
     final tipo = _tipoCtrl.text.trim().isEmpty ? 'Outro' : _tipoCtrl.text.trim();
@@ -50,10 +54,13 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
         detalhe: '$tipo — ${_gravidade.nome}',
       );
     }
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('Ocorrência registrada!'),
-      backgroundColor: AppColors.success,
-    ));
+    AppNotif.show(
+      context,
+      titulo: 'Ocorrência Registrada',
+      mensagem: 'Ocorrência registrada!',
+      tipo: 'saida',
+      cor: AppColors.success,
+    );
     Navigator.of(context).pop();
   }
 

@@ -9,6 +9,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/colaborador_provider.dart';
 import '../../widgets/buttons/primary_button.dart';
 import '../../widgets/inputs/custom_text_field.dart';
+import '../../../core/utils/app_notif.dart';
 
 /// Tela de criar/editar colaborador
 class ColaboradorFormScreen extends StatefulWidget {
@@ -65,8 +66,11 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erro ao carregar colaborador')),
+        AppNotif.show(
+          context,
+          titulo: 'Erro',
+          mensagem: 'Erro ao carregar colaborador',
+          tipo: 'alerta',
         );
       }
     }
@@ -94,13 +98,14 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
       if (!mounted) return;
 
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_colaboradorAtual != null
-                ? 'Colaborador atualizado!'
-                : 'Colaborador criado!'),
-            backgroundColor: AppColors.success,
-          ),
+        AppNotif.show(
+          context,
+          titulo: 'Colaborador Salvo',
+          mensagem: _colaboradorAtual != null
+              ? 'Colaborador atualizado!'
+              : 'Colaborador criado!',
+          tipo: 'saida',
+          cor: AppColors.success,
         );
         Navigator.of(context).pop();
       } else {
@@ -144,11 +149,12 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.danger,
-      ),
+    AppNotif.show(
+      context,
+      titulo: 'Erro',
+      mensagem: message,
+      tipo: 'alerta',
+      cor: AppColors.danger,
     );
   }
 

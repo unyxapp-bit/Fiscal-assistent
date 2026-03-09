@@ -5,6 +5,7 @@ import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../providers/passagem_turno_provider.dart';
+import '../../../core/utils/app_notif.dart';
 
 class PassagemTurnoScreen extends StatefulWidget {
   const PassagemTurnoScreen({super.key});
@@ -38,11 +39,12 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
   void _salvar(PassagemTurnoProvider provider) {
     final resumo = _resumoCtrl.text.trim();
     if (resumo.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Preencha ao menos o resumo do turno'),
-          backgroundColor: AppColors.danger,
-        ),
+      AppNotif.show(
+        context,
+        titulo: 'Campo Inválido',
+        mensagem: 'Preencha ao menos o resumo do turno',
+        tipo: 'alerta',
+        cor: AppColors.danger,
       );
       return;
     }
@@ -58,11 +60,12 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
     _recadosCtrl.clear();
     setState(() => _showForm = false);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Passagem de turno registrada!'),
-        backgroundColor: AppColors.success,
-      ),
+    AppNotif.show(
+      context,
+      titulo: 'Turno Registrado',
+      mensagem: 'Passagem de turno registrada!',
+      tipo: 'saida',
+      cor: AppColors.success,
     );
   }
 
@@ -83,8 +86,11 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
       buf.writeln(p.recados);
     }
     Clipboard.setData(ClipboardData(text: buf.toString().trim()));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Copiado para área de transferência')),
+    AppNotif.show(
+      context,
+      titulo: 'Copiado',
+      mensagem: 'Copiado para área de transferência',
+      tipo: 'intervalo',
     );
   }
 

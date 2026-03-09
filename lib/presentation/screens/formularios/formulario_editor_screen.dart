@@ -6,6 +6,7 @@ import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../../domain/entities/formulario.dart';
 import '../../providers/formulario_provider.dart';
+import '../../../core/utils/app_notif.dart';
 
 // ── Estado interno de cada campo ──────────────────────────────────────────────
 
@@ -106,9 +107,11 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
 
   void _removerCampo(int index) {
     if (_campos.length <= 1) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('O formulário precisa ter pelo menos 1 campo')),
+      AppNotif.show(
+        context,
+        titulo: 'Campo Inválido',
+        mensagem: 'O formulário precisa ter pelo menos 1 campo',
+        tipo: 'alerta',
       );
       return;
     }
@@ -135,8 +138,11 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
         .toList();
 
     if (campos.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Adicione pelo menos 1 campo')),
+      AppNotif.show(
+        context,
+        titulo: 'Campo Inválido',
+        mensagem: 'Adicione pelo menos 1 campo',
+        tipo: 'alerta',
       );
       return;
     }
@@ -144,10 +150,11 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
     // Valida campos de opcoes: pelo menos 2 opções
     for (final c in campos) {
       if (c.tipo == TipoCampo.opcoes && c.opcoes.length < 2) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'Campo "${c.label}": adicione pelo menos 2 opções')),
+        AppNotif.show(
+          context,
+          titulo: 'Campo Inválido',
+          mensagem: 'Campo "${c.label}": adicione pelo menos 2 opções',
+          tipo: 'alerta',
         );
         return;
       }
@@ -164,10 +171,12 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
         updatedAt: now,
       ));
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Formulário atualizado!'),
-            backgroundColor: AppColors.success),
+      AppNotif.show(
+        context,
+        titulo: 'Formulário Atualizado',
+        mensagem: 'Formulário atualizado!',
+        tipo: 'saida',
+        cor: AppColors.success,
       );
     } else {
       provider.adicionarFormulario(Formulario(
@@ -179,10 +188,12 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
         updatedAt: now,
       ));
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Formulário criado!'),
-            backgroundColor: AppColors.success),
+      AppNotif.show(
+        context,
+        titulo: 'Formulário Criado',
+        mensagem: 'Formulário criado!',
+        tipo: 'saida',
+        cor: AppColors.success,
       );
     }
 

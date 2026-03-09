@@ -14,6 +14,7 @@ import '../../providers/escala_provider.dart';
 import '../../providers/evento_turno_provider.dart';
 import '../../providers/cafe_provider.dart';
 import '../../providers/pacote_plantao_provider.dart';
+import '../../../core/utils/app_notif.dart';
 
 /// Tela de alocação — lista colaboradores disponíveis agora e permite
 /// alocar em um caixa com dois toques.
@@ -270,21 +271,26 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     if (!mounted) return;
 
     if (pacoteProvider.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(pacoteProvider.error!),
-        backgroundColor: AppColors.danger,
-      ));
+      AppNotif.show(
+        context,
+        titulo: 'Erro',
+        mensagem: pacoteProvider.error!,
+        tipo: 'alerta',
+        cor: AppColors.danger,
+      );
     } else {
       eventoProvider.registrar(
         fiscalId: fiscalId,
         tipo: TipoEvento.empacotadorAdicionado,
         colaboradorNome: turno.colaboradorNome,
       );
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(
-            '${turno.colaboradorNome} adicionado ao plantão de empacotadores!'),
-        backgroundColor: const Color(0xFF795548),
-      ));
+      AppNotif.show(
+        context,
+        titulo: 'Empacotador Adicionado',
+        mensagem: '${turno.colaboradorNome} adicionado ao plantão de empacotadores!',
+        tipo: 'saida',
+        cor: const Color(0xFF795548),
+      );
     }
   }
 
@@ -310,10 +316,13 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     if (!mounted) return;
 
     if (alocacaoProvider.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(alocacaoProvider.error!),
-        backgroundColor: AppColors.danger,
-      ));
+      AppNotif.show(
+        context,
+        titulo: 'Erro',
+        mensagem: alocacaoProvider.error!,
+        tipo: 'alerta',
+        cor: AppColors.danger,
+      );
     } else {
       eventoProvider.registrar(
         fiscalId: fiscalId,
@@ -321,11 +330,13 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
         colaboradorNome: turno.colaboradorNome,
         caixaNome: caixa.nomeExibicao,
       );
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content:
-            Text('${turno.colaboradorNome} alocado em ${caixa.nomeExibicao}!'),
-        backgroundColor: AppColors.success,
-      ));
+      AppNotif.show(
+        context,
+        titulo: 'Colaborador Alocado',
+        mensagem: '${turno.colaboradorNome} alocado em ${caixa.nomeExibicao}!',
+        tipo: 'saida',
+        cor: AppColors.success,
+      );
     }
   }
 

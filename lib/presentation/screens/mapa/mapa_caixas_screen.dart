@@ -19,6 +19,7 @@ import '../caixas/widgets/caixa_card.dart';
 import 'widgets/caixa_list_item.dart';
 import 'widgets/balcao_list_item.dart';
 import 'widgets/pacote_section.dart';
+import '../../../core/utils/app_notif.dart';
 
 /// Tela de mapa de caixas — abas: Mapa | Caixas
 class MapaCaixasScreen extends StatefulWidget {
@@ -95,12 +96,14 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-              '${turno.colaboradorNome} atingiu o horário de saída e foi liberado(a) do caixa'),
-          backgroundColor: AppColors.success,
-          duration: const Duration(seconds: 5),
-        ));
+        AppNotif.show(
+          context,
+          titulo: 'Saída Automática',
+          mensagem: '${turno.colaboradorNome} atingiu o horário de saída e foi liberado(a) do caixa',
+          tipo: 'saida',
+          cor: AppColors.success,
+          duracao: const Duration(seconds: 5),
+        );
       }
     }
 
@@ -129,12 +132,14 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
       plantao.remover(p.id);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-              '${turno.colaboradorNome} atingiu o horário de saída e foi removido(a) do plantão de pacotes'),
-          backgroundColor: AppColors.success,
-          duration: const Duration(seconds: 5),
-        ));
+        AppNotif.show(
+          context,
+          titulo: 'Saída Automática',
+          mensagem: '${turno.colaboradorNome} atingiu o horário de saída e foi removido(a) do plantão de pacotes',
+          tipo: 'saida',
+          cor: AppColors.success,
+          duracao: const Duration(seconds: 5),
+        );
       }
     }
   }

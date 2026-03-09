@@ -9,6 +9,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/entrega_provider.dart';
 import '../../providers/evento_turno_provider.dart';
 import 'entrega_form_screen.dart';
+import '../../../core/utils/app_notif.dart';
 
 /// Tela de Detalhes da Entrega
 /// Mostra informações completas, timeline e permite mudança de status
@@ -91,11 +92,12 @@ class EntregaDetailScreen extends StatelessWidget {
                 );
               }
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Entrega marcada como "Em Rota"'),
-                  backgroundColor: AppColors.primary,
-                ),
+              AppNotif.show(
+                context,
+                titulo: 'Em Rota',
+                mensagem: 'Entrega marcada como "Em Rota"',
+                tipo: 'saida',
+                cor: AppColors.primary,
               );
             },
             style: ElevatedButton.styleFrom(
@@ -135,11 +137,12 @@ class EntregaDetailScreen extends StatelessWidget {
                 );
               }
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Entrega marcada como "Entregue"'),
-                  backgroundColor: AppColors.success,
-                ),
+              AppNotif.show(
+                context,
+                titulo: 'Entregue',
+                mensagem: 'Entrega marcada como "Entregue"',
+                tipo: 'saida',
+                cor: AppColors.success,
               );
             },
             style: ElevatedButton.styleFrom(
@@ -172,11 +175,12 @@ class EntregaDetailScreen extends StatelessWidget {
             onPressed: () {
               provider.atualizarStatus(entrega.id, 'cancelada');
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Entrega cancelada'),
-                  backgroundColor: AppColors.danger,
-                ),
+              AppNotif.show(
+                context,
+                titulo: 'Cancelada',
+                mensagem: 'Entrega cancelada',
+                tipo: 'alerta',
+                cor: AppColors.danger,
               );
             },
             style: ElevatedButton.styleFrom(
@@ -361,11 +365,11 @@ class EntregaDetailScreen extends StatelessWidget {
                             onPressed: () {
                               Clipboard.setData(
                                   ClipboardData(text: entrega.telefone!));
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Número copiado'),
-                                  duration: Duration(seconds: 2),
-                                ),
+                              AppNotif.show(
+                                context,
+                                titulo: 'Copiado',
+                                mensagem: 'Número copiado',
+                                tipo: 'intervalo',
                               );
                             },
                           ),

@@ -6,6 +6,7 @@ import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../../domain/entities/formulario.dart';
 import '../../providers/formulario_provider.dart';
+import '../../../core/utils/app_notif.dart';
 
 class FormularioRespostasScreen extends StatelessWidget {
   final Formulario formulario;
@@ -172,10 +173,11 @@ class FormularioRespostasScreen extends StatelessWidget {
                           onPressed: () {
                             Clipboard.setData(ClipboardData(
                                 text: _respostaParaTexto(resposta)));
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text(
-                                      'Resposta copiada para área de transferência')),
+                            AppNotif.show(
+                              context,
+                              titulo: 'Copiado',
+                              mensagem: 'Resposta copiada para área de transferência',
+                              tipo: 'intervalo',
                             );
                           },
                         ),
@@ -257,9 +259,11 @@ class FormularioRespostasScreen extends StatelessWidget {
                     onPressed: () {
                       Clipboard.setData(ClipboardData(
                           text: _respostaParaTexto(resposta)));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Copiado para área de transferência')),
+                      AppNotif.show(
+                        context,
+                        titulo: 'Copiado',
+                        mensagem: 'Copiado para área de transferência',
+                        tipo: 'intervalo',
                       );
                     },
                   ),

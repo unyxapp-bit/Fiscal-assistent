@@ -14,6 +14,7 @@ import '../../../providers/cafe_provider.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/registro_ponto_provider.dart';
 import '../../alocacao/alocacao_screen.dart';
+import '../../../../core/utils/app_notif.dart';
 
 /// Item do grid de caixas
 class CaixaGridItem extends StatelessWidget {
@@ -543,11 +544,12 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                   'Liberado pelo mapa visual',
                 );
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Colaborador liberado!'),
-                      backgroundColor: AppColors.success,
-                    ),
+                  AppNotif.show(
+                    context,
+                    titulo: 'Colaborador Liberado',
+                    mensagem: 'Colaborador liberado!',
+                    tipo: 'saida',
+                    cor: AppColors.success,
                   );
                 }
               },

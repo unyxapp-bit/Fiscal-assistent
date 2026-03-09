@@ -40,6 +40,7 @@ import '../relatorio/relatorio_diario_screen.dart';
 // profile_screen.dart usado via ConfiguracoesScreen
 import '../configuracoes/configuracoes_screen.dart';
 import '../../../data/services/seed_data_service.dart';
+import '../../../core/utils/app_notif.dart';
 import 'widgets/clock_widget.dart';
 import 'widgets/quick_action_button.dart';
 
@@ -1727,17 +1728,18 @@ class _BriefingTurnoSheet extends StatelessWidget {
 
     Navigator.pop(context);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Turno iniciado às $horaFormatada — registrado na timeline'),
-        backgroundColor: AppColors.success,
-        duration: const Duration(seconds: 4),
-        action: SnackBarAction(
-          label: 'Ver',
-          textColor: Colors.white,
-          onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const TimelineScreen()),
-          ),
+    AppNotif.show(
+      context,
+      titulo: 'Turno Iniciado',
+      mensagem: 'Turno iniciado às $horaFormatada — registrado na timeline',
+      tipo: 'saida',
+      cor: AppColors.success,
+      duracao: const Duration(seconds: 4),
+      acao: SnackBarAction(
+        label: 'Ver',
+        textColor: Colors.white,
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const TimelineScreen()),
         ),
       ),
     );

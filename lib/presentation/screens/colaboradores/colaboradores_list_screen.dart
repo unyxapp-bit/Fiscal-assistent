@@ -15,6 +15,7 @@ import '../../widgets/common/empty_state_widget.dart';
 import 'colaborador_form_screen.dart';
 import 'colaborador_detail_screen.dart';
 import 'widgets/colaborador_list_item.dart';
+import '../../../core/utils/app_notif.dart';
 
 /// Tela de colaboradores com abas Lista e Status.
 class ColaboradoresListScreen extends StatefulWidget {
@@ -430,14 +431,14 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
           Provider.of<ColaboradorProvider>(context, listen: false);
       final success = await provider.deleteColaborador(id);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(success
-                ? '$nome excluído com sucesso'
-                : 'Erro ao excluir colaborador'),
-            backgroundColor:
-                success ? AppColors.success : AppColors.danger,
-          ),
+        AppNotif.show(
+          context,
+          titulo: success ? 'Removido' : 'Erro',
+          mensagem: success
+              ? '$nome excluído com sucesso'
+              : 'Erro ao excluir colaborador',
+          tipo: success ? 'saida' : 'alerta',
+          cor: success ? AppColors.success : AppColors.danger,
         );
       }
     }

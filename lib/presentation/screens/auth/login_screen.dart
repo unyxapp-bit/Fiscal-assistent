@@ -4,6 +4,7 @@ import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../providers/auth_provider.dart';
+import '../../../core/utils/app_notif.dart';
 import '../../widgets/common/loading_widget.dart';
 import '../../widgets/inputs/custom_text_field.dart';
 import '../../widgets/buttons/primary_button.dart';
@@ -40,11 +41,12 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (!success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(authProvider.errorMessage ?? 'Erro ao fazer login'),
-          backgroundColor: AppColors.danger,
-        ),
+      AppNotif.show(
+        context,
+        titulo: 'Erro',
+        mensagem: authProvider.errorMessage ?? 'Erro ao fazer login',
+        tipo: 'alerta',
+        cor: AppColors.danger,
       );
     }
   }

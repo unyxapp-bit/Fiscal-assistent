@@ -12,6 +12,7 @@ import '../../../../data/services/notification_service.dart';
 import 'colaborador_detalhes_sheet.dart'
     show JornadaResult, StatusBadge, InfoRow, HorarioGrid;
 import '../../../providers/escala_provider.dart' show TurnoLocal;
+import '../../../../core/utils/app_notif.dart';
 
 const Color _kPacoteColor = Color(0xFF795548);
 
@@ -418,7 +419,6 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
     final cafeProvider =
         Provider.of<CafeProvider>(widget.providerContext, listen: false);
     final navigator = Navigator.of(context);
-    final messenger = ScaffoldMessenger.of(widget.providerContext);
 
     final confirm = await showDialog<bool>(
       context: context,
@@ -452,12 +452,12 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
 
     if (mounted) {
       navigator.pop();
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-              '${widget.colaborador.nome} — pausa de café iniciada (10 min)'),
-          backgroundColor: const Color(0xFF8D6E63),
-        ),
+      AppNotif.show(
+        widget.providerContext,
+        titulo: 'Café Iniciado',
+        mensagem: '${widget.colaborador.nome} — pausa de café iniciada (10 min)',
+        tipo: 'cafe',
+        cor: const Color(0xFF8D6E63),
       );
     }
   }
@@ -485,7 +485,6 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
     }
 
     final navigator = Navigator.of(context);
-    final messenger = ScaffoldMessenger.of(widget.providerContext);
 
     final confirm = await showDialog<bool>(
       context: context,
@@ -520,12 +519,12 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
 
     if (mounted) {
       navigator.pop();
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-              '${widget.colaborador.nome} — intervalo de $duracaoMinutos min. Notificação agendada.'),
-          backgroundColor: Colors.orange,
-        ),
+      AppNotif.show(
+        widget.providerContext,
+        titulo: 'Intervalo Iniciado',
+        mensagem: '${widget.colaborador.nome} — intervalo de $duracaoMinutos min. Notificação agendada.',
+        tipo: 'intervalo',
+        cor: Colors.orange,
       );
     }
   }

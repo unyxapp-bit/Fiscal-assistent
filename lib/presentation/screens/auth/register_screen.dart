@@ -4,6 +4,7 @@ import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../providers/auth_provider.dart';
+import '../../../core/utils/app_notif.dart';
 import '../../widgets/common/loading_widget.dart';
 import '../../widgets/inputs/custom_text_field.dart';
 import '../../widgets/buttons/primary_button.dart';
@@ -46,21 +47,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (success) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Conta criada com sucesso!'),
-            backgroundColor: AppColors.success,
-          ),
+        AppNotif.show(
+          context,
+          titulo: 'Conta Criada',
+          mensagem: 'Conta criada com sucesso!',
+          tipo: 'saida',
+          cor: AppColors.success,
         );
         Navigator.of(context).pop();
       }
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(authProvider.errorMessage ?? 'Erro ao criar conta'),
-            backgroundColor: AppColors.danger,
-          ),
+        AppNotif.show(
+          context,
+          titulo: 'Erro',
+          mensagem: authProvider.errorMessage ?? 'Erro ao criar conta',
+          tipo: 'alerta',
+          cor: AppColors.danger,
         );
       }
     }

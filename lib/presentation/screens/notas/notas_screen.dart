@@ -10,6 +10,7 @@ import '../../../domain/entities/nota.dart';
 import '../../../domain/enums/tipo_lembrete.dart';
 import '../../providers/nota_provider.dart';
 import 'nota_form_screen.dart';
+import '../../../core/utils/app_notif.dart';
 
 class NotasScreen extends StatefulWidget {
   const NotasScreen({super.key});
@@ -317,9 +318,11 @@ class _NotasScreenState extends State<NotasScreen> {
           onLongPress: () {
             Clipboard.setData(
                 ClipboardData(text: '${nota.titulo}\n${nota.conteudo}'));
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content: Text('Copiado para área de transferência')),
+            AppNotif.show(
+              context,
+              titulo: 'Copiado',
+              mensagem: 'Copiado para área de transferência',
+              tipo: 'intervalo',
             );
           },
           child: Padding(

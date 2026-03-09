@@ -10,6 +10,7 @@ import '../../providers/alocacao_provider.dart';
 import '../../providers/registro_ponto_provider.dart';
 import 'colaborador_form_screen.dart';
 import 'registro_ponto_form_screen.dart';
+import '../../../core/utils/app_notif.dart';
 
 /// Tela de Detalhes do Colaborador
 class ColaboradorDetailScreen extends StatefulWidget {
@@ -596,12 +597,12 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
     if (confirm == true && mounted) {
       final success = await provider.deleteRegistroPonto(r.id);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                success ? 'Registro excluído' : 'Erro ao excluir registro'),
-            backgroundColor: success ? AppColors.success : AppColors.danger,
-          ),
+        AppNotif.show(
+          context,
+          titulo: success ? 'Registro Excluído' : 'Erro',
+          mensagem: success ? 'Registro excluído' : 'Erro ao excluir registro',
+          tipo: success ? 'saida' : 'alerta',
+          cor: success ? AppColors.success : AppColors.danger,
         );
       }
     }

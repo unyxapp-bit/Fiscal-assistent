@@ -6,6 +6,7 @@ import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../providers/procedimento_provider.dart';
 import 'procedimento_form_screen.dart';
+import '../../../core/utils/app_notif.dart';
 
 class ProcedimentoDetailScreen extends StatefulWidget {
   final Procedimento procedimento;
@@ -37,8 +38,11 @@ class _ProcedimentoDetailScreenState
       buf.writeln('${i + 1}. ${proc.passos[i]}');
     }
     Clipboard.setData(ClipboardData(text: buf.toString().trim()));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Copiado para área de transferência')),
+    AppNotif.show(
+      context,
+      titulo: 'Copiado',
+      mensagem: 'Copiado para área de transferência',
+      tipo: 'intervalo',
     );
   }
 

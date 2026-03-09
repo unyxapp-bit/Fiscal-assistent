@@ -6,6 +6,7 @@ import '../../../core/constants/dimensions.dart';
 import '../../../domain/entities/registro_ponto.dart';
 import '../../providers/registro_ponto_provider.dart';
 import '../../widgets/buttons/primary_button.dart';
+import '../../../core/utils/app_notif.dart';
 
 /// Tela para criar ou editar um Registro de Ponto
 class RegistroPontoFormScreen extends StatefulWidget {
@@ -184,19 +185,21 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
     setState(() => _isLoading = false);
 
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_isEdit ? 'Registro atualizado!' : 'Registro criado!'),
-          backgroundColor: AppColors.success,
-        ),
+      AppNotif.show(
+        context,
+        titulo: 'Registro Salvo',
+        mensagem: _isEdit ? 'Registro atualizado!' : 'Registro criado!',
+        tipo: 'saida',
+        cor: AppColors.success,
       );
       Navigator.of(context).pop();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(provider.errorMessage ?? 'Erro ao salvar'),
-          backgroundColor: AppColors.danger,
-        ),
+      AppNotif.show(
+        context,
+        titulo: 'Erro',
+        mensagem: provider.errorMessage ?? 'Erro ao salvar',
+        tipo: 'alerta',
+        cor: AppColors.danger,
       );
     }
   }

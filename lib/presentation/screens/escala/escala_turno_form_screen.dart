@@ -9,6 +9,7 @@ import '../../../domain/entities/registro_ponto.dart';
 import '../../providers/colaborador_provider.dart';
 import '../../providers/escala_provider.dart';
 import '../../providers/registro_ponto_provider.dart';
+import '../../../core/utils/app_notif.dart';
 
 class EscalaTurnoFormScreen extends StatefulWidget {
   final DateTime data;
@@ -495,14 +496,13 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
           : _observacaoController.text.trim(),
     );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '${_colaboradorSelecionado!.nome} '
+    AppNotif.show(
+      context,
+      titulo: 'Escala Salva',
+      mensagem: '${_colaboradorSelecionado!.nome} '
           '${widget.turnoExistente != null ? "atualizado" : "adicionado"} na escala!',
-        ),
-        backgroundColor: AppColors.success,
-      ),
+      tipo: 'saida',
+      cor: AppColors.success,
     );
 
     Navigator.pop(context);

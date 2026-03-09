@@ -9,6 +9,7 @@ import '../../../domain/entities/evento_turno.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/entrega_provider.dart';
 import '../../providers/evento_turno_provider.dart';
+import '../../../core/utils/app_notif.dart';
 
 /// Tela de Formulário de Entrega
 /// Permite cadastrar ou editar uma entrega
@@ -175,15 +176,21 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                     Navigator.of(sheetCtx).pop();
                     if (!mounted) return;
                     if (erro != null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(erro), backgroundColor: AppColors.danger),
+                      AppNotif.show(
+                        context,
+                        titulo: 'Erro no CSV',
+                        mensagem: erro,
+                        tipo: 'alerta',
+                        cor: AppColors.danger,
                       );
                     } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Formulário preenchido com sucesso!'),
-                          backgroundColor: AppColors.success,
-                        ),
+                      AppNotif.show(
+                        context,
+                        titulo: 'CSV Aplicado',
+                        mensagem: 'Formulário preenchido com sucesso!',
+                        tipo: 'saida',
+                        cor: AppColors.success,
+                      );
                       );
                     }
                   },
@@ -285,11 +292,12 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
         );
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Entrega cadastrada com sucesso!'),
-          backgroundColor: AppColors.success,
-        ),
+      AppNotif.show(
+        context,
+        titulo: 'Entrega Cadastrada',
+        mensagem: 'Entrega cadastrada com sucesso!',
+        tipo: 'saida',
+        cor: AppColors.success,
       );
 
       Navigator.of(context).pop(true);
@@ -313,11 +321,12 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Entrega atualizada com sucesso!'),
-          backgroundColor: AppColors.success,
-        ),
+      AppNotif.show(
+        context,
+        titulo: 'Entrega Atualizada',
+        mensagem: 'Entrega atualizada com sucesso!',
+        tipo: 'saida',
+        cor: AppColors.success,
       );
 
       Navigator.of(context).pop(true);

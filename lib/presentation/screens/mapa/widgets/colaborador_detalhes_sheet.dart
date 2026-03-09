@@ -18,6 +18,7 @@ import '../../../../domain/entities/evento_turno.dart';
 import '../../alocacao/alocacao_screen.dart';
 import '../../../../data/services/notification_service.dart';
 import '../../../providers/ocorrencia_provider.dart';
+import '../../../../core/utils/app_notif.dart';
 
 // ─────────────────────────────────────────────
 // Resultado do cálculo de jornada
@@ -515,8 +516,6 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                         ?.id ??
                     '';
                 final navigator = Navigator.of(context);
-                final messenger =
-                    ScaffoldMessenger.of(widget.providerContext);
 
                 navigator.pop();
                 await widget.alocacaoProvider.liberarAlocacao(
@@ -529,11 +528,12 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                   colaboradorNome: widget.colaborador?.nome,
                   caixaNome: widget.caixa.nomeExibicao,
                 );
-                messenger.showSnackBar(
-                  const SnackBar(
-                    content: Text('Colaborador liberado!'),
-                    backgroundColor: AppColors.success,
-                  ),
+                AppNotif.show(
+                  widget.providerContext,
+                  titulo: 'Colaborador Liberado',
+                  mensagem: 'Colaborador liberado!',
+                  tipo: 'saida',
+                  cor: AppColors.success,
                 );
               },
               icon: const Icon(Icons.exit_to_app),
@@ -727,7 +727,6 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     final eventoProvider =
         Provider.of<EventoTurnoProvider>(widget.providerContext, listen: false);
     final navigator = Navigator.of(context);
-    final messenger = ScaffoldMessenger.of(widget.providerContext);
 
     final confirm = await showDialog<bool>(
       context: context,
@@ -781,12 +780,12 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
 
     if (mounted) {
       navigator.pop();
-      messenger.showSnackBar(
-        SnackBar(
-          content:
-              Text('${novo.nome} alocado no ${widget.caixa.nomeExibicao}'),
-          backgroundColor: AppColors.success,
-        ),
+      AppNotif.show(
+        widget.providerContext,
+        titulo: 'Colaborador Alocado',
+        mensagem: '${novo.nome} alocado no ${widget.caixa.nomeExibicao}',
+        tipo: 'saida',
+        cor: AppColors.success,
       );
     }
   }
@@ -804,7 +803,6 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                 ?.id ??
             '';
     final navigator = Navigator.of(context);
-    final messenger = ScaffoldMessenger.of(widget.providerContext);
 
     final confirm = await showDialog<bool>(
       context: context,
@@ -850,12 +848,12 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
 
     if (mounted) {
       navigator.pop();
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-              '${widget.colaborador!.nome} — pausa de café iniciada (10 min)'),
-          backgroundColor: const Color(0xFF8D6E63),
-        ),
+      AppNotif.show(
+        widget.providerContext,
+        titulo: 'Café Iniciado',
+        mensagem: '${widget.colaborador!.nome} — pausa de café iniciada (10 min)',
+        tipo: 'cafe',
+        cor: const Color(0xFF8D6E63),
       );
     }
   }
@@ -885,7 +883,6 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     }
 
     final navigator = Navigator.of(context);
-    final messenger = ScaffoldMessenger.of(widget.providerContext);
     final cafeProviderIntervalo =
         Provider.of<CafeProvider>(widget.providerContext, listen: false);
     final eventoProviderIntervalo =
@@ -950,12 +947,12 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
 
     if (mounted) {
       navigator.pop();
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-              '${widget.colaborador!.nome} — intervalo de $duracaoMinutos min. Notificação agendada.'),
-          backgroundColor: Colors.orange,
-        ),
+      AppNotif.show(
+        widget.providerContext,
+        titulo: 'Intervalo Iniciado',
+        mensagem: '${widget.colaborador!.nome} — intervalo de $duracaoMinutos min. Notificação agendada.',
+        tipo: 'intervalo',
+        cor: Colors.orange,
       );
     }
   }

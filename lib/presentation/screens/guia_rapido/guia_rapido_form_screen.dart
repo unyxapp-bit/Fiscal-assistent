@@ -5,6 +5,7 @@ import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../providers/guia_rapido_provider.dart';
+import '../../../core/utils/app_notif.dart';
 
 class GuiaRapidoFormScreen extends StatefulWidget {
   final SituacaoGuia? situacao;
@@ -67,10 +68,13 @@ class _GuiaRapidoFormScreenState extends State<GuiaRapidoFormScreen> {
     final titulo = _tituloCtrl.text.trim();
     final categoria = _categoriaCtrl.text.trim();
     if (titulo.isEmpty || categoria.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Preencha o título e a categoria'),
-        backgroundColor: AppColors.danger,
-      ));
+      AppNotif.show(
+        context,
+        titulo: 'Campo Inválido',
+        mensagem: 'Preencha o título e a categoria',
+        tipo: 'alerta',
+        cor: AppColors.danger,
+      );
       return;
     }
 

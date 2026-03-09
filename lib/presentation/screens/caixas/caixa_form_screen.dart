@@ -9,6 +9,7 @@ import '../../../domain/enums/tipo_caixa.dart';
 import '../../../data/models/caixa_model.dart';
 import '../../providers/caixa_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../../core/utils/app_notif.dart';
 
 class CaixaFormScreen extends StatefulWidget {
   final Caixa? caixa;
@@ -66,11 +67,12 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
 
     if (fiscalId == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Erro: Usuário não autenticado'),
-          backgroundColor: AppColors.danger,
-        ),
+      AppNotif.show(
+        context,
+        titulo: 'Erro',
+        mensagem: 'Erro: Usuário não autenticado',
+        tipo: 'alerta',
+        cor: AppColors.danger,
       );
       return;
     }
@@ -120,24 +122,24 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
     try {
       await caixaProvider.upsertCaixa(caixa);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            widget.caixa == null
-                ? 'Caixa cadastrado com sucesso!'
-                : 'Caixa atualizado com sucesso!',
-          ),
-          backgroundColor: AppColors.success,
-        ),
+      AppNotif.show(
+        context,
+        titulo: 'Caixa Salvo',
+        mensagem: widget.caixa == null
+            ? 'Caixa cadastrado com sucesso!'
+            : 'Caixa atualizado com sucesso!',
+        tipo: 'saida',
+        cor: AppColors.success,
       );
       Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao salvar: $e'),
-          backgroundColor: AppColors.danger,
-        ),
+      AppNotif.show(
+        context,
+        titulo: 'Erro',
+        mensagem: 'Erro ao salvar: $e',
+        tipo: 'alerta',
+        cor: AppColors.danger,
       );
     }
   }

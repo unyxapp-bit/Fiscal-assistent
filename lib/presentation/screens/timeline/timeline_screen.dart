@@ -9,6 +9,7 @@ import '../../../domain/entities/evento_turno.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/evento_turno_provider.dart';
 import '../relatorios/relatorios_dia_screen.dart';
+import '../../../core/utils/app_notif.dart';
 
 class TimelineScreen extends StatelessWidget {
   const TimelineScreen({super.key});
@@ -135,17 +136,18 @@ class TimelineScreen extends StatelessWidget {
     if (!context.mounted) return;
 
     if (relatorio != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Turno encerrado! Relatório salvo.'),
-          backgroundColor: AppColors.success,
-          action: SnackBarAction(
-            label: 'Ver Relatório',
-            textColor: Colors.white,
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const RelatoriosDiaScreen()),
-            ),
+      AppNotif.show(
+        context,
+        titulo: 'Turno Encerrado',
+        mensagem: 'Turno encerrado! Relatório salvo.',
+        tipo: 'saida',
+        cor: AppColors.success,
+        acao: SnackBarAction(
+          label: 'Ver Relatório',
+          textColor: Colors.white,
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const RelatoriosDiaScreen()),
           ),
         ),
       );
@@ -175,28 +177,29 @@ class TimelineScreen extends StatelessWidget {
     final texto = buffer.toString();
     Clipboard.setData(ClipboardData(text: texto));
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Timeline copiada para a área de transferência!'),
-        backgroundColor: AppColors.success,
-        action: SnackBarAction(
-          label: 'Ver',
-          textColor: Colors.white,
-          onPressed: () => showDialog(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: const Text('Timeline Exportada'),
-              content: SingleChildScrollView(
-                child: Text(texto,
-                    style:
-                        const TextStyle(fontFamily: 'monospace', fontSize: 12)),
-              ),
-              actions: [
-                TextButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    child: const Text('Fechar')),
-              ],
+    AppNotif.show(
+      context,
+      titulo: 'Copiado',
+      mensagem: 'Timeline copiada para a área de transferência!',
+      tipo: 'saida',
+      cor: AppColors.success,
+      acao: SnackBarAction(
+        label: 'Ver',
+        textColor: Colors.white,
+        onPressed: () => showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Timeline Exportada'),
+            content: SingleChildScrollView(
+              child: Text(texto,
+                  style:
+                      const TextStyle(fontFamily: 'monospace', fontSize: 12)),
             ),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Fechar')),
+            ],
           ),
         ),
       ),

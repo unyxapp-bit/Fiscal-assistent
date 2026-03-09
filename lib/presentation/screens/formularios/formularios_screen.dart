@@ -9,6 +9,7 @@ import '../../providers/formulario_provider.dart';
 import 'formulario_editor_screen.dart';
 import 'formulario_preenchimento_screen.dart';
 import 'formulario_respostas_screen.dart';
+import '../../../core/utils/app_notif.dart';
 
 class FormulariosScreen extends StatefulWidget {
   const FormulariosScreen({super.key});
@@ -453,8 +454,12 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
                     }
                     Clipboard.setData(
                         ClipboardData(text: buf.toString().trim()));
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text('Copiado para área de transferência')));
+                    AppNotif.show(
+                      context,
+                      titulo: 'Copiado',
+                      mensagem: 'Copiado para área de transferência',
+                      tipo: 'intervalo',
+                    );
                   },
                 ),
                 IconButton(
@@ -662,11 +667,12 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
         ));
       case 'duplicar':
         provider.duplicarTemplate(f);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Cópia criada na aba Personalizados!'),
-            backgroundColor: AppColors.success,
-          ),
+        AppNotif.show(
+          context,
+          titulo: 'Cópia Criada',
+          mensagem: 'Cópia criada na aba Personalizados!',
+          tipo: 'saida',
+          cor: AppColors.success,
         );
       case 'editar':
         Navigator.of(context).push(MaterialPageRoute(

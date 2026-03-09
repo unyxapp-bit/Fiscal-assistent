@@ -9,6 +9,7 @@ import '../../../domain/enums/departamento_tipo.dart';
 import '../../providers/colaborador_provider.dart';
 import '../../providers/escala_provider.dart';
 import 'escala_dia_screen.dart';
+import '../../../core/utils/app_notif.dart';
 
 class EscalaScreen extends StatefulWidget {
   const EscalaScreen({super.key});
@@ -74,12 +75,12 @@ class _EscalaScreenState extends State<EscalaScreen> {
     final colaboradores = colaboradorProvider.todosColaboradores;
 
     if (colaboradores.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-              'Nenhum colaborador cadastrado. Cadastre colaboradores primeiro.'),
-          backgroundColor: AppColors.danger,
-        ),
+      AppNotif.show(
+        context,
+        titulo: 'Sem Colaboradores',
+        mensagem: 'Nenhum colaborador cadastrado. Cadastre colaboradores primeiro.',
+        tipo: 'alerta',
+        cor: AppColors.danger,
       );
       return;
     }
@@ -163,18 +164,16 @@ class _EscalaScreenState extends State<EscalaScreen> {
     final criados = resultado['criados'] ?? 0;
     final semRegistro = resultado['semRegistro'] ?? 0;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          criados > 0
-              ? '$criados turno(s) gerado(s) com sucesso.'
-                  '${semRegistro > 0 ? " $semRegistro dia(s) sem registro de ponto." : ""}'
-              : 'Nenhum registro de ponto encontrado para a semana.',
-        ),
-        backgroundColor:
-            criados > 0 ? AppColors.success : AppColors.statusAtencao,
-        duration: const Duration(seconds: 4),
-      ),
+    AppNotif.show(
+      context,
+      titulo: criados > 0 ? 'Escala Gerada' : 'Sem Registros',
+      mensagem: criados > 0
+          ? '$criados turno(s) gerado(s) com sucesso.'
+              '${semRegistro > 0 ? " $semRegistro dia(s) sem registro de ponto." : ""}'
+          : 'Nenhum registro de ponto encontrado para a semana.',
+      tipo: criados > 0 ? 'saida' : 'alerta',
+      cor: criados > 0 ? AppColors.success : AppColors.statusAtencao,
+      duracao: const Duration(seconds: 4),
     );
   }
 

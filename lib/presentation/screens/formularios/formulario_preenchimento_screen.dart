@@ -9,6 +9,7 @@ import '../../../domain/entities/evento_turno.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/evento_turno_provider.dart';
 import '../../providers/formulario_provider.dart';
+import '../../../core/utils/app_notif.dart';
 
 class FormularioPreenchimentoScreen extends StatefulWidget {
   final Formulario formulario;
@@ -109,11 +110,12 @@ class _FormularioPreenchimentoScreenState
         detalhe: widget.formulario.titulo,
       );
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Formulário enviado com sucesso!'),
-        backgroundColor: AppColors.success,
-      ),
+    AppNotif.show(
+      context,
+      titulo: 'Formulário Enviado',
+      mensagem: 'Formulário enviado com sucesso!',
+      tipo: 'saida',
+      cor: AppColors.success,
     );
     Navigator.of(context).pop(true);
   }

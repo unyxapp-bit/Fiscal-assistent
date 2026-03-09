@@ -13,6 +13,7 @@ import '../../../providers/cafe_provider.dart';
 import '../../../providers/colaborador_provider.dart';
 import '../../../providers/escala_provider.dart';
 import 'colaborador_detalhes_sheet.dart';
+import '../../../../core/utils/app_notif.dart';
 
 const Color _kBalcaoColor = Color(0xFF009688);
 
@@ -393,11 +394,12 @@ class _ColaboradorPickerSheet extends StatelessWidget {
                       }
                       if (alocacaoProvider.error != null &&
                           context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(alocacaoProvider.error!),
-                            backgroundColor: Colors.red,
-                          ),
+                        AppNotif.show(
+                          context,
+                          titulo: 'Erro',
+                          mensagem: alocacaoProvider.error!,
+                          tipo: 'alerta',
+                          cor: Colors.red,
                         );
                       }
                     },

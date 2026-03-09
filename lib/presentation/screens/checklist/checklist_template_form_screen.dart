@@ -5,6 +5,7 @@ import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../providers/checklist_provider.dart';
+import '../../../core/utils/app_notif.dart';
 
 class ChecklistTemplateFormScreen extends StatefulWidget {
   final ChecklistTemplate? template; // null = novo
@@ -83,8 +84,11 @@ class _ChecklistTemplateFormScreenState
   void _salvar() {
     final titulo = _tituloCtrl.text.trim();
     if (titulo.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Informe um título para o checklist')),
+      AppNotif.show(
+        context,
+        titulo: 'Campo Inválido',
+        mensagem: 'Informe um título para o checklist',
+        tipo: 'alerta',
       );
       return;
     }
@@ -93,9 +97,11 @@ class _ChecklistTemplateFormScreenState
         .where((s) => s.isNotEmpty)
         .toList();
     if (itens.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Adicione pelo menos um item ao checklist')),
+      AppNotif.show(
+        context,
+        titulo: 'Campo Inválido',
+        mensagem: 'Adicione pelo menos um item ao checklist',
+        tipo: 'alerta',
       );
       return;
     }

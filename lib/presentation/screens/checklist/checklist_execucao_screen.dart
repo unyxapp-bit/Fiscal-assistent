@@ -7,6 +7,7 @@ import '../../../domain/entities/evento_turno.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/checklist_provider.dart';
 import '../../providers/evento_turno_provider.dart';
+import '../../../core/utils/app_notif.dart';
 
 class ChecklistExecucaoScreen extends StatelessWidget {
   final String execucaoId;
@@ -59,11 +60,12 @@ class ChecklistExecucaoScreen extends StatelessWidget {
                     detalhe: titulo,
                   );
                 }
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('$titulo concluído!'),
-                    backgroundColor: AppColors.success,
-                  ),
+                AppNotif.show(
+                  context,
+                  titulo: 'Checklist Concluído',
+                  mensagem: '$titulo concluído!',
+                  tipo: 'saida',
+                  cor: AppColors.success,
                 );
               },
               icon: const Icon(Icons.check_circle, color: AppColors.success),

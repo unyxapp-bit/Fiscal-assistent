@@ -5,6 +5,7 @@ import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/fiscal_provider.dart';
+import '../../../core/utils/app_notif.dart';
 
 /// Tela de Perfil do Fiscal
 /// Permite visualizar e editar informações do perfil
@@ -83,50 +84,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (!mounted) return;
 
     if (sucesso) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Perfil atualizado com sucesso!'),
-          backgroundColor: AppColors.success,
-        ),
+      AppNotif.show(
+        context,
+        titulo: 'Perfil Atualizado',
+        mensagem: 'Perfil atualizado com sucesso!',
+        tipo: 'saida',
+        cor: AppColors.success,
       );
       setState(() => _isEditMode = false);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(fiscalProvider.errorMessage ?? 'Erro ao atualizar perfil'),
-          backgroundColor: AppColors.danger,
-        ),
+      AppNotif.show(
+        context,
+        titulo: 'Erro',
+        mensagem: fiscalProvider.errorMessage ?? 'Erro ao atualizar perfil',
+        tipo: 'alerta',
+        cor: AppColors.danger,
       );
     }
   }
 
   Future<void> _alterarSenha() async {
     if (_novaSenhaController.text != _confirmarSenhaController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('As senhas não coincidem'),
-          backgroundColor: AppColors.danger,
-        ),
+      AppNotif.show(
+        context,
+        titulo: 'Senha Inválida',
+        mensagem: 'As senhas não coincidem',
+        tipo: 'alerta',
+        cor: AppColors.danger,
       );
       return;
     }
 
     if (_novaSenhaController.text.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('A senha deve ter pelo menos 6 caracteres'),
-          backgroundColor: AppColors.danger,
-        ),
+      AppNotif.show(
+        context,
+        titulo: 'Senha Inválida',
+        mensagem: 'A senha deve ter pelo menos 6 caracteres',
+        tipo: 'alerta',
+        cor: AppColors.danger,
       );
       return;
     }
 
     // TODO: Implementar alteração de senha via AuthProvider
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Funcionalidade em desenvolvimento'),
-        backgroundColor: AppColors.warning,
-      ),
+    AppNotif.show(
+      context,
+      titulo: 'Em Desenvolvimento',
+      mensagem: 'Funcionalidade em desenvolvimento',
+      tipo: 'intervalo',
+      cor: AppColors.warning,
     );
 
     setState(() {

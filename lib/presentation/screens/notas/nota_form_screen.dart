@@ -9,6 +9,7 @@ import '../../../domain/entities/evento_turno.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/evento_turno_provider.dart';
 import '../../providers/nota_provider.dart';
+import '../../../core/utils/app_notif.dart';
 
 /// Tela de Formulário de Nota — criar ou editar anotações, tarefas e lembretes.
 class NotaFormScreen extends StatefulWidget {
@@ -112,10 +113,12 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
       );
       provider.atualizarNota(notaAtualizada);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Nota atualizada!'),
-            backgroundColor: AppColors.success),
+      AppNotif.show(
+        context,
+        titulo: 'Nota Atualizada',
+        mensagem: 'Nota atualizada!',
+        tipo: 'saida',
+        cor: AppColors.success,
       );
     } else {
       provider.adicionarNota(
@@ -136,10 +139,12 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
           detalhe: '${_tipo.nome}: ${_tituloController.text.trim()}',
         );
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('${_tipo.nome} criada!'),
-            backgroundColor: AppColors.success),
+      AppNotif.show(
+        context,
+        titulo: 'Nota Criada',
+        mensagem: '${_tipo.nome} criada!',
+        tipo: 'saida',
+        cor: AppColors.success,
       );
     }
 

@@ -4,6 +4,7 @@ import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../providers/procedimento_provider.dart';
+import '../../../core/utils/app_notif.dart';
 
 // Entrada interna para cada passo (chave única + controller)
 class _PassoEntry {
@@ -84,11 +85,12 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
 
   void _removerPasso(int index) {
     if (_passos.length <= 1) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Deve haver pelo menos 1 passo'),
-          backgroundColor: AppColors.warning,
-        ),
+      AppNotif.show(
+        context,
+        titulo: 'Campo Inválido',
+        mensagem: 'Deve haver pelo menos 1 passo',
+        tipo: 'alerta',
+        cor: AppColors.warning,
       );
       return;
     }
@@ -115,11 +117,12 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
         .toList();
 
     if (passos.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Adicione pelo menos 1 passo'),
-          backgroundColor: AppColors.danger,
-        ),
+      AppNotif.show(
+        context,
+        titulo: 'Campo Inválido',
+        mensagem: 'Adicione pelo menos 1 passo',
+        tipo: 'alerta',
+        cor: AppColors.danger,
       );
       return;
     }
@@ -137,11 +140,12 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
         tempoEstimado: int.tryParse(_tempoEstimadoController.text),
         favorito: _favorito,
       );
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Procedimento criado com sucesso!'),
-          backgroundColor: AppColors.success,
-        ),
+      AppNotif.show(
+        context,
+        titulo: 'Procedimento Criado',
+        mensagem: 'Procedimento criado com sucesso!',
+        tipo: 'saida',
+        cor: AppColors.success,
       );
     } else {
       provider.editarProcedimento(
@@ -153,11 +157,12 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
         tempoEstimado: int.tryParse(_tempoEstimadoController.text),
         favorito: _favorito,
       );
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Procedimento atualizado com sucesso!'),
-          backgroundColor: AppColors.success,
-        ),
+      AppNotif.show(
+        context,
+        titulo: 'Procedimento Atualizado',
+        mensagem: 'Procedimento atualizado com sucesso!',
+        tipo: 'saida',
+        cor: AppColors.success,
       );
     }
 
