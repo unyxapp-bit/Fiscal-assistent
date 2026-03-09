@@ -191,7 +191,6 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                         tipo: 'saida',
                         cor: AppColors.success,
                       );
-                      );
                     }
                   },
                 ),
