@@ -1,15 +1,18 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
+import '../../../domain/entities/alocacao.dart';
 import '../../../domain/entities/caixa.dart';
 import '../../../domain/enums/departamento_tipo.dart';
 import '../../../domain/entities/evento_turno.dart';
 import '../../providers/alocacao_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/caixa_provider.dart';
+import '../../providers/colaborador_provider.dart';
 import '../../providers/escala_provider.dart';
 import '../../providers/evento_turno_provider.dart';
 import '../../providers/cafe_provider.dart';
@@ -28,20 +31,33 @@ class AlocacaoScreen extends StatefulWidget {
 }
 
 class _AlocacaoScreenState extends State<AlocacaoScreen> {
+  final TextEditingController _searchCtrl = TextEditingController();
+
   @override
   void initState() {
     super.initState();
+    _searchCtrl.addListener(() => setState(() {}));
     WidgetsBinding.instance.addPostFrameCallback((_) => _reload());
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _reload() async {
     if (!mounted) return;
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     await Future.wait([
       Provider.of<AlocacaoProvider>(context, listen: false)
           .loadAlocacoes(widget.fiscalId),
       Provider.of<EscalaProvider>(context, listen: false).load(),
       Provider.of<PacotePlantaoProvider>(context, listen: false)
           .load(widget.fiscalId),
+      if (authProvider.user != null)
+        Provider.of<ColaboradorProvider>(context, listen: false)
+            .loadColaboradores(authProvider.user!.id),
     ]);
   }
 
@@ -52,7 +68,6 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
   }
 
   /// Retorna quantos minutos faltam para o colaborador chegar.
-  /// Retorna null se já está no horário ou não tem entrada definida.
   int? _minutosParaChegar(TurnoLocal turno) {
     if (turno.entrada == null) return null;
     final agora = DateTime.now();
@@ -61,7 +76,6 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     return diff > 0 ? diff : null;
   }
 
-  /// True se o colaborador está na janela de trabalho agora e não alocado.
   bool _estaDisponivel(TurnoLocal turno, AlocacaoProvider alocacaoProvider) {
     if (!turno.trabalhando) return false;
     if (alocacaoProvider.getAlocacaoColaborador(turno.colaboradorId) != null) {
@@ -76,7 +90,6 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
       if (p.length == 2) {
         final minEntrada =
             (int.tryParse(p[0]) ?? 0) * 60 + (int.tryParse(p[1]) ?? 0);
-        // Disponível a partir de 30 min antes do horário de entrada
         if (minAgora < minEntrada - 30) return false;
       }
     }
@@ -93,7 +106,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     return true;
   }
 
-  void _abrirSeletorCaixa(TurnoLocal turno) {
+  void _abrirSeletorCaixa(TurnoLocal turno, {String? alocacaoIdParaLiberar}) {
     final caixaProvider = Provider.of<CaixaProvider>(context, listen: false);
     final alocacaoProvider =
         Provider.of<AlocacaoProvider>(context, listen: false);
@@ -152,9 +165,11 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       children: [
                         Text(turno.colaboradorNome, style: AppTextStyles.h4),
                         Text(
-                          isEmpacotador
-                              ? 'Alocar como empacotador ou em caixa'
-                              : 'Selecione o caixa',
+                          alocacaoIdParaLiberar != null
+                              ? 'Selecione o novo caixa'
+                              : isEmpacotador
+                                  ? 'Alocar como empacotador ou em caixa'
+                                  : 'Selecione o caixa',
                           style: AppTextStyles.caption
                               .copyWith(color: AppColors.textSecondary),
                         ),
@@ -169,8 +184,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
               child: ListView(
                 controller: scrollCtrl,
                 children: [
-                  // ── Opção Empacotador (apenas para depto. pacote) ─────────
-                  if (isEmpacotador)
+                  // ── Opção Empacotador (apenas para depto. pacote e sem troca) ─
+                  if (isEmpacotador && alocacaoIdParaLiberar == null)
                     ListTile(
                       leading: CircleAvatar(
                         backgroundColor:
@@ -195,7 +210,9 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                         child: const Text('Alocar'),
                       ),
                     ),
-                  if (isEmpacotador && disponiveis.isNotEmpty)
+                  if (isEmpacotador &&
+                      alocacaoIdParaLiberar == null &&
+                      disponiveis.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 4),
@@ -235,14 +252,22 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                                   color: AppColors.textSecondary)),
                           trailing: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
+                              backgroundColor: alocacaoIdParaLiberar != null
+                                  ? Colors.blue
+                                  : AppColors.primary,
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 14, vertical: 8),
                             ),
-                            onPressed: () => _confirmarAlocacao(
-                                sheetCtx, turno, caixa, alocacaoProvider),
-                            child: const Text('Alocar'),
+                            onPressed: () => alocacaoIdParaLiberar != null
+                                ? _confirmarTroca(sheetCtx, turno, caixa,
+                                    alocacaoIdParaLiberar, alocacaoProvider)
+                                : _confirmarAlocacao(
+                                    sheetCtx, turno, caixa, alocacaoProvider),
+                            child: Text(
+                                alocacaoIdParaLiberar != null
+                                    ? 'Trocar'
+                                    : 'Alocar'),
                           ),
                         )),
                 ],
@@ -287,7 +312,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
       AppNotif.show(
         context,
         titulo: 'Empacotador Adicionado',
-        mensagem: '${turno.colaboradorNome} adicionado ao plantão de empacotadores!',
+        mensagem:
+            '${turno.colaboradorNome} adicionado ao plantão de empacotadores!',
         tipo: 'saida',
         cor: const Color(0xFF795548),
       );
@@ -340,6 +366,232 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     }
   }
 
+  Future<void> _confirmarTroca(
+    BuildContext sheetCtx,
+    TurnoLocal turno,
+    Caixa novoCaixa,
+    String alocacaoIdAtual,
+    AlocacaoProvider alocacaoProvider,
+  ) async {
+    final eventoProvider =
+        Provider.of<EventoTurnoProvider>(context, listen: false);
+    final fiscalId =
+        Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+
+    Navigator.of(sheetCtx).pop();
+
+    // 1. Libera o caixa atual
+    await alocacaoProvider.liberarAlocacao(
+        alocacaoIdAtual, 'Troca de caixa — realocado em ${novoCaixa.nomeExibicao}');
+
+    if (!mounted) return;
+    if (alocacaoProvider.error != null) {
+      AppNotif.show(
+        context,
+        titulo: 'Erro ao trocar',
+        mensagem: alocacaoProvider.error!,
+        tipo: 'alerta',
+        cor: AppColors.danger,
+      );
+      return;
+    }
+
+    // 2. Aloca no novo caixa
+    await alocacaoProvider.alocarColaborador(
+      colaboradorId: turno.colaboradorId,
+      caixaId: novoCaixa.id,
+      fiscalId: widget.fiscalId,
+    );
+
+    if (!mounted) return;
+
+    if (alocacaoProvider.error != null) {
+      AppNotif.show(
+        context,
+        titulo: 'Erro ao alocar',
+        mensagem: alocacaoProvider.error!,
+        tipo: 'alerta',
+        cor: AppColors.danger,
+      );
+    } else {
+      eventoProvider.registrar(
+        fiscalId: fiscalId,
+        tipo: TipoEvento.colaboradorAlocado,
+        colaboradorNome: turno.colaboradorNome,
+        caixaNome: novoCaixa.nomeExibicao,
+      );
+      AppNotif.show(
+        context,
+        titulo: 'Caixa Trocado',
+        mensagem:
+            '${turno.colaboradorNome} transferido para ${novoCaixa.nomeExibicao}!',
+        tipo: 'saida',
+        cor: Colors.blue,
+      );
+    }
+  }
+
+  void _abrirOpcoesAlocado(TurnoLocal turno, Alocacao al) {
+    final caixaProvider = Provider.of<CaixaProvider>(context, listen: false);
+    final caixa =
+        caixaProvider.caixas.where((c) => c.id == al.caixaId).firstOrNull;
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+            top: Radius.circular(Dimensions.radiusSheet)),
+      ),
+      builder: (sheetCtx) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.cardBorder,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            // ── Cabeçalho ──────────────────────────────────────────────────
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.12),
+                  child: Text(
+                    turno.colaboradorNome[0].toUpperCase(),
+                    style: const TextStyle(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(turno.colaboradorNome, style: AppTextStyles.h4),
+                      if (caixa != null)
+                        Row(
+                          children: [
+                            Icon(caixa.tipo.icone,
+                                size: 12, color: AppColors.textSecondary),
+                            const SizedBox(width: 4),
+                            Text(
+                              caixa.nomeExibicao,
+                              style: AppTextStyles.caption
+                                  .copyWith(color: AppColors.textSecondary),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+                // Tempo alocado
+                _TempoAlocadoBadge(alocadoEm: al.alocadoEm),
+              ],
+            ),
+
+            // ── Info de intervalo ──────────────────────────────────────────
+            if (turno.intervalo != null) ...[
+              const SizedBox(height: 12),
+              _IntervaloBanner(turno: turno),
+            ],
+
+            const SizedBox(height: 20),
+
+            // ── Ações ──────────────────────────────────────────────────────
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.blue,
+                      side: const BorderSide(color: Colors.blue),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    icon: const Icon(Icons.swap_horiz),
+                    label: const Text('Trocar Caixa',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    onPressed: () {
+                      Navigator.of(sheetCtx).pop();
+                      _abrirSeletorCaixa(turno,
+                          alocacaoIdParaLiberar: al.id);
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.danger,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    icon: const Icon(Icons.logout),
+                    label: const Text('Liberar',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    onPressed: () =>
+                        _confirmarLiberacao(sheetCtx, turno, al, caixa?.nomeExibicao),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmarLiberacao(
+    BuildContext sheetCtx,
+    TurnoLocal turno,
+    Alocacao al,
+    String? caixaNome,
+  ) async {
+    final alocacaoProvider =
+        Provider.of<AlocacaoProvider>(context, listen: false);
+    final eventoProvider =
+        Provider.of<EventoTurnoProvider>(context, listen: false);
+    final fiscalId =
+        Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+
+    Navigator.of(sheetCtx).pop();
+
+    await alocacaoProvider.liberarAlocacao(al.id, 'Liberado manualmente');
+
+    if (!mounted) return;
+
+    if (alocacaoProvider.error != null) {
+      AppNotif.show(
+        context,
+        titulo: 'Erro',
+        mensagem: alocacaoProvider.error!,
+        tipo: 'alerta',
+        cor: AppColors.danger,
+      );
+    } else {
+      eventoProvider.registrar(
+        fiscalId: fiscalId,
+        tipo: TipoEvento.colaboradorLiberado,
+        colaboradorNome: turno.colaboradorNome,
+        caixaNome: caixaNome,
+      );
+      AppNotif.show(
+        context,
+        titulo: 'Colaborador Liberado',
+        mensagem: '${turno.colaboradorNome} liberado do caixa!',
+        tipo: 'saida',
+        cor: AppColors.statusAtencao,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final escalaProvider = Provider.of<EscalaProvider>(context);
@@ -353,16 +605,19 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     final horaLabel = DateFormat('HH:mm').format(agora);
 
     final turnosHoje = escalaProvider.turnosHoje;
+    final q = _searchCtrl.text.toLowerCase().trim();
+
+    bool _matchSearch(TurnoLocal t) =>
+        q.isEmpty || t.colaboradorNome.toLowerCase().contains(q);
 
     final disponiveis = turnosHoje
         .where((t) {
+          if (!_matchSearch(t)) return false;
           if (!_estaDisponivel(t, alocacaoProvider)) return false;
-          // Empacotador já no plantão não aparece como disponível
           if (t.departamento == DepartamentoTipo.pacote &&
               pacoteProvider.isNaLista(t.colaboradorId)) {
             return false;
           }
-          // Colaborador em pausa/intervalo não aparece como disponível
           if (cafeProvider.colaboradorEmPausa(t.colaboradorId)) return false;
           return true;
         })
@@ -371,15 +626,17 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
 
     final jaAlocados = turnosHoje
         .where((t) =>
+            _matchSearch(t) &&
             t.trabalhando &&
             alocacaoProvider.getAlocacaoColaborador(t.colaboradorId) != null)
         .toList();
 
-    final folgas = turnosHoje.where((t) => t.folga || t.feriado).toList();
+    final folgas =
+        turnosHoje.where((t) => _matchSearch(t) && (t.folga || t.feriado)).toList();
 
-    // Colaboradores que chegam nas próximas 3h (além da janela de 30 min)
     final aChegar = turnosHoje
         .where((t) {
+          if (!_matchSearch(t)) return false;
           if (!t.trabalhando || t.folga || t.feriado) return false;
           if (alocacaoProvider.getAlocacaoColaborador(t.colaboradorId) != null) {
             return false;
@@ -413,10 +670,9 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
         child: ListView(
           padding: const EdgeInsets.all(Dimensions.paddingMD),
           children: [
-            // Data e hora atual
+            // Data e hora
             Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: AppColors.primary.withValues(alpha: 0.07),
                 borderRadius:
@@ -438,6 +694,36 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       style: AppTextStyles.h3
                           .copyWith(color: AppColors.primary)),
                 ],
+              ),
+            ),
+
+            const SizedBox(height: Dimensions.spacingMD),
+
+            // ── Barra de busca ───────────────────────────────────────────
+            TextField(
+              controller: _searchCtrl,
+              decoration: InputDecoration(
+                hintText: 'Buscar colaborador...',
+                hintStyle: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary),
+                prefixIcon:
+                    const Icon(Icons.search, color: AppColors.textSecondary),
+                suffixIcon: q.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.close,
+                            color: AppColors.textSecondary, size: 18),
+                        onPressed: () => _searchCtrl.clear(),
+                      )
+                    : null,
+                filled: true,
+                fillColor: AppColors.backgroundSection,
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                border: OutlineInputBorder(
+                  borderRadius:
+                      BorderRadius.circular(Dimensions.borderRadius),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
 
@@ -478,14 +764,14 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     color: AppColors.primary),
                 const SizedBox(height: 8),
                 ...jaAlocados.map((t) {
-                  final al = alocacaoProvider
-                      .getAlocacaoColaborador(t.colaboradorId);
+                  final al =
+                      alocacaoProvider.getAlocacaoColaborador(t.colaboradorId);
                   return _CardAlocado(
                     turno: t,
                     caixaId: al?.caixaId ?? '',
                     alocadoEm: al?.alocadoEm,
-                    onLiberar: al != null
-                        ? () => _abrirOpcoesAlocado(t, al.id, al.caixaId)
+                    onTap: al != null
+                        ? () => _abrirOpcoesAlocado(t, al)
                         : null,
                   );
                 }),
@@ -527,128 +813,134 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
   }
 
   String _cap(String s) => s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+}
 
-  void _abrirOpcoesAlocado(TurnoLocal turno, String alocacaoId, String caixaId) {
-    final caixaProvider = Provider.of<CaixaProvider>(context, listen: false);
-    final caixa = caixaProvider.caixas.where((c) => c.id == caixaId).firstOrNull;
+// ─── Widgets auxiliares do sheet ─────────────────────────────────────────────
 
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-            top: Radius.circular(Dimensions.radiusSheet)),
+class _TempoAlocadoBadge extends StatefulWidget {
+  final DateTime alocadoEm;
+  const _TempoAlocadoBadge({required this.alocadoEm});
+
+  @override
+  State<_TempoAlocadoBadge> createState() => _TempoAlocadoBadgeState();
+}
+
+class _TempoAlocadoBadgeState extends State<_TempoAlocadoBadge> {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  String _tempo() {
+    final d = DateTime.now().difference(widget.alocadoEm);
+    if (d.inHours > 0) return '${d.inHours}h ${d.inMinutes.remainder(60)}min';
+    return '${d.inMinutes}min';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(10),
       ),
-      builder: (sheetCtx) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.cardBorder,
-                borderRadius: BorderRadius.circular(2),
-              ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            _tempo(),
+            style: const TextStyle(
+              color: AppColors.primary,
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
             ),
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 18,
-                  backgroundColor: AppColors.primary.withValues(alpha: 0.12),
-                  child: Text(
-                    turno.colaboradorNome[0].toUpperCase(),
-                    style: const TextStyle(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(turno.colaboradorNome, style: AppTextStyles.h4),
-                      if (caixa != null)
-                        Text(
-                          caixa.nomeExibicao,
-                          style: AppTextStyles.caption
-                              .copyWith(color: AppColors.textSecondary),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.danger,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
-                icon: const Icon(Icons.logout),
-                label: const Text('Liberar do Caixa',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                onPressed: () =>
-                    _confirmarLiberacao(sheetCtx, turno, alocacaoId, caixa?.nomeExibicao),
-              ),
-            ),
-          ],
-        ),
+          ),
+          Text(
+            'no caixa',
+            style: AppTextStyles.caption
+                .copyWith(color: AppColors.textSecondary, fontSize: 10),
+          ),
+        ],
       ),
     );
   }
+}
 
-  Future<void> _confirmarLiberacao(
-    BuildContext sheetCtx,
-    TurnoLocal turno,
-    String alocacaoId,
-    String? caixaNome,
-  ) async {
-    final alocacaoProvider =
-        Provider.of<AlocacaoProvider>(context, listen: false);
-    final eventoProvider =
-        Provider.of<EventoTurnoProvider>(context, listen: false);
-    final fiscalId =
-        Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+class _IntervaloBanner extends StatelessWidget {
+  final TurnoLocal turno;
+  const _IntervaloBanner({required this.turno});
 
-    Navigator.of(sheetCtx).pop();
+  int? _calcMin() {
+    if (turno.intervalo == null) return null;
+    final parts = turno.intervalo!.split(':');
+    if (parts.length < 2) return null;
+    final agora = DateTime.now();
+    final agoraMin = agora.hour * 60 + agora.minute;
+    final intervaloMin =
+        (int.tryParse(parts[0]) ?? 0) * 60 + (int.tryParse(parts[1]) ?? 0);
+    return agoraMin - intervaloMin;
+  }
 
-    await alocacaoProvider.liberarAlocacao(alocacaoId, 'liberado_manual');
+  @override
+  Widget build(BuildContext context) {
+    final min = _calcMin();
+    if (min == null) return const SizedBox.shrink();
 
-    if (!mounted) return;
+    final Color cor;
+    final IconData icone;
+    final String texto;
 
-    if (alocacaoProvider.error != null) {
-      AppNotif.show(
-        context,
-        titulo: 'Erro',
-        mensagem: alocacaoProvider.error!,
-        tipo: 'alerta',
-        cor: AppColors.danger,
-      );
+    if (min < -30) {
+      cor = AppColors.textSecondary;
+      icone = Icons.schedule;
+      texto = 'Intervalo em ${-min}min (${turno.intervalo})';
+    } else if (min < 0) {
+      cor = Colors.orange.shade800;
+      icone = Icons.schedule;
+      texto = 'Intervalo em ${-min}min — aproximando';
+    } else if (min < 15) {
+      cor = Colors.orange.shade900;
+      icone = Icons.warning_amber;
+      texto = '${min}min em atraso para o intervalo';
     } else {
-      eventoProvider.registrar(
-        fiscalId: fiscalId,
-        tipo: TipoEvento.colaboradorLiberado,
-        colaboradorNome: turno.colaboradorNome,
-        caixaNome: caixaNome,
-      );
-      AppNotif.show(
-        context,
-        titulo: 'Colaborador Liberado',
-        mensagem: '${turno.colaboradorNome} liberado do caixa!',
-        tipo: 'saida',
-        cor: AppColors.statusAtencao,
-      );
+      cor = AppColors.danger;
+      icone = Icons.error_outline;
+      texto = '${min}min sem intervalo — Em Atenção';
     }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: cor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: cor.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(icone, size: 14, color: cor),
+          const SizedBox(width: 6),
+          Text(texto,
+              style: TextStyle(
+                  fontSize: 12, color: cor, fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
   }
 }
 
-// ─── Widgets internos ───────────────────────────────────────────────────────
+// ─── Widgets internos ────────────────────────────────────────────────────────
 
 class _Header extends StatelessWidget {
   final IconData icon;
@@ -732,56 +1024,168 @@ class _CardDisponivel extends StatelessWidget {
   }
 }
 
-class _CardAlocado extends StatelessWidget {
+// ─── Card de colaborador alocado com timer dinâmico ──────────────────────────
+
+class _CardAlocado extends StatefulWidget {
   final TurnoLocal turno;
   final String caixaId;
   final DateTime? alocadoEm;
-  final VoidCallback? onLiberar;
+  final VoidCallback? onTap;
   const _CardAlocado(
-      {required this.turno, required this.caixaId, this.alocadoEm, this.onLiberar});
+      {required this.turno,
+      required this.caixaId,
+      this.alocadoEm,
+      this.onTap});
+
+  @override
+  State<_CardAlocado> createState() => _CardAlocadoState();
+}
+
+class _CardAlocadoState extends State<_CardAlocado> {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   String _tempo() {
-    if (alocadoEm == null) return '';
-    final d = DateTime.now().difference(alocadoEm!);
+    if (widget.alocadoEm == null) return '';
+    final d = DateTime.now().difference(widget.alocadoEm!);
     if (d.inHours > 0) return '${d.inHours}h ${d.inMinutes.remainder(60)}min';
     return '${d.inMinutes}min';
+  }
+
+  /// Positivo = minutos ATRASADO; Negativo = minutos RESTANTES
+  int? _calcMinIntervalo() {
+    if (widget.turno.intervalo == null) return null;
+    final parts = widget.turno.intervalo!.split(':');
+    if (parts.length < 2) return null;
+    final agora = DateTime.now();
+    final agoraMin = agora.hour * 60 + agora.minute;
+    final intervaloMin =
+        (int.tryParse(parts[0]) ?? 0) * 60 + (int.tryParse(parts[1]) ?? 0);
+    return agoraMin - intervaloMin;
   }
 
   @override
   Widget build(BuildContext context) {
     final caixa = Provider.of<CaixaProvider>(context, listen: false)
         .caixas
-        .where((c) => c.id == caixaId)
+        .where((c) => c.id == widget.caixaId)
         .firstOrNull;
+
+    final alocacaoProvider =
+        Provider.of<AlocacaoProvider>(context, listen: false);
+    final intervaloJaFeito =
+        alocacaoProvider.isIntervaloMarcado(widget.turno.colaboradorId);
+    final minIntervalo = intervaloJaFeito ? null : _calcMinIntervalo();
+    final emAtencao = minIntervalo != null && minIntervalo >= 15;
 
     return Card(
       color: AppColors.cardBackground,
       margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        onTap: onLiberar,
-        leading: CircleAvatar(
-          backgroundColor: AppColors.primary.withValues(alpha: 0.12),
-          child: Text(turno.colaboradorNome[0].toUpperCase(),
-              style: const TextStyle(
-                  color: AppColors.primary, fontWeight: FontWeight.bold)),
-        ),
-        title: Text(turno.colaboradorNome, style: AppTextStyles.h4),
-        subtitle: Text(
-          caixa != null
-              ? '${caixa.nomeExibicao}  •  ${_tempo()}'
-              : turno.departamento.nome,
-          style:
-              AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
-        ),
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8)),
-          child: Text('Ativo',
-              style: AppTextStyles.caption.copyWith(
-                  color: AppColors.primary, fontWeight: FontWeight.bold)),
-        ),
+      clipBehavior: Clip.hardEdge,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            onTap: widget.onTap,
+            leading: CircleAvatar(
+              backgroundColor: emAtencao
+                  ? AppColors.danger.withValues(alpha: 0.12)
+                  : AppColors.primary.withValues(alpha: 0.12),
+              child: Text(widget.turno.colaboradorNome[0].toUpperCase(),
+                  style: TextStyle(
+                      color: emAtencao ? AppColors.danger : AppColors.primary,
+                      fontWeight: FontWeight.bold)),
+            ),
+            title: Text(widget.turno.colaboradorNome, style: AppTextStyles.h4),
+            subtitle: Text(
+              caixa != null
+                  ? '${caixa.nomeExibicao}  •  ${_tempo()}'
+                  : widget.turno.departamento.nome,
+              style: AppTextStyles.caption
+                  .copyWith(color: AppColors.textSecondary),
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                      color: emAtencao
+                          ? AppColors.danger.withValues(alpha: 0.1)
+                          : AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8)),
+                  child: Text('Ativo',
+                      style: AppTextStyles.caption.copyWith(
+                          color: emAtencao ? AppColors.danger : AppColors.primary,
+                          fontWeight: FontWeight.bold)),
+                ),
+                const SizedBox(width: 4),
+                Icon(Icons.chevron_right,
+                    size: 18, color: AppColors.textSecondary),
+              ],
+            ),
+          ),
+          // ── Faixa de aviso de intervalo ─────────────────────────────
+          if (minIntervalo != null && minIntervalo > -60)
+            _buildIntervaloBar(minIntervalo),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIntervaloBar(int min) {
+    final Color cor;
+    final IconData icone;
+    final String texto;
+
+    if (min < 0) {
+      cor = Colors.orange.shade800;
+      icone = Icons.schedule;
+      texto = 'Intervalo em ${-min}min';
+    } else if (min < 15) {
+      cor = Colors.orange.shade900;
+      icone = Icons.warning_amber;
+      texto = '${min}min em atraso para o intervalo';
+    } else {
+      cor = AppColors.danger;
+      icone = Icons.error_outline;
+      texto = '${min}min sem intervalo — Em Atenção';
+    }
+
+    final bgColor = min >= 15
+        ? AppColors.danger.withValues(alpha: 0.08)
+        : Colors.orange.shade50;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      color: bgColor,
+      child: Row(
+        children: [
+          Icon(icone, size: 13, color: cor),
+          const SizedBox(width: 5),
+          Text(
+            texto,
+            style: TextStyle(
+              fontSize: 11,
+              color: cor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -790,8 +1194,7 @@ class _CardAlocado extends StatelessWidget {
 class _CardAChegar extends StatelessWidget {
   final TurnoLocal turno;
   final int minutosParaChegar;
-  const _CardAChegar(
-      {required this.turno, required this.minutosParaChegar});
+  const _CardAChegar({required this.turno, required this.minutosParaChegar});
 
   String _chegaEm() {
     if (minutosParaChegar >= 60) {

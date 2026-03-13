@@ -4,6 +4,8 @@ import '../../../../core/constants/colors.dart';
 import '../../../../core/constants/text_styles.dart';
 import '../../../../core/constants/dimensions.dart';
 import '../../../../domain/entities/caixa.dart';
+import '../../../providers/alocacao_provider.dart';
+import '../../../providers/colaborador_provider.dart';
 import '../../../providers/caixa_provider.dart';
 import '../caixa_form_screen.dart';
 
@@ -34,6 +36,23 @@ class CaixaGridCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = _getStatusColor();
+
+    // Colaborador alocado neste caixa
+    final alocacaoProvider =
+        Provider.of<AlocacaoProvider>(context, listen: false);
+    final colaboradorProvider =
+        Provider.of<ColaboradorProvider>(context, listen: false);
+    final alocacao = caixa.ativo && !caixa.emManutencao
+        ? alocacaoProvider.getAlocacaoCaixa(caixa.id)
+        : null;
+    final colaboradorNome = alocacao != null
+        ? colaboradorProvider.colaboradores
+            .where((c) => c.id == alocacao.colaboradorId)
+            .firstOrNull
+            ?.nome
+            .split(' ')
+            .first
+        : null;
 
     return GestureDetector(
       onLongPress: () => showModalBottomSheet(
@@ -145,6 +164,20 @@ class CaixaGridCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              if (colaboradorNome != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  colaboradorNome,
+                  style: const TextStyle(
+                    fontSize: 9,
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ],
           ),
         ),

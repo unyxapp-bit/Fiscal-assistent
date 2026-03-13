@@ -230,6 +230,15 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // ── Mini dashboard ──────────────────────────────────
+                    _MiniDashboard(
+                      alocacaoProvider: alocacaoProvider,
+                      cafeProvider: cafeProvider,
+                      caixaProvider: caixaProvider,
+                    ),
+
+                    const SizedBox(height: Dimensions.spacingMD),
+
                     // Legenda
                     Card(
                       child: Padding(
@@ -609,6 +618,133 @@ class _SectionHeader extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ── Mini Dashboard do turno ───────────────────────────────────────────────────
+
+class _MiniDashboard extends StatelessWidget {
+  final AlocacaoProvider alocacaoProvider;
+  final CafeProvider cafeProvider;
+  final CaixaProvider caixaProvider;
+
+  const _MiniDashboard({
+    required this.alocacaoProvider,
+    required this.cafeProvider,
+    required this.caixaProvider,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final totalAlocados = alocacaoProvider.quantidadeAtivasAgora;
+    final emPausa = cafeProvider.pausasAtivas.length;
+    final caixasLivres = caixaProvider.caixas
+        .where((c) =>
+            c.ativo &&
+            !c.emManutencao &&
+            alocacaoProvider.getAlocacaoCaixa(c.id) == null)
+        .length;
+    final totalTurno = alocacaoProvider.quantidadeAlocacoes;
+
+    return Card(
+      elevation: 0,
+      color: AppColors.backgroundSection,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _DashItem(
+              value: '$totalAlocados',
+              label: 'Alocados',
+              color: AppColors.statusAtivo,
+              icon: Icons.person,
+            ),
+            _DashDivider(),
+            _DashItem(
+              value: '$emPausa',
+              label: 'Em Pausa',
+              color: Colors.orange,
+              icon: Icons.coffee,
+            ),
+            _DashDivider(),
+            _DashItem(
+              value: '$caixasLivres',
+              label: 'Livres',
+              color: AppColors.success,
+              icon: Icons.point_of_sale,
+            ),
+            _DashDivider(),
+            _DashItem(
+              value: '$totalTurno',
+              label: 'No turno',
+              color: AppColors.primary,
+              icon: Icons.bar_chart,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DashItem extends StatelessWidget {
+  final String value;
+  final String label;
+  final Color color;
+  final IconData icon;
+
+  const _DashItem({
+    required this.value,
+    required this.label,
+    required this.color,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 14, color: color),
+            const SizedBox(width: 4),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: AppTextStyles.caption.copyWith(
+            color: AppColors.textSecondary,
+            fontSize: 11,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DashDivider extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 36,
+      width: 1,
+      color: AppColors.cardBorder,
     );
   }
 }
