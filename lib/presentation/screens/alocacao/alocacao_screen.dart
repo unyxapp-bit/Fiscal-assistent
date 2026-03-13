@@ -17,6 +17,7 @@ import '../../providers/escala_provider.dart';
 import '../../providers/evento_turno_provider.dart';
 import '../../providers/cafe_provider.dart';
 import '../../providers/pacote_plantao_provider.dart';
+import '../../providers/outro_setor_provider.dart';
 import '../../../core/utils/app_notif.dart';
 
 /// Tela de alocação — lista colaboradores disponíveis agora e permite
@@ -54,6 +55,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
           .loadAlocacoes(widget.fiscalId),
       Provider.of<EscalaProvider>(context, listen: false).load(),
       Provider.of<PacotePlantaoProvider>(context, listen: false)
+          .load(widget.fiscalId),
+      Provider.of<OutroSetorProvider>(context, listen: false)
           .load(widget.fiscalId),
       if (authProvider.user != null)
         Provider.of<ColaboradorProvider>(context, listen: false)
@@ -513,11 +516,12 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.blue,
                       side: const BorderSide(color: Colors.blue),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    icon: const Icon(Icons.swap_horiz),
-                    label: const Text('Trocar Caixa',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    icon: const Icon(Icons.swap_horiz, size: 18),
+                    label: const Text('Trocar',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 12)),
                     onPressed: () {
                       Navigator.of(sheetCtx).pop();
                       _abrirSeletorCaixa(turno,
@@ -525,17 +529,36 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     },
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF5C6BC0),
+                      side: const BorderSide(color: Color(0xFF5C6BC0)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    icon: const Icon(Icons.store, size: 18),
+                    label: const Text('Outro Setor',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 12)),
+                    onPressed: () {
+                      Navigator.of(sheetCtx).pop();
+                      _abrirOutroSetor(turno, alocacaoAtual: al);
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
                 Expanded(
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.danger,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    icon: const Icon(Icons.logout),
+                    icon: const Icon(Icons.logout, size: 18),
                     label: const Text('Liberar',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 12)),
                     onPressed: () =>
                         _confirmarLiberacao(sheetCtx, turno, al, caixa?.nomeExibicao),
                   ),
@@ -588,6 +611,211 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
         mensagem: '${turno.colaboradorNome} liberado do caixa!',
         tipo: 'saida',
         cor: AppColors.statusAtencao,
+      );
+    }
+  }
+
+  /// Setores rápidos para seleção
+  static const _setoresRapidos = [
+    'Estoque',
+    'Padaria',
+    'Açougue',
+    'Frios',
+    'Hortifruti',
+    'Limpeza',
+    'Recebimento',
+    'Administrativo',
+    'Outro',
+  ];
+
+  void _abrirOutroSetor(TurnoLocal turno, {Alocacao? alocacaoAtual}) {
+    final outroSetorProvider =
+        Provider.of<OutroSetorProvider>(context, listen: false);
+
+    // Verifica se já está em outro setor
+    final jaEmOutroSetor = outroSetorProvider.isNaLista(turno.colaboradorId);
+    if (jaEmOutroSetor) {
+      final item = outroSetorProvider.getByColaborador(turno.colaboradorId);
+      if (item != null) {
+        outroSetorProvider.remover(item.id);
+        AppNotif.show(
+          context,
+          titulo: 'Removido do Setor',
+          mensagem: '${turno.colaboradorNome} retornou à disponibilidade.',
+          tipo: 'saida',
+          cor: const Color(0xFF5C6BC0),
+        );
+      }
+      return;
+    }
+
+    final TextEditingController customCtrl = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+            top: Radius.circular(Dimensions.radiusSheet)),
+      ),
+      builder: (sheetCtx) => Padding(
+        padding: EdgeInsets.fromLTRB(
+            16, 12, 16, MediaQuery.of(sheetCtx).viewInsets.bottom + 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              alignment: Alignment.center,
+              margin: const EdgeInsets.only(bottom: 16),
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.cardBorder,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor:
+                      const Color(0xFF5C6BC0).withValues(alpha: 0.12),
+                  child: Text(
+                    turno.colaboradorNome[0].toUpperCase(),
+                    style: const TextStyle(
+                        color: Color(0xFF5C6BC0),
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(turno.colaboradorNome, style: AppTextStyles.h4),
+                      Text(
+                        'Selecione o setor de destino',
+                        style: AppTextStyles.caption
+                            .copyWith(color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _setoresRapidos
+                  .map((setor) => ActionChip(
+                        label: Text(setor),
+                        onPressed: () async {
+                          Navigator.of(sheetCtx).pop();
+                          await _registrarOutroSetor(
+                              turno, setor, alocacaoAtual);
+                        },
+                        backgroundColor:
+                            const Color(0xFF5C6BC0).withValues(alpha: 0.08),
+                        side: const BorderSide(
+                            color: Color(0xFF5C6BC0), width: 0.8),
+                        labelStyle: const TextStyle(
+                            color: Color(0xFF5C6BC0),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12),
+                      ))
+                  .toList(),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: customCtrl,
+              decoration: InputDecoration(
+                hintText: 'Ou digite o setor...',
+                hintStyle: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary),
+                filled: true,
+                fillColor: AppColors.backgroundSection,
+                contentPadding: const EdgeInsets.symmetric(
+                    vertical: 10, horizontal: 12),
+                border: OutlineInputBorder(
+                  borderRadius:
+                      BorderRadius.circular(Dimensions.borderRadius),
+                  borderSide: BorderSide.none,
+                ),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.check,
+                      color: Color(0xFF5C6BC0)),
+                  onPressed: () async {
+                    final texto = customCtrl.text.trim();
+                    if (texto.isEmpty) return;
+                    Navigator.of(sheetCtx).pop();
+                    await _registrarOutroSetor(turno, texto, alocacaoAtual);
+                  },
+                ),
+              ),
+              onSubmitted: (texto) async {
+                if (texto.trim().isEmpty) return;
+                Navigator.of(sheetCtx).pop();
+                await _registrarOutroSetor(
+                    turno, texto.trim(), alocacaoAtual);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _registrarOutroSetor(
+    TurnoLocal turno,
+    String setor,
+    Alocacao? alocacaoAtual,
+  ) async {
+    final outroSetorProvider =
+        Provider.of<OutroSetorProvider>(context, listen: false);
+    final alocacaoProvider =
+        Provider.of<AlocacaoProvider>(context, listen: false);
+
+    // Se estava alocado num caixa, libera primeiro
+    if (alocacaoAtual != null) {
+      await alocacaoProvider.liberarAlocacao(
+          alocacaoAtual.id, 'Enviado para outro setor: $setor');
+      if (!mounted) return;
+      if (alocacaoProvider.error != null) {
+        AppNotif.show(
+          context,
+          titulo: 'Erro ao liberar',
+          mensagem: alocacaoProvider.error!,
+          tipo: 'alerta',
+          cor: AppColors.danger,
+        );
+        return;
+      }
+    }
+
+    await outroSetorProvider.adicionar(
+        widget.fiscalId, turno.colaboradorId, setor);
+
+    if (!mounted) return;
+
+    if (outroSetorProvider.error != null) {
+      AppNotif.show(
+        context,
+        titulo: 'Erro',
+        mensagem: outroSetorProvider.error!,
+        tipo: 'alerta',
+        cor: AppColors.danger,
+      );
+    } else {
+      AppNotif.show(
+        context,
+        titulo: 'Em Outro Setor',
+        mensagem: '${turno.colaboradorNome} registrado em $setor!',
+        tipo: 'saida',
+        cor: const Color(0xFF5C6BC0),
       );
     }
   }
@@ -751,6 +979,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 ...disponiveis.map((t) => _CardDisponivel(
                       turno: t,
                       onAlocar: () => _abrirSeletorCaixa(t),
+                      onOutroSetor: () => _abrirOutroSetor(t),
                       minutosParaChegar: _minutosParaChegar(t),
                     )),
 
@@ -976,9 +1205,13 @@ class _Header extends StatelessWidget {
 class _CardDisponivel extends StatelessWidget {
   final TurnoLocal turno;
   final VoidCallback onAlocar;
+  final VoidCallback? onOutroSetor;
   final int? minutosParaChegar;
   const _CardDisponivel(
-      {required this.turno, required this.onAlocar, this.minutosParaChegar});
+      {required this.turno,
+      required this.onAlocar,
+      this.onOutroSetor,
+      this.minutosParaChegar});
 
   String _chegaEm(int min) {
     if (min >= 60) return 'Chega em ${min ~/ 60}h ${min % 60}min';
@@ -1010,14 +1243,26 @@ class _CardDisponivel extends StatelessWidget {
           style:
               AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
         ),
-        trailing: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 8)),
-          onPressed: onAlocar,
-          child: const Text('Alocar'),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (onOutroSetor != null)
+              IconButton(
+                tooltip: 'Outro setor',
+                icon: const Icon(Icons.store_outlined),
+                color: AppColors.statusIntervalo,
+                onPressed: onOutroSetor,
+              ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8)),
+              onPressed: onAlocar,
+              child: const Text('Alocar'),
+            ),
+          ],
         ),
       ),
     );

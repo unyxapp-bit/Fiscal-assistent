@@ -22,6 +22,8 @@ import 'data/repositories/alocacao_repository.dart';
 import 'data/repositories/registro_ponto_repository.dart';
 import 'data/datasources/remote/pacote_plantao_remote_datasource.dart';
 import 'data/repositories/pacote_plantao_repository.dart';
+import 'data/datasources/remote/outro_setor_remote_datasource.dart';
+import 'data/repositories/outro_setor_repository.dart';
 
 // Use Cases - Fiscal
 import 'domain/usecases/fiscal/get_fiscal_profile.dart';
@@ -60,6 +62,7 @@ import 'presentation/providers/cafe_provider.dart';
 import 'presentation/providers/escala_provider.dart';
 import 'presentation/providers/registro_ponto_provider.dart';
 import 'presentation/providers/pacote_plantao_provider.dart';
+import 'presentation/providers/outro_setor_provider.dart';
 import 'presentation/providers/ocorrencia_provider.dart';
 import 'presentation/providers/checklist_provider.dart';
 import 'presentation/providers/passagem_turno_provider.dart';
@@ -125,6 +128,12 @@ void main() async {
     final pacotePlantaoRemoteDataSource = PacotePlantaoRemoteDataSource();
     final pacotePlantaoRepository = PacotePlantaoRepository(
       remoteDataSource: pacotePlantaoRemoteDataSource,
+    );
+
+    // ==================== OUTRO SETOR ====================
+    final outroSetorRemoteDataSource = OutroSetorRemoteDataSource();
+    final outroSetorRepository = OutroSetorRepository(
+      remoteDataSource: outroSetorRemoteDataSource,
     );
 
     // ==================== ALOCACAO ====================
@@ -240,6 +249,13 @@ void main() async {
           ChangeNotifierProvider(
             create: (_) => PacotePlantaoProvider(
               repository: pacotePlantaoRepository,
+            ),
+          ),
+
+          // Outro Setor
+          ChangeNotifierProvider(
+            create: (_) => OutroSetorProvider(
+              repository: outroSetorRepository,
             ),
           ),
 

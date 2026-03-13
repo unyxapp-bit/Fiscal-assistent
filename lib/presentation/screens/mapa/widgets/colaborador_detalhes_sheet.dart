@@ -113,9 +113,6 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
 
   JornadaResult _calcJornada() {
     final r = _registroHoje;
-    if (r == null || r.entrada == null || r.entrada!.isEmpty) {
-      return JornadaResult.semPonto();
-    }
 
     final now = DateTime.now();
     final base = DateTime(now.year, now.month, now.day);
@@ -127,6 +124,18 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
       final h = int.tryParse(parts[0]) ?? 0;
       final m = int.tryParse(parts[1]) ?? 0;
       return DateTime(base.year, base.month, base.day, h, m);
+    }
+
+    // Sem registro de ponto — tenta usar horário de escala como estimativa
+    if (r == null || r.entrada == null || r.entrada!.isEmpty) {
+      final turnoEntrada = parse(widget.turno?.entrada);
+      if (turnoEntrada == null) return JornadaResult.semPonto();
+      final liquida = now.difference(turnoEntrada);
+      return JornadaResult(
+        entrada: widget.turno!.entrada,
+        liquida: liquida.isNegative ? Duration.zero : liquida,
+        status: 'escala',
+      );
     }
 
     final entrada = parse(r.entrada)!;
@@ -356,7 +365,23 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                     '(sem registro de ponto hoje)',
                 iconColor: AppColors.textSecondary,
               )
-            else ...[
+            else if (jornada.status == 'escala') ...[
+              InfoRow(
+                icon: Icons.schedule,
+                label: 'Ativo desde',
+                value: '${jornada.entrada} (escala)',
+                iconColor: AppColors.statusAtencao,
+              ),
+              const SizedBox(height: 6),
+              InfoRow(
+                icon: Icons.timer_outlined,
+                label: 'Jornada estimada',
+                value: _formatDuracao(jornada.liquida),
+                iconColor: AppColors.statusAtencao,
+              ),
+              const SizedBox(height: 6),
+              StatusBadge(status: 'trabalhando'),
+            ] else ...[
               InfoRow(
                 icon: Icons.fingerprint,
                 label: 'Ativo desde',

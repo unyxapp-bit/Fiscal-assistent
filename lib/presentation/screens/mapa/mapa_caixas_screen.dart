@@ -11,6 +11,7 @@ import '../../providers/colaborador_provider.dart';
 import '../../providers/cafe_provider.dart';
 import '../../providers/escala_provider.dart';
 import '../../providers/pacote_plantao_provider.dart';
+import '../../providers/outro_setor_provider.dart';
 import '../../widgets/common/loading_widget.dart';
 import '../../widgets/common/empty_state_widget.dart';
 import '../alocacao/alocacao_screen.dart';
@@ -19,6 +20,7 @@ import '../caixas/widgets/caixa_card.dart';
 import 'widgets/caixa_list_item.dart';
 import 'widgets/balcao_list_item.dart';
 import 'widgets/pacote_section.dart';
+import 'widgets/outro_setor_section.dart';
 import '../../../core/utils/app_notif.dart';
 
 /// Tela de mapa de caixas — abas: Mapa | Caixas
@@ -157,6 +159,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
       Provider.of<ColaboradorProvider>(context, listen: false)
           .loadColaboradores(userId),
       Provider.of<EscalaProvider>(context, listen: false).load(),
+      Provider.of<OutroSetorProvider>(context, listen: false).load(userId),
     ]);
   }
 
@@ -348,6 +351,10 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
 
                     // Pacotes — lista de presença de empacotadores
                     const PacoteSection(),
+                    const SizedBox(height: Dimensions.spacingMD),
+
+                    // Outro Setor — colaboradores em outras funções
+                    const OutroSetorSection(),
                     const SizedBox(height: Dimensions.spacingMD),
                   ],
                 ),
