@@ -570,6 +570,29 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                                 widget.alocacaoProvider
                                     .marcarAguardandoIntervalo(
                                         widget.colaborador!.id);
+                                // Registrar na timeline
+                                final eventoProvider =
+                                    Provider.of<EventoTurnoProvider>(
+                                        widget.providerContext,
+                                        listen: false);
+                                final fiscalId =
+                                    Provider.of<AuthProvider>(
+                                            widget.providerContext,
+                                            listen: false)
+                                        .user
+                                        ?.id ??
+                                    '';
+                                eventoProvider.registrar(
+                                  fiscalId: fiscalId,
+                                  tipo: TipoEvento
+                                      .intervaloAguardandoLiberacao,
+                                  colaboradorNome:
+                                      widget.colaborador!.nome,
+                                  caixaNome: widget.caixa.nomeExibicao,
+                                  detalhe: widget.turno?.intervalo != null
+                                      ? 'previsto ${widget.turno!.intervalo}'
+                                      : null,
+                                );
                                 setState(() {});
                               },
                         icon: Icon(

@@ -510,6 +510,8 @@ class _RelatorioDetalheScreen extends StatelessWidget {
         (Icons.check_circle, AppColors.statusAtencao),
       TipoEvento.intervaloMarcadoFeito =>
         (Icons.check_circle_outline, Colors.green),
+      TipoEvento.intervaloAguardandoLiberacao =>
+        (Icons.pending_actions, AppColors.warning),
       TipoEvento.empacotadorAdicionado =>
         (Icons.inventory_2, const Color(0xFF795548)),
       TipoEvento.empacotadorRemovido =>
