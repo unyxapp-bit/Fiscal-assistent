@@ -835,12 +835,12 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     final turnosHoje = escalaProvider.turnosHoje;
     final q = _searchCtrl.text.toLowerCase().trim();
 
-    bool _matchSearch(TurnoLocal t) =>
+    bool matchSearch(TurnoLocal t) =>
         q.isEmpty || t.colaboradorNome.toLowerCase().contains(q);
 
     final disponiveis = turnosHoje
         .where((t) {
-          if (!_matchSearch(t)) return false;
+          if (!matchSearch(t)) return false;
           if (!_estaDisponivel(t, alocacaoProvider)) return false;
           if (t.departamento == DepartamentoTipo.pacote &&
               pacoteProvider.isNaLista(t.colaboradorId)) {
@@ -854,17 +854,17 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
 
     final jaAlocados = turnosHoje
         .where((t) =>
-            _matchSearch(t) &&
+            matchSearch(t) &&
             t.trabalhando &&
             alocacaoProvider.getAlocacaoColaborador(t.colaboradorId) != null)
         .toList();
 
     final folgas =
-        turnosHoje.where((t) => _matchSearch(t) && (t.folga || t.feriado)).toList();
+        turnosHoje.where((t) => matchSearch(t) && (t.folga || t.feriado)).toList();
 
     final aChegar = turnosHoje
         .where((t) {
-          if (!_matchSearch(t)) return false;
+          if (!matchSearch(t)) return false;
           if (!t.trabalhando || t.folga || t.feriado) return false;
           if (alocacaoProvider.getAlocacaoColaborador(t.colaboradorId) != null) {
             return false;
@@ -1379,7 +1379,7 @@ class _CardAlocadoState extends State<_CardAlocado> {
                           fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(width: 4),
-                Icon(Icons.chevron_right,
+                const Icon(Icons.chevron_right,
                     size: 18, color: AppColors.textSecondary),
               ],
             ),

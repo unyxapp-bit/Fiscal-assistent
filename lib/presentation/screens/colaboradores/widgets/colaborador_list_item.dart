@@ -170,7 +170,7 @@ class ColaboradorGridCard extends StatelessWidget {
                         : AppColors.textSecondary,
                   ),
                 ] else
-                  Text(
+                  const Text(
                     'Disponível',
                     style: TextStyle(
                       fontSize: 10,

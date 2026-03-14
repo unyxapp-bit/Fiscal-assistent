@@ -1,3 +1,4 @@
+// ignore_for_file: use_build_context_synchronously
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -394,7 +395,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                 iconColor: AppColors.statusAtencao,
               ),
               const SizedBox(height: 6),
-              StatusBadge(status: 'trabalhando'),
+              const StatusBadge(status: 'trabalhando'),
             ] else ...[
               InfoRow(
                 icon: Icons.fingerprint,
@@ -626,11 +627,12 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
 
             ElevatedButton.icon(
               onPressed: () async {
+                final providerCtx = widget.providerContext;
                 final eventoProvider = Provider.of<EventoTurnoProvider>(
-                    widget.providerContext,
+                    providerCtx,
                     listen: false);
                 final fiscalId =
-                    Provider.of<AuthProvider>(widget.providerContext,
+                    Provider.of<AuthProvider>(providerCtx,
                             listen: false)
                         .user
                         ?.id ??
@@ -649,7 +651,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                   caixaNome: widget.caixa.nomeExibicao,
                 );
                 AppNotif.show(
-                  widget.providerContext,
+                  providerCtx,
                   titulo: 'Colaborador Liberado',
                   mensagem: 'Colaborador liberado!',
                   tipo: 'saida',
@@ -842,10 +844,11 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
       BuildContext sheetCtx, Colaborador novo) async {
     Navigator.pop(sheetCtx);
 
+    final providerCtx = widget.providerContext;
     final authProvider =
-        Provider.of<AuthProvider>(widget.providerContext, listen: false);
+        Provider.of<AuthProvider>(providerCtx, listen: false);
     final eventoProvider =
-        Provider.of<EventoTurnoProvider>(widget.providerContext, listen: false);
+        Provider.of<EventoTurnoProvider>(providerCtx, listen: false);
     final navigator = Navigator.of(context);
 
     final confirm = await showDialog<bool>(
@@ -901,7 +904,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     if (mounted) {
       navigator.pop();
       AppNotif.show(
-        widget.providerContext,
+        providerCtx,
         titulo: 'Colaborador Alocado',
         mensagem: '${novo.nome} alocado no ${widget.caixa.nomeExibicao}',
         tipo: 'saida',
@@ -913,12 +916,13 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
   // ── Café ───────────────────────────────────────────────────────────────────
 
   Future<void> _enviarParaCafe() async {
+    final providerCtx = widget.providerContext;
     final cafeProvider =
-        Provider.of<CafeProvider>(widget.providerContext, listen: false);
+        Provider.of<CafeProvider>(providerCtx, listen: false);
     final eventoProvider =
-        Provider.of<EventoTurnoProvider>(widget.providerContext, listen: false);
+        Provider.of<EventoTurnoProvider>(providerCtx, listen: false);
     final fiscalId =
-        Provider.of<AuthProvider>(widget.providerContext, listen: false)
+        Provider.of<AuthProvider>(providerCtx, listen: false)
                 .user
                 ?.id ??
             '';
@@ -969,7 +973,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     if (mounted) {
       navigator.pop();
       AppNotif.show(
-        widget.providerContext,
+        providerCtx,
         titulo: 'Café Iniciado',
         mensagem: '${widget.colaborador!.nome} — pausa de café iniciada (10 min)',
         tipo: 'cafe',
@@ -1002,13 +1006,14 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
       }
     }
 
+    final providerCtx = widget.providerContext;
     final navigator = Navigator.of(context);
     final cafeProviderIntervalo =
-        Provider.of<CafeProvider>(widget.providerContext, listen: false);
+        Provider.of<CafeProvider>(providerCtx, listen: false);
     final eventoProviderIntervalo =
-        Provider.of<EventoTurnoProvider>(widget.providerContext, listen: false);
+        Provider.of<EventoTurnoProvider>(providerCtx, listen: false);
     final fiscalIdIntervalo =
-        Provider.of<AuthProvider>(widget.providerContext, listen: false)
+        Provider.of<AuthProvider>(providerCtx, listen: false)
                 .user
                 ?.id ??
             '';
@@ -1068,7 +1073,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     if (mounted) {
       navigator.pop();
       AppNotif.show(
-        widget.providerContext,
+        providerCtx,
         titulo: 'Intervalo Iniciado',
         mensagem: '${widget.colaborador!.nome} — intervalo de $duracaoMinutos min. Notificação agendada.',
         tipo: 'intervalo',

@@ -328,6 +328,8 @@ class _EventoCard extends StatelessWidget {
         (Icons.note_add, const Color(0xFF7B1FA2)),
       TipoEvento.formularioRespondido =>
         (Icons.assignment_turned_in, AppColors.primary),
+      TipoEvento.intervaloAguardandoLiberacao =>
+        (Icons.pending_actions, AppColors.warning),
     };
   }
 }

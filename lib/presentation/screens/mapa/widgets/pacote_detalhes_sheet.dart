@@ -1,3 +1,4 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/colors.dart';
@@ -416,8 +417,9 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
   }
 
   Future<void> _enviarParaCafe() async {
+    final providerCtx = widget.providerContext;
     final cafeProvider =
-        Provider.of<CafeProvider>(widget.providerContext, listen: false);
+        Provider.of<CafeProvider>(providerCtx, listen: false);
     final navigator = Navigator.of(context);
 
     final confirm = await showDialog<bool>(
@@ -453,7 +455,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
     if (mounted) {
       navigator.pop();
       AppNotif.show(
-        widget.providerContext,
+        providerCtx,
         titulo: 'Café Iniciado',
         mensagem: '${widget.colaborador.nome} — pausa de café iniciada (10 min)',
         tipo: 'cafe',
@@ -484,6 +486,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
       }
     }
 
+    final providerCtx = widget.providerContext;
     final navigator = Navigator.of(context);
 
     final confirm = await showDialog<bool>(
@@ -520,7 +523,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
     if (mounted) {
       navigator.pop();
       AppNotif.show(
-        widget.providerContext,
+        providerCtx,
         titulo: 'Intervalo Iniciado',
         mensagem: '${widget.colaborador.nome} — intervalo de $duracaoMinutos min. Notificação agendada.',
         tipo: 'intervalo',
