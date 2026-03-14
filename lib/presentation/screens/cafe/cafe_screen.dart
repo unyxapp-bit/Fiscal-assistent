@@ -9,6 +9,7 @@ import '../../../domain/entities/evento_turno.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/cafe_provider.dart';
 import '../../providers/colaborador_provider.dart';
+import '../../providers/escala_provider.dart';
 import '../../providers/evento_turno_provider.dart';
 
 class CafeScreen extends StatefulWidget {
@@ -40,15 +41,28 @@ class _CafeScreenState extends State<CafeScreen>
       builder: (context, provider, _) {
         final colaboradorProvider =
             Provider.of<ColaboradorProvider>(context, listen: false);
+        final escalaProvider =
+            Provider.of<EscalaProvider>(context, listen: false);
 
-        // IDs que já passaram por pausa hoje (ativa ou finalizada)
-        final jaFizeramPausa = {
-          ...provider.pausasAtivas.map((p) => p.colaboradorId),
-          ...provider.pausasFinalizadas.map((p) => p.colaboradorId),
-        };
+        // IDs na escala de hoje
+        final idsEscalaHoje =
+            escalaProvider.turnosHoje.map((t) => t.colaboradorId).toSet();
+
+        // IDs em pausa ativa
+        final emPausaAtiva =
+            provider.pausasAtivas.map((p) => p.colaboradorId).toSet();
+
+        // IDs que já fizeram café (≤15 min) ou intervalo (>15 min)
+        final jaFizeramCafe = provider.pausasFinalizadas
+            .where((p) => p.duracaoMinutos <= 15)
+            .map((p) => p.colaboradorId)
+            .toSet();
 
         final totalDisponiveis = colaboradorProvider.colaboradores
-            .where((c) => c.ativo && !jaFizeramPausa.contains(c.id))
+            .where((c) =>
+                idsEscalaHoje.contains(c.id) &&
+                !emPausaAtiva.contains(c.id) &&
+                !jaFizeramCafe.contains(c.id))
             .length;
 
         final temAlertas = provider.totalEmAtraso > 0;
@@ -129,7 +143,10 @@ class _CafeScreenState extends State<CafeScreen>
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    _TabDisponiveis(provider: provider),
+                    _TabDisponiveis(
+                      provider: provider,
+                      idsEscalaHoje: idsEscalaHoje,
+                    ),
                     _TabEmIntervalo(provider: provider),
                     _TabHistorico(provider: provider),
                   ],
@@ -193,21 +210,38 @@ class _CafeScreenState extends State<CafeScreen>
 // ---------------------------------------------------------------------------
 class _TabDisponiveis extends StatelessWidget {
   final CafeProvider provider;
+  final Set<String> idsEscalaHoje;
 
-  const _TabDisponiveis({required this.provider});
+  const _TabDisponiveis({
+    required this.provider,
+    required this.idsEscalaHoje,
+  });
 
   @override
   Widget build(BuildContext context) {
     final colaboradorProvider =
         Provider.of<ColaboradorProvider>(context, listen: false);
 
-    final jaFizeramPausa = {
-      ...provider.pausasAtivas.map((p) => p.colaboradorId),
-      ...provider.pausasFinalizadas.map((p) => p.colaboradorId),
-    };
+    // IDs em pausa ativa
+    final emPausaAtiva =
+        provider.pausasAtivas.map((p) => p.colaboradorId).toSet();
 
+    // IDs que já fizeram intervalo (>15 min) e café (≤15 min)
+    final jaFizeramIntervalo = provider.pausasFinalizadas
+        .where((p) => p.duracaoMinutos > 15)
+        .map((p) => p.colaboradorId)
+        .toSet();
+    final jaFizeramCafe = provider.pausasFinalizadas
+        .where((p) => p.duracaoMinutos <= 15)
+        .map((p) => p.colaboradorId)
+        .toSet();
+
+    // Disponíveis = na escala de hoje + não em pausa ativa + não fez café ainda
     final disponiveis = colaboradorProvider.colaboradores
-        .where((c) => c.ativo && !jaFizeramPausa.contains(c.id))
+        .where((c) =>
+            idsEscalaHoje.contains(c.id) &&
+            !emPausaAtiva.contains(c.id) &&
+            !jaFizeramCafe.contains(c.id))
         .toList();
 
     if (disponiveis.isEmpty) {
@@ -222,7 +256,7 @@ class _TabDisponiveis extends StatelessWidget {
                   color: AppColors.success.withValues(alpha: 0.7)),
               const SizedBox(height: 16),
               Text(
-                'Todos os colaboradores já fizeram o intervalo hoje!',
+                'Todos os colaboradores da escala já fizeram café hoje!',
                 style: AppTextStyles.body
                     .copyWith(color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
@@ -238,28 +272,39 @@ class _TabDisponiveis extends StatelessWidget {
         final isTablet = constraints.maxWidth >= Dimensions.breakpointTablet;
         Widget itemBuilder(BuildContext _, int i) {
           final c = disponiveis[i];
+          final paraIntervalo = !jaFizeramIntervalo.contains(c.id);
+          // Quem já fez intervalo mas não café → só café (10 min)
+          final soDez = !paraIntervalo;
+
           return Card(
             margin: isTablet
                 ? EdgeInsets.zero
                 : const EdgeInsets.only(bottom: Dimensions.spacingSM),
             child: ListTile(
               leading: CircleAvatar(
-                backgroundColor: AppColors.backgroundSection,
-                child: Text(
-                  c.iniciais.isNotEmpty ? c.iniciais[0] : '?',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                backgroundColor: soDez
+                    ? AppColors.statusCafe.withValues(alpha: 0.15)
+                    : AppColors.backgroundSection,
+                child: Icon(
+                  soDez ? Icons.coffee : Icons.restaurant,
+                  color: soDez ? AppColors.statusCafe : AppColors.textSecondary,
+                  size: 18,
                 ),
               ),
               title: Text(c.nome, style: AppTextStyles.body),
               subtitle: Text(
-                c.departamento.nome,
-                style: AppTextStyles.caption
-                    .copyWith(color: AppColors.textSecondary),
+                soDez
+                    ? 'Disponível para café (10 min)'
+                    : 'Disponível para intervalo',
+                style: AppTextStyles.caption.copyWith(
+                  color:
+                      soDez ? AppColors.statusCafe : AppColors.textSecondary,
+                ),
               ),
               trailing: TextButton.icon(
-                onPressed: () => _abrirSeletorRapido(context, c),
-                icon: const Icon(Icons.coffee, size: 16),
-                label: const Text('Pausa'),
+                onPressed: () => _abrirSeletorRapido(context, c, soDez),
+                icon: Icon(soDez ? Icons.coffee : Icons.restaurant, size: 16),
+                label: Text(soDez ? 'Café' : 'Pausa'),
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.statusCafe,
                 ),
@@ -294,16 +339,19 @@ class _TabDisponiveis extends StatelessWidget {
     );
   }
 
-  void _abrirSeletorRapido(BuildContext context, Colaborador colaborador) {
+  void _abrirSeletorRapido(
+      BuildContext context, Colaborador colaborador, bool soDez) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius: BorderRadius.vertical(
+            top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => _SeletorRapidoSheet(
         colaborador: colaborador,
         cafeProvider: provider,
+        forcaDuracaoDez: soDez,
       ),
     );
   }
@@ -633,14 +681,19 @@ class _PausaHistoricoCard extends StatelessWidget {
 class _SeletorRapidoSheet extends StatelessWidget {
   final Colaborador colaborador;
   final CafeProvider cafeProvider;
+  /// Quando true, só exibe a opção de 10 min (café pós-intervalo)
+  final bool forcaDuracaoDez;
 
   const _SeletorRapidoSheet({
     required this.colaborador,
     required this.cafeProvider,
+    this.forcaDuracaoDez = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final duracoes = forcaDuracaoDez ? [10] : [10, 15, 20, 30];
+
     return Padding(
       padding: EdgeInsets.only(
         top: 8,
@@ -665,7 +718,7 @@ class _SeletorRapidoSheet extends StatelessWidget {
             ),
           ),
           Text(
-            'Iniciar pausa para',
+            forcaDuracaoDez ? 'Café para' : 'Iniciar pausa para',
             style:
                 AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
           ),
@@ -676,12 +729,27 @@ class _SeletorRapidoSheet extends StatelessWidget {
             style:
                 AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
           ),
+          if (forcaDuracaoDez) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.statusCafe.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                'Já fez o intervalo — disponível somente para café (10 min)',
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.statusCafe),
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
-          const Text('Escolha a duração:', style: AppTextStyles.label),
+          const Text('Duração:', style: AppTextStyles.label),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [10, 15, 20, 30].map((d) {
+            children: duracoes.map((d) {
               final isCafe = d <= 15;
               return ElevatedButton.icon(
                 onPressed: () {
@@ -750,14 +818,23 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
   Widget build(BuildContext context) {
     final colaboradorProvider =
         Provider.of<ColaboradorProvider>(context, listen: false);
+    final escalaProvider =
+        Provider.of<EscalaProvider>(context, listen: false);
 
-    // Exclui: quem está em pausa ativa OU quem já finalizou uma pausa hoje
+    final idsEscalaHoje =
+        escalaProvider.turnosHoje.map((t) => t.colaboradorId).toSet();
+    final jaFizeramCafe = widget.cafeProvider.pausasFinalizadas
+        .where((p) => p.duracaoMinutos <= 15)
+        .map((p) => p.colaboradorId)
+        .toSet();
+
+    // Exclui: não está na escala, em pausa ativa, ou já fez café
     final colaboradores = colaboradorProvider.colaboradores
         .where(
           (c) =>
+              idsEscalaHoje.contains(c.id) &&
               !widget.cafeProvider.colaboradorEmPausa(c.id) &&
-              !widget.cafeProvider.pausasFinalizadas
-                  .any((p) => p.colaboradorId == c.id),
+              !jaFizeramCafe.contains(c.id),
         )
         .toList();
 

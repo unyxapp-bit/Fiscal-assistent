@@ -190,6 +190,17 @@ class EventoTurnoProvider with ChangeNotifier {
     return relatorio;
   }
 
+  /// Remove um relatório pelo id (local + Supabase)
+  Future<void> removerRelatorio(String id) async {
+    _relatorios.removeWhere((r) => r.id == id);
+    notifyListeners();
+    try {
+      await _supabase.from('relatorios_dia').delete().eq('id', id);
+    } catch (e) {
+      debugPrint('[EventoTurnoProvider] Erro ao deletar relatório: $e');
+    }
+  }
+
   // ── Helpers de conversão ───────────────────────────────────────────────
 
   EventoTurno _eventoFromSupabase(dynamic json) => EventoTurno(

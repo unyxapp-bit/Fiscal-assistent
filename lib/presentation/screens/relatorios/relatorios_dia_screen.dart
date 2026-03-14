@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
@@ -29,7 +30,13 @@ class RelatoriosDiaScreen extends StatelessWidget {
               : ListView.builder(
                   padding: const EdgeInsets.all(Dimensions.paddingMD),
                   itemCount: relatorios.length,
-                  itemBuilder: (_, i) => _RelatorioCard(relatorio: relatorios[i]),
+                  itemBuilder: (_, i) => _RelatorioCard(
+                    relatorio: relatorios[i],
+                    onExcluir: () => _confirmarExclusao(
+                        context, provider, relatorios[i]),
+                    onCompartilhar: () =>
+                        _compartilhar(relatorios[i]),
+                  ),
                 ),
         );
       },
@@ -53,14 +60,92 @@ class RelatoriosDiaScreen extends StatelessWidget {
       ),
     );
   }
+
+  void _confirmarExclusao(BuildContext context, EventoTurnoProvider provider,
+      RelatorioDia relatorio) {
+    final dateFmt = DateFormat('dd/MM/yyyy');
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Excluir Relatório'),
+        content: Text(
+            'Excluir o relatório de ${dateFmt.format(relatorio.turnoIniciadoEm)}? Esta ação não pode ser desfeita.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              provider.removerRelatorio(relatorio.id);
+            },
+            child: const Text('Excluir',
+                style: TextStyle(color: AppColors.danger)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _compartilhar(RelatorioDia relatorio) {
+    Share.share(_gerarTexto(relatorio),
+        subject: 'Relatório do turno — ${DateFormat('dd/MM/yyyy').format(relatorio.turnoIniciadoEm)}');
+  }
+
+  static String _gerarTexto(RelatorioDia r) {
+    final dateFmt = DateFormat('dd/MM/yyyy');
+    final timeFmt = DateFormat('HH:mm');
+    final dur = r.duracaoTurno;
+    final durStr = dur.inHours > 0
+        ? '${dur.inHours}h ${dur.inMinutes.remainder(60).toString().padLeft(2, '0')}min'
+        : '${dur.inMinutes}min';
+
+    final buf = StringBuffer();
+    buf.writeln('📊 Relatório do Turno — ${dateFmt.format(r.turnoIniciadoEm)}');
+    buf.writeln('⏰ ${timeFmt.format(r.turnoIniciadoEm)} → ${timeFmt.format(r.turnoEncerradoEm)} ($durStr)');
+    buf.writeln();
+    buf.writeln('📋 Resumo:');
+    buf.writeln('• ${r.totalAlocacoes} alocações');
+    buf.writeln('• ${r.totalColaboradores} colaboradores');
+    buf.writeln('• ${r.totalCafes} cafés');
+    buf.writeln('• ${r.totalIntervalos} intervalos');
+    if (r.totalEmpacotadores > 0) {
+      buf.writeln('• ${r.totalEmpacotadores} empacotadores');
+    }
+
+    if (r.eventos.isNotEmpty) {
+      buf.writeln();
+      buf.writeln('📅 Eventos:');
+      for (final e in r.eventos) {
+        final hora = timeFmt.format(e.timestamp);
+        final partes = [
+          hora,
+          e.tipo.label,
+          if (e.colaboradorNome != null) e.colaboradorNome!,
+          if (e.caixaNome != null) '→ ${e.caixaNome}',
+          if (e.detalhe != null) '(${e.detalhe})',
+        ];
+        buf.writeln(partes.join(' '));
+      }
+    }
+
+    return buf.toString().trim();
+  }
 }
 
 // ─── Card de relatório ────────────────────────────────────────────────────────
 
 class _RelatorioCard extends StatelessWidget {
   final RelatorioDia relatorio;
+  final VoidCallback onExcluir;
+  final VoidCallback onCompartilhar;
 
-  const _RelatorioCard({required this.relatorio});
+  const _RelatorioCard({
+    required this.relatorio,
+    required this.onExcluir,
+    required this.onCompartilhar,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +170,7 @@ class _RelatorioCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Cabeçalho: data + duração
+              // Cabeçalho: data + duração + ações
               Row(
                 children: [
                   const Icon(Icons.calendar_today,
@@ -93,13 +178,12 @@ class _RelatorioCard extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     dateFmt.format(relatorio.turnoIniciadoEm),
-                    style:
-                        AppTextStyles.h4.copyWith(color: AppColors.primary),
+                    style: AppTextStyles.h4.copyWith(color: AppColors.primary),
                   ),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
@@ -110,6 +194,25 @@ class _RelatorioCard extends StatelessWidget {
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold),
                     ),
+                  ),
+                  const SizedBox(width: 4),
+                  IconButton(
+                    icon: const Icon(Icons.share_outlined, size: 18),
+                    tooltip: 'Compartilhar',
+                    onPressed: onCompartilhar,
+                    color: AppColors.textSecondary,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                        minWidth: 32, minHeight: 32),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, size: 18),
+                    tooltip: 'Excluir',
+                    onPressed: onExcluir,
+                    color: AppColors.danger,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                        minWidth: 32, minHeight: 32),
                   ),
                 ],
               ),
@@ -181,7 +284,11 @@ class _RelatorioCard extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (_) => _RelatorioDetalheScreen(relatorio: relatorio)),
+          builder: (_) => _RelatorioDetalheScreen(
+                relatorio: relatorio,
+                onExcluir: onExcluir,
+                onCompartilhar: onCompartilhar,
+              )),
     );
   }
 }
@@ -219,8 +326,14 @@ class _Stat extends StatelessWidget {
 
 class _RelatorioDetalheScreen extends StatelessWidget {
   final RelatorioDia relatorio;
+  final VoidCallback onExcluir;
+  final VoidCallback onCompartilhar;
 
-  const _RelatorioDetalheScreen({required this.relatorio});
+  const _RelatorioDetalheScreen({
+    required this.relatorio,
+    required this.onExcluir,
+    required this.onCompartilhar,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -233,6 +346,22 @@ class _RelatorioDetalheScreen extends StatelessWidget {
         title: Text('Relatório — ${dateFmt.format(relatorio.turnoIniciadoEm)}'),
         backgroundColor: AppColors.background,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share_outlined),
+            tooltip: 'Compartilhar',
+            onPressed: onCompartilhar,
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            tooltip: 'Excluir',
+            color: AppColors.danger,
+            onPressed: () {
+              Navigator.pop(context);
+              onExcluir();
+            },
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(Dimensions.paddingMD),
