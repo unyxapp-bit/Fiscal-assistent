@@ -42,6 +42,10 @@ class AlocacaoProvider extends ChangeNotifier {
   /// Memória de sessão — resetado ao liberar a alocação.
   final Set<String> _intervalosMarcados = {};
 
+  /// IDs de colaboradores aguardando liberação para o intervalo.
+  /// Memória de sessão — resetado ao liberar a alocação.
+  final Set<String> _aguardandoIntervalo = {};
+
   // Getters
   List<Alocacao> get alocacoes => _alocacoes;
   LoadingState get loadingState => _loadingState;
@@ -54,6 +58,19 @@ class AlocacaoProvider extends ChangeNotifier {
 
   bool isIntervaloMarcado(String colaboradorId) =>
       _intervalosMarcados.contains(colaboradorId);
+
+  bool isAguardandoIntervalo(String colaboradorId) =>
+      _aguardandoIntervalo.contains(colaboradorId);
+
+  void marcarAguardandoIntervalo(String colaboradorId) {
+    _aguardandoIntervalo.add(colaboradorId);
+    notifyListeners();
+  }
+
+  void desmarcarAguardandoIntervalo(String colaboradorId) {
+    _aguardandoIntervalo.remove(colaboradorId);
+    notifyListeners();
+  }
 
   Future<void> marcarIntervaloFeito(String colaboradorId) async {
     _intervalosMarcados.add(colaboradorId);
@@ -172,6 +189,7 @@ class AlocacaoProvider extends ChangeNotifier {
       final liberada = _alocacoes.firstWhere((a) => a.id == alocacaoId,
           orElse: () => _alocacoes.first);
       _intervalosMarcados.remove(liberada.colaboradorId);
+      _aguardandoIntervalo.remove(liberada.colaboradorId);
       _alocacoes.removeWhere((a) => a.id == alocacaoId);
       _loadingState = LoadingState.success;
     } catch (e) {

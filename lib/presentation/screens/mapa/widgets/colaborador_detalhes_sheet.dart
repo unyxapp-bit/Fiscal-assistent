@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/colors.dart';
@@ -74,6 +75,7 @@ class ColaboradorDetalhesSheet extends StatefulWidget {
 class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
   RegistroPonto? _registroHoje;
   bool _carregando = false;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
@@ -82,6 +84,18 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
       WidgetsBinding.instance
           .addPostFrameCallback((_) => _carregarRegistro());
     }
+    // Atualiza countdown a cada 30 s quando há horário de intervalo na escala
+    if (widget.turno?.intervalo != null) {
+      _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+        if (mounted) setState(() {});
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _carregarRegistro() async {
@@ -401,6 +415,9 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
 
             const SizedBox(height: 12),
 
+            // Banner de countdown / aguardando intervalo
+            _buildIntervaloStatusBanner(),
+
             if (widget.turno != null) ...[
               const Text('Escala de hoje', style: AppTextStyles.label),
               const SizedBox(height: 8),
@@ -518,6 +535,61 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                               color: jaMarcado
                                   ? Colors.green.shade200
                                   : Colors.green.shade700),
+                          minimumSize: const Size(double.infinity, 40),
+                        ),
+                      ),
+                    );
+                  }),
+
+                  // ── Botão "Aguardando liberação para intervalo" ────────
+                  Builder(builder: (context) {
+                    final cafeProvider = Provider.of<CafeProvider>(
+                        widget.providerContext, listen: false);
+                    // Não mostrar se já está em pausa ou intervalo marcado
+                    if (cafeProvider
+                        .colaboradorEmPausa(widget.colaborador!.id)) {
+                      return const SizedBox.shrink();
+                    }
+                    if (widget.alocacaoProvider
+                        .isIntervaloMarcado(widget.colaborador!.id)) {
+                      return const SizedBox.shrink();
+                    }
+                    final aguardando = widget.alocacaoProvider
+                        .isAguardandoIntervalo(widget.colaborador!.id);
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: OutlinedButton.icon(
+                        onPressed: aguardando
+                            ? () {
+                                widget.alocacaoProvider
+                                    .desmarcarAguardandoIntervalo(
+                                        widget.colaborador!.id);
+                                setState(() {});
+                              }
+                            : () {
+                                widget.alocacaoProvider
+                                    .marcarAguardandoIntervalo(
+                                        widget.colaborador!.id);
+                                setState(() {});
+                              },
+                        icon: Icon(
+                          aguardando
+                              ? Icons.pending_actions
+                              : Icons.access_time,
+                          size: 18,
+                        ),
+                        label: Text(aguardando
+                            ? 'Aguardando liberação (toque para cancelar)'
+                            : 'Aguardando liberação para intervalo'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: aguardando
+                              ? AppColors.warning
+                              : AppColors.textSecondary,
+                          side: BorderSide(
+                            color: aguardando
+                                ? AppColors.warning
+                                : AppColors.cardBorder,
+                          ),
                           minimumSize: const Size(double.infinity, 40),
                         ),
                       ),
@@ -978,6 +1050,94 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
         mensagem: '${widget.colaborador!.nome} — intervalo de $duracaoMinutos min. Notificação agendada.',
         tipo: 'intervalo',
         cor: Colors.orange,
+      );
+    }
+  }
+
+  // ── Banner de status do intervalo ─────────────────────────────────────────
+  // Mostra countdown ou "Aguardando Intervalo" com tempo decorrido.
+  Widget _buildIntervaloStatusBanner() {
+    if (widget.colaborador == null) return const SizedBox.shrink();
+
+    // Se já está em pausa ativa, o alerta de pausa já cobre isso
+    final cafeProvider =
+        Provider.of<CafeProvider>(widget.providerContext, listen: false);
+    if (cafeProvider.colaboradorEmPausa(widget.colaborador!.id)) {
+      return const SizedBox.shrink();
+    }
+
+    // Usa horário de intervalo do registro de ponto, ou da escala como fallback
+    final intervaloStr =
+        _registroHoje?.intervaloSaida ?? widget.turno?.intervalo;
+    if (intervaloStr == null || intervaloStr.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final parts = intervaloStr.split(':');
+    if (parts.length < 2) return const SizedBox.shrink();
+    final h = int.tryParse(parts[0]);
+    final m = int.tryParse(parts[1]);
+    if (h == null || m == null) return const SizedBox.shrink();
+
+    final now = DateTime.now();
+    final intervaloTime = DateTime(now.year, now.month, now.day, h, m);
+    final diff = intervaloTime.difference(now);
+
+    if (diff.inSeconds > 0) {
+      // Falta tempo — countdown
+      final minutos = diff.inMinutes;
+      return Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.hourglass_top, size: 15, color: AppColors.primary),
+            const SizedBox(width: 8),
+            Text(
+              minutos > 0
+                  ? '$minutos min para o intervalo ($intervaloStr)'
+                  : 'Intervalo em menos de 1 min ($intervaloStr)',
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      // Passou do horário — Aguardando Intervalo
+      final passou = diff.inMinutes.abs();
+      return Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: AppColors.warning.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.warning.withValues(alpha: 0.4)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.schedule, size: 15, color: AppColors.warning),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                passou == 0
+                    ? 'Horário de intervalo agora ($intervaloStr)'
+                    : 'Aguardando Intervalo · $passou min desde $intervaloStr',
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.warning,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
       );
     }
   }
