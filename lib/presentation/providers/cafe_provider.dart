@@ -185,12 +185,14 @@ class CafeProvider with ChangeNotifier {
     }
   }
 
-  /// Inicia pausa para um colaborador
+  /// Inicia pausa para um colaborador.
+  /// [iniciadoEm] permite informar hora de saída retroativa (ponto já passado).
   void iniciarPausa({
     required String colaboradorId,
     required String colaboradorNome,
     int duracaoMinutos = 15,
     String? caixaId,
+    DateTime? iniciadoEm,
   }) {
     if (colaboradorEmPausa(colaboradorId)) return;
 
@@ -199,7 +201,7 @@ class CafeProvider with ChangeNotifier {
       colaboradorId: colaboradorId,
       colaboradorNome: colaboradorNome,
       caixaId: caixaId,
-      iniciadoEm: DateTime.now(),
+      iniciadoEm: iniciadoEm ?? DateTime.now(),
       duracaoMinutos: duracaoMinutos,
     );
     _pausas.add(pausa);

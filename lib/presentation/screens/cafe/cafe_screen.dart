@@ -6,6 +6,9 @@ import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../../domain/entities/colaborador.dart';
 import '../../../domain/entities/evento_turno.dart';
+import '../../../domain/entities/registro_ponto.dart';
+import '../../../data/datasources/remote/supabase_client.dart';
+import '../../../data/models/registro_ponto_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/cafe_provider.dart';
 import '../../providers/colaborador_provider.dart';
@@ -281,6 +284,9 @@ class _TabDisponiveis extends StatelessWidget {
                 ? EdgeInsets.zero
                 : const EdgeInsets.only(bottom: Dimensions.spacingSM),
             child: ListTile(
+              onTap: soDez
+                  ? () => _abrirSeletorRapido(context, c, soDez)
+                  : () => _abrirDetalheIntervalo(context, c),
               leading: CircleAvatar(
                 backgroundColor: soDez
                     ? AppColors.statusCafe.withValues(alpha: 0.15)
@@ -301,13 +307,24 @@ class _TabDisponiveis extends StatelessWidget {
                       soDez ? AppColors.statusCafe : AppColors.textSecondary,
                 ),
               ),
-              trailing: TextButton.icon(
-                onPressed: () => _abrirSeletorRapido(context, c, soDez),
-                icon: Icon(soDez ? Icons.coffee : Icons.restaurant, size: 16),
-                label: Text(soDez ? 'Café' : 'Pausa'),
-                style: TextButton.styleFrom(
-                  foregroundColor: AppColors.statusCafe,
-                ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextButton.icon(
+                    onPressed: soDez
+                        ? () => _abrirSeletorRapido(context, c, soDez)
+                        : () => _abrirDetalheIntervalo(context, c),
+                    icon:
+                        Icon(soDez ? Icons.coffee : Icons.restaurant, size: 16),
+                    label: Text(soDez ? 'Café' : 'Pausa'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.statusCafe,
+                    ),
+                  ),
+                  if (!soDez)
+                    const Icon(Icons.chevron_right,
+                        size: 16, color: AppColors.textSecondary),
+                ],
               ),
             ),
           );
@@ -352,6 +369,21 @@ class _TabDisponiveis extends StatelessWidget {
         colaborador: colaborador,
         cafeProvider: provider,
         forcaDuracaoDez: soDez,
+      ),
+    );
+  }
+
+  void _abrirDetalheIntervalo(BuildContext context, Colaborador colaborador) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+            top: Radius.circular(Dimensions.radiusSheet)),
+      ),
+      builder: (_) => _ColaboradorIntervaloSheet(
+        colaborador: colaborador,
+        cafeProvider: provider,
       ),
     );
   }
@@ -791,6 +823,316 @@ class _SeletorRapidoSheet extends StatelessWidget {
           const SizedBox(height: 8),
         ],
       ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Sheet de detalhe: envia colaborador para intervalo com base no RegistroPonto
+// ---------------------------------------------------------------------------
+class _ColaboradorIntervaloSheet extends StatefulWidget {
+  final Colaborador colaborador;
+  final CafeProvider cafeProvider;
+
+  const _ColaboradorIntervaloSheet({
+    required this.colaborador,
+    required this.cafeProvider,
+  });
+
+  @override
+  State<_ColaboradorIntervaloSheet> createState() =>
+      _ColaboradorIntervaloSheetState();
+}
+
+class _ColaboradorIntervaloSheetState
+    extends State<_ColaboradorIntervaloSheet> {
+  RegistroPonto? _ponto;
+  bool _carregando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarPonto();
+  }
+
+  Future<void> _carregarPonto() async {
+    try {
+      final hoje = DateTime.now();
+      final hojeStr =
+          '${hoje.year}-${hoje.month.toString().padLeft(2, '0')}-${hoje.day.toString().padLeft(2, '0')}';
+
+      final rows = await SupabaseClientManager.client
+          .from('registros_ponto')
+          .select()
+          .eq('colaborador_id', widget.colaborador.id)
+          .eq('data', hojeStr)
+          .limit(1);
+
+      if (mounted) {
+        setState(() {
+          _ponto = (rows as List).isNotEmpty
+              ? RegistroPontoModel.fromJson(
+                  rows.first)
+              : null;
+          _carregando = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _carregando = false);
+    }
+  }
+
+  DateTime? _parseHorario(String? hhmm) {
+    if (hhmm == null || hhmm.isEmpty) return null;
+    final parts = hhmm.split(':');
+    if (parts.length < 2) return null;
+    final h = int.tryParse(parts[0]);
+    final m = int.tryParse(parts[1]);
+    if (h == null || m == null) return null;
+    final hoje = DateTime.now();
+    return DateTime(hoje.year, hoje.month, hoje.day, h, m);
+  }
+
+  Future<void> _enviarParaIntervalo() async {
+    final saidaDT = _parseHorario(_ponto?.intervaloSaida);
+    final retornoDT = _parseHorario(_ponto?.intervaloRetorno);
+    final now = DateTime.now();
+    DateTime iniciadoEm;
+    int duracaoMinutos;
+
+    if (saidaDT != null && retornoDT != null) {
+      if (now.isAfter(saidaDT)) {
+        // Passou da hora de saída → perguntar quando saiu de verdade
+        final picked = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay(hour: saidaDT.hour, minute: saidaDT.minute),
+          helpText: 'Horário que ${widget.colaborador.nome} saiu',
+        );
+        if (picked == null || !mounted) return;
+        iniciadoEm = DateTime(now.year, now.month, now.day,
+            picked.hour, picked.minute);
+        final diff = retornoDT.difference(iniciadoEm);
+        duracaoMinutos = diff.inMinutes > 0 ? diff.inMinutes : 15;
+      } else {
+        // Ainda não chegou a hora → usar duração agendada, iniciar agora
+        final diff = retornoDT.difference(saidaDT);
+        duracaoMinutos = diff.inMinutes > 0 ? diff.inMinutes : 15;
+        iniciadoEm = now;
+      }
+    } else {
+      // Sem horários agendados → pausa padrão de 15 min
+      iniciadoEm = now;
+      duracaoMinutos = 15;
+    }
+
+    if (!mounted) return;
+    final eventoProvider =
+        Provider.of<EventoTurnoProvider>(context, listen: false);
+    final fiscalId =
+        Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+
+    widget.cafeProvider.iniciarPausa(
+      colaboradorId: widget.colaborador.id,
+      colaboradorNome: widget.colaborador.nome,
+      duracaoMinutos: duracaoMinutos,
+      iniciadoEm: iniciadoEm,
+    );
+    eventoProvider.registrar(
+      fiscalId: fiscalId,
+      tipo: TipoEvento.intervaloIniciado,
+      colaboradorNome: widget.colaborador.nome,
+      detalhe: '$duracaoMinutos min',
+    );
+
+    if (mounted) Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        top: 8,
+        left: 24,
+        right: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.divider,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          Text(
+            'Intervalo',
+            style: AppTextStyles.caption
+                .copyWith(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 2),
+          Text(widget.colaborador.nome, style: AppTextStyles.h3),
+          Text(
+            widget.colaborador.departamento.nome,
+            style: AppTextStyles.caption
+                .copyWith(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 20),
+          if (_carregando)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 24),
+                child: CircularProgressIndicator(),
+              ),
+            )
+          else ...[
+            _buildPontoInfo(),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _enviarParaIntervalo,
+                icon: const Icon(Icons.restaurant),
+                label: const Text('Enviar para Intervalo'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.statusCafe,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPontoInfo() {
+    final saida = _ponto?.intervaloSaida;
+    final retorno = _ponto?.intervaloRetorno;
+
+    if (saida == null && retorno == null) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.backgroundSection,
+          borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.info_outline,
+                size: 16, color: AppColors.textSecondary),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Sem horário de intervalo no registro de ponto. '
+                'Será iniciado com duração padrão de 15 min.',
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final saidaDT = _parseHorario(saida);
+    final jaSaiu = saidaDT != null && DateTime.now().isAfter(saidaDT);
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundSection,
+        borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+      ),
+      child: Column(
+        children: [
+          if (saida != null)
+            _InfoRow(
+              icon: Icons.logout,
+              label: 'Saída agendada',
+              valor: saida,
+              destaque: jaSaiu,
+            ),
+          if (saida != null && retorno != null) const Divider(height: 16),
+          if (retorno != null)
+            _InfoRow(
+              icon: Icons.login,
+              label: 'Retorno agendado',
+              valor: retorno,
+            ),
+          if (jaSaiu) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.warning.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.schedule,
+                      size: 14, color: AppColors.warning),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      'O horário de saída já passou — informe quando saiu.',
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.warning),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String valor;
+  final bool destaque;
+
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.valor,
+    this.destaque = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon,
+            size: 16,
+            color: destaque ? AppColors.warning : AppColors.textSecondary),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: AppTextStyles.caption
+              .copyWith(color: AppColors.textSecondary),
+        ),
+        const Spacer(),
+        Text(
+          valor,
+          style: AppTextStyles.body.copyWith(
+            fontWeight: FontWeight.bold,
+            color: destaque ? AppColors.warning : AppColors.textPrimary,
+          ),
+        ),
+      ],
     );
   }
 }
