@@ -56,14 +56,18 @@ class AlocacaoRemoteDataSource {
 
       final response = await _client
           .from('alocacoes')
-          .select('id')
+          .select('id, motivo_liberacao')
           .eq('colaborador_id', colaboradorId)
           .eq('caixa_id', caixaId)
           .gte('horario_inicio', inicioDia.toIso8601String())
-          .lt('horario_inicio', fimDia.toIso8601String())
-          .limit(1);
+          .lt('horario_inicio', fimDia.toIso8601String());
 
-      return (response as List).isNotEmpty;
+      final rows = (response as List).cast<Map<String, dynamic>>();
+      // Não contar liberações de café/intervalo como "já usou o caixa hoje".
+      return rows.any((r) {
+        final motivo = (r['motivo_liberacao'] as String?)?.toLowerCase();
+        return motivo != 'cafe' && motivo != 'intervalo';
+      });
     } catch (e) {
       throw ServerException('Erro ao verificar caixa usado: $e');
     }
