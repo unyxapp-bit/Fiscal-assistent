@@ -32,4 +32,15 @@ class RegistroPontoRepository {
   Future<void> deleteRegistroPonto(String id) async {
     await _remoteDataSource.deleteRegistroPonto(id);
   }
+
+  /// Insere uma lista de registros em lote. Retorna quantos foram inseridos.
+  Future<int> importarBatch(List<RegistroPonto> registros) async {
+    final maps = registros.map((r) {
+      final m = RegistroPontoModel.fromEntity(r).toJson();
+      m.remove('id');
+      return m;
+    }).toList();
+    await _remoteDataSource.createBatchRegistros(maps);
+    return maps.length;
+  }
 }

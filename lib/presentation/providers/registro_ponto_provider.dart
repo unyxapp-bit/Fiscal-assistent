@@ -111,6 +111,20 @@ class RegistroPontoProvider with ChangeNotifier {
     }
   }
 
+  /// Importa uma lista de registros em lote.
+  /// Retorna {'ok': N, 'erro': N}.
+  Future<Map<String, int>> importarBatch(List<RegistroPonto> registros) async {
+    try {
+      final ok = await _repository.importarBatch(registros);
+      return {'ok': ok, 'erro': 0};
+    } catch (e) {
+      if (kDebugMode) print('[RegistroPontoProvider] Erro no batch: $e');
+      _errorMessage = 'Erro ao importar registros: $e';
+      notifyListeners();
+      return {'ok': 0, 'erro': registros.length};
+    }
+  }
+
   /// Limpa os registros carregados
   void clear() {
     _registros = [];

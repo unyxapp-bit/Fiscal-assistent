@@ -68,4 +68,14 @@ class RegistroPontoRemoteDataSource {
       throw ServerException('Erro ao deletar registro de ponto: $e');
     }
   }
+
+  /// Insere múltiplos registros em lote (sem retorno individual)
+  Future<void> createBatchRegistros(
+      List<Map<String, dynamic>> registros) async {
+    try {
+      await _client.from('registros_ponto').insert(registros);
+    } catch (e) {
+      throw ServerException('Erro ao importar registros em lote: $e');
+    }
+  }
 }

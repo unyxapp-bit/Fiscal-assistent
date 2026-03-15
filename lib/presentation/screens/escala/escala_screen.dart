@@ -11,6 +11,7 @@ import '../../../domain/enums/departamento_tipo.dart';
 import '../../providers/colaborador_provider.dart';
 import '../../providers/escala_provider.dart';
 import 'escala_dia_screen.dart';
+import 'importar_escala_screen.dart';
 import '../../../core/utils/app_notif.dart';
 
 // ── Helpers de tempo ─────────────────────────────────────────────────────────
@@ -493,6 +494,14 @@ class _EscalaScreenState extends State<EscalaScreen> {
               onPressed: _semanaAtual,
               child: const Text('Hoje'),
             ),
+          IconButton(
+            icon: const Icon(Icons.upload_file_outlined),
+            tooltip: 'Importar registros por texto',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                  builder: (_) => const ImportarEscalaScreen()),
+            ),
+          ),
           IconButton(
             icon: provider.gerando
                 ? const SizedBox(
