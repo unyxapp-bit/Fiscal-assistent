@@ -13,6 +13,7 @@ import '../../../providers/escala_provider.dart';
 import '../../../providers/cafe_provider.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/registro_ponto_provider.dart';
+import '../../../providers/ocorrencia_provider.dart';
 import '../../alocacao/alocacao_screen.dart';
 import '../../../../core/utils/app_notif.dart';
 
@@ -255,6 +256,7 @@ class _DetalhesSheet extends StatefulWidget {
 class _DetalhesSheetState extends State<_DetalhesSheet> {
   RegistroPonto? _registroHoje;
   bool _carregando = false;
+  bool _expandidoOcorrencias = false;
 
   @override
   void initState() {
@@ -359,9 +361,92 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
     return '${m}min';
   }
 
+  Widget _buildOcorrenciasSection(List<Ocorrencia> ocorrencias) {
+    if (ocorrencias.isEmpty) return const SizedBox.shrink();
+
+    final ocorrenciasAbertas =
+        ocorrencias.where((o) => !o.resolvida).toList();
+    final ocorrenciasVisiveis = _expandidoOcorrencias
+        ? ocorrencias
+        : ocorrencias.take(3).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        const Text('Ocorrências deste caixa', style: AppTextStyles.label),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            const Icon(Icons.report_outlined,
+                size: 14, color: AppColors.textSecondary),
+            const SizedBox(width: 4),
+            Text(
+              '${ocorrencias.length} ocorrência(s)',
+              style: AppTextStyles.caption
+                  .copyWith(color: AppColors.textSecondary),
+            ),
+            if (ocorrenciasAbertas.isNotEmpty) ...[
+              const SizedBox(width: 6),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.danger.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  '${ocorrenciasAbertas.length} aberta(s)',
+                  style: AppTextStyles.caption.copyWith(
+                      color: AppColors.danger,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 6),
+        ...ocorrenciasVisiveis.map(
+          (o) => _OcorrenciaRow(ocorrencia: o),
+        ),
+        if (ocorrencias.length > 3)
+          GestureDetector(
+            onTap: () =>
+                setState(() => _expandidoOcorrencias = !_expandidoOcorrencias),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    _expandidoOcorrencias
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    size: 16,
+                    color: AppColors.primary,
+                  ),
+                  Text(
+                    _expandidoOcorrencias
+                        ? 'Ver menos'
+                        : 'Ver todas (${ocorrencias.length})',
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.primary),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        const Divider(height: 20),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final jornada = _calcJornada();
+    final ocorrencias = Provider.of<OcorrenciaProvider>(
+      widget.providerContext,
+    ).todas.where((o) => o.caixaId == widget.caixa.id).toList();
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -533,6 +618,8 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
               _HorarioGrid(turno: widget.turno!),
             ],
 
+            _buildOcorrenciasSection(ocorrencias),
+
             const SizedBox(height: 20),
 
             // Botão Liberar
@@ -569,6 +656,8 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                       : 'Caixa disponível',
               style: AppTextStyles.body,
             ),
+
+            _buildOcorrenciasSection(ocorrencias),
 
             if (widget.caixa.ativo && !widget.caixa.emManutencao) ...[
               const SizedBox(height: 16),
@@ -768,6 +857,101 @@ class _HorarioChip extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OcorrenciaRow extends StatelessWidget {
+  final Ocorrencia ocorrencia;
+
+  const _OcorrenciaRow({required this.ocorrencia});
+
+  @override
+  Widget build(BuildContext context) {
+    final cor = ocorrencia.gravidade.cor;
+    final timeFmt = '${ocorrencia.registradaEm.day.toString().padLeft(2, '0')}/'
+        '${ocorrencia.registradaEm.month.toString().padLeft(2, '0')} '
+        '${ocorrencia.registradaEm.hour.toString().padLeft(2, '0')}:'
+        '${ocorrencia.registradaEm.minute.toString().padLeft(2, '0')}';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: cor.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: cor.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            margin: const EdgeInsets.only(top: 4),
+            decoration: BoxDecoration(
+              color: cor,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        ocorrencia.tipo,
+                        style: AppTextStyles.caption.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: cor,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      timeFmt,
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+                if (ocorrencia.descricao.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    ocorrencia.descricao,
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textSecondary),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+            decoration: BoxDecoration(
+              color: ocorrencia.resolvida
+                  ? AppColors.success.withValues(alpha: 0.12)
+                  : AppColors.danger.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              ocorrencia.resolvida ? 'resolvida' : 'aberta',
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                color: ocorrencia.resolvida
+                    ? AppColors.success
+                    : AppColors.danger,
+              ),
             ),
           ),
         ],
