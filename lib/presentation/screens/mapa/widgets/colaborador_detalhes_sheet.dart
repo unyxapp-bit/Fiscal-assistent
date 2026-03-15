@@ -495,7 +495,14 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                       padding: const EdgeInsets.only(top: 8),
                       child: OutlinedButton.icon(
                         onPressed: jaMarcado
-                            ? null
+                            ? () {
+                                // Intervalo já feito no horário correto:
+                                // remove o estado "aguardando liberação" e fecha
+                                widget.alocacaoProvider
+                                    .desmarcarAguardandoIntervalo(
+                                        widget.colaborador!.id);
+                                Navigator.of(context).pop();
+                              }
                             : () async {
                                 final eventoProvider =
                                     Provider.of<EventoTurnoProvider>(
@@ -1091,6 +1098,11 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     final cafeProvider =
         Provider.of<CafeProvider>(widget.providerContext, listen: false);
     if (cafeProvider.colaboradorEmPausa(widget.colaborador!.id)) {
+      return const SizedBox.shrink();
+    }
+
+    // Se o intervalo já foi marcado como feito, não mostra o banner
+    if (widget.alocacaoProvider.isIntervaloMarcado(widget.colaborador!.id)) {
       return const SizedBox.shrink();
     }
 
