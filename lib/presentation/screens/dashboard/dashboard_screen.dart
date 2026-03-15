@@ -25,10 +25,8 @@ import '../checklist/checklist_screen.dart';
 import '../passagem_turno/passagem_turno_screen.dart';
 import '../guia_rapido/guia_rapido_screen.dart';
 import '../colaboradores/colaboradores_list_screen.dart';
-import '../alocacao/alocacao_screen.dart';
-import '../mapa/mapa_caixas_screen.dart';
+import '../gestao/gestao_screen.dart';
 import '../notificacoes/notificacoes_screen.dart';
-import '../cafe/cafe_screen.dart';
 import '../timeline/timeline_screen.dart';
 import '../entregas/entregas_screen.dart';
 import '../procedimentos/procedimentos_screen.dart';
@@ -160,7 +158,7 @@ class _DashboardScreenState extends State<DashboardScreen>
               '${cafeProvider.totalEmAtraso} pausa${cafeProvider.totalEmAtraso > 1 ? 's' : ''} em atraso',
           color: AppColors.danger,
           onTap: () => Navigator.push(context,
-              MaterialPageRoute(builder: (_) => const CafeScreen())),
+              MaterialPageRoute(builder: (_) => const GestaoScreen(initialIndex: 2))),
         ),
       if (entregaProvider.totalSeparadas > 0)
         _AlertItem(
@@ -325,24 +323,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                   _GridAcoes(
                     botoes: [
                       _BotaoAcao(
-                        icon: Icons.swap_horiz,
-                        label: 'Alocar',
+                        icon: Icons.point_of_sale,
+                        label: 'Caixas',
                         color: AppColors.primary,
                         onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => AlocacaoScreen(
-                              fiscalId: authProvider.user?.id ?? '',
-                            ),
+                            builder: (_) => const GestaoScreen(),
                           ),
-                        ),
-                      ),
-                      _BotaoAcao(
-                        icon: Icons.grid_view,
-                        label: 'Mapa / Caixas',
-                        color: AppColors.statusIntervalo,
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) => const MapaCaixasScreen()),
                         ),
                       ),
                       _BotaoAcao(
@@ -389,18 +376,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                   const SizedBox(height: Dimensions.spacingSM),
                   _GridAcoes(
                     botoes: [
-                      _BotaoAcao(
-                        icon: Icons.coffee,
-                        label: 'Café',
-                        color: AppColors.coffee,
-                        badge: cafeProvider.totalEmAtraso > 0
-                            ? cafeProvider.totalEmAtraso.toString()
-                            : null,
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) => const CafeScreen()),
-                        ),
-                      ),
                       _BotaoAcao(
                         icon: Icons.local_shipping,
                         label: 'Entregas',
@@ -1653,7 +1628,7 @@ class _BriefingTurnoSheet extends StatelessWidget {
                     onPressed: () {
                       Navigator.pop(context);
                       Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => AlocacaoScreen(fiscalId: fiscalId),
+                        builder: (_) => const GestaoScreen(initialIndex: 0),
                       ));
                     },
                     icon: const Icon(Icons.swap_horiz, size: 18),
