@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -10,6 +12,52 @@ import '../../providers/colaborador_provider.dart';
 import '../../providers/escala_provider.dart';
 import 'escala_dia_screen.dart';
 import '../../../core/utils/app_notif.dart';
+
+// ── Helpers de tempo ─────────────────────────────────────────────────────────
+
+int _toMin(String? hhmm) {
+  if (hhmm == null) return -1;
+  final p = hhmm.split(':');
+  if (p.length != 2) return -1;
+  return (int.tryParse(p[0]) ?? 0) * 60 + (int.tryParse(p[1]) ?? 0);
+}
+
+String _minToHHmm(int min) {
+  final h = (min ~/ 60) % 24;
+  final m = min % 60;
+  return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}';
+}
+
+// ── Modelo de problema de cobertura ─────────────────────────────────────────
+
+class _ProblemaCobertura {
+  final DateTime dia;
+  final String nomeDia;
+  final String periodo;
+  final int disponiveis;
+  final int emIntervaloSimultaneo;
+  final int totalAtivos;
+  final bool critico;
+
+  const _ProblemaCobertura({
+    required this.dia,
+    required this.nomeDia,
+    required this.periodo,
+    required this.disponiveis,
+    required this.emIntervaloSimultaneo,
+    required this.totalAtivos,
+    required this.critico,
+  });
+
+  String get descricao {
+    if (totalAtivos == 0) return 'Nenhum colaborador escalado';
+    final pct = (emIntervaloSimultaneo / totalAtivos * 100).round();
+    if (disponiveis == 0) {
+      return 'Sem cobertura — todos em intervalo ou já saíram';
+    }
+    return '$emIntervaloSimultaneo de $totalAtivos em intervalo simultâneo ($pct%)';
+  }
+}
 
 class EscalaScreen extends StatefulWidget {
   const EscalaScreen({super.key});
@@ -64,6 +112,226 @@ class _EscalaScreenState extends State<EscalaScreen> {
         authUserId.isNotEmpty) {
       colaboradorProvider.loadColaboradores(authUserId);
     }
+  }
+
+  // ── Validação de cobertura ───────────────────────────────────────────────
+
+  List<_ProblemaCobertura> _validarCobertura(EscalaProvider escala) {
+    final problemas = <_ProblemaCobertura>[];
+    final fmt = DateFormat('EEEE', 'pt_BR');
+
+    for (final dia in _diasDaSemana) {
+      final turnos = escala.getTurnosByData(dia);
+      final ativos = turnos.where((t) => t.trabalhando).toList();
+      if (ativos.isEmpty) continue;
+
+      // Determina janela de slots a verificar
+      int minSlot = 23 * 60, maxSlot = 0;
+      for (final t in ativos) {
+        final ent = _toMin(t.entrada);
+        final sai = _toMin(t.saida);
+        if (ent >= 0) minSlot = min(minSlot, (ent ~/ 30) * 30);
+        if (sai >= 0) maxSlot = max(maxSlot, ((sai + 29) ~/ 30) * 30);
+      }
+      if (minSlot >= maxSlot) continue;
+
+      // Analisa cada slot de 30min
+      int? problemStart;
+      int problemEndSlot = 0;
+      int worstDisp = 999, worstInt = 0;
+
+      void flush(int endSlot) {
+        if (problemStart == null) return;
+        final periodo =
+            '${_minToHHmm(problemStart!)}–${_minToHHmm(endSlot)}';
+        final critico =
+            worstDisp == 0 || worstInt >= (ativos.length * 0.6).ceil();
+        problemas.add(_ProblemaCobertura(
+          dia: dia,
+          nomeDia: _capitalizar(fmt.format(dia)),
+          periodo: periodo,
+          disponiveis: worstDisp == 999 ? 0 : worstDisp,
+          emIntervaloSimultaneo: worstInt,
+          totalAtivos: ativos.length,
+          critico: critico,
+        ));
+        problemStart = null;
+        worstDisp = 999;
+        worstInt = 0;
+      }
+
+      for (int slotMin = minSlot; slotMin < maxSlot; slotMin += 30) {
+        int disp = 0, emInt = 0, activeNow = 0;
+        for (final t in ativos) {
+          final ent = _toMin(t.entrada);
+          final sai = _toMin(t.saida);
+          final int_ = _toMin(t.intervalo);
+          final ret = _toMin(t.retorno);
+          if (ent < 0 || sai < 0 || slotMin < ent || slotMin >= sai) continue;
+          activeNow++;
+          final onBreak =
+              int_ >= 0 && ret >= 0 && slotMin >= int_ && slotMin < ret;
+          if (onBreak) { emInt++; } else { disp++; }
+        }
+        if (activeNow == 0) continue;
+
+        final isProblem = emInt / activeNow >= 0.5; // ≥ 50% em intervalo
+        if (isProblem) {
+          problemStart ??= slotMin;
+          problemEndSlot = slotMin + 30;
+          worstDisp = min(worstDisp, disp);
+          worstInt = max(worstInt, emInt);
+        } else {
+          flush(problemEndSlot);
+        }
+      }
+      flush(problemEndSlot);
+    }
+
+    return problemas;
+  }
+
+  void _mostrarRelatorioCobertura(
+      BuildContext context, List<_ProblemaCobertura> problemas) {
+    final criticos = problemas.where((p) => p.critico).length;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.55,
+        maxChildSize: 0.9,
+        minChildSize: 0.4,
+        expand: false,
+        builder: (ctx, scroll) => Column(
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.cardBorder,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  Icon(
+                    criticos > 0
+                        ? Icons.warning_rounded
+                        : Icons.warning_amber_rounded,
+                    color:
+                        criticos > 0 ? AppColors.danger : AppColors.warning,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Alertas de Cobertura', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+                        Text(
+                          '${problemas.length} período(s) com atenção'
+                          '${criticos > 0 ? " · $criticos crítico(s)" : ""}',
+                          style: AppTextStyles.caption,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 16),
+            Expanded(
+              child: ListView.builder(
+                controller: scroll,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: problemas.length,
+                itemBuilder: (ctx, i) {
+                  final p = problemas[i];
+                  final color =
+                      p.critico ? AppColors.danger : AppColors.warning;
+                  final bg = p.critico
+                      ? AppColors.alertCritical
+                      : AppColors.alertWarning;
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: bg,
+                      borderRadius:
+                          BorderRadius.circular(Dimensions.borderRadius),
+                      border:
+                          Border.all(color: color.withValues(alpha: 0.35)),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          p.critico
+                              ? Icons.warning_rounded
+                              : Icons.warning_amber_rounded,
+                          color: color,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${p.nomeDia} · ${p.periodo}',
+                                style: AppTextStyles.subtitle.copyWith(
+                                  color: color,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(p.descricao,
+                                  style: AppTextStyles.caption),
+                            ],
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    EscalaDiaScreen(data: p.dia),
+                              ),
+                            );
+                          },
+                          child: const Text('Ver dia'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text('Fechar'),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   // ── Geração automática ───────────────────────────────────────────────────
@@ -164,16 +432,33 @@ class _EscalaScreenState extends State<EscalaScreen> {
     final criados = resultado['criados'] ?? 0;
     final semRegistro = resultado['semRegistro'] ?? 0;
 
+    // Validação de cobertura após geração
+    final problemas = criados > 0 ? _validarCobertura(escalaProvider) : <_ProblemaCobertura>[];
+    final criticos = problemas.where((p) => p.critico).length;
+
     AppNotif.show(
       context,
       titulo: criados > 0 ? 'Escala Gerada' : 'Sem Registros',
       mensagem: criados > 0
-          ? '$criados turno(s) gerado(s) com sucesso.'
-              '${semRegistro > 0 ? " $semRegistro dia(s) sem registro de ponto." : ""}'
+          ? '$criados turno(s) gerado(s).'
+              '${semRegistro > 0 ? " $semRegistro dia(s) sem registro." : ""}'
+              '${problemas.isNotEmpty ? " ${problemas.length} alerta(s) de cobertura." : ""}'
           : 'Nenhum registro de ponto encontrado para a semana.',
       tipo: criados > 0 ? 'saida' : 'alerta',
-      cor: criados > 0 ? AppColors.success : AppColors.statusAtencao,
-      duracao: const Duration(seconds: 4),
+      cor: criticos > 0
+          ? AppColors.danger
+          : problemas.isNotEmpty
+              ? AppColors.statusAtencao
+              : AppColors.success,
+      duracao: const Duration(seconds: 5),
+      acao: problemas.isNotEmpty
+          ? SnackBarAction(
+              label: 'Ver Alertas (${problemas.length})',
+              textColor: Colors.white,
+              onPressed: () =>
+                  _mostrarRelatorioCobertura(context, problemas),
+            )
+          : null,
     );
   }
 
