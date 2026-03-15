@@ -826,6 +826,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     final alocacaoProvider = Provider.of<AlocacaoProvider>(context);
     final pacoteProvider = Provider.of<PacotePlantaoProvider>(context);
     final cafeProvider = Provider.of<CafeProvider>(context);
+    final outroSetorProvider = Provider.of<OutroSetorProvider>(context);
 
     final agora = DateTime.now();
     final dataLabel =
@@ -847,6 +848,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
             return false;
           }
           if (cafeProvider.colaboradorEmPausa(t.colaboradorId)) return false;
+          if (outroSetorProvider.isNaLista(t.colaboradorId)) return false;
           return true;
         })
         .toList()
@@ -879,6 +881,11 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
         })
         .toList()
       ..sort((a, b) => (a.entrada ?? '').compareTo(b.entrada ?? ''));
+
+    final emOutroSetor = turnosHoje
+        .where((t) =>
+            matchSearch(t) && outroSetorProvider.isNaLista(t.colaboradorId))
+        .toList();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -1001,6 +1008,38 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     alocadoEm: al?.alocadoEm,
                     onTap: al != null
                         ? () => _abrirOpcoesAlocado(t, al)
+                        : null,
+                  );
+                }),
+              ],
+
+              // Em Outro Setor
+              if (emOutroSetor.isNotEmpty) ...[
+                const SizedBox(height: Dimensions.spacingLG),
+                _Header(
+                    icon: Icons.store,
+                    label: 'Em outro setor',
+                    count: emOutroSetor.length,
+                    color: const Color(0xFF5C6BC0)),
+                const SizedBox(height: 8),
+                ...emOutroSetor.map((t) {
+                  final item =
+                      outroSetorProvider.getByColaborador(t.colaboradorId);
+                  return _CardOutroSetor(
+                    turno: t,
+                    setor: item?.setor ?? '—',
+                    onChamarDeVolta: item != null
+                        ? () {
+                            outroSetorProvider.remover(item.id);
+                            AppNotif.show(
+                              context,
+                              titulo: 'De Volta à Disponibilidade',
+                              mensagem:
+                                  '${t.colaboradorNome} saiu de ${item.setor}.',
+                              tipo: 'saida',
+                              cor: const Color(0xFF5C6BC0),
+                            );
+                          }
                         : null,
                   );
                 }),
@@ -1511,6 +1550,63 @@ class _CardFolga extends StatelessWidget {
         trailing: Icon(
           turno.feriado ? Icons.celebration : Icons.beach_access,
           color: AppColors.statusAtencao,
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Card de colaborador em outro setor ──────────────────────────────────────
+
+class _CardOutroSetor extends StatelessWidget {
+  final TurnoLocal turno;
+  final String setor;
+  final VoidCallback? onChamarDeVolta;
+
+  const _CardOutroSetor({
+    required this.turno,
+    required this.setor,
+    this.onChamarDeVolta,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const kColor = Color(0xFF5C6BC0);
+    return Card(
+      color: AppColors.cardBackground,
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: kColor.withValues(alpha: 0.12),
+          child: Text(
+            turno.colaboradorNome[0].toUpperCase(),
+            style: const TextStyle(
+                color: kColor, fontWeight: FontWeight.bold),
+          ),
+        ),
+        title: Text(turno.colaboradorNome, style: AppTextStyles.h4),
+        subtitle: Row(
+          children: [
+            const Icon(Icons.location_on, size: 11, color: kColor),
+            const SizedBox(width: 3),
+            Text(
+              setor,
+              style: AppTextStyles.caption
+                  .copyWith(color: kColor, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+        trailing: OutlinedButton.icon(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: kColor,
+            side: const BorderSide(color: kColor),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          ),
+          icon: const Icon(Icons.undo, size: 14),
+          label: const Text('Chamar',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+          onPressed: onChamarDeVolta,
         ),
       ),
     );

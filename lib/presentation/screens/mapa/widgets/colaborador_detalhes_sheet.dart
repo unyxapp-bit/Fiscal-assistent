@@ -756,14 +756,36 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     final colaboradorProvider = Provider.of<ColaboradorProvider>(
         widget.providerContext,
         listen: false);
+    final cafeProvider =
+        Provider.of<CafeProvider>(widget.providerContext, listen: false);
+    final escalaProvider =
+        Provider.of<EscalaProvider>(widget.providerContext, listen: false);
     final idsAlocados = widget.alocacaoProvider
         .getAlocacoesAtivas()
         .map((a) => a.colaboradorId)
         .toSet()
       ..remove(widget.colaborador!.id);
-    final disponiveis = colaboradorProvider.colaboradores
-        .where((c) => c.ativo && !idsAlocados.contains(c.id))
-        .toList();
+
+    final agora = DateTime.now();
+    final agoraTotalMin = agora.hour * 60 + agora.minute;
+
+    final disponiveis = colaboradorProvider.colaboradores.where((c) {
+      if (!c.ativo) return false;
+      if (idsAlocados.contains(c.id)) return false;
+      // Excluir quem está em pausa de café
+      if (cafeProvider.colaboradorEmPausa(c.id)) return false;
+      // Excluir quem sai em menos de 30 minutos
+      final turno = escalaProvider.getTurno(c.id, agora);
+      if (turno?.saida != null) {
+        final parts = turno!.saida!.split(':');
+        if (parts.length == 2) {
+          final saidaMin = (int.tryParse(parts[0]) ?? 0) * 60 +
+              (int.tryParse(parts[1]) ?? 0);
+          if (saidaMin - agoraTotalMin < 30) return false;
+        }
+      }
+      return true;
+    }).toList();
 
     showModalBottomSheet(
       context: context,

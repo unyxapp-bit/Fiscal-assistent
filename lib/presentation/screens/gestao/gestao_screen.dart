@@ -3,14 +3,16 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/cafe_provider.dart';
+import '../../providers/escala_provider.dart';
 import '../alocacao/alocacao_screen.dart';
 import '../mapa/mapa_caixas_screen.dart';
 import '../cafe/cafe_screen.dart';
+import 'visao_gargalo_screen.dart';
 
-/// Hub unificado: Alocar · Mapa · Café
+/// Hub unificado: Alocar · Mapa · Café · Visão
 /// Usa IndexedStack para manter os timers e estado vivos ao trocar de aba.
 class GestaoScreen extends StatefulWidget {
-  /// Índice inicial (0 = Alocar, 1 = Mapa, 2 = Café)
+  /// Índice inicial (0 = Alocar, 1 = Mapa, 2 = Café, 3 = Visão)
   final int initialIndex;
 
   const GestaoScreen({super.key, this.initialIndex = 0});
@@ -37,6 +39,10 @@ class _GestaoScreenState extends State<GestaoScreen> {
     final cafeProvider = Provider.of<CafeProvider>(context);
     final atrasos = cafeProvider.totalEmAtraso;
 
+    // Badge de gargalo na visão
+    final escalaProvider = Provider.of<EscalaProvider>(context);
+    final gargalos = contarGargalosHoje(escalaProvider);
+
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -44,6 +50,7 @@ class _GestaoScreenState extends State<GestaoScreen> {
           AlocacaoScreen(fiscalId: fiscalId),
           const MapaCaixasScreen(),
           const CafeScreen(),
+          const VisaoGargaloScreen(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -75,6 +82,19 @@ class _GestaoScreenState extends State<GestaoScreen> {
               child: const Icon(Icons.coffee),
             ),
             label: 'Café',
+          ),
+          NavigationDestination(
+            icon: Badge(
+              isLabelVisible: gargalos > 0,
+              label: Text('$gargalos'),
+              child: const Icon(Icons.show_chart_outlined),
+            ),
+            selectedIcon: Badge(
+              isLabelVisible: gargalos > 0,
+              label: Text('$gargalos'),
+              child: const Icon(Icons.show_chart),
+            ),
+            label: 'Visão',
           ),
         ],
       ),
