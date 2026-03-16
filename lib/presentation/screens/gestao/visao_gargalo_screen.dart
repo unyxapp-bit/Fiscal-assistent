@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../../core/constants/text_styles.dart';
+import '../../../domain/enums/departamento_tipo.dart';
 import '../../providers/alocacao_provider.dart';
 import '../../providers/cafe_provider.dart';
+import '../../providers/colaborador_provider.dart';
 import '../../providers/escala_provider.dart';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -34,22 +37,20 @@ class _Slot {
   final int minuto;
   final int disponiveis;
   final List<TurnoLocal> saidas;
-  final List<TurnoLocal> iniciosIntervalo;
-  final List<TurnoLocal> retornos;
   final List<TurnoLocal> entradas;
+  final List<TurnoLocal> intervalosPrevistos;
 
   const _Slot({
     required this.minuto,
     required this.disponiveis,
     required this.saidas,
-    required this.iniciosIntervalo,
-    required this.retornos,
     required this.entradas,
+    required this.intervalosPrevistos,
   });
 
   String get horaStr => _minToHHmm(minuto);
-  int get saiQtd => saidas.length + iniciosIntervalo.length;
-  int get voltaQtd => retornos.length + entradas.length;
+  int get saiQtd => saidas.length;
+  int get voltaQtd => entradas.length;
 
   factory _Slot.build(
     List<TurnoLocal> turnos,
@@ -62,9 +63,8 @@ class _Slot {
     int disponiveis = 0;
     final counted = <String>{};
     final saidas = <TurnoLocal>[];
-    final iniciosIntervalo = <TurnoLocal>[];
-    final retornos = <TurnoLocal>[];
     final entradas = <TurnoLocal>[];
+    final intervalosPrevistos = <TurnoLocal>[];
 
     bool emPausa(String colaboradorId) {
       final pausa = pausasAtivas?[colaboradorId];
@@ -96,10 +96,8 @@ class _Slot {
 
       // Disponível no início do slot?
       if (slotMinAdj >= entMin && slotMinAdj < saiMin) {
-        final emInt = intMin >= 0 &&
-            slotMinAdj >= intMin &&
-            (retMin < 0 || slotMinAdj < retMin);
-        if (!emInt && !emPausa(t.colaboradorId)) {
+        // Horário de intervalo é referência. Só consideramos pausa real.
+        if (!emPausa(t.colaboradorId)) {
           disponiveis++;
           counted.add(t.colaboradorId);
         }
@@ -112,12 +110,7 @@ class _Slot {
       if (intMin >= 0 &&
           intMin >= slotMinAdj &&
           intMin < slotMinAdj + _kSlotMin) {
-        iniciosIntervalo.add(t);
-      }
-      if (retMin >= 0 &&
-          retMin >= slotMinAdj &&
-          retMin < slotMinAdj + _kSlotMin) {
-        retornos.add(t);
+        intervalosPrevistos.add(t);
       }
       if (entMin >= slotMinAdj &&
           entMin < slotMinAdj + _kSlotMin) {
@@ -139,11 +132,26 @@ class _Slot {
       minuto: slotMin,
       disponiveis: disponiveis,
       saidas: saidas,
-      iniciosIntervalo: iniciosIntervalo,
-      retornos: retornos,
       entradas: entradas,
+      intervalosPrevistos: intervalosPrevistos,
     );
   }
+}
+
+class _SetorData {
+  final DepartamentoTipo setor;
+  final List<_Slot> slots;
+  final List<({int idx, int drop, bool low})> gargalos;
+  final int peak;
+  final int slotAtual;
+
+  const _SetorData({
+    required this.setor,
+    required this.slots,
+    required this.gargalos,
+    required this.peak,
+    required this.slotAtual,
+  });
 }
 
 /// Retorna o número de gargalos (quedas ≥ 2 ou cobertura baixa) nas próximas 4h.
@@ -154,18 +162,29 @@ int contarGargalosHoje(EscalaProvider escala) {
   final base = DateTime(agora.year, agora.month, agora.day);
   final slotAtual =
       ((agora.hour * 60 + agora.minute) ~/ _kSlotMin) * _kSlotMin;
-  final slots = List.generate(
-    _kSlotsJanela,
-    (i) => _Slot.build(
-      turnos,
-      slotAtual + i * _kSlotMin,
-      slotTime: base.add(Duration(minutes: slotAtual + i * _kSlotMin)),
-    ),
-  );
+
+  final setores = turnos
+      .where((t) => t.trabalhando)
+      .map((t) => t.departamento)
+      .toSet()
+      .toList();
+
   int count = 0;
-  for (int i = 1; i < slots.length; i++) {
-    final drop = slots[i - 1].disponiveis - slots[i].disponiveis;
-    if (drop >= 2 || slots[i].disponiveis <= _kMinCobertura) count++;
+  for (final setor in setores) {
+    final turnosSetor =
+        turnos.where((t) => t.departamento == setor).toList();
+    final slots = List.generate(
+      _kSlotsJanela,
+      (i) => _Slot.build(
+        turnosSetor,
+        slotAtual + i * _kSlotMin,
+        slotTime: base.add(Duration(minutes: slotAtual + i * _kSlotMin)),
+      ),
+    );
+    for (int i = 1; i < slots.length; i++) {
+      final drop = slots[i - 1].disponiveis - slots[i].disponiveis;
+      if (drop >= 2 || slots[i].disponiveis <= _kMinCobertura) count++;
+    }
   }
   return count;
 }
@@ -204,56 +223,87 @@ class _VisaoGargaloScreenState extends State<VisaoGargaloScreen> {
             Provider.of<AlocacaoProvider>(context, listen: false);
         final cafeProvider =
             Provider.of<CafeProvider>(context, listen: false);
+        final colaboradorProvider =
+            Provider.of<ColaboradorProvider>(context, listen: false);
         final turnos = escala.turnosHoje;
         final agora = DateTime.now();
         final base = DateTime(agora.year, agora.month, agora.day);
         final slotAtual =
             ((agora.hour * 60 + agora.minute) ~/ _kSlotMin) * _kSlotMin;
-        final alocadosAtivos = alocacaoProvider
-            .getAlocacoesAtivas()
-            .map((a) => a.colaboradorId)
-            .toSet();
-        final pausasAtivas = {
-          for (final p in cafeProvider.pausasAtivas) p.colaboradorId: p
+        final colabById = {
+          for (final c in colaboradorProvider.colaboradores) c.id: c
         };
-        final slots = List.generate(
-          _kSlotsJanela,
-          (i) {
-            final slotMin = slotAtual + i * _kSlotMin;
-            final slotTime = base.add(Duration(minutes: slotMin));
-            return _Slot.build(
-              turnos,
-              slotMin,
-              slotTime: slotTime,
-              pausasAtivas: pausasAtivas,
-              alocadosAtivos: alocadosAtivos,
-              ajustarComRealTime: slotMin == slotAtual,
-            );
-          },
-        );
-        final peak =
-            slots.fold(0, (a, s) => s.disponiveis > a ? s.disponiveis : a);
+        final turnosTrabalhando = turnos.where((t) => t.trabalhando).toList();
+        final setores = DepartamentoTipo.values
+            .where((d) => turnosTrabalhando.any((t) => t.departamento == d))
+            .toList();
 
-        final gargalosMap = <int, ({int idx, int drop, bool low})>{};
-        for (int i = 1; i < slots.length; i++) {
-          final drop = slots[i - 1].disponiveis - slots[i].disponiveis;
-          if (drop >= 2) {
-            gargalosMap[i] = (idx: i, drop: drop, low: false);
-          }
-          if (slots[i].disponiveis <= _kMinCobertura) {
-            final atual = gargalosMap[i];
-            if (atual != null) {
-              gargalosMap[i] = (
-                idx: i,
-                drop: atual.drop,
-                low: true,
+        final setoresData = <_SetorData>[];
+        for (final setor in setores) {
+          final turnosSetor =
+              turnosTrabalhando.where((t) => t.departamento == setor).toList();
+
+          final alocadosAtivos = alocacaoProvider
+              .getAlocacoesAtivas()
+              .where((a) => colabById[a.colaboradorId]?.departamento == setor)
+              .map((a) => a.colaboradorId)
+              .toSet();
+          final pausasAtivas = {
+            for (final p in cafeProvider.pausasAtivas)
+              if (colabById[p.colaboradorId]?.departamento == setor)
+                p.colaboradorId: p
+          };
+
+          final slots = List.generate(
+            _kSlotsJanela,
+            (i) {
+              final slotMin = slotAtual + i * _kSlotMin;
+              final slotTime = base.add(Duration(minutes: slotMin));
+              return _Slot.build(
+                turnosSetor,
+                slotMin,
+                slotTime: slotTime,
+                pausasAtivas: pausasAtivas,
+                alocadosAtivos: alocadosAtivos,
+                ajustarComRealTime: slotMin == slotAtual,
               );
-            } else {
-              gargalosMap[i] = (idx: i, drop: 0, low: true);
+            },
+          );
+          final peak =
+              slots.fold(0, (a, s) => s.disponiveis > a ? s.disponiveis : a);
+
+          final gargalosMap = <int, ({int idx, int drop, bool low})>{};
+          for (int i = 1; i < slots.length; i++) {
+            final drop = slots[i - 1].disponiveis - slots[i].disponiveis;
+            if (drop >= 2) {
+              gargalosMap[i] = (idx: i, drop: drop, low: false);
+            }
+            if (slots[i].disponiveis <= _kMinCobertura) {
+              final atual = gargalosMap[i];
+              if (atual != null) {
+                gargalosMap[i] = (
+                  idx: i,
+                  drop: atual.drop,
+                  low: true,
+                );
+              } else {
+                gargalosMap[i] = (idx: i, drop: 0, low: true);
+              }
             }
           }
+          final gargalos = gargalosMap.values.toList();
+          setoresData.add(_SetorData(
+            setor: setor,
+            slots: slots,
+            gargalos: gargalos,
+            peak: peak,
+            slotAtual: slotAtual,
+          ));
         }
-        final gargalos = gargalosMap.values.toList();
+        final temGargalos =
+            setoresData.any((s) => s.gargalos.isNotEmpty);
+
+        final temDados = setoresData.isNotEmpty;
 
         return Scaffold(
           backgroundColor: AppColors.background,
@@ -265,19 +315,19 @@ class _VisaoGargaloScreenState extends State<VisaoGargaloScreen> {
               Padding(
                 padding: const EdgeInsets.only(right: 14),
                 child: Icon(
-                  gargalos.isNotEmpty
+                  temGargalos
                       ? Icons.warning_amber_rounded
                       : Icons.check_circle_outline,
-                  color: gargalos.isNotEmpty
+                  color: temGargalos
                       ? AppColors.warning
                       : AppColors.success,
                 ),
               ),
             ],
           ),
-          body: turnos.isEmpty
+          body: turnos.isEmpty || !temDados
               ? _buildEmpty()
-              : _buildBody(slots, gargalos, peak, slotAtual),
+              : _buildBody(setoresData),
         );
       },
     );
@@ -298,41 +348,48 @@ class _VisaoGargaloScreenState extends State<VisaoGargaloScreen> {
         ),
       );
 
-  Widget _buildBody(
-    List<_Slot> slots,
-    List<({int idx, int drop, bool low})> gargalos,
-    int peak,
-    int slotAtual,
-  ) {
+  Widget _buildBody(List<_SetorData> setoresData) {
     return ListView(
       padding: const EdgeInsets.all(Dimensions.paddingMD),
       children: [
-        _CoberturaChart(slots: slots, peak: peak, slotAtual: slotAtual),
-        if (gargalos.isNotEmpty) ...[
-          const SizedBox(height: 20),
-          const _SectionHeader(
-            label: 'Alertas de Gargalo',
-            icon: Icons.warning_amber_rounded,
-            color: AppColors.warning,
-          ),
-          const SizedBox(height: 10),
-          ...gargalos.map(
-            (g) => _GargaloCard(
-              slot: slots[g.idx],
-              drop: g.drop,
-              baixaCobertura: g.low,
-            ),
-          ),
-        ],
-        const SizedBox(height: 20),
-        const _SectionHeader(
-          label: 'Próximas Movimentações',
-          icon: Icons.schedule,
-          color: AppColors.primary,
-        ),
-        const SizedBox(height: 10),
-        _ProximasMovimentacoes(slots: slots),
-        const SizedBox(height: 32),
+        ...setoresData.expand((s) => [
+              _SectionHeader(
+                label: 'Setor: ${s.setor.nome}',
+                icon: Icons.apartment_outlined,
+                color: AppColors.primary,
+              ),
+              const SizedBox(height: 8),
+              _CoberturaChart(
+                slots: s.slots,
+                peak: s.peak,
+                slotAtual: s.slotAtual,
+              ),
+              if (s.gargalos.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                const _SectionHeader(
+                  label: 'Alertas de Gargalo',
+                  icon: Icons.warning_amber_rounded,
+                  color: AppColors.warning,
+                ),
+                const SizedBox(height: 10),
+                ...s.gargalos.map(
+                  (g) => _GargaloCard(
+                    slot: s.slots[g.idx],
+                    drop: g.drop,
+                    baixaCobertura: g.low,
+                  ),
+                ),
+              ],
+              const SizedBox(height: 20),
+              const _SectionHeader(
+                label: 'Próximas Movimentações',
+                icon: Icons.schedule,
+                color: AppColors.primary,
+              ),
+              const SizedBox(height: 10),
+              _ProximasMovimentacoes(slots: s.slots),
+              const SizedBox(height: 32),
+            ]),
       ],
     );
   }
@@ -564,12 +621,12 @@ class _GargaloCard extends StatelessWidget {
     if (baixaCobertura) {
       return 'Cobertura muito baixa. Planeje reforço ou redistribua a equipe.';
     }
-    if (slot.iniciosIntervalo.isNotEmpty) {
-      final nomes = slot.iniciosIntervalo
+    if (slot.intervalosPrevistos.isNotEmpty) {
+      final nomes = slot.intervalosPrevistos
           .map((t) => t.colaboradorNome.split(' ').first)
           .join(', ');
       final antes = _minToHHmm(slot.minuto - 30);
-      return 'Considere antecipar o almoço de $nomes para as $antes para diluir a queda.';
+      return 'Há intervalos previstos para $nomes. Avalie liberar antes das $antes para diluir a queda.';
     }
     if (slot.saidas.isNotEmpty) {
       return 'Prepare uma substituição antes das ${slot.horaStr} para cobrir as saídas.';
@@ -584,17 +641,10 @@ class _GargaloCard extends StatelessWidget {
     final bgColor =
         isCritical ? AppColors.alertCritical : AppColors.alertWarning;
 
-    final saindoNomes = [
-      ...slot.saidas.map((t) => t.colaboradorNome.split(' ').first),
-      ...slot.iniciosIntervalo
-          .map((t) => '${t.colaboradorNome.split(' ').first} (almoço)'),
-    ];
-    final voltandoNomes = [
-      ...slot.retornos
-          .map((t) => '${t.colaboradorNome.split(' ').first} (retorno)'),
-      ...slot.entradas
-          .map((t) => '${t.colaboradorNome.split(' ').first} (entrada)'),
-    ];
+    final saindoNomes =
+        slot.saidas.map((t) => t.colaboradorNome.split(' ').first).toList();
+    final voltandoNomes =
+        slot.entradas.map((t) => t.colaboradorNome.split(' ').first).toList();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -721,7 +771,7 @@ class _EventRow extends StatelessWidget {
 
 // ── Próximas Movimentações ───────────────────────────────────────────────────
 
-enum _TipoEvento { saida, almoco, retorno, entrada }
+enum _TipoEvento { saida, entrada }
 
 class _Evento {
   final int horaMin;
@@ -749,24 +799,6 @@ class _ProximasMovimentacoes extends StatelessWidget {
               horaMin: m,
               nome: t.colaboradorNome.split(' ').first,
               tipo: _TipoEvento.saida));
-        }
-      }
-      for (final t in slot.iniciosIntervalo) {
-        final m = _toMin(t.intervalo);
-        if (m >= 0) {
-          eventos.add(_Evento(
-              horaMin: m,
-              nome: t.colaboradorNome.split(' ').first,
-              tipo: _TipoEvento.almoco));
-        }
-      }
-      for (final t in slot.retornos) {
-        final m = _toMin(t.retorno);
-        if (m >= 0) {
-          eventos.add(_Evento(
-              horaMin: m,
-              nome: t.colaboradorNome.split(' ').first,
-              tipo: _TipoEvento.retorno));
         }
       }
       for (final t in slot.entradas) {
@@ -824,10 +856,6 @@ class _EventoItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final (icon, color, label) = switch (evento.tipo) {
       _TipoEvento.saida => (Icons.exit_to_app, AppColors.danger, 'Saída'),
-      _TipoEvento.almoco =>
-        (Icons.restaurant, AppColors.statusIntervalo, 'Almoço'),
-      _TipoEvento.retorno =>
-        (Icons.keyboard_return, AppColors.success, 'Retorno'),
       _TipoEvento.entrada => (Icons.login, AppColors.primary, 'Entrada'),
     };
 
