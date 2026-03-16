@@ -14,6 +14,7 @@ import '../../../providers/colaborador_provider.dart';
 import '../../../providers/escala_provider.dart';
 import 'colaborador_detalhes_sheet.dart';
 import '../../../../core/utils/app_notif.dart';
+import '../../../widgets/excecao_dialog.dart';
 
 const Color _kBalcaoColor = Color(0xFF009688);
 
@@ -380,17 +381,49 @@ class _ColaboradorPickerSheet extends StatelessWidget {
                         caixaId: balcao.id,
                         fiscalId: authProvider.user?.id ?? '',
                       );
-                      // Se retornou excecao (já trabalhou aqui hoje),
-                      // retentar automaticamente com justificativa para balcão
+                      // Se retornou exceção (já trabalhou aqui hoje),
+                      // abrir diálogo para justificar
                       if (alocacaoProvider.mostrarDialogExcecao &&
                           context.mounted) {
-                        alocacaoProvider.fecharDialogExcecao();
-                        await alocacaoProvider.alocarColaborador(
-                          colaboradorId: colaborador.id,
-                          caixaId: balcao.id,
-                          fiscalId: authProvider.user?.id ?? '',
-                          justificativa: 'Rotação de balcão',
+                        final motivo =
+                            alocacaoProvider.resultadoExcecao?.motivoExcecao ??
+                                'Justifique o motivo da exceção.';
+                        final tipo =
+                            alocacaoProvider.resultadoExcecao?.tipoExcecao ??
+                                '';
+                        await showDialog(
+                          context: context,
+                          builder: (_) => ExcecaoDialog(
+                            colaborador: alocacaoProvider.colaboradorExcecao ??
+                                colaborador,
+                            caixa: alocacaoProvider.caixaExcecao ?? balcao,
+                            motivo: motivo,
+                            tipo: tipo,
+                            onCancel: () {
+                              alocacaoProvider.fecharDialogExcecao();
+                            },
+                            onConfirm: (justificativa) async {
+                              alocacaoProvider.fecharDialogExcecao();
+                              await alocacaoProvider.alocarColaborador(
+                                colaboradorId: colaborador.id,
+                                caixaId: balcao.id,
+                                fiscalId: authProvider.user?.id ?? '',
+                                justificativa: justificativa,
+                              );
+                              if (alocacaoProvider.error != null &&
+                                  context.mounted) {
+                                AppNotif.show(
+                                  context,
+                                  titulo: 'Erro',
+                                  mensagem: alocacaoProvider.error!,
+                                  tipo: 'alerta',
+                                  cor: Colors.red,
+                                );
+                              }
+                            },
+                          ),
                         );
+                        return;
                       }
                       if (alocacaoProvider.error != null &&
                           context.mounted) {
