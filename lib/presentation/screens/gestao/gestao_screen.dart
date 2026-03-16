@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/alocacao_provider.dart';
 import '../../providers/cafe_provider.dart';
+import '../../providers/colaborador_provider.dart';
 import '../../providers/escala_provider.dart';
 import '../alocacao/alocacao_screen.dart';
 import '../mapa/mapa_caixas_screen.dart';
@@ -41,7 +43,14 @@ class _GestaoScreenState extends State<GestaoScreen> {
 
     // Badge de gargalo na visão
     final escalaProvider = Provider.of<EscalaProvider>(context);
-    final gargalos = contarGargalosHoje(escalaProvider);
+    final alocacaoProvider = Provider.of<AlocacaoProvider>(context);
+    final colaboradorProvider = Provider.of<ColaboradorProvider>(context);
+    final gargalos = contarGargalosHoje(
+      escala: escalaProvider,
+      alocacao: alocacaoProvider,
+      cafe: cafeProvider,
+      colaborador: colaboradorProvider,
+    );
 
     return Scaffold(
       body: IndexedStack(

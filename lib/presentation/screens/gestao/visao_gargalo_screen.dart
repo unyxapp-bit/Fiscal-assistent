@@ -154,37 +154,115 @@ class _SetorData {
   });
 }
 
-/// Retorna o número de gargalos (quedas ≥ 2 ou cobertura baixa) nas próximas 4h.
-/// Exposto publicamente para o badge no GestaoScreen.
-int contarGargalosHoje(EscalaProvider escala) {
-  final turnos = escala.turnosHoje;
-  final agora = DateTime.now();
+List<_SetorData> _buildSetoresData({
+  required List<TurnoLocal> turnos,
+  required DateTime agora,
+  required Map<String, DepartamentoTipo> deptByColab,
+  required Set<String> alocadosAtivos,
+  required Map<String, PausaCafe> pausasAtivas,
+}) {
   final base = DateTime(agora.year, agora.month, agora.day);
   final slotAtual =
       ((agora.hour * 60 + agora.minute) ~/ _kSlotMin) * _kSlotMin;
-
-  final setores = turnos
-      .where((t) => t.trabalhando)
-      .map((t) => t.departamento)
-      .toSet()
+  final turnosTrabalhando = turnos.where((t) => t.trabalhando).toList();
+  final setores = DepartamentoTipo.values
+      .where((d) => turnosTrabalhando.any((t) => t.departamento == d))
       .toList();
 
-  int count = 0;
+  final setoresData = <_SetorData>[];
   for (final setor in setores) {
     final turnosSetor =
-        turnos.where((t) => t.departamento == setor).toList();
+        turnosTrabalhando.where((t) => t.departamento == setor).toList();
+
+    final alocadosAtivosSetor = alocadosAtivos
+        .where((id) => deptByColab[id] == setor)
+        .toSet();
+    final pausasAtivasSetor = {
+      for (final entry in pausasAtivas.entries)
+        if (deptByColab[entry.key] == setor) entry.key: entry.value
+    };
+
     final slots = List.generate(
       _kSlotsJanela,
-      (i) => _Slot.build(
-        turnosSetor,
-        slotAtual + i * _kSlotMin,
-        slotTime: base.add(Duration(minutes: slotAtual + i * _kSlotMin)),
-      ),
+      (i) {
+        final slotMin = slotAtual + i * _kSlotMin;
+        final slotTime = base.add(Duration(minutes: slotMin));
+        return _Slot.build(
+          turnosSetor,
+          slotMin,
+          slotTime: slotTime,
+          pausasAtivas: pausasAtivasSetor,
+          alocadosAtivos: alocadosAtivosSetor,
+          ajustarComRealTime: slotMin == slotAtual,
+        );
+      },
     );
+    final peak =
+        slots.fold(0, (a, s) => s.disponiveis > a ? s.disponiveis : a);
+
+    final gargalosMap = <int, ({int idx, int drop, bool low})>{};
     for (int i = 1; i < slots.length; i++) {
       final drop = slots[i - 1].disponiveis - slots[i].disponiveis;
-      if (drop >= 2 || slots[i].disponiveis <= _kMinCobertura) count++;
+      if (drop >= 2) {
+        gargalosMap[i] = (idx: i, drop: drop, low: false);
+      }
+      if (slots[i].disponiveis <= _kMinCobertura) {
+        final atual = gargalosMap[i];
+        if (atual != null) {
+          gargalosMap[i] = (
+            idx: i,
+            drop: atual.drop,
+            low: true,
+          );
+        } else {
+          gargalosMap[i] = (idx: i, drop: 0, low: true);
+        }
+      }
     }
+    final gargalos = gargalosMap.values.toList();
+    setoresData.add(_SetorData(
+      setor: setor,
+      slots: slots,
+      gargalos: gargalos,
+      peak: peak,
+      slotAtual: slotAtual,
+    ));
+  }
+
+  return setoresData;
+}
+
+/// Retorna o número de gargalos (quedas ≥ 2 ou cobertura baixa) nas próximas 4h,
+/// considerando setores separados e pausas reais.
+/// Exposto publicamente para o badge no GestaoScreen.
+int contarGargalosHoje({
+  required EscalaProvider escala,
+  required AlocacaoProvider alocacao,
+  required CafeProvider cafe,
+  required ColaboradorProvider colaborador,
+}) {
+  final turnos = escala.turnosHoje;
+  final agora = DateTime.now();
+  final deptByColab = {
+    for (final c in colaborador.colaboradores) c.id: c.departamento
+  };
+  final alocadosAtivos =
+      alocacao.getAlocacoesAtivas().map((a) => a.colaboradorId).toSet();
+  final pausasAtivas = {
+    for (final p in cafe.pausasAtivas) p.colaboradorId: p
+  };
+
+  final setoresData = _buildSetoresData(
+    turnos: turnos,
+    agora: agora,
+    deptByColab: deptByColab,
+    alocadosAtivos: alocadosAtivos,
+    pausasAtivas: pausasAtivas,
+  );
+
+  int count = 0;
+  for (final s in setoresData) {
+    count += s.gargalos.length;
   }
   return count;
 }
@@ -228,78 +306,25 @@ class _VisaoGargaloScreenState extends State<VisaoGargaloScreen> {
         final turnos = escala.turnosHoje;
         final agora = DateTime.now();
         final base = DateTime(agora.year, agora.month, agora.day);
-        final slotAtual =
-            ((agora.hour * 60 + agora.minute) ~/ _kSlotMin) * _kSlotMin;
-        final colabById = {
-          for (final c in colaboradorProvider.colaboradores) c.id: c
+        final deptByColab = {
+          for (final c in colaboradorProvider.colaboradores)
+            c.id: c.departamento
         };
-        final turnosTrabalhando = turnos.where((t) => t.trabalhando).toList();
-        final setores = DepartamentoTipo.values
-            .where((d) => turnosTrabalhando.any((t) => t.departamento == d))
-            .toList();
+        final alocadosAtivos = alocacaoProvider
+            .getAlocacoesAtivas()
+            .map((a) => a.colaboradorId)
+            .toSet();
+        final pausasAtivas = {
+          for (final p in cafeProvider.pausasAtivas) p.colaboradorId: p
+        };
 
-        final setoresData = <_SetorData>[];
-        for (final setor in setores) {
-          final turnosSetor =
-              turnosTrabalhando.where((t) => t.departamento == setor).toList();
-
-          final alocadosAtivos = alocacaoProvider
-              .getAlocacoesAtivas()
-              .where((a) => colabById[a.colaboradorId]?.departamento == setor)
-              .map((a) => a.colaboradorId)
-              .toSet();
-          final pausasAtivas = {
-            for (final p in cafeProvider.pausasAtivas)
-              if (colabById[p.colaboradorId]?.departamento == setor)
-                p.colaboradorId: p
-          };
-
-          final slots = List.generate(
-            _kSlotsJanela,
-            (i) {
-              final slotMin = slotAtual + i * _kSlotMin;
-              final slotTime = base.add(Duration(minutes: slotMin));
-              return _Slot.build(
-                turnosSetor,
-                slotMin,
-                slotTime: slotTime,
-                pausasAtivas: pausasAtivas,
-                alocadosAtivos: alocadosAtivos,
-                ajustarComRealTime: slotMin == slotAtual,
-              );
-            },
-          );
-          final peak =
-              slots.fold(0, (a, s) => s.disponiveis > a ? s.disponiveis : a);
-
-          final gargalosMap = <int, ({int idx, int drop, bool low})>{};
-          for (int i = 1; i < slots.length; i++) {
-            final drop = slots[i - 1].disponiveis - slots[i].disponiveis;
-            if (drop >= 2) {
-              gargalosMap[i] = (idx: i, drop: drop, low: false);
-            }
-            if (slots[i].disponiveis <= _kMinCobertura) {
-              final atual = gargalosMap[i];
-              if (atual != null) {
-                gargalosMap[i] = (
-                  idx: i,
-                  drop: atual.drop,
-                  low: true,
-                );
-              } else {
-                gargalosMap[i] = (idx: i, drop: 0, low: true);
-              }
-            }
-          }
-          final gargalos = gargalosMap.values.toList();
-          setoresData.add(_SetorData(
-            setor: setor,
-            slots: slots,
-            gargalos: gargalos,
-            peak: peak,
-            slotAtual: slotAtual,
-          ));
-        }
+        final setoresData = _buildSetoresData(
+          turnos: turnos,
+          agora: agora,
+          deptByColab: deptByColab,
+          alocadosAtivos: alocadosAtivos,
+          pausasAtivas: pausasAtivas,
+        );
         final temGargalos =
             setoresData.any((s) => s.gargalos.isNotEmpty);
 
