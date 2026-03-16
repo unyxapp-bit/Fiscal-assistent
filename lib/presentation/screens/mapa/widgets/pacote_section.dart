@@ -364,11 +364,17 @@ class _EmpacotadorPickerSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final idsEscalaTrabalhando = escalaProvider.turnosHoje
+        .where((t) => t.trabalhando)
+        .map((t) => t.colaboradorId)
+        .toSet();
+
     // Apenas empacotadores ativos que ainda não estão na lista hoje
     final disponiveis = colaboradorProvider.colaboradores
         .where((c) =>
             c.ativo &&
             c.departamento == DepartamentoTipo.pacote &&
+            idsEscalaTrabalhando.contains(c.id) &&
             !plantaoProvider.isNaLista(c.id))
         .toList();
 

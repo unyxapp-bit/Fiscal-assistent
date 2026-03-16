@@ -312,10 +312,16 @@ class _ColaboradorPickerSheet extends StatelessWidget {
     final alocacaoProvider =
         Provider.of<AlocacaoProvider>(context, listen: false);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final escalaProvider = Provider.of<EscalaProvider>(context, listen: false);
+
+    final idsEscalaTrabalhando = escalaProvider.turnosHoje
+        .where((t) => t.trabalhando)
+        .map((t) => t.colaboradorId)
+        .toSet();
 
     // Balcão: mostra todos os colaboradores ativos (sem restrição de alocação)
     final disponiveis = colaboradorProvider.colaboradores
-        .where((c) => c.ativo)
+        .where((c) => c.ativo && idsEscalaTrabalhando.contains(c.id))
         .toList();
 
     return Padding(
