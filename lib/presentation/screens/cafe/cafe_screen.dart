@@ -47,9 +47,15 @@ class _CafeScreenState extends State<CafeScreen>
         final escalaProvider =
             Provider.of<EscalaProvider>(context, listen: false);
 
-        // IDs na escala de hoje
-        final idsEscalaHoje =
-            escalaProvider.turnosHoje.map((t) => t.colaboradorId).toSet();
+        // IDs na escala de hoje com horário de intervalo configurado
+        final idsEscalaHoje = escalaProvider.turnosHoje
+            .where((t) =>
+                !t.folga &&
+                !t.feriado &&
+                (t.intervalo?.isNotEmpty == true) &&
+                (t.retorno?.isNotEmpty == true))
+            .map((t) => t.colaboradorId)
+            .toSet();
 
         // IDs em pausa ativa
         final emPausaAtiva =
@@ -239,7 +245,7 @@ class _TabDisponiveis extends StatelessWidget {
         .map((p) => p.colaboradorId)
         .toSet();
 
-    // Disponíveis = na escala de hoje + não em pausa ativa + não fez café ainda
+    // Disponíveis = na escala (com intervalo) + não em pausa ativa + não fez café ainda
     final disponiveis = colaboradorProvider.colaboradores
         .where((c) =>
             idsEscalaHoje.contains(c.id) &&
