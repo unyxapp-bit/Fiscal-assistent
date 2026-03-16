@@ -19,6 +19,7 @@ import '../../providers/cafe_provider.dart';
 import '../../providers/pacote_plantao_provider.dart';
 import '../../providers/outro_setor_provider.dart';
 import '../../../core/utils/app_notif.dart';
+import '../../widgets/excecao_dialog.dart';
 
 /// Tela de alocação — lista colaboradores disponíveis agora e permite
 /// alocar em um caixa com dois toques.
@@ -329,12 +330,31 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     Caixa caixa,
     AlocacaoProvider alocacaoProvider,
   ) async {
+    Navigator.of(sheetCtx).pop();
+
+    await _alocarComExcecao(
+      turno: turno,
+      caixa: caixa,
+      alocacaoProvider: alocacaoProvider,
+      tituloSucesso: 'Colaborador Alocado',
+      mensagemSucesso:
+          '${turno.colaboradorNome} alocado em ${caixa.nomeExibicao}!',
+      corSucesso: AppColors.success,
+    );
+  }
+
+  Future<void> _alocarComExcecao({
+    required TurnoLocal turno,
+    required Caixa caixa,
+    required AlocacaoProvider alocacaoProvider,
+    required String tituloSucesso,
+    required String mensagemSucesso,
+    required Color corSucesso,
+  }) async {
     final eventoProvider =
         Provider.of<EventoTurnoProvider>(context, listen: false);
     final fiscalId =
         Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
-
-    Navigator.of(sheetCtx).pop();
 
     await alocacaoProvider.alocarColaborador(
       colaboradorId: turno.colaboradorId,
@@ -343,6 +363,61 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     );
 
     if (!mounted) return;
+
+    if (alocacaoProvider.mostrarDialogExcecao) {
+      final motivo =
+          alocacaoProvider.resultadoExcecao?.motivoExcecao ??
+              'Justifique o motivo da exceção.';
+      final tipo = alocacaoProvider.resultadoExcecao?.tipoExcecao ?? '';
+      await showDialog(
+        context: context,
+        builder: (_) => ExcecaoDialog(
+          colaborador: alocacaoProvider.colaboradorExcecao,
+          caixa: alocacaoProvider.caixaExcecao ?? caixa,
+          motivo: motivo,
+          tipo: tipo,
+          onCancel: () {
+            alocacaoProvider.fecharDialogExcecao();
+          },
+          onConfirm: (justificativa) async {
+            alocacaoProvider.fecharDialogExcecao();
+            await alocacaoProvider.alocarColaborador(
+              colaboradorId: turno.colaboradorId,
+              caixaId: caixa.id,
+              fiscalId: widget.fiscalId,
+              justificativa: justificativa,
+            );
+
+            if (!mounted) return;
+
+            if (alocacaoProvider.error != null) {
+              AppNotif.show(
+                context,
+                titulo: 'Erro',
+                mensagem: alocacaoProvider.error!,
+                tipo: 'alerta',
+                cor: AppColors.danger,
+              );
+            } else {
+              eventoProvider.registrar(
+                fiscalId: fiscalId,
+                tipo: TipoEvento.colaboradorAlocado,
+                colaboradorNome: turno.colaboradorNome,
+                caixaNome: caixa.nomeExibicao,
+              );
+              AppNotif.show(
+                context,
+                titulo: tituloSucesso,
+                mensagem: mensagemSucesso,
+                tipo: 'saida',
+                cor: corSucesso,
+              );
+            }
+          },
+        ),
+      );
+      return;
+    }
 
     if (alocacaoProvider.error != null) {
       AppNotif.show(
@@ -361,10 +436,10 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
       );
       AppNotif.show(
         context,
-        titulo: 'Colaborador Alocado',
-        mensagem: '${turno.colaboradorNome} alocado em ${caixa.nomeExibicao}!',
+        titulo: tituloSucesso,
+        mensagem: mensagemSucesso,
         tipo: 'saida',
-        cor: AppColors.success,
+        cor: corSucesso,
       );
     }
   }
@@ -376,11 +451,6 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     String alocacaoIdAtual,
     AlocacaoProvider alocacaoProvider,
   ) async {
-    final eventoProvider =
-        Provider.of<EventoTurnoProvider>(context, listen: false);
-    final fiscalId =
-        Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
-
     Navigator.of(sheetCtx).pop();
 
     // 1. Libera o caixa atual
@@ -399,39 +469,16 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
       return;
     }
 
-    // 2. Aloca no novo caixa
-    await alocacaoProvider.alocarColaborador(
-      colaboradorId: turno.colaboradorId,
-      caixaId: novoCaixa.id,
-      fiscalId: widget.fiscalId,
+    // 2. Aloca no novo caixa (com justificativa se precisar)
+    await _alocarComExcecao(
+      turno: turno,
+      caixa: novoCaixa,
+      alocacaoProvider: alocacaoProvider,
+      tituloSucesso: 'Caixa Trocado',
+      mensagemSucesso:
+          '${turno.colaboradorNome} transferido para ${novoCaixa.nomeExibicao}!',
+      corSucesso: Colors.blue,
     );
-
-    if (!mounted) return;
-
-    if (alocacaoProvider.error != null) {
-      AppNotif.show(
-        context,
-        titulo: 'Erro ao alocar',
-        mensagem: alocacaoProvider.error!,
-        tipo: 'alerta',
-        cor: AppColors.danger,
-      );
-    } else {
-      eventoProvider.registrar(
-        fiscalId: fiscalId,
-        tipo: TipoEvento.colaboradorAlocado,
-        colaboradorNome: turno.colaboradorNome,
-        caixaNome: novoCaixa.nomeExibicao,
-      );
-      AppNotif.show(
-        context,
-        titulo: 'Caixa Trocado',
-        mensagem:
-            '${turno.colaboradorNome} transferido para ${novoCaixa.nomeExibicao}!',
-        tipo: 'saida',
-        cor: Colors.blue,
-      );
-    }
   }
 
   void _abrirOpcoesAlocado(TurnoLocal turno, Alocacao al) {

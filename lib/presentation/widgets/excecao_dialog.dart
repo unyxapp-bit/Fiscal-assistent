@@ -8,7 +8,7 @@ class ExcecaoDialog extends StatefulWidget {
   final Caixa? caixa;
   final String motivo;
   final String tipo;
-  final VoidCallback onConfirm;
+  final void Function(String justificativa) onConfirm;
   final VoidCallback onCancel;
 
   const ExcecaoDialog({
@@ -27,6 +27,14 @@ class ExcecaoDialog extends StatefulWidget {
 
 class _ExcecaoDialogState extends State<ExcecaoDialog> {
   final _justificativaController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _justificativaController.addListener(() {
+      if (mounted) setState(() {});
+    });
+  }
 
   @override
   void dispose() {
@@ -157,7 +165,7 @@ class _ExcecaoDialogState extends State<ExcecaoDialog> {
               ? null
               : () {
                   Navigator.pop(context);
-                  widget.onConfirm();
+                  widget.onConfirm(_justificativaController.text.trim());
                 },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.orange,
