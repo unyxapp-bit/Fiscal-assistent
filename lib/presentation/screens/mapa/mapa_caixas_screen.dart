@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
+import '../../../domain/entities/caixa.dart';
+import '../../../domain/entities/colaborador.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/caixa_provider.dart';
 import '../../providers/alocacao_provider.dart';
@@ -245,6 +247,8 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                       alocacaoProvider: alocacaoProvider,
                       cafeProvider: cafeProvider,
                       caixaProvider: caixaProvider,
+                      colaboradorProvider:
+                          Provider.of<ColaboradorProvider>(context),
                     ),
 
                     const SizedBox(height: Dimensions.spacingMD),
@@ -642,11 +646,13 @@ class _MiniDashboard extends StatelessWidget {
   final AlocacaoProvider alocacaoProvider;
   final CafeProvider cafeProvider;
   final CaixaProvider caixaProvider;
+  final ColaboradorProvider colaboradorProvider;
 
   const _MiniDashboard({
     required this.alocacaoProvider,
     required this.cafeProvider,
     required this.caixaProvider,
+    required this.colaboradorProvider,
   });
 
   @override
@@ -669,6 +675,33 @@ class _MiniDashboard extends StatelessWidget {
         .length;
     final totalTurno = alocacaoProvider.quantidadeAlocacoes;
 
+    void abrirDetalheOcupados() {
+      final caixas = caixaProvider.caixasTodos;
+      final colabById = {
+        for (final c in colaboradorProvider.colaboradores) c.id: c
+      };
+      final ocupados = caixas.where((c) {
+        return alocacaoProvider.getAlocacaoCaixa(c.id) != null ||
+            cafeProvider.getPausaAtivaPorCaixa(c.id) != null;
+      }).toList()
+        ..sort((a, b) => a.numero.compareTo(b.numero));
+
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+        ),
+        builder: (_) => _OcupadosSheet(
+          caixas: ocupados,
+          alocacaoProvider: alocacaoProvider,
+          cafeProvider: cafeProvider,
+          colabById: colabById,
+        ),
+      );
+    }
+
     return Card(
       elevation: 0,
       color: AppColors.backgroundSection,
@@ -685,6 +718,7 @@ class _MiniDashboard extends StatelessWidget {
               label: 'Alocados',
               color: AppColors.statusAtivo,
               icon: Icons.person,
+              onTap: abrirDetalheOcupados,
             ),
             _DashDivider(),
             _DashItem(
@@ -719,17 +753,19 @@ class _DashItem extends StatelessWidget {
   final String label;
   final Color color;
   final IconData icon;
+  final VoidCallback? onTap;
 
   const _DashItem({
     required this.value,
     required this.label,
     required this.color,
     required this.icon,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    final child = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Row(
@@ -757,6 +793,16 @@ class _DashItem extends StatelessWidget {
         ),
       ],
     );
+
+    if (onTap == null) return child;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        child: child,
+      ),
+    );
   }
 }
 
@@ -767,6 +813,131 @@ class _DashDivider extends StatelessWidget {
       height: 36,
       width: 1,
       color: AppColors.cardBorder,
+    );
+  }
+}
+
+class _OcupadosSheet extends StatelessWidget {
+  final List<Caixa> caixas;
+  final AlocacaoProvider alocacaoProvider;
+  final CafeProvider cafeProvider;
+  final Map<String, Colaborador> colabById;
+
+  const _OcupadosSheet({
+    required this.caixas,
+    required this.alocacaoProvider,
+    required this.cafeProvider,
+    required this.colabById,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final temOcupados = caixas.isNotEmpty;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 12,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: AppColors.divider,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Row(
+            children: [
+              const Icon(Icons.point_of_sale, size: 18, color: AppColors.primary),
+              const SizedBox(width: 6),
+              Text(
+                'Caixas ocupados',
+                style: AppTextStyles.h3,
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Mostra quais caixas estão contando como ocupados.',
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (!temOcupados)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Text(
+                'Nenhum caixa ocupado no momento.',
+                style: AppTextStyles.body.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            )
+          else
+            Flexible(
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: caixas.length,
+                separatorBuilder: (_, __) =>
+                    const Divider(height: 16, color: AppColors.cardBorder),
+                itemBuilder: (_, i) {
+                  final caixa = caixas[i];
+                  final alocacao =
+                      alocacaoProvider.getAlocacaoCaixa(caixa.id);
+                  final pausa = cafeProvider.getPausaAtivaPorCaixa(caixa.id);
+
+                  final nomeAlocado = alocacao != null
+                      ? (colabById[alocacao.colaboradorId]?.nome ??
+                          caixa.colaboradorAlocadoNome ??
+                          '—')
+                      : null;
+                  final nomePausa = pausa?.colaboradorNome;
+
+                  return ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: CircleAvatar(
+                      backgroundColor:
+                          AppColors.primary.withValues(alpha: 0.1),
+                      child: Text(
+                        caixa.numero.toString(),
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    title: Text(caixa.nomeExibicao),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (nomeAlocado != null)
+                          Text(
+                            'Alocado: $nomeAlocado',
+                            style: AppTextStyles.caption,
+                          ),
+                        if (nomePausa != null)
+                          Text(
+                            'Em pausa: $nomePausa',
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.statusCafe,
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
