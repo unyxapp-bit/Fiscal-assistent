@@ -47,15 +47,18 @@ class _CafeScreenState extends State<CafeScreen>
         final escalaProvider =
             Provider.of<EscalaProvider>(context, listen: false);
 
-        // IDs na escala de hoje com horário de intervalo configurado
-        final idsEscalaHoje = escalaProvider.turnosHoje
+        // Turnos de hoje válidos para intervalo (sem folga/feriado e com horários)
+        final turnosDisponiveis = escalaProvider.turnosHoje
             .where((t) =>
                 !t.folga &&
                 !t.feriado &&
                 (t.intervalo?.isNotEmpty == true) &&
                 (t.retorno?.isNotEmpty == true))
-            .map((t) => t.colaboradorId)
-            .toSet();
+            .toList();
+        final turnosById = {
+          for (final t in turnosDisponiveis) t.colaboradorId: t
+        };
+        final idsEscalaHoje = turnosById.keys.toSet();
 
         // IDs em pausa ativa
         final emPausaAtiva =
@@ -155,6 +158,7 @@ class _CafeScreenState extends State<CafeScreen>
                     _TabDisponiveis(
                       provider: provider,
                       idsEscalaHoje: idsEscalaHoje,
+                      turnosById: turnosById,
                     ),
                     _TabEmIntervalo(provider: provider),
                     _TabHistorico(provider: provider),
@@ -203,13 +207,28 @@ class _CafeScreenState extends State<CafeScreen>
   }
 
   void _mostrarSeletorPausa(BuildContext context, CafeProvider cafeProvider) {
+    final escalaProvider =
+        Provider.of<EscalaProvider>(context, listen: false);
+    final turnosDisponiveis = escalaProvider.turnosHoje
+        .where((t) =>
+            !t.folga &&
+            !t.feriado &&
+            (t.intervalo?.isNotEmpty == true) &&
+            (t.retorno?.isNotEmpty == true))
+        .toList();
+    final turnosById = {
+      for (final t in turnosDisponiveis) t.colaboradorId: t
+    };
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
-      builder: (ctx) => _SeletorPausaSheet(cafeProvider: cafeProvider),
+      builder: (ctx) => _SeletorPausaSheet(
+        cafeProvider: cafeProvider,
+        turnosById: turnosById,
+      ),
     );
   }
 }
@@ -220,10 +239,12 @@ class _CafeScreenState extends State<CafeScreen>
 class _TabDisponiveis extends StatelessWidget {
   final CafeProvider provider;
   final Set<String> idsEscalaHoje;
+  final Map<String, TurnoLocal> turnosById;
 
   const _TabDisponiveis({
     required this.provider,
     required this.idsEscalaHoje,
+    required this.turnosById,
   });
 
   @override
@@ -252,6 +273,22 @@ class _TabDisponiveis extends StatelessWidget {
             !emPausaAtiva.contains(c.id) &&
             !jaFizeramCafe.contains(c.id))
         .toList();
+    disponiveis.sort((a, b) {
+      int? toMin(String? hhmm) {
+        if (hhmm == null || hhmm.isEmpty) return null;
+        final parts = hhmm.split(':');
+        if (parts.length < 2) return null;
+        final h = int.tryParse(parts[0]) ?? 0;
+        final m = int.tryParse(parts[1]) ?? 0;
+        return h * 60 + m;
+      }
+
+      final aMin = toMin(turnosById[a.id]?.intervalo) ?? 9999;
+      final bMin = toMin(turnosById[b.id]?.intervalo) ?? 9999;
+      final comp = aMin.compareTo(bMin);
+      if (comp != 0) return comp;
+      return a.nome.compareTo(b.nome);
+    });
 
     if (disponiveis.isEmpty) {
       return Center(
@@ -265,8 +302,15 @@ class _TabDisponiveis extends StatelessWidget {
                   color: AppColors.success.withValues(alpha: 0.7)),
               const SizedBox(height: 16),
               Text(
-                'Todos os colaboradores da escala já fizeram café hoje!',
+                'Nenhum colaborador disponível para pausa agora.',
                 style: AppTextStyles.body
+                    .copyWith(color: AppColors.textSecondary),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Verifique escala, pausas ativas e cafés já realizados.',
+                style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
@@ -281,9 +325,14 @@ class _TabDisponiveis extends StatelessWidget {
         final isTablet = constraints.maxWidth >= Dimensions.breakpointTablet;
         Widget itemBuilder(BuildContext _, int i) {
           final c = disponiveis[i];
+          final turno = turnosById[c.id];
           final paraIntervalo = !jaFizeramIntervalo.contains(c.id);
           // Quem já fez intervalo mas não café → só café (10 min)
           final soDez = !paraIntervalo;
+          final intervaloLabel = (turno?.intervalo?.isNotEmpty == true &&
+                  turno?.retorno?.isNotEmpty == true)
+              ? '${turno!.intervalo} - ${turno.retorno}'
+              : 'Intervalo não definido';
 
           return Card(
             margin: isTablet
@@ -307,7 +356,7 @@ class _TabDisponiveis extends StatelessWidget {
               subtitle: Text(
                 soDez
                     ? 'Disponível para café (10 min)'
-                    : 'Disponível para intervalo',
+                    : 'Intervalo previsto: $intervaloLabel',
                 style: AppTextStyles.caption.copyWith(
                   color:
                       soDez ? AppColors.statusCafe : AppColors.textSecondary,
@@ -1148,8 +1197,12 @@ class _InfoRow extends StatelessWidget {
 // ---------------------------------------------------------------------------
 class _SeletorPausaSheet extends StatefulWidget {
   final CafeProvider cafeProvider;
+  final Map<String, TurnoLocal> turnosById;
 
-  const _SeletorPausaSheet({required this.cafeProvider});
+  const _SeletorPausaSheet({
+    required this.cafeProvider,
+    required this.turnosById,
+  });
 
   @override
   State<_SeletorPausaSheet> createState() => _SeletorPausaSheetState();
@@ -1166,11 +1219,6 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
   Widget build(BuildContext context) {
     final colaboradorProvider =
         Provider.of<ColaboradorProvider>(context, listen: false);
-    final escalaProvider =
-        Provider.of<EscalaProvider>(context, listen: false);
-
-    final idsEscalaHoje =
-        escalaProvider.turnosHoje.map((t) => t.colaboradorId).toSet();
     final jaFizeramCafe = widget.cafeProvider.pausasFinalizadas
         .where((p) => p.duracaoMinutos <= 15)
         .map((p) => p.colaboradorId)
@@ -1180,11 +1228,27 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
     final colaboradores = colaboradorProvider.colaboradores
         .where(
           (c) =>
-              idsEscalaHoje.contains(c.id) &&
+              widget.turnosById.containsKey(c.id) &&
               !widget.cafeProvider.colaboradorEmPausa(c.id) &&
               !jaFizeramCafe.contains(c.id),
         )
         .toList();
+    colaboradores.sort((a, b) {
+      int? toMin(String? hhmm) {
+        if (hhmm == null || hhmm.isEmpty) return null;
+        final parts = hhmm.split(':');
+        if (parts.length < 2) return null;
+        final h = int.tryParse(parts[0]) ?? 0;
+        final m = int.tryParse(parts[1]) ?? 0;
+        return h * 60 + m;
+      }
+
+      final aMin = toMin(widget.turnosById[a.id]?.intervalo) ?? 9999;
+      final bMin = toMin(widget.turnosById[b.id]?.intervalo) ?? 9999;
+      final comp = aMin.compareTo(bMin);
+      if (comp != 0) return comp;
+      return a.nome.compareTo(b.nome);
+    });
 
     return DraggableScrollableSheet(
       expand: false,
@@ -1254,6 +1318,12 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
                       itemCount: colaboradores.length,
                       itemBuilder: (_, i) {
                         final c = colaboradores[i];
+                        final turno = widget.turnosById[c.id];
+                        final intervaloLabel =
+                            (turno?.intervalo?.isNotEmpty == true &&
+                                    turno?.retorno?.isNotEmpty == true)
+                                ? '${turno!.intervalo} - ${turno.retorno}'
+                                : 'Intervalo não definido';
                         final selecionado =
                             _colaboradorSelecionadoId == c.id;
                         return ListTile(
@@ -1272,7 +1342,9 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
                             ),
                           ),
                           title: Text(c.nome),
-                          subtitle: Text(c.departamento.nome),
+                          subtitle: Text(
+                            '${c.departamento.nome} - $intervaloLabel',
+                          ),
                           selected: selecionado,
                           selectedTileColor:
                               AppColors.statusCafe.withValues(alpha: 0.08),
