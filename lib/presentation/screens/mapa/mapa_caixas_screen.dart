@@ -17,7 +17,6 @@ import '../../providers/pacote_plantao_provider.dart';
 import '../../providers/outro_setor_provider.dart';
 import '../../widgets/common/loading_widget.dart';
 import '../../widgets/common/empty_state_widget.dart';
-import '../alocacao/alocacao_screen.dart';
 import '../caixas/caixa_form_screen.dart';
 import '../caixas/widgets/caixa_card.dart';
 import 'widgets/caixa_list_item.dart';
@@ -172,7 +171,6 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
   Widget build(BuildContext context) {
     final caixaProvider = Provider.of<CaixaProvider>(context);
     final alocacaoProvider = Provider.of<AlocacaoProvider>(context);
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     return Scaffold(
       backgroundColor: AppColors.background,

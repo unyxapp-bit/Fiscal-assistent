@@ -7,6 +7,7 @@ import '../../../../core/constants/text_styles.dart';
 import '../../../../domain/enums/departamento_tipo.dart';
 import '../../../../domain/entities/colaborador.dart';
 import '../../../../domain/entities/evento_turno.dart';
+import '../../../../core/utils/app_notif.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/cafe_provider.dart';
 import '../../../providers/colaborador_provider.dart';
@@ -24,8 +25,7 @@ class PacoteSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final plantaoProvider = Provider.of<PacotePlantaoProvider>(context);
-    final colaboradorProvider =
-        Provider.of<ColaboradorProvider>(context, listen: false);
+    final colaboradorProvider = Provider.of<ColaboradorProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final eventoProvider =
         Provider.of<EventoTurnoProvider>(context, listen: false);
@@ -217,7 +217,7 @@ class PacoteSection extends StatelessWidget {
                     },
                     onPressed: () => _showDetalhesEmpacotador(
                       context,
-                      colaborador,
+                      p.colaboradorId,
                       p.id,
                     ),
                     backgroundColor: chipColor.withValues(alpha: 0.1),
@@ -283,10 +283,24 @@ class PacoteSection extends StatelessWidget {
 
   void _showDetalhesEmpacotador(
     BuildContext context,
-    Colaborador? colaborador,
+    String colaboradorId,
     String plantaoId,
   ) {
-    if (colaborador == null) return;
+    final colaboradorProvider =
+        Provider.of<ColaboradorProvider>(context, listen: false);
+    final colaborador = colaboradorProvider.colaboradores
+        .where((c) => c.id == colaboradorId)
+        .firstOrNull;
+    if (colaborador == null) {
+      AppNotif.show(
+        context,
+        titulo: 'Empacotador não encontrado',
+        mensagem: 'Atualize a lista de colaboradores para ver os detalhes.',
+        tipo: 'alerta',
+        cor: AppColors.warning,
+      );
+      return;
+    }
     final escalaProvider = Provider.of<EscalaProvider>(context, listen: false);
     final cafeProvider = Provider.of<CafeProvider>(context, listen: false);
 

@@ -255,8 +255,14 @@ class CaixaListItem extends StatelessWidget {
                     const SizedBox(width: 8),
 
                     // ── Trailing: badge de status ──────────────
-                    _buildTrailing(isOcupado, isEmPausa, pausaCaixa,
-                        emAtencao: emAtencao, minIntervalo: minIntervalo),
+                    _buildTrailing(
+                      isOcupado,
+                      isEmPausa,
+                      pausaCaixa,
+                      turno,
+                      emAtencao: emAtencao,
+                      minIntervalo: minIntervalo,
+                    ),
                   ],
                 ),
               ),
@@ -274,7 +280,8 @@ class CaixaListItem extends StatelessWidget {
   Widget _buildTrailing(
     bool isOcupado,
     bool isEmPausa,
-    PausaCafe? pausaCaixa, {
+    PausaCafe? pausaCaixa,
+    TurnoLocal? turno, {
     bool emAtencao = false,
     int? minIntervalo,
   }) {
@@ -291,10 +298,11 @@ class CaixaListItem extends StatelessWidget {
           icon: Icons.power_off);
     }
     if (isOcupado) {
-      String? entradaEscala;
-      if (turno?.entrada != null && turno!.entrada!.isNotEmpty) {
-        entradaEscala = turno!.entrada!;
-      }
+      final entradaEscalaRaw = turno?.entrada;
+      final entradaEscala = (entradaEscalaRaw != null &&
+              entradaEscalaRaw.isNotEmpty)
+          ? entradaEscalaRaw
+          : null;
       final h = alocacao!.alocadoEm.hour.toString().padLeft(2, '0');
       final m = alocacao!.alocadoEm.minute.toString().padLeft(2, '0');
       final horarioLabel =
