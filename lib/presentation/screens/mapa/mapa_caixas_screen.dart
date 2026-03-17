@@ -75,11 +75,11 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
   void _verificarSaidasAutomaticas() {
     if (!mounted) return;
     final escala = Provider.of<EscalaProvider>(context, listen: false);
-    final alocacao = Provider.of<AlocacaoProvider>(context, listen: false);
     final plantao = Provider.of<PacotePlantaoProvider>(context, listen: false);
     final agora = DateTime.now();
 
     // ── Caixas ──────────────────────────────────────────────────────────────
+    /*
     for (final turno in escala.turnosHoje) {
       if (turno.saida == null || turno.folga || turno.feriado) continue;
       if (_saidasProcessadas.contains(turno.colaboradorId)) continue;
@@ -113,6 +113,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
       }
     }
 
+    */
     // ── Pacotes ─────────────────────────────────────────────────────────────
     for (final p in plantao.plantao.toList()) {
       if (_saidasProcessadas.contains(p.colaboradorId)) continue;
@@ -379,20 +380,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         ],
       ),
       floatingActionButton: _tabIndex == 0
-          ? FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => AlocacaoScreen(
-                      fiscalId: authProvider.user?.id ?? '',
-                    ),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('Alocar'),
-              backgroundColor: AppColors.primary,
-            )
+          ? null
           : FloatingActionButton.extended(
               onPressed: () async {
                 await Navigator.of(context).push(

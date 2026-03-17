@@ -192,14 +192,23 @@ void main() async {
             ),
           ),
 
-          // Alocacao Provider
+          // Escala Semanal
           ChangeNotifierProvider(
+            create: (_) => EscalaProvider(),
+          ),
+
+          // Alocacao Provider
+          ChangeNotifierProxyProvider<EscalaProvider, AlocacaoProvider>(
             create: (_) => AlocacaoProvider(
               alocarColaboradorUseCase: alocarColaborador,
               liberarAlocacaoUseCase: liberarAlocacao,
               getAlocacoesAtivasUseCase: getAlocacoesAativas,
               repository: alocacaoRepository,
             ),
+            update: (_, escala, alocacao) {
+              alocacao?.vincularEscala(escala);
+              return alocacao!;
+            },
           ),
 
           // Module 13 - Notificações
@@ -230,11 +239,6 @@ void main() async {
           // Module 8 - Café / Intervalos
           ChangeNotifierProvider(
             create: (_) => CafeProvider(),
-          ),
-
-          // Escala Semanal
-          ChangeNotifierProvider(
-            create: (_) => EscalaProvider(),
           ),
 
           // Registro de Ponto

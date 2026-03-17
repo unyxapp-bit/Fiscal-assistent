@@ -291,8 +291,14 @@ class CaixaListItem extends StatelessWidget {
           icon: Icons.power_off);
     }
     if (isOcupado) {
+      String? entradaEscala;
+      if (turno?.entrada != null && turno!.entrada!.isNotEmpty) {
+        entradaEscala = turno!.entrada!;
+      }
       final h = alocacao!.alocadoEm.hour.toString().padLeft(2, '0');
       final m = alocacao!.alocadoEm.minute.toString().padLeft(2, '0');
+      final horarioLabel =
+          entradaEscala ?? '$h:$m';
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -309,7 +315,9 @@ class CaixaListItem extends StatelessWidget {
                   icon: Icons.person),
           const SizedBox(height: 3),
           Text(
-            'desde $h:$m',
+            entradaEscala != null
+                ? 'entrada $horarioLabel'
+                : 'desde $horarioLabel',
             style: AppTextStyles.caption.copyWith(
               color: AppColors.textSecondary,
               fontSize: 10,

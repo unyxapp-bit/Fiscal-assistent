@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../data/repositories/alocacao_repository.dart';
 import '../../domain/entities/alocacao.dart';
@@ -6,6 +7,8 @@ import '../../domain/entities/caixa.dart';
 import '../../domain/usecases/alocar_colaborador.dart';
 import '../../domain/usecases/liberar_alocacao.dart';
 import '../../domain/usecases/get_alocacoes_ativas.dart';
+import '../../data/services/notification_service.dart';
+import 'escala_provider.dart';
 
 /// Estado de carregamento
 enum LoadingState {
@@ -46,6 +49,11 @@ class AlocacaoProvider extends ChangeNotifier {
   /// Memória de sessão — resetado ao liberar a alocação.
   final Set<String> _aguardandoIntervalo = {};
 
+  EscalaProvider? _escalaProvider;
+  Timer? _timerSaidas;
+  final Set<String> _saidasProcessadas = {};
+  DateTime? _diaProcessado;
+
   // Getters
   List<Alocacao> get alocacoes => _alocacoes;
   LoadingState get loadingState => _loadingState;
@@ -70,6 +78,66 @@ class AlocacaoProvider extends ChangeNotifier {
   void desmarcarAguardandoIntervalo(String colaboradorId) {
     _aguardandoIntervalo.remove(colaboradorId);
     notifyListeners();
+  }
+
+  /// Conecta o provider de escala e inicia liberação automática por saída.
+  void vincularEscala(EscalaProvider escala) {
+    _escalaProvider = escala;
+    _iniciarTimerSaidas();
+  }
+
+  void _iniciarTimerSaidas() {
+    if (_timerSaidas != null) return;
+    _verificarSaidasAutomaticas();
+    _timerSaidas = Timer.periodic(const Duration(minutes: 1), (_) {
+      _verificarSaidasAutomaticas();
+    });
+  }
+
+  void _verificarSaidasAutomaticas() {
+    final escala = _escalaProvider;
+    if (escala == null) return;
+
+    final agora = DateTime.now();
+    final hoje = DateTime(agora.year, agora.month, agora.day);
+    if (_diaProcessado == null ||
+        _diaProcessado!.year != hoje.year ||
+        _diaProcessado!.month != hoje.month ||
+        _diaProcessado!.day != hoje.day) {
+      _saidasProcessadas.clear();
+      _diaProcessado = hoje;
+    }
+
+    for (final turno in escala.turnosHoje) {
+      if (turno.saida == null || turno.folga || turno.feriado) continue;
+      if (_saidasProcessadas.contains(turno.colaboradorId)) continue;
+
+      final partes = turno.saida!.split(':');
+      final h = int.tryParse(partes[0]) ?? -1;
+      final m = int.tryParse(partes.length > 1 ? partes[1] : '') ?? -1;
+      if (h < 0 || m < 0) continue;
+
+      final saidaHoje = DateTime(agora.year, agora.month, agora.day, h, m);
+      if (!agora.isAfter(saidaHoje)) continue;
+
+      final alocacaoAtiva =
+          getAlocacaoColaborador(turno.colaboradorId);
+      if (alocacaoAtiva == null) continue;
+
+      _saidasProcessadas.add(turno.colaboradorId);
+      liberarAlocacao(
+        alocacaoAtiva.id,
+        'Encerramento automático — horário de saída atingido (${turno.saida})',
+      );
+
+      final notifId = turno.colaboradorId.hashCode.abs() % 100000;
+      NotificationService.instance.showImmediateAlert(
+        id: notifId,
+        title: 'Saída automática',
+        body:
+            '${turno.colaboradorNome} foi liberado(a) do caixa automaticamente.',
+      );
+    }
   }
 
   Future<void> marcarIntervaloFeito(String colaboradorId) async {
@@ -234,5 +302,11 @@ class AlocacaoProvider extends ChangeNotifier {
   /// Busca todas as alocações liberadas
   List<Alocacao> getAlocacoesLiberadas() {
     return _alocacoes.where((a) => a.liberadoEm != null).toList();
+  }
+
+  @override
+  void dispose() {
+    _timerSaidas?.cancel();
+    super.dispose();
   }
 }
