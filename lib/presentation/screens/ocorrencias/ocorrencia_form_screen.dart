@@ -12,12 +12,14 @@ import '../../../core/utils/app_notif.dart';
 class OcorrenciaFormScreen extends StatefulWidget {
   final String? caixaId;
   final String? caixaNome;
+  final String? colaboradorId;
   final String? colaboradorNome;
 
   const OcorrenciaFormScreen({
     super.key,
     this.caixaId,
     this.caixaNome,
+    this.colaboradorId,
     this.colaboradorNome,
   });
   @override
@@ -49,21 +51,13 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
       return;
     }
     final tipo = _tipoCtrl.text.trim().isEmpty ? 'Outro' : _tipoCtrl.text.trim();
-    final contexto = <String>[];
-    if (widget.caixaNome != null && widget.caixaNome!.isNotEmpty) {
-      contexto.add('Caixa: ${widget.caixaNome}');
-    }
-    if (widget.colaboradorNome != null &&
-        widget.colaboradorNome!.isNotEmpty) {
-      contexto.add('Colaborador: ${widget.colaboradorNome}');
-    }
-    final descricaoFinal = contexto.isEmpty
-        ? descricao
-        : '${contexto.join(' · ')}\n$descricao';
     Provider.of<OcorrenciaProvider>(context, listen: false).registrar(
       tipo: tipo,
       caixaId: widget.caixaId,
-      descricao: descricaoFinal,
+      caixaNome: widget.caixaNome,
+      colaboradorId: widget.colaboradorId,
+      colaboradorNome: widget.colaboradorNome,
+      descricao: descricao,
       gravidade: _gravidade,
     );
     final eventoProvider = Provider.of<EventoTurnoProvider>(context, listen: false);

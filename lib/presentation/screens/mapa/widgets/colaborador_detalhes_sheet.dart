@@ -1160,6 +1160,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
         builder: (_) => OcorrenciaFormScreen(
           caixaId: widget.caixa.id,
           caixaNome: widget.caixa.nomeExibicao,
+          colaboradorId: widget.colaborador?.id,
           colaboradorNome: widget.colaborador?.nome,
         ),
       ),

@@ -80,6 +80,9 @@ class Ocorrencia {
   final String id;
   final String tipo; // texto livre
   final String? caixaId;
+  final String? caixaNome;
+  final String? colaboradorId;
+  final String? colaboradorNome;
   final String descricao;
   final GravidadeOcorrencia gravidade;
   bool resolvida;
@@ -90,6 +93,9 @@ class Ocorrencia {
     required this.id,
     required this.tipo,
     this.caixaId,
+    this.caixaNome,
+    this.colaboradorId,
+    this.colaboradorNome,
     required this.descricao,
     required this.gravidade,
     this.resolvida = false,
@@ -144,6 +150,9 @@ class OcorrenciaProvider with ChangeNotifier {
   void registrar({
     required String tipo,
     String? caixaId,
+    String? caixaNome,
+    String? colaboradorId,
+    String? colaboradorNome,
     required String descricao,
     required GravidadeOcorrencia gravidade,
   }) {
@@ -151,6 +160,9 @@ class OcorrenciaProvider with ChangeNotifier {
       id: const Uuid().v4(),
       tipo: tipo.trim().isEmpty ? 'Outro' : tipo.trim(),
       caixaId: caixaId,
+      caixaNome: caixaNome,
+      colaboradorId: colaboradorId,
+      colaboradorNome: colaboradorNome,
       descricao: descricao,
       gravidade: gravidade,
       registradaEm: DateTime.now(),
@@ -203,6 +215,9 @@ class OcorrenciaProvider with ChangeNotifier {
       'fiscal_id': _fiscalId,
       'tipo': o.tipo, // agora salva o texto livre diretamente
       'caixa_id': o.caixaId,
+      'caixa_nome': o.caixaNome,
+      'colaborador_id': o.colaboradorId,
+      'colaborador_nome': o.colaboradorNome,
       'descricao': o.descricao,
       'gravidade': o.gravidade.name,
       'resolvida': o.resolvida,
@@ -219,6 +234,9 @@ class OcorrenciaProvider with ChangeNotifier {
         id: m['id'] as String,
         tipo: m['tipo'] as String? ?? 'Outro',
         caixaId: m['caixa_id'] as String?,
+        caixaNome: m['caixa_nome'] as String?,
+        colaboradorId: m['colaborador_id'] as String?,
+        colaboradorNome: m['colaborador_nome'] as String?,
         descricao: m['descricao'] as String? ?? '',
         gravidade: GravidadeOcorrencia.fromString(
             m['gravidade'] as String? ?? 'media'),

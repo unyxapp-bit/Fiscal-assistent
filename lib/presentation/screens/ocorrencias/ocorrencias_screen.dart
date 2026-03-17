@@ -40,7 +40,10 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     buf.writeln();
     buf.writeln('Tipo: ${oc.tipo}');
     if (oc.caixaId != null && oc.caixaId!.isNotEmpty) {
-      buf.writeln('Caixa: ${oc.caixaId}');
+      buf.writeln('Caixa: ${oc.caixaNome ?? oc.caixaId}');
+    }
+    if (oc.colaboradorNome != null && oc.colaboradorNome!.isNotEmpty) {
+      buf.writeln('Colaborador: ${oc.colaboradorNome}');
     }
     buf.writeln();
     buf.writeln(oc.descricao);
@@ -163,6 +166,19 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                   style: AppTextStyles.caption
                       .copyWith(color: AppColors.textSecondary),
                 ),
+                if (oc.caixaNome != null && oc.caixaNome!.isNotEmpty)
+                  Text(
+                    'Caixa: ${oc.caixaNome}',
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textSecondary),
+                  ),
+                if (oc.colaboradorNome != null &&
+                    oc.colaboradorNome!.isNotEmpty)
+                  Text(
+                    'Colaborador: ${oc.colaboradorNome}',
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textSecondary),
+                  ),
                 if (oc.resolvida && oc.resolvidaEm != null)
                   Text(
                     'Resolvida em ${_formatDateTime(oc.resolvidaEm!)}',
