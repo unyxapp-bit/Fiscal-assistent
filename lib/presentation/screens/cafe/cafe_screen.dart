@@ -170,7 +170,7 @@ class _CafeScreenState extends State<CafeScreen>
           floatingActionButton: FloatingActionButton.extended(
             onPressed: () => _mostrarSeletorPausa(context, provider),
             icon: const Icon(Icons.add),
-            label: const Text('Iniciar Pausa'),
+            label: const Text('Iniciar Café'),
             backgroundColor: AppColors.statusCafe,
             foregroundColor: Colors.white,
           ),
@@ -1211,11 +1211,18 @@ class _SeletorPausaSheet extends StatefulWidget {
 }
 
 class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
-  int _duracaoSelecionada = 15;
+  int _duracaoSelecionada = 10;
   String? _colaboradorSelecionadoId;
   String? _colaboradorSelecionadoNome;
 
-  final _duracoes = [10, 15, 20, 30];
+  int _duracaoCafePadrao() =>
+      DateTime.now().weekday == DateTime.sunday ? 15 : 10;
+
+  @override
+  void initState() {
+    super.initState();
+    _duracaoSelecionada = _duracaoCafePadrao();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1225,11 +1232,6 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
         .where((p) => p.duracaoMinutos <= 15)
         .map((p) => p.colaboradorId)
         .toSet();
-    final jaFizeramIntervalo = widget.cafeProvider.pausasFinalizadas
-        .where((p) => p.duracaoMinutos > 15)
-        .map((p) => p.colaboradorId)
-        .toSet();
-
     // Exclui: não está na escala, em pausa ativa, ou já fez café
     final colaboradores = colaboradorProvider.colaboradores
         .where(
@@ -1256,8 +1258,7 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
       return a.nome.compareTo(b.nome);
     });
 
-    final soCafeSelecionado = _colaboradorSelecionadoId != null &&
-        jaFizeramIntervalo.contains(_colaboradorSelecionadoId);
+    final duracoes = [_duracaoCafePadrao()];
 
     return DraggableScrollableSheet(
       expand: false,
@@ -1280,54 +1281,31 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
                 ),
               ),
             ),
-            const Text('Nova Pausa', style: AppTextStyles.h3),
+            const Text('Novo Café', style: AppTextStyles.h3),
             const SizedBox(height: 16),
 
             // Duração
-            const Text('Duração', style: AppTextStyles.label),
+            const Text('Duração do café', style: AppTextStyles.label),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
-              children: _duracoes.map((d) {
+              children: duracoes.map((d) {
                 final selecionado = d == _duracaoSelecionada;
-                final bloqueado = soCafeSelecionado && d > 10;
                 return ChoiceChip(
                   label: Text('$d min'),
                   selected: selecionado,
                   selectedColor: AppColors.statusCafe,
                   labelStyle: TextStyle(
-                    color: selecionado
-                        ? Colors.white
-                        : bloqueado
-                            ? AppColors.textSecondary
-                            : AppColors.textPrimary,
+                    color: selecionado ? Colors.white : AppColors.textPrimary,
                     fontWeight: selecionado
                         ? FontWeight.bold
                         : FontWeight.normal,
                   ),
-                  onSelected: bloqueado
-                      ? null
-                      : (_) =>
-                          setState(() => _duracaoSelecionada = d),
+                  onSelected: (_) =>
+                      setState(() => _duracaoSelecionada = d),
                 );
               }).toList(),
             ),
-            if (soCafeSelecionado) ...[
-              const SizedBox(height: 8),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppColors.statusCafe.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'Já fez o intervalo — disponível somente para café (10 min)',
-                  style: AppTextStyles.caption
-                      .copyWith(color: AppColors.statusCafe),
-                ),
-              ),
-            ],
 
             const SizedBox(height: 16),
             const Text('Colaborador', style: AppTextStyles.label),
@@ -1385,10 +1363,6 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
                           onTap: () => setState(() {
                             _colaboradorSelecionadoId = c.id;
                             _colaboradorSelecionadoNome = c.nome;
-                            if (jaFizeramIntervalo.contains(c.id) &&
-                                _duracaoSelecionada != 10) {
-                              _duracaoSelecionada = 10;
-                            }
                           }),
                         );
                       },
@@ -1426,7 +1400,7 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
                         Navigator.pop(context);
                       },
                 icon: const Icon(Icons.coffee),
-                label: Text('Iniciar $_duracaoSelecionada min de pausa'),
+                label: Text('Iniciar $_duracaoSelecionada min de café'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.statusCafe,
                   foregroundColor: Colors.white,
