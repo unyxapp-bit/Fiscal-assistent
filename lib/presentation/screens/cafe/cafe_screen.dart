@@ -1223,6 +1223,10 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
         .where((p) => p.duracaoMinutos <= 15)
         .map((p) => p.colaboradorId)
         .toSet();
+    final jaFizeramIntervalo = widget.cafeProvider.pausasFinalizadas
+        .where((p) => p.duracaoMinutos > 15)
+        .map((p) => p.colaboradorId)
+        .toSet();
 
     // Exclui: não está na escala, em pausa ativa, ou já fez café
     final colaboradores = colaboradorProvider.colaboradores
@@ -1249,6 +1253,9 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
       if (comp != 0) return comp;
       return a.nome.compareTo(b.nome);
     });
+
+    final soCafeSelecionado = _colaboradorSelecionadoId != null &&
+        jaFizeramIntervalo.contains(_colaboradorSelecionadoId);
 
     return DraggableScrollableSheet(
       expand: false,
@@ -1281,22 +1288,44 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
               spacing: 8,
               children: _duracoes.map((d) {
                 final selecionado = d == _duracaoSelecionada;
+                final bloqueado = soCafeSelecionado && d > 10;
                 return ChoiceChip(
                   label: Text('$d min'),
                   selected: selecionado,
                   selectedColor: AppColors.statusCafe,
                   labelStyle: TextStyle(
-                    color:
-                        selecionado ? Colors.white : AppColors.textPrimary,
+                    color: selecionado
+                        ? Colors.white
+                        : bloqueado
+                            ? AppColors.textSecondary
+                            : AppColors.textPrimary,
                     fontWeight: selecionado
                         ? FontWeight.bold
                         : FontWeight.normal,
                   ),
-                  onSelected: (_) =>
-                      setState(() => _duracaoSelecionada = d),
+                  onSelected: bloqueado
+                      ? null
+                      : (_) =>
+                          setState(() => _duracaoSelecionada = d),
                 );
               }).toList(),
             ),
+            if (soCafeSelecionado) ...[
+              const SizedBox(height: 8),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.statusCafe.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Já fez o intervalo — disponível somente para café (10 min)',
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.statusCafe),
+                ),
+              ),
+            ],
 
             const SizedBox(height: 16),
             const Text('Colaborador', style: AppTextStyles.label),
@@ -1354,6 +1383,10 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
                           onTap: () => setState(() {
                             _colaboradorSelecionadoId = c.id;
                             _colaboradorSelecionadoNome = c.nome;
+                            if (jaFizeramIntervalo.contains(c.id) &&
+                                _duracaoSelecionada != 10) {
+                              _duracaoSelecionada = 10;
+                            }
                           }),
                         );
                       },

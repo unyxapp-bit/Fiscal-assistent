@@ -488,6 +488,21 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
 
     final providerCtx = widget.providerContext;
     final navigator = Navigator.of(context);
+    final cafeProvider =
+        Provider.of<CafeProvider>(providerCtx, listen: false);
+
+    if (cafeProvider.colaboradorJaFezIntervaloHoje(
+        widget.colaborador.id)) {
+      AppNotif.show(
+        providerCtx,
+        titulo: 'Intervalo já realizado',
+        mensagem:
+            'Este colaborador já fez o intervalo hoje. Disponível somente para café (10 min).',
+        tipo: 'intervalo',
+        cor: Colors.orange,
+      );
+      return;
+    }
 
     final confirm = await showDialog<bool>(
       context: context,

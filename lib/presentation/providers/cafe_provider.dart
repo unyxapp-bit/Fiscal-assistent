@@ -117,6 +117,12 @@ class CafeProvider with ChangeNotifier {
     }
   }
 
+  /// Retorna true quando o colaborador já realizou intervalo (>15 min) hoje.
+  /// Considera pausas ativas e finalizadas.
+  bool colaboradorJaFezIntervaloHoje(String colaboradorId) =>
+      _pausas.any((p) =>
+          p.colaboradorId == colaboradorId && p.duracaoMinutos > 15);
+
   /// Retorna a pausa ativa associada a um caixa específico
   PausaCafe? getPausaAtivaPorCaixa(String caixaId) {
     try {

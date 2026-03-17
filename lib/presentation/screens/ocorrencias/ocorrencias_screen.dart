@@ -88,6 +88,103 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     );
   }
 
+  void _mostrarDetalhesOcorrencia(
+    BuildContext context,
+    Ocorrencia oc,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              Dimensions.paddingMD,
+              Dimensions.paddingMD,
+              Dimensions.paddingMD,
+              Dimensions.paddingLG,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        oc.tipo,
+                        style: AppTextStyles.h3,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: oc.gravidade.cor.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        oc.gravidade.nome,
+                        style: TextStyle(
+                          color: oc.gravidade.cor,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  oc.descricao,
+                  style: AppTextStyles.body,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Registrada em ${_formatDateTime(oc.registradaEm)}',
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.textSecondary),
+                ),
+                if (oc.caixaNome != null && oc.caixaNome!.isNotEmpty)
+                  Text(
+                    'Caixa: ${oc.caixaNome}',
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textSecondary),
+                  ),
+                if (oc.colaboradorNome != null &&
+                    oc.colaboradorNome!.isNotEmpty)
+                  Text(
+                    'Colaborador: ${oc.colaboradorNome}',
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textSecondary),
+                  ),
+                if (oc.resolvida && oc.resolvidaEm != null)
+                  Text(
+                    'Resolvida em ${_formatDateTime(oc.resolvidaEm!)}',
+                    style:
+                        AppTextStyles.caption.copyWith(color: AppColors.success),
+                  ),
+                const SizedBox(height: 16),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: const Text('Fechar'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildLista(
     BuildContext context,
     List<Ocorrencia> lista,
@@ -122,6 +219,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
         return Card(
           margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
           child: ListTile(
+            onTap: () => _mostrarDetalhesOcorrencia(ctx, oc),
             leading: CircleAvatar(
               backgroundColor: oc.gravidade.cor.withValues(alpha: 0.15),
               child: Icon(iconForTipo(oc.tipo), color: oc.gravidade.cor, size: 20),

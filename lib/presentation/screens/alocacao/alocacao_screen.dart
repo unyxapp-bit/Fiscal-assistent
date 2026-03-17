@@ -1480,8 +1480,11 @@ class _CardAlocadoState extends State<_CardAlocado> {
 
     final alocacaoProvider =
         Provider.of<AlocacaoProvider>(context, listen: false);
-    final intervaloJaFeito =
-        alocacaoProvider.isIntervaloMarcado(widget.turno.colaboradorId);
+    final cafeProvider = Provider.of<CafeProvider>(context);
+    final intervaloJaFeito = alocacaoProvider
+            .isIntervaloMarcado(widget.turno.colaboradorId) ||
+        cafeProvider.colaboradorJaFezIntervaloHoje(
+            widget.turno.colaboradorId);
     final minIntervalo = intervaloJaFeito ? null : _calcMinIntervalo();
     final emAtencao = minIntervalo != null && minIntervalo >= 15;
 

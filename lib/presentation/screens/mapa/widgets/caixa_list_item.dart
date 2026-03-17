@@ -57,7 +57,8 @@ class CaixaListItem extends StatelessWidget {
 
     // Situação do intervalo agendado (apenas quando ocupado e não em pausa real)
     final bool intervaloJaFeito = colaborador != null &&
-        alocacaoProvider.isIntervaloMarcado(colaborador.id);
+        (alocacaoProvider.isIntervaloMarcado(colaborador.id) ||
+            cafeProvider.colaboradorJaFezIntervaloHoje(colaborador.id));
     final int? minIntervalo =
         isOcupado && !isEmPausa && !intervaloJaFeito
             ? _calcMinIntervalo(turno)

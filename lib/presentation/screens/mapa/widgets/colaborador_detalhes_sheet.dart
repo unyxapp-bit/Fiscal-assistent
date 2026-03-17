@@ -531,6 +531,12 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                         (int.tryParse(parts[1]) ?? 0);
                     final minPassado = agoraMin - intervaloMin;
                     if (minPassado <= 0) return const SizedBox.shrink();
+                    final cafeProvider = Provider.of<CafeProvider>(
+                        widget.providerContext, listen: false);
+                    if (cafeProvider.colaboradorJaFezIntervaloHoje(
+                        widget.colaborador!.id)) {
+                      return const SizedBox.shrink();
+                    }
                     final jaMarcado = widget.alocacaoProvider
                         .isIntervaloMarcado(widget.colaborador!.id);
                     return Padding(
@@ -602,6 +608,10 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                     }
                     if (widget.alocacaoProvider
                         .isIntervaloMarcado(widget.colaborador!.id)) {
+                      return const SizedBox.shrink();
+                    }
+                    if (cafeProvider.colaboradorJaFezIntervaloHoje(
+                        widget.colaborador!.id)) {
                       return const SizedBox.shrink();
                     }
                     final aguardando = widget.alocacaoProvider
@@ -1089,6 +1099,22 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                 ?.id ??
             '';
 
+    final jaFezIntervalo = widget.alocacaoProvider
+            .isIntervaloMarcado(widget.colaborador!.id) ||
+        cafeProviderIntervalo.colaboradorJaFezIntervaloHoje(
+            widget.colaborador!.id);
+    if (jaFezIntervalo) {
+      AppNotif.show(
+        providerCtx,
+        titulo: 'Intervalo já realizado',
+        mensagem:
+            'Este colaborador já fez o intervalo hoje. Disponível somente para café (10 min).',
+        tipo: 'intervalo',
+        cor: Colors.orange,
+      );
+      return;
+    }
+
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -1181,6 +1207,9 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
 
     // Se o intervalo já foi marcado como feito, não mostra o banner
     if (widget.alocacaoProvider.isIntervaloMarcado(widget.colaborador!.id)) {
+      return const SizedBox.shrink();
+    }
+    if (cafeProvider.colaboradorJaFezIntervaloHoje(widget.colaborador!.id)) {
       return const SizedBox.shrink();
     }
 

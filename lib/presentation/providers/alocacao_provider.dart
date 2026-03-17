@@ -105,6 +105,8 @@ class AlocacaoProvider extends ChangeNotifier {
         _diaProcessado!.month != hoje.month ||
         _diaProcessado!.day != hoje.day) {
       _saidasProcessadas.clear();
+      _intervalosMarcados.clear();
+      _aguardandoIntervalo.clear();
       _diaProcessado = hoje;
     }
 
@@ -256,7 +258,6 @@ class AlocacaoProvider extends ChangeNotifier {
       );
       final liberada = _alocacoes.firstWhere((a) => a.id == alocacaoId,
           orElse: () => _alocacoes.first);
-      _intervalosMarcados.remove(liberada.colaboradorId);
       _aguardandoIntervalo.remove(liberada.colaboradorId);
       _alocacoes.removeWhere((a) => a.id == alocacaoId);
       _loadingState = LoadingState.success;

@@ -55,6 +55,9 @@ class PacoteSection extends StatelessWidget {
           .firstOrNull;
       final pausa = cafeProvider.getPausaAtiva(p.colaboradorId);
       if (pausa != null) return false;
+      if (cafeProvider.colaboradorJaFezIntervaloHoje(p.colaboradorId)) {
+        return false;
+      }
       final min = calcMinIntervalo(turno);
       return min != null && min >= 15;
     });
