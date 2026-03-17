@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
+import '../../../domain/entities/alocacao.dart';
 import '../../../domain/entities/caixa.dart';
 import '../../../domain/entities/colaborador.dart';
 import '../../providers/auth_provider.dart';
@@ -903,6 +904,12 @@ class _OcupadosSheet extends StatelessWidget {
 
                   return ListTile(
                     contentPadding: EdgeInsets.zero,
+                    onTap: () => _mostrarAcoes(
+                      context,
+                      caixa,
+                      alocacao,
+                      pausa,
+                    ),
                     leading: CircleAvatar(
                       backgroundColor:
                           AppColors.primary.withValues(alpha: 0.1),
@@ -930,12 +937,174 @@ class _OcupadosSheet extends StatelessWidget {
                               color: AppColors.statusCafe,
                             ),
                           ),
+                        if (nomeAlocado == null && nomePausa == null)
+                          Text(
+                            'Sem detalhes da ocupação',
+                            style: AppTextStyles.caption,
+                          ),
                       ],
                     ),
+                    trailing: (alocacao != null || pausa != null)
+                        ? const Icon(Icons.more_vert, size: 18)
+                        : null,
                   );
                 },
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  void _mostrarAcoes(
+    BuildContext context,
+    Caixa caixa,
+    Alocacao? alocacao,
+    PausaCafe? pausa,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: AppColors.divider,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Row(
+              children: [
+                const Icon(Icons.point_of_sale,
+                    size: 18, color: AppColors.primary),
+                const SizedBox(width: 6),
+                Text(caixa.nomeExibicao, style: AppTextStyles.h3),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (alocacao != null)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading:
+                    const Icon(Icons.exit_to_app, color: AppColors.danger),
+                title: const Text('Liberar caixa'),
+                subtitle: const Text('Remove a alocação ativa deste caixa'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _confirmarLiberar(context, caixa, alocacao);
+                },
+              ),
+            if (pausa != null)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading:
+                    const Icon(Icons.coffee, color: AppColors.statusCafe),
+                title: const Text('Finalizar pausa'),
+                subtitle: const Text('Encerra a pausa ativa deste caixa'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _confirmarFinalizarPausa(context, pausa);
+                },
+              ),
+            if (alocacao == null && pausa == null)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  'Não há alocação ou pausa ativa para este caixa.',
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.textSecondary),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _confirmarLiberar(
+    BuildContext context,
+    Caixa caixa,
+    Alocacao alocacao,
+  ) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Liberar caixa'),
+        content: Text('Deseja liberar ${caixa.nomeExibicao}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await alocacaoProvider.liberarAlocacao(
+                alocacao.id,
+                'Liberado pelo mapa (lista de ocupados)',
+              );
+              if (context.mounted) {
+                AppNotif.show(
+                  context,
+                  titulo: 'Caixa liberado',
+                  mensagem: '${caixa.nomeExibicao} foi liberado.',
+                  tipo: 'saida',
+                  cor: AppColors.success,
+                );
+              }
+            },
+            child: const Text(
+              'Liberar',
+              style: TextStyle(color: AppColors.danger),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmarFinalizarPausa(
+    BuildContext context,
+    PausaCafe pausa,
+  ) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Finalizar pausa'),
+        content: Text('Deseja finalizar a pausa de ${pausa.colaboradorNome}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              cafeProvider.finalizarPausa(pausa.colaboradorId);
+              if (context.mounted) {
+                AppNotif.show(
+                  context,
+                  titulo: 'Pausa finalizada',
+                  mensagem: 'Pausa de ${pausa.colaboradorNome} finalizada.',
+                  tipo: 'saida',
+                  cor: AppColors.success,
+                );
+              }
+            },
+            child: const Text(
+              'Finalizar',
+              style: TextStyle(color: AppColors.danger),
+            ),
+          ),
         ],
       ),
     );
