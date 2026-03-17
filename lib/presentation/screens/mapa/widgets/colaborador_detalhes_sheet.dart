@@ -18,6 +18,7 @@ import '../../../providers/evento_turno_provider.dart';
 import '../../../providers/registro_ponto_provider.dart';
 import '../../../../domain/entities/evento_turno.dart';
 import '../../alocacao/alocacao_screen.dart';
+import '../../ocorrencias/ocorrencia_form_screen.dart';
 import '../../../../data/services/notification_service.dart';
 import '../../../providers/ocorrencia_provider.dart';
 import '../../../../core/utils/app_notif.dart';
@@ -77,6 +78,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
   RegistroPonto? _registroHoje;
   bool _carregando = false;
   Timer? _refreshTimer;
+  bool _mostrarEscala = false;
 
   @override
   void initState() {
@@ -420,9 +422,36 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
             _buildIntervaloStatusBanner(),
 
             if (widget.turno != null) ...[
-              const Text('Escala de hoje', style: AppTextStyles.label),
-              const SizedBox(height: 8),
-              HorarioGrid(turno: widget.turno!),
+              InkWell(
+                onTap: () =>
+                    setState(() => _mostrarEscala = !_mostrarEscala),
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.schedule,
+                          size: 16, color: AppColors.textSecondary),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Escala de hoje',
+                        style: AppTextStyles.label,
+                      ),
+                      const Spacer(),
+                      Icon(
+                        _mostrarEscala
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
+                        color: AppColors.textSecondary,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (_mostrarEscala) ...[
+                const SizedBox(height: 8),
+                HorarioGrid(turno: widget.turno!),
+              ],
             ],
 
             const SizedBox(height: 20),
@@ -474,6 +503,19 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                           label: 'Intervalo',
                           color: Colors.orange,
                           onTap: _enviarParaIntervalo,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildActionBtn(
+                          icon: Icons.report_problem,
+                          label: 'Ocorrência',
+                          color: AppColors.danger,
+                          onTap: _registrarOcorrencia,
                         ),
                       ),
                     ],
@@ -1109,6 +1151,19 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
         cor: Colors.orange,
       );
     }
+  }
+
+  void _registrarOcorrencia() {
+    Navigator.of(context).pop();
+    Navigator.of(widget.providerContext).push(
+      MaterialPageRoute(
+        builder: (_) => OcorrenciaFormScreen(
+          caixaId: widget.caixa.id,
+          caixaNome: widget.caixa.nomeExibicao,
+          colaboradorNome: widget.colaborador?.nome,
+        ),
+      ),
+    );
   }
 
   // ── Banner de status do intervalo ─────────────────────────────────────────

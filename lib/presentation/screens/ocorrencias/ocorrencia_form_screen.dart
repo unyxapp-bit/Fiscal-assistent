@@ -10,7 +10,16 @@ import '../../providers/ocorrencia_provider.dart';
 import '../../../core/utils/app_notif.dart';
 
 class OcorrenciaFormScreen extends StatefulWidget {
-  const OcorrenciaFormScreen({super.key});
+  final String? caixaId;
+  final String? caixaNome;
+  final String? colaboradorNome;
+
+  const OcorrenciaFormScreen({
+    super.key,
+    this.caixaId,
+    this.caixaNome,
+    this.colaboradorNome,
+  });
   @override
   State<OcorrenciaFormScreen> createState() => _OcorrenciaFormScreenState();
 }
@@ -40,9 +49,21 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
       return;
     }
     final tipo = _tipoCtrl.text.trim().isEmpty ? 'Outro' : _tipoCtrl.text.trim();
+    final contexto = <String>[];
+    if (widget.caixaNome != null && widget.caixaNome!.isNotEmpty) {
+      contexto.add('Caixa: ${widget.caixaNome}');
+    }
+    if (widget.colaboradorNome != null &&
+        widget.colaboradorNome!.isNotEmpty) {
+      contexto.add('Colaborador: ${widget.colaboradorNome}');
+    }
+    final descricaoFinal = contexto.isEmpty
+        ? descricao
+        : '${contexto.join(' · ')}\n$descricao';
     Provider.of<OcorrenciaProvider>(context, listen: false).registrar(
       tipo: tipo,
-      descricao: descricao,
+      caixaId: widget.caixaId,
+      descricao: descricaoFinal,
       gravidade: _gravidade,
     );
     final eventoProvider = Provider.of<EventoTurnoProvider>(context, listen: false);
@@ -67,6 +88,10 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
   @override
   Widget build(BuildContext context) {
     final tipoAtual = _tipoCtrl.text.trim();
+    final hasContexto = (widget.caixaNome != null &&
+            widget.caixaNome!.isNotEmpty) ||
+        (widget.colaboradorNome != null &&
+            widget.colaboradorNome!.isNotEmpty);
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -79,6 +104,34 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (hasContexto) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.backgroundSection,
+                  borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+                  border: Border.all(color: AppColors.cardBorder),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (widget.caixaNome != null &&
+                        widget.caixaNome!.isNotEmpty)
+                      Text(
+                        'Caixa: ${widget.caixaNome}',
+                        style: AppTextStyles.body,
+                      ),
+                    if (widget.colaboradorNome != null &&
+                        widget.colaboradorNome!.isNotEmpty)
+                      Text(
+                        'Colaborador: ${widget.colaboradorNome}',
+                        style: AppTextStyles.body,
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: Dimensions.spacingMD),
+            ],
             // ── Tipo livre ────────────────────────────────────────────────
             const Text('Tipo de ocorrência', style: AppTextStyles.h4),
             const SizedBox(height: Dimensions.spacingSM),
