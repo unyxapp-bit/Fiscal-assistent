@@ -34,6 +34,7 @@ class AlocacaoScreen extends StatefulWidget {
 
 class _AlocacaoScreenState extends State<AlocacaoScreen> {
   final TextEditingController _searchCtrl = TextEditingController();
+  bool _mostrarFolgas = false;
 
   @override
   void initState() {
@@ -1110,13 +1111,19 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
               // Folgas
               if (folgas.isNotEmpty) ...[
                 const SizedBox(height: Dimensions.spacingLG),
-                _Header(
-                    icon: Icons.beach_access,
-                    label: 'Folgas / Feriados',
-                    count: folgas.length,
-                    color: AppColors.statusAtencao),
-                const SizedBox(height: 8),
-                ...folgas.map((t) => _CardFolga(turno: t)),
+                _HeaderToggle(
+                  icon: Icons.beach_access,
+                  label: 'Folgas / Feriados',
+                  count: folgas.length,
+                  color: AppColors.statusAtencao,
+                  expanded: _mostrarFolgas,
+                  onTap: () =>
+                      setState(() => _mostrarFolgas = !_mostrarFolgas),
+                ),
+                if (_mostrarFolgas) ...[
+                  const SizedBox(height: 8),
+                  ...folgas.map((t) => _CardFolga(turno: t)),
+                ],
               ],
             ],
 
@@ -1285,6 +1292,62 @@ class _Header extends StatelessWidget {
                 fontSize: 11, color: color, fontWeight: FontWeight.bold)),
       ),
     ]);
+  }
+}
+
+class _HeaderToggle extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final int count;
+  final Color color;
+  final bool expanded;
+  final VoidCallback onTap;
+
+  const _HeaderToggle({
+    required this.icon,
+    required this.label,
+    required this.count,
+    required this.color,
+    required this.expanded,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            Icon(icon, size: 16, color: color),
+            const SizedBox(width: 6),
+            Text(label, style: AppTextStyles.subtitle.copyWith(color: color)),
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+              decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10)),
+              child: Text('$count',
+                  style: TextStyle(
+                      fontSize: 11,
+                      color: color,
+                      fontWeight: FontWeight.bold)),
+            ),
+            const Spacer(),
+            Icon(
+              expanded
+                  ? Icons.keyboard_arrow_up
+                  : Icons.keyboard_arrow_down,
+              size: 18,
+              color: color,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

@@ -30,6 +30,7 @@ class CaixaProvider with ChangeNotifier {
   // Getters
   CaixaStatus get status => _status;
   List<Caixa> get caixas => _filteredCaixas;
+  List<Caixa> get caixasTodos => List.unmodifiable(_caixas);
   String? get errorMessage => _errorMessage;
   bool get isLoading => _status == CaixaStatus.loading;
   bool get mostrarApenasAtivos => _mostrarApenasAtivos;

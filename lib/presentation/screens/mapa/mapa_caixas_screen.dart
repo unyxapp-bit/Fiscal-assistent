@@ -22,6 +22,7 @@ import 'widgets/balcao_list_item.dart';
 import 'widgets/pacote_section.dart';
 import 'widgets/outro_setor_section.dart';
 import '../../../core/utils/app_notif.dart';
+import '../../../domain/enums/tipo_caixa.dart';
 
 /// Tela de mapa de caixas — abas: Mapa | Caixas
 class MapaCaixasScreen extends StatefulWidget {
@@ -203,23 +204,29 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
           Builder(builder: (context) {
             final cafeProvider = Provider.of<CafeProvider>(context);
 
+            final caixasTodos = caixaProvider.caixasTodos;
+
             // Caixas com alocação ativa OU com pausa ativa (café/intervalo)
-            final rapidos = caixaProvider.caixasRapidos
+            final rapidos = caixasTodos
+                .where((c) => c.tipo == TipoCaixa.rapido)
                 .where((c) =>
                     alocacaoProvider.getAlocacaoCaixa(c.id) != null ||
                     cafeProvider.getPausaAtivaPorCaixa(c.id) != null)
                 .toList();
-            final normais = caixaProvider.caixasNormais
+            final normais = caixasTodos
+                .where((c) => c.tipo == TipoCaixa.normal)
                 .where((c) =>
                     alocacaoProvider.getAlocacaoCaixa(c.id) != null ||
                     cafeProvider.getPausaAtivaPorCaixa(c.id) != null)
                 .toList();
-            final selfs = caixaProvider.selfCheckouts
+            final selfs = caixasTodos
+                .where((c) => c.tipo == TipoCaixa.self)
                 .where((c) =>
                     alocacaoProvider.getAlocacaoCaixa(c.id) != null ||
                     cafeProvider.getPausaAtivaPorCaixa(c.id) != null)
                 .toList();
-            final balcoes = caixaProvider.balcoes;
+            final balcoes =
+                caixasTodos.where((c) => c.tipo == TipoCaixa.balcao).toList();
 
             return LayoutBuilder(
               builder: (context, constraints) => RefreshIndicator(
@@ -644,9 +651,17 @@ class _MiniDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalAlocados = alocacaoProvider.quantidadeAtivasAgora;
-    final emPausa = cafeProvider.pausasAtivas.length;
-    final caixasLivres = caixaProvider.caixas
+    final caixasIds =
+        caixaProvider.caixasTodos.map((c) => c.id).toSet();
+    final totalAlocados = alocacaoProvider
+        .getAlocacoesAtivas()
+        .where((a) => caixasIds.contains(a.caixaId))
+        .length;
+    final emPausa = cafeProvider.pausasAtivas
+        .where((p) =>
+            p.caixaId != null && caixasIds.contains(p.caixaId))
+        .length;
+    final caixasLivres = caixaProvider.caixasTodos
         .where((c) =>
             c.ativo &&
             !c.emManutencao &&
