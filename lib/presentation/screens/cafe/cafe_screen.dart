@@ -956,6 +956,9 @@ class _ColaboradorIntervaloSheetState
     int duracaoMinutos;
 
     if (saidaDT != null && retornoDT != null) {
+      final diffAgendada = retornoDT.difference(saidaDT);
+      final duracaoAgendada =
+          diffAgendada.inMinutes > 0 ? diffAgendada.inMinutes : 15;
       if (now.isAfter(saidaDT)) {
         // Passou da hora de saída → perguntar quando saiu de verdade
         final picked = await showTimePicker(
@@ -966,12 +969,11 @@ class _ColaboradorIntervaloSheetState
         if (picked == null || !mounted) return;
         iniciadoEm = DateTime(now.year, now.month, now.day,
             picked.hour, picked.minute);
-        final diff = retornoDT.difference(iniciadoEm);
-        duracaoMinutos = diff.inMinutes > 0 ? diff.inMinutes : 15;
+        // Mantém a duração agendada e desloca o retorno
+        duracaoMinutos = duracaoAgendada;
       } else {
         // Ainda não chegou a hora → usar duração agendada, iniciar agora
-        final diff = retornoDT.difference(saidaDT);
-        duracaoMinutos = diff.inMinutes > 0 ? diff.inMinutes : 15;
+        duracaoMinutos = duracaoAgendada;
         iniciadoEm = now;
       }
     } else {
