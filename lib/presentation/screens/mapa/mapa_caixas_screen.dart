@@ -1073,9 +1073,10 @@ class _OcupadosSheet extends StatelessWidget {
             child: const Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(ctx);
               cafeProvider.finalizarPausa(pausa.colaboradorId);
+              await _tentarRetornoCafe(context, pausa);
               if (context.mounted) {
                 AppNotif.show(
                   context,
@@ -1094,5 +1095,45 @@ class _OcupadosSheet extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _tentarRetornoCafe(
+    BuildContext context,
+    PausaCafe pausa,
+  ) async {
+    if (pausa.duracaoMinutos > 15) return;
+    if (pausa.caixaId == null || pausa.caixaId!.isEmpty) return;
+    final fiscalId =
+        Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+    if (fiscalId.isEmpty) return;
+
+    final caixa = caixas
+        .where((c) => c.id == pausa.caixaId)
+        .firstOrNull;
+    final erro = await alocacaoProvider.retornarDeCafe(
+      colaboradorId: pausa.colaboradorId,
+      caixaId: pausa.caixaId!,
+      fiscalId: fiscalId,
+    );
+
+    if (!context.mounted) return;
+    if (erro == null) {
+      AppNotif.show(
+        context,
+        titulo: 'Retorno do café',
+        mensagem:
+            '${pausa.colaboradorNome} voltou ao ${caixa?.nomeExibicao ?? 'caixa'}',
+        tipo: 'saida',
+        cor: AppColors.success,
+      );
+    } else {
+      AppNotif.show(
+        context,
+        titulo: 'Retorno do café',
+        mensagem: erro,
+        tipo: 'alerta',
+        cor: AppColors.warning,
+      );
+    }
   }
 }
