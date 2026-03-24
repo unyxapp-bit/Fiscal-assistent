@@ -268,6 +268,31 @@ class AlocacaoProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Retorna colaborador ao mesmo caixa após pausa de café (quando possível).
+  /// Retorna null em sucesso, ou uma mensagem de erro em falha.
+  Future<String?> retornarDeCafe({
+    required String colaboradorId,
+    required String caixaId,
+    required String fiscalId,
+  }) async {
+    if (getAlocacaoColaborador(colaboradorId) != null) {
+      return 'Colaborador já está alocado em outro caixa';
+    }
+    if (getAlocacaoCaixa(caixaId) != null) {
+      return 'Caixa já está ocupado';
+    }
+
+    await alocarColaborador(
+      colaboradorId: colaboradorId,
+      caixaId: caixaId,
+      fiscalId: fiscalId,
+      justificativa: 'Retorno de café',
+    );
+
+    if (_loadingState == LoadingState.success) return null;
+    return _error ?? 'Não foi possível retornar ao caixa';
+  }
+
   /// Encontra alocação de um colaborador
   Alocacao? getAlocacaoColaborador(String colaboradorId) {
     try {
