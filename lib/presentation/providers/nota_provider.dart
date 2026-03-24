@@ -79,8 +79,9 @@ class NotaProvider with ChangeNotifier {
   int get totalNotas => _notas.length;
   int get totalTarefasPendentes => tarefasPendentes.length;
   int get totalLembretesAtivos => lembretesAtivos.length;
-  int get totalLembretesVencidos =>
-      _notas.where((n) => n.tipo == TipoLembrete.lembrete && n.isVencido).length;
+  int get totalLembretesVencidos => _notas
+      .where((n) => n.tipo == TipoLembrete.lembrete && n.isVencido)
+      .length;
 
   TipoLembrete? get filtroTipo => _filtroTipo;
   bool get mostrarApenasPendentes => _mostrarApenasPendentes;
@@ -144,18 +145,27 @@ class NotaProvider with ChangeNotifier {
     String titulo,
     String conteudo,
     TipoLembrete tipo, {
+    String? id,
     DateTime? dataLembrete,
     bool importante = false,
     bool lembreteAtivo = true,
+    String? fotoUrl,
+    String? fotoNome,
+    String? arquivoUrl,
+    String? arquivoNome,
   }) {
     final nota = Nota(
-      id: const Uuid().v4(),
+      id: id ?? const Uuid().v4(),
       titulo: titulo,
       conteudo: conteudo,
       tipo: tipo,
       importante: importante,
       dataLembrete: dataLembrete,
       lembreteAtivo: lembreteAtivo,
+      fotoUrl: fotoUrl,
+      fotoNome: fotoNome,
+      arquivoUrl: arquivoUrl,
+      arquivoNome: arquivoNome,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
@@ -282,6 +292,10 @@ class NotaProvider with ChangeNotifier {
         dataLembrete: m['data_lembrete'] != null
             ? DateTime.parse(m['data_lembrete'] as String)
             : null,
+        fotoUrl: m['foto_url'] as String?,
+        fotoNome: m['foto_nome'] as String?,
+        arquivoUrl: m['arquivo_url'] as String?,
+        arquivoNome: m['arquivo_nome'] as String?,
         createdAt: DateTime.parse(m['created_at'] as String),
         updatedAt: DateTime.parse(m['updated_at'] as String),
       );
@@ -296,6 +310,10 @@ class NotaProvider with ChangeNotifier {
         'importante': n.importante,
         'lembrete_ativo': n.lembreteAtivo,
         'data_lembrete': n.dataLembrete?.toIso8601String(),
+        'foto_url': n.fotoUrl,
+        'foto_nome': n.fotoNome,
+        'arquivo_url': n.arquivoUrl,
+        'arquivo_nome': n.arquivoNome,
         'created_at': n.createdAt.toIso8601String(),
         'updated_at': n.updatedAt.toIso8601String(),
       };

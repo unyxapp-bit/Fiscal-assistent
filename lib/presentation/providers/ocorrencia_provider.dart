@@ -25,16 +25,25 @@ IconData iconForTipo(String tipo) {
   if (t.contains('briga') || t.contains('conflito') || t.contains('briga')) {
     return Icons.warning_amber;
   }
-  if (t.contains('furto') || t.contains('perda') || t.contains('roubo') || t.contains('fraude')) {
+  if (t.contains('furto') ||
+      t.contains('perda') ||
+      t.contains('roubo') ||
+      t.contains('fraude')) {
     return Icons.security;
   }
   if (t.contains('caixa')) return Icons.point_of_sale;
-  if (t.contains('equipamento') || t.contains('tecnico') || t.contains('maquina')) {
+  if (t.contains('equipamento') ||
+      t.contains('tecnico') ||
+      t.contains('maquina')) {
     return Icons.build;
   }
   if (t.contains('reclama')) return Icons.sentiment_dissatisfied;
-  if (t.contains('aus') || t.contains('falta') || t.contains('person')) return Icons.person_off;
-  if (t.contains('acid') || t.contains('lesao') || t.contains('queda')) return Icons.local_hospital;
+  if (t.contains('aus') || t.contains('falta') || t.contains('person')) {
+    return Icons.person_off;
+  }
+  if (t.contains('acid') || t.contains('lesao') || t.contains('queda')) {
+    return Icons.local_hospital;
+  }
   return Icons.more_horiz;
 }
 
@@ -84,6 +93,10 @@ class Ocorrencia {
   final String? colaboradorId;
   final String? colaboradorNome;
   final String descricao;
+  final String? fotoUrl;
+  final String? fotoNome;
+  final String? arquivoUrl;
+  final String? arquivoNome;
   final GravidadeOcorrencia gravidade;
   bool resolvida;
   final DateTime registradaEm;
@@ -97,6 +110,10 @@ class Ocorrencia {
     this.colaboradorId,
     this.colaboradorNome,
     required this.descricao,
+    this.fotoUrl,
+    this.fotoNome,
+    this.arquivoUrl,
+    this.arquivoNome,
     required this.gravidade,
     this.resolvida = false,
     required this.registradaEm,
@@ -155,6 +172,10 @@ class OcorrenciaProvider with ChangeNotifier {
     String? colaboradorNome,
     required String descricao,
     required GravidadeOcorrencia gravidade,
+    String? fotoUrl,
+    String? fotoNome,
+    String? arquivoUrl,
+    String? arquivoNome,
   }) {
     final oc = Ocorrencia(
       id: const Uuid().v4(),
@@ -164,6 +185,10 @@ class OcorrenciaProvider with ChangeNotifier {
       colaboradorId: colaboradorId,
       colaboradorNome: colaboradorNome,
       descricao: descricao,
+      fotoUrl: fotoUrl,
+      fotoNome: fotoNome,
+      arquivoUrl: arquivoUrl,
+      arquivoNome: arquivoNome,
       gravidade: gravidade,
       registradaEm: DateTime.now(),
     );
@@ -188,10 +213,10 @@ class OcorrenciaProvider with ChangeNotifier {
         .eq('id', id)
         .then((_) {})
         .catchError((e) {
-      if (kDebugMode) {
-        debugPrint('[OcorrenciaProvider] Erro ao resolver: $e');
-      }
-    });
+          if (kDebugMode) {
+            debugPrint('[OcorrenciaProvider] Erro ao resolver: $e');
+          }
+        });
   }
 
   void deletar(String id) {
@@ -210,24 +235,32 @@ class OcorrenciaProvider with ChangeNotifier {
   }
 
   void _upsert(Ocorrencia o) {
-    SupabaseClientManager.client.from(_table).upsert({
-      'id': o.id,
-      'fiscal_id': _fiscalId,
-      'tipo': o.tipo, // agora salva o texto livre diretamente
-      'caixa_id': o.caixaId,
-      'caixa_nome': o.caixaNome,
-      'colaborador_id': o.colaboradorId,
-      'colaborador_nome': o.colaboradorNome,
-      'descricao': o.descricao,
-      'gravidade': o.gravidade.name,
-      'resolvida': o.resolvida,
-      'registrada_em': o.registradaEm.toIso8601String(),
-      'resolvida_em': o.resolvidaEm?.toIso8601String(),
-    }).then((_) {}).catchError((e) {
-      if (kDebugMode) {
-        debugPrint('[OcorrenciaProvider] Erro ao sync: $e');
-      }
-    });
+    SupabaseClientManager.client
+        .from(_table)
+        .upsert({
+          'id': o.id,
+          'fiscal_id': _fiscalId,
+          'tipo': o.tipo, // agora salva o texto livre diretamente
+          'caixa_id': o.caixaId,
+          'caixa_nome': o.caixaNome,
+          'colaborador_id': o.colaboradorId,
+          'colaborador_nome': o.colaboradorNome,
+          'descricao': o.descricao,
+          'foto_url': o.fotoUrl,
+          'foto_nome': o.fotoNome,
+          'arquivo_url': o.arquivoUrl,
+          'arquivo_nome': o.arquivoNome,
+          'gravidade': o.gravidade.name,
+          'resolvida': o.resolvida,
+          'registrada_em': o.registradaEm.toIso8601String(),
+          'resolvida_em': o.resolvidaEm?.toIso8601String(),
+        })
+        .then((_) {})
+        .catchError((e) {
+          if (kDebugMode) {
+            debugPrint('[OcorrenciaProvider] Erro ao sync: $e');
+          }
+        });
   }
 
   Ocorrencia _fromMap(Map<String, dynamic> m) => Ocorrencia(
@@ -238,6 +271,10 @@ class OcorrenciaProvider with ChangeNotifier {
         colaboradorId: m['colaborador_id'] as String?,
         colaboradorNome: m['colaborador_nome'] as String?,
         descricao: m['descricao'] as String? ?? '',
+        fotoUrl: m['foto_url'] as String?,
+        fotoNome: m['foto_nome'] as String?,
+        arquivoUrl: m['arquivo_url'] as String?,
+        arquivoNome: m['arquivo_nome'] as String?,
         gravidade: GravidadeOcorrencia.fromString(
             m['gravidade'] as String? ?? 'media'),
         resolvida: m['resolvida'] as bool? ?? false,

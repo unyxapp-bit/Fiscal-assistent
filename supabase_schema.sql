@@ -83,9 +83,17 @@ CREATE TABLE IF NOT EXISTS public.notas (
   importante     BOOLEAN NOT NULL DEFAULT FALSE,
   lembrete_ativo BOOLEAN NOT NULL DEFAULT TRUE,
   data_lembrete  TIMESTAMPTZ,
+  foto_url       TEXT,
+  foto_nome      TEXT,
+  arquivo_url    TEXT,
+  arquivo_nome   TEXT,
   created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+ALTER TABLE public.notas ADD COLUMN IF NOT EXISTS foto_url TEXT;
+ALTER TABLE public.notas ADD COLUMN IF NOT EXISTS foto_nome TEXT;
+ALTER TABLE public.notas ADD COLUMN IF NOT EXISTS arquivo_url TEXT;
+ALTER TABLE public.notas ADD COLUMN IF NOT EXISTS arquivo_nome TEXT;
 ALTER TABLE public.notas ENABLE ROW LEVEL SECURITY;
 DO $$ BEGIN
   CREATE POLICY "fiscal_rls_notas" ON public.notas
@@ -346,4 +354,58 @@ ALTER TABLE public.fiscais ENABLE ROW LEVEL SECURITY;
 DO $$ BEGIN
   CREATE POLICY "fiscal_rls_fiscais" ON public.fiscais
     USING (id = auth.uid()) WITH CHECK (id = auth.uid());
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- ============================================================
+-- 13. ANEXOS OPCIONAIS (NOTAS / OCORRENCIAS)
+-- ============================================================
+ALTER TABLE public.notas ADD COLUMN IF NOT EXISTS foto_url TEXT;
+ALTER TABLE public.notas ADD COLUMN IF NOT EXISTS foto_nome TEXT;
+ALTER TABLE public.notas ADD COLUMN IF NOT EXISTS arquivo_url TEXT;
+ALTER TABLE public.notas ADD COLUMN IF NOT EXISTS arquivo_nome TEXT;
+
+ALTER TABLE IF EXISTS public.ocorrencias ADD COLUMN IF NOT EXISTS foto_url TEXT;
+ALTER TABLE IF EXISTS public.ocorrencias ADD COLUMN IF NOT EXISTS foto_nome TEXT;
+ALTER TABLE IF EXISTS public.ocorrencias ADD COLUMN IF NOT EXISTS arquivo_url TEXT;
+ALTER TABLE IF EXISTS public.ocorrencias ADD COLUMN IF NOT EXISTS arquivo_nome TEXT;
+
+INSERT INTO storage.buckets (id, name, public, file_size_limit)
+VALUES ('anexos', 'anexos', true, 10485760)
+ON CONFLICT (id) DO NOTHING;
+
+DO $$ BEGIN
+  CREATE POLICY "anexos_insert_own_folder"
+  ON storage.objects
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    bucket_id = 'anexos'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+  );
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE POLICY "anexos_update_own_folder"
+  ON storage.objects
+  FOR UPDATE
+  TO authenticated
+  USING (
+    bucket_id = 'anexos'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+  )
+  WITH CHECK (
+    bucket_id = 'anexos'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+  );
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE POLICY "anexos_delete_own_folder"
+  ON storage.objects
+  FOR DELETE
+  TO authenticated
+  USING (
+    bucket_id = 'anexos'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+  );
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;

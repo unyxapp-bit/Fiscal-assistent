@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
+import '../../../data/services/anexo_upload_service.dart';
 import '../../../domain/entities/nota.dart';
 import '../../../domain/enums/tipo_lembrete.dart';
 import '../../../domain/entities/evento_turno.dart';
@@ -26,11 +28,22 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _tituloController = TextEditingController();
   final _conteudoController = TextEditingController();
+  final _anexoUploadService = AnexoUploadService();
 
   TipoLembrete _tipo = TipoLembrete.anotacao;
   bool _importante = false;
   bool _lembreteAtivo = true;
   DateTime? _dataLembrete;
+  bool _salvando = false;
+
+  AnexoSelecionado? _fotoSelecionada;
+  AnexoSelecionado? _arquivoSelecionado;
+  String? _fotoUrlAtual;
+  String? _fotoNomeAtual;
+  String? _arquivoUrlAtual;
+  String? _arquivoNomeAtual;
+  bool _deveRemoverFoto = false;
+  bool _deveRemoverArquivo = false;
 
   bool get _isEdicao => widget.nota != null;
 
@@ -44,6 +57,10 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
       _importante = widget.nota!.importante;
       _lembreteAtivo = widget.nota!.lembreteAtivo;
       _dataLembrete = widget.nota!.dataLembrete;
+      _fotoUrlAtual = widget.nota!.fotoUrl;
+      _fotoNomeAtual = widget.nota!.fotoNome;
+      _arquivoUrlAtual = widget.nota!.arquivoUrl;
+      _arquivoNomeAtual = widget.nota!.arquivoNome;
     } else if (widget.tipoInicial != null) {
       _tipo = widget.tipoInicial!;
     }
@@ -89,66 +106,170 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
     if (hora == null) return;
 
     setState(() {
-      _dataLembrete = DateTime(
-          data.year, data.month, data.day, hora.hour, hora.minute);
+      _dataLembrete =
+          DateTime(data.year, data.month, data.day, hora.hour, hora.minute);
     });
   }
 
-  void _salvar() {
+  Future<void> _selecionarFoto() async {
+    final selecionado = await _anexoUploadService.selecionarFoto();
+    if (!mounted || selecionado == null) return;
+    setState(() {
+      _fotoSelecionada = selecionado;
+      _deveRemoverFoto = false;
+    });
+  }
+
+  Future<void> _selecionarArquivo() async {
+    final selecionado = await _anexoUploadService.selecionarArquivo();
+    if (!mounted || selecionado == null) return;
+    setState(() {
+      _arquivoSelecionado = selecionado;
+      _deveRemoverArquivo = false;
+    });
+  }
+
+  void _removerFoto() {
+    setState(() {
+      _fotoSelecionada = null;
+      _fotoUrlAtual = null;
+      _fotoNomeAtual = null;
+      _deveRemoverFoto = true;
+    });
+  }
+
+  void _removerArquivo() {
+    setState(() {
+      _arquivoSelecionado = null;
+      _arquivoUrlAtual = null;
+      _arquivoNomeAtual = null;
+      _deveRemoverArquivo = true;
+    });
+  }
+
+  Future<void> _salvar() async {
+    if (_salvando) return;
     if (!_formKey.currentState!.validate()) return;
 
-    final provider = Provider.of<NotaProvider>(context, listen: false);
-    final hasDate =
-        _tipo == TipoLembrete.lembrete || _tipo == TipoLembrete.tarefa;
+    setState(() => _salvando = true);
+    try {
+      final provider = Provider.of<NotaProvider>(context, listen: false);
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      final hasDate =
+          _tipo == TipoLembrete.lembrete || _tipo == TipoLembrete.tarefa;
+      final fiscalId = auth.user?.id ?? '';
+      final notaId = _isEdicao ? widget.nota!.id : const Uuid().v4();
 
-    if (_isEdicao) {
-      final notaAtualizada = widget.nota!.copyWith(
-        titulo: _tituloController.text.trim(),
-        conteudo: _conteudoController.text.trim(),
-        tipo: _tipo,
-        importante: _importante,
-        lembreteAtivo: _tipo == TipoLembrete.lembrete ? _lembreteAtivo : true,
-        dataLembrete: hasDate ? _dataLembrete : null,
-        updatedAt: DateTime.now(),
-      );
-      provider.atualizarNota(notaAtualizada);
-      if (!mounted) return;
-      AppNotif.show(
-        context,
-        titulo: 'Nota Atualizada',
-        mensagem: 'Nota atualizada!',
-        tipo: 'saida',
-        cor: AppColors.success,
-      );
-    } else {
-      provider.adicionarNota(
-        _tituloController.text.trim(),
-        _conteudoController.text.trim(),
-        _tipo,
-        dataLembrete: hasDate ? _dataLembrete : null,
-        importante: _importante,
-        lembreteAtivo: _tipo == TipoLembrete.lembrete ? _lembreteAtivo : true,
-      );
-      if (!mounted) return;
-      final eventoProvider = Provider.of<EventoTurnoProvider>(context, listen: false);
-      if (eventoProvider.turnoAtivo) {
-        final fiscalId = Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
-        eventoProvider.registrar(
+      String? fotoUrl = _fotoUrlAtual;
+      String? fotoNome = _fotoNomeAtual;
+      String? arquivoUrl = _arquivoUrlAtual;
+      String? arquivoNome = _arquivoNomeAtual;
+
+      if (_deveRemoverFoto) {
+        fotoUrl = null;
+        fotoNome = null;
+      }
+      if (_deveRemoverArquivo) {
+        arquivoUrl = null;
+        arquivoNome = null;
+      }
+
+      if ((_fotoSelecionada != null || _arquivoSelecionado != null) &&
+          fiscalId.isEmpty) {
+        throw Exception('Usuário não autenticado para upload de anexo');
+      }
+
+      if (_fotoSelecionada != null) {
+        fotoUrl = await _anexoUploadService.upload(
+          anexo: _fotoSelecionada!,
           fiscalId: fiscalId,
-          tipo: TipoEvento.anotacaoCriada,
-          detalhe: '${_tipo.nome}: ${_tituloController.text.trim()}',
+          modulo: 'notas',
+          entidadeId: notaId,
+        );
+        fotoNome = _fotoSelecionada!.nomeArquivo;
+      }
+
+      if (_arquivoSelecionado != null) {
+        arquivoUrl = await _anexoUploadService.upload(
+          anexo: _arquivoSelecionado!,
+          fiscalId: fiscalId,
+          modulo: 'notas',
+          entidadeId: notaId,
+        );
+        arquivoNome = _arquivoSelecionado!.nomeArquivo;
+      }
+
+      if (_isEdicao) {
+        final notaAtualizada = widget.nota!.copyWith(
+          titulo: _tituloController.text.trim(),
+          conteudo: _conteudoController.text.trim(),
+          tipo: _tipo,
+          importante: _importante,
+          lembreteAtivo: _tipo == TipoLembrete.lembrete ? _lembreteAtivo : true,
+          dataLembrete: hasDate ? _dataLembrete : null,
+          fotoUrl: fotoUrl,
+          fotoNome: fotoNome,
+          arquivoUrl: arquivoUrl,
+          arquivoNome: arquivoNome,
+          updatedAt: DateTime.now(),
+        );
+        provider.atualizarNota(notaAtualizada);
+        if (!mounted) return;
+        AppNotif.show(
+          context,
+          titulo: 'Nota Atualizada',
+          mensagem: 'Nota atualizada!',
+          tipo: 'saida',
+          cor: AppColors.success,
+        );
+      } else {
+        provider.adicionarNota(
+          _tituloController.text.trim(),
+          _conteudoController.text.trim(),
+          _tipo,
+          id: notaId,
+          dataLembrete: hasDate ? _dataLembrete : null,
+          importante: _importante,
+          lembreteAtivo: _tipo == TipoLembrete.lembrete ? _lembreteAtivo : true,
+          fotoUrl: fotoUrl,
+          fotoNome: fotoNome,
+          arquivoUrl: arquivoUrl,
+          arquivoNome: arquivoNome,
+        );
+        if (!mounted) return;
+        final eventoProvider =
+            Provider.of<EventoTurnoProvider>(context, listen: false);
+        if (eventoProvider.turnoAtivo) {
+          final fiscalEvento =
+              Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+          eventoProvider.registrar(
+            fiscalId: fiscalEvento,
+            tipo: TipoEvento.anotacaoCriada,
+            detalhe: '${_tipo.nome}: ${_tituloController.text.trim()}',
+          );
+        }
+        AppNotif.show(
+          context,
+          titulo: 'Nota Criada',
+          mensagem: '${_tipo.nome} criada!',
+          tipo: 'saida',
+          cor: AppColors.success,
         );
       }
+
+      Navigator.of(context).pop(true);
+    } catch (e) {
+      if (!mounted) return;
       AppNotif.show(
         context,
-        titulo: 'Nota Criada',
-        mensagem: '${_tipo.nome} criada!',
-        tipo: 'saida',
-        cor: AppColors.success,
+        titulo: 'Erro ao salvar',
+        mensagem: 'Não foi possível salvar com anexos: $e',
+        tipo: 'alerta',
+        cor: AppColors.danger,
       );
+    } finally {
+      if (mounted) setState(() => _salvando = false);
     }
-
-    Navigator.of(context).pop(true);
   }
 
   String _formatDataLembrete(DateTime dt) {
@@ -228,12 +349,10 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                               Text(
                                 tipo.nome,
                                 style: AppTextStyles.caption.copyWith(
-                                  color: sel
-                                      ? tipo.cor
-                                      : AppColors.textSecondary,
-                                  fontWeight: sel
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
+                                  color:
+                                      sel ? tipo.cor : AppColors.textSecondary,
+                                  fontWeight:
+                                      sel ? FontWeight.bold : FontWeight.normal,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -293,12 +412,78 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
               ),
 
               // ── Data / Prazo (Lembrete e Tarefa) ────────────────────────
+
+              const SizedBox(height: Dimensions.spacingMD),
+              const Text('Anexos (opcional)', style: AppTextStyles.h4),
+              const SizedBox(height: Dimensions.spacingSM),
+              Card(
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.photo_camera_outlined),
+                      title: const Text('Foto'),
+                      subtitle: Text(
+                        _fotoSelecionada?.nomeArquivo ??
+                            _fotoNomeAtual ??
+                            'Nenhuma foto selecionada',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (_fotoSelecionada != null || _fotoUrlAtual != null)
+                            IconButton(
+                              onPressed: _salvando ? null : _removerFoto,
+                              icon: const Icon(Icons.delete_outline),
+                              tooltip: 'Remover foto',
+                            ),
+                          IconButton(
+                            onPressed: _salvando ? null : _selecionarFoto,
+                            icon: const Icon(Icons.add_a_photo_outlined),
+                            tooltip: 'Selecionar foto',
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.attach_file),
+                      title: const Text('Arquivo'),
+                      subtitle: Text(
+                        _arquivoSelecionado?.nomeArquivo ??
+                            _arquivoNomeAtual ??
+                            'Nenhum arquivo selecionado',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (_arquivoSelecionado != null ||
+                              _arquivoUrlAtual != null)
+                            IconButton(
+                              onPressed: _salvando ? null : _removerArquivo,
+                              icon: const Icon(Icons.delete_outline),
+                              tooltip: 'Remover arquivo',
+                            ),
+                          IconButton(
+                            onPressed: _salvando ? null : _selecionarArquivo,
+                            icon: const Icon(Icons.upload_file_outlined),
+                            tooltip: 'Selecionar arquivo',
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
               if (showDate) ...[
                 const SizedBox(height: Dimensions.spacingMD),
                 Card(
                   child: ListTile(
-                    leading:
-                        const Icon(Icons.alarm, color: AppColors.primary),
+                    leading: const Icon(Icons.alarm, color: AppColors.primary),
                     title: Text(
                       _tipo == TipoLembrete.tarefa
                           ? 'Prazo (opcional)'
@@ -337,8 +522,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
               if (_tipo == TipoLembrete.lembrete) ...[
                 SwitchListTile(
                   title: const Text('Notificação ativa'),
-                  subtitle:
-                      const Text('Desative se não quiser ser notificado'),
+                  subtitle: const Text('Desative se não quiser ser notificado'),
                   value: _lembreteAtivo,
                   onChanged: (v) => setState(() => _lembreteAtivo = v),
                   activeThumbColor: AppColors.primary,
@@ -354,10 +538,9 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                   padding: const EdgeInsets.all(Dimensions.paddingSM),
                   decoration: BoxDecoration(
                     color: Colors.orange.withValues(alpha: 0.1),
-                    borderRadius:
-                        BorderRadius.circular(Dimensions.radiusMD),
-                    border: Border.all(
-                        color: Colors.orange.withValues(alpha: 0.5)),
+                    borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+                    border:
+                        Border.all(color: Colors.orange.withValues(alpha: 0.5)),
                   ),
                   child: Row(
                     children: [
@@ -381,7 +564,8 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed:
+                          _salvando ? null : () => Navigator.of(context).pop(),
                       style: OutlinedButton.styleFrom(
                         minimumSize:
                             const Size.fromHeight(Dimensions.buttonHeight),
@@ -392,14 +576,23 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                   const SizedBox(width: Dimensions.spacingSM),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: _salvar,
+                      onPressed: _salvando ? null : _salvar,
                       style: ElevatedButton.styleFrom(
                         minimumSize:
                             const Size.fromHeight(Dimensions.buttonHeight),
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                       ),
-                      child: Text(_isEdicao ? 'Salvar' : 'Criar'),
+                      child: _salvando
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(_isEdicao ? 'Salvar' : 'Criar'),
                     ),
                   ),
                 ],

@@ -9,6 +9,10 @@ class Nota {
   final bool importante;
   final bool lembreteAtivo;
   final DateTime? dataLembrete;
+  final String? fotoUrl;
+  final String? fotoNome;
+  final String? arquivoUrl;
+  final String? arquivoNome;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -21,6 +25,10 @@ class Nota {
     this.importante = false,
     this.lembreteAtivo = true,
     this.dataLembrete,
+    this.fotoUrl,
+    this.fotoNome,
+    this.arquivoUrl,
+    this.arquivoNome,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -40,6 +48,10 @@ class Nota {
     bool? importante,
     bool? lembreteAtivo,
     DateTime? dataLembrete,
+    String? fotoUrl,
+    String? fotoNome,
+    String? arquivoUrl,
+    String? arquivoNome,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -52,6 +64,10 @@ class Nota {
       importante: importante ?? this.importante,
       lembreteAtivo: lembreteAtivo ?? this.lembreteAtivo,
       dataLembrete: dataLembrete ?? this.dataLembrete,
+      fotoUrl: fotoUrl ?? this.fotoUrl,
+      fotoNome: fotoNome ?? this.fotoNome,
+      arquivoUrl: arquivoUrl ?? this.arquivoUrl,
+      arquivoNome: arquivoNome ?? this.arquivoNome,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
