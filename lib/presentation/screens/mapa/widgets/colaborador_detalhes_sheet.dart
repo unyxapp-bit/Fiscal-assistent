@@ -84,8 +84,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
   void initState() {
     super.initState();
     if (widget.colaborador != null) {
-      WidgetsBinding.instance
-          .addPostFrameCallback((_) => _carregarRegistro());
+      WidgetsBinding.instance.addPostFrameCallback((_) => _carregarRegistro());
     }
     // Atualiza countdown a cada 30 s quando há horário de intervalo na escala
     if (widget.turno?.intervalo != null) {
@@ -244,8 +243,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
               Text(widget.caixa.nomeExibicao, style: AppTextStyles.h2),
               const SizedBox(width: 8),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: widget.caixa.tipo.cor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
@@ -259,8 +257,8 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
               if (widget.caixa.localizacao != null) ...[
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
                     color: AppColors.backgroundSection,
                     borderRadius: BorderRadius.circular(8),
@@ -313,8 +311,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(widget.colaborador!.nome,
-                          style: AppTextStyles.h4),
+                      Text(widget.colaborador!.nome, style: AppTextStyles.h4),
                       Text(
                         widget.colaborador!.departamento.nome,
                         style: AppTextStyles.caption
@@ -340,8 +337,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.coffee,
-                        color: Colors.orange.shade700, size: 18),
+                    Icon(Icons.coffee, color: Colors.orange.shade700, size: 18),
                     const SizedBox(width: 8),
                     Text(
                       'Em pausa de café — ${widget.pausa.minutosDecorridos}min decorridos'
@@ -364,8 +360,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                     SizedBox(
                       width: 14,
                       height: 14,
-                      child:
-                          CircularProgressIndicator(strokeWidth: 2),
+                      child: CircularProgressIndicator(strokeWidth: 2),
                     ),
                     SizedBox(width: 8),
                     Text('Carregando ponto...'),
@@ -423,8 +418,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
 
             if (widget.turno != null) ...[
               InkWell(
-                onTap: () =>
-                    setState(() => _mostrarEscala = !_mostrarEscala),
+                onTap: () => setState(() => _mostrarEscala = !_mostrarEscala),
                 borderRadius: BorderRadius.circular(8),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 6),
@@ -433,7 +427,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                       const Icon(Icons.schedule,
                           size: 16, color: AppColors.textSecondary),
                       const SizedBox(width: 6),
-                      Text(
+                      const Text(
                         'Escala de hoje',
                         style: AppTextStyles.label,
                       ),
@@ -522,7 +516,9 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                   ),
                   // ── Botão "Intervalo já feito" ─────────────────────────
                   Builder(builder: (context) {
-                    if (widget.turno?.intervalo == null) return const SizedBox.shrink();
+                    if (widget.turno?.intervalo == null) {
+                      return const SizedBox.shrink();
+                    }
                     final parts = widget.turno!.intervalo!.split(':');
                     if (parts.length < 2) return const SizedBox.shrink();
                     final agora = DateTime.now();
@@ -532,7 +528,8 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                     final minPassado = agoraMin - intervaloMin;
                     if (minPassado <= 0) return const SizedBox.shrink();
                     final cafeProvider = Provider.of<CafeProvider>(
-                        widget.providerContext, listen: false);
+                        widget.providerContext,
+                        listen: false);
                     if (cafeProvider.colaboradorJaFezIntervaloHoje(
                         widget.colaborador!.id)) {
                       return const SizedBox.shrink();
@@ -551,31 +548,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                                         widget.colaborador!.id);
                                 Navigator.of(context).pop();
                               }
-                            : () async {
-                                final eventoProvider =
-                                    Provider.of<EventoTurnoProvider>(
-                                        widget.providerContext,
-                                        listen: false);
-                                final fiscalId =
-                                    Provider.of<AuthProvider>(
-                                            widget.providerContext,
-                                            listen: false)
-                                        .user
-                                        ?.id ??
-                                    '';
-                                await widget.alocacaoProvider
-                                    .marcarIntervaloFeito(
-                                        widget.colaborador!.id);
-                                eventoProvider.registrar(
-                                  fiscalId: fiscalId,
-                                  tipo: TipoEvento.intervaloMarcadoFeito,
-                                  colaboradorNome: widget.colaborador!.nome,
-                                  caixaNome: widget.caixa.nomeExibicao,
-                                );
-                                if (context.mounted) {
-                                  Navigator.of(context).pop();
-                                }
-                              },
+                            : _marcarIntervaloJaFeito,
                         icon: Icon(
                           jaMarcado
                               ? Icons.check_circle
@@ -600,7 +573,8 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                   // ── Botão "Aguardando liberação para intervalo" ────────
                   Builder(builder: (context) {
                     final cafeProvider = Provider.of<CafeProvider>(
-                        widget.providerContext, listen: false);
+                        widget.providerContext,
+                        listen: false);
                     // Não mostrar se já está em pausa ou intervalo marcado
                     if (cafeProvider
                         .colaboradorEmPausa(widget.colaborador!.id)) {
@@ -635,8 +609,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                                     Provider.of<EventoTurnoProvider>(
                                         widget.providerContext,
                                         listen: false);
-                                final fiscalId =
-                                    Provider.of<AuthProvider>(
+                                final fiscalId = Provider.of<AuthProvider>(
                                             widget.providerContext,
                                             listen: false)
                                         .user
@@ -644,10 +617,8 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                                     '';
                                 eventoProvider.registrar(
                                   fiscalId: fiscalId,
-                                  tipo: TipoEvento
-                                      .intervaloAguardandoLiberacao,
-                                  colaboradorNome:
-                                      widget.colaborador!.nome,
+                                  tipo: TipoEvento.intervaloAguardandoLiberacao,
+                                  colaboradorNome: widget.colaborador!.nome,
                                   caixaNome: widget.caixa.nomeExibicao,
                                   detalhe: widget.turno?.intervalo != null
                                       ? 'previsto ${widget.turno!.intervalo}'
@@ -691,11 +662,10 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                     providerCtx,
                     listen: false);
                 final fiscalId =
-                    Provider.of<AuthProvider>(providerCtx,
-                            listen: false)
-                        .user
-                        ?.id ??
-                    '';
+                    Provider.of<AuthProvider>(providerCtx, listen: false)
+                            .user
+                            ?.id ??
+                        '';
                 final navigator = Navigator.of(context);
 
                 navigator.pop();
@@ -733,18 +703,17 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                       : 'Caixa disponível',
               style: AppTextStyles.body,
             ),
-
             if (widget.caixa.ativo && !widget.caixa.emManutencao) ...[
               const SizedBox(height: 16),
               ElevatedButton.icon(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  final fiscalId =
-                      Provider.of<AuthProvider>(widget.providerContext,
+                  final fiscalId = Provider.of<AuthProvider>(
+                              widget.providerContext,
                               listen: false)
                           .user
                           ?.id ??
-                          '';
+                      '';
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => AlocacaoScreen(fiscalId: fiscalId),
@@ -805,9 +774,8 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
   // ── Trocar Colaborador ─────────────────────────────────────────────────────
 
   void _trocarColaborador() {
-    final colaboradorProvider = Provider.of<ColaboradorProvider>(
-        widget.providerContext,
-        listen: false);
+    final colaboradorProvider =
+        Provider.of<ColaboradorProvider>(widget.providerContext, listen: false);
     final cafeProvider =
         Provider.of<CafeProvider>(widget.providerContext, listen: false);
     final escalaProvider =
@@ -843,7 +811,8 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (sheetCtx) => DraggableScrollableSheet(
         expand: false,
@@ -908,8 +877,8 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                           title: Text(c.nome, style: AppTextStyles.body),
                           subtitle: Text(c.departamento.nome,
                               style: AppTextStyles.caption),
-                          trailing: const Icon(Icons.arrow_forward_ios,
-                              size: 14),
+                          trailing:
+                              const Icon(Icons.arrow_forward_ios, size: 14),
                           onTap: () => _confirmarTroca(sheetCtx, c),
                         );
                       },
@@ -921,13 +890,11 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     );
   }
 
-  Future<void> _confirmarTroca(
-      BuildContext sheetCtx, Colaborador novo) async {
+  Future<void> _confirmarTroca(BuildContext sheetCtx, Colaborador novo) async {
     Navigator.pop(sheetCtx);
 
     final providerCtx = widget.providerContext;
-    final authProvider =
-        Provider.of<AuthProvider>(providerCtx, listen: false);
+    final authProvider = Provider.of<AuthProvider>(providerCtx, listen: false);
     final eventoProvider =
         Provider.of<EventoTurnoProvider>(providerCtx, listen: false);
     final navigator = Navigator.of(context);
@@ -945,10 +912,9 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style:
-                ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-            child: const Text('Confirmar',
-                style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+            child:
+                const Text('Confirmar', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -958,8 +924,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
 
     final fiscalId = authProvider.user?.id ?? '';
 
-    await widget.alocacaoProvider
-        .liberarAlocacao(widget.alocacao!.id, 'troca');
+    await widget.alocacaoProvider.liberarAlocacao(widget.alocacao!.id, 'troca');
     await widget.alocacaoProvider.alocarColaborador(
       colaboradorId: novo.id,
       caixaId: widget.caixa.id,
@@ -998,15 +963,11 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
 
   Future<void> _enviarParaCafe() async {
     final providerCtx = widget.providerContext;
-    final cafeProvider =
-        Provider.of<CafeProvider>(providerCtx, listen: false);
+    final cafeProvider = Provider.of<CafeProvider>(providerCtx, listen: false);
     final eventoProvider =
         Provider.of<EventoTurnoProvider>(providerCtx, listen: false);
     final fiscalId =
-        Provider.of<AuthProvider>(providerCtx, listen: false)
-                .user
-                ?.id ??
-            '';
+        Provider.of<AuthProvider>(providerCtx, listen: false).user?.id ?? '';
     final navigator = Navigator.of(context);
 
     final confirm = await showDialog<bool>(
@@ -1024,8 +985,8 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF8D6E63)),
-            child: const Text('Confirmar',
-                style: TextStyle(color: Colors.white)),
+            child:
+                const Text('Confirmar', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -1033,8 +994,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
 
     if (confirm != true || !mounted) return;
 
-    await widget.alocacaoProvider
-        .liberarAlocacao(widget.alocacao!.id, 'cafe');
+    await widget.alocacaoProvider.liberarAlocacao(widget.alocacao!.id, 'cafe');
 
     cafeProvider.iniciarPausa(
       colaboradorId: widget.colaborador!.id,
@@ -1056,7 +1016,8 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
       AppNotif.show(
         providerCtx,
         titulo: 'Café Iniciado',
-        mensagem: '${widget.colaborador!.nome} — pausa de café iniciada (10 min)',
+        mensagem:
+            '${widget.colaborador!.nome} — pausa de café iniciada (10 min)',
         tipo: 'cafe',
         cor: const Color(0xFF8D6E63),
       );
@@ -1094,15 +1055,12 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     final eventoProviderIntervalo =
         Provider.of<EventoTurnoProvider>(providerCtx, listen: false);
     final fiscalIdIntervalo =
-        Provider.of<AuthProvider>(providerCtx, listen: false)
-                .user
-                ?.id ??
-            '';
+        Provider.of<AuthProvider>(providerCtx, listen: false).user?.id ?? '';
 
-    final jaFezIntervalo = widget.alocacaoProvider
-            .isIntervaloMarcado(widget.colaborador!.id) ||
-        cafeProviderIntervalo.colaboradorJaFezIntervaloHoje(
-            widget.colaborador!.id);
+    final jaFezIntervalo =
+        widget.alocacaoProvider.isIntervaloMarcado(widget.colaborador!.id) ||
+            cafeProviderIntervalo
+                .colaboradorJaFezIntervaloHoje(widget.colaborador!.id);
     if (jaFezIntervalo) {
       AppNotif.show(
         providerCtx,
@@ -1128,10 +1086,9 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style:
-                ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-            child: const Text('Confirmar',
-                style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+            child:
+                const Text('Confirmar', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -1157,8 +1114,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
       detalhe: '$duracaoMinutos min',
     );
 
-    final retornoEm =
-        DateTime.now().add(Duration(minutes: duracaoMinutos));
+    final retornoEm = DateTime.now().add(Duration(minutes: duracaoMinutos));
     NotificationService.instance.scheduleAlert(
       id: (widget.colaborador!.id.hashCode.abs() % 100000) + 1,
       title: 'Intervalo encerrado 🍽️',
@@ -1172,11 +1128,156 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
       AppNotif.show(
         providerCtx,
         titulo: 'Intervalo Iniciado',
-        mensagem: '${widget.colaborador!.nome} — intervalo de $duracaoMinutos min. Notificação agendada.',
+        mensagem:
+            '${widget.colaborador!.nome} — intervalo de $duracaoMinutos min. Notificação agendada.',
         tipo: 'intervalo',
         cor: Colors.orange,
       );
     }
+  }
+
+  Future<bool?> _perguntarSeFezTempoCompleto() {
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Intervalo já realizado?'),
+        content: const Text(
+          'Esse colaborador fez o tempo completo do intervalo?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Não'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Sim'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<String?> _perguntarMotivoIncompleto() async {
+    final controller = TextEditingController();
+    String? motivo;
+
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (_, setStateDialog) {
+          final podeSalvar = controller.text.trim().isNotEmpty;
+          return AlertDialog(
+            title: const Text('Motivo do intervalo incompleto'),
+            content: TextField(
+              controller: controller,
+              maxLines: 4,
+              autofocus: true,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(
+                hintText: 'Descreva o motivo...',
+              ),
+              onChanged: (_) => setStateDialog(() {}),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: !podeSalvar
+                    ? null
+                    : () {
+                        motivo = controller.text.trim();
+                        Navigator.pop(ctx);
+                      },
+                child: const Text('Salvar'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    controller.dispose();
+    return motivo;
+  }
+
+  Future<void> _marcarIntervaloJaFeito() async {
+    if (widget.colaborador == null) return;
+
+    final fezCompleto = await _perguntarSeFezTempoCompleto();
+    if (!mounted || fezCompleto == null) return;
+
+    String? motivoIncompleto;
+    if (!fezCompleto) {
+      motivoIncompleto = await _perguntarMotivoIncompleto();
+      if (!mounted || motivoIncompleto == null) return;
+    }
+
+    final providerCtx = widget.providerContext;
+    final ocorrenciaProvider =
+        Provider.of<OcorrenciaProvider>(providerCtx, listen: false);
+    final eventoProvider =
+        Provider.of<EventoTurnoProvider>(providerCtx, listen: false);
+    final fiscalId =
+        Provider.of<AuthProvider>(providerCtx, listen: false).user?.id ?? '';
+
+    if (!fezCompleto) {
+      ocorrenciaProvider.registrar(
+        tipo: 'Intervalo incompleto',
+        caixaId: widget.caixa.id,
+        caixaNome: widget.caixa.nomeExibicao,
+        colaboradorId: widget.colaborador!.id,
+        colaboradorNome: widget.colaborador!.nome,
+        descricao: motivoIncompleto!,
+        gravidade: GravidadeOcorrencia.media,
+      );
+      if (eventoProvider.turnoAtivo && fiscalId.isNotEmpty) {
+        eventoProvider.registrar(
+          fiscalId: fiscalId,
+          tipo: TipoEvento.ocorrenciaRegistrada,
+          colaboradorNome: widget.colaborador!.nome,
+          caixaNome: widget.caixa.nomeExibicao,
+          detalhe: 'Intervalo incompleto - Média',
+        );
+      }
+    }
+
+    await widget.alocacaoProvider.marcarIntervaloFeito(
+      widget.colaborador!.id,
+    );
+    widget.alocacaoProvider.desmarcarAguardandoIntervalo(
+      widget.colaborador!.id,
+    );
+
+    if (fiscalId.isNotEmpty) {
+      eventoProvider.registrar(
+        fiscalId: fiscalId,
+        tipo: TipoEvento.intervaloMarcadoFeito,
+        colaboradorNome: widget.colaborador!.nome,
+        caixaNome: widget.caixa.nomeExibicao,
+        detalhe: fezCompleto
+            ? 'Marcado manualmente: tempo completo'
+            : 'Marcado manualmente: tempo incompleto',
+      );
+    }
+
+    if (!mounted) return;
+    AppNotif.show(
+      providerCtx,
+      titulo: 'Intervalo atualizado',
+      mensagem: fezCompleto
+          ? '${widget.colaborador!.nome} foi marcado(a) com intervalo feito.'
+          : 'Ocorrência registrada e intervalo marcado como feito.',
+      tipo: 'saida',
+      cor: AppColors.success,
+    );
+    Navigator.of(context).pop();
   }
 
   void _registrarOcorrencia() {
@@ -1436,8 +1537,8 @@ class _SobreCaixaSectionState extends State<_SobreCaixaSection> {
           // Botão "Ver mais / menos"
           if (widget.ocorrencias.length > 3)
             GestureDetector(
-              onTap: () =>
-                  setState(() => _expandidoOcorrencias = !_expandidoOcorrencias),
+              onTap: () => setState(
+                  () => _expandidoOcorrencias = !_expandidoOcorrencias),
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Row(
@@ -1557,9 +1658,8 @@ class _OcorrenciaRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: 9,
                 fontWeight: FontWeight.bold,
-                color: ocorrencia.resolvida
-                    ? AppColors.success
-                    : AppColors.danger,
+                color:
+                    ocorrencia.resolvida ? AppColors.success : AppColors.danger,
               ),
             ),
           ),
@@ -1640,8 +1740,7 @@ class InfoRow extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           '$label: ',
-          style:
-              AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
         ),
         Expanded(
           child: Text(value, style: AppTextStyles.caption),
@@ -1674,8 +1773,7 @@ class HorarioGrid extends StatelessWidget {
             icon: Icons.free_breakfast,
             label: 'Intervalo',
             value: turno.intervalo),
-        HorarioChip(
-            icon: Icons.replay, label: 'Retorno', value: turno.retorno),
+        HorarioChip(icon: Icons.replay, label: 'Retorno', value: turno.retorno),
         HorarioChip(icon: Icons.logout, label: 'Saída', value: turno.saida),
       ],
     );

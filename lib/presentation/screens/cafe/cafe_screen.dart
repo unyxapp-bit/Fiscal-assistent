@@ -10,10 +10,14 @@ import '../../../domain/entities/registro_ponto.dart';
 import '../../../data/datasources/remote/supabase_client.dart';
 import '../../../data/models/registro_ponto_model.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/alocacao_provider.dart';
 import '../../providers/cafe_provider.dart';
+import '../../providers/caixa_provider.dart';
 import '../../providers/colaborador_provider.dart';
 import '../../providers/escala_provider.dart';
 import '../../providers/evento_turno_provider.dart';
+import '../../providers/ocorrencia_provider.dart';
+import '../../../core/utils/app_notif.dart';
 
 class CafeScreen extends StatefulWidget {
   const CafeScreen({super.key});
@@ -207,8 +211,7 @@ class _CafeScreenState extends State<CafeScreen>
   }
 
   void _mostrarSeletorPausa(BuildContext context, CafeProvider cafeProvider) {
-    final escalaProvider =
-        Provider.of<EscalaProvider>(context, listen: false);
+    final escalaProvider = Provider.of<EscalaProvider>(context, listen: false);
     final turnosDisponiveis = escalaProvider.turnosHoje
         .where((t) =>
             !t.folga &&
@@ -216,14 +219,13 @@ class _CafeScreenState extends State<CafeScreen>
             (t.intervalo?.isNotEmpty == true) &&
             (t.retorno?.isNotEmpty == true))
         .toList();
-    final turnosById = {
-      for (final t in turnosDisponiveis) t.colaboradorId: t
-    };
+    final turnosById = {for (final t in turnosDisponiveis) t.colaboradorId: t};
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (ctx) => _SeletorPausaSheet(
         cafeProvider: cafeProvider,
@@ -251,6 +253,7 @@ class _TabDisponiveis extends StatelessWidget {
   Widget build(BuildContext context) {
     final colaboradorProvider =
         Provider.of<ColaboradorProvider>(context, listen: false);
+    final alocacaoProvider = Provider.of<AlocacaoProvider>(context);
 
     // IDs em pausa ativa
     final emPausaAtiva =
@@ -261,6 +264,11 @@ class _TabDisponiveis extends StatelessWidget {
         .where((p) => p.duracaoMinutos > 15)
         .map((p) => p.colaboradorId)
         .toSet();
+    final intervalosMarcadosManualmente = alocacaoProvider.alocacoes
+        .where((a) => a.liberadoEm == null && a.intervaloMarcadoFeito)
+        .map((a) => a.colaboradorId)
+        .toSet();
+    jaFizeramIntervalo.addAll(intervalosMarcadosManualmente);
     final jaFizeramCafe = provider.pausasFinalizadas
         .where((p) => p.duracaoMinutos <= 15)
         .map((p) => p.colaboradorId)
@@ -298,13 +306,12 @@ class _TabDisponiveis extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.check_circle_outline,
-                  size: 64,
-                  color: AppColors.success.withValues(alpha: 0.7)),
+                  size: 64, color: AppColors.success.withValues(alpha: 0.7)),
               const SizedBox(height: 16),
               Text(
                 'Nenhum colaborador disponível para pausa agora.',
-                style: AppTextStyles.body
-                    .copyWith(color: AppColors.textSecondary),
+                style:
+                    AppTextStyles.body.copyWith(color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
@@ -358,8 +365,7 @@ class _TabDisponiveis extends StatelessWidget {
                     ? 'Disponível para café (10 min)'
                     : 'Intervalo previsto: $intervaloLabel',
                 style: AppTextStyles.caption.copyWith(
-                  color:
-                      soDez ? AppColors.statusCafe : AppColors.textSecondary,
+                  color: soDez ? AppColors.statusCafe : AppColors.textSecondary,
                 ),
               ),
               trailing: Row(
@@ -417,8 +423,8 @@ class _TabDisponiveis extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-            top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => _SeletorRapidoSheet(
         colaborador: colaborador,
@@ -433,8 +439,8 @@ class _TabDisponiveis extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-            top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => _ColaboradorIntervaloSheet(
         colaborador: colaborador,
@@ -466,8 +472,8 @@ class _TabEmIntervalo extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 'Nenhum colaborador em intervalo no momento',
-                style: AppTextStyles.body
-                    .copyWith(color: AppColors.textSecondary),
+                style:
+                    AppTextStyles.body.copyWith(color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -480,10 +486,14 @@ class _TabEmIntervalo extends StatelessWidget {
       builder: (context, constraints) {
         final eventoProvider =
             Provider.of<EventoTurnoProvider>(context, listen: false);
+        final alocacaoProvider =
+            Provider.of<AlocacaoProvider>(context, listen: false);
+        final caixaProvider =
+            Provider.of<CaixaProvider>(context, listen: false);
         final fiscalId =
             Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
 
-        void finalizarComEvento(PausaCafe pausa) {
+        Future<void> finalizarComEvento(PausaCafe pausa) async {
           final tipo = pausa.duracaoMinutos <= 15
               ? TipoEvento.cafeEncerrado
               : TipoEvento.intervaloEncerrado;
@@ -494,6 +504,40 @@ class _TabEmIntervalo extends StatelessWidget {
             detalhe: '${pausa.duracaoMinutos} min',
           );
           provider.finalizarPausa(pausa.colaboradorId);
+
+          final isCafe = pausa.duracaoMinutos <= 15;
+          if (!isCafe) return;
+          if (pausa.caixaId == null || pausa.caixaId!.isEmpty) return;
+          if (fiscalId.isEmpty) return;
+
+          final caixa = caixaProvider.caixas
+              .where((c) => c.id == pausa.caixaId)
+              .firstOrNull;
+          final erro = await alocacaoProvider.retornarDeCafe(
+            colaboradorId: pausa.colaboradorId,
+            caixaId: pausa.caixaId!,
+            fiscalId: fiscalId,
+          );
+
+          if (!context.mounted) return;
+          if (erro == null) {
+            AppNotif.show(
+              context,
+              titulo: 'Retorno do café',
+              mensagem:
+                  '${pausa.colaboradorNome} voltou ao ${caixa?.nomeExibicao ?? 'caixa'}',
+              tipo: 'saida',
+              cor: AppColors.success,
+            );
+          } else {
+            AppNotif.show(
+              context,
+              titulo: 'Retorno do café',
+              mensagem: erro,
+              tipo: 'alerta',
+              cor: AppColors.warning,
+            );
+          }
         }
 
         final isTablet = constraints.maxWidth >= Dimensions.breakpointTablet;
@@ -557,8 +601,8 @@ class _TabHistorico extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 'Nenhuma pausa finalizada hoje',
-                style: AppTextStyles.body
-                    .copyWith(color: AppColors.textSecondary),
+                style:
+                    AppTextStyles.body.copyWith(color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -606,8 +650,8 @@ class _PausaAtivaCard extends StatelessWidget {
         : pausa.tempoDecorrido.inSeconds /
             Duration(minutes: pausa.duracaoMinutos).inSeconds;
 
-    final retornoPrevisto = pausa.iniciadoEm
-        .add(Duration(minutes: pausa.duracaoMinutos));
+    final retornoPrevisto =
+        pausa.iniciadoEm.add(Duration(minutes: pausa.duracaoMinutos));
 
     final restante = pausa.tempoRestante;
     final label = emAtraso
@@ -645,8 +689,8 @@ class _PausaAtivaCard extends StatelessWidget {
                         children: [
                           Text(
                             'Saiu às ${DateFormat("HH:mm").format(pausa.iniciadoEm)}',
-                            style: AppTextStyles.caption.copyWith(
-                                color: AppColors.textSecondary),
+                            style: AppTextStyles.caption
+                                .copyWith(color: AppColors.textSecondary),
                           ),
                           const SizedBox(width: 6),
                           Text('·',
@@ -670,8 +714,8 @@ class _PausaAtivaCard extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.success,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     textStyle: AppTextStyles.caption,
                   ),
                   child: const Text('Finalizar'),
@@ -730,16 +774,14 @@ class _PausaHistoricoCard extends StatelessWidget {
         title: Text(pausa.colaboradorNome, style: AppTextStyles.body),
         subtitle: Text(
           '${DateFormat("HH:mm").format(pausa.iniciadoEm)} → ${DateFormat("HH:mm").format(pausa.finalizadoEm!)} · ${duracao.inMinutes} min',
-          style:
-              AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (foiEmAtraso)
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: AppColors.danger.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
@@ -768,6 +810,7 @@ class _PausaHistoricoCard extends StatelessWidget {
 class _SeletorRapidoSheet extends StatelessWidget {
   final Colaborador colaborador;
   final CafeProvider cafeProvider;
+
   /// Quando true, só exibe a opção de 10 min (café pós-intervalo)
   final bool forcaDuracaoDez;
 
@@ -826,8 +869,8 @@ class _SeletorRapidoSheet extends StatelessWidget {
               ),
               child: Text(
                 'Já fez o intervalo — disponível somente para café (10 min)',
-                style: AppTextStyles.caption
-                    .copyWith(color: AppColors.statusCafe),
+                style:
+                    AppTextStyles.caption.copyWith(color: AppColors.statusCafe),
               ),
             ),
           ],
@@ -840,9 +883,8 @@ class _SeletorRapidoSheet extends StatelessWidget {
               final isCafe = d <= 15;
               return ElevatedButton.icon(
                 onPressed: () {
-                  final eventoProvider = Provider.of<EventoTurnoProvider>(
-                      context,
-                      listen: false);
+                  final eventoProvider =
+                      Provider.of<EventoTurnoProvider>(context, listen: false);
                   final fiscalId =
                       Provider.of<AuthProvider>(context, listen: false)
                               .user
@@ -926,8 +968,7 @@ class _ColaboradorIntervaloSheetState
       if (mounted) {
         setState(() {
           _ponto = (rows as List).isNotEmpty
-              ? RegistroPontoModel.fromJson(
-                  rows.first)
+              ? RegistroPontoModel.fromJson(rows.first)
               : null;
           _carregando = false;
         });
@@ -967,8 +1008,8 @@ class _ColaboradorIntervaloSheetState
           helpText: 'Horário que ${widget.colaborador.nome} saiu',
         );
         if (picked == null || !mounted) return;
-        iniciadoEm = DateTime(now.year, now.month, now.day,
-            picked.hour, picked.minute);
+        iniciadoEm =
+            DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
         // Mantém a duração agendada e desloca o retorno
         duracaoMinutos = duracaoAgendada;
       } else {
@@ -1004,8 +1045,164 @@ class _ColaboradorIntervaloSheetState
     if (mounted) Navigator.pop(context);
   }
 
+  Future<bool?> _perguntarSeFezTempoCompleto() {
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Intervalo já realizado?'),
+        content: const Text(
+          'Esse colaborador fez o tempo completo do intervalo?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Não'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Sim'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<String?> _perguntarMotivoIncompleto() async {
+    final controller = TextEditingController();
+    String? resultado;
+
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            final podeSalvar = controller.text.trim().isNotEmpty;
+            return AlertDialog(
+              title: const Text('Motivo do intervalo incompleto'),
+              content: TextField(
+                controller: controller,
+                maxLines: 4,
+                autofocus: true,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: const InputDecoration(
+                  hintText: 'Descreva o motivo...',
+                ),
+                onChanged: (_) => setStateDialog(() {}),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: !podeSalvar
+                      ? null
+                      : () {
+                          resultado = controller.text.trim();
+                          Navigator.pop(ctx);
+                        },
+                  child: const Text('Salvar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    controller.dispose();
+    return resultado;
+  }
+
+  Future<void> _marcarIntervaloJaFeito() async {
+    final fezCompleto = await _perguntarSeFezTempoCompleto();
+    if (!mounted || fezCompleto == null) return;
+
+    String? motivoIncompleto;
+    if (!fezCompleto) {
+      motivoIncompleto = await _perguntarMotivoIncompleto();
+      if (!mounted || motivoIncompleto == null) return;
+    }
+
+    final alocacaoProvider =
+        Provider.of<AlocacaoProvider>(context, listen: false);
+    final caixaProvider = Provider.of<CaixaProvider>(context, listen: false);
+    final ocorrenciaProvider =
+        Provider.of<OcorrenciaProvider>(context, listen: false);
+    final eventoProvider =
+        Provider.of<EventoTurnoProvider>(context, listen: false);
+    final fiscalId =
+        Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+
+    final alocacao = alocacaoProvider.getAlocacaoColaborador(
+      widget.colaborador.id,
+    );
+    final caixa = caixaProvider.caixas
+        .where((c) => c.id == alocacao?.caixaId)
+        .firstOrNull;
+
+    if (!fezCompleto) {
+      ocorrenciaProvider.registrar(
+        tipo: 'Intervalo incompleto',
+        caixaId: alocacao?.caixaId,
+        caixaNome: caixa?.nomeExibicao,
+        colaboradorId: widget.colaborador.id,
+        colaboradorNome: widget.colaborador.nome,
+        descricao: motivoIncompleto!,
+        gravidade: GravidadeOcorrencia.media,
+      );
+      if (eventoProvider.turnoAtivo && fiscalId.isNotEmpty) {
+        eventoProvider.registrar(
+          fiscalId: fiscalId,
+          tipo: TipoEvento.ocorrenciaRegistrada,
+          colaboradorNome: widget.colaborador.nome,
+          caixaNome: caixa?.nomeExibicao,
+          detalhe: 'Intervalo incompleto — Média',
+        );
+      }
+    }
+
+    await alocacaoProvider.marcarIntervaloFeito(widget.colaborador.id);
+    alocacaoProvider.desmarcarAguardandoIntervalo(widget.colaborador.id);
+
+    if (fiscalId.isNotEmpty) {
+      eventoProvider.registrar(
+        fiscalId: fiscalId,
+        tipo: TipoEvento.intervaloMarcadoFeito,
+        colaboradorNome: widget.colaborador.nome,
+        caixaNome: caixa?.nomeExibicao,
+        detalhe: fezCompleto
+            ? 'Marcado manualmente: tempo completo'
+            : 'Marcado manualmente: tempo incompleto',
+      );
+    }
+
+    if (!mounted) return;
+    AppNotif.show(
+      context,
+      titulo: 'Intervalo atualizado',
+      mensagem: fezCompleto
+          ? '${widget.colaborador.nome} foi marcado(a) com intervalo feito.'
+          : 'Ocorrência registrada e intervalo marcado como feito.',
+      tipo: 'saida',
+      cor: AppColors.success,
+    );
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final alocacaoProvider = Provider.of<AlocacaoProvider>(context);
+    final intervaloJaFeito =
+        alocacaoProvider.isIntervaloMarcado(widget.colaborador.id) ||
+            widget.cafeProvider.colaboradorJaFezIntervaloHoje(
+              widget.colaborador.id,
+            );
+
     return Padding(
       padding: EdgeInsets.only(
         top: 8,
@@ -1030,15 +1227,15 @@ class _ColaboradorIntervaloSheetState
           ),
           Text(
             'Intervalo',
-            style: AppTextStyles.caption
-                .copyWith(color: AppColors.textSecondary),
+            style:
+                AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 2),
           Text(widget.colaborador.nome, style: AppTextStyles.h3),
           Text(
             widget.colaborador.departamento.nome,
-            style: AppTextStyles.caption
-                .copyWith(color: AppColors.textSecondary),
+            style:
+                AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 20),
           if (_carregando)
@@ -1051,6 +1248,22 @@ class _ColaboradorIntervaloSheetState
           else ...[
             _buildPontoInfo(),
             const SizedBox(height: 24),
+            if (!intervaloJaFeito) ...[
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: _marcarIntervaloJaFeito,
+                  icon: const Icon(Icons.check_circle_outline),
+                  label: const Text('Já fez intervalo'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.success,
+                    side: const BorderSide(color: AppColors.success),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -1127,8 +1340,7 @@ class _ColaboradorIntervaloSheetState
           if (jaSaiu) ...[
             const SizedBox(height: 10),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: AppColors.warning.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
@@ -1178,8 +1390,7 @@ class _InfoRow extends StatelessWidget {
         const SizedBox(width: 8),
         Text(
           label,
-          style: AppTextStyles.caption
-              .copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
         ),
         const Spacer(),
         Text(
@@ -1297,12 +1508,10 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
                   selectedColor: AppColors.statusCafe,
                   labelStyle: TextStyle(
                     color: selecionado ? Colors.white : AppColors.textPrimary,
-                    fontWeight: selecionado
-                        ? FontWeight.bold
-                        : FontWeight.normal,
+                    fontWeight:
+                        selecionado ? FontWeight.bold : FontWeight.normal,
                   ),
-                  onSelected: (_) =>
-                      setState(() => _duracaoSelecionada = d),
+                  onSelected: (_) => setState(() => _duracaoSelecionada = d),
                 );
               }).toList(),
             ),
@@ -1333,8 +1542,7 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
                                     turno?.retorno?.isNotEmpty == true)
                                 ? '${turno!.intervalo} - ${turno.retorno}'
                                 : 'Intervalo não definido';
-                        final selecionado =
-                            _colaboradorSelecionadoId == c.id;
+                        final selecionado = _colaboradorSelecionadoId == c.id;
                         return ListTile(
                           leading: CircleAvatar(
                             backgroundColor: selecionado
