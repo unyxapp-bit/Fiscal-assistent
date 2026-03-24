@@ -83,6 +83,14 @@ class NotaProvider with ChangeNotifier {
       .where((n) => n.tipo == TipoLembrete.lembrete && n.isVencido)
       .length;
 
+  Nota? obterPorId(String id) {
+    try {
+      return _notas.firstWhere((n) => n.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
   TipoLembrete? get filtroTipo => _filtroTipo;
   bool get mostrarApenasPendentes => _mostrarApenasPendentes;
   OrdenacaoNota get ordenacao => _ordenacao;

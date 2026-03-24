@@ -10,6 +10,7 @@ import '../../../domain/entities/nota.dart';
 import '../../../domain/enums/tipo_lembrete.dart';
 import '../../providers/nota_provider.dart';
 import 'nota_form_screen.dart';
+import 'nota_detail_screen.dart';
 import '../../../core/utils/app_notif.dart';
 
 class NotasScreen extends StatefulWidget {
@@ -40,7 +41,8 @@ class _NotasScreenState extends State<NotasScreen> {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (ctx) => Padding(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
@@ -96,7 +98,8 @@ class _NotasScreenState extends State<NotasScreen> {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (ctx) {
         return StatefulBuilder(builder: (ctx, setModalState) {
@@ -278,9 +281,8 @@ class _NotasScreenState extends State<NotasScreen> {
     final isTarefa = nota.tipo == TipoLembrete.tarefa;
     return Dismissible(
       key: Key(nota.id),
-      direction: isTarefa
-          ? DismissDirection.horizontal
-          : DismissDirection.endToStart,
+      direction:
+          isTarefa ? DismissDirection.horizontal : DismissDirection.endToStart,
       background: isTarefa
           ? Container(
               color: Colors.green.shade400,
@@ -313,7 +315,12 @@ class _NotasScreenState extends State<NotasScreen> {
         child: InkWell(
           borderRadius: BorderRadius.circular(Dimensions.radiusMD),
           onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => NotaFormScreen(nota: nota)),
+            MaterialPageRoute(
+              builder: (_) => NotaDetailScreen(
+                notaId: nota.id,
+                notaInicial: nota,
+              ),
+            ),
           ),
           onLongPress: () {
             Clipboard.setData(
@@ -329,7 +336,8 @@ class _NotasScreenState extends State<NotasScreen> {
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: ListTile(
               leading: GestureDetector(
-                onTap: isTarefa ? () => provider.toggleConcluida(nota.id) : null,
+                onTap:
+                    isTarefa ? () => provider.toggleConcluida(nota.id) : null,
                 child: Icon(
                   isTarefa && nota.concluida
                       ? Icons.check_box
@@ -395,8 +403,8 @@ class _NotasScreenState extends State<NotasScreen> {
                             ),
                             child: const Text(
                               'Vencido',
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 9),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 9),
                             ),
                           ),
                         ],
@@ -564,12 +572,12 @@ class _NotasScreenState extends State<NotasScreen> {
       selected: isSelected,
       onSelected: (_) => provider.setFiltroTipo(tipo),
       backgroundColor: Colors.white,
-      selectedColor:
-          tipo?.cor.withValues(alpha: 0.2) ??
+      selectedColor: tipo?.cor.withValues(alpha: 0.2) ??
           AppColors.primary.withValues(alpha: 0.2),
       labelStyle: TextStyle(
-        color:
-            isSelected ? (tipo?.cor ?? AppColors.primary) : AppColors.textSecondary,
+        color: isSelected
+            ? (tipo?.cor ?? AppColors.primary)
+            : AppColors.textSecondary,
       ),
     );
   }
@@ -637,8 +645,7 @@ class _NotasScreenState extends State<NotasScreen> {
                     : null,
                 isDense: true,
                 border: OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(Dimensions.radiusMD),
+                  borderRadius: BorderRadius.circular(Dimensions.radiusMD),
                 ),
               ),
               onChanged: (v) {
@@ -652,8 +659,8 @@ class _NotasScreenState extends State<NotasScreen> {
 
           // ── Cards de resumo ─────────────────────────────────────────────────
           Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: Dimensions.paddingMD),
+            padding:
+                const EdgeInsets.symmetric(horizontal: Dimensions.paddingMD),
             child: Row(
               children: [
                 Expanded(
@@ -703,21 +710,17 @@ class _NotasScreenState extends State<NotasScreen> {
             height: 46,
             child: ListView(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(
-                  horizontal: Dimensions.paddingMD),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: Dimensions.paddingMD),
               children: [
                 _buildTipoChip(
                     'Todos (${provider.totalNotas})', null, provider),
                 const SizedBox(width: 8),
-                _buildTipoChip(
-                    'Anotações (${provider.anotacoes.length})',
-                    TipoLembrete.anotacao,
-                    provider),
+                _buildTipoChip('Anotações (${provider.anotacoes.length})',
+                    TipoLembrete.anotacao, provider),
                 const SizedBox(width: 8),
-                _buildTipoChip(
-                    'Tarefas (${provider.tarefas.length})',
-                    TipoLembrete.tarefa,
-                    provider),
+                _buildTipoChip('Tarefas (${provider.tarefas.length})',
+                    TipoLembrete.tarefa, provider),
                 const SizedBox(width: 8),
                 _buildTipoChip(lembretesLabel, TipoLembrete.lembrete, provider),
               ],
@@ -753,7 +756,8 @@ class _NotasScreenState extends State<NotasScreen> {
                                 ),
                                 if (provider.searchQuery.isEmpty) ...[
                                   const SizedBox(height: 24),
-                                  const Text('Criar:', style: AppTextStyles.label),
+                                  const Text('Criar:',
+                                      style: AppTextStyles.label),
                                   const SizedBox(height: 8),
                                   Wrap(
                                     spacing: 8,
@@ -771,8 +775,9 @@ class _NotasScreenState extends State<NotasScreen> {
                                               onPressed: () =>
                                                   Navigator.of(context).push(
                                                 MaterialPageRoute(
-                                                  builder: (_) => NotaFormScreen(
-                                                      tipoInicial: tipo),
+                                                  builder: (_) =>
+                                                      NotaFormScreen(
+                                                          tipoInicial: tipo),
                                                 ),
                                               ),
                                             ))
@@ -790,11 +795,8 @@ class _NotasScreenState extends State<NotasScreen> {
                     onRefresh: provider.load,
                     child: ListView(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(
-                          Dimensions.paddingMD,
-                          0,
-                          Dimensions.paddingMD,
-                          Dimensions.paddingMD),
+                      padding: const EdgeInsets.fromLTRB(Dimensions.paddingMD,
+                          0, Dimensions.paddingMD, Dimensions.paddingMD),
                       children: _buildListItems(provider),
                     ),
                   ),
