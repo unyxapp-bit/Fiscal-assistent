@@ -264,9 +264,10 @@ class _TabDisponiveis extends StatelessWidget {
         .where((p) => p.duracaoMinutos > 15)
         .map((p) => p.colaboradorId)
         .toSet();
-    final intervalosMarcadosManualmente = alocacaoProvider.alocacoes
-        .where((a) => a.liberadoEm == null && a.intervaloMarcadoFeito)
-        .map((a) => a.colaboradorId)
+    // Inclui os marcados manualmente em memória (mesmo sem alocação ativa).
+    final intervalosMarcadosManualmente = colaboradorProvider.colaboradores
+        .where((c) => alocacaoProvider.isIntervaloMarcado(c.id))
+        .map((c) => c.id)
         .toSet();
     jaFizeramIntervalo.addAll(intervalosMarcadosManualmente);
     final jaFizeramCafe = provider.pausasFinalizadas
