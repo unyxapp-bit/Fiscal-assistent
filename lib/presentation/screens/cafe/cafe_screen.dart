@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import '../../../core/constants/app_styles.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
@@ -129,11 +130,9 @@ class _CafeScreenState extends State<CafeScreen>
                     margin: const EdgeInsets.fromLTRB(
                         Dimensions.paddingMD, 12, Dimensions.paddingMD, 0),
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.alertCritical,
-                      borderRadius:
-                          BorderRadius.circular(Dimensions.borderRadius),
-                      border: Border.all(color: AppColors.danger),
+                    decoration: AppStyles.softTile(
+                      tint: AppColors.danger,
+                      radius: Dimensions.borderRadius,
                     ),
                     child: Row(
                       children: [
@@ -886,11 +885,11 @@ class _PausaAtivaCard extends StatelessWidget {
         ? '+${pausa.minutosExcedidos} min em atraso'
         : '${restante.inMinutes.toString().padLeft(2, "0")}:${(restante.inSeconds % 60).toString().padLeft(2, "0")} restantes';
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-        side: BorderSide(color: cor.withValues(alpha: 0.4)),
+      decoration: AppStyles.softCard(
+        tint: cor,
+        radius: Dimensions.borderRadius,
       ),
       child: Padding(
         padding: const EdgeInsets.all(Dimensions.paddingMD),
@@ -992,8 +991,12 @@ class _PausaHistoricoCard extends StatelessWidget {
             pausa.tempoDecorrido.inMinutes > pausa.duracaoMinutos);
     final cor = foiEmAtraso ? AppColors.danger : AppColors.success;
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
+      decoration: AppStyles.softCard(
+        tint: foiEmAtraso ? AppColors.danger : AppColors.success,
+        radius: Dimensions.borderRadius,
+      ),
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: cor.withValues(alpha: 0.15),

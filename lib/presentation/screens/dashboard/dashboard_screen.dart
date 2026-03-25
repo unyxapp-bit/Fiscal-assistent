@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../core/constants/app_styles.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
@@ -231,8 +232,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                         ],
 
                         // Stats
-                        Card(
-                          color: AppColors.cardBackground,
+                        Container(
+                          decoration: AppStyles.softCard(
+                            tint: AppColors.primary,
+                            radius: 18,
+                          ),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: Dimensions.paddingMD,
@@ -1305,31 +1309,33 @@ class _AlertCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: item.onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: item.color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: item.color.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          children: [
-            Icon(item.icon, color: item.color, size: 18),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                item.label,
-                style: TextStyle(
-                    color: item.color,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600),
-              ),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: item.onTap,
+          child: Ink(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: AppStyles.softTile(tint: item.color, radius: 12),
+            child: Row(
+              children: [
+                Icon(item.icon, color: item.color, size: 18),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    item.label,
+                    style: AppTextStyles.body.copyWith(
+                      color: item.color,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Icon(Icons.arrow_forward_ios, color: item.color, size: 13),
+              ],
             ),
-            Icon(Icons.arrow_forward_ios, color: item.color, size: 13),
-          ],
+          ),
         ),
       ),
     );
@@ -1357,13 +1363,28 @@ class _StatItem extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: color, size: 20),
-            const SizedBox(height: 4),
-            Text(value, style: AppTextStyles.h3.copyWith(color: color)),
+            Container(
+              padding: const EdgeInsets.all(7),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: color.withValues(alpha: 0.12),
+              ),
+              child: Icon(icon, color: color, size: 16),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              value,
+              style: AppTextStyles.h3.copyWith(
+                color: color,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
             Text(
               label,
-              style:
-                  const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+              style: AppTextStyles.caption.copyWith(
+                fontSize: 10,
+                color: AppColors.textSecondary,
+              ),
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

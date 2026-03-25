@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../core/constants/app_styles.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
@@ -255,7 +256,11 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                             const SizedBox(height: Dimensions.spacingMD),
 
                             // Legenda
-                            Card(
+                            Container(
+                              decoration: AppStyles.softCard(
+                                tint: AppColors.primary,
+                                radius: 16,
+                              ),
                               child: Padding(
                                 padding:
                                     const EdgeInsets.all(Dimensions.paddingMD),
@@ -692,11 +697,10 @@ class _MiniDashboard extends StatelessWidget {
       );
     }
 
-    return Card(
-      elevation: 0,
-      color: AppColors.backgroundSection,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+    return Container(
+      decoration: AppStyles.softCard(
+        tint: AppColors.primary,
+        radius: Dimensions.radiusLG,
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
@@ -761,7 +765,15 @@ class _DashItem extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14, color: color),
+            Container(
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: color.withValues(alpha: 0.14),
+              ),
+              child: Icon(icon, size: 12, color: color),
+            ),
             const SizedBox(width: 4),
             Text(
               value,
