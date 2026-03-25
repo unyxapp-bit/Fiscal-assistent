@@ -183,15 +183,15 @@ class CaixaGridItem extends StatelessWidget {
             .firstOrNull
         : null;
 
-    final pausa = colaborador != null
-        ? cafeProvider.getPausaAtiva(colaborador.id)
-        : null;
+    final pausa =
+        colaborador != null ? cafeProvider.getPausaAtiva(colaborador.id) : null;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => _DetalhesSheet(
         caixa: caixa,
@@ -210,9 +210,10 @@ class CaixaGridItem extends StatelessWidget {
 // Resultado do cálculo de jornada
 // ─────────────────────────────────────────────
 class _JornadaResult {
-  final String? entrada;       // "HH:mm" da entrada no ponto
-  final Duration liquida;      // tempo líquido de trabalho
-  final String status;         // 'trabalhando' | 'intervalo' | 'encerrado' | 'sem_ponto'
+  final String? entrada; // "HH:mm" da entrada no ponto
+  final Duration liquida; // tempo líquido de trabalho
+  final String
+      status; // 'trabalhando' | 'intervalo' | 'encerrado' | 'sem_ponto'
 
   const _JornadaResult({
     required this.entrada,
@@ -277,10 +278,12 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
       if (!mounted) return;
 
       final now = DateTime.now();
-      final registro = provider.registros.where((r) =>
-          r.data.year == now.year &&
-          r.data.month == now.month &&
-          r.data.day == now.day).firstOrNull;
+      final registro = provider.registros
+          .where((r) =>
+              r.data.year == now.year &&
+              r.data.month == now.month &&
+              r.data.day == now.day)
+          .firstOrNull;
 
       setState(() {
         _registroHoje = registro;
@@ -310,10 +313,10 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
       return DateTime(base.year, base.month, base.day, h, m);
     }
 
-    final entrada     = parse(r.entrada)!;
-    final intSaida    = parse(r.intervaloSaida);
-    final intRetorno  = parse(r.intervaloRetorno);
-    final saida       = parse(r.saida);
+    final entrada = parse(r.entrada)!;
+    final intSaida = parse(r.intervaloSaida);
+    final intRetorno = parse(r.intervaloRetorno);
+    final saida = parse(r.saida);
 
     // ── Determinar status ──────────────────────────────
     String status;
@@ -364,11 +367,9 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
   Widget _buildOcorrenciasSection(List<Ocorrencia> ocorrencias) {
     if (ocorrencias.isEmpty) return const SizedBox.shrink();
 
-    final ocorrenciasAbertas =
-        ocorrencias.where((o) => !o.resolvida).toList();
-    final ocorrenciasVisiveis = _expandidoOcorrencias
-        ? ocorrencias
-        : ocorrencias.take(3).toList();
+    final ocorrenciasAbertas = ocorrencias.where((o) => !o.resolvida).toList();
+    final ocorrenciasVisiveis =
+        _expandidoOcorrencias ? ocorrencias : ocorrencias.take(3).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -389,8 +390,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
             if (ocorrenciasAbertas.isNotEmpty) ...[
               const SizedBox(width: 6),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: AppColors.danger.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6),
@@ -398,8 +398,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                 child: Text(
                   '${ocorrenciasAbertas.length} aberta(s)',
                   style: AppTextStyles.caption.copyWith(
-                      color: AppColors.danger,
-                      fontWeight: FontWeight.bold),
+                      color: AppColors.danger, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -481,10 +480,9 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
               Text(widget.caixa.nomeExibicao, style: AppTextStyles.h2),
               const SizedBox(width: 8),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: widget.caixa.tipo.cor.withValues(alpha: 0.15),
+                  color: widget.caixa.tipo.cor.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -519,8 +517,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(widget.colaborador!.nome,
-                          style: AppTextStyles.h4),
+                      Text(widget.colaborador!.nome, style: AppTextStyles.h4),
                       Text(
                         widget.colaborador!.departamento.nome,
                         style: AppTextStyles.caption
@@ -546,8 +543,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.coffee,
-                        color: Colors.orange.shade700, size: 18),
+                    Icon(Icons.coffee, color: Colors.orange.shade700, size: 18),
                     const SizedBox(width: 8),
                     Text(
                       'Em pausa de café — ${widget.pausa.minutosDecorridos}min decorridos'
@@ -656,20 +652,18 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                       : 'Caixa disponível',
               style: AppTextStyles.body,
             ),
-
             _buildOcorrenciasSection(ocorrencias),
-
             if (widget.caixa.ativo && !widget.caixa.emManutencao) ...[
               const SizedBox(height: 16),
               ElevatedButton.icon(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  final fiscalId =
-                      Provider.of<AuthProvider>(widget.providerContext,
+                  final fiscalId = Provider.of<AuthProvider>(
+                              widget.providerContext,
                               listen: false)
                           .user
                           ?.id ??
-                          '';
+                      '';
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => AlocacaoScreen(fiscalId: fiscalId),
@@ -714,9 +708,13 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final (label, color, icon) = switch (status) {
       'trabalhando' => ('Trabalhando', AppColors.statusAtivo, Icons.work),
-      'intervalo'   => ('Em Intervalo', AppColors.statusCafe, Icons.coffee),
-      'encerrado'   => ('Jornada Encerrada', AppColors.textSecondary, Icons.check_circle),
-      _             => ('Sem Ponto', AppColors.inactive, Icons.help_outline),
+      'intervalo' => ('Em Intervalo', AppColors.statusCafe, Icons.coffee),
+      'encerrado' => (
+          'Jornada Encerrada',
+          AppColors.textSecondary,
+          Icons.check_circle
+        ),
+      _ => ('Sem Ponto', AppColors.inactive, Icons.help_outline),
     };
 
     return Container(
@@ -724,7 +722,7 @@ class _StatusBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
+        border: Border.all(color: color.withValues(alpha: 0.28)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -768,8 +766,7 @@ class _InfoRow extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           '$label: ',
-          style: AppTextStyles.caption
-              .copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
         ),
         Expanded(
           child: Text(value, style: AppTextStyles.caption),
@@ -797,16 +794,14 @@ class _HorarioGrid extends StatelessWidget {
       crossAxisSpacing: 8,
       childAspectRatio: 3,
       children: [
-        _HorarioChip(
-            icon: Icons.login, label: 'Entrada', value: turno.entrada),
+        _HorarioChip(icon: Icons.login, label: 'Entrada', value: turno.entrada),
         _HorarioChip(
             icon: Icons.free_breakfast,
             label: 'Intervalo',
             value: turno.intervalo),
         _HorarioChip(
             icon: Icons.replay, label: 'Retorno', value: turno.retorno),
-        _HorarioChip(
-            icon: Icons.logout, label: 'Saída', value: turno.saida),
+        _HorarioChip(icon: Icons.logout, label: 'Saída', value: turno.saida),
       ],
     );
   }
@@ -884,7 +879,7 @@ class _OcorrenciaRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: cor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: cor.withValues(alpha: 0.25)),
+        border: Border.all(color: cor.withValues(alpha: 0.20)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -948,9 +943,8 @@ class _OcorrenciaRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: 9,
                 fontWeight: FontWeight.bold,
-                color: ocorrencia.resolvida
-                    ? AppColors.success
-                    : AppColors.danger,
+                color:
+                    ocorrencia.resolvida ? AppColors.success : AppColors.danger,
               ),
             ),
           ),

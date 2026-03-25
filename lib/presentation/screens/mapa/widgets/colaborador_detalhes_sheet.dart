@@ -245,7 +245,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: widget.caixa.tipo.cor.withValues(alpha: 0.15),
+                  color: widget.caixa.tipo.cor.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -750,7 +750,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.22)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -864,7 +864,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                         return ListTile(
                           leading: CircleAvatar(
                             backgroundColor:
-                                Colors.blue.withValues(alpha: 0.15),
+                                Colors.blue.withValues(alpha: 0.10),
                             child: Text(
                               c.iniciais,
                               style: const TextStyle(
@@ -1340,7 +1340,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
         decoration: BoxDecoration(
           color: AppColors.primary.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.22)),
         ),
         child: Row(
           children: [
@@ -1367,7 +1367,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
         decoration: BoxDecoration(
           color: AppColors.warning.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.warning.withValues(alpha: 0.4)),
+          border: Border.all(color: AppColors.warning.withValues(alpha: 0.28)),
         ),
         child: Row(
           children: [
@@ -1592,7 +1592,7 @@ class _OcorrenciaRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: cor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: cor.withValues(alpha: 0.25)),
+        border: Border.all(color: cor.withValues(alpha: 0.20)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1695,7 +1695,7 @@ class StatusBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
+        border: Border.all(color: color.withValues(alpha: 0.28)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

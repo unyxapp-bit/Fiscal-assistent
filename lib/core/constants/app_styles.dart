@@ -7,18 +7,19 @@ class AppStyles {
     double radius = 16,
     bool elevated = true,
   }) {
+    final borderBase = tint ?? AppColors.cardBorder;
     return BoxDecoration(
       color: AppColors.cardBackground,
       borderRadius: BorderRadius.circular(radius),
       border: Border.all(
-        color: (tint ?? AppColors.cardBorder).withValues(alpha: 0.35),
+        color: borderBase.withValues(alpha: tint != null ? 0.16 : 0.72),
       ),
       boxShadow: elevated
           ? [
               BoxShadow(
-                color: (tint ?? AppColors.textPrimary).withValues(alpha: 0.07),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
+                color: AppColors.textPrimary.withValues(alpha: 0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
               ),
             ]
           : const [],
@@ -29,18 +30,12 @@ class AppStyles {
     Color? tint,
     double radius = 12,
   }) {
+    final tileTint = tint ?? AppColors.primary;
     return BoxDecoration(
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Colors.white,
-          (tint ?? AppColors.primary).withValues(alpha: 0.04),
-        ],
-      ),
+      color: tileTint.withValues(alpha: 0.03),
       borderRadius: BorderRadius.circular(radius),
       border: Border.all(
-        color: (tint ?? AppColors.cardBorder).withValues(alpha: 0.28),
+        color: tileTint.withValues(alpha: 0.16),
       ),
     );
   }

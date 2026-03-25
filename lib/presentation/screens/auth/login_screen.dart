@@ -77,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 28),
                       Container(
                         decoration: AppStyles.softCard(
-                          tint: AppColors.primary,
+                          tint: AppColors.inactive,
                           radius: 24,
                         ),
                         padding: const EdgeInsets.symmetric(
@@ -90,26 +90,18 @@ class _LoginScreenState extends State<LoginScreen> {
                               width: 88,
                               height: 88,
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    AppColors.primary.withValues(alpha: 0.96),
-                                    AppColors.indigo,
-                                  ],
-                                ),
+                                color:
+                                    AppColors.primary.withValues(alpha: 0.08),
                                 borderRadius: BorderRadius.circular(22),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.primary
-                                        .withValues(alpha: 0.28),
-                                    blurRadius: 18,
-                                    offset: const Offset(0, 10),
-                                  ),
-                                ],
+                                border: Border.all(
+                                  color:
+                                      AppColors.primary.withValues(alpha: 0.22),
+                                ),
                               ),
                               child: const Icon(
                                 Icons.receipt_long,
                                 size: 46,
-                                color: Colors.white,
+                                color: AppColors.primary,
                               ),
                             ),
                             const SizedBox(height: 20),

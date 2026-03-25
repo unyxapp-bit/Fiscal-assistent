@@ -132,8 +132,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-            top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (sheetCtx) => DraggableScrollableSheet(
         expand: false,
@@ -194,7 +194,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     ListTile(
                       leading: CircleAvatar(
                         backgroundColor:
-                            const Color(0xFF795548).withValues(alpha: 0.15),
+                            const Color(0xFF795548).withValues(alpha: 0.10),
                         child: const Icon(Icons.inventory_2,
                             color: Color(0xFF795548)),
                       ),
@@ -224,11 +224,10 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       child: Row(children: [
                         const Expanded(child: Divider()),
                         Padding(
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: Text('ou em caixa',
-                              style: AppTextStyles.caption.copyWith(
-                                  color: AppColors.textSecondary)),
+                              style: AppTextStyles.caption
+                                  .copyWith(color: AppColors.textSecondary)),
                         ),
                         const Expanded(child: Divider()),
                       ]),
@@ -246,15 +245,15 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     ...disponiveis.map((caixa) => ListTile(
                           leading: CircleAvatar(
                             backgroundColor:
-                                caixa.tipo.cor.withValues(alpha: 0.15),
+                                caixa.tipo.cor.withValues(alpha: 0.10),
                             child:
                                 Icon(caixa.tipo.icone, color: caixa.tipo.cor),
                           ),
-                          title: Text(caixa.nomeExibicao,
-                              style: AppTextStyles.h4),
+                          title:
+                              Text(caixa.nomeExibicao, style: AppTextStyles.h4),
                           subtitle: Text(caixa.tipo.nome,
-                              style: AppTextStyles.caption.copyWith(
-                                  color: AppColors.textSecondary)),
+                              style: AppTextStyles.caption
+                                  .copyWith(color: AppColors.textSecondary)),
                           trailing: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: alocacaoIdParaLiberar != null
@@ -269,10 +268,9 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                                     alocacaoIdParaLiberar, alocacaoProvider)
                                 : _confirmarAlocacao(
                                     sheetCtx, turno, caixa, alocacaoProvider),
-                            child: Text(
-                                alocacaoIdParaLiberar != null
-                                    ? 'Trocar'
-                                    : 'Alocar'),
+                            child: Text(alocacaoIdParaLiberar != null
+                                ? 'Trocar'
+                                : 'Alocar'),
                           ),
                         )),
                 ],
@@ -366,9 +364,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     if (!mounted) return;
 
     if (alocacaoProvider.mostrarDialogExcecao) {
-      final motivo =
-          alocacaoProvider.resultadoExcecao?.motivoExcecao ??
-              'Justifique o motivo da exceção.';
+      final motivo = alocacaoProvider.resultadoExcecao?.motivoExcecao ??
+          'Justifique o motivo da exceção.';
       final tipo = alocacaoProvider.resultadoExcecao?.tipoExcecao ?? '';
       await showDialog(
         context: context,
@@ -455,8 +452,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     Navigator.of(sheetCtx).pop();
 
     // 1. Libera o caixa atual
-    await alocacaoProvider.liberarAlocacao(
-        alocacaoIdAtual, 'Troca de caixa — realocado em ${novoCaixa.nomeExibicao}');
+    await alocacaoProvider.liberarAlocacao(alocacaoIdAtual,
+        'Troca de caixa — realocado em ${novoCaixa.nomeExibicao}');
 
     if (!mounted) return;
     if (alocacaoProvider.error != null) {
@@ -490,8 +487,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-            top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (sheetCtx) => Padding(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
@@ -572,8 +569,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                             fontWeight: FontWeight.bold, fontSize: 12)),
                     onPressed: () {
                       Navigator.of(sheetCtx).pop();
-                      _abrirSeletorCaixa(turno,
-                          alocacaoIdParaLiberar: al.id);
+                      _abrirSeletorCaixa(turno, alocacaoIdParaLiberar: al.id);
                     },
                   ),
                 ),
@@ -607,8 +603,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     label: const Text('Liberar',
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 12)),
-                    onPressed: () =>
-                        _confirmarLiberacao(sheetCtx, turno, al, caixa?.nomeExibicao),
+                    onPressed: () => _confirmarLiberacao(
+                        sheetCtx, turno, al, caixa?.nomeExibicao),
                   ),
                 ),
               ],
@@ -703,8 +699,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-            top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (sheetCtx) => Padding(
         padding: EdgeInsets.fromLTRB(
@@ -734,8 +730,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                   child: Text(
                     turno.colaboradorNome[0].toUpperCase(),
                     style: const TextStyle(
-                        color: Color(0xFF5C6BC0),
-                        fontWeight: FontWeight.bold),
+                        color: Color(0xFF5C6BC0), fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -786,16 +781,14 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     .copyWith(color: AppColors.textSecondary),
                 filled: true,
                 fillColor: AppColors.backgroundSection,
-                contentPadding: const EdgeInsets.symmetric(
-                    vertical: 10, horizontal: 12),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                 border: OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(Dimensions.borderRadius),
+                  borderRadius: BorderRadius.circular(Dimensions.borderRadius),
                   borderSide: BorderSide.none,
                 ),
                 suffixIcon: IconButton(
-                  icon: const Icon(Icons.check,
-                      color: Color(0xFF5C6BC0)),
+                  icon: const Icon(Icons.check, color: Color(0xFF5C6BC0)),
                   onPressed: () async {
                     final texto = customCtrl.text.trim();
                     if (texto.isEmpty) return;
@@ -807,8 +800,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
               onSubmitted: (texto) async {
                 if (texto.trim().isEmpty) return;
                 Navigator.of(sheetCtx).pop();
-                await _registrarOutroSetor(
-                    turno, texto.trim(), alocacaoAtual);
+                await _registrarOutroSetor(turno, texto.trim(), alocacaoAtual);
               },
             ),
           ],
@@ -877,8 +869,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     final outroSetorProvider = Provider.of<OutroSetorProvider>(context);
 
     final agora = DateTime.now();
-    final dataLabel =
-        DateFormat("EEEE, dd 'de' MMMM", 'pt_BR').format(agora);
+    final dataLabel = DateFormat("EEEE, dd 'de' MMMM", 'pt_BR').format(agora);
     final horaLabel = DateFormat('HH:mm').format(agora);
 
     final turnosHoje = escalaProvider.turnosHoje;
@@ -887,19 +878,17 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     bool matchSearch(TurnoLocal t) =>
         q.isEmpty || t.colaboradorNome.toLowerCase().contains(q);
 
-    final disponiveis = turnosHoje
-        .where((t) {
-          if (!matchSearch(t)) return false;
-          if (!_estaDisponivel(t, alocacaoProvider)) return false;
-          if (t.departamento == DepartamentoTipo.pacote &&
-              pacoteProvider.isNaLista(t.colaboradorId)) {
-            return false;
-          }
-          if (cafeProvider.colaboradorEmPausa(t.colaboradorId)) return false;
-          if (outroSetorProvider.isNaLista(t.colaboradorId)) return false;
-          return true;
-        })
-        .toList()
+    final disponiveis = turnosHoje.where((t) {
+      if (!matchSearch(t)) return false;
+      if (!_estaDisponivel(t, alocacaoProvider)) return false;
+      if (t.departamento == DepartamentoTipo.pacote &&
+          pacoteProvider.isNaLista(t.colaboradorId)) {
+        return false;
+      }
+      if (cafeProvider.colaboradorEmPausa(t.colaboradorId)) return false;
+      if (outroSetorProvider.isNaLista(t.colaboradorId)) return false;
+      return true;
+    }).toList()
       ..sort((a, b) => (a.entrada ?? '').compareTo(b.entrada ?? ''));
 
     final jaAlocados = turnosHoje
@@ -909,25 +898,24 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
             alocacaoProvider.getAlocacaoColaborador(t.colaboradorId) != null)
         .toList();
 
-    final folgas =
-        turnosHoje.where((t) => matchSearch(t) && (t.folga || t.feriado)).toList();
+    final folgas = turnosHoje
+        .where((t) => matchSearch(t) && (t.folga || t.feriado))
+        .toList();
 
-    final aChegar = turnosHoje
-        .where((t) {
-          if (!matchSearch(t)) return false;
-          if (!t.trabalhando || t.folga || t.feriado) return false;
-          if (alocacaoProvider.getAlocacaoColaborador(t.colaboradorId) != null) {
-            return false;
-          }
-          if (t.departamento == DepartamentoTipo.pacote &&
-              pacoteProvider.isNaLista(t.colaboradorId)) {
-            return false;
-          }
-          final min = _minutosParaChegar(t);
-          if (min == null) return false;
-          return min > 30 && min <= 180;
-        })
-        .toList()
+    final aChegar = turnosHoje.where((t) {
+      if (!matchSearch(t)) return false;
+      if (!t.trabalhando || t.folga || t.feriado) return false;
+      if (alocacaoProvider.getAlocacaoColaborador(t.colaboradorId) != null) {
+        return false;
+      }
+      if (t.departamento == DepartamentoTipo.pacote &&
+          pacoteProvider.isNaLista(t.colaboradorId)) {
+        return false;
+      }
+      final min = _minutosParaChegar(t);
+      if (min == null) return false;
+      return min > 30 && min <= 180;
+    }).toList()
       ..sort((a, b) => (a.entrada ?? '').compareTo(b.entrada ?? ''));
 
     final emOutroSetor = turnosHoje
@@ -958,8 +946,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: AppColors.primary.withValues(alpha: 0.07),
-                borderRadius:
-                    BorderRadius.circular(Dimensions.borderRadius),
+                borderRadius: BorderRadius.circular(Dimensions.borderRadius),
               ),
               child: Row(
                 children: [
@@ -969,13 +956,13 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                   Expanded(
                     child: Text(
                       _cap(dataLabel),
-                      style: AppTextStyles.body
-                          .copyWith(color: AppColors.primary),
+                      style:
+                          AppTextStyles.body.copyWith(color: AppColors.primary),
                     ),
                   ),
                   Text(horaLabel,
-                      style: AppTextStyles.h3
-                          .copyWith(color: AppColors.primary)),
+                      style:
+                          AppTextStyles.h3.copyWith(color: AppColors.primary)),
                 ],
               ),
             ),
@@ -1003,8 +990,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 contentPadding:
                     const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
                 border: OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(Dimensions.borderRadius),
+                  borderRadius: BorderRadius.circular(Dimensions.borderRadius),
                   borderSide: BorderSide.none,
                 ),
               ),
@@ -1015,7 +1001,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
             if (turnosHoje.isEmpty) ...[
               const _Empty(
                 icon: Icons.calendar_today,
-                msg: 'Nenhuma escala cadastrada para hoje.\nVá em "Escala Semanal" e cadastre.',
+                msg:
+                    'Nenhuma escala cadastrada para hoje.\nVá em "Escala Semanal" e cadastre.',
               ),
             ] else ...[
               // Disponíveis agora
@@ -1054,9 +1041,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     turno: t,
                     caixaId: al?.caixaId ?? '',
                     alocadoEm: al?.alocadoEm,
-                    onTap: al != null
-                        ? () => _abrirOpcoesAlocado(t, al)
-                        : null,
+                    onTap: al != null ? () => _abrirOpcoesAlocado(t, al) : null,
                   );
                 }),
               ],
@@ -1117,8 +1102,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                   count: folgas.length,
                   color: AppColors.statusAtencao,
                   expanded: _mostrarFolgas,
-                  onTap: () =>
-                      setState(() => _mostrarFolgas = !_mostrarFolgas),
+                  onTap: () => setState(() => _mostrarFolgas = !_mostrarFolgas),
                 ),
                 if (_mostrarFolgas) ...[
                   const SizedBox(height: 8),
@@ -1247,7 +1231,7 @@ class _IntervaloBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: cor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: cor.withValues(alpha: 0.3)),
+        border: Border.all(color: cor.withValues(alpha: 0.22)),
       ),
       child: Row(
         children: [
@@ -1285,7 +1269,7 @@ class _Header extends StatelessWidget {
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
         decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.15),
+            color: color.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(10)),
         child: Text('$count',
             style: TextStyle(
@@ -1328,19 +1312,15 @@ class _HeaderToggle extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
               decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.15),
+                  color: color.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(10)),
               child: Text('$count',
                   style: TextStyle(
-                      fontSize: 11,
-                      color: color,
-                      fontWeight: FontWeight.bold)),
+                      fontSize: 11, color: color, fontWeight: FontWeight.bold)),
             ),
             const Spacer(),
             Icon(
-              expanded
-                  ? Icons.keyboard_arrow_up
-                  : Icons.keyboard_arrow_down,
+              expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
               size: 18,
               color: color,
             ),
@@ -1389,8 +1369,7 @@ class _CardDisponivel extends StatelessWidget {
               '${turno.entrada}–${turno.saida}',
             if (chegando) _chegaEm(minutosParaChegar!),
           ].join('  •  '),
-          style:
-              AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
@@ -1426,10 +1405,7 @@ class _CardAlocado extends StatefulWidget {
   final DateTime? alocadoEm;
   final VoidCallback? onTap;
   const _CardAlocado(
-      {required this.turno,
-      required this.caixaId,
-      this.alocadoEm,
-      this.onTap});
+      {required this.turno, required this.caixaId, this.alocadoEm, this.onTap});
 
   @override
   State<_CardAlocado> createState() => _CardAlocadoState();
@@ -1483,8 +1459,7 @@ class _CardAlocadoState extends State<_CardAlocado> {
     final cafeProvider = Provider.of<CafeProvider>(context);
     final intervaloJaFeito = alocacaoProvider
             .isIntervaloMarcado(widget.turno.colaboradorId) ||
-        cafeProvider.colaboradorJaFezIntervaloHoje(
-            widget.turno.colaboradorId);
+        cafeProvider.colaboradorJaFezIntervaloHoje(widget.turno.colaboradorId);
     final minIntervalo = intervaloJaFeito ? null : _calcMinIntervalo();
     final emAtencao = minIntervalo != null && minIntervalo >= 15;
 
@@ -1527,7 +1502,8 @@ class _CardAlocadoState extends State<_CardAlocado> {
                       borderRadius: BorderRadius.circular(8)),
                   child: Text('Ativo',
                       style: AppTextStyles.caption.copyWith(
-                          color: emAtencao ? AppColors.danger : AppColors.primary,
+                          color:
+                              emAtencao ? AppColors.danger : AppColors.primary,
                           fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(width: 4),
@@ -1607,11 +1583,10 @@ class _CardAChegar extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: AppColors.statusAtencao.withValues(alpha: 0.15),
+          backgroundColor: AppColors.statusAtencao.withValues(alpha: 0.10),
           child: Text(turno.colaboradorNome[0].toUpperCase(),
               style: const TextStyle(
-                  color: AppColors.statusAtencao,
-                  fontWeight: FontWeight.bold)),
+                  color: AppColors.statusAtencao, fontWeight: FontWeight.bold)),
         ),
         title: Text(turno.colaboradorNome, style: AppTextStyles.h4),
         subtitle: Text(
@@ -1620,8 +1595,7 @@ class _CardAChegar extends StatelessWidget {
             if (turno.entrada != null && turno.saida != null)
               '${turno.entrada}–${turno.saida}',
           ].join('  •  '),
-          style:
-              AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
         ),
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -1630,8 +1604,7 @@ class _CardAChegar extends StatelessWidget {
               borderRadius: BorderRadius.circular(8)),
           child: Text(_chegaEm(),
               style: AppTextStyles.caption.copyWith(
-                  color: AppColors.statusAtencao,
-                  fontWeight: FontWeight.bold)),
+                  color: AppColors.statusAtencao, fontWeight: FontWeight.bold)),
         ),
       ),
     );
@@ -1649,17 +1622,16 @@ class _CardFolga extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: AppColors.inactive.withValues(alpha: 0.15),
+          backgroundColor: AppColors.inactive.withValues(alpha: 0.10),
           child: Text(turno.colaboradorNome[0].toUpperCase(),
               style: const TextStyle(
                   color: AppColors.inactive, fontWeight: FontWeight.bold)),
         ),
         title: Text(turno.colaboradorNome,
-            style: AppTextStyles.h4
-                .copyWith(color: AppColors.textSecondary)),
+            style: AppTextStyles.h4.copyWith(color: AppColors.textSecondary)),
         subtitle: Text(turno.feriado ? 'Feriado' : 'Folga semanal',
-            style: AppTextStyles.caption
-                .copyWith(color: AppColors.textSecondary)),
+            style:
+                AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
         trailing: Icon(
           turno.feriado ? Icons.celebration : Icons.beach_access,
           color: AppColors.statusAtencao,
@@ -1693,8 +1665,7 @@ class _CardOutroSetor extends StatelessWidget {
           backgroundColor: kColor.withValues(alpha: 0.12),
           child: Text(
             turno.colaboradorNome[0].toUpperCase(),
-            style: const TextStyle(
-                color: kColor, fontWeight: FontWeight.bold),
+            style: const TextStyle(color: kColor, fontWeight: FontWeight.bold),
           ),
         ),
         title: Text(turno.colaboradorNome, style: AppTextStyles.h4),
@@ -1713,8 +1684,7 @@ class _CardOutroSetor extends StatelessWidget {
           style: OutlinedButton.styleFrom(
             foregroundColor: kColor,
             side: const BorderSide(color: kColor),
-            padding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           ),
           icon: const Icon(Icons.undo, size: 14),
           label: const Text('Chamar',
@@ -1739,8 +1709,7 @@ class _Empty extends StatelessWidget {
         Icon(icon, size: 48, color: AppColors.textSecondary),
         const SizedBox(height: 12),
         Text(msg,
-            style:
-                AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
             textAlign: TextAlign.center),
       ]),
     );

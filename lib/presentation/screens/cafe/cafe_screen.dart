@@ -306,7 +306,7 @@ class _TabDisponiveis extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.check_circle_outline,
-                  size: 64, color: AppColors.success.withValues(alpha: 0.7)),
+                  size: 64, color: AppColors.success.withValues(alpha: 0.55)),
               const SizedBox(height: 16),
               Text(
                 'Nenhum colaborador disponível para pausa agora.',
@@ -351,7 +351,7 @@ class _TabDisponiveis extends StatelessWidget {
                   : () => _abrirDetalheIntervalo(context, c),
               leading: CircleAvatar(
                 backgroundColor: soDez
-                    ? AppColors.statusCafe.withValues(alpha: 0.15)
+                    ? AppColors.statusCafe.withValues(alpha: 0.10)
                     : AppColors.backgroundSection,
                 child: Icon(
                   soDez ? Icons.coffee : Icons.restaurant,
@@ -716,7 +716,7 @@ class _TabEmIntervalo extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.coffee_outlined,
-                  size: 64, color: AppColors.inactive.withValues(alpha: 0.7)),
+                  size: 64, color: AppColors.inactive.withValues(alpha: 0.55)),
               const SizedBox(height: 16),
               Text(
                 'Nenhum colaborador em intervalo no momento',
@@ -824,7 +824,7 @@ class _TabHistorico extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.history,
-                  size: 64, color: AppColors.inactive.withValues(alpha: 0.7)),
+                  size: 64, color: AppColors.inactive.withValues(alpha: 0.55)),
               const SizedBox(height: 16),
               Text(
                 'Nenhuma pausa finalizada hoje',
@@ -899,7 +899,7 @@ class _PausaAtivaCard extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: cor.withValues(alpha: 0.15),
+                  backgroundColor: cor.withValues(alpha: 0.10),
                   child: Icon(
                     emAtraso ? Icons.timer_off : Icons.coffee,
                     color: cor,
@@ -954,7 +954,7 @@ class _PausaAtivaCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
                 value: progresso.clamp(0.0, 1.0),
-                backgroundColor: cor.withValues(alpha: 0.15),
+                backgroundColor: cor.withValues(alpha: 0.10),
                 valueColor: AlwaysStoppedAnimation<Color>(cor),
                 minHeight: 6,
               ),
@@ -999,7 +999,7 @@ class _PausaHistoricoCard extends StatelessWidget {
       ),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: cor.withValues(alpha: 0.15),
+          backgroundColor: cor.withValues(alpha: 0.10),
           child: Icon(Icons.coffee_outlined, color: cor),
         ),
         title: Text(pausa.colaboradorNome, style: AppTextStyles.body),

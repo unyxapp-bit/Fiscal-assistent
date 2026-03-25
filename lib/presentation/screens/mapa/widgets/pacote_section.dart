@@ -97,7 +97,7 @@ class PacoteSection extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: plantao.isNotEmpty
-                        ? _kPacoteColor.withValues(alpha: 0.15)
+                        ? _kPacoteColor.withValues(alpha: 0.10)
                         : AppColors.backgroundSection,
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -223,7 +223,7 @@ class PacoteSection extends StatelessWidget {
                       p.id,
                     ),
                     backgroundColor: chipColor.withValues(alpha: 0.1),
-                    side: BorderSide(color: chipColor.withValues(alpha: 0.4)),
+                    side: BorderSide(color: chipColor.withValues(alpha: 0.28)),
                   );
                 }),
 
@@ -236,7 +236,7 @@ class PacoteSection extends StatelessWidget {
                   ),
                   backgroundColor: _kPacoteColor.withValues(alpha: 0.05),
                   side: BorderSide(
-                      color: _kPacoteColor.withValues(alpha: 0.3),
+                      color: _kPacoteColor.withValues(alpha: 0.22),
                       style: BorderStyle.solid),
                   onPressed: () => _abrirPicker(
                     context,

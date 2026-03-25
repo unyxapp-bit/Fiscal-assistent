@@ -170,7 +170,7 @@ class CaixaListItem extends StatelessWidget {
                                 CircleAvatar(
                                   radius: 10,
                                   backgroundColor:
-                                      AppColors.primary.withValues(alpha: 0.15),
+                                      AppColors.primary.withValues(alpha: 0.10),
                                   child: Text(
                                     colaborador.iniciais.length > 1
                                         ? colaborador.iniciais[0]
@@ -219,7 +219,7 @@ class CaixaListItem extends StatelessWidget {
                                 CircleAvatar(
                                   radius: 10,
                                   backgroundColor:
-                                      Colors.orange.withValues(alpha: 0.2),
+                                      Colors.orange.withValues(alpha: 0.14),
                                   child: Text(
                                     colaboradorEmPausa.iniciais.length > 1
                                         ? colaboradorEmPausa.iniciais[0]
@@ -484,7 +484,7 @@ class _StatusChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
+        border: Border.all(color: color.withValues(alpha: 0.28)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

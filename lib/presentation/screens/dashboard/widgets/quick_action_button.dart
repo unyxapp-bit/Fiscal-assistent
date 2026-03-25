@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/app_styles.dart';
 import '../../../../core/constants/colors.dart';
 import '../../../../core/constants/text_styles.dart';
 import '../../../../core/constants/dimensions.dart';
@@ -35,29 +36,10 @@ class QuickActionButton extends StatelessWidget {
             horizontal: Dimensions.paddingMD,
             vertical: Dimensions.paddingLG,
           ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(Dimensions.radiusLG),
-            border: Border.all(color: color.withValues(alpha: 0.28), width: 1),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white,
-                color.withValues(alpha: 0.05),
-              ],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: color.withValues(alpha: 0.12),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
-              ),
-              const BoxShadow(
-                color: Color(0x0D0F172A),
-                blurRadius: 10,
-                offset: Offset(0, 4),
-              ),
-            ],
+          decoration: AppStyles.softCard(
+            tint: color,
+            radius: Dimensions.radiusLG,
+            elevated: false,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -68,16 +50,11 @@ class QuickActionButton extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: color.withValues(alpha: 0.22)),
-                      gradient: LinearGradient(
-                        colors: [
-                          color.withValues(alpha: 0.16),
-                          color.withValues(alpha: 0.06),
-                        ],
-                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      color: color.withValues(alpha: 0.10),
+                      border: Border.all(color: color.withValues(alpha: 0.16)),
                     ),
-                    child: Icon(icon, color: color, size: 28),
+                    child: Icon(icon, color: color, size: 24),
                   ),
                   if (badge != null)
                     Positioned(
@@ -109,7 +86,7 @@ class QuickActionButton extends StatelessWidget {
               Text(
                 label,
                 textAlign: TextAlign.center,
-                style: AppTextStyles.body.copyWith(
+                style: AppTextStyles.label.copyWith(
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),

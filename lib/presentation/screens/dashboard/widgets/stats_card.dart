@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/app_styles.dart';
 import '../../../../core/constants/colors.dart';
 import '../../../../core/constants/text_styles.dart';
 import '../../../../core/constants/dimensions.dart';
 
-/// Card de estatística com ícone e valor
+/// Card de estatistica com icone e valor.
 class StatsCard extends StatelessWidget {
   final String title;
   final String value;
@@ -20,50 +21,42 @@ class StatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      child: Container(
-        padding: const EdgeInsets.all(Dimensions.paddingMD),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-          color: Colors.white,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Ícone
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                icon,
-                color: color,
-                size: 24,
-              ),
+    return Container(
+      padding: const EdgeInsets.all(Dimensions.paddingMD),
+      decoration: AppStyles.softCard(
+        tint: color,
+        radius: Dimensions.borderRadius,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
             ),
-            const SizedBox(height: 12),
-
-            // Título
-            Text(
-              title,
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
-              ),
+            child: Icon(
+              icon,
+              color: color,
+              size: 22,
             ),
-            const SizedBox(height: 4),
-
-            // Valor
-            Text(
-              value,
-              style: AppTextStyles.h2.copyWith(
-                color: color,
-              ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            title,
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: AppTextStyles.h2.copyWith(
+              color: color,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/constants/app_styles.dart';
 import '../../../../core/constants/colors.dart';
 import '../../../../core/constants/text_styles.dart';
 import '../../../../core/constants/dimensions.dart';
@@ -18,11 +19,27 @@ class _ClockWidgetState extends State<ClockWidget> {
   DateTime _horaAtual = DateTime.now();
 
   static const _days = [
-    'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'
+    'Segunda',
+    'Terça',
+    'Quarta',
+    'Quinta',
+    'Sexta',
+    'Sábado',
+    'Domingo'
   ];
   static const _months = [
-    'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
-    'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'
+    'janeiro',
+    'fevereiro',
+    'março',
+    'abril',
+    'maio',
+    'junho',
+    'julho',
+    'agosto',
+    'setembro',
+    'outubro',
+    'novembro',
+    'dezembro'
   ];
 
   @override
@@ -48,48 +65,36 @@ class _ClockWidgetState extends State<ClockWidget> {
     final timeFormat = DateFormat('HH:mm:ss');
     final dayName = _days[_horaAtual.weekday - 1];
     final monthName = _months[_horaAtual.month - 1];
-    final dateString = '$dayName, ${_horaAtual.day} de $monthName de ${_horaAtual.year}';
+    final dateString =
+        '$dayName, ${_horaAtual.day} de $monthName de ${_horaAtual.year}';
 
-    return Card(
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(Dimensions.paddingLG),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppColors.primary,
-              AppColors.primary.withValues(alpha: 0.8),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(Dimensions.paddingLG),
+      decoration: AppStyles.softCard(
+        tint: AppColors.primary,
+        radius: Dimensions.borderRadius,
+      ),
+      child: Column(
+        children: [
+          Text(
+            timeFormat.format(_horaAtual),
+            style: const TextStyle(
+              fontSize: 44,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+              letterSpacing: 1.4,
+            ),
           ),
-          borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-        ),
-        child: Column(
-          children: [
-            // Hora
-            Text(
-              timeFormat.format(_horaAtual),
-              style: const TextStyle(
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                letterSpacing: 2,
-              ),
+          const SizedBox(height: 8),
+          Text(
+            dateString,
+            style: AppTextStyles.body.copyWith(
+              color: AppColors.textSecondary,
             ),
-
-            const SizedBox(height: 8),
-
-            // Data
-            Text(
-              dateString,
-              style: AppTextStyles.body.copyWith(
-                color: Colors.white.withValues(alpha: 0.9),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }

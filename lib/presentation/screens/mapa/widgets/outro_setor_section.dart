@@ -52,7 +52,7 @@ class OutroSetorSection extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: _kOutroSetorColor.withValues(alpha: 0.15),
+                    color: _kOutroSetorColor.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -131,8 +131,8 @@ class _OutroSetorItemState extends State<_OutroSetorItem> {
   @override
   Widget build(BuildContext context) {
     final nome = widget.colaborador?.nome ?? 'Colaborador';
-    final iniciais = widget.colaborador?.iniciais ??
-        nome.substring(0, 1).toUpperCase();
+    final iniciais =
+        widget.colaborador?.iniciais ?? nome.substring(0, 1).toUpperCase();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -140,14 +140,13 @@ class _OutroSetorItemState extends State<_OutroSetorItem> {
       decoration: BoxDecoration(
         color: _kOutroSetorColor.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(10),
-        border:
-            Border.all(color: _kOutroSetorColor.withValues(alpha: 0.25)),
+        border: Border.all(color: _kOutroSetorColor.withValues(alpha: 0.20)),
       ),
       child: Row(
         children: [
           CircleAvatar(
             radius: 18,
-            backgroundColor: _kOutroSetorColor.withValues(alpha: 0.15),
+            backgroundColor: _kOutroSetorColor.withValues(alpha: 0.10),
             child: Text(
               iniciais,
               style: const TextStyle(

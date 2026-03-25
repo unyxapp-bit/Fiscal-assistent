@@ -34,7 +34,8 @@ class BalcaoListItem extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => _ColaboradorPickerSheet(balcao: balcao),
     );
@@ -61,7 +62,8 @@ class BalcaoListItem extends StatelessWidget {
       ),
     );
     if (confirmed == true) {
-      await alocacaoProvider.liberarAlocacao(alocacao.id, 'Liberado pelo fiscal');
+      await alocacaoProvider.liberarAlocacao(
+          alocacao.id, 'Liberado pelo fiscal');
     }
   }
 
@@ -87,7 +89,8 @@ class BalcaoListItem extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => ColaboradorDetalhesSheet(
         caixa: balcao,
@@ -125,8 +128,8 @@ class BalcaoListItem extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   balcao.nomeExibicao,
-                  style: AppTextStyles.subtitle
-                      .copyWith(color: _kBalcaoColor, fontWeight: FontWeight.bold),
+                  style: AppTextStyles.subtitle.copyWith(
+                      color: _kBalcaoColor, fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
                 Container(
@@ -134,14 +137,18 @@ class BalcaoListItem extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: ocupados > 0
-                        ? _kBalcaoColor.withValues(alpha: 0.15)
+                        ? _kBalcaoColor.withValues(alpha: 0.10)
                         : AppColors.backgroundSection,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    ocupados == 0 ? 'Vazio' : '$ocupados fiscal${ocupados > 1 ? 'is' : ''}',
+                    ocupados == 0
+                        ? 'Vazio'
+                        : '$ocupados fiscal${ocupados > 1 ? 'is' : ''}',
                     style: AppTextStyles.caption.copyWith(
-                      color: ocupados > 0 ? _kBalcaoColor : AppColors.textSecondary,
+                      color: ocupados > 0
+                          ? _kBalcaoColor
+                          : AppColors.textSecondary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -157,14 +164,14 @@ class BalcaoListItem extends StatelessWidget {
               runSpacing: 8,
               children: [
                 ...alocacoes.map((alocacao) {
-                  final col = Provider.of<ColaboradorProvider>(
-                          context, listen: false)
-                      .colaboradores
-                      .cast<Colaborador?>()
-                      .firstWhere(
-                        (c) => c?.id == alocacao.colaboradorId,
-                        orElse: () => null,
-                      );
+                  final col =
+                      Provider.of<ColaboradorProvider>(context, listen: false)
+                          .colaboradores
+                          .cast<Colaborador?>()
+                          .firstWhere(
+                            (c) => c?.id == alocacao.colaboradorId,
+                            orElse: () => null,
+                          );
                   return SizedBox(
                     width: 90,
                     child: _OcupadoSlot(
@@ -219,7 +226,7 @@ class _OcupadoSlot extends StatelessWidget {
         decoration: BoxDecoration(
           color: _kBalcaoColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: _kBalcaoColor.withValues(alpha: 0.4)),
+          border: Border.all(color: _kBalcaoColor.withValues(alpha: 0.28)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -239,7 +246,8 @@ class _OcupadoSlot extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               nome.split(' ').first,
-              style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w600),
+              style:
+                  AppTextStyles.caption.copyWith(fontWeight: FontWeight.w600),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
@@ -271,7 +279,7 @@ class _VazioSlot extends StatelessWidget {
           color: _kBalcaoColor.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: _kBalcaoColor.withValues(alpha: 0.3),
+            color: _kBalcaoColor.withValues(alpha: 0.22),
             style: BorderStyle.solid,
           ),
         ),
@@ -431,8 +439,7 @@ class _ColaboradorPickerSheet extends StatelessWidget {
                         );
                         return;
                       }
-                      if (alocacaoProvider.error != null &&
-                          context.mounted) {
+                      if (alocacaoProvider.error != null && context.mounted) {
                         AppNotif.show(
                           context,
                           titulo: 'Erro',

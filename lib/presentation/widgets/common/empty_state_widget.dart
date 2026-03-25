@@ -27,7 +27,7 @@ class EmptyStateWidget extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Dimensions.paddingMD),
         child: Container(
-          decoration: AppStyles.softCard(tint: AppColors.primary, radius: 20),
+          decoration: AppStyles.softCard(tint: AppColors.inactive, radius: 20),
           padding: const EdgeInsets.symmetric(
             horizontal: Dimensions.paddingLG,
             vertical: Dimensions.paddingXL,
@@ -40,14 +40,9 @@ class EmptyStateWidget extends StatelessWidget {
                 height: 76,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColors.primary.withValues(alpha: 0.16),
-                      AppColors.primary.withValues(alpha: 0.06),
-                    ],
-                  ),
+                  color: AppColors.primary.withValues(alpha: 0.08),
                   border: Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.25),
+                    color: AppColors.primary.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Icon(icon, size: 34, color: AppColors.primary),

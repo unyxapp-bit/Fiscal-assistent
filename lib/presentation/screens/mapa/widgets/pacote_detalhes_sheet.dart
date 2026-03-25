@@ -186,7 +186,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: _kPacoteColor.withValues(alpha: 0.15),
+                  color: _kPacoteColor.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -392,7 +392,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.22)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

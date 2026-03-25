@@ -87,7 +87,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   key: _formKey,
                   child: Container(
                     decoration: AppStyles.softCard(
-                      tint: AppColors.primary,
+                      tint: AppColors.inactive,
                       radius: 22,
                     ),
                     padding: const EdgeInsets.all(20),
