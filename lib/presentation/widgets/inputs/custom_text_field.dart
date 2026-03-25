@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/dimensions.dart';
+import '../../../core/constants/text_styles.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -37,16 +38,9 @@ class CustomTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: AppColors.textPrimary,
-          ),
-        ),
+        Text(label,
+            style: AppTextStyles.label.copyWith(color: AppColors.textPrimary)),
         const SizedBox(height: 8),
-
         TextFormField(
           controller: controller,
           obscureText: obscureText,
@@ -56,42 +50,43 @@ class CustomTextField extends StatelessWidget {
           onChanged: onChanged,
           maxLines: maxLines,
           enabled: enabled,
-          style: const TextStyle(
-            fontSize: 16,
-            color: AppColors.textPrimary,
-          ),
+          style: AppTextStyles.body,
           decoration: InputDecoration(
             hintText: hintText,
-            hintStyle: const TextStyle(
-              color: AppColors.textSecondary,
-            ),
+            hintStyle: AppTextStyles.body.copyWith(color: AppColors.inactive),
             prefixIcon: prefixIcon != null
-                ? Icon(prefixIcon, color: AppColors.textSecondary)
+                ? Icon(prefixIcon, color: AppColors.textSecondary, size: 20)
                 : null,
             suffixIcon: suffixIcon,
             filled: true,
-            fillColor: AppColors.cardBackground,
+            fillColor: enabled
+                ? AppColors.cardBackground
+                : AppColors.backgroundSection,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+              borderRadius: BorderRadius.circular(Dimensions.radiusMD),
               borderSide: const BorderSide(color: AppColors.cardBorder),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+              borderRadius: BorderRadius.circular(Dimensions.radiusMD),
               borderSide: const BorderSide(color: AppColors.cardBorder),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: const BorderSide(color: AppColors.primary, width: 2),
+              borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+              borderSide:
+                  const BorderSide(color: AppColors.primary, width: 1.5),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+              borderRadius: BorderRadius.circular(Dimensions.radiusMD),
               borderSide: const BorderSide(color: AppColors.danger),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              borderSide: const BorderSide(color: AppColors.danger, width: 2),
+              borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+              borderSide: const BorderSide(color: AppColors.danger, width: 1.5),
             ),
-            contentPadding: const EdgeInsets.all(Dimensions.paddingMD),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: Dimensions.paddingMD,
+              vertical: 14,
+            ),
           ),
         ),
       ],

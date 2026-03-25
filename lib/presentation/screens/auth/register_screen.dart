@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../core/constants/app_styles.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
@@ -45,28 +46,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
       nome: _nomeController.text,
     );
 
+    if (!mounted) return;
+
     if (success) {
-      if (mounted) {
-        AppNotif.show(
-          context,
-          titulo: 'Conta Criada',
-          mensagem: 'Conta criada com sucesso!',
-          tipo: 'saida',
-          cor: AppColors.success,
-        );
-        Navigator.of(context).pop();
-      }
-    } else {
-      if (mounted) {
-        AppNotif.show(
-          context,
-          titulo: 'Erro',
-          mensagem: authProvider.errorMessage ?? 'Erro ao criar conta',
-          tipo: 'alerta',
-          cor: AppColors.danger,
-        );
-      }
+      AppNotif.show(
+        context,
+        titulo: 'Conta criada',
+        mensagem: 'Conta criada com sucesso',
+        tipo: 'saida',
+        cor: AppColors.success,
+      );
+      Navigator.of(context).pop();
+      return;
     }
+
+    AppNotif.show(
+      context,
+      titulo: 'Erro',
+      mensagem: authProvider.errorMessage ?? 'Erro ao criar conta',
+      tipo: 'alerta',
+      cor: AppColors.danger,
+    );
   }
 
   @override
@@ -76,9 +76,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Criar Conta'),
-        backgroundColor: AppColors.background,
-        elevation: 0,
+        title: const Text('Criar conta'),
       ),
       body: SafeArea(
         child: authProvider.isLoading
@@ -87,134 +85,123 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 padding: const EdgeInsets.all(Dimensions.paddingXL),
                 child: Form(
                   key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const SizedBox(height: 24),
-
-                      const Text(
-                        'Crie sua conta',
-                        style: AppTextStyles.h2,
-                      ),
-
-                      const SizedBox(height: 8),
-
-                      Text(
-                        'Preencha os dados para começar',
-                        style: AppTextStyles.body.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-
-                      const SizedBox(height: 32),
-
-                      CustomTextField(
-                        controller: _nomeController,
-                        label: 'Nome Completo',
-                        hintText: 'Seu nome',
-                        prefixIcon: Icons.person_outlined,
-                        textCapitalization: TextCapitalization.words,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Digite seu nome';
-                          }
-                          if (value.length < 3) {
-                            return 'Nome deve ter no mínimo 3 caracteres';
-                          }
-                          return null;
-                        },
-                      ),
-
-                      const SizedBox(height: Dimensions.spacingMD),
-
-                      CustomTextField(
-                        controller: _emailController,
-                        label: 'Email',
-                        hintText: 'seu@email.com',
-                        keyboardType: TextInputType.emailAddress,
-                        prefixIcon: Icons.email_outlined,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Digite seu email';
-                          }
-                          if (!value.contains('@')) {
-                            return 'Email inválido';
-                          }
-                          return null;
-                        },
-                      ),
-
-                      const SizedBox(height: Dimensions.spacingMD),
-
-                      CustomTextField(
-                        controller: _passwordController,
-                        label: 'Senha',
-                        hintText: 'Mínimo 6 caracteres',
-                        obscureText: _obscurePassword,
-                        prefixIcon: Icons.lock_outlined,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
+                  child: Container(
+                    decoration: AppStyles.softCard(
+                      tint: AppColors.primary,
+                      radius: 22,
+                    ),
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text('Crie sua conta', style: AppTextStyles.h2),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Preencha os dados para comecar',
+                          style: AppTextStyles.body.copyWith(
+                            color: AppColors.textSecondary,
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
+                        ),
+                        const SizedBox(height: 22),
+                        CustomTextField(
+                          controller: _nomeController,
+                          label: 'Nome completo',
+                          hintText: 'Seu nome',
+                          prefixIcon: Icons.person_outlined,
+                          textCapitalization: TextCapitalization.words,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Digite seu nome';
+                            }
+                            if (value.length < 3) {
+                              return 'Nome deve ter no minimo 3 caracteres';
+                            }
+                            return null;
                           },
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Digite uma senha';
-                          }
-                          if (value.length < 6) {
-                            return 'Senha deve ter no mínimo 6 caracteres';
-                          }
-                          return null;
-                        },
-                      ),
-
-                      const SizedBox(height: Dimensions.spacingMD),
-
-                      CustomTextField(
-                        controller: _confirmPasswordController,
-                        label: 'Confirmar Senha',
-                        hintText: 'Digite a senha novamente',
-                        obscureText: _obscureConfirmPassword,
-                        prefixIcon: Icons.lock_outlined,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureConfirmPassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscureConfirmPassword = !_obscureConfirmPassword;
-                            });
+                        const SizedBox(height: Dimensions.spacingMD),
+                        CustomTextField(
+                          controller: _emailController,
+                          label: 'Email',
+                          hintText: 'seu@email.com',
+                          keyboardType: TextInputType.emailAddress,
+                          prefixIcon: Icons.email_outlined,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Digite seu email';
+                            }
+                            if (!value.contains('@')) {
+                              return 'Email invalido';
+                            }
+                            return null;
                           },
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Confirme sua senha';
-                          }
-                          if (value != _passwordController.text) {
-                            return 'As senhas não coincidem';
-                          }
-                          return null;
-                        },
-                      ),
-
-                      const SizedBox(height: Dimensions.spacingXL),
-
-                      PrimaryButton(
-                        text: 'Criar Conta',
-                        onPressed: _handleRegister,
-                      ),
-
-                      const SizedBox(height: 24),
-                    ],
+                        const SizedBox(height: Dimensions.spacingMD),
+                        CustomTextField(
+                          controller: _passwordController,
+                          label: 'Senha',
+                          hintText: 'Minimo 6 caracteres',
+                          obscureText: _obscurePassword,
+                          prefixIcon: Icons.lock_outlined,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Digite uma senha';
+                            }
+                            if (value.length < 6) {
+                              return 'Senha deve ter no minimo 6 caracteres';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: Dimensions.spacingMD),
+                        CustomTextField(
+                          controller: _confirmPasswordController,
+                          label: 'Confirmar senha',
+                          hintText: 'Digite a senha novamente',
+                          obscureText: _obscureConfirmPassword,
+                          prefixIcon: Icons.lock_outlined,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureConfirmPassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword;
+                              });
+                            },
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Confirme sua senha';
+                            }
+                            if (value != _passwordController.text) {
+                              return 'As senhas nao coincidem';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: Dimensions.spacingXL),
+                        PrimaryButton(
+                          text: 'Criar conta',
+                          onPressed: _handleRegister,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

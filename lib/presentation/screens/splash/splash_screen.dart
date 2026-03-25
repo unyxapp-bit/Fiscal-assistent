@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_styles.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 
@@ -24,46 +25,64 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: const Icon(
-                Icons.receipt_long,
-                size: 64,
-                color: Colors.white,
-              ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: <Color>[
+              AppColors.alertInfo,
+              AppColors.background,
+            ],
+          ),
+        ),
+        child: Center(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 340),
+            margin: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 30),
+            decoration: AppStyles.softCard(tint: AppColors.primary, radius: 28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 104,
+                  height: 104,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: <Color>[AppColors.primary, AppColors.indigo],
+                    ),
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.32),
+                        blurRadius: 18,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.receipt_long,
+                    size: 54,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 22),
+                Text(
+                  'Fiscal',
+                  style: AppTextStyles.h2.copyWith(color: AppColors.primary),
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Assistente de Gestao de Caixa',
+                  style: AppTextStyles.label,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 22),
+                const CircularProgressIndicator(strokeWidth: 2.6),
+              ],
             ),
-
-            const SizedBox(height: 32),
-
-            Text(
-              'Fiscal',
-              style: AppTextStyles.h1.copyWith(
-                color: AppColors.primary,
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            const Text(
-              'Assistente de Gestão de Caixa',
-              style: AppTextStyles.label,
-            ),
-
-            const SizedBox(height: 48),
-
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-            ),
-          ],
+          ),
         ),
       ),
     );

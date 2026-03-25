@@ -71,6 +71,7 @@ import 'presentation/providers/evento_turno_provider.dart';
 
 // App Config
 import 'core/constants/colors.dart';
+import 'core/constants/text_styles.dart';
 import 'presentation/screens/splash/splash_screen.dart';
 import 'presentation/screens/auth/login_screen.dart';
 import 'presentation/screens/dashboard/dashboard_screen.dart';
@@ -287,7 +288,6 @@ void main() async {
           ChangeNotifierProvider(
             create: (_) => EventoTurnoProvider(),
           ),
-
         ],
         child: const MyApp(),
       ),
@@ -315,9 +315,175 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primary,
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: AppColors.background,
+        colorScheme: const ColorScheme.light(
+          primary: AppColors.primary,
+          onPrimary: AppColors.textOnColor,
+          secondary: AppColors.statusInfo,
+          onSecondary: AppColors.textOnColor,
+          error: AppColors.danger,
+          onError: AppColors.textOnColor,
+          surface: AppColors.cardBackground,
+          onSurface: AppColors.textPrimary,
+        ),
+        textTheme: const TextTheme(
+          displayLarge: AppTextStyles.h1,
+          displayMedium: AppTextStyles.h2,
+          titleLarge: AppTextStyles.h3,
+          titleMedium: AppTextStyles.h4,
+          bodyLarge: AppTextStyles.body,
+          bodyMedium: AppTextStyles.body,
+          bodySmall: AppTextStyles.caption,
+          labelLarge: AppTextStyles.button,
+          labelMedium: AppTextStyles.label,
+        ).apply(
+          bodyColor: AppColors.textPrimary,
+          displayColor: AppColors.textPrimary,
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: AppColors.background,
+          foregroundColor: AppColors.textPrimary,
+          elevation: 0,
+          centerTitle: false,
+          surfaceTintColor: Colors.transparent,
+          titleTextStyle: AppTextStyles.h3,
+        ),
+        cardTheme: CardThemeData(
+          color: AppColors.cardBackground,
+          elevation: 0,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: AppColors.cardBorder),
+          ),
+          margin: const EdgeInsets.all(0),
+        ),
+        dividerColor: AppColors.divider,
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: AppColors.cardBackground,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 14,
+          ),
+          hintStyle: AppTextStyles.body.copyWith(color: AppColors.inactive),
+          labelStyle: AppTextStyles.label,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.cardBorder),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.cardBorder),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.primary, width: 1.4),
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ButtonStyle(
+            minimumSize: const WidgetStatePropertyAll(Size.fromHeight(48)),
+            backgroundColor: const WidgetStatePropertyAll(AppColors.primary),
+            foregroundColor:
+                const WidgetStatePropertyAll(AppColors.textOnColor),
+            elevation: const WidgetStatePropertyAll(0),
+            padding: const WidgetStatePropertyAll(
+              EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+            shape: WidgetStatePropertyAll(
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
+            textStyle: const WidgetStatePropertyAll(AppTextStyles.button),
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: ButtonStyle(
+            minimumSize: const WidgetStatePropertyAll(Size.fromHeight(48)),
+            foregroundColor: const WidgetStatePropertyAll(AppColors.primary),
+            side: const WidgetStatePropertyAll(
+              BorderSide(color: AppColors.cardBorder),
+            ),
+            shape: WidgetStatePropertyAll(
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
+            textStyle: const WidgetStatePropertyAll(AppTextStyles.button),
+          ),
+        ),
+        textButtonTheme: const TextButtonThemeData(
+          style: ButtonStyle(
+            foregroundColor: WidgetStatePropertyAll(AppColors.primary),
+            textStyle: WidgetStatePropertyAll(AppTextStyles.button),
+          ),
+        ),
+        chipTheme: ChipThemeData(
+          backgroundColor: AppColors.backgroundSection,
+          disabledColor: AppColors.backgroundSection,
+          selectedColor: AppColors.secondary,
+          secondarySelectedColor: AppColors.secondary,
+          side: const BorderSide(color: AppColors.cardBorder),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          labelStyle: AppTextStyles.caption,
+          secondaryLabelStyle: AppTextStyles.caption.copyWith(
+            color: AppColors.primary,
+          ),
           brightness: Brightness.light,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        ),
+        listTileTheme: const ListTileThemeData(
+          iconColor: AppColors.textSecondary,
+          textColor: AppColors.textPrimary,
+          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: AppColors.primary,
+          foregroundColor: AppColors.textOnColor,
+          elevation: 1,
+          shape: StadiumBorder(),
+        ),
+        bottomSheetTheme: const BottomSheetThemeData(
+          backgroundColor: AppColors.cardBackground,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+        ),
+        dialogTheme: const DialogThemeData(
+          backgroundColor: AppColors.cardBackground,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(18)),
+          ),
+        ),
+        snackBarTheme: SnackBarThemeData(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: AppColors.textPrimary,
+          contentTextStyle: AppTextStyles.body.copyWith(color: Colors.white),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        navigationBarTheme: NavigationBarThemeData(
+          backgroundColor: AppColors.cardBackground.withValues(alpha: 0.94),
+          indicatorColor: AppColors.secondary,
+          iconTheme: const WidgetStatePropertyAll(
+            IconThemeData(color: AppColors.textSecondary),
+          ),
+          labelTextStyle: const WidgetStatePropertyAll(
+            TextStyle(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        tabBarTheme: const TabBarThemeData(
+          indicatorColor: AppColors.primary,
+          indicatorSize: TabBarIndicatorSize.label,
+          labelColor: AppColors.primary,
+          unselectedLabelColor: AppColors.textSecondary,
+          dividerColor: AppColors.cardBorder,
         ),
       ),
       home: Consumer<AuthProvider>(

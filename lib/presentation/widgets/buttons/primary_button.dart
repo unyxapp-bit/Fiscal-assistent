@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/dimensions.dart';
+import '../../../core/constants/text_styles.dart';
 
 class PrimaryButton extends StatelessWidget {
   final String text;
@@ -22,15 +23,21 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final buttonColor = backgroundColor ?? AppColors.primary;
+    final labelColor = textColor ?? AppColors.textOnColor;
+
     return SizedBox(
       height: Dimensions.buttonHeight,
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor ?? AppColors.primary,
-          foregroundColor: textColor ?? Colors.white,
+          backgroundColor: buttonColor,
+          foregroundColor: labelColor,
+          disabledBackgroundColor: buttonColor.withValues(alpha: 0.45),
+          disabledForegroundColor: labelColor.withValues(alpha: 0.9),
+          elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(Dimensions.buttonBorderRadius),
+            borderRadius: BorderRadius.circular(14),
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: Dimensions.buttonPaddingH,
@@ -38,12 +45,12 @@ class PrimaryButton extends StatelessWidget {
           ),
         ),
         child: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  strokeWidth: 2.2,
+                  valueColor: AlwaysStoppedAnimation<Color>(labelColor),
                 ),
               )
             : Row(
@@ -55,10 +62,7 @@ class PrimaryButton extends StatelessWidget {
                   ],
                   Text(
                     text,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: AppTextStyles.button,
                   ),
                 ],
               ),
