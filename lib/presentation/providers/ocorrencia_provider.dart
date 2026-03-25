@@ -134,6 +134,13 @@ class OcorrenciaProvider with ChangeNotifier {
   List<Ocorrencia> get resolvidas =>
       _ocorrencias.where((o) => o.resolvida).toList();
   int get totalAbertas => abertas.length;
+  Ocorrencia? obterPorId(String id) {
+    try {
+      return _ocorrencias.firstWhere((o) => o.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
 
   List<Ocorrencia> get hoje {
     final agora = DateTime.now();
@@ -166,6 +173,7 @@ class OcorrenciaProvider with ChangeNotifier {
 
   void registrar({
     required String tipo,
+    String? id,
     String? caixaId,
     String? caixaNome,
     String? colaboradorId,
@@ -178,7 +186,7 @@ class OcorrenciaProvider with ChangeNotifier {
     String? arquivoNome,
   }) {
     final oc = Ocorrencia(
-      id: const Uuid().v4(),
+      id: id ?? const Uuid().v4(),
       tipo: tipo.trim().isEmpty ? 'Outro' : tipo.trim(),
       caixaId: caixaId,
       caixaNome: caixaNome,
@@ -195,6 +203,14 @@ class OcorrenciaProvider with ChangeNotifier {
     _ocorrencias.insert(0, oc);
     notifyListeners();
     _upsert(oc);
+  }
+
+  void atualizar(Ocorrencia ocorrencia) {
+    final index = _ocorrencias.indexWhere((o) => o.id == ocorrencia.id);
+    if (index == -1) return;
+    _ocorrencias[index] = ocorrencia;
+    notifyListeners();
+    _upsert(ocorrencia);
   }
 
   void resolver(String id) {

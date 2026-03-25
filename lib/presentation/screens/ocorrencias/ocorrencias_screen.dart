@@ -8,6 +8,7 @@ import '../../../domain/entities/evento_turno.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/evento_turno_provider.dart';
 import '../../providers/ocorrencia_provider.dart';
+import 'ocorrencia_detail_screen.dart';
 import 'ocorrencia_form_screen.dart';
 
 class OcorrenciasScreen extends StatefulWidget {
@@ -88,103 +89,6 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     );
   }
 
-  void _mostrarDetalhesOcorrencia(
-    BuildContext context,
-    Ocorrencia oc,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              Dimensions.paddingMD,
-              Dimensions.paddingMD,
-              Dimensions.paddingMD,
-              Dimensions.paddingLG,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        oc.tipo,
-                        style: AppTextStyles.h3,
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: oc.gravidade.cor.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        oc.gravidade.nome,
-                        style: TextStyle(
-                          color: oc.gravidade.cor,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  oc.descricao,
-                  style: AppTextStyles.body,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Registrada em ${_formatDateTime(oc.registradaEm)}',
-                  style: AppTextStyles.caption
-                      .copyWith(color: AppColors.textSecondary),
-                ),
-                if (oc.caixaNome != null && oc.caixaNome!.isNotEmpty)
-                  Text(
-                    'Caixa: ${oc.caixaNome}',
-                    style: AppTextStyles.caption
-                        .copyWith(color: AppColors.textSecondary),
-                  ),
-                if (oc.colaboradorNome != null &&
-                    oc.colaboradorNome!.isNotEmpty)
-                  Text(
-                    'Colaborador: ${oc.colaboradorNome}',
-                    style: AppTextStyles.caption
-                        .copyWith(color: AppColors.textSecondary),
-                  ),
-                if (oc.resolvida && oc.resolvidaEm != null)
-                  Text(
-                    'Resolvida em ${_formatDateTime(oc.resolvidaEm!)}',
-                    style:
-                        AppTextStyles.caption.copyWith(color: AppColors.success),
-                  ),
-                const SizedBox(height: 16),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () => Navigator.of(ctx).pop(),
-                    child: const Text('Fechar'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildLista(
     BuildContext context,
     List<Ocorrencia> lista,
@@ -203,8 +107,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
               showResolver
                   ? 'Nenhuma ocorrência aberta'
                   : 'Nenhuma ocorrência resolvida',
-              style:
-                  AppTextStyles.h4.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.h4.copyWith(color: AppColors.textSecondary),
             ),
           ],
         ),
@@ -219,10 +122,18 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
         return Card(
           margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
           child: ListTile(
-            onTap: () => _mostrarDetalhesOcorrencia(ctx, oc),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => OcorrenciaDetailScreen(
+                  ocorrenciaId: oc.id,
+                  ocorrenciaInicial: oc,
+                ),
+              ),
+            ),
             leading: CircleAvatar(
               backgroundColor: oc.gravidade.cor.withValues(alpha: 0.15),
-              child: Icon(iconForTipo(oc.tipo), color: oc.gravidade.cor, size: 20),
+              child:
+                  Icon(iconForTipo(oc.tipo), color: oc.gravidade.cor, size: 20),
             ),
             title: Row(
               children: [
@@ -230,8 +141,8 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                   child: Text(oc.tipo, style: AppTextStyles.h4),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: oc.gravidade.cor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(4),
@@ -255,8 +166,8 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                   oc.descricao,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.body
-                      .copyWith(color: AppColors.textPrimary),
+                  style:
+                      AppTextStyles.body.copyWith(color: AppColors.textPrimary),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -290,9 +201,14 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
               onSelected: (v) {
                 if (v == 'resolver') {
                   provider.resolver(oc.id);
-                  final eventoProvider = Provider.of<EventoTurnoProvider>(ctx, listen: false);
+                  final eventoProvider =
+                      Provider.of<EventoTurnoProvider>(ctx, listen: false);
                   if (eventoProvider.turnoAtivo) {
-                    final fiscalId = Provider.of<AuthProvider>(ctx, listen: false).user?.id ?? '';
+                    final fiscalId =
+                        Provider.of<AuthProvider>(ctx, listen: false)
+                                .user
+                                ?.id ??
+                            '';
                     eventoProvider.registrar(
                       fiscalId: fiscalId,
                       tipo: TipoEvento.ocorrenciaResolvida,
@@ -308,8 +224,8 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                   const PopupMenuItem(
                     value: 'resolver',
                     child: Row(children: [
-                      Icon(Icons.check_circle, size: 18,
-                          color: AppColors.success),
+                      Icon(Icons.check_circle,
+                          size: 18, color: AppColors.success),
                       SizedBox(width: 8),
                       Text('Marcar como resolvida'),
                     ]),
@@ -327,8 +243,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                   child: Row(children: [
                     Icon(Icons.delete, size: 18, color: AppColors.danger),
                     SizedBox(width: 8),
-                    Text('Excluir',
-                        style: TextStyle(color: AppColors.danger)),
+                    Text('Excluir', style: TextStyle(color: AppColors.danger)),
                   ]),
                 ),
               ],
