@@ -184,16 +184,14 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
               const Text('Pacotes', style: AppTextStyles.h2),
               const SizedBox(width: 8),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: _kPacoteColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   'Plantão do dia',
-                  style:
-                      AppTextStyles.caption.copyWith(color: _kPacoteColor),
+                  style: AppTextStyles.caption.copyWith(color: _kPacoteColor),
                 ),
               ),
             ],
@@ -247,8 +245,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.coffee,
-                      color: Colors.orange.shade700, size: 18),
+                  Icon(Icons.coffee, color: Colors.orange.shade700, size: 18),
                   const SizedBox(width: 8),
                   Text(
                     'Em pausa de café — ${widget.pausa.minutosDecorridos}min decorridos'
@@ -418,16 +415,14 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
 
   Future<void> _enviarParaCafe() async {
     final providerCtx = widget.providerContext;
-    final cafeProvider =
-        Provider.of<CafeProvider>(providerCtx, listen: false);
+    final cafeProvider = Provider.of<CafeProvider>(providerCtx, listen: false);
     final navigator = Navigator.of(context);
 
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Enviar para Café ☕'),
-        content: Text(
-            'Enviar ${widget.colaborador.nome} para 10 min de café?'),
+        content: Text('Enviar ${widget.colaborador.nome} para 10 min de café?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -457,7 +452,8 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
       AppNotif.show(
         providerCtx,
         titulo: 'Café Iniciado',
-        mensagem: '${widget.colaborador.nome} — pausa de café iniciada (10 min)',
+        mensagem:
+            '${widget.colaborador.nome} — pausa de café iniciada (10 min)',
         tipo: 'cafe',
         cor: const Color(0xFF8D6E63),
       );
@@ -465,7 +461,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
   }
 
   Future<void> _enviarParaIntervalo() async {
-    int duracaoMinutos = 30;
+    int duracaoMinutos = 60;
     if (widget.turno != null) {
       final t = widget.turno!;
       if (t.intervalo != null && t.retorno != null) {
@@ -488,11 +484,9 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
 
     final providerCtx = widget.providerContext;
     final navigator = Navigator.of(context);
-    final cafeProvider =
-        Provider.of<CafeProvider>(providerCtx, listen: false);
+    final cafeProvider = Provider.of<CafeProvider>(providerCtx, listen: false);
 
-    if (cafeProvider.colaboradorJaFezIntervaloHoje(
-        widget.colaborador.id)) {
+    if (cafeProvider.colaboradorJaFezIntervaloHoje(widget.colaborador.id)) {
       AppNotif.show(
         providerCtx,
         titulo: 'Intervalo já realizado',
@@ -527,11 +521,18 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
 
     if (confirm != true || !mounted) return;
 
+    cafeProvider.iniciarPausa(
+      colaboradorId: widget.colaborador.id,
+      colaboradorNome: widget.colaborador.nome,
+      duracaoMinutos: duracaoMinutos,
+    );
+
     final retornoEm = DateTime.now().add(Duration(minutes: duracaoMinutos));
     NotificationService.instance.scheduleAlert(
       id: (widget.colaborador.id.hashCode.abs() % 100000) + 1,
       title: 'Intervalo encerrado 🍽️',
-      body: '${widget.colaborador.nome} deve retornar ao posto',
+      body:
+          '${widget.colaborador.nome} deve ser realocado(a) apos o intervalo.',
       scheduledAt: retornoEm,
     );
 
@@ -540,7 +541,8 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
       AppNotif.show(
         providerCtx,
         titulo: 'Intervalo Iniciado',
-        mensagem: '${widget.colaborador.nome} — intervalo de $duracaoMinutos min. Notificação agendada.',
+        mensagem:
+            '${widget.colaborador.nome} — intervalo de $duracaoMinutos min. Notificação agendada.',
         tipo: 'intervalo',
         cor: Colors.orange,
       );

@@ -74,7 +74,8 @@ class _DashboardScreenState extends State<DashboardScreen>
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => _BriefingTurnoSheet(fiscalId: fiscalId),
     );
@@ -138,9 +139,8 @@ class _DashboardScreenState extends State<DashboardScreen>
     final turnoJaIniciado = eventoProvider.turnoIniciadoEm != null;
 
     final saudacao = _getSaudacao();
-    final nome = fiscalProvider.fiscal?.nome ??
-        authProvider.user?.email ??
-        'Usuário';
+    final nome =
+        fiscalProvider.fiscal?.nome ?? authProvider.user?.email ?? 'Usuário';
     final primeiroNome = nome.split(' ').first;
 
     final totalAtivos = colaboradorProvider.totalAtivos;
@@ -157,8 +157,10 @@ class _DashboardScreenState extends State<DashboardScreen>
           label:
               '${cafeProvider.totalEmAtraso} pausa${cafeProvider.totalEmAtraso > 1 ? 's' : ''} em atraso',
           color: AppColors.danger,
-          onTap: () => Navigator.push(context,
-              MaterialPageRoute(builder: (_) => const GestaoScreen(initialIndex: 2))),
+          onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => const GestaoScreen(initialIndex: 2))),
         ),
       if (entregaProvider.totalSeparadas > 0)
         _AlertItem(
@@ -175,8 +177,8 @@ class _DashboardScreenState extends State<DashboardScreen>
           label:
               '${notaProvider.totalLembretesVencidos} lembrete${notaProvider.totalLembretesVencidos > 1 ? 's vencidos' : ' vencido'}',
           color: AppColors.danger,
-          onTap: () => Navigator.push(context,
-              MaterialPageRoute(builder: (_) => const NotasScreen())),
+          onTap: () => Navigator.push(
+              context, MaterialPageRoute(builder: (_) => const NotasScreen())),
         ),
       if (ocorrenciaProvider.totalAbertas > 0)
         _AlertItem(
@@ -201,378 +203,372 @@ class _DashboardScreenState extends State<DashboardScreen>
     final tabBarView = TabBarView(
       controller: _tabController,
       children: [
-            // ── ABA 1: INÍCIO ───────────────────────────────────────────────
-            LayoutBuilder(
-              builder: (context, constraints) => RefreshIndicator(
-              onRefresh: _loadData,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.symmetric(
-                  horizontal: Dimensions.hPad(constraints.maxWidth),
-                  vertical: Dimensions.paddingMD,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const ClockWidget(),
-                    const SizedBox(height: Dimensions.spacingMD),
+        // ── ABA 1: INÍCIO ───────────────────────────────────────────────
+        LayoutBuilder(
+            builder: (context, constraints) => RefreshIndicator(
+                  onRefresh: _loadData,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Dimensions.hPad(constraints.maxWidth),
+                      vertical: Dimensions.paddingMD,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const ClockWidget(),
+                        const SizedBox(height: Dimensions.spacingMD),
 
-                    // Botão Começar Turno — oculto após confirmar início
-                    if (!turnoJaIniciado) ...[
-                      _ComecaTurnoButton(
-                        onPressed: () => _abrirBriefingTurno(
-                          context,
-                          authProvider.user?.id ?? '',
-                        ),
-                      ),
-                      const SizedBox(height: Dimensions.spacingXL),
-                    ],
+                        // Botão Começar Turno — oculto após confirmar início
+                        if (!turnoJaIniciado) ...[
+                          _ComecaTurnoButton(
+                            onPressed: () => _abrirBriefingTurno(
+                              context,
+                              authProvider.user?.id ?? '',
+                            ),
+                          ),
+                          const SizedBox(height: Dimensions.spacingXL),
+                        ],
 
-                    // Stats
-                    Card(
-                      color: AppColors.cardBackground,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: Dimensions.paddingMD,
-                          vertical: Dimensions.paddingSM,
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
+                        // Stats
+                        Card(
+                          color: AppColors.cardBackground,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: Dimensions.paddingMD,
+                              vertical: Dimensions.paddingSM,
+                            ),
+                            child: Column(
                               children: [
-                                _StatItem(
-                                  icon: Icons.people,
-                                  label: 'Colaboradores',
-                                  value: totalAtivos.toString(),
-                                  color: AppColors.primary,
+                                Row(
+                                  children: [
+                                    _StatItem(
+                                      icon: Icons.people,
+                                      label: 'Colaboradores',
+                                      value: totalAtivos.toString(),
+                                      color: AppColors.primary,
+                                    ),
+                                    const _StatDivider(),
+                                    _StatItem(
+                                      icon: Icons.point_of_sale,
+                                      label: 'Caixas',
+                                      value: totalCaixas.toString(),
+                                      color: AppColors.success,
+                                    ),
+                                    const _StatDivider(),
+                                    _StatItem(
+                                      icon: Icons.swap_horiz,
+                                      label: 'Alocados',
+                                      value: alocados.toString(),
+                                      color: AppColors.statusAtivo,
+                                    ),
+                                  ],
                                 ),
-                                const _StatDivider(),
-                                _StatItem(
-                                  icon: Icons.point_of_sale,
-                                  label: 'Caixas',
-                                  value: totalCaixas.toString(),
-                                  color: AppColors.success,
-                                ),
-                                const _StatDivider(),
-                                _StatItem(
-                                  icon: Icons.swap_horiz,
-                                  label: 'Alocados',
-                                  value: alocados.toString(),
-                                  color: AppColors.statusAtivo,
+                                const Divider(height: 1, thickness: 1),
+                                Row(
+                                  children: [
+                                    _StatItem(
+                                      icon: Icons.check_circle,
+                                      label: 'Livres',
+                                      value: livres.toString(),
+                                      color: AppColors.statusIntervalo,
+                                    ),
+                                    const _StatDivider(),
+                                    _StatItem(
+                                      icon: Icons.coffee,
+                                      label: 'Em Pausa',
+                                      value: emPausa.toString(),
+                                      color: AppColors.coffee,
+                                    ),
+                                    const _StatDivider(),
+                                    _StatItem(
+                                      icon: Icons.local_shipping,
+                                      label: 'Em Rota',
+                                      value: emRota.toString(),
+                                      color: AppColors.statusCafe,
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                            const Divider(height: 1, thickness: 1),
-                            Row(
-                              children: [
-                                _StatItem(
-                                  icon: Icons.check_circle,
-                                  label: 'Livres',
-                                  value: livres.toString(),
-                                  color: AppColors.statusIntervalo,
-                                ),
-                                const _StatDivider(),
-                                _StatItem(
-                                  icon: Icons.coffee,
-                                  label: 'Em Pausa',
-                                  value: emPausa.toString(),
-                                  color: AppColors.coffee,
-                                ),
-                                const _StatDivider(),
-                                _StatItem(
-                                  icon: Icons.local_shipping,
-                                  label: 'Em Rota',
-                                  value: emRota.toString(),
-                                  color: AppColors.statusCafe,
-                                ),
-                              ],
-                            ),
-                          ],
+                          ),
                         ),
+
+                        // Alertas
+                        if (alertas.isNotEmpty) ...[
+                          const SizedBox(height: Dimensions.spacingMD),
+                          ...alertas.map((a) => _AlertCard(item: a)),
+                        ],
+
+                        // Monitor em tempo real
+                        const SizedBox(height: Dimensions.spacingMD),
+                        _MonitorTempoReal(
+                          cafeProvider: cafeProvider,
+                          colaboradorProvider: colaboradorProvider,
+                          caixaProvider: caixaProvider,
+                          escalaProvider: escalaProvider,
+                        ),
+
+                        const SizedBox(height: Dimensions.spacingXL),
+                      ],
+                    ),
+                  ),
+                )),
+
+        // ── ABA 2: PRINCIPAL ────────────────────────────────────────────
+        SingleChildScrollView(
+          padding: const EdgeInsets.all(Dimensions.paddingMD),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: Dimensions.spacingSM),
+              _GridAcoes(
+                botoes: [
+                  _BotaoAcao(
+                    icon: Icons.point_of_sale,
+                    label: 'Caixas',
+                    color: AppColors.primary,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const GestaoScreen(),
                       ),
                     ),
-
-                    // Alertas
-                    if (alertas.isNotEmpty) ...[
-                      const SizedBox(height: Dimensions.spacingMD),
-                      ...alertas.map((a) => _AlertCard(item: a)),
-                    ],
-
-                    // Monitor em tempo real
-                    const SizedBox(height: Dimensions.spacingMD),
-                    _MonitorTempoReal(
-                      cafeProvider: cafeProvider,
-                      colaboradorProvider: colaboradorProvider,
-                      caixaProvider: caixaProvider,
-                      escalaProvider: escalaProvider,
+                  ),
+                  _BotaoAcao(
+                    icon: Icons.people,
+                    label: 'Colaboradores',
+                    color: AppColors.statusAtivo,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const ColaboradoresListScreen()),
                     ),
+                  ),
+                  _BotaoAcao(
+                    icon: Icons.bar_chart,
+                    label: 'Relatório',
+                    color: AppColors.cyan,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const RelatorioDiarioScreen()),
+                    ),
+                  ),
+                  _BotaoAcao(
+                    icon: Icons.calendar_month,
+                    label: 'Escala',
+                    color: AppColors.pink,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const EscalaScreen()),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
 
-                    const SizedBox(height: Dimensions.spacingXL),
-                  ],
+        // ── ABA 3: OPERAÇÕES ────────────────────────────────────────────
+        SingleChildScrollView(
+          padding: const EdgeInsets.all(Dimensions.paddingMD),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: Dimensions.spacingSM),
+              _GridAcoes(
+                botoes: [
+                  _BotaoAcao(
+                    icon: Icons.local_shipping,
+                    label: 'Entregas',
+                    color: AppColors.statusCafe,
+                    badge: entregaProvider.totalEmRota > 0
+                        ? entregaProvider.totalEmRota.toString()
+                        : null,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const EntregasScreen()),
+                    ),
+                  ),
+                  _BotaoAcao(
+                    icon: Icons.report_problem,
+                    label: 'Ocorrências',
+                    color: AppColors.danger,
+                    badge: ocorrenciaProvider.totalAbertas > 0
+                        ? ocorrenciaProvider.totalAbertas.toString()
+                        : null,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const OcorrenciasScreen()),
+                    ),
+                  ),
+                  _BotaoAcao(
+                    icon: Icons.checklist,
+                    label: 'Checklist',
+                    color: AppColors.success,
+                    badge: checklistProvider.templatesPendentesAgora.isNotEmpty
+                        ? '!'
+                        : null,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const ChecklistScreen()),
+                    ),
+                  ),
+                  _BotaoAcao(
+                    icon: Icons.handshake,
+                    label: 'Passagem Turno',
+                    color: AppColors.primary,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const PassagemTurnoScreen()),
+                    ),
+                  ),
+                  _BotaoAcao(
+                    icon: Icons.help_outline,
+                    label: 'Guia Rápido',
+                    color: AppColors.blueGrey,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const GuiaRapidoScreen()),
+                    ),
+                  ),
+                  _BotaoAcao(
+                    icon: Icons.note,
+                    label: 'Anotações',
+                    color: AppColors.statusSaida,
+                    badge: notaProvider.totalTarefasPendentes > 0
+                        ? notaProvider.totalTarefasPendentes.toString()
+                        : null,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const NotasScreen()),
+                    ),
+                  ),
+                  _BotaoAcao(
+                    icon: Icons.description,
+                    label: 'Formulários',
+                    color: AppColors.indigo,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const FormulariosScreen()),
+                    ),
+                  ),
+                  _BotaoAcao(
+                    icon: Icons.menu_book,
+                    label: 'Procedimentos',
+                    color: AppColors.deepPurple,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const ProcedimentosScreen()),
+                    ),
+                  ),
+                  _BotaoAcao(
+                    icon: Icons.notifications,
+                    label: 'Notificações',
+                    color: AppColors.primary,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const NotificacoesScreen()),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        // ── ABA 4: LOJA ─────────────────────────────────────────────────
+        RefreshIndicator(
+          onRefresh: _loadData,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(Dimensions.paddingMD),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: Dimensions.spacingSM),
+
+                // Banner de saúde do turno
+                _BannerSaudeTurno(
+                  critico: cafeProvider.totalEmAtraso > 0 ||
+                      notaProvider.totalLembretesVencidos > 0,
+                  atencao: ocorrenciaProvider.totalAbertas > 0 ||
+                      entregaProvider.totalSeparadas > 0 ||
+                      checklistProvider.templatesPendentesAgora.isNotEmpty,
                 ),
-              ),
-            )),
+                const SizedBox(height: Dimensions.spacingMD),
 
-            // ── ABA 2: PRINCIPAL ────────────────────────────────────────────
-            SingleChildScrollView(
-              padding: const EdgeInsets.all(Dimensions.paddingMD),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: Dimensions.spacingSM),
-                  _GridAcoes(
-                    botoes: [
-                      _BotaoAcao(
-                        icon: Icons.point_of_sale,
-                        label: 'Caixas',
-                        color: AppColors.primary,
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const GestaoScreen(),
-                          ),
-                        ),
-                      ),
-                      _BotaoAcao(
-                        icon: Icons.people,
-                        label: 'Colaboradores',
-                        color: AppColors.statusAtivo,
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) =>
-                                  const ColaboradoresListScreen()),
-                        ),
-                      ),
-                      _BotaoAcao(
-                        icon: Icons.bar_chart,
-                        label: 'Relatório',
-                        color: AppColors.cyan,
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) =>
-                                  const RelatorioDiarioScreen()),
-                        ),
-                      ),
-                      _BotaoAcao(
-                        icon: Icons.calendar_month,
-                        label: 'Escala',
-                        color: AppColors.pink,
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) => const EscalaScreen()),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // ── ABA 3: OPERAÇÕES ────────────────────────────────────────────
-            SingleChildScrollView(
-              padding: const EdgeInsets.all(Dimensions.paddingMD),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: Dimensions.spacingSM),
-                  _GridAcoes(
-                    botoes: [
-                      _BotaoAcao(
-                        icon: Icons.local_shipping,
-                        label: 'Entregas',
-                        color: AppColors.statusCafe,
-                        badge: entregaProvider.totalEmRota > 0
-                            ? entregaProvider.totalEmRota.toString()
-                            : null,
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) => const EntregasScreen()),
-                        ),
-                      ),
-                      _BotaoAcao(
-                        icon: Icons.report_problem,
-                        label: 'Ocorrências',
-                        color: AppColors.danger,
-                        badge: ocorrenciaProvider.totalAbertas > 0
-                            ? ocorrenciaProvider.totalAbertas.toString()
-                            : null,
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) => const OcorrenciasScreen()),
-                        ),
-                      ),
-                      _BotaoAcao(
-                        icon: Icons.checklist,
-                        label: 'Checklist',
-                        color: AppColors.success,
-                        badge: checklistProvider.templatesPendentesAgora.isNotEmpty
-                            ? '!'
-                            : null,
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) => const ChecklistScreen()),
-                        ),
-                      ),
-                      _BotaoAcao(
-                        icon: Icons.handshake,
-                        label: 'Passagem Turno',
-                        color: AppColors.primary,
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) => const PassagemTurnoScreen()),
-                        ),
-                      ),
-                      _BotaoAcao(
-                        icon: Icons.help_outline,
-                        label: 'Guia Rápido',
-                        color: AppColors.blueGrey,
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) => const GuiaRapidoScreen()),
-                        ),
-                      ),
-                      _BotaoAcao(
-                        icon: Icons.note,
-                        label: 'Anotações',
-                        color: AppColors.statusSaida,
-                        badge: notaProvider.totalTarefasPendentes > 0
-                            ? notaProvider.totalTarefasPendentes.toString()
-                            : null,
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) => const NotasScreen()),
-                        ),
-                      ),
-                      _BotaoAcao(
-                        icon: Icons.description,
-                        label: 'Formulários',
-                        color: AppColors.indigo,
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) => const FormulariosScreen()),
-                        ),
-                      ),
-                      _BotaoAcao(
-                        icon: Icons.menu_book,
-                        label: 'Procedimentos',
-                        color: AppColors.deepPurple,
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) => const ProcedimentosScreen()),
-                        ),
-                      ),
-                      _BotaoAcao(
-                        icon: Icons.notifications,
-                        label: 'Notificações',
-                        color: AppColors.primary,
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) => const NotificacoesScreen()),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // ── ABA 4: LOJA ─────────────────────────────────────────────────
-            RefreshIndicator(
-              onRefresh: _loadData,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(Dimensions.paddingMD),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: Dimensions.spacingSM),
-
-                    // Banner de saúde do turno
-                    _BannerSaudeTurno(
-                      critico: cafeProvider.totalEmAtraso > 0 ||
-                          notaProvider.totalLembretesVencidos > 0,
-                      atencao: ocorrenciaProvider.totalAbertas > 0 ||
-                          entregaProvider.totalSeparadas > 0 ||
-                          checklistProvider.templatesPendentesAgora.isNotEmpty,
-                    ),
-                    const SizedBox(height: Dimensions.spacingMD),
-
-                    if (fiscalProvider.fiscal != null) ...[
-                      // Card Ocupação do Turno
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(Dimensions.paddingMD),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('Ocupação do Turno',
-                                  style: AppTextStyles.h4),
-                              const SizedBox(height: Dimensions.spacingMD),
-                              _OcupacaoBar(
-                                alocados: alocados,
-                                totalCaixas: totalCaixas,
-                                emPausa: emPausa,
-                                emRota: emRota,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ] else
-                      const Center(
-                        child: Padding(
-                          padding: EdgeInsets.only(top: 60),
-                          child: CircularProgressIndicator(),
-                        ),
-                      ),
-
-                    // Cabeçalho da seção Ferramentas
-                    const SizedBox(height: Dimensions.spacingMD),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 4, bottom: Dimensions.spacingSM),
-                      child: Row(
+                if (fiscalProvider.fiscal != null) ...[
+                  // Card Ocupação do Turno
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(Dimensions.paddingMD),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.build_outlined,
-                              size: 16, color: AppColors.textSecondary),
-                          const SizedBox(width: 6),
-                          Text(
-                            'Ferramentas',
-                            style: AppTextStyles.caption.copyWith(
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.8,
-                              color: AppColors.textSecondary,
-                            ),
+                          const Text('Ocupação do Turno',
+                              style: AppTextStyles.h4),
+                          const SizedBox(height: Dimensions.spacingMD),
+                          _OcupacaoBar(
+                            alocados: alocados,
+                            totalCaixas: totalCaixas,
+                            emPausa: emPausa,
+                            emRota: emRota,
                           ),
                         ],
                       ),
                     ),
-                    _GridAcoes(
-                      botoes: [
-                        _BotaoAcao(
-                          icon: Icons.history,
-                          label: 'Timeline',
-                          color: AppColors.statusSelf,
-                          onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) => const TimelineScreen()),
-                          ),
-                        ),
-                        _BotaoAcao(
-                          icon: Icons.beach_access,
-                          label: 'Modo Folga',
-                          color: AppColors.teal,
-                          onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) => const FolgaScreen()),
-                          ),
-                        ),
-                      ],
+                  ),
+                ] else
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 60),
+                      child: CircularProgressIndicator(),
                     ),
-                    const SizedBox(height: Dimensions.spacingXL),
+                  ),
+
+                // Cabeçalho da seção Ferramentas
+                const SizedBox(height: Dimensions.spacingMD),
+                Padding(
+                  padding: const EdgeInsets.only(
+                      left: 4, bottom: Dimensions.spacingSM),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.build_outlined,
+                          size: 16, color: AppColors.textSecondary),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Ferramentas',
+                        style: AppTextStyles.caption.copyWith(
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.8,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                _GridAcoes(
+                  botoes: [
+                    _BotaoAcao(
+                      icon: Icons.history,
+                      label: 'Timeline',
+                      color: AppColors.statusSelf,
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const TimelineScreen()),
+                      ),
+                    ),
+                    _BotaoAcao(
+                      icon: Icons.beach_access,
+                      label: 'Modo Folga',
+                      color: AppColors.teal,
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const FolgaScreen()),
+                      ),
+                    ),
                   ],
                 ),
-              ),
+                const SizedBox(height: Dimensions.spacingXL),
+              ],
             ),
+          ),
+        ),
       ],
     );
 
@@ -726,7 +722,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-
   String _getSaudacao() {
     final hora = DateTime.now().hour;
     if (hora < 12) return 'Bom dia';
@@ -750,6 +745,235 @@ class _MonitorTempoReal extends StatelessWidget {
     required this.escalaProvider,
   });
 
+  Future<void> _finalizarPausaDoMonitor(
+    BuildContext context,
+    PausaCafe pausa,
+  ) async {
+    final alocacaoProvider =
+        Provider.of<AlocacaoProvider>(context, listen: false);
+    final fiscalId =
+        Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+
+    if (fiscalId.isEmpty) {
+      if (context.mounted) {
+        AppNotif.show(
+          context,
+          titulo: 'Erro',
+          mensagem: 'Usuario nao autenticado para finalizar pausa.',
+          tipo: 'alerta',
+          cor: AppColors.danger,
+        );
+      }
+      return;
+    }
+
+    _RetornoMonitorEscolha? escolhaIntervalo;
+    String? erro;
+    if (pausa.isIntervalo) {
+      escolhaIntervalo = await _escolherRetornoIntervalo(
+        context: context,
+        pausa: pausa,
+        alocacaoProvider: alocacaoProvider,
+      );
+      if (escolhaIntervalo == null) return;
+
+      erro = await cafeProvider.finalizarPausaComRegra(
+        pausa: pausa,
+        alocacaoProvider: alocacaoProvider,
+        fiscalId: fiscalId,
+        caixaDestinoIntervaloId: escolhaIntervalo.caixaDestinoId,
+        permitirMesmoCaixaNoIntervalo: escolhaIntervalo.permitirMesmoCaixa,
+        justificativaMesmoCaixa: escolhaIntervalo.justificativaMesmoCaixa,
+      );
+    } else {
+      erro = await cafeProvider.finalizarPausaComRegra(
+        pausa: pausa,
+        alocacaoProvider: alocacaoProvider,
+        fiscalId: fiscalId,
+      );
+    }
+
+    if (!context.mounted) return;
+
+    if (erro != null) {
+      AppNotif.show(
+        context,
+        titulo: 'Pausa finalizada',
+        mensagem: erro,
+        tipo: 'alerta',
+        cor: AppColors.warning,
+      );
+      return;
+    }
+
+    final caixaDestino = pausa.isCafe
+        ? caixaProvider.caixas
+            .where((c) => c.id == pausa.caixaId)
+            .firstOrNull
+            ?.nomeExibicao
+        : caixaProvider.caixas
+            .where((c) => c.id == escolhaIntervalo?.caixaDestinoId)
+            .firstOrNull
+            ?.nomeExibicao;
+
+    final usouExcecaoMesmoCaixa =
+        pausa.isIntervalo && pausa.caixaId == escolhaIntervalo?.caixaDestinoId;
+
+    AppNotif.show(
+      context,
+      titulo: 'Pausa finalizada',
+      mensagem: pausa.isCafe
+          ? '${pausa.colaboradorNome} voltou ao ${caixaDestino ?? 'caixa'}.'
+          : '${pausa.colaboradorNome} realocado(a) para ${caixaDestino ?? 'caixa'}'
+              '${usouExcecaoMesmoCaixa ? ' (excecao registrada)' : ''}.',
+      tipo: 'saida',
+      cor: AppColors.success,
+    );
+  }
+
+  Future<_RetornoMonitorEscolha?> _escolherRetornoIntervalo({
+    required BuildContext context,
+    required PausaCafe pausa,
+    required AlocacaoProvider alocacaoProvider,
+  }) async {
+    final caixasAtivos = caixaProvider.caixas
+        .where((c) => c.ativo && !c.emManutencao)
+        .toList()
+      ..sort((a, b) => a.numero.compareTo(b.numero));
+
+    final caixasLivres = caixasAtivos
+        .where((c) => alocacaoProvider.getAlocacaoCaixa(c.id) == null)
+        .toList();
+
+    if (caixasLivres.isEmpty) {
+      if (context.mounted) {
+        AppNotif.show(
+          context,
+          titulo: 'Sem caixa disponivel',
+          mensagem: 'Nao ha caixa livre para retorno do intervalo.',
+          tipo: 'alerta',
+          cor: AppColors.warning,
+        );
+      }
+      return null;
+    }
+
+    String? caixaSelecionadoId = caixasLivres
+        .where((c) => c.id != pausa.caixaId)
+        .map((c) => c.id)
+        .firstOrNull;
+    caixaSelecionadoId ??= caixasLivres.first.id;
+    bool permitirMesmoCaixa = false;
+    final justificativaCtrl = TextEditingController();
+
+    final escolha = await showDialog<_RetornoMonitorEscolha>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setStateDialog) {
+          final mesmoCaixaSelecionado = pausa.caixaId != null &&
+              pausa.caixaId!.isNotEmpty &&
+              caixaSelecionadoId == pausa.caixaId;
+          final precisaJustificativa =
+              mesmoCaixaSelecionado && permitirMesmoCaixa;
+          final podeConfirmar = caixaSelecionadoId != null &&
+              (!precisaJustificativa ||
+                  justificativaCtrl.text.trim().isNotEmpty);
+
+          return AlertDialog(
+            title: const Text('Retorno do intervalo'),
+            content: SizedBox(
+              width: 420,
+              child: SingleChildScrollView(
+                child: RadioGroup<String>(
+                  groupValue: caixaSelecionadoId,
+                  onChanged: (v) =>
+                      setStateDialog(() => caixaSelecionadoId = v),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Regra padrao: retornar em caixa diferente.'),
+                      const SizedBox(height: 12),
+                      ...caixasAtivos.map((caixa) {
+                        final ocupado =
+                            alocacaoProvider.getAlocacaoCaixa(caixa.id) != null;
+                        Widget tile = RadioListTile<String>(
+                          value: caixa.id,
+                          title: Text(caixa.nomeExibicao),
+                          subtitle:
+                              Text(ocupado ? 'Ocupado agora' : 'Disponivel'),
+                          dense: true,
+                        );
+                        if (ocupado) {
+                          tile = Opacity(
+                            opacity: 0.5,
+                            child: IgnorePointer(child: tile),
+                          );
+                        }
+                        return tile;
+                      }),
+                      if (mesmoCaixaSelecionado) ...[
+                        const SizedBox(height: 8),
+                        CheckboxListTile(
+                          contentPadding: EdgeInsets.zero,
+                          value: permitirMesmoCaixa,
+                          onChanged: (v) => setStateDialog(
+                            () => permitirMesmoCaixa = v ?? false,
+                          ),
+                          title: const Text('Permitir mesmo caixa (excecao)'),
+                          subtitle: const Text(
+                            'Necessario justificar para auditoria.',
+                          ),
+                        ),
+                        if (permitirMesmoCaixa) ...[
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: justificativaCtrl,
+                            maxLines: 3,
+                            textCapitalization: TextCapitalization.sentences,
+                            decoration: const InputDecoration(
+                              labelText: 'Justificativa da excecao *',
+                            ),
+                            onChanged: (_) => setStateDialog(() {}),
+                          ),
+                        ],
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: !podeConfirmar
+                    ? null
+                    : () => Navigator.pop(
+                          ctx,
+                          _RetornoMonitorEscolha(
+                            caixaDestinoId: caixaSelecionadoId!,
+                            permitirMesmoCaixa: permitirMesmoCaixa,
+                            justificativaMesmoCaixa:
+                                justificativaCtrl.text.trim().isEmpty
+                                    ? null
+                                    : justificativaCtrl.text.trim(),
+                          ),
+                        ),
+                child: const Text('Confirmar retorno'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    justificativaCtrl.dispose();
+    return escolha;
+  }
+
   @override
   Widget build(BuildContext context) {
     final pausasAtivas = cafeProvider.pausasAtivas;
@@ -768,8 +992,7 @@ class _MonitorTempoReal extends StatelessWidget {
       if (diff >= 0 && diff <= 15) {
         final colab = colaboradorProvider.colaboradores
             .cast<dynamic>()
-            .firstWhere((c) => c.id == turno.colaboradorId,
-                orElse: () => null);
+            .firstWhere((c) => c.id == turno.colaboradorId, orElse: () => null);
         if (colab != null) {
           proximos.add(_ProximoIntervalo(
             nome: colab.nome as String,
@@ -780,8 +1003,7 @@ class _MonitorTempoReal extends StatelessWidget {
       }
     }
 
-    final semAlertas =
-        pausasAtivas.isEmpty && proximos.isEmpty;
+    final semAlertas = pausasAtivas.isEmpty && proximos.isEmpty;
 
     return Card(
       color: AppColors.cardBackground,
@@ -799,7 +1021,6 @@ class _MonitorTempoReal extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-
             if (semAlertas)
               Row(
                 children: [
@@ -827,19 +1048,17 @@ class _MonitorTempoReal extends StatelessWidget {
                 const SizedBox(height: 6),
                 ...pausasAtivas.map((p) {
                   final caixa = p.caixaId != null
-                      ? caixaProvider.caixas
-                          .cast<dynamic>()
-                          .firstWhere((c) => c.id == p.caixaId,
-                              orElse: () => null)
+                      ? caixaProvider.caixas.cast<dynamic>().firstWhere(
+                          (c) => c.id == p.caixaId,
+                          orElse: () => null)
                       : null;
-                  final isCafe = p.duracaoMinutos <= 15;
-                  final cor = p.emAtraso
-                      ? AppColors.danger
-                      : Colors.orange.shade700;
+                  final isCafe = p.isCafe;
+                  final cor =
+                      p.emAtraso ? AppColors.danger : Colors.orange.shade700;
                   return Container(
                     margin: const EdgeInsets.only(bottom: 6),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                     decoration: BoxDecoration(
                       color: cor.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(8),
@@ -869,8 +1088,8 @@ class _MonitorTempoReal extends StatelessWidget {
                                 caixa != null
                                     ? '${caixa.nomeExibicao} · ${p.minutosDecorridos}/${p.duracaoMinutos} min'
                                     : '${p.minutosDecorridos}/${p.duracaoMinutos} min',
-                                style: AppTextStyles.caption.copyWith(
-                                    color: AppColors.textSecondary),
+                                style: AppTextStyles.caption
+                                    .copyWith(color: AppColors.textSecondary),
                               ),
                             ],
                           ),
@@ -894,8 +1113,7 @@ class _MonitorTempoReal extends StatelessWidget {
                           ),
                         const SizedBox(width: 8),
                         GestureDetector(
-                          onTap: () =>
-                              cafeProvider.finalizarPausa(p.colaboradorId),
+                          onTap: () => _finalizarPausaDoMonitor(context, p),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
@@ -903,8 +1121,8 @@ class _MonitorTempoReal extends StatelessWidget {
                               color: AppColors.success.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(6),
                               border: Border.all(
-                                  color: AppColors.success
-                                      .withValues(alpha: 0.4)),
+                                  color:
+                                      AppColors.success.withValues(alpha: 0.4)),
                             ),
                             child: const Text(
                               'Retornou',
@@ -961,8 +1179,8 @@ class _MonitorTempoReal extends StatelessWidget {
                           ),
                           Text(
                             'às ${p.horario} · em ${p.minutosRestantes} min',
-                            style: AppTextStyles.caption.copyWith(
-                                color: Colors.orange.shade700),
+                            style: AppTextStyles.caption
+                                .copyWith(color: Colors.orange.shade700),
                           ),
                         ],
                       ),
@@ -974,6 +1192,18 @@ class _MonitorTempoReal extends StatelessWidget {
       ),
     );
   }
+}
+
+class _RetornoMonitorEscolha {
+  final String caixaDestinoId;
+  final bool permitirMesmoCaixa;
+  final String? justificativaMesmoCaixa;
+
+  const _RetornoMonitorEscolha({
+    required this.caixaDestinoId,
+    required this.permitirMesmoCaixa,
+    this.justificativaMesmoCaixa,
+  });
 }
 
 class _ProximoIntervalo {
@@ -1132,8 +1362,8 @@ class _StatItem extends StatelessWidget {
             Text(value, style: AppTextStyles.h3.copyWith(color: color)),
             Text(
               label,
-              style: const TextStyle(
-                  fontSize: 10, color: AppColors.textSecondary),
+              style:
+                  const TextStyle(fontSize: 10, color: AppColors.textSecondary),
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -1274,13 +1504,11 @@ class _OcupacaoBar extends StatelessWidget {
               ),
             ),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
               decoration: BoxDecoration(
                 color: corBarra.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(20),
-                border:
-                    Border.all(color: corBarra.withValues(alpha: 0.4)),
+                border: Border.all(color: corBarra.withValues(alpha: 0.4)),
               ),
               child: Text(
                 '$percentual%',
@@ -1331,8 +1559,7 @@ class _OcupacaoBar extends StatelessWidget {
     );
   }
 
-  Widget _buildStatRow(
-      IconData icon, String label, String value, Color color) {
+  Widget _buildStatRow(IconData icon, String label, String value, Color color) {
     return Row(
       children: [
         Icon(icon, size: 18, color: color),
@@ -1350,8 +1577,8 @@ class _OcupacaoBar extends StatelessWidget {
             ),
             Text(
               label,
-              style: const TextStyle(
-                  fontSize: 11, color: AppColors.textSecondary),
+              style:
+                  const TextStyle(fontSize: 11, color: AppColors.textSecondary),
             ),
           ],
         ),
@@ -1453,8 +1680,7 @@ class _BriefingTurnoSheet extends StatelessWidget {
         '${agora.hour.toString().padLeft(2, '0')}:${agora.minute.toString().padLeft(2, '0')}';
 
     final turnosHoje = escalaProvider.turnosHoje;
-    final presentes =
-        turnosHoje.where((t) => !t.folga && !t.feriado).toList();
+    final presentes = turnosHoje.where((t) => !t.folga && !t.feriado).toList();
     final defolga = turnosHoje.where((t) => t.folga || t.feriado).toList();
     final notasImportantes =
         notaProvider.notas.where((n) => n.importante && !n.concluida).toList();
@@ -1519,8 +1745,7 @@ class _BriefingTurnoSheet extends StatelessWidget {
                     icon: Icons.people,
                     iconColor: AppColors.success,
                     collapsible: true,
-                    title:
-                        'Presentes hoje (${presentes.length})',
+                    title: 'Presentes hoje (${presentes.length})',
                     child: presentes.isEmpty
                         ? Text('Nenhum colaborador na escala de hoje',
                             style: AppTextStyles.caption
@@ -1554,9 +1779,7 @@ class _BriefingTurnoSheet extends StatelessWidget {
                             children: defolga
                                 .map((t) => _BriefingColabTile(
                                       nome: t.colaboradorNome,
-                                      detalhe: t.feriado
-                                          ? 'Feriado'
-                                          : 'Folga',
+                                      detalhe: t.feriado ? 'Feriado' : 'Folga',
                                       cor: AppColors.textSecondary,
                                     ))
                                 .toList(),
@@ -1569,8 +1792,7 @@ class _BriefingTurnoSheet extends StatelessWidget {
                   _BriefingSection(
                     icon: Icons.warning_amber_rounded,
                     iconColor: Colors.orange,
-                    title:
-                        'Avisos importantes (${notasImportantes.length})',
+                    title: 'Avisos importantes (${notasImportantes.length})',
                     child: notasImportantes.isEmpty
                         ? Text('Sem anotações importantes no momento',
                             style: AppTextStyles.caption
@@ -1578,25 +1800,21 @@ class _BriefingTurnoSheet extends StatelessWidget {
                         : Column(
                             children: notasImportantes
                                 .map((n) => Container(
-                                      margin:
-                                          const EdgeInsets.only(bottom: 6),
+                                      margin: const EdgeInsets.only(bottom: 6),
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 10, vertical: 8),
                                       decoration: BoxDecoration(
                                         color: Colors.orange
                                             .withValues(alpha: 0.08),
-                                        borderRadius:
-                                            BorderRadius.circular(8),
+                                        borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
                                             color: Colors.orange
                                                 .withValues(alpha: 0.3)),
                                       ),
                                       child: Row(
                                         children: [
-                                          const Icon(
-                                              Icons.priority_high,
-                                              size: 14,
-                                              color: Colors.orange),
+                                          const Icon(Icons.priority_high,
+                                              size: 14, color: Colors.orange),
                                           const SizedBox(width: 8),
                                           Expanded(
                                             child: Text(
@@ -1643,8 +1861,8 @@ class _BriefingTurnoSheet extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () =>
-                        _confirmarInicio(context, presentes, defolga, notasImportantes, horaFormatada),
+                    onPressed: () => _confirmarInicio(context, presentes,
+                        defolga, notasImportantes, horaFormatada),
                     icon: const Icon(Icons.play_arrow_rounded, size: 18),
                     label: const Text('Confirmar Início'),
                     style: ElevatedButton.styleFrom(
@@ -1673,8 +1891,7 @@ class _BriefingTurnoSheet extends StatelessWidget {
         Provider.of<PassagemTurnoProvider>(context, listen: false);
     final eventoProvider =
         Provider.of<EventoTurnoProvider>(context, listen: false);
-    final authProvider =
-        Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final fiscalId = authProvider.user?.id ?? '';
 
     final resumo =

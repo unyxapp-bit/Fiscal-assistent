@@ -10,7 +10,8 @@ import 'package:uuid/uuid.dart';
 /// Resultado da alocação com três estados possíveis
 class AlocarColaboradorResult {
   final bool isSuccess;
-  final bool isPrecisaExcecao; // True quando regra foi quebrada mas pode ser justificada
+  final bool
+      isPrecisaExcecao; // True quando regra foi quebrada mas pode ser justificada
   final Alocacao? alocacao;
   final String? motivoExcecao; // Ex: "Colaborador já alocado hoje nesta caixa"
   final String? tipoExcecao; // Ex: "MESMO_CAIXA_DIA"
@@ -94,14 +95,14 @@ class AlocarColaborador {
     required String colaboradorId,
     required String caixaId,
     required String fiscalId,
-    String? justificativa, // Preenchido se resultado anterior foi precisaExcecao
+    String?
+        justificativa, // Preenchido se resultado anterior foi precisaExcecao
   }) async {
     try {
       // 1. Verifica se colaborador existe e está ativo
-      final colaboradores = await colaboradorRepository.getColaboradores(fiscalId);
-      final colaborador = colaboradores
-          .cast<Colaborador?>()
-          .firstWhere(
+      final colaboradores =
+          await colaboradorRepository.getColaboradores(fiscalId);
+      final colaborador = colaboradores.cast<Colaborador?>().firstWhere(
             (c) => c?.id == colaboradorId,
             orElse: () => null,
           );
@@ -120,9 +121,7 @@ class AlocarColaborador {
 
       // 2. Verifica se caixa existe, está ativa e não em manutenção
       final caixas = await caixaRepository.getCaixas(fiscalId);
-      final caixa = caixas
-          .cast<Caixa?>()
-          .firstWhere(
+      final caixa = caixas.cast<Caixa?>().firstWhere(
             (c) => c?.id == caixaId,
             orElse: () => null,
           );
@@ -148,8 +147,7 @@ class AlocarColaborador {
       // 3. Verifica compatibilidade de departamento
       final isOperadorSelf =
           colaborador.departamento.toString() == 'DepartamentoTipo.self';
-      final isCaixaSelf =
-          caixa.tipo.toString() == 'TipoCaixa.self';
+      final isCaixaSelf = caixa.tipo.toString() == 'TipoCaixa.self';
 
       if (isOperadorSelf && !isCaixaSelf) {
         return AlocarColaboradorResult.erro(
@@ -193,6 +191,9 @@ class AlocarColaborador {
         alocadoEm: DateTime.now(),
         liberadoEm: null,
         motivoLiberacao: null,
+        observacoes: (justificativa != null && justificativa.trim().isNotEmpty)
+            ? justificativa.trim()
+            : null,
         createdAt: DateTime.now(),
       );
 

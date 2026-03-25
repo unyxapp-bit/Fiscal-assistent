@@ -1027,7 +1027,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
   // ── Intervalo ──────────────────────────────────────────────────────────────
 
   Future<void> _enviarParaIntervalo() async {
-    int duracaoMinutos = 30;
+    int duracaoMinutos = 60;
     if (widget.turno != null) {
       final t = widget.turno!;
       if (t.intervalo != null && t.retorno != null) {
@@ -1119,7 +1119,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
       id: (widget.colaborador!.id.hashCode.abs() % 100000) + 1,
       title: 'Intervalo encerrado 🍽️',
       body:
-          '${widget.colaborador!.nome} deve retornar ao ${widget.caixa.nomeExibicao}',
+          '${widget.colaborador!.nome} deve ser realocado(a) apos o intervalo.',
       scheduledAt: retornoEm,
     );
 

@@ -3,6 +3,15 @@ import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/datasources/remote/supabase_client.dart';
 import '../../data/services/notification_service.dart';
+import 'alocacao_provider.dart';
+
+enum TipoPausa {
+  cafe,
+  intervalo;
+
+  bool get isCafe => this == TipoPausa.cafe;
+  bool get isIntervalo => this == TipoPausa.intervalo;
+}
 
 /// Registro de pausa de um colaborador
 class PausaCafe {
@@ -54,6 +63,8 @@ class PausaCafe {
       };
 
   bool get ativo => finalizadoEm == null;
+  bool get isCafe => duracaoMinutos <= 15;
+  bool get isIntervalo => !isCafe;
 
   Duration get tempoDecorrido =>
       (finalizadoEm ?? DateTime.now()).difference(iniciadoEm);
@@ -92,8 +103,7 @@ class CafeProvider with ChangeNotifier {
 
   // Getters
   List<PausaCafe> get pausas => List.unmodifiable(_pausas);
-  List<PausaCafe> get pausasAtivas =>
-      _pausas.where((p) => p.ativo).toList();
+  List<PausaCafe> get pausasAtivas => _pausas.where((p) => p.ativo).toList();
   List<PausaCafe> get pausasFinalizadas =>
       _pausas.where((p) => !p.ativo).toList();
   List<PausaCafe> get pausasEmAtraso =>
@@ -120,14 +130,12 @@ class CafeProvider with ChangeNotifier {
   /// Retorna true quando o colaborador já realizou intervalo (>15 min) hoje.
   /// Considera pausas ativas e finalizadas.
   bool colaboradorJaFezIntervaloHoje(String colaboradorId) =>
-      _pausas.any((p) =>
-          p.colaboradorId == colaboradorId && p.duracaoMinutos > 15);
+      _pausas.any((p) => p.colaboradorId == colaboradorId && p.isIntervalo);
 
   /// Retorna a pausa ativa associada a um caixa específico
   PausaCafe? getPausaAtivaPorCaixa(String caixaId) {
     try {
-      return _pausas
-          .firstWhere((p) => p.ativo && p.caixaId == caixaId);
+      return _pausas.firstWhere((p) => p.ativo && p.caixaId == caixaId);
     } catch (_) {
       return null;
     }
@@ -181,7 +189,8 @@ class CafeProvider with ChangeNotifier {
         NotificationService.instance.showImmediateAlert(
           id: notifId,
           title: 'Pausa encerrada ☕',
-          body: '${pausa.colaboradorNome} — ${pausa.duracaoMinutos} min de intervalo concluídos.',
+          body:
+              '${pausa.colaboradorNome} — ${pausa.duracaoMinutos} min de intervalo concluídos.',
         );
       }
     }
@@ -196,7 +205,7 @@ class CafeProvider with ChangeNotifier {
   void iniciarPausa({
     required String colaboradorId,
     required String colaboradorNome,
-    int duracaoMinutos = 15,
+    int duracaoMinutos = 10,
     String? caixaId,
     DateTime? iniciadoEm,
   }) {
@@ -232,12 +241,56 @@ class CafeProvider with ChangeNotifier {
 
     SupabaseClientManager.client
         .from(_table)
-        .update({'finalizado_em': pausa.finalizadoEm!.toUtc().toIso8601String()})
+        .update(
+            {'finalizado_em': pausa.finalizadoEm!.toUtc().toIso8601String()})
         .eq('id', pausa.id)
         .then((_) {})
         .catchError((e) {
-      if (kDebugMode) debugPrint('[CafeProvider] Erro ao finalizar: $e');
-    });
+          if (kDebugMode) debugPrint('[CafeProvider] Erro ao finalizar: $e');
+        });
+  }
+
+  /// Finaliza a pausa e aplica regra unificada de retorno:
+  /// - Café (10 min): retorna para o mesmo caixa de origem, quando disponível.
+  /// - Intervalo (60/120): retorna para novo caixa (padrão), com exceção
+  ///   opcional para mesmo caixa mediante justificativa.
+  Future<String?> finalizarPausaComRegra({
+    required PausaCafe pausa,
+    required AlocacaoProvider alocacaoProvider,
+    required String fiscalId,
+    String? caixaDestinoIntervaloId,
+    bool permitirMesmoCaixaNoIntervalo = false,
+    String? justificativaMesmoCaixa,
+  }) async {
+    finalizarPausa(pausa.colaboradorId);
+
+    if (pausa.isCafe) {
+      if (pausa.caixaId == null || pausa.caixaId!.isEmpty) return null;
+      if (fiscalId.isEmpty) return 'Usuário não autenticado para realocação.';
+      return alocacaoProvider.retornarDeCafe(
+        colaboradorId: pausa.colaboradorId,
+        caixaId: pausa.caixaId!,
+        fiscalId: fiscalId,
+      );
+    }
+
+    alocacaoProvider.marcarAguardandoRealocacaoPosIntervalo(
+      pausa.colaboradorId,
+    );
+
+    if (caixaDestinoIntervaloId == null || caixaDestinoIntervaloId.isEmpty) {
+      return null;
+    }
+
+    if (fiscalId.isEmpty) return 'Usuário não autenticado para realocação.';
+    return alocacaoProvider.realocarPosIntervalo(
+      colaboradorId: pausa.colaboradorId,
+      caixaDestinoId: caixaDestinoIntervaloId,
+      fiscalId: fiscalId,
+      caixaOrigemId: pausa.caixaId,
+      permitirMesmoCaixa: permitirMesmoCaixaNoIntervalo,
+      justificativaMesmoCaixa: justificativaMesmoCaixa,
+    );
   }
 
   /// Remove entrada do histórico
@@ -257,8 +310,7 @@ class CafeProvider with ChangeNotifier {
 
   /// Limpa todo o histórico finalizado
   void limparHistorico() {
-    final ids =
-        _pausas.where((p) => !p.ativo).map((p) => p.id).toList();
+    final ids = _pausas.where((p) => !p.ativo).map((p) => p.id).toList();
     _pausas.removeWhere((p) => !p.ativo);
     notifyListeners();
 

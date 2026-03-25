@@ -137,7 +137,8 @@ class PacoteSection extends StatelessWidget {
                   final turno = escalaProvider.turnosHoje
                       .where((t) => t.colaboradorId == p.colaboradorId)
                       .firstOrNull;
-                  final pausaAtiva = cafeProvider.getPausaAtiva(p.colaboradorId);
+                  final pausaAtiva =
+                      cafeProvider.getPausaAtiva(p.colaboradorId);
                   final isEmPausa = pausaAtiva != null;
                   final minIntervalo =
                       isEmPausa ? null : calcMinIntervalo(turno);
@@ -149,21 +150,19 @@ class PacoteSection extends StatelessWidget {
                   final IconData chipAvatarIcon;
 
                   if (isEmPausa) {
-                    final isCafe = pausaAtiva.duracaoMinutos <= 15;
+                    final isCafe = pausaAtiva.isCafe;
                     chipColor = Colors.orange;
                     chipLabel =
                         '${nome.split(' ').first} · ${pausaAtiva.minutosDecorridos}min';
                     chipAvatarIcon = isCafe ? Icons.coffee : Icons.restaurant;
                   } else if (emAtencao) {
                     chipColor = AppColors.danger;
-                    chipLabel =
-                        '${nome.split(' ').first} · ${minIntervalo}min';
+                    chipLabel = '${nome.split(' ').first} · ${minIntervalo}min';
                     chipAvatarIcon = Icons.warning_amber_rounded;
                   } else if (minIntervalo != null && minIntervalo >= 0) {
                     // Atraso leve (0–14 min)
                     chipColor = Colors.amber.shade700;
-                    chipLabel =
-                        '${nome.split(' ').first} · ${minIntervalo}min';
+                    chipLabel = '${nome.split(' ').first} · ${minIntervalo}min';
                     chipAvatarIcon = Icons.schedule;
                   } else if (minIntervalo != null && minIntervalo > -60) {
                     // Countdown (1–59 min antes)
@@ -316,7 +315,8 @@ class PacoteSection extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => PacoteDetalhesSheet(
         colaborador: colaborador,
@@ -334,13 +334,13 @@ class PacoteSection extends StatelessWidget {
     PacotePlantaoProvider plantaoProvider,
     ColaboradorProvider colaboradorProvider,
   ) {
-    final escalaProvider =
-        Provider.of<EscalaProvider>(context, listen: false);
+    final escalaProvider = Provider.of<EscalaProvider>(context, listen: false);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => _EmpacotadorPickerSheet(
         fiscalId: fiscalId,

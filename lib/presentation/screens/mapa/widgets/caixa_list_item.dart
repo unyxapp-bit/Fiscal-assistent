@@ -59,13 +59,13 @@ class CaixaListItem extends StatelessWidget {
     final bool intervaloJaFeito = colaborador != null &&
         (alocacaoProvider.isIntervaloMarcado(colaborador.id) ||
             cafeProvider.colaboradorJaFezIntervaloHoje(colaborador.id));
-    final int? minIntervalo =
-        isOcupado && !isEmPausa && !intervaloJaFeito
-            ? _calcMinIntervalo(turno)
-            : null;
+    final int? minIntervalo = isOcupado && !isEmPausa && !intervaloJaFeito
+        ? _calcMinIntervalo(turno)
+        : null;
     final bool emAtencao = minIntervalo != null && minIntervalo >= 15;
 
-    final statusColor = _statusColor(isOcupado, isEmPausa, emAtencao: emAtencao);
+    final statusColor =
+        _statusColor(isOcupado, isEmPausa, emAtencao: emAtencao);
 
     return Card(
       margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
@@ -126,16 +126,14 @@ class CaixaListItem extends StatelessWidget {
                           Row(
                             children: [
                               Icon(caixa.tipo.icone,
-                                  size: 14,
-                                  color: AppColors.textSecondary),
+                                  size: 14, color: AppColors.textSecondary),
                               const SizedBox(width: 4),
-                              Text(caixa.nomeExibicao,
-                                  style: AppTextStyles.h4),
+                              Text(caixa.nomeExibicao, style: AppTextStyles.h4),
                               const SizedBox(width: 6),
                               Text(
                                 '· ${caixa.tipo.nome}',
-                                style: AppTextStyles.caption.copyWith(
-                                    color: AppColors.textSecondary),
+                                style: AppTextStyles.caption
+                                    .copyWith(color: AppColors.textSecondary),
                               ),
                             ],
                           ),
@@ -147,8 +145,7 @@ class CaixaListItem extends StatelessWidget {
                             Row(
                               children: [
                                 const Icon(Icons.location_on,
-                                    size: 11,
-                                    color: AppColors.textSecondary),
+                                    size: 11, color: AppColors.textSecondary),
                                 const SizedBox(width: 2),
                                 Expanded(
                                   child: Text(
@@ -193,16 +190,14 @@ class CaixaListItem extends StatelessWidget {
                                     children: [
                                       Text(
                                         colaborador.nome,
-                                        style: AppTextStyles.caption
-                                            .copyWith(
-                                                fontWeight: FontWeight.w600),
+                                        style: AppTextStyles.caption.copyWith(
+                                            fontWeight: FontWeight.w600),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       Text(
                                         colaborador.departamento.nome,
-                                        style: AppTextStyles.caption
-                                            .copyWith(
+                                        style: AppTextStyles.caption.copyWith(
                                           color: AppColors.textSecondary,
                                           fontSize: 10,
                                         ),
@@ -294,20 +289,17 @@ class CaixaListItem extends StatelessWidget {
     }
     if (!caixa.ativo) {
       return const _StatusChip(
-          label: 'Inativo',
-          color: AppColors.inactive,
-          icon: Icons.power_off);
+          label: 'Inativo', color: AppColors.inactive, icon: Icons.power_off);
     }
     if (isOcupado) {
       final entradaEscalaRaw = turno?.entrada;
-      final entradaEscala = (entradaEscalaRaw != null &&
-              entradaEscalaRaw.isNotEmpty)
-          ? entradaEscalaRaw
-          : null;
+      final entradaEscala =
+          (entradaEscalaRaw != null && entradaEscalaRaw.isNotEmpty)
+              ? entradaEscalaRaw
+              : null;
       final h = alocacao!.alocadoEm.hour.toString().padLeft(2, '0');
       final m = alocacao!.alocadoEm.minute.toString().padLeft(2, '0');
-      final horarioLabel =
-          entradaEscala ?? '$h:$m';
+      final horarioLabel = entradaEscala ?? '$h:$m';
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -336,7 +328,7 @@ class CaixaListItem extends StatelessWidget {
       );
     }
     if (isEmPausa && pausaCaixa != null) {
-      final isCafe = pausaCaixa.duracaoMinutos <= 15;
+      final isCafe = pausaCaixa.isCafe;
       final label = isCafe
           ? 'Café ${pausaCaixa.minutosDecorridos}min'
           : 'Intervalo ${pausaCaixa.minutosDecorridos}min';
@@ -426,11 +418,11 @@ class CaixaListItem extends StatelessWidget {
     final agoraMin = agora.hour * 60 + agora.minute;
     final intervaloMin =
         (int.tryParse(parts[0]) ?? 0) * 60 + (int.tryParse(parts[1]) ?? 0);
-    return agoraMin - intervaloMin; // negativo = falta tempo, positivo = atrasado
+    return agoraMin -
+        intervaloMin; // negativo = falta tempo, positivo = atrasado
   }
 
-  Color _statusColor(bool isOcupado, bool isEmPausa,
-      {bool emAtencao = false}) {
+  Color _statusColor(bool isOcupado, bool isEmPausa, {bool emAtencao = false}) {
     if (caixa.emManutencao) return AppColors.statusAtencao;
     if (!caixa.ativo) return AppColors.inactive;
     if (isOcupado) return emAtencao ? AppColors.danger : AppColors.statusAtivo;
@@ -451,15 +443,15 @@ class CaixaListItem extends StatelessWidget {
             .firstOrNull
         : null;
 
-    final pausa = colaborador != null
-        ? cafeProvider.getPausaAtiva(colaborador.id)
-        : null;
+    final pausa =
+        colaborador != null ? cafeProvider.getPausaAtiva(colaborador.id) : null;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => ColaboradorDetalhesSheet(
         caixa: caixa,

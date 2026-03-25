@@ -68,9 +68,9 @@ class _CafeScreenState extends State<CafeScreen>
         final emPausaAtiva =
             provider.pausasAtivas.map((p) => p.colaboradorId).toSet();
 
-        // IDs que já fizeram café (≤15 min) ou intervalo (>15 min)
+        // IDs que já fizeram café hoje
         final jaFizeramCafe = provider.pausasFinalizadas
-            .where((p) => p.duracaoMinutos <= 15)
+            .where((p) => p.isCafe)
             .map((p) => p.colaboradorId)
             .toSet();
 
@@ -259,9 +259,9 @@ class _TabDisponiveis extends StatelessWidget {
     final emPausaAtiva =
         provider.pausasAtivas.map((p) => p.colaboradorId).toSet();
 
-    // IDs que já fizeram intervalo (>15 min) e café (≤15 min)
+    // IDs que já fizeram intervalo e café hoje
     final jaFizeramIntervalo = provider.pausasFinalizadas
-        .where((p) => p.duracaoMinutos > 15)
+        .where((p) => p.isIntervalo)
         .map((p) => p.colaboradorId)
         .toSet();
     // Inclui os marcados manualmente em memória (mesmo sem alocação ativa).
@@ -271,7 +271,7 @@ class _TabDisponiveis extends StatelessWidget {
         .toSet();
     jaFizeramIntervalo.addAll(intervalosMarcadosManualmente);
     final jaFizeramCafe = provider.pausasFinalizadas
-        .where((p) => p.duracaoMinutos <= 15)
+        .where((p) => p.isCafe)
         .map((p) => p.colaboradorId)
         .toSet();
 
@@ -459,6 +459,254 @@ class _TabEmIntervalo extends StatelessWidget {
 
   const _TabEmIntervalo({required this.provider});
 
+  Future<_RetornoIntervaloEscolha?> _selecionarRetornoIntervalo(
+    BuildContext context,
+    PausaCafe pausa,
+    AlocacaoProvider alocacaoProvider,
+    CaixaProvider caixaProvider,
+  ) async {
+    final caixasAtivos = caixaProvider.caixas
+        .where((c) => c.ativo && !c.emManutencao)
+        .toList()
+      ..sort((a, b) => a.numero.compareTo(b.numero));
+
+    final caixasLivres = caixasAtivos
+        .where((c) => alocacaoProvider.getAlocacaoCaixa(c.id) == null)
+        .toList();
+    if (caixasLivres.isEmpty) {
+      if (context.mounted) {
+        AppNotif.show(
+          context,
+          titulo: 'Sem caixa disponivel',
+          mensagem:
+              'Nao ha caixa livre para o retorno pos-intervalo neste momento.',
+          tipo: 'alerta',
+          cor: AppColors.warning,
+        );
+      }
+      return null;
+    }
+
+    String? caixaSelecionadoId = caixasLivres
+        .where((c) => c.id != pausa.caixaId)
+        .map((c) => c.id)
+        .firstOrNull;
+    caixaSelecionadoId ??= caixasLivres.first.id;
+    bool permitirMesmoCaixa = false;
+    final justificativaCtrl = TextEditingController();
+
+    final resultado = await showDialog<_RetornoIntervaloEscolha>(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setStateDialog) {
+            final mesmoCaixaSelecionado = pausa.caixaId != null &&
+                pausa.caixaId!.isNotEmpty &&
+                caixaSelecionadoId == pausa.caixaId;
+            final precisaJustificativa =
+                mesmoCaixaSelecionado && permitirMesmoCaixa;
+            final podeConfirmar = caixaSelecionadoId != null &&
+                (!precisaJustificativa ||
+                    justificativaCtrl.text.trim().isNotEmpty);
+
+            return AlertDialog(
+              title: const Text('Retorno do intervalo'),
+              content: SizedBox(
+                width: 420,
+                child: SingleChildScrollView(
+                  child: RadioGroup<String>(
+                    groupValue: caixaSelecionadoId,
+                    onChanged: (v) =>
+                        setStateDialog(() => caixaSelecionadoId = v),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Selecione o caixa de retorno. Regra padrao: caixa diferente.',
+                        ),
+                        const SizedBox(height: 12),
+                        ...caixasAtivos.map((caixa) {
+                          final ocupado =
+                              alocacaoProvider.getAlocacaoCaixa(caixa.id) !=
+                                  null;
+                          Widget tile = RadioListTile<String>(
+                            value: caixa.id,
+                            title: Text(caixa.nomeExibicao),
+                            subtitle:
+                                Text(ocupado ? 'Ocupado agora' : 'Disponivel'),
+                            dense: true,
+                          );
+                          if (ocupado) {
+                            tile = Opacity(
+                              opacity: 0.5,
+                              child: IgnorePointer(child: tile),
+                            );
+                          }
+                          return tile;
+                        }),
+                        if (mesmoCaixaSelecionado) ...[
+                          const SizedBox(height: 8),
+                          CheckboxListTile(
+                            contentPadding: EdgeInsets.zero,
+                            value: permitirMesmoCaixa,
+                            onChanged: (v) => setStateDialog(
+                              () => permitirMesmoCaixa = v ?? false,
+                            ),
+                            title: const Text('Permitir mesmo caixa (excecao)'),
+                            subtitle: const Text(
+                              'Use somente quando necessario na operacao.',
+                            ),
+                          ),
+                          if (permitirMesmoCaixa) ...[
+                            const SizedBox(height: 8),
+                            TextField(
+                              controller: justificativaCtrl,
+                              maxLines: 3,
+                              textCapitalization: TextCapitalization.sentences,
+                              decoration: const InputDecoration(
+                                labelText: 'Justificativa da excecao *',
+                                hintText:
+                                    'Ex: falta de operador para cobertura',
+                              ),
+                              onChanged: (_) => setStateDialog(() {}),
+                            ),
+                          ],
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: !podeConfirmar
+                      ? null
+                      : () => Navigator.pop(
+                            ctx,
+                            _RetornoIntervaloEscolha(
+                              caixaDestinoId: caixaSelecionadoId!,
+                              permitirMesmoCaixa: permitirMesmoCaixa,
+                              justificativaMesmoCaixa:
+                                  justificativaCtrl.text.trim().isEmpty
+                                      ? null
+                                      : justificativaCtrl.text.trim(),
+                            ),
+                          ),
+                  child: const Text('Confirmar retorno'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    justificativaCtrl.dispose();
+    return resultado;
+  }
+
+  Future<void> _finalizarComRegras(
+    BuildContext context,
+    PausaCafe pausa,
+    EventoTurnoProvider eventoProvider,
+    AlocacaoProvider alocacaoProvider,
+    CaixaProvider caixaProvider,
+    String fiscalId,
+  ) async {
+    if (pausa.isCafe) {
+      final erro = await provider.finalizarPausaComRegra(
+        pausa: pausa,
+        alocacaoProvider: alocacaoProvider,
+        fiscalId: fiscalId,
+      );
+
+      eventoProvider.registrar(
+        fiscalId: fiscalId,
+        tipo: TipoEvento.cafeEncerrado,
+        colaboradorNome: pausa.colaboradorNome,
+        detalhe: '${pausa.duracaoMinutos} min',
+      );
+
+      if (!context.mounted) return;
+      if (erro == null) {
+        final caixa = caixaProvider.caixas
+            .where((c) => c.id == pausa.caixaId)
+            .firstOrNull;
+        AppNotif.show(
+          context,
+          titulo: 'Retorno do cafe',
+          mensagem:
+              '${pausa.colaboradorNome} voltou ao ${caixa?.nomeExibicao ?? 'caixa'}',
+          tipo: 'saida',
+          cor: AppColors.success,
+        );
+      } else {
+        AppNotif.show(
+          context,
+          titulo: 'Retorno do cafe',
+          mensagem: erro,
+          tipo: 'alerta',
+          cor: AppColors.warning,
+        );
+      }
+      return;
+    }
+
+    final escolha = await _selecionarRetornoIntervalo(
+      context,
+      pausa,
+      alocacaoProvider,
+      caixaProvider,
+    );
+    if (escolha == null) return;
+
+    final erro = await provider.finalizarPausaComRegra(
+      pausa: pausa,
+      alocacaoProvider: alocacaoProvider,
+      fiscalId: fiscalId,
+      caixaDestinoIntervaloId: escolha.caixaDestinoId,
+      permitirMesmoCaixaNoIntervalo: escolha.permitirMesmoCaixa,
+      justificativaMesmoCaixa: escolha.justificativaMesmoCaixa,
+    );
+
+    eventoProvider.registrar(
+      fiscalId: fiscalId,
+      tipo: TipoEvento.intervaloEncerrado,
+      colaboradorNome: pausa.colaboradorNome,
+      detalhe: '${pausa.duracaoMinutos} min',
+    );
+
+    if (!context.mounted) return;
+    if (erro == null) {
+      final caixaDestino = caixaProvider.caixas
+          .where((c) => c.id == escolha.caixaDestinoId)
+          .firstOrNull;
+      final usouExcecao = pausa.caixaId == escolha.caixaDestinoId;
+      AppNotif.show(
+        context,
+        titulo: 'Retorno do intervalo',
+        mensagem:
+            '${pausa.colaboradorNome} realocado(a) para ${caixaDestino?.nomeExibicao ?? 'caixa'}'
+            '${usouExcecao ? ' (excecao registrada)' : ''}.',
+        tipo: 'saida',
+        cor: AppColors.success,
+      );
+    } else {
+      AppNotif.show(
+        context,
+        titulo: 'Intervalo finalizado',
+        mensagem: erro,
+        tipo: 'alerta',
+        cor: AppColors.warning,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (provider.pausasAtivas.isEmpty) {
@@ -494,53 +742,6 @@ class _TabEmIntervalo extends StatelessWidget {
         final fiscalId =
             Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
 
-        Future<void> finalizarComEvento(PausaCafe pausa) async {
-          final tipo = pausa.duracaoMinutos <= 15
-              ? TipoEvento.cafeEncerrado
-              : TipoEvento.intervaloEncerrado;
-          eventoProvider.registrar(
-            fiscalId: fiscalId,
-            tipo: tipo,
-            colaboradorNome: pausa.colaboradorNome,
-            detalhe: '${pausa.duracaoMinutos} min',
-          );
-          provider.finalizarPausa(pausa.colaboradorId);
-
-          final isCafe = pausa.duracaoMinutos <= 15;
-          if (!isCafe) return;
-          if (pausa.caixaId == null || pausa.caixaId!.isEmpty) return;
-          if (fiscalId.isEmpty) return;
-
-          final caixa = caixaProvider.caixas
-              .where((c) => c.id == pausa.caixaId)
-              .firstOrNull;
-          final erro = await alocacaoProvider.retornarDeCafe(
-            colaboradorId: pausa.colaboradorId,
-            caixaId: pausa.caixaId!,
-            fiscalId: fiscalId,
-          );
-
-          if (!context.mounted) return;
-          if (erro == null) {
-            AppNotif.show(
-              context,
-              titulo: 'Retorno do café',
-              mensagem:
-                  '${pausa.colaboradorNome} voltou ao ${caixa?.nomeExibicao ?? 'caixa'}',
-              tipo: 'saida',
-              cor: AppColors.success,
-            );
-          } else {
-            AppNotif.show(
-              context,
-              titulo: 'Retorno do café',
-              mensagem: erro,
-              tipo: 'alerta',
-              cor: AppColors.warning,
-            );
-          }
-        }
-
         final isTablet = constraints.maxWidth >= Dimensions.breakpointTablet;
         if (isTablet) {
           return GridView.builder(
@@ -559,7 +760,14 @@ class _TabEmIntervalo extends StatelessWidget {
               final pausa = provider.pausasAtivas[i];
               return _PausaAtivaCard(
                 pausa: pausa,
-                onFinalizar: () => finalizarComEvento(pausa),
+                onFinalizar: () => _finalizarComRegras(
+                  context,
+                  pausa,
+                  eventoProvider,
+                  alocacaoProvider,
+                  caixaProvider,
+                  fiscalId,
+                ),
               );
             },
           );
@@ -571,13 +779,32 @@ class _TabEmIntervalo extends StatelessWidget {
             final pausa = provider.pausasAtivas[i];
             return _PausaAtivaCard(
               pausa: pausa,
-              onFinalizar: () => finalizarComEvento(pausa),
+              onFinalizar: () => _finalizarComRegras(
+                context,
+                pausa,
+                eventoProvider,
+                alocacaoProvider,
+                caixaProvider,
+                fiscalId,
+              ),
             );
           },
         );
       },
     );
   }
+}
+
+class _RetornoIntervaloEscolha {
+  final String caixaDestinoId;
+  final bool permitirMesmoCaixa;
+  final String? justificativaMesmoCaixa;
+
+  const _RetornoIntervaloEscolha({
+    required this.caixaDestinoId,
+    required this.permitirMesmoCaixa,
+    this.justificativaMesmoCaixa,
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -823,7 +1050,11 @@ class _SeletorRapidoSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final duracoes = forcaDuracaoDez ? [10] : [10, 15, 20, 30];
+    final duracoes = [10];
+    final alocacaoProvider = Provider.of<AlocacaoProvider>(
+      context,
+      listen: false,
+    );
 
     return Padding(
       padding: EdgeInsets.only(
@@ -849,7 +1080,7 @@ class _SeletorRapidoSheet extends StatelessWidget {
             ),
           ),
           Text(
-            forcaDuracaoDez ? 'Café para' : 'Iniciar pausa para',
+            'Iniciar café para',
             style:
                 AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
           ),
@@ -883,7 +1114,7 @@ class _SeletorRapidoSheet extends StatelessWidget {
             children: duracoes.map((d) {
               final isCafe = d <= 15;
               return ElevatedButton.icon(
-                onPressed: () {
+                onPressed: () async {
                   final eventoProvider =
                       Provider.of<EventoTurnoProvider>(context, listen: false);
                   final fiscalId =
@@ -891,10 +1122,21 @@ class _SeletorRapidoSheet extends StatelessWidget {
                               .user
                               ?.id ??
                           '';
+                  final alocacaoAtiva = alocacaoProvider.getAlocacaoColaborador(
+                    colaborador.id,
+                  );
+                  final caixaOrigemId = alocacaoAtiva?.caixaId;
+                  if (alocacaoAtiva != null) {
+                    await alocacaoProvider.liberarAlocacao(
+                      alocacaoAtiva.id,
+                      isCafe ? 'cafe' : 'intervalo',
+                    );
+                  }
                   cafeProvider.iniciarPausa(
                     colaboradorId: colaborador.id,
                     colaboradorNome: colaborador.nome,
                     duracaoMinutos: d,
+                    caixaId: caixaOrigemId,
                   );
                   eventoProvider.registrar(
                     fiscalId: fiscalId,
@@ -904,6 +1146,7 @@ class _SeletorRapidoSheet extends StatelessWidget {
                     colaboradorNome: colaborador.nome,
                     detalhe: '$d min',
                   );
+                  if (!context.mounted) return;
                   Navigator.pop(context);
                 },
                 icon: Icon(
@@ -990,6 +1233,32 @@ class _ColaboradorIntervaloSheetState
     return DateTime(hoje.year, hoje.month, hoje.day, h, m);
   }
 
+  Future<int?> _escolherDuracaoIntervaloSemEscala() {
+    return showDialog<int>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Duracao do intervalo'),
+        content: const Text(
+          'Sem horario cadastrado no ponto de hoje. Qual duracao do intervalo?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar'),
+          ),
+          OutlinedButton(
+            onPressed: () => Navigator.pop(ctx, 60),
+            child: const Text('60 min'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, 120),
+            child: const Text('120 min'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _enviarParaIntervalo() async {
     final saidaDT = _parseHorario(_ponto?.intervaloSaida);
     final retornoDT = _parseHorario(_ponto?.intervaloRetorno);
@@ -1000,40 +1269,48 @@ class _ColaboradorIntervaloSheetState
     if (saidaDT != null && retornoDT != null) {
       final diffAgendada = retornoDT.difference(saidaDT);
       final duracaoAgendada =
-          diffAgendada.inMinutes > 0 ? diffAgendada.inMinutes : 15;
+          diffAgendada.inMinutes > 0 ? diffAgendada.inMinutes : 60;
       if (now.isAfter(saidaDT)) {
-        // Passou da hora de saída → perguntar quando saiu de verdade
         final picked = await showTimePicker(
           context: context,
           initialTime: TimeOfDay(hour: saidaDT.hour, minute: saidaDT.minute),
-          helpText: 'Horário que ${widget.colaborador.nome} saiu',
+          helpText: 'Horario que ${widget.colaborador.nome} saiu',
         );
         if (picked == null || !mounted) return;
         iniciadoEm =
             DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
-        // Mantém a duração agendada e desloca o retorno
         duracaoMinutos = duracaoAgendada;
       } else {
-        // Ainda não chegou a hora → usar duração agendada, iniciar agora
         duracaoMinutos = duracaoAgendada;
         iniciadoEm = now;
       }
     } else {
-      // Sem horários agendados → pausa padrão de 15 min
+      final duracaoEscolhida = await _escolherDuracaoIntervaloSemEscala();
+      if (duracaoEscolhida == null) return;
       iniciadoEm = now;
-      duracaoMinutos = 15;
+      duracaoMinutos = duracaoEscolhida;
     }
 
     if (!mounted) return;
     final eventoProvider =
         Provider.of<EventoTurnoProvider>(context, listen: false);
+    final alocacaoProvider =
+        Provider.of<AlocacaoProvider>(context, listen: false);
     final fiscalId =
         Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+
+    final alocacaoAtiva =
+        alocacaoProvider.getAlocacaoColaborador(widget.colaborador.id);
+    final caixaOrigemId = alocacaoAtiva?.caixaId;
+    if (alocacaoAtiva != null) {
+      await alocacaoProvider.liberarAlocacao(alocacaoAtiva.id, 'intervalo');
+    }
 
     widget.cafeProvider.iniciarPausa(
       colaboradorId: widget.colaborador.id,
       colaboradorNome: widget.colaborador.nome,
       duracaoMinutos: duracaoMinutos,
+      caixaId: caixaOrigemId,
       iniciadoEm: iniciadoEm,
     );
     eventoProvider.registrar(
@@ -1303,7 +1580,7 @@ class _ColaboradorIntervaloSheetState
             Expanded(
               child: Text(
                 'Sem horário de intervalo no registro de ponto. '
-                'Será iniciado com duração padrão de 15 min.',
+                'Sera necessario escolher 60 ou 120 min.',
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary),
               ),
@@ -1427,8 +1704,7 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
   String? _colaboradorSelecionadoId;
   String? _colaboradorSelecionadoNome;
 
-  int _duracaoCafePadrao() =>
-      DateTime.now().weekday == DateTime.sunday ? 15 : 10;
+  int _duracaoCafePadrao() => 10;
 
   @override
   void initState() {
@@ -1440,8 +1716,10 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
   Widget build(BuildContext context) {
     final colaboradorProvider =
         Provider.of<ColaboradorProvider>(context, listen: false);
+    final alocacaoProvider =
+        Provider.of<AlocacaoProvider>(context, listen: false);
     final jaFizeramCafe = widget.cafeProvider.pausasFinalizadas
-        .where((p) => p.duracaoMinutos <= 15)
+        .where((p) => p.isCafe)
         .map((p) => p.colaboradorId)
         .toSet();
     // Exclui: não está na escala, em pausa ativa, ou já fez café
@@ -1584,7 +1862,7 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
               child: ElevatedButton.icon(
                 onPressed: _colaboradorSelecionadoId == null
                     ? null
-                    : () {
+                    : () async {
                         final eventoProvider = Provider.of<EventoTurnoProvider>(
                             context,
                             listen: false);
@@ -1593,19 +1871,30 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
                                     .user
                                     ?.id ??
                                 '';
+                        final alocacaoAtiva =
+                            alocacaoProvider.getAlocacaoColaborador(
+                          _colaboradorSelecionadoId!,
+                        );
+                        final caixaOrigemId = alocacaoAtiva?.caixaId;
+                        if (alocacaoAtiva != null) {
+                          await alocacaoProvider.liberarAlocacao(
+                            alocacaoAtiva.id,
+                            'cafe',
+                          );
+                        }
                         widget.cafeProvider.iniciarPausa(
                           colaboradorId: _colaboradorSelecionadoId!,
                           colaboradorNome: _colaboradorSelecionadoNome!,
                           duracaoMinutos: _duracaoSelecionada,
+                          caixaId: caixaOrigemId,
                         );
                         eventoProvider.registrar(
                           fiscalId: fiscalId,
-                          tipo: _duracaoSelecionada <= 15
-                              ? TipoEvento.cafeIniciado
-                              : TipoEvento.intervaloIniciado,
+                          tipo: TipoEvento.cafeIniciado,
                           colaboradorNome: _colaboradorSelecionadoNome!,
                           detalhe: '$_duracaoSelecionada min',
                         );
+                        if (!context.mounted) return;
                         Navigator.pop(context);
                       },
                 icon: const Icon(Icons.coffee),

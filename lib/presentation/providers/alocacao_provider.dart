@@ -49,6 +49,10 @@ class AlocacaoProvider extends ChangeNotifier {
   /// Memória de sessão — resetado ao liberar a alocação.
   final Set<String> _aguardandoIntervalo = {};
 
+  /// IDs de colaboradores que concluíram intervalo longo e aguardam
+  /// realocação em caixa.
+  final Set<String> _aguardandoRealocacaoPosIntervalo = {};
+
   EscalaProvider? _escalaProvider;
   Timer? _timerSaidas;
   final Set<String> _saidasProcessadas = {};
@@ -70,6 +74,9 @@ class AlocacaoProvider extends ChangeNotifier {
   bool isAguardandoIntervalo(String colaboradorId) =>
       _aguardandoIntervalo.contains(colaboradorId);
 
+  bool isAguardandoRealocacaoPosIntervalo(String colaboradorId) =>
+      _aguardandoRealocacaoPosIntervalo.contains(colaboradorId);
+
   void marcarAguardandoIntervalo(String colaboradorId) {
     _aguardandoIntervalo.add(colaboradorId);
     notifyListeners();
@@ -77,6 +84,16 @@ class AlocacaoProvider extends ChangeNotifier {
 
   void desmarcarAguardandoIntervalo(String colaboradorId) {
     _aguardandoIntervalo.remove(colaboradorId);
+    notifyListeners();
+  }
+
+  void marcarAguardandoRealocacaoPosIntervalo(String colaboradorId) {
+    _aguardandoRealocacaoPosIntervalo.add(colaboradorId);
+    notifyListeners();
+  }
+
+  void desmarcarAguardandoRealocacaoPosIntervalo(String colaboradorId) {
+    _aguardandoRealocacaoPosIntervalo.remove(colaboradorId);
     notifyListeners();
   }
 
@@ -107,6 +124,7 @@ class AlocacaoProvider extends ChangeNotifier {
       _saidasProcessadas.clear();
       _intervalosMarcados.clear();
       _aguardandoIntervalo.clear();
+      _aguardandoRealocacaoPosIntervalo.clear();
       _diaProcessado = hoje;
     }
 
@@ -122,8 +140,7 @@ class AlocacaoProvider extends ChangeNotifier {
       final saidaHoje = DateTime(agora.year, agora.month, agora.day, h, m);
       if (!agora.isAfter(saidaHoje)) continue;
 
-      final alocacaoAtiva =
-          getAlocacaoColaborador(turno.colaboradorId);
+      final alocacaoAtiva = getAlocacaoColaborador(turno.colaboradorId);
       if (alocacaoAtiva == null) continue;
 
       _saidasProcessadas.add(turno.colaboradorId);
@@ -216,6 +233,8 @@ class AlocacaoProvider extends ChangeNotifier {
       if (result.isSuccess) {
         if (result.alocacao != null) {
           _alocacoes.add(result.alocacao!);
+          _aguardandoIntervalo.remove(colaboradorId);
+          _aguardandoRealocacaoPosIntervalo.remove(colaboradorId);
         }
         _loadingState = LoadingState.success;
       } else if (result.isPrecisaExcecao) {
@@ -259,6 +278,7 @@ class AlocacaoProvider extends ChangeNotifier {
       final liberada = _alocacoes.firstWhere((a) => a.id == alocacaoId,
           orElse: () => _alocacoes.first);
       _aguardandoIntervalo.remove(liberada.colaboradorId);
+      _aguardandoRealocacaoPosIntervalo.remove(liberada.colaboradorId);
       _alocacoes.removeWhere((a) => a.id == alocacaoId);
       _loadingState = LoadingState.success;
     } catch (e) {
@@ -293,11 +313,68 @@ class AlocacaoProvider extends ChangeNotifier {
     return _error ?? 'Não foi possível retornar ao caixa';
   }
 
+  /// Realoca o colaborador após intervalo longo.
+  ///
+  /// Regra padrão: voltar em caixa diferente do usado antes do intervalo.
+  /// Exceção: mesmo caixa permitido com justificativa.
+  Future<String?> realocarPosIntervalo({
+    required String colaboradorId,
+    required String caixaDestinoId,
+    required String fiscalId,
+    String? caixaOrigemId,
+    bool permitirMesmoCaixa = false,
+    String? justificativaMesmoCaixa,
+  }) async {
+    if (getAlocacaoColaborador(colaboradorId) != null) {
+      return 'Colaborador já está alocado em outro caixa';
+    }
+    if (getAlocacaoCaixa(caixaDestinoId) != null) {
+      return 'Caixa selecionado já está ocupado';
+    }
+
+    final origem = (caixaOrigemId ?? '').trim();
+    final mesmaCaixa = origem.isNotEmpty && origem == caixaDestinoId;
+    if (mesmaCaixa && !permitirMesmoCaixa) {
+      return 'Selecione um caixa diferente do anterior ao intervalo.';
+    }
+    if (mesmaCaixa &&
+        (justificativaMesmoCaixa == null ||
+            justificativaMesmoCaixa.trim().isEmpty)) {
+      return 'Informe a justificativa para usar o mesmo caixa.';
+    }
+
+    final justificativa =
+        mesmaCaixa ? justificativaMesmoCaixa!.trim() : 'Retorno pós-intervalo';
+
+    await alocarColaborador(
+      colaboradorId: colaboradorId,
+      caixaId: caixaDestinoId,
+      fiscalId: fiscalId,
+      justificativa: justificativa,
+    );
+
+    if (_loadingState == LoadingState.success) {
+      _aguardandoIntervalo.remove(colaboradorId);
+      _aguardandoRealocacaoPosIntervalo.remove(colaboradorId);
+      notifyListeners();
+      return null;
+    }
+
+    if (_mostrarDialogExcecao) {
+      final motivo = _resultadoExcecao?.motivoExcecao ??
+          'A realocação exige justificativa adicional.';
+      fecharDialogExcecao();
+      return motivo;
+    }
+
+    return _error ?? 'Não foi possível realocar após o intervalo';
+  }
+
   /// Encontra alocação de um colaborador
   Alocacao? getAlocacaoColaborador(String colaboradorId) {
     try {
-      return _alocacoes.firstWhere((a) =>
-          a.colaboradorId == colaboradorId && a.liberadoEm == null);
+      return _alocacoes.firstWhere(
+          (a) => a.colaboradorId == colaboradorId && a.liberadoEm == null);
     } catch (e) {
       return null;
     }
@@ -306,8 +383,8 @@ class AlocacaoProvider extends ChangeNotifier {
   /// Encontra alocação de uma caixa
   Alocacao? getAlocacaoCaixa(String caixaId) {
     try {
-      return _alocacoes.firstWhere((a) =>
-          a.caixaId == caixaId && a.liberadoEm == null);
+      return _alocacoes
+          .firstWhere((a) => a.caixaId == caixaId && a.liberadoEm == null);
     } catch (e) {
       return null;
     }

@@ -141,7 +141,8 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         AppNotif.show(
           context,
           titulo: 'Saída Automática',
-          mensagem: '${turno.colaboradorNome} atingiu o horário de saída e foi removido(a) do plantão de pacotes',
+          mensagem:
+              '${turno.colaboradorNome} atingiu o horário de saída e foi removido(a) do plantão de pacotes',
           tipo: 'saida',
           cor: AppColors.success,
           duracao: const Duration(seconds: 5),
@@ -231,146 +232,151 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                 caixasTodos.where((c) => c.tipo == TipoCaixa.balcao).toList();
 
             return LayoutBuilder(
-              builder: (context, constraints) => RefreshIndicator(
-              onRefresh: _loadData,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.symmetric(
-                  horizontal: Dimensions.hPad(constraints.maxWidth),
-                  vertical: Dimensions.paddingMD,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // ── Mini dashboard ──────────────────────────────────
-                    _MiniDashboard(
-                      alocacaoProvider: alocacaoProvider,
-                      cafeProvider: cafeProvider,
-                      caixaProvider: caixaProvider,
-                      colaboradorProvider:
-                          Provider.of<ColaboradorProvider>(context),
-                    ),
-
-                    const SizedBox(height: Dimensions.spacingMD),
-
-                    // Legenda
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(Dimensions.paddingMD),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                builder: (context, constraints) => RefreshIndicator(
+                      onRefresh: _loadData,
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: Dimensions.hPad(constraints.maxWidth),
+                          vertical: Dimensions.paddingMD,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildLegendItem('Ocupado', AppColors.statusAtivo),
-                            _buildLegendItem('Disponível', AppColors.success),
-                            _buildLegendItem('Inativo', AppColors.inactive),
-                            _buildLegendItem(
-                                'Manutenção', AppColors.statusAtencao),
+                            // ── Mini dashboard ──────────────────────────────────
+                            _MiniDashboard(
+                              alocacaoProvider: alocacaoProvider,
+                              cafeProvider: cafeProvider,
+                              caixaProvider: caixaProvider,
+                              colaboradorProvider:
+                                  Provider.of<ColaboradorProvider>(context),
+                            ),
+
+                            const SizedBox(height: Dimensions.spacingMD),
+
+                            // Legenda
+                            Card(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.all(Dimensions.paddingMD),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    _buildLegendItem(
+                                        'Ocupado', AppColors.statusAtivo),
+                                    _buildLegendItem(
+                                        'Disponível', AppColors.success),
+                                    _buildLegendItem(
+                                        'Inativo', AppColors.inactive),
+                                    _buildLegendItem(
+                                        'Manutenção', AppColors.statusAtencao),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: Dimensions.spacingLG),
+
+                            // Caixas Rápidos (apenas ocupados)
+                            if (rapidos.isNotEmpty) ...[
+                              _SectionHeader(
+                                label: 'Caixas Rápidos',
+                                count: rapidos.length,
+                              ),
+                              const SizedBox(height: Dimensions.spacingSM),
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: rapidos.length,
+                                itemBuilder: (context, index) {
+                                  final caixa = rapidos[index];
+                                  final alocacao = alocacaoProvider
+                                      .getAlocacaoCaixa(caixa.id);
+                                  return CaixaListItem(
+                                      caixa: caixa, alocacao: alocacao);
+                                },
+                              ),
+                              const SizedBox(height: Dimensions.spacingLG),
+                            ],
+
+                            // Caixas Normais (apenas ocupados)
+                            if (normais.isNotEmpty) ...[
+                              _SectionHeader(
+                                label: 'Caixas Normais',
+                                count: normais.length,
+                              ),
+                              const SizedBox(height: Dimensions.spacingSM),
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: normais.length,
+                                itemBuilder: (context, index) {
+                                  final caixa = normais[index];
+                                  final alocacao = alocacaoProvider
+                                      .getAlocacaoCaixa(caixa.id);
+                                  return CaixaListItem(
+                                      caixa: caixa, alocacao: alocacao);
+                                },
+                              ),
+                              const SizedBox(height: Dimensions.spacingLG),
+                            ],
+
+                            // Self Checkouts (apenas ocupados)
+                            if (selfs.isNotEmpty) ...[
+                              _SectionHeader(
+                                label: 'Self Checkouts',
+                                count: selfs.length,
+                              ),
+                              const SizedBox(height: Dimensions.spacingSM),
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: selfs.length,
+                                itemBuilder: (context, index) {
+                                  final caixa = selfs[index];
+                                  final alocacao = alocacaoProvider
+                                      .getAlocacaoCaixa(caixa.id);
+                                  return CaixaListItem(
+                                      caixa: caixa, alocacao: alocacao);
+                                },
+                              ),
+                              const SizedBox(height: Dimensions.spacingLG),
+                            ],
+
+                            // Balcões (todos, com slots para até 3 fiscais)
+                            if (balcoes.isNotEmpty) ...[
+                              _SectionHeader(
+                                label: 'Balcões',
+                                count: balcoes.length,
+                              ),
+                              const SizedBox(height: Dimensions.spacingSM),
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: balcoes.length,
+                                itemBuilder: (context, index) {
+                                  final balcao = balcoes[index];
+                                  final alocacoes = alocacaoProvider
+                                      .getAlocacoesCaixa(balcao.id);
+                                  return BalcaoListItem(
+                                      balcao: balcao, alocacoes: alocacoes);
+                                },
+                              ),
+                              const SizedBox(height: Dimensions.spacingLG),
+                            ],
+
+                            // Pacotes — lista de presença de empacotadores
+                            const PacoteSection(),
+                            const SizedBox(height: Dimensions.spacingMD),
+
+                            // Outro Setor — colaboradores em outras funções
+                            const OutroSetorSection(),
+                            const SizedBox(height: Dimensions.spacingMD),
                           ],
                         ),
                       ),
-                    ),
-
-                    const SizedBox(height: Dimensions.spacingLG),
-
-                    // Caixas Rápidos (apenas ocupados)
-                    if (rapidos.isNotEmpty) ...[
-                      _SectionHeader(
-                        label: 'Caixas Rápidos',
-                        count: rapidos.length,
-                      ),
-                      const SizedBox(height: Dimensions.spacingSM),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: rapidos.length,
-                        itemBuilder: (context, index) {
-                          final caixa = rapidos[index];
-                          final alocacao =
-                              alocacaoProvider.getAlocacaoCaixa(caixa.id);
-                          return CaixaListItem(
-                              caixa: caixa, alocacao: alocacao);
-                        },
-                      ),
-                      const SizedBox(height: Dimensions.spacingLG),
-                    ],
-
-                    // Caixas Normais (apenas ocupados)
-                    if (normais.isNotEmpty) ...[
-                      _SectionHeader(
-                        label: 'Caixas Normais',
-                        count: normais.length,
-                      ),
-                      const SizedBox(height: Dimensions.spacingSM),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: normais.length,
-                        itemBuilder: (context, index) {
-                          final caixa = normais[index];
-                          final alocacao =
-                              alocacaoProvider.getAlocacaoCaixa(caixa.id);
-                          return CaixaListItem(
-                              caixa: caixa, alocacao: alocacao);
-                        },
-                      ),
-                      const SizedBox(height: Dimensions.spacingLG),
-                    ],
-
-                    // Self Checkouts (apenas ocupados)
-                    if (selfs.isNotEmpty) ...[
-                      _SectionHeader(
-                        label: 'Self Checkouts',
-                        count: selfs.length,
-                      ),
-                      const SizedBox(height: Dimensions.spacingSM),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: selfs.length,
-                        itemBuilder: (context, index) {
-                          final caixa = selfs[index];
-                          final alocacao =
-                              alocacaoProvider.getAlocacaoCaixa(caixa.id);
-                          return CaixaListItem(
-                              caixa: caixa, alocacao: alocacao);
-                        },
-                      ),
-                      const SizedBox(height: Dimensions.spacingLG),
-                    ],
-
-                    // Balcões (todos, com slots para até 3 fiscais)
-                    if (balcoes.isNotEmpty) ...[
-                      _SectionHeader(
-                        label: 'Balcões',
-                        count: balcoes.length,
-                      ),
-                      const SizedBox(height: Dimensions.spacingSM),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: balcoes.length,
-                        itemBuilder: (context, index) {
-                          final balcao = balcoes[index];
-                          final alocacoes =
-                              alocacaoProvider.getAlocacoesCaixa(balcao.id);
-                          return BalcaoListItem(
-                              balcao: balcao, alocacoes: alocacoes);
-                        },
-                      ),
-                      const SizedBox(height: Dimensions.spacingLG),
-                    ],
-
-                    // Pacotes — lista de presença de empacotadores
-                    const PacoteSection(),
-                    const SizedBox(height: Dimensions.spacingMD),
-
-                    // Outro Setor — colaboradores em outras funções
-                    const OutroSetorSection(),
-                    const SizedBox(height: Dimensions.spacingMD),
-                  ],
-                ),
-              ),
-            ));
+                    ));
           }),
 
           // ── ABA 2: CAIXAS ────────────────────────────────────────────────
@@ -456,10 +462,8 @@ class _CaixasBody extends StatelessWidget {
                               ? 4
                               : 3;
                       return GridView.builder(
-                        padding:
-                            const EdgeInsets.all(Dimensions.paddingMD),
-                        gridDelegate:
-                            SliverGridDelegateWithFixedCrossAxisCount(
+                        padding: const EdgeInsets.all(Dimensions.paddingMD),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: cols,
                           crossAxisSpacing: Dimensions.spacingSM,
                           mainAxisSpacing: Dimensions.spacingSM,
@@ -530,8 +534,8 @@ class _StatItem extends StatelessWidget {
                 .copyWith(color: color, fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
         Text(label,
-            style: AppTextStyles.caption
-                .copyWith(color: AppColors.textSecondary)),
+            style:
+                AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
       ],
     );
   }
@@ -644,15 +648,13 @@ class _MiniDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final caixasIds =
-        caixaProvider.caixasTodos.map((c) => c.id).toSet();
+    final caixasIds = caixaProvider.caixasTodos.map((c) => c.id).toSet();
     final totalAlocados = alocacaoProvider
         .getAlocacoesAtivas()
         .where((a) => caixasIds.contains(a.caixaId))
         .length;
     final emPausa = cafeProvider.pausasAtivas
-        .where((p) =>
-            p.caixaId != null && caixasIds.contains(p.caixaId))
+        .where((p) => p.caixaId != null && caixasIds.contains(p.caixaId))
         .length;
     final caixasLivres = caixaProvider.caixasTodos
         .where((c) =>
@@ -677,11 +679,12 @@ class _MiniDashboard extends StatelessWidget {
         context: context,
         isScrollControlled: true,
         shape: const RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+          borderRadius: BorderRadius.vertical(
+              top: Radius.circular(Dimensions.radiusSheet)),
         ),
         builder: (_) => _OcupadosSheet(
           caixas: ocupados,
+          caixasTodos: caixas,
           alocacaoProvider: alocacaoProvider,
           cafeProvider: cafeProvider,
           colabById: colabById,
@@ -806,12 +809,14 @@ class _DashDivider extends StatelessWidget {
 
 class _OcupadosSheet extends StatelessWidget {
   final List<Caixa> caixas;
+  final List<Caixa> caixasTodos;
   final AlocacaoProvider alocacaoProvider;
   final CafeProvider cafeProvider;
   final Map<String, Colaborador> colabById;
 
   const _OcupadosSheet({
     required this.caixas,
+    required this.caixasTodos,
     required this.alocacaoProvider,
     required this.cafeProvider,
     required this.colabById,
@@ -840,14 +845,11 @@ class _OcupadosSheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.point_of_sale, size: 18, color: AppColors.primary),
-              const SizedBox(width: 6),
-              Text(
-                'Caixas ocupados',
-                style: AppTextStyles.h3,
-              ),
+              Icon(Icons.point_of_sale, size: 18, color: AppColors.primary),
+              SizedBox(width: 6),
+              Text('Caixas ocupados', style: AppTextStyles.h3),
             ],
           ),
           const SizedBox(height: 4),
@@ -877,8 +879,7 @@ class _OcupadosSheet extends StatelessWidget {
                     const Divider(height: 16, color: AppColors.cardBorder),
                 itemBuilder: (_, i) {
                   final caixa = caixas[i];
-                  final alocacao =
-                      alocacaoProvider.getAlocacaoCaixa(caixa.id);
+                  final alocacao = alocacaoProvider.getAlocacaoCaixa(caixa.id);
                   final pausa = cafeProvider.getPausaAtivaPorCaixa(caixa.id);
 
                   final nomeAlocado = alocacao != null
@@ -897,8 +898,7 @@ class _OcupadosSheet extends StatelessWidget {
                       pausa,
                     ),
                     leading: CircleAvatar(
-                      backgroundColor:
-                          AppColors.primary.withValues(alpha: 0.1),
+                      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                       child: Text(
                         caixa.numero.toString(),
                         style: const TextStyle(
@@ -924,7 +924,7 @@ class _OcupadosSheet extends StatelessWidget {
                             ),
                           ),
                         if (nomeAlocado == null && nomePausa == null)
-                          Text(
+                          const Text(
                             'Sem detalhes da ocupação',
                             style: AppTextStyles.caption,
                           ),
@@ -980,8 +980,7 @@ class _OcupadosSheet extends StatelessWidget {
             if (alocacao != null)
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading:
-                    const Icon(Icons.exit_to_app, color: AppColors.danger),
+                leading: const Icon(Icons.exit_to_app, color: AppColors.danger),
                 title: const Text('Liberar caixa'),
                 subtitle: const Text('Remove a alocação ativa deste caixa'),
                 onTap: () {
@@ -992,8 +991,7 @@ class _OcupadosSheet extends StatelessWidget {
             if (pausa != null)
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading:
-                    const Icon(Icons.coffee, color: AppColors.statusCafe),
+                leading: const Icon(Icons.coffee, color: AppColors.statusCafe),
                 title: const Text('Finalizar pausa'),
                 subtitle: const Text('Encerra a pausa ativa deste caixa'),
                 onTap: () {
@@ -1075,16 +1073,62 @@ class _OcupadosSheet extends StatelessWidget {
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
-              cafeProvider.finalizarPausa(pausa.colaboradorId);
-              await _tentarRetornoCafe(context, pausa);
-              if (context.mounted) {
-                AppNotif.show(
-                  context,
-                  titulo: 'Pausa finalizada',
-                  mensagem: 'Pausa de ${pausa.colaboradorNome} finalizada.',
-                  tipo: 'saida',
-                  cor: AppColors.success,
+              final fiscalId =
+                  Provider.of<AuthProvider>(context, listen: false).user?.id ??
+                      '';
+              if (fiscalId.isEmpty) {
+                if (context.mounted) {
+                  AppNotif.show(
+                    context,
+                    titulo: 'Erro',
+                    mensagem: 'Usuario nao autenticado para finalizar pausa.',
+                    tipo: 'alerta',
+                    cor: AppColors.danger,
+                  );
+                }
+                return;
+              }
+
+              String? erro;
+              if (pausa.isIntervalo) {
+                final escolha = await _escolherRetornoIntervalo(context, pausa);
+                if (escolha == null) return;
+                erro = await cafeProvider.finalizarPausaComRegra(
+                  pausa: pausa,
+                  alocacaoProvider: alocacaoProvider,
+                  fiscalId: fiscalId,
+                  caixaDestinoIntervaloId: escolha.caixaDestinoId,
+                  permitirMesmoCaixaNoIntervalo: escolha.permitirMesmoCaixa,
+                  justificativaMesmoCaixa: escolha.justificativaMesmoCaixa,
                 );
+              } else {
+                erro = await cafeProvider.finalizarPausaComRegra(
+                  pausa: pausa,
+                  alocacaoProvider: alocacaoProvider,
+                  fiscalId: fiscalId,
+                );
+              }
+
+              if (context.mounted) {
+                if (erro == null) {
+                  AppNotif.show(
+                    context,
+                    titulo: 'Pausa finalizada',
+                    mensagem: pausa.isCafe
+                        ? 'Pausa de ${pausa.colaboradorNome} finalizada com retorno ao caixa.'
+                        : 'Pausa de ${pausa.colaboradorNome} finalizada com realocacao.',
+                    tipo: 'saida',
+                    cor: AppColors.success,
+                  );
+                } else {
+                  AppNotif.show(
+                    context,
+                    titulo: 'Pausa finalizada',
+                    mensagem: erro,
+                    tipo: 'alerta',
+                    cor: AppColors.warning,
+                  );
+                }
               }
             },
             child: const Text(
@@ -1097,43 +1141,156 @@ class _OcupadosSheet extends StatelessWidget {
     );
   }
 
-  Future<void> _tentarRetornoCafe(
+  Future<_RetornoIntervaloEscolha?> _escolherRetornoIntervalo(
     BuildContext context,
     PausaCafe pausa,
   ) async {
-    if (pausa.duracaoMinutos > 15) return;
-    if (pausa.caixaId == null || pausa.caixaId!.isEmpty) return;
-    final fiscalId =
-        Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
-    if (fiscalId.isEmpty) return;
+    final caixasAtivos = caixasTodos
+        .where((c) => c.ativo && !c.emManutencao)
+        .toList()
+      ..sort((a, b) => a.numero.compareTo(b.numero));
+    final caixasLivres = caixasAtivos
+        .where((c) => alocacaoProvider.getAlocacaoCaixa(c.id) == null)
+        .toList();
 
-    final caixa = caixas
-        .where((c) => c.id == pausa.caixaId)
+    if (caixasLivres.isEmpty) {
+      if (context.mounted) {
+        AppNotif.show(
+          context,
+          titulo: 'Sem caixa disponivel',
+          mensagem: 'Nao ha caixa livre para retorno do intervalo.',
+          tipo: 'alerta',
+          cor: AppColors.warning,
+        );
+      }
+      return null;
+    }
+
+    String? caixaSelecionadoId = caixasLivres
+        .where((c) => c.id != pausa.caixaId)
+        .map((c) => c.id)
         .firstOrNull;
-    final erro = await alocacaoProvider.retornarDeCafe(
-      colaboradorId: pausa.colaboradorId,
-      caixaId: pausa.caixaId!,
-      fiscalId: fiscalId,
+    caixaSelecionadoId ??= caixasLivres.first.id;
+    bool permitirMesmoCaixa = false;
+    final justificativaCtrl = TextEditingController();
+
+    final escolha = await showDialog<_RetornoIntervaloEscolha>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setStateDialog) {
+          final mesmoCaixaSelecionado = pausa.caixaId != null &&
+              pausa.caixaId!.isNotEmpty &&
+              caixaSelecionadoId == pausa.caixaId;
+          final precisaJustificativa =
+              mesmoCaixaSelecionado && permitirMesmoCaixa;
+          final podeConfirmar = caixaSelecionadoId != null &&
+              (!precisaJustificativa ||
+                  justificativaCtrl.text.trim().isNotEmpty);
+
+          return AlertDialog(
+            title: const Text('Retorno do intervalo'),
+            content: SizedBox(
+              width: 420,
+              child: SingleChildScrollView(
+                child: RadioGroup<String>(
+                  groupValue: caixaSelecionadoId,
+                  onChanged: (v) =>
+                      setStateDialog(() => caixaSelecionadoId = v),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Regra padrao: retornar em caixa diferente.'),
+                      const SizedBox(height: 12),
+                      ...caixasAtivos.map((caixa) {
+                        final ocupado =
+                            alocacaoProvider.getAlocacaoCaixa(caixa.id) != null;
+                        Widget tile = RadioListTile<String>(
+                          value: caixa.id,
+                          title: Text(caixa.nomeExibicao),
+                          subtitle:
+                              Text(ocupado ? 'Ocupado agora' : 'Disponivel'),
+                          dense: true,
+                        );
+                        if (ocupado) {
+                          tile = Opacity(
+                            opacity: 0.5,
+                            child: IgnorePointer(child: tile),
+                          );
+                        }
+                        return tile;
+                      }),
+                      if (mesmoCaixaSelecionado) ...[
+                        const SizedBox(height: 8),
+                        CheckboxListTile(
+                          contentPadding: EdgeInsets.zero,
+                          value: permitirMesmoCaixa,
+                          onChanged: (v) => setStateDialog(
+                            () => permitirMesmoCaixa = v ?? false,
+                          ),
+                          title: const Text('Permitir mesmo caixa (excecao)'),
+                          subtitle: const Text(
+                            'Necessario justificar para auditoria.',
+                          ),
+                        ),
+                        if (permitirMesmoCaixa) ...[
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: justificativaCtrl,
+                            maxLines: 3,
+                            textCapitalization: TextCapitalization.sentences,
+                            decoration: const InputDecoration(
+                              labelText: 'Justificativa da excecao *',
+                            ),
+                            onChanged: (_) => setStateDialog(() {}),
+                          ),
+                        ],
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: !podeConfirmar
+                    ? null
+                    : () => Navigator.pop(
+                          ctx,
+                          _RetornoIntervaloEscolha(
+                            caixaDestinoId: caixaSelecionadoId!,
+                            permitirMesmoCaixa: permitirMesmoCaixa,
+                            justificativaMesmoCaixa:
+                                justificativaCtrl.text.trim().isEmpty
+                                    ? null
+                                    : justificativaCtrl.text.trim(),
+                          ),
+                        ),
+                child: const Text('Confirmar retorno'),
+              ),
+            ],
+          );
+        },
+      ),
     );
 
-    if (!context.mounted) return;
-    if (erro == null) {
-      AppNotif.show(
-        context,
-        titulo: 'Retorno do café',
-        mensagem:
-            '${pausa.colaboradorNome} voltou ao ${caixa?.nomeExibicao ?? 'caixa'}',
-        tipo: 'saida',
-        cor: AppColors.success,
-      );
-    } else {
-      AppNotif.show(
-        context,
-        titulo: 'Retorno do café',
-        mensagem: erro,
-        tipo: 'alerta',
-        cor: AppColors.warning,
-      );
-    }
+    justificativaCtrl.dispose();
+    return escolha;
   }
+}
+
+class _RetornoIntervaloEscolha {
+  final String caixaDestinoId;
+  final bool permitirMesmoCaixa;
+  final String? justificativaMesmoCaixa;
+
+  const _RetornoIntervaloEscolha({
+    required this.caixaDestinoId,
+    required this.permitirMesmoCaixa,
+    this.justificativaMesmoCaixa,
+  });
 }
