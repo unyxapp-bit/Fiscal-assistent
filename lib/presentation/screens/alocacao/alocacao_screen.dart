@@ -1347,50 +1347,104 @@ class _CardDisponivel extends StatelessWidget {
     return 'Chega em ${min}min';
   }
 
+  Widget _buildAcoes() {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (onOutroSetor != null)
+          IconButton(
+            tooltip: 'Outro setor',
+            icon: const Icon(Icons.store_outlined),
+            color: AppColors.statusIntervalo,
+            onPressed: onOutroSetor,
+          ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          ),
+          onPressed: onAlocar,
+          child: const Text('Alocar'),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final chegando = minutosParaChegar != null && minutosParaChegar! > 0;
+    final subtitulo = [
+      turno.departamento.nome,
+      if (turno.entrada != null && turno.saida != null)
+        '${turno.entrada}-${turno.saida}',
+      if (chegando) _chegaEm(minutosParaChegar!),
+    ].join('  |  ');
+
     return Card(
       color: AppColors.cardBackground,
       margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor:
-              chegando ? AppColors.statusAtencao : AppColors.statusAtivo,
-          child: Text(turno.colaboradorNome[0].toUpperCase(),
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.bold)),
-        ),
-        title: Text(turno.colaboradorNome, style: AppTextStyles.h4),
-        subtitle: Text(
-          [
-            turno.departamento.nome,
-            if (turno.entrada != null && turno.saida != null)
-              '${turno.entrada}–${turno.saida}',
-            if (chegando) _chegaEm(minutosParaChegar!),
-          ].join('  •  '),
-          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (onOutroSetor != null)
-              IconButton(
-                tooltip: 'Outro setor',
-                icon: const Icon(Icons.store_outlined),
-                color: AppColors.statusIntervalo,
-                onPressed: onOutroSetor,
-              ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8)),
-              onPressed: onAlocar,
-              child: const Text('Alocar'),
-            ),
-          ],
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final acoesEmbaixo = constraints.maxWidth < 430;
+            final cabecalho = Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: chegando
+                      ? AppColors.statusAtencao
+                      : AppColors.statusAtivo,
+                  child: Text(
+                    turno.colaboradorNome[0].toUpperCase(),
+                    style: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        turno.colaboradorNome,
+                        style: AppTextStyles.h4,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitulo,
+                        style: AppTextStyles.caption
+                            .copyWith(color: AppColors.textSecondary),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                if (!acoesEmbaixo) ...[
+                  const SizedBox(width: 10),
+                  _buildAcoes(),
+                ],
+              ],
+            );
+
+            if (!acoesEmbaixo) return cabecalho;
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                cabecalho,
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [_buildAcoes()],
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -1447,6 +1501,29 @@ class _CardAlocadoState extends State<_CardAlocado> {
     return agoraMin - intervaloMin;
   }
 
+  Widget _buildAcoes(bool emAtencao) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+              color: emAtencao
+                  ? AppColors.danger.withValues(alpha: 0.1)
+                  : AppColors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8)),
+          child: Text('Ativo',
+              style: AppTextStyles.caption.copyWith(
+                  color: emAtencao ? AppColors.danger : AppColors.primary,
+                  fontWeight: FontWeight.bold)),
+        ),
+        const SizedBox(width: 4),
+        const Icon(Icons.chevron_right,
+            size: 18, color: AppColors.textSecondary),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final caixa = Provider.of<CaixaProvider>(context, listen: false)
@@ -1470,46 +1547,77 @@ class _CardAlocadoState extends State<_CardAlocado> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ListTile(
+          InkWell(
             onTap: widget.onTap,
-            leading: CircleAvatar(
-              backgroundColor: emAtencao
-                  ? AppColors.danger.withValues(alpha: 0.12)
-                  : AppColors.primary.withValues(alpha: 0.12),
-              child: Text(widget.turno.colaboradorNome[0].toUpperCase(),
-                  style: TextStyle(
-                      color: emAtencao ? AppColors.danger : AppColors.primary,
-                      fontWeight: FontWeight.bold)),
-            ),
-            title: Text(widget.turno.colaboradorNome, style: AppTextStyles.h4),
-            subtitle: Text(
-              caixa != null
-                  ? '${caixa.nomeExibicao}  •  ${_tempo()}'
-                  : widget.turno.departamento.nome,
-              style: AppTextStyles.caption
-                  .copyWith(color: AppColors.textSecondary),
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                      color: emAtencao
-                          ? AppColors.danger.withValues(alpha: 0.1)
-                          : AppColors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8)),
-                  child: Text('Ativo',
-                      style: AppTextStyles.caption.copyWith(
-                          color:
-                              emAtencao ? AppColors.danger : AppColors.primary,
-                          fontWeight: FontWeight.bold)),
-                ),
-                const SizedBox(width: 4),
-                const Icon(Icons.chevron_right,
-                    size: 18, color: AppColors.textSecondary),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final acoesEmbaixo = constraints.maxWidth < 430;
+                  final subtitulo = caixa != null
+                      ? '${caixa.nomeExibicao}  |  ${_tempo()}'
+                      : widget.turno.departamento.nome;
+
+                  final cabecalho = Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: emAtencao
+                            ? AppColors.danger.withValues(alpha: 0.12)
+                            : AppColors.primary.withValues(alpha: 0.12),
+                        child: Text(
+                          widget.turno.colaboradorNome[0].toUpperCase(),
+                          style: TextStyle(
+                              color: emAtencao
+                                  ? AppColors.danger
+                                  : AppColors.primary,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.turno.colaboradorNome,
+                              style: AppTextStyles.h4,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              subtitulo,
+                              style: AppTextStyles.caption
+                                  .copyWith(color: AppColors.textSecondary),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (!acoesEmbaixo) ...[
+                        const SizedBox(width: 10),
+                        _buildAcoes(emAtencao),
+                      ],
+                    ],
+                  );
+
+                  if (!acoesEmbaixo) return cabecalho;
+
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      cabecalho,
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [_buildAcoes(emAtencao)],
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
           // ── Faixa de aviso de intervalo ─────────────────────────────
@@ -1576,35 +1684,88 @@ class _CardAChegar extends StatelessWidget {
     return 'Chega em ${minutosParaChegar}min';
   }
 
+  Widget _buildChip() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+          color: AppColors.statusAtencao.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(8)),
+      child: Text(_chegaEm(),
+          style: AppTextStyles.caption.copyWith(
+              color: AppColors.statusAtencao, fontWeight: FontWeight.bold)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final subtitulo = [
+      turno.departamento.nome,
+      if (turno.entrada != null && turno.saida != null)
+        '${turno.entrada}-${turno.saida}',
+    ].join('  |  ');
+
     return Card(
       color: AppColors.cardBackground,
       margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: AppColors.statusAtencao.withValues(alpha: 0.10),
-          child: Text(turno.colaboradorNome[0].toUpperCase(),
-              style: const TextStyle(
-                  color: AppColors.statusAtencao, fontWeight: FontWeight.bold)),
-        ),
-        title: Text(turno.colaboradorNome, style: AppTextStyles.h4),
-        subtitle: Text(
-          [
-            turno.departamento.nome,
-            if (turno.entrada != null && turno.saida != null)
-              '${turno.entrada}–${turno.saida}',
-          ].join('  •  '),
-          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
-        ),
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-              color: AppColors.statusAtencao.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8)),
-          child: Text(_chegaEm(),
-              style: AppTextStyles.caption.copyWith(
-                  color: AppColors.statusAtencao, fontWeight: FontWeight.bold)),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final acoesEmbaixo = constraints.maxWidth < 430;
+            final cabecalho = Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor:
+                      AppColors.statusAtencao.withValues(alpha: 0.10),
+                  child: Text(turno.colaboradorNome[0].toUpperCase(),
+                      style: const TextStyle(
+                          color: AppColors.statusAtencao,
+                          fontWeight: FontWeight.bold)),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        turno.colaboradorNome,
+                        style: AppTextStyles.h4,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitulo,
+                        style: AppTextStyles.caption
+                            .copyWith(color: AppColors.textSecondary),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                if (!acoesEmbaixo) ...[
+                  const SizedBox(width: 10),
+                  _buildChip(),
+                ],
+              ],
+            );
+
+            if (!acoesEmbaixo) return cabecalho;
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                cabecalho,
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [_buildChip()],
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -1654,42 +1815,95 @@ class _CardOutroSetor extends StatelessWidget {
     this.onChamarDeVolta,
   });
 
+  Widget _buildBotao() {
+    const kColor = Color(0xFF5C6BC0);
+    return OutlinedButton.icon(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: kColor,
+        side: const BorderSide(color: kColor),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      ),
+      icon: const Icon(Icons.undo, size: 14),
+      label: const Text('Chamar',
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+      onPressed: onChamarDeVolta,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     const kColor = Color(0xFF5C6BC0);
     return Card(
       color: AppColors.cardBackground,
       margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: kColor.withValues(alpha: 0.12),
-          child: Text(
-            turno.colaboradorNome[0].toUpperCase(),
-            style: const TextStyle(color: kColor, fontWeight: FontWeight.bold),
-          ),
-        ),
-        title: Text(turno.colaboradorNome, style: AppTextStyles.h4),
-        subtitle: Row(
-          children: [
-            const Icon(Icons.location_on, size: 11, color: kColor),
-            const SizedBox(width: 3),
-            Text(
-              setor,
-              style: AppTextStyles.caption
-                  .copyWith(color: kColor, fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-        trailing: OutlinedButton.icon(
-          style: OutlinedButton.styleFrom(
-            foregroundColor: kColor,
-            side: const BorderSide(color: kColor),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          ),
-          icon: const Icon(Icons.undo, size: 14),
-          label: const Text('Chamar',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-          onPressed: onChamarDeVolta,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final acoesEmbaixo = constraints.maxWidth < 460;
+            final cabecalho = Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: kColor.withValues(alpha: 0.12),
+                  child: Text(
+                    turno.colaboradorNome[0].toUpperCase(),
+                    style: const TextStyle(
+                        color: kColor, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        turno.colaboradorNome,
+                        style: AppTextStyles.h4,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          const Icon(Icons.location_on,
+                              size: 11, color: kColor),
+                          const SizedBox(width: 3),
+                          Expanded(
+                            child: Text(
+                              setor,
+                              style: AppTextStyles.caption.copyWith(
+                                  color: kColor, fontWeight: FontWeight.w600),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                if (!acoesEmbaixo) ...[
+                  const SizedBox(width: 10),
+                  _buildBotao(),
+                ],
+              ],
+            );
+
+            if (!acoesEmbaixo) return cabecalho;
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                cabecalho,
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [_buildBotao()],
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
