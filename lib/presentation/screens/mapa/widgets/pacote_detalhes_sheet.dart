@@ -352,6 +352,44 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
                     ),
                   ],
                 ),
+                Builder(builder: (context) {
+                  final cafeProvider = Provider.of<CafeProvider>(
+                    widget.providerContext,
+                    listen: false,
+                  );
+                  if (cafeProvider.colaboradorEmPausa(widget.colaborador.id)) {
+                    return const SizedBox.shrink();
+                  }
+                  if (widget.turno?.intervalo == null) {
+                    return const SizedBox.shrink();
+                  }
+                  final parts = widget.turno!.intervalo!.split(':');
+                  if (parts.length < 2) return const SizedBox.shrink();
+                  final agora = DateTime.now();
+                  final agoraMin = agora.hour * 60 + agora.minute;
+                  final intervaloMin = (int.tryParse(parts[0]) ?? 0) * 60 +
+                      (int.tryParse(parts[1]) ?? 0);
+                  final minPassado = agoraMin - intervaloMin;
+                  if (minPassado <= 0) return const SizedBox.shrink();
+                  if (cafeProvider
+                      .colaboradorJaFezIntervaloHoje(widget.colaborador.id)) {
+                    return const SizedBox.shrink();
+                  }
+
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: OutlinedButton.icon(
+                      onPressed: _marcarIntervaloJaFeito,
+                      icon: const Icon(Icons.check_circle_outline, size: 18),
+                      label: const Text('Intervalo já feito'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.green.shade700,
+                        side: BorderSide(color: Colors.green.shade700),
+                        minimumSize: const Size(double.infinity, 40),
+                      ),
+                    ),
+                  );
+                }),
               ],
             ),
           ),
@@ -461,26 +499,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
   }
 
   Future<void> _enviarParaIntervalo() async {
-    int duracaoMinutos = 60;
-    if (widget.turno != null) {
-      final t = widget.turno!;
-      if (t.intervalo != null && t.retorno != null) {
-        final p1 = t.intervalo!.split(':');
-        final p2 = t.retorno!.split(':');
-        if (p1.length == 2 && p2.length == 2) {
-          final ini = Duration(
-              hours: int.tryParse(p1[0]) ?? 0,
-              minutes: int.tryParse(p1[1]) ?? 0);
-          final ret = Duration(
-              hours: int.tryParse(p2[0]) ?? 0,
-              minutes: int.tryParse(p2[1]) ?? 0);
-          final diff = ret - ini;
-          if (!diff.isNegative && diff.inMinutes > 0) {
-            duracaoMinutos = diff.inMinutes;
-          }
-        }
-      }
-    }
+    final duracaoMinutos = _calcularDuracaoIntervalo();
 
     final providerCtx = widget.providerContext;
     final navigator = Navigator.of(context);
@@ -547,5 +566,111 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
         cor: Colors.orange,
       );
     }
+  }
+
+  int _calcularDuracaoIntervalo() {
+    int duracaoMinutos = 60;
+    if (widget.turno == null) return duracaoMinutos;
+
+    final t = widget.turno!;
+    if (t.intervalo == null || t.retorno == null) return duracaoMinutos;
+
+    final p1 = t.intervalo!.split(':');
+    final p2 = t.retorno!.split(':');
+    if (p1.length != 2 || p2.length != 2) return duracaoMinutos;
+
+    final ini = Duration(
+      hours: int.tryParse(p1[0]) ?? 0,
+      minutes: int.tryParse(p1[1]) ?? 0,
+    );
+    final ret = Duration(
+      hours: int.tryParse(p2[0]) ?? 0,
+      minutes: int.tryParse(p2[1]) ?? 0,
+    );
+    final diff = ret - ini;
+    if (!diff.isNegative && diff.inMinutes > 0) {
+      duracaoMinutos = diff.inMinutes;
+    }
+    return duracaoMinutos;
+  }
+
+  DateTime? _inicioIntervaloEscalaHoje() {
+    final intervalo = widget.turno?.intervalo;
+    if (intervalo == null) return null;
+    final parts = intervalo.split(':');
+    if (parts.length < 2) return null;
+
+    final h = int.tryParse(parts[0]);
+    final m = int.tryParse(parts[1]);
+    if (h == null || m == null) return null;
+
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day, h, m);
+  }
+
+  Future<void> _marcarIntervaloJaFeito() async {
+    final providerCtx = widget.providerContext;
+    final cafeProvider = Provider.of<CafeProvider>(providerCtx, listen: false);
+
+    if (cafeProvider.colaboradorJaFezIntervaloHoje(widget.colaborador.id)) {
+      AppNotif.show(
+        providerCtx,
+        titulo: 'Intervalo já registrado',
+        mensagem: '${widget.colaborador.nome} já possui intervalo hoje.',
+        tipo: 'intervalo',
+        cor: Colors.orange,
+      );
+      return;
+    }
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Intervalo já feito?'),
+        content: Text(
+          'Confirmar que ${widget.colaborador.nome} já realizou o intervalo?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+            child:
+                const Text('Confirmar', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true || !mounted) return;
+
+    final duracaoMinutos = _calcularDuracaoIntervalo();
+    final now = DateTime.now();
+    final inicioEscala = _inicioIntervaloEscalaHoje();
+    final inicioRegistro = (inicioEscala != null && inicioEscala.isBefore(now))
+        ? inicioEscala
+        : now.subtract(Duration(minutes: duracaoMinutos));
+
+    cafeProvider.iniciarPausa(
+      colaboradorId: widget.colaborador.id,
+      colaboradorNome: widget.colaborador.nome,
+      duracaoMinutos: duracaoMinutos,
+      iniciadoEm: inicioRegistro,
+    );
+    cafeProvider.finalizarPausa(widget.colaborador.id);
+
+    if (!mounted) return;
+    setState(() {});
+    AppNotif.show(
+      providerCtx,
+      titulo: 'Intervalo registrado',
+      mensagem:
+          '${widget.colaborador.nome} foi marcado(a) com intervalo feito.',
+      tipo: 'saida',
+      cor: AppColors.success,
+    );
   }
 }
