@@ -210,6 +210,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF795548),
                           foregroundColor: Colors.white,
+                          minimumSize: const Size(0, 36),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 14, vertical: 8),
                         ),
@@ -263,6 +265,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                                   ? Colors.blue
                                   : AppColors.primary,
                               foregroundColor: Colors.white,
+                              minimumSize: const Size(0, 36),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 14, vertical: 8),
                             ),
@@ -600,6 +604,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.danger,
                       foregroundColor: Colors.white,
+                      minimumSize: const Size(0, 40),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     icon: const Icon(Icons.logout, size: 18),
@@ -1374,6 +1380,8 @@ class _CardDisponivel extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
+                minimumSize: const Size(0, 36),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               ),
