@@ -1353,51 +1353,99 @@ class _CardDisponivel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final chegando = minutosParaChegar != null && minutosParaChegar! > 0;
+    final subtitulo = [
+      turno.departamento.nome,
+      if (turno.entrada != null && turno.saida != null)
+        '${turno.entrada}-${turno.saida}',
+      if (chegando) _chegaEm(minutosParaChegar!),
+    ].join('  |  ');
+
+    Widget acoes() => Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (onOutroSetor != null)
+              IconButton(
+                tooltip: 'Outro setor',
+                icon: const Icon(Icons.store_outlined),
+                color: AppColors.statusIntervalo,
+                onPressed: onOutroSetor,
+              ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              ),
+              onPressed: onAlocar,
+              child: const Text('Alocar'),
+            ),
+          ],
+        );
+
     return Card(
       color: AppColors.cardBackground,
       margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor:
-              chegando ? AppColors.statusAtencao : AppColors.statusAtivo,
-          child: Text(turno.colaboradorNome[0].toUpperCase(),
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.bold)),
-        ),
-        title: Text(turno.colaboradorNome, style: AppTextStyles.h4),
-        subtitle: Text(
-          [
-            turno.departamento.nome,
-            if (turno.entrada != null && turno.saida != null)
-              '${turno.entrada}-${turno.saida}',
-            if (chegando) _chegaEm(minutosParaChegar!),
-          ].join('  |  '),
-          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
-        ),
-        trailing: SizedBox(
-          width: onOutroSetor != null ? 152 : 104,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              if (onOutroSetor != null)
-                IconButton(
-                  tooltip: 'Outro setor',
-                  icon: const Icon(Icons.store_outlined),
-                  color: AppColors.statusIntervalo,
-                  onPressed: onOutroSetor,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final acoesEmbaixo = constraints.maxWidth < 460;
+
+            final cabecalho = Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: chegando
+                      ? AppColors.statusAtencao
+                      : AppColors.statusAtivo,
+                  child: Text(turno.colaboradorNome[0].toUpperCase(),
+                      style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        turno.colaboradorNome,
+                        style: AppTextStyles.h4,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitulo,
+                        style: AppTextStyles.caption
+                            .copyWith(color: AppColors.textSecondary),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
-                onPressed: onAlocar,
-                child: const Text('Alocar'),
-              ),
-            ],
-          ),
+                if (!acoesEmbaixo) ...[
+                  const SizedBox(width: 10),
+                  acoes(),
+                ],
+              ],
+            );
+
+            if (!acoesEmbaixo) return cabecalho;
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                cabecalho,
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [acoes()],
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
