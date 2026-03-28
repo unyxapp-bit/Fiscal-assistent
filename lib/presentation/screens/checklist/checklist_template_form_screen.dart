@@ -81,7 +81,7 @@ class _ChecklistTemplateFormScreenState
     });
   }
 
-  void _salvar() {
+  Future<void> _salvar() async {
     final titulo = _tituloCtrl.text.trim();
     if (titulo.isEmpty) {
       AppNotif.show(
@@ -112,33 +112,46 @@ class _ChecklistTemplateFormScreenState
         ? _horarioNotificacao
         : null;
 
-    if (_editando) {
-      final atualizado = widget.template!.copyWith(
-        titulo: titulo,
-        descricao: _descCtrl.text.trim(),
-        iconeKey: _iconeKey,
-        corHex: _corHex,
-        itens: itens,
-        periodizacao: _periodizacao,
-        horarioNotificacao: horario,
-        clearHorario: horario == null,
+    try {
+      if (_editando) {
+        final atualizado = widget.template!.copyWith(
+          titulo: titulo,
+          descricao: _descCtrl.text.trim(),
+          iconeKey: _iconeKey,
+          corHex: _corHex,
+          itens: itens,
+          periodizacao: _periodizacao,
+          horarioNotificacao: horario,
+          clearHorario: horario == null,
+        );
+        await provider.atualizarTemplate(atualizado);
+      } else {
+        final novo = ChecklistTemplate(
+          id: const Uuid().v4(),
+          titulo: titulo,
+          descricao: _descCtrl.text.trim(),
+          iconeKey: _iconeKey,
+          corHex: _corHex,
+          itens: itens,
+          createdAt: DateTime.now(),
+          periodizacao: _periodizacao,
+          horarioNotificacao: horario,
+        );
+        await provider.adicionarTemplate(novo);
+      }
+    } catch (_) {
+      if (!mounted) return;
+      AppNotif.show(
+        context,
+        titulo: 'Erro ao salvar',
+        mensagem: 'Nao foi possivel salvar no Supabase.',
+        tipo: 'erro',
+        cor: AppColors.danger,
       );
-      provider.atualizarTemplate(atualizado);
-    } else {
-      final novo = ChecklistTemplate(
-        id: const Uuid().v4(),
-        titulo: titulo,
-        descricao: _descCtrl.text.trim(),
-        iconeKey: _iconeKey,
-        corHex: _corHex,
-        itens: itens,
-        createdAt: DateTime.now(),
-        periodizacao: _periodizacao,
-        horarioNotificacao: horario,
-      );
-      provider.adicionarTemplate(novo);
+      return;
     }
 
+    if (!mounted) return;
     Navigator.of(context).pop();
   }
 

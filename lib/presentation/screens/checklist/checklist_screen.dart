@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
+import '../../../core/utils/app_notif.dart';
 import '../../providers/checklist_provider.dart';
 import 'checklist_execucao_screen.dart';
 import 'checklist_template_form_screen.dart';
@@ -32,13 +33,25 @@ class ChecklistScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: Dimensions.spacingMD),
       child: InkWell(
         borderRadius: BorderRadius.circular(Dimensions.radiusMD),
-        onTap: () {
-          final exec = execucao ?? provider.iniciar(template.id);
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => ChecklistExecucaoScreen(execucaoId: exec.id),
-            ),
-          );
+        onTap: () async {
+          try {
+            final exec = execucao ?? await provider.iniciar(template.id);
+            if (!context.mounted) return;
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => ChecklistExecucaoScreen(execucaoId: exec.id),
+              ),
+            );
+          } catch (_) {
+            if (!context.mounted) return;
+            AppNotif.show(
+              context,
+              titulo: 'Erro ao iniciar checklist',
+              mensagem: 'Nao foi possivel salvar no Supabase.',
+              tipo: 'erro',
+              cor: AppColors.danger,
+            );
+          }
         },
         child: Padding(
           padding: const EdgeInsets.all(Dimensions.paddingMD),
@@ -171,14 +184,26 @@ class ChecklistScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: () {
-                    final exec = execucao ?? provider.iniciar(template.id);
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            ChecklistExecucaoScreen(execucaoId: exec.id),
-                      ),
-                    );
+                  onPressed: () async {
+                    try {
+                      final exec = execucao ?? await provider.iniciar(template.id);
+                      if (!context.mounted) return;
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              ChecklistExecucaoScreen(execucaoId: exec.id),
+                        ),
+                      );
+                    } catch (_) {
+                      if (!context.mounted) return;
+                      AppNotif.show(
+                        context,
+                        titulo: 'Erro ao iniciar checklist',
+                        mensagem: 'Nao foi possivel salvar no Supabase.',
+                        tipo: 'erro',
+                        cor: AppColors.danger,
+                      );
+                    }
                   },
                   icon: Icon(
                     concluido
@@ -234,9 +259,21 @@ class ChecklistScreen extends StatelessWidget {
                 child: const Text('Cancelar'),
               ),
               TextButton(
-                onPressed: () {
-                  provider.deletarTemplate(template.id);
-                  Navigator.pop(ctx);
+                onPressed: () async {
+                  try {
+                    await provider.deletarTemplate(template.id);
+                    if (!ctx.mounted) return;
+                    Navigator.pop(ctx);
+                  } catch (_) {
+                    if (!ctx.mounted) return;
+                    AppNotif.show(
+                      ctx,
+                      titulo: 'Erro ao deletar',
+                      mensagem: 'Nao foi possivel remover no Supabase.',
+                      tipo: 'erro',
+                      cor: AppColors.danger,
+                    );
+                  }
                 },
                 child: const Text('Deletar',
                     style: TextStyle(color: AppColors.danger)),

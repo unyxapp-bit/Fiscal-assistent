@@ -49,24 +49,35 @@ class ChecklistExecucaoScreen extends StatelessWidget {
         actions: [
           if (!concluido)
             TextButton.icon(
-              onPressed: () {
-                provider.concluir(execucaoId);
-                final eventoProvider = Provider.of<EventoTurnoProvider>(context, listen: false);
-                if (eventoProvider.turnoAtivo) {
-                  final fiscalId = Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
-                  eventoProvider.registrar(
-                    fiscalId: fiscalId,
-                    tipo: TipoEvento.checklistConcluido,
-                    detalhe: titulo,
+              onPressed: () async {
+                try {
+                  await provider.concluir(execucaoId);
+                  if (!context.mounted) return;
+                  final eventoProvider = Provider.of<EventoTurnoProvider>(context, listen: false);
+                  if (eventoProvider.turnoAtivo) {
+                    final fiscalId = Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+                    eventoProvider.registrar(
+                      fiscalId: fiscalId,
+                      tipo: TipoEvento.checklistConcluido,
+                      detalhe: titulo,
+                    );
+                  }
+                  AppNotif.show(
+                    context,
+                    titulo: 'Checklist Concluído',
+                    mensagem: '$titulo concluído!',
+                    tipo: 'saida',
+                    cor: AppColors.success,
+                  );
+                } catch (_) {
+                  AppNotif.show(
+                    context,
+                    titulo: 'Erro ao concluir',
+                    mensagem: 'Nao foi possivel salvar no Supabase.',
+                    tipo: 'erro',
+                    cor: AppColors.danger,
                   );
                 }
-                AppNotif.show(
-                  context,
-                  titulo: 'Checklist Concluído',
-                  mensagem: '$titulo concluído!',
-                  tipo: 'saida',
-                  cor: AppColors.success,
-                );
               },
               icon: const Icon(Icons.check_circle, color: AppColors.success),
               label: const Text('Concluir',
@@ -156,7 +167,20 @@ class ChecklistExecucaoScreen extends StatelessWidget {
                 final marcado = exec.itensMarcados[i] == true;
                 return CheckboxListTile(
                   value: marcado,
-                  onChanged: (_) => provider.toggleItem(execucaoId, i),
+                  onChanged: (_) async {
+                    try {
+                      await provider.toggleItem(execucaoId, i);
+                      if (!context.mounted) return;
+                    } catch (_) {
+                      AppNotif.show(
+                        context,
+                        titulo: 'Erro ao atualizar item',
+                        mensagem: 'Nao foi possivel salvar no Supabase.',
+                        tipo: 'erro',
+                        cor: AppColors.danger,
+                      );
+                    }
+                  },
                   title: Text(
                     exec.itens[i],
                     style: AppTextStyles.body.copyWith(

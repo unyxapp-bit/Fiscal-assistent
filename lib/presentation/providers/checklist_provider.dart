@@ -372,52 +372,67 @@ class ChecklistProvider with ChangeNotifier {
 
   // ── CRUD Templates ─────────────────────────────────────────────────────────
 
-  void adicionarTemplate(ChecklistTemplate t) {
+  Future<void> adicionarTemplate(ChecklistTemplate t) async {
     _templates.add(t);
     notifyListeners();
-    _upsertTemplate(t);
-  }
-
-  void atualizarTemplate(ChecklistTemplate t) {
-    final i = _templates.indexWhere((x) => x.id == t.id);
-    if (i != -1) {
-      _templates[i] = t;
+    try {
+      await _upsertTemplate(t);
+    } catch (_) {
+      _templates.removeWhere((x) => x.id == t.id);
       notifyListeners();
-      _upsertTemplate(t);
+      rethrow;
     }
   }
 
-  void deletarTemplate(String id) {
+  Future<void> atualizarTemplate(ChecklistTemplate t) async {
+    final i = _templates.indexWhere((x) => x.id == t.id);
+    if (i != -1) {
+      final anterior = _templates[i];
+      _templates[i] = t;
+      notifyListeners();
+      try {
+        await _upsertTemplate(t);
+      } catch (_) {
+        _templates[i] = anterior;
+        notifyListeners();
+        rethrow;
+      }
+    }
+  }
+
+  Future<void> deletarTemplate(String id) async {
+    final removido = _templates.where((t) => t.id == id).toList();
     _templates.removeWhere((t) => t.id == id);
     notifyListeners();
-    SupabaseClientManager.client
-        .from(_tableT)
-        .delete()
-        .eq('id', id)
-        .then((_) {})
-        .catchError((e) {
+    try {
+      await SupabaseClientManager.client.from(_tableT).delete().eq('id', id);
+    } catch (e) {
+      if (removido.isNotEmpty) {
+        _templates.addAll(removido);
+        notifyListeners();
+      }
       if (kDebugMode) {
         debugPrint('[ChecklistProvider] Erro ao deletar template: $e');
       }
-    });
+      rethrow;
+    }
   }
 
-  void _upsertTemplate(ChecklistTemplate t) {
-    SupabaseClientManager.client
-        .from(_tableT)
-        .upsert(t.toMap(_fiscalId))
-        .then((_) {})
-        .catchError((e) {
+  Future<void> _upsertTemplate(ChecklistTemplate t) async {
+    try {
+      await SupabaseClientManager.client.from(_tableT).upsert(t.toMap(_fiscalId));
+    } catch (e) {
       if (kDebugMode) {
         debugPrint('[ChecklistProvider] Erro ao sync template: $e');
       }
-    });
+      rethrow;
+    }
   }
 
   // ── Execuções ──────────────────────────────────────────────────────────────
 
   /// Inicia nova execução a partir de um template.
-  ChecklistExecucao iniciar(String templateId) {
+  Future<ChecklistExecucao> iniciar(String templateId) async {
     ChecklistTemplate? template;
     try {
       template = _templates.firstWhere((t) => t.id == templateId);
@@ -430,12 +445,21 @@ class ChecklistProvider with ChangeNotifier {
     );
     _execucoes.insert(0, exec);
     notifyListeners();
-    _upsert(exec);
+    try {
+      await _upsert(exec);
+    } catch (_) {
+      _execucoes.removeWhere((e) => e.id == exec.id);
+      notifyListeners();
+      rethrow;
+    }
     return exec;
   }
 
-  void toggleItem(String execucaoId, int index) {
+  Future<void> toggleItem(String execucaoId, int index) async {
     final exec = _execucoes.firstWhere((e) => e.id == execucaoId);
+    final marcadoAnterior = exec.itensMarcados[index] ?? false;
+    final concluidoAnterior = exec.concluido;
+    final concluidoEmAnterior = exec.concluidoEm;
     final atual = exec.itensMarcados[index] ?? false;
     exec.itensMarcados[index] = !atual;
     if (exec.marcados == exec.totalItens && !exec.concluido) {
@@ -446,37 +470,57 @@ class ChecklistProvider with ChangeNotifier {
       exec.concluidoEm = null;
     }
     notifyListeners();
-    _upsert(exec);
+    try {
+      await _upsert(exec);
+    } catch (_) {
+      exec.itensMarcados[index] = marcadoAnterior;
+      exec.concluido = concluidoAnterior;
+      exec.concluidoEm = concluidoEmAnterior;
+      notifyListeners();
+      rethrow;
+    }
   }
 
-  void concluir(String execucaoId) {
+  Future<void> concluir(String execucaoId) async {
     final exec = _execucoes.firstWhere((e) => e.id == execucaoId);
     if (!exec.concluido) {
+      final concluidoAnterior = exec.concluido;
+      final concluidoEmAnterior = exec.concluidoEm;
       exec.concluido = true;
       exec.concluidoEm = DateTime.now();
       notifyListeners();
-      _upsert(exec);
+      try {
+        await _upsert(exec);
+      } catch (_) {
+        exec.concluido = concluidoAnterior;
+        exec.concluidoEm = concluidoEmAnterior;
+        notifyListeners();
+        rethrow;
+      }
     }
   }
 
   // ── Internos ───────────────────────────────────────────────────────────────
 
-  void _upsert(ChecklistExecucao exec) {
+  Future<void> _upsert(ChecklistExecucao exec) async {
     final itensJson = {
       for (final e in exec.itensMarcados.entries) e.key.toString(): e.value,
     };
-    SupabaseClientManager.client.from(_table).upsert({
-      'id': exec.id,
-      'fiscal_id': _fiscalId,
-      'tipo': exec.tipo,
-      'data': exec.data.toIso8601String(),
-      'itens_marcados': itensJson,
-      'itens_snapshot': exec.itensSnapshot,
-      'concluido': exec.concluido,
-      'concluido_em': exec.concluidoEm?.toIso8601String(),
-    }).then((_) {}).catchError((e) {
+    try {
+      await SupabaseClientManager.client.from(_table).upsert({
+        'id': exec.id,
+        'fiscal_id': _fiscalId,
+        'tipo': exec.tipo,
+        'data': exec.data.toIso8601String(),
+        'itens_marcados': itensJson,
+        'itens_snapshot': exec.itensSnapshot,
+        'concluido': exec.concluido,
+        'concluido_em': exec.concluidoEm?.toIso8601String(),
+      });
+    } catch (e) {
       if (kDebugMode) debugPrint('[ChecklistProvider] Erro ao sync: $e');
-    });
+      rethrow;
+    }
   }
 
   ChecklistExecucao _fromMap(Map<String, dynamic> m) {
