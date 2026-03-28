@@ -37,7 +37,8 @@ class CaixaProvider with ChangeNotifier {
 
   // Contadores
   int get totalCaixas => _caixas.length;
-  int get totalAtivos => _caixas.where((c) => c.ativo && !c.emManutencao).length;
+  int get totalAtivos =>
+      _caixas.where((c) => c.ativo && !c.emManutencao).length;
   int get totalEmManutencao => _caixas.where((c) => c.emManutencao).length;
   int get totalInativos => _caixas.where((c) => !c.ativo).length;
 
@@ -200,12 +201,33 @@ class CaixaProvider with ChangeNotifier {
     }
   }
 
+  /// Remove um caixa definitivamente
+  Future<bool> deleteCaixa(String caixaId) async {
+    try {
+      _status = CaixaStatus.loading;
+      _errorMessage = null;
+      notifyListeners();
+
+      await _caixaRepository.deleteCaixa(caixaId);
+      _caixas.removeWhere((c) => c.id == caixaId);
+      _applyFilters();
+
+      _status = CaixaStatus.loaded;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _status = CaixaStatus.error;
+      _errorMessage = 'Erro ao excluir caixa: $e';
+      notifyListeners();
+      return false;
+    }
+  }
+
   /// Limpa erro
   void clearError() {
     _errorMessage = null;
     if (_status == CaixaStatus.error) {
-      _status =
-          _caixas.isNotEmpty ? CaixaStatus.loaded : CaixaStatus.initial;
+      _status = _caixas.isNotEmpty ? CaixaStatus.loaded : CaixaStatus.initial;
     }
     notifyListeners();
   }

@@ -5,6 +5,7 @@ import '../../../../core/constants/text_styles.dart';
 import '../../../../core/constants/dimensions.dart';
 import '../../../../domain/entities/caixa.dart';
 import '../../../providers/alocacao_provider.dart';
+import '../../../providers/cafe_provider.dart';
 import '../../../providers/colaborador_provider.dart';
 import '../../../providers/caixa_provider.dart';
 import '../caixa_form_screen.dart';
@@ -33,6 +34,59 @@ class CaixaGridCard extends StatelessWidget {
     );
   }
 
+  Future<void> _confirmarExclusao(
+    BuildContext context, {
+    required bool emUso,
+  }) async {
+    if (emUso) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Libere o caixa antes de excluir.'),
+          backgroundColor: AppColors.warning,
+        ),
+      );
+      return;
+    }
+
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Excluir caixa'),
+        content: Text(
+          'Deseja excluir ${caixa.nomeExibicao}? Essa ação não pode ser desfeita.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              'Excluir',
+              style: TextStyle(color: AppColors.danger),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar != true || !context.mounted) return;
+
+    final provider = Provider.of<CaixaProvider>(context, listen: false);
+    final ok = await provider.deleteCaixa(caixa.id);
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(ok
+            ? '${caixa.nomeExibicao} excluído.'
+            : (provider.errorMessage ?? 'Não foi possível excluir o caixa.')),
+        backgroundColor: ok ? AppColors.success : AppColors.danger,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final color = _getStatusColor();
@@ -40,11 +94,14 @@ class CaixaGridCard extends StatelessWidget {
     // Colaborador alocado neste caixa
     final alocacaoProvider =
         Provider.of<AlocacaoProvider>(context, listen: false);
+    final cafeProvider = Provider.of<CafeProvider>(context, listen: false);
     final colaboradorProvider =
         Provider.of<ColaboradorProvider>(context, listen: false);
     final alocacao = caixa.ativo && !caixa.emManutencao
         ? alocacaoProvider.getAlocacaoCaixa(caixa.id)
         : null;
+    final pausaAtiva = cafeProvider.getPausaAtivaPorCaixa(caixa.id);
+    final emUso = alocacao != null || pausaAtiva != null;
     final colaboradorNome = alocacao != null
         ? colaboradorProvider.colaboradores
             .where((c) => c.id == alocacao.colaboradorId)
@@ -110,6 +167,18 @@ class CaixaGridCard extends StatelessWidget {
                         .toggleManutencao(caixa.id, false);
                   },
                 ),
+              ListTile(
+                leading:
+                    const Icon(Icons.delete_outline, color: AppColors.danger),
+                title: const Text(
+                  'Excluir',
+                  style: TextStyle(color: AppColors.danger),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _confirmarExclusao(context, emUso: emUso);
+                },
+              ),
             ],
           ),
         ),
@@ -147,8 +216,7 @@ class CaixaGridCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
@@ -305,8 +373,7 @@ class CaixaCard extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 caixa.colaboradorAlocadoNome!,
-                                style:
-                                    AppTextStyles.caption.copyWith(
+                                style: AppTextStyles.caption.copyWith(
                                   color: AppColors.textSecondary,
                                 ),
                                 maxLines: 1,
