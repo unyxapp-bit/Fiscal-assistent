@@ -82,6 +82,57 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
+  Future<void> _abrirDestinoBannerSaude(
+    BuildContext context,
+    List<_BannerSaudeDestino> destinos,
+  ) async {
+    if (destinos.isEmpty) return;
+
+    if (destinos.length == 1) {
+      destinos.first.onTap();
+      return;
+    }
+
+    final destinoSelecionado = await showModalBottomSheet<_BannerSaudeDestino>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: Dimensions.paddingMD),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Escolha o alerta para abrir',
+                  style: AppTextStyles.h4,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            ...destinos.map(
+              (d) => ListTile(
+                leading: Icon(d.icon, color: d.color),
+                title: Text(d.label),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+                onTap: () => Navigator.pop(ctx, d),
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+
+    if (!mounted || destinoSelecionado == null) return;
+    destinoSelecionado.onTap();
+  }
+
   Future<void> _loadData() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (authProvider.user == null) return;
@@ -150,6 +201,65 @@ class _DashboardScreenState extends State<DashboardScreen>
     final livres = (totalCaixas - alocados).clamp(0, 999);
     final emPausa = cafeProvider.totalAtivos;
     final emRota = entregaProvider.totalEmRota;
+    final destinosBannerSaude = <_BannerSaudeDestino>[
+      if (cafeProvider.totalEmAtraso > 0)
+        _BannerSaudeDestino(
+          icon: Icons.coffee,
+          color: AppColors.danger,
+          label: 'Pausas em atraso (${cafeProvider.totalEmAtraso})',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const GestaoScreen(initialIndex: 2),
+            ),
+          ),
+        ),
+      if (notaProvider.totalLembretesVencidos > 0)
+        _BannerSaudeDestino(
+          icon: Icons.alarm_off,
+          color: AppColors.danger,
+          label: 'Lembretes vencidos (${notaProvider.totalLembretesVencidos})',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const NotasScreen()),
+          ),
+        ),
+      if (ocorrenciaProvider.totalAbertas > 0)
+        _BannerSaudeDestino(
+          icon: Icons.report_problem,
+          color: AppColors.statusAtencao,
+          label: 'Ocorrências abertas (${ocorrenciaProvider.totalAbertas})',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const OcorrenciasScreen()),
+          ),
+        ),
+      if (entregaProvider.totalSeparadas > 0)
+        _BannerSaudeDestino(
+          icon: Icons.inventory,
+          color: AppColors.statusAtencao,
+          label:
+              'Entregas aguardando envio (${entregaProvider.totalSeparadas})',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const EntregasScreen()),
+          ),
+        ),
+      if (checklistProvider.templatesPendentesAgora.isNotEmpty)
+        _BannerSaudeDestino(
+          icon: Icons.checklist,
+          color: AppColors.primary,
+          label:
+              'Checklist pendente (${checklistProvider.templatesPendentesAgora.length})',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ChecklistScreen()),
+          ),
+        ),
+    ];
+    final VoidCallback? onTapBannerSaude = destinosBannerSaude.isNotEmpty
+        ? () => _abrirDestinoBannerSaude(context, destinosBannerSaude)
+        : null;
 
     final alertas = <_AlertItem>[
       if (cafeProvider.totalEmAtraso > 0)
@@ -494,6 +604,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   atencao: ocorrenciaProvider.totalAbertas > 0 ||
                       entregaProvider.totalSeparadas > 0 ||
                       checklistProvider.templatesPendentesAgora.isNotEmpty,
+                  onTap: onTapBannerSaude,
                 ),
                 const SizedBox(height: Dimensions.spacingMD),
 
@@ -1302,6 +1413,20 @@ class _AlertItem {
   });
 }
 
+class _BannerSaudeDestino {
+  final IconData icon;
+  final Color color;
+  final String label;
+  final VoidCallback onTap;
+
+  const _BannerSaudeDestino({
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.onTap,
+  });
+}
+
 class _AlertCard extends StatelessWidget {
   final _AlertItem item;
 
@@ -1414,10 +1539,12 @@ class _StatDivider extends StatelessWidget {
 class _BannerSaudeTurno extends StatelessWidget {
   final bool critico;
   final bool atencao;
+  final VoidCallback? onTap;
 
   const _BannerSaudeTurno({
     required this.critico,
     required this.atencao,
+    this.onTap,
   });
 
   @override
@@ -1444,41 +1571,52 @@ class _BannerSaudeTurno extends StatelessWidget {
       subtitulo = 'Nenhum alerta ativo no momento';
     }
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-          horizontal: Dimensions.paddingMD, vertical: Dimensions.paddingSM),
-      decoration: BoxDecoration(
-        color: cor.withValues(alpha: 0.10),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(Dimensions.radiusMD),
-        border: Border.all(color: cor.withValues(alpha: 0.35)),
-      ),
-      child: Row(
-        children: [
-          Icon(icone, color: cor, size: 28),
-          const SizedBox(width: Dimensions.spacingMD),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  titulo,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: cor,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitulo,
-                  style: AppTextStyles.caption
-                      .copyWith(color: cor.withValues(alpha: 0.8)),
-                ),
-              ],
-            ),
+        child: Ink(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(
+              horizontal: Dimensions.paddingMD, vertical: Dimensions.paddingSM),
+          decoration: BoxDecoration(
+            color: cor.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+            border: Border.all(color: cor.withValues(alpha: 0.35)),
           ),
-        ],
+          child: Row(
+            children: [
+              Icon(icone, color: cor, size: 28),
+              const SizedBox(width: Dimensions.spacingMD),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      titulo,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: cor,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitulo,
+                      style: AppTextStyles.caption
+                          .copyWith(color: cor.withValues(alpha: 0.8)),
+                    ),
+                  ],
+                ),
+              ),
+              if (onTap != null) ...[
+                const SizedBox(width: Dimensions.spacingSM),
+                Icon(Icons.arrow_forward_ios, color: cor, size: 14),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
