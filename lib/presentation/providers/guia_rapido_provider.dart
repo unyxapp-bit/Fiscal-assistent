@@ -283,11 +283,7 @@ class GuiaRapidoProvider with ChangeNotifier {
 
       _situacoes.clear();
 
-      if (rows.isEmpty) {
-        await _seedDefaults();
-      } else {
-        _situacoes.addAll(rows.map(SituacaoGuia.fromMap));
-      }
+      _situacoes.addAll(rows.map(SituacaoGuia.fromMap));
       notifyListeners();
     } catch (e) {
       if (kDebugMode) debugPrint('[GuiaRapidoProvider] Erro ao carregar: $e');
