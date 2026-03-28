@@ -64,7 +64,7 @@ class _GuiaRapidoFormScreenState extends State<GuiaRapidoFormScreen> {
     setState(() => _passosCtrl.removeAt(i));
   }
 
-  void _salvar() {
+  Future<void> _salvar() async {
     final titulo = _tituloCtrl.text.trim();
     final categoria = _categoriaCtrl.text.trim();
     if (titulo.isEmpty || categoria.isEmpty) {
@@ -86,25 +86,38 @@ class _GuiaRapidoFormScreenState extends State<GuiaRapidoFormScreen> {
     final provider =
         Provider.of<GuiaRapidoProvider>(context, listen: false);
 
-    if (_editando) {
-      provider.atualizar(widget.situacao!.copyWith(
-        titulo: titulo,
-        categoria: categoria,
-        corHex: _corHex,
-        iconeKey: _iconeKey,
-        passos: passos,
-      ));
-    } else {
-      provider.adicionar(SituacaoGuia(
-        id: const Uuid().v4(),
-        titulo: titulo,
-        categoria: categoria,
-        corHex: _corHex,
-        iconeKey: _iconeKey,
-        passos: passos,
-      ));
+    try {
+      if (_editando) {
+        await provider.atualizar(widget.situacao!.copyWith(
+          titulo: titulo,
+          categoria: categoria,
+          corHex: _corHex,
+          iconeKey: _iconeKey,
+          passos: passos,
+        ));
+      } else {
+        await provider.adicionar(SituacaoGuia(
+          id: const Uuid().v4(),
+          titulo: titulo,
+          categoria: categoria,
+          corHex: _corHex,
+          iconeKey: _iconeKey,
+          passos: passos,
+        ));
+      }
+    } catch (_) {
+      if (!mounted) return;
+      AppNotif.show(
+        context,
+        titulo: 'Erro ao salvar',
+        mensagem: 'Nao foi possivel salvar no Supabase.',
+        tipo: 'erro',
+        cor: AppColors.danger,
+      );
+      return;
     }
 
+    if (!mounted) return;
     Navigator.of(context).pop();
   }
 

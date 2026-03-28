@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
+import '../../../core/utils/app_notif.dart';
 import '../../providers/guia_rapido_provider.dart';
 import 'guia_rapido_form_screen.dart';
 
@@ -56,9 +57,21 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
             child: const Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () {
-              provider.deletar(s.id);
-              Navigator.pop(ctx);
+            onPressed: () async {
+              try {
+                await provider.deletar(s.id);
+                if (!ctx.mounted) return;
+                Navigator.pop(ctx);
+              } catch (_) {
+                if (!ctx.mounted) return;
+                AppNotif.show(
+                  ctx,
+                  titulo: 'Erro ao excluir',
+                  mensagem: 'Nao foi possivel salvar no Supabase.',
+                  tipo: 'erro',
+                  cor: AppColors.danger,
+                );
+              }
             },
             child: const Text('Excluir',
                 style: TextStyle(color: AppColors.danger)),

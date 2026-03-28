@@ -291,51 +291,57 @@ class GuiaRapidoProvider with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       if (kDebugMode) debugPrint('[GuiaRapidoProvider] Erro ao carregar: $e');
-      // Fallback: carrega defaults in-memory se Supabase falhar
-      if (_situacoes.isEmpty) {
-        _situacoes.addAll(_buildDefaults());
-        notifyListeners();
-      }
+      // Sem fallback local: mantém estado consistente com o Supabase.
     }
   }
 
-  void adicionar(SituacaoGuia s) {
+  Future<void> adicionar(SituacaoGuia s) async {
     _situacoes.add(s);
     notifyListeners();
-    SupabaseClientManager.client
-        .from(_table)
-        .upsert(s.toMap(_fiscalId))
-        .then((_) {})
-        .catchError((e) {
+    try {
+      await SupabaseClientManager.client
+          .from(_table)
+          .upsert(s.toMap(_fiscalId));
+    } catch (e) {
+      _situacoes.removeWhere((x) => x.id == s.id);
+      notifyListeners();
       if (kDebugMode) debugPrint('[GuiaRapidoProvider] Erro ao salvar: $e');
-    });
+      rethrow;
+    }
   }
 
-  void atualizar(SituacaoGuia s) {
+  Future<void> atualizar(SituacaoGuia s) async {
     final idx = _situacoes.indexWhere((x) => x.id == s.id);
     if (idx == -1) return;
+    final anterior = _situacoes[idx];
     _situacoes[idx] = s;
     notifyListeners();
-    SupabaseClientManager.client
-        .from(_table)
-        .upsert(s.toMap(_fiscalId))
-        .then((_) {})
-        .catchError((e) {
+    try {
+      await SupabaseClientManager.client
+          .from(_table)
+          .upsert(s.toMap(_fiscalId));
+    } catch (e) {
+      _situacoes[idx] = anterior;
+      notifyListeners();
       if (kDebugMode) debugPrint('[GuiaRapidoProvider] Erro ao atualizar: $e');
-    });
+      rethrow;
+    }
   }
 
-  void deletar(String id) {
+  Future<void> deletar(String id) async {
+    final removido = _situacoes.where((s) => s.id == id).toList();
     _situacoes.removeWhere((s) => s.id == id);
     notifyListeners();
-    SupabaseClientManager.client
-        .from(_table)
-        .delete()
-        .eq('id', id)
-        .then((_) {})
-        .catchError((e) {
+    try {
+      await SupabaseClientManager.client.from(_table).delete().eq('id', id);
+    } catch (e) {
+      if (removido.isNotEmpty) {
+        _situacoes.addAll(removido);
+        notifyListeners();
+      }
       if (kDebugMode) debugPrint('[GuiaRapidoProvider] Erro ao deletar: $e');
-    });
+      rethrow;
+    }
   }
 
   Future<void> _seedDefaults() async {
@@ -347,7 +353,7 @@ class GuiaRapidoProvider with ChangeNotifier {
       _situacoes.addAll(defaults);
     } catch (e) {
       if (kDebugMode) debugPrint('[GuiaRapidoProvider] Erro ao seed: $e');
-      _situacoes.addAll(defaults);
+      rethrow;
     }
   }
 }
