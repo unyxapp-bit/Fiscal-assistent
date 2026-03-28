@@ -9,6 +9,7 @@ import '../../../../domain/entities/colaborador.dart';
 import '../../../../domain/entities/evento_turno.dart';
 import '../../../../core/utils/app_notif.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../providers/alocacao_provider.dart';
 import '../../../providers/cafe_provider.dart';
 import '../../../providers/colaborador_provider.dart';
 import '../../../providers/escala_provider.dart';
@@ -27,6 +28,7 @@ class PacoteSection extends StatelessWidget {
     final plantaoProvider = Provider.of<PacotePlantaoProvider>(context);
     final colaboradorProvider = Provider.of<ColaboradorProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final alocacaoProvider = Provider.of<AlocacaoProvider>(context);
     final eventoProvider =
         Provider.of<EventoTurnoProvider>(context, listen: false);
     final escalaProvider = Provider.of<EscalaProvider>(context, listen: false);
@@ -47,6 +49,9 @@ class PacoteSection extends StatelessWidget {
     }
 
     final plantao = plantaoProvider.plantao;
+    bool intervaloConcluido(String colaboradorId) =>
+        alocacaoProvider.isIntervaloMarcado(colaboradorId) ||
+        cafeProvider.colaboradorJaFezIntervaloHoje(colaboradorId);
 
     // Verifica se algum empacotador está em atenção (15+ min atrasado)
     final hayAtencao = plantao.any((p) {
@@ -55,7 +60,7 @@ class PacoteSection extends StatelessWidget {
           .firstOrNull;
       final pausa = cafeProvider.getPausaAtiva(p.colaboradorId);
       if (pausa != null) return false;
-      if (cafeProvider.colaboradorJaFezIntervaloHoje(p.colaboradorId)) {
+      if (intervaloConcluido(p.colaboradorId)) {
         return false;
       }
       final min = calcMinIntervalo(turno);
@@ -140,8 +145,11 @@ class PacoteSection extends StatelessWidget {
                   final pausaAtiva =
                       cafeProvider.getPausaAtiva(p.colaboradorId);
                   final isEmPausa = pausaAtiva != null;
-                  final minIntervalo =
-                      isEmPausa ? null : calcMinIntervalo(turno);
+                  final isIntervaloConcluido =
+                      intervaloConcluido(p.colaboradorId);
+                  final minIntervalo = (isEmPausa || isIntervaloConcluido)
+                      ? null
+                      : calcMinIntervalo(turno);
                   final emAtencao = minIntervalo != null && minIntervalo >= 15;
 
                   // Cor e label dinâmicos
@@ -155,6 +163,10 @@ class PacoteSection extends StatelessWidget {
                     chipLabel =
                         '${nome.split(' ').first} · ${pausaAtiva.minutosDecorridos}min';
                     chipAvatarIcon = isCafe ? Icons.coffee : Icons.restaurant;
+                  } else if (isIntervaloConcluido) {
+                    chipColor = AppColors.success;
+                    chipLabel = '${nome.split(' ').first} - intervalo feito';
+                    chipAvatarIcon = Icons.check_circle;
                   } else if (emAtencao) {
                     chipColor = AppColors.danger;
                     chipLabel = '${nome.split(' ').first} · ${minIntervalo}min';
@@ -176,8 +188,10 @@ class PacoteSection extends StatelessWidget {
                     chipAvatarIcon = Icons.person;
                   }
 
-                  final bool showIcon =
-                      isEmPausa || emAtencao || (minIntervalo != null);
+                  final bool showIcon = isEmPausa ||
+                      isIntervaloConcluido ||
+                      emAtencao ||
+                      (minIntervalo != null);
 
                   return InputChip(
                     avatar: showIcon
