@@ -910,44 +910,57 @@ class _PausaAtivaCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(pausa.colaboradorNome, style: AppTextStyles.h4),
+                      Text(
+                        pausa.colaboradorNome,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.h4,
+                      ),
                       const SizedBox(height: 2),
-                      Row(
+                      Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 6,
+                        runSpacing: 2,
                         children: [
                           Text(
                             'Saiu às ${DateFormat("HH:mm").format(pausa.iniciadoEm)}',
                             style: AppTextStyles.caption
                                 .copyWith(color: AppColors.textSecondary),
                           ),
-                          const SizedBox(width: 6),
-                          Text('·',
-                              style: AppTextStyles.caption
-                                  .copyWith(color: AppColors.textSecondary)),
-                          const SizedBox(width: 6),
+                          Text(
+                            '·',
+                            style: AppTextStyles.caption
+                                .copyWith(color: AppColors.textSecondary),
+                          ),
                           Text(
                             'Retorna ${DateFormat("HH:mm").format(retornoPrevisto)}',
                             style: AppTextStyles.caption.copyWith(
-                                color: emAtraso
-                                    ? AppColors.danger
-                                    : AppColors.textSecondary),
+                              color: emAtraso
+                                  ? AppColors.danger
+                                  : AppColors.textSecondary,
+                            ),
                           ),
                         ],
                       ),
                     ],
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: onFinalizar,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.success,
-                    foregroundColor: Colors.white,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    textStyle: AppTextStyles.caption,
-                  ),
-                  child: const Text('Finalizar'),
-                ),
               ],
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                onPressed: onFinalizar,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.success,
+                  foregroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  textStyle: AppTextStyles.caption,
+                ),
+                child: const Text('Finalizar'),
+              ),
             ),
             const SizedBox(height: 10),
             ClipRRect(
