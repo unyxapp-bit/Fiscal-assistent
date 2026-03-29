@@ -321,6 +321,8 @@ class _SeletorPizza extends StatefulWidget {
 
 class _SeletorPizzaState extends State<_SeletorPizza> {
   bool _meioAMeio = false;
+  bool _expandGrandes = true;
+  bool _expandMedias = false;
   Pizza? _p1;
   Pizza? _p2;
   int _qtd = 1;
@@ -350,6 +352,144 @@ class _SeletorPizzaState extends State<_SeletorPizza> {
       ehMeioAMeio: _meioAMeio,
     ));
     Navigator.pop(context);
+  }
+
+  Widget _pizzaCard({
+    required Pizza pizza,
+    required Pizza? selecionada,
+    required ValueChanged<Pizza> onSelecionar,
+  }) {
+    final isSelecionada = selecionada?.id == pizza.id;
+    final corBorda = isSelecionada
+        ? Theme.of(context).colorScheme.primary
+        : Colors.grey.withOpacity(0.25);
+
+    return Card(
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: corBorda, width: isSelecionada ? 1.6 : 1),
+      ),
+      elevation: isSelecionada ? 1.5 : 0,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => setState(() => onSelecionar(pizza)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: [
+              Icon(
+                Icons.local_pizza_outlined,
+                color: isSelecionada
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.orange,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  pizza.nome,
+                  style: TextStyle(
+                    fontWeight:
+                        isSelecionada ? FontWeight.w700 : FontWeight.w500,
+                  ),
+                ),
+              ),
+              Radio<Pizza>(
+                value: pizza,
+                groupValue: selecionada,
+                onChanged: (v) {
+                  if (v != null) {
+                    setState(() => onSelecionar(v));
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _pizzaGrid({
+    required List<Pizza> pizzas,
+    required Pizza? selecionada,
+    required ValueChanged<Pizza> onSelecionar,
+  }) {
+    if (pizzas.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.only(top: 8, bottom: 8),
+        child: Text(
+          'Nenhuma pizza nessa categoria.',
+          style: TextStyle(color: Colors.grey),
+        ),
+      );
+    }
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: pizzas.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+        childAspectRatio: 2.7,
+      ),
+      itemBuilder: (_, i) => _pizzaCard(
+        pizza: pizzas[i],
+        selecionada: selecionada,
+        onSelecionar: onSelecionar,
+      ),
+    );
+  }
+
+  Widget _categoriaExpansivel({
+    required String titulo,
+    required bool expandida,
+    required VoidCallback onTap,
+    required Widget child,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(10),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    titulo,
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Icon(
+                  expandida ? Icons.expand_less : Icons.expand_more,
+                  size: 20,
+                  color: Colors.grey.shade700,
+                ),
+              ],
+            ),
+          ),
+        ),
+        AnimatedCrossFade(
+          duration: const Duration(milliseconds: 180),
+          crossFadeState:
+              expandida ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+          firstChild: const SizedBox.shrink(),
+          secondChild: Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: child,
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -392,46 +532,47 @@ class _SeletorPizzaState extends State<_SeletorPizza> {
               const Text('Sabor',
                   style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
-              const Text('— Grandes —',
-                  style: TextStyle(color: Colors.grey, fontSize: 12)),
-              ..._grandes.map((p) => RadioListTile<Pizza>(
-                    title: Text(p.nome),
-                    value: p,
-                    groupValue: _p1,
-                    onChanged: (v) => setState(() => _p1 = v),
-                    dense: true,
-                  )),
-              const Text('— Médias —',
-                  style: TextStyle(color: Colors.grey, fontSize: 12)),
-              ..._medias.map((p) => RadioListTile<Pizza>(
-                    title: Text(p.nome),
-                    value: p,
-                    groupValue: _p1,
-                    onChanged: (v) => setState(() => _p1 = v),
-                    dense: true,
-                  )),
+              _categoriaExpansivel(
+                titulo: 'Grandes',
+                expandida: _expandGrandes,
+                onTap: () => setState(() => _expandGrandes = !_expandGrandes),
+                child: _pizzaGrid(
+                  pizzas: _grandes,
+                  selecionada: _p1,
+                  onSelecionar: (v) => _p1 = v,
+                ),
+              ),
+              const SizedBox(height: 8),
+              _categoriaExpansivel(
+                titulo: 'Medias',
+                expandida: _expandMedias,
+                onTap: () => setState(() => _expandMedias = !_expandMedias),
+                child: _pizzaGrid(
+                  pizzas: _medias,
+                  selecionada: _p1,
+                  onSelecionar: (v) => _p1 = v,
+                ),
+              ),
             ] else ...[
               const Text('Metade 1',
                   style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 4),
-              ..._opcoesMeio.map((p) => RadioListTile<Pizza>(
-                    title: Text(p.nome),
-                    value: p,
-                    groupValue: _p1,
-                    onChanged: (v) => setState(() => _p1 = v),
-                    dense: true,
-                  )),
+              const SizedBox(height: 8),
+              _pizzaGrid(
+                pizzas: _opcoesMeio,
+                selecionada: _p1,
+                onSelecionar: (v) => _p1 = v,
+              ),
               const Divider(),
               const Text('Metade 2',
                   style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 4),
-              ..._opcoesMeio.map((p) => RadioListTile<Pizza>(
-                    title: Text(p.nome),
-                    value: p,
-                    groupValue: _p2,
-                    onChanged: (v) => setState(() => _p2 = v),
-                    dense: true,
-                  )),
+              const SizedBox(height: 8),
+              _pizzaGrid(
+                pizzas: _opcoesMeio,
+                selecionada: _p2,
+                onSelecionar: (v) => _p2 = v,
+              ),
             ],
 
             const Divider(),
