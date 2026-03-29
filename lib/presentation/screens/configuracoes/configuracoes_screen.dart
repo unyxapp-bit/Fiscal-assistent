@@ -124,7 +124,8 @@ class ConfiguracoesScreen extends StatelessWidget {
                                   color: AppColors.primary),
                               title: const Text('Dados do Cupom',
                                   style: AppTextStyles.body),
-                              subtitle: const Text('Cabecalho e mensagem final',
+                              subtitle: const Text(
+                                  'Layout completo da impressao',
                                   style: AppTextStyles.caption),
                               trailing: const Icon(Icons.arrow_forward_ios,
                                   size: 14, color: AppColors.textSecondary),

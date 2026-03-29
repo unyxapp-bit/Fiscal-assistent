@@ -18,6 +18,10 @@ class CupomWidget extends StatefulWidget {
 }
 
 class _CupomWidgetState extends State<CupomWidget> {
+  static const _linha = '================================';
+  static const _linhaFina = '--------------------------------';
+  static const _larguraCupom = 32;
+
   CupomDadosConfig? _config;
   bool _loadingConfig = true;
 
@@ -36,26 +40,60 @@ class _CupomWidgetState extends State<CupomWidget> {
     });
   }
 
+  String _center(String texto) {
+    final t = texto.trim();
+    if (t.isEmpty) return '';
+    if (t.length >= _larguraCupom) return t;
+
+    final total = _larguraCupom - t.length;
+    final left = total ~/ 2;
+    final right = total - left;
+    return '${' ' * left}$t${' ' * right}';
+  }
+
+  void _writeIfNotEmpty(StringBuffer b, String value, {bool center = false}) {
+    final v = value.trim();
+    if (v.isEmpty) return;
+    b.writeln(center ? _center(v) : v);
+  }
+
   String _gerarTexto(CupomDadosConfig config) {
-    const linha = '================================';
-    const linhaf = '--------------------------------';
     final pedido = widget.pedido;
     final buf = StringBuffer();
 
-    buf.writeln(linha);
-    buf.writeln('      ${config.tituloCabecalho}');
-    if (config.linhaAdicional.trim().isNotEmpty) {
-      buf.writeln('      ${config.linhaAdicional.trim()}');
+    buf.writeln(_linha);
+    _writeIfNotEmpty(buf, config.tituloCabecalho, center: true);
+    _writeIfNotEmpty(buf, config.subtituloCabecalho, center: true);
+    _writeIfNotEmpty(buf, 'CNPJ: ${config.cnpj}', center: true);
+    _writeIfNotEmpty(buf, config.enderecoLinha1, center: true);
+    _writeIfNotEmpty(buf, config.enderecoLinha2, center: true);
+    _writeIfNotEmpty(buf, 'TEL: ${config.telefone}', center: true);
+    _writeIfNotEmpty(buf, 'WHATS: ${config.whatsapp}', center: true);
+    _writeIfNotEmpty(buf, 'INSTA: ${config.instagram}', center: true);
+    _writeIfNotEmpty(buf, 'SITE: ${config.website}', center: true);
+    buf.writeln(_linha);
+
+    if (config.exibirDataHoraEmissao) {
+      buf.writeln(
+        'Emissao      : ${DateFormat('dd/MM/yyyy HH:mm').format(DateTime.now())}',
+      );
     }
-    buf.writeln(linha);
+
     buf.writeln('Cod. Entrega : ${pedido.codigoEntrega}');
     buf.writeln(
-        'Data         : ${DateFormat('dd/MM/yyyy').format(pedido.dataPedido)}');
+      'Data         : ${DateFormat('dd/MM/yyyy').format(pedido.dataPedido)}',
+    );
     buf.writeln('Horario      : ${pedido.horarioPedido}');
     buf.writeln('Cliente      : ${pedido.nomeCliente}');
-    buf.writeln(linhaf);
+    buf.writeln(_linhaFina);
+
+    if (config.mensagemTopo.trim().isNotEmpty) {
+      buf.writeln('MSG: ${config.mensagemTopo.trim()}');
+      buf.writeln(_linhaFina);
+    }
+
     buf.writeln('ITENS:');
-    buf.writeln(linhaf);
+    buf.writeln(_linhaFina);
 
     for (final item in pedido.itens) {
       final tamanho = item.tamanhoLabel.toUpperCase();
@@ -69,14 +107,28 @@ class _CupomWidgetState extends State<CupomWidget> {
       }
     }
 
-    buf.writeln(linhaf);
-    if (pedido.observacoes != null && pedido.observacoes!.isNotEmpty) {
-      buf.writeln('OBS: ${pedido.observacoes}');
-      buf.writeln(linhaf);
+    final observacoes = <String>[];
+    if (pedido.observacoes != null && pedido.observacoes!.trim().isNotEmpty) {
+      observacoes.add(pedido.observacoes!.trim());
     }
-    buf.writeln(linha);
-    buf.writeln('       ${config.mensagemFinal}');
-    buf.writeln(linha);
+    if (config.observacaoPadrao.trim().isNotEmpty) {
+      observacoes.add(config.observacaoPadrao.trim());
+    }
+
+    buf.writeln(_linhaFina);
+    if (observacoes.isNotEmpty) {
+      buf.writeln('OBS: ${observacoes.join(' | ')}');
+      buf.writeln(_linhaFina);
+    }
+    buf.writeln(_linha);
+    _writeIfNotEmpty(
+      buf,
+      config.mensagemFinal.trim().isEmpty
+          ? 'BOM APETITE!'
+          : config.mensagemFinal,
+      center: true,
+    );
+    buf.writeln(_linha);
 
     return buf.toString();
   }
@@ -106,7 +158,9 @@ class _CupomWidgetState extends State<CupomWidget> {
               ),
               const Spacer(),
               IconButton(
-                  icon: const Icon(Icons.close), onPressed: widget.onFechar),
+                icon: const Icon(Icons.close),
+                onPressed: widget.onFechar,
+              ),
             ],
           ),
           const Divider(),
