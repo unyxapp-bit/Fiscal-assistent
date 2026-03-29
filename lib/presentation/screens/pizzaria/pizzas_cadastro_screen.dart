@@ -118,7 +118,11 @@ class _PizzasCadastroScreenState extends State<PizzasCadastroScreen> {
               ),
               title: Text(p.nome,
                   style: TextStyle(color: p.ativa ? null : Colors.grey)),
-              subtitle: Text(p.tamanhoLabel),
+              subtitle: Text(
+                p.ingredientes?.trim().isNotEmpty == true
+                    ? '${p.tamanhoLabel} • ${p.ingredientes}'
+                    : p.tamanhoLabel,
+              ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -161,6 +165,7 @@ class _FormPizza extends StatefulWidget {
 
 class _FormPizzaState extends State<_FormPizza> {
   final _nomeCtrl = TextEditingController();
+  final _ingredientesCtrl = TextEditingController();
   String _tamanho = 'grande';
   bool _salvando = false;
 
@@ -169,8 +174,16 @@ class _FormPizzaState extends State<_FormPizza> {
     super.initState();
     if (widget.pizza != null) {
       _nomeCtrl.text = widget.pizza!.nome;
+      _ingredientesCtrl.text = widget.pizza!.ingredientes ?? '';
       _tamanho = widget.pizza!.tamanho;
     }
+  }
+
+  @override
+  void dispose() {
+    _nomeCtrl.dispose();
+    _ingredientesCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _salvar() async {
@@ -181,6 +194,9 @@ class _FormPizzaState extends State<_FormPizza> {
       id: widget.pizza?.id ?? '',
       nome: _nomeCtrl.text.trim(),
       tamanho: _tamanho,
+      ingredientes: _ingredientesCtrl.text.trim().isEmpty
+          ? null
+          : _ingredientesCtrl.text.trim(),
     );
 
     if (widget.pizza == null) {
@@ -226,6 +242,18 @@ class _FormPizzaState extends State<_FormPizza> {
               prefixIcon: Icon(Icons.local_pizza),
             ),
             textCapitalization: TextCapitalization.words,
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _ingredientesCtrl,
+            decoration: const InputDecoration(
+              labelText: 'Ingredientes',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.list_alt),
+              hintText: 'Ex: queijo, molho de tomate, oregano',
+            ),
+            textCapitalization: TextCapitalization.sentences,
+            maxLines: 2,
           ),
           const SizedBox(height: 16),
           const Text('Tamanho'),

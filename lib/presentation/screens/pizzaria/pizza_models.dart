@@ -12,23 +12,30 @@ class Pizza {
   final String id;
   final String nome;
   final String tamanho; // 'grande' | 'media'
+  final String? ingredientes;
   final bool ativa;
 
   Pizza(
       {required this.id,
       required this.nome,
       required this.tamanho,
+      this.ingredientes,
       this.ativa = true});
 
   factory Pizza.fromMap(Map<String, dynamic> m) => Pizza(
         id: m['id'],
         nome: m['nome'],
         tamanho: m['tamanho'],
+        ingredientes: m['ingredientes'],
         ativa: m['ativa'] ?? true,
       );
 
-  Map<String, dynamic> toMap() =>
-      {'nome': nome, 'tamanho': tamanho, 'ativa': ativa};
+  Map<String, dynamic> toMap() => {
+        'nome': nome,
+        'tamanho': tamanho,
+        'ingredientes': ingredientes,
+        'ativa': ativa,
+      };
 
   String get tamanhoLabel => tamanho == 'grande' ? 'Grande' : 'Média';
 }
