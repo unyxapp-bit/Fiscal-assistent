@@ -32,6 +32,7 @@ dependencies:
   flutter_dotenv: ^5.1.0
   intl: ^0.18.1
   file_picker: ^8.1.2
+  shared_preferences: ^2.2.3
 
   web: ^1.1.1
   # NotificaÃ§Ãµes Locais
