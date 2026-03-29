@@ -36,6 +36,7 @@ import '../formularios/formularios_screen.dart';
 import '../folga/folga_screen.dart';
 import '../escala/escala_screen.dart';
 import '../relatorio/relatorio_diario_screen.dart';
+import '../pizzaria/pizza_module_screen.dart';
 // profile_screen.dart usado via ConfiguracoesScreen
 import '../configuracoes/configuracoes_screen.dart';
 import '../../../data/services/seed_data_service.dart';
@@ -57,7 +58,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) setState(() {});
     });
@@ -480,7 +481,10 @@ class _DashboardScreenState extends State<DashboardScreen>
           ),
         ),
 
-        // ── ABA 3: OPERAÇÕES ────────────────────────────────────────────
+        // ── ABA 3: PIZZARIA ─────────────────────────────────────────────
+        const PizzaModuleScreen(),
+
+        // ── ABA 4: OPERAÇÕES ────────────────────────────────────────────
         SingleChildScrollView(
           padding: const EdgeInsets.all(Dimensions.paddingMD),
           child: Column(
@@ -586,7 +590,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           ),
         ),
 
-        // ── ABA 4: LOJA ─────────────────────────────────────────────────
+        // ── ABA 5: LOJA ─────────────────────────────────────────────────
         RefreshIndicator(
           onRefresh: _loadData,
           child: SingleChildScrollView(
@@ -738,6 +742,10 @@ class _DashboardScreenState extends State<DashboardScreen>
                       icon: Icon(Icons.apps_outlined),
                       label: Text('Principal'),
                     ),
+                    const NavigationRailDestination(
+                      icon: Icon(Icons.local_pizza_outlined),
+                      label: Text('Pizzaria'),
+                    ),
                     NavigationRailDestination(
                       icon: Badge(
                         isLabelVisible: cafeProvider.totalEmAtraso > 0,
@@ -804,6 +812,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                 const Tab(
                     icon: Icon(Icons.apps_outlined, size: 20),
                     text: 'Principal'),
+                const Tab(
+                    icon: Icon(Icons.local_pizza_outlined, size: 20),
+                    text: 'Pizzaria'),
                 Tab(
                   icon: Stack(
                     clipBehavior: Clip.none,
