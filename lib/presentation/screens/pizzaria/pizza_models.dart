@@ -210,7 +210,43 @@ class PizzaService {
     return pedidoId;
   }
 
+  static Future<void> atualizarPedido(PedidoPizza pedido) async {
+    if (pedido.id == null || pedido.id!.isEmpty) {
+      throw Exception('Pedido sem ID para atualizar.');
+    }
+
+    final pedidoId = pedido.id!;
+
+    await _db.from('pedidos_pizza').update({
+      'nome_cliente': pedido.nomeCliente,
+      'codigo_entrega': pedido.codigoEntrega,
+      'data_pedido': pedido.dataPedido.toIso8601String().substring(0, 10),
+      'horario_pedido': pedido.horarioPedido,
+      'observacoes': pedido.observacoes,
+      'status': pedido.status,
+    }).eq('id', pedidoId);
+
+    await _db.from('itens_pedido').delete().eq('pedido_id', pedidoId);
+
+    if (pedido.itens.isNotEmpty) {
+      final itens = pedido.itens
+          .map((item) => {
+                'pedido_id': pedidoId,
+                'pizza_id': item.pizzaId,
+                'pizza2_id': item.pizza2Id,
+                'quantidade': item.quantidade,
+                'eh_meio_a_meio': item.ehMeioAMeio,
+              })
+          .toList();
+      await _db.from('itens_pedido').insert(itens);
+    }
+  }
+
   static Future<void> atualizarStatus(String id, String status) async {
     await _db.from('pedidos_pizza').update({'status': status}).eq('id', id);
+  }
+
+  static Future<void> excluirPedido(String id) async {
+    await _db.from('pedidos_pizza').delete().eq('id', id);
   }
 }

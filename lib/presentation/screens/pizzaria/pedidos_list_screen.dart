@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'novo_pedido_screen.dart';
 import 'cupom_widget.dart';
+import 'novo_pedido_screen.dart';
 import 'pizza_models.dart';
 
 class PedidosListScreen extends StatefulWidget {
@@ -26,11 +26,20 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
 
   Future<void> _carregar() async {
     setState(() => _loading = true);
-    final lista = await PizzaService.listarPedidos();
-    setState(() {
-      _pedidos = lista;
-      _loading = false;
-    });
+    try {
+      final lista = await PizzaService.listarPedidos();
+      if (!mounted) return;
+      setState(() {
+        _pedidos = lista;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao carregar pedidos: $e')),
+      );
+    }
   }
 
   List<PedidoPizza> get _pedidosFiltrados {
@@ -51,6 +60,77 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
       builder: (_) => CupomWidget(
         pedido: pedido,
         onFechar: () => Navigator.pop(context),
+      ),
+    );
+  }
+
+  Future<void> _editarPedido(PedidoPizza pedido) async {
+    final atualizado = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => NovoPedidoScreen(pedidoExistente: pedido),
+      ),
+    );
+    if (atualizado == true) {
+      _carregar();
+    }
+  }
+
+  Future<void> _excluirPedido(PedidoPizza pedido) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Excluir pedido?'),
+        content: Text(
+          'Deseja excluir o pedido de ${pedido.nomeCliente} '
+          '(cod: ${pedido.codigoEntrega})?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Excluir', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (ok != true) return;
+
+    await PizzaService.excluirPedido(pedido.id!);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Pedido excluido com sucesso.')),
+    );
+    _carregar();
+  }
+
+  void _abrirDetalhes(PedidoPizza pedido) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => _DetalhesPedidoSheet(
+        pedido: pedido,
+        onVerCupom: () {
+          Navigator.pop(sheetContext);
+          _verCupom(pedido);
+        },
+        onEditar: () {
+          Navigator.pop(sheetContext);
+          _editarPedido(pedido);
+        },
+        onExcluir: () {
+          Navigator.pop(sheetContext);
+          _excluirPedido(pedido);
+        },
+        onSelecionarStatus: (novoStatus) async {
+          Navigator.pop(sheetContext);
+          await _mudarStatus(pedido, novoStatus);
+        },
       ),
     );
   }
@@ -77,7 +157,6 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
       ),
       body: Column(
         children: [
-          // Filtro de status
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
             child: SingleChildScrollView(
@@ -85,28 +164,32 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
               child: Row(
                 children: [
                   _ChipFiltro(
-                      label: 'Todos',
-                      valor: 'todos',
-                      atual: _filtro,
-                      onTap: (v) => setState(() => _filtro = v)),
+                    label: 'Todos',
+                    valor: 'todos',
+                    atual: _filtro,
+                    onTap: (v) => setState(() => _filtro = v),
+                  ),
                   _ChipFiltro(
-                      label: 'Abertos',
-                      valor: 'aberto',
-                      atual: _filtro,
-                      onTap: (v) => setState(() => _filtro = v),
-                      cor: Colors.blue),
+                    label: 'Abertos',
+                    valor: 'aberto',
+                    atual: _filtro,
+                    onTap: (v) => setState(() => _filtro = v),
+                    cor: Colors.blue,
+                  ),
                   _ChipFiltro(
-                      label: 'Prontos',
-                      valor: 'pronto',
-                      atual: _filtro,
-                      onTap: (v) => setState(() => _filtro = v),
-                      cor: Colors.orange),
+                    label: 'Prontos',
+                    valor: 'pronto',
+                    atual: _filtro,
+                    onTap: (v) => setState(() => _filtro = v),
+                    cor: Colors.orange,
+                  ),
                   _ChipFiltro(
-                      label: 'Entregues',
-                      valor: 'entregue',
-                      atual: _filtro,
-                      onTap: (v) => setState(() => _filtro = v),
-                      cor: Colors.green),
+                    label: 'Entregues',
+                    valor: 'entregue',
+                    atual: _filtro,
+                    onTap: (v) => setState(() => _filtro = v),
+                    cor: Colors.green,
+                  ),
                 ],
               ),
             ),
@@ -116,19 +199,27 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
                 ? const Center(child: CircularProgressIndicator())
                 : _pedidosFiltrados.isEmpty
                     ? const Center(
-                        child: Text('Nenhum pedido encontrado.',
-                            style: TextStyle(color: Colors.grey)))
+                        child: Text(
+                          'Nenhum pedido encontrado.',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      )
                     : RefreshIndicator(
                         onRefresh: _carregar,
                         child: ListView.builder(
                           padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
                           itemCount: _pedidosFiltrados.length,
-                          itemBuilder: (_, i) => _CardPedido(
-                            pedido: _pedidosFiltrados[i],
-                            onVerCupom: () => _verCupom(_pedidosFiltrados[i]),
-                            onMudarStatus: (s) =>
-                                _mudarStatus(_pedidosFiltrados[i], s),
-                          ),
+                          itemBuilder: (_, i) {
+                            final pedido = _pedidosFiltrados[i];
+                            return _CardPedido(
+                              pedido: pedido,
+                              onAbrirDetalhes: () => _abrirDetalhes(pedido),
+                              onVerCupom: () => _verCupom(pedido),
+                              onEditar: () => _editarPedido(pedido),
+                              onExcluir: () => _excluirPedido(pedido),
+                              onMudarStatus: (s) => _mudarStatus(pedido, s),
+                            );
+                          },
                         ),
                       ),
           ),
@@ -138,42 +229,22 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
   }
 }
 
-// ============================================================
-// CARD DO PEDIDO
-// ============================================================
-
 class _CardPedido extends StatelessWidget {
   final PedidoPizza pedido;
+  final VoidCallback onAbrirDetalhes;
   final VoidCallback onVerCupom;
+  final VoidCallback onEditar;
+  final VoidCallback onExcluir;
   final void Function(String) onMudarStatus;
 
   const _CardPedido({
     required this.pedido,
+    required this.onAbrirDetalhes,
     required this.onVerCupom,
+    required this.onEditar,
+    required this.onExcluir,
     required this.onMudarStatus,
   });
-
-  Color get _corStatus {
-    switch (pedido.status) {
-      case 'pronto':
-        return Colors.orange;
-      case 'entregue':
-        return Colors.green;
-      default:
-        return Colors.blue;
-    }
-  }
-
-  String get _labelStatus {
-    switch (pedido.status) {
-      case 'pronto':
-        return 'Pronto';
-      case 'entregue':
-        return 'Entregue';
-      default:
-        return 'Aberto';
-    }
-  }
 
   String get _proximoStatus {
     switch (pedido.status) {
@@ -199,130 +270,363 @@ class _CardPedido extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final corStatus = _statusColor(pedido.status);
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Cabeçalho
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        pedido.nomeCliente,
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Cod: ${pedido.codigoEntrega}  •  ${pedido.horarioPedido}  •  ${DateFormat('dd/MM').format(pedido.dataPedido)}',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                      ),
-                    ],
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onAbrirDetalhes,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          pedido.nomeCliente,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Cod: ${pedido.codigoEntrega} • ${pedido.horarioPedido} • ${DateFormat('dd/MM').format(pedido.dataPedido)}',
+                          style:
+                              TextStyle(color: Colors.grey[600], fontSize: 12),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: _corStatus.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
-                    border:
-                        Border.all(color: _corStatus.withValues(alpha: 0.4)),
-                  ),
-                  child: Text(_labelStatus,
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: corStatus.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                      border:
+                          Border.all(color: corStatus.withValues(alpha: 0.4)),
+                    ),
+                    child: Text(
+                      _statusLabel(pedido.status),
                       style: TextStyle(
-                          color: _corStatus,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12)),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-
-            // Itens do pedido
-            ...pedido.itens.map((item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.local_pizza,
-                          size: 16, color: Colors.orange),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          '${item.quantidade}x ${item.tamanhoLabel} — ${item.descricao}',
-                          style: const TextStyle(fontSize: 13),
+                        color: corStatus,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                  PopupMenuButton<String>(
+                    onSelected: (value) {
+                      switch (value) {
+                        case 'detalhes':
+                          onAbrirDetalhes();
+                          break;
+                        case 'cupom':
+                          onVerCupom();
+                          break;
+                        case 'editar':
+                          onEditar();
+                          break;
+                        case 'excluir':
+                          onExcluir();
+                          break;
+                      }
+                    },
+                    itemBuilder: (_) => const [
+                      PopupMenuItem(
+                        value: 'detalhes',
+                        child: ListTile(
+                          leading: Icon(Icons.visibility_outlined),
+                          title: Text('Ver pedido'),
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'cupom',
+                        child: ListTile(
+                          leading: Icon(Icons.receipt_long),
+                          title: Text('Ver cupom'),
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'editar',
+                        child: ListTile(
+                          leading: Icon(Icons.edit_outlined),
+                          title: Text('Editar'),
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'excluir',
+                        child: ListTile(
+                          leading:
+                              Icon(Icons.delete_outline, color: Colors.red),
+                          title: Text('Excluir'),
                         ),
                       ),
                     ],
                   ),
-                )),
-
-            if (pedido.observacoes != null &&
-                pedido.observacoes!.isNotEmpty) ...[
-              const SizedBox(height: 6),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.info_outline, size: 14, color: Colors.grey),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(pedido.observacoes!,
-                        style:
-                            const TextStyle(fontSize: 12, color: Colors.grey)),
+                ],
+              ),
+              const SizedBox(height: 10),
+              ...pedido.itens.take(3).map(
+                    (item) => Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.local_pizza,
+                            size: 16,
+                            color: Colors.orange,
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              '${item.quantidade}x ${item.tamanhoLabel} - ${item.descricao}',
+                              style: const TextStyle(fontSize: 13),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
+              if (pedido.itens.length > 3)
+                Text(
+                  '+ ${pedido.itens.length - 3} itens',
+                  style: TextStyle(color: Colors.grey[700], fontSize: 12),
+                ),
+              if (pedido.observacoes != null &&
+                  pedido.observacoes!.isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.info_outline,
+                        size: 14, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        pedido.observacoes!,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+              const SizedBox(height: 10),
+              const Divider(height: 1),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.visibility_outlined, size: 16),
+                    label: const Text('Detalhes'),
+                    onPressed: onAbrirDetalhes,
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      textStyle: const TextStyle(fontSize: 13),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.receipt_long, size: 16),
+                    label: const Text('Cupom'),
+                    onPressed: onVerCupom,
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      textStyle: const TextStyle(fontSize: 13),
+                    ),
+                  ),
+                  const Spacer(),
+                  if (_proximoStatus.isNotEmpty)
+                    FilledButton(
+                      onPressed: () => onMudarStatus(_proximoStatus),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: _proximoStatus == 'pronto'
+                            ? Colors.orange
+                            : Colors.green,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
+                        textStyle: const TextStyle(fontSize: 13),
+                      ),
+                      child: Text(_labelProximoStatus),
+                    ),
                 ],
               ),
             ],
-
-            const SizedBox(height: 10),
-            const Divider(height: 1),
-            const SizedBox(height: 8),
-
-            // Ações
-            Row(
-              children: [
-                OutlinedButton.icon(
-                  icon: const Icon(Icons.receipt_long, size: 16),
-                  label: const Text('Cupom'),
-                  onPressed: onVerCupom,
-                  style: OutlinedButton.styleFrom(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    textStyle: const TextStyle(fontSize: 13),
-                  ),
-                ),
-                const Spacer(),
-                if (_proximoStatus.isNotEmpty)
-                  FilledButton(
-                    onPressed: () => onMudarStatus(_proximoStatus),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: _proximoStatus == 'pronto'
-                          ? Colors.orange
-                          : Colors.green,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 8),
-                      textStyle: const TextStyle(fontSize: 13),
-                    ),
-                    child: Text(_labelProximoStatus),
-                  ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-// ============================================================
-// CHIP DE FILTRO
-// ============================================================
+class _DetalhesPedidoSheet extends StatelessWidget {
+  final PedidoPizza pedido;
+  final VoidCallback onVerCupom;
+  final VoidCallback onEditar;
+  final VoidCallback onExcluir;
+  final void Function(String) onSelecionarStatus;
+
+  const _DetalhesPedidoSheet({
+    required this.pedido,
+    required this.onVerCupom,
+    required this.onEditar,
+    required this.onExcluir,
+    required this.onSelecionarStatus,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final statuses = ['aberto', 'pronto', 'entregue'];
+
+    return Container(
+      margin: const EdgeInsets.all(12),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.receipt_long, color: Colors.orange),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Pedido Completo',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const Divider(),
+              Text(
+                pedido.nomeCliente,
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              Text('Codigo: ${pedido.codigoEntrega}'),
+              Text(
+                  'Data: ${DateFormat('dd/MM/yyyy').format(pedido.dataPedido)}'),
+              Text('Horario: ${pedido.horarioPedido}'),
+              const SizedBox(height: 12),
+              const Text(
+                'Itens',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              ...pedido.itens.map(
+                (item) => Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.local_pizza,
+                          size: 16, color: Colors.orange),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          '${item.quantidade}x ${item.tamanhoLabel} - ${item.descricao}',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (pedido.observacoes != null &&
+                  pedido.observacoes!.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                const Text(
+                  'Observacoes',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                Text(pedido.observacoes!),
+              ],
+              const SizedBox(height: 16),
+              const Text(
+                'Status do pedido',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: statuses
+                    .map(
+                      (status) => ChoiceChip(
+                        label: Text(_statusLabel(status)),
+                        selected: pedido.status == status,
+                        onSelected: (selected) {
+                          if (selected && status != pedido.status) {
+                            onSelecionarStatus(status);
+                          }
+                        },
+                      ),
+                    )
+                    .toList(),
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: onVerCupom,
+                      icon: const Icon(Icons.receipt_long),
+                      label: const Text('Cupom'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: onEditar,
+                      icon: const Icon(Icons.edit_outlined),
+                      label: const Text('Editar'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: onExcluir,
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  label: const Text('Excluir',
+                      style: TextStyle(color: Colors.red)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class _ChipFiltro extends StatelessWidget {
   final String label;
@@ -353,5 +657,27 @@ class _ChipFiltro extends StatelessWidget {
         onSelected: (_) => onTap(valor),
       ),
     );
+  }
+}
+
+String _statusLabel(String status) {
+  switch (status) {
+    case 'pronto':
+      return 'Pronto';
+    case 'entregue':
+      return 'Entregue';
+    default:
+      return 'Aberto';
+  }
+}
+
+Color _statusColor(String status) {
+  switch (status) {
+    case 'pronto':
+      return Colors.orange;
+    case 'entregue':
+      return Colors.green;
+    default:
+      return Colors.blue;
   }
 }

@@ -1,5 +1,5 @@
-name: fiscal_assistant
-description: Assistente pessoal para fiscais de caixa - Gestão de escala em tempo real
+﻿name: fiscal_assistant
+description: Assistente pessoal para fiscais de caixa - GestÃ£o de escala em tempo real
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -33,7 +33,8 @@ dependencies:
   intl: ^0.18.1
   file_picker: ^8.1.2
 
-  # Notificações Locais
+  web: ^1.1.1
+  # NotificaÃ§Ãµes Locais
   flutter_local_notifications: ^17.0.0
   timezone: ^0.9.4
 
@@ -60,3 +61,4 @@ flutter:
   assets:
     - .env
     - assets/icon/
+

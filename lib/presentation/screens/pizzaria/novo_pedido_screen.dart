@@ -7,7 +7,9 @@ import 'cupom_widget.dart';
 import 'pizza_models.dart';
 
 class NovoPedidoScreen extends StatefulWidget {
-  const NovoPedidoScreen({super.key});
+  final PedidoPizza? pedidoExistente;
+
+  const NovoPedidoScreen({super.key, this.pedidoExistente});
 
   @override
   State<NovoPedidoScreen> createState() => _NovoPedidoScreenState();
@@ -26,11 +28,43 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
   bool _carregando = false;
   bool _salvando = false;
 
+  bool get _isEdicao => widget.pedidoExistente != null;
+
   @override
   void initState() {
     super.initState();
-    _horario = _formatarHora(TimeOfDay.now());
+    if (_isEdicao) {
+      final pedido = widget.pedidoExistente!;
+      _nomeCtrl.text = pedido.nomeCliente;
+      _codigoCtrl.text = pedido.codigoEntrega;
+      _obsCtrl.text = pedido.observacoes ?? '';
+      _data = pedido.dataPedido;
+      _horario = pedido.horarioPedido;
+      _itens.addAll(
+        pedido.itens.map(
+          (item) => ItemPedido(
+            pizzaId: item.pizzaId,
+            pizzaNome: item.pizzaNome,
+            pizzaTamanho: item.pizzaTamanho,
+            pizza2Id: item.pizza2Id,
+            pizza2Nome: item.pizza2Nome,
+            quantidade: item.quantidade,
+            ehMeioAMeio: item.ehMeioAMeio,
+          ),
+        ),
+      );
+    } else {
+      _horario = _formatarHora(TimeOfDay.now());
+    }
     _carregarPizzas();
+  }
+
+  @override
+  void dispose() {
+    _nomeCtrl.dispose();
+    _codigoCtrl.dispose();
+    _obsCtrl.dispose();
+    super.dispose();
   }
 
   String _formatarHora(TimeOfDay t) =>
@@ -86,15 +120,24 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
     setState(() => _salvando = true);
 
     final pedido = PedidoPizza(
+      id: _isEdicao ? widget.pedidoExistente!.id : null,
       nomeCliente: _nomeCtrl.text.trim(),
       codigoEntrega: _codigoCtrl.text.trim(),
       dataPedido: _data,
       horarioPedido: _horario,
       observacoes: _obsCtrl.text.trim().isEmpty ? null : _obsCtrl.text.trim(),
+      status: _isEdicao ? widget.pedidoExistente!.status : 'aberto',
       itens: _itens,
     );
 
     try {
+      if (_isEdicao) {
+        await PizzaService.atualizarPedido(pedido);
+        if (!mounted) return;
+        Navigator.pop(context, true);
+        return;
+      }
+
       final id = await PizzaService.criarPedido(pedido);
       if (!mounted) return;
       // Mostra cupom
@@ -132,7 +175,7 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Novo Pedido')),
+      appBar: AppBar(title: Text(_isEdicao ? 'Editar Pedido' : 'Novo Pedido')),
       body: _carregando
           ? const Center(child: CircularProgressIndicator())
           : Form(
@@ -241,15 +284,18 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
                     height: 52,
                     child: FilledButton.icon(
                       onPressed: _salvando ? null : _salvar,
-                      icon: const Icon(Icons.receipt_long),
+                      icon: Icon(
+                          _isEdicao ? Icons.save_outlined : Icons.receipt_long),
                       label: _salvando
                           ? const SizedBox(
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(
                                   strokeWidth: 2, color: Colors.white))
-                          : const Text('Gerar Cupom',
-                              style: TextStyle(fontSize: 16)),
+                          : Text(
+                              _isEdicao ? 'Salvar Alterações' : 'Gerar Cupom',
+                              style: const TextStyle(fontSize: 16),
+                            ),
                     ),
                   ),
                 ],

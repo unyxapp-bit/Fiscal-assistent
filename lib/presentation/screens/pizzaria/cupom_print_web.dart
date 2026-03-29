@@ -2,9 +2,9 @@
 // Usado apenas no Flutter Web
 
 import 'dart:convert';
+import 'dart:js_interop';
 
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
+import 'package:web/web.dart' as web;
 
 void imprimirCupom(String texto) {
   const estilo = '''
@@ -19,6 +19,9 @@ void imprimirCupom(String texto) {
         white-space: pre;
         line-height: 1.4;
       }
+      pre {
+        margin: 0;
+      }
     </style>
   ''';
 
@@ -26,20 +29,22 @@ void imprimirCupom(String texto) {
     texto,
   );
   final documento = '''
-<!doctype html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    $estilo
-  </head>
-  <body><pre>$conteudoEscapado</pre></body>
-</html>
-''';
+    <!doctype html>
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        $estilo
+      </head>
+      <body onload="window.focus(); window.print();">
+        <pre>$conteudoEscapado</pre>
+      </body>
+    </html>
+  ''';
 
-  final url = Uri.dataFromString(
-    documento,
-    mimeType: 'text/html',
-    encoding: utf8,
-  ).toString();
-  html.window.open(url, '_blank');
+  final janela = web.window.open('', '_blank', 'width=420,height=640');
+  if (janela == null) return;
+
+  janela.document.open();
+  janela.document.write(documento.toJS);
+  janela.document.close();
 }
