@@ -19,6 +19,11 @@ CREATE TABLE IF NOT EXISTS public.cupom_configuracoes (
   mensagem_final              TEXT NOT NULL DEFAULT 'BOM APETITE!',
   observacao_padrao           TEXT NOT NULL DEFAULT '',
   exibir_data_hora_emissao    BOOLEAN NOT NULL DEFAULT true,
+  tamanho_fonte               NUMERIC(4,1) NOT NULL DEFAULT 12,
+  centralizar_cabecalho       BOOLEAN NOT NULL DEFAULT true,
+  centralizar_rodape          BOOLEAN NOT NULL DEFAULT true,
+  texto_destaque              TEXT NOT NULL DEFAULT '',
+  termo_destaque_item         TEXT NOT NULL DEFAULT '',
   created_at                  TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at                  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -38,6 +43,11 @@ ALTER TABLE public.cupom_configuracoes
   ADD COLUMN IF NOT EXISTS mensagem_final TEXT NOT NULL DEFAULT 'BOM APETITE!',
   ADD COLUMN IF NOT EXISTS observacao_padrao TEXT NOT NULL DEFAULT '',
   ADD COLUMN IF NOT EXISTS exibir_data_hora_emissao BOOLEAN NOT NULL DEFAULT true,
+  ADD COLUMN IF NOT EXISTS tamanho_fonte NUMERIC(4,1) NOT NULL DEFAULT 12,
+  ADD COLUMN IF NOT EXISTS centralizar_cabecalho BOOLEAN NOT NULL DEFAULT true,
+  ADD COLUMN IF NOT EXISTS centralizar_rodape BOOLEAN NOT NULL DEFAULT true,
+  ADD COLUMN IF NOT EXISTS texto_destaque TEXT NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS termo_destaque_item TEXT NOT NULL DEFAULT '',
   ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT now();
 

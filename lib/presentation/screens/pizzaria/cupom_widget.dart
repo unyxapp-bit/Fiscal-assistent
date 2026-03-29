@@ -51,10 +51,32 @@ class _CupomWidgetState extends State<CupomWidget> {
     return '${' ' * left}$t${' ' * right}';
   }
 
-  void _writeIfNotEmpty(StringBuffer b, String value, {bool center = false}) {
+  void _writeIfNotEmpty(
+    StringBuffer b,
+    String value, {
+    bool centralizar = false,
+  }) {
     final v = value.trim();
     if (v.isEmpty) return;
-    b.writeln(center ? _center(v) : v);
+    b.writeln(centralizar ? _center(v) : v);
+  }
+
+  void _writeLabeledIfHasValue(
+    StringBuffer b, {
+    required String label,
+    required String value,
+    bool centralizar = false,
+  }) {
+    final v = value.trim();
+    if (v.isEmpty) return;
+    final line = '$label$v';
+    b.writeln(centralizar ? _center(line) : line);
+  }
+
+  String _linhaDestaque(String texto) {
+    final t = texto.trim();
+    if (t.isEmpty) return '';
+    return '>>> ${t.toUpperCase()} <<<';
   }
 
   String _gerarTexto(CupomDadosConfig config) {
@@ -62,15 +84,56 @@ class _CupomWidgetState extends State<CupomWidget> {
     final buf = StringBuffer();
 
     buf.writeln(_linha);
-    _writeIfNotEmpty(buf, config.tituloCabecalho, center: true);
-    _writeIfNotEmpty(buf, config.subtituloCabecalho, center: true);
-    _writeIfNotEmpty(buf, 'CNPJ: ${config.cnpj}', center: true);
-    _writeIfNotEmpty(buf, config.enderecoLinha1, center: true);
-    _writeIfNotEmpty(buf, config.enderecoLinha2, center: true);
-    _writeIfNotEmpty(buf, 'TEL: ${config.telefone}', center: true);
-    _writeIfNotEmpty(buf, 'WHATS: ${config.whatsapp}', center: true);
-    _writeIfNotEmpty(buf, 'INSTA: ${config.instagram}', center: true);
-    _writeIfNotEmpty(buf, 'SITE: ${config.website}', center: true);
+    _writeIfNotEmpty(
+      buf,
+      config.tituloCabecalho,
+      centralizar: config.centralizarCabecalho,
+    );
+    _writeIfNotEmpty(
+      buf,
+      config.subtituloCabecalho,
+      centralizar: config.centralizarCabecalho,
+    );
+    _writeLabeledIfHasValue(
+      buf,
+      label: 'CNPJ: ',
+      value: config.cnpj,
+      centralizar: config.centralizarCabecalho,
+    );
+    _writeIfNotEmpty(
+      buf,
+      config.enderecoLinha1,
+      centralizar: config.centralizarCabecalho,
+    );
+    _writeIfNotEmpty(
+      buf,
+      config.enderecoLinha2,
+      centralizar: config.centralizarCabecalho,
+    );
+    _writeLabeledIfHasValue(
+      buf,
+      label: 'TEL: ',
+      value: config.telefone,
+      centralizar: config.centralizarCabecalho,
+    );
+    _writeLabeledIfHasValue(
+      buf,
+      label: 'WHATS: ',
+      value: config.whatsapp,
+      centralizar: config.centralizarCabecalho,
+    );
+    _writeLabeledIfHasValue(
+      buf,
+      label: 'INSTA: ',
+      value: config.instagram,
+      centralizar: config.centralizarCabecalho,
+    );
+    _writeLabeledIfHasValue(
+      buf,
+      label: 'SITE: ',
+      value: config.website,
+      centralizar: config.centralizarCabecalho,
+    );
     buf.writeln(_linha);
 
     if (config.exibirDataHoraEmissao) {
@@ -92,17 +155,38 @@ class _CupomWidgetState extends State<CupomWidget> {
       buf.writeln(_linhaFina);
     }
 
+    if (config.textoDestaque.trim().isNotEmpty) {
+      buf.writeln(_linhaDestaque(config.textoDestaque));
+      buf.writeln(_linhaFina);
+    }
+
     buf.writeln('ITENS:');
     buf.writeln(_linhaFina);
 
+    final termoDestaque = config.termoDestaqueItem.trim().toLowerCase();
+
     for (final item in pedido.itens) {
       final tamanho = item.tamanhoLabel.toUpperCase();
+      final itemTexto =
+          '${item.quantidade}x Pizza $tamanho - ${item.descricao}'.trim();
+      final destacarItem = termoDestaque.isNotEmpty &&
+          itemTexto.toLowerCase().contains(termoDestaque);
+
       if (item.ehMeioAMeio) {
-        buf.writeln('${item.quantidade}x Pizza $tamanho (Meio a Meio)');
+        buf.writeln(
+          destacarItem
+              ? _linhaDestaque(
+                  '${item.quantidade}x Pizza $tamanho (Meio a Meio)')
+              : '${item.quantidade}x Pizza $tamanho (Meio a Meio)',
+        );
         buf.writeln('   1/2 ${item.pizzaNome}');
         buf.writeln('   1/2 ${item.pizza2Nome}');
       } else {
-        buf.writeln('${item.quantidade}x Pizza $tamanho');
+        buf.writeln(
+          destacarItem
+              ? _linhaDestaque('${item.quantidade}x Pizza $tamanho')
+              : '${item.quantidade}x Pizza $tamanho',
+        );
         buf.writeln('   ${item.pizzaNome}');
       }
     }
@@ -120,13 +204,14 @@ class _CupomWidgetState extends State<CupomWidget> {
       buf.writeln('OBS: ${observacoes.join(' | ')}');
       buf.writeln(_linhaFina);
     }
+
     buf.writeln(_linha);
     _writeIfNotEmpty(
       buf,
       config.mensagemFinal.trim().isEmpty
           ? 'BOM APETITE!'
           : config.mensagemFinal,
-      center: true,
+      centralizar: config.centralizarRodape,
     );
     buf.writeln(_linha);
 
@@ -178,9 +263,9 @@ class _CupomWidgetState extends State<CupomWidget> {
               ),
               child: Text(
                 texto,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'monospace',
-                  fontSize: 12,
+                  fontSize: config.tamanhoFonte.clamp(9, 22),
                   height: 1.5,
                 ),
               ),

@@ -14,6 +14,11 @@ class CupomDadosConfig {
   final String mensagemFinal;
   final String observacaoPadrao;
   final bool exibirDataHoraEmissao;
+  final double tamanhoFonte;
+  final bool centralizarCabecalho;
+  final bool centralizarRodape;
+  final String textoDestaque;
+  final String termoDestaqueItem;
 
   const CupomDadosConfig({
     required this.tituloCabecalho,
@@ -29,6 +34,11 @@ class CupomDadosConfig {
     required this.mensagemFinal,
     required this.observacaoPadrao,
     required this.exibirDataHoraEmissao,
+    required this.tamanhoFonte,
+    required this.centralizarCabecalho,
+    required this.centralizarRodape,
+    required this.textoDestaque,
+    required this.termoDestaqueItem,
   });
 
   factory CupomDadosConfig.padrao() {
@@ -46,6 +56,11 @@ class CupomDadosConfig {
       mensagemFinal: 'BOM APETITE!',
       observacaoPadrao: '',
       exibirDataHoraEmissao: true,
+      tamanhoFonte: 12,
+      centralizarCabecalho: true,
+      centralizarRodape: true,
+      textoDestaque: '',
+      termoDestaqueItem: '',
     );
   }
 
@@ -63,6 +78,11 @@ class CupomDadosConfig {
     String? mensagemFinal,
     String? observacaoPadrao,
     bool? exibirDataHoraEmissao,
+    double? tamanhoFonte,
+    bool? centralizarCabecalho,
+    bool? centralizarRodape,
+    String? textoDestaque,
+    String? termoDestaqueItem,
   }) {
     return CupomDadosConfig(
       tituloCabecalho: tituloCabecalho ?? this.tituloCabecalho,
@@ -79,6 +99,11 @@ class CupomDadosConfig {
       observacaoPadrao: observacaoPadrao ?? this.observacaoPadrao,
       exibirDataHoraEmissao:
           exibirDataHoraEmissao ?? this.exibirDataHoraEmissao,
+      tamanhoFonte: tamanhoFonte ?? this.tamanhoFonte,
+      centralizarCabecalho: centralizarCabecalho ?? this.centralizarCabecalho,
+      centralizarRodape: centralizarRodape ?? this.centralizarRodape,
+      textoDestaque: textoDestaque ?? this.textoDestaque,
+      termoDestaqueItem: termoDestaqueItem ?? this.termoDestaqueItem,
     );
   }
 
@@ -97,6 +122,11 @@ class CupomDadosConfig {
         'mensagem_final': mensagemFinal.trim(),
         'observacao_padrao': observacaoPadrao.trim(),
         'exibir_data_hora_emissao': exibirDataHoraEmissao,
+        'tamanho_fonte': tamanhoFonte,
+        'centralizar_cabecalho': centralizarCabecalho,
+        'centralizar_rodape': centralizarRodape,
+        'texto_destaque': textoDestaque.trim(),
+        'termo_destaque_item': termoDestaqueItem.trim(),
         'updated_at': DateTime.now().toIso8601String(),
       };
 
@@ -122,7 +152,20 @@ class CupomDadosConfig {
               : padrao.mensagemFinal,
       observacaoPadrao: (map['observacao_padrao'] as String?)?.trim() ?? '',
       exibirDataHoraEmissao: (map['exibir_data_hora_emissao'] as bool?) ?? true,
+      tamanhoFonte: _asDouble(map['tamanho_fonte'], padrao.tamanhoFonte),
+      centralizarCabecalho: (map['centralizar_cabecalho'] as bool?) ?? true,
+      centralizarRodape: (map['centralizar_rodape'] as bool?) ?? true,
+      textoDestaque: (map['texto_destaque'] as String?)?.trim() ?? '',
+      termoDestaqueItem: (map['termo_destaque_item'] as String?)?.trim() ?? '',
     );
+  }
+
+  static double _asDouble(dynamic value, double fallback) {
+    if (value is num) return value.toDouble();
+    if (value is String) {
+      return double.tryParse(value) ?? fallback;
+    }
+    return fallback;
   }
 }
 

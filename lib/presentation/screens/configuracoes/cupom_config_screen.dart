@@ -26,8 +26,13 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
   final _mensagemTopoCtrl = TextEditingController();
   final _mensagemFinalCtrl = TextEditingController();
   final _obsPadraoCtrl = TextEditingController();
+  final _textoDestaqueCtrl = TextEditingController();
+  final _termoDestaqueItemCtrl = TextEditingController();
 
   bool _exibirDataHoraEmissao = true;
+  bool _centralizarCabecalho = true;
+  bool _centralizarRodape = true;
+  double _tamanhoFonte = 12;
   bool _loading = true;
   bool _saving = false;
 
@@ -51,6 +56,8 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
     _mensagemTopoCtrl.dispose();
     _mensagemFinalCtrl.dispose();
     _obsPadraoCtrl.dispose();
+    _textoDestaqueCtrl.dispose();
+    _termoDestaqueItemCtrl.dispose();
     super.dispose();
   }
 
@@ -71,7 +78,12 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
         _mensagemTopoCtrl.text = config.mensagemTopo;
         _mensagemFinalCtrl.text = config.mensagemFinal;
         _obsPadraoCtrl.text = config.observacaoPadrao;
+        _textoDestaqueCtrl.text = config.textoDestaque;
+        _termoDestaqueItemCtrl.text = config.termoDestaqueItem;
         _exibirDataHoraEmissao = config.exibirDataHoraEmissao;
+        _centralizarCabecalho = config.centralizarCabecalho;
+        _centralizarRodape = config.centralizarRodape;
+        _tamanhoFonte = config.tamanhoFonte;
         _loading = false;
       });
     } catch (e) {
@@ -98,6 +110,11 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
       mensagemFinal: _mensagemFinalCtrl.text,
       observacaoPadrao: _obsPadraoCtrl.text,
       exibirDataHoraEmissao: _exibirDataHoraEmissao,
+      tamanhoFonte: _tamanhoFonte,
+      centralizarCabecalho: _centralizarCabecalho,
+      centralizarRodape: _centralizarRodape,
+      textoDestaque: _textoDestaqueCtrl.text,
+      termoDestaqueItem: _termoDestaqueItemCtrl.text,
     );
   }
 
@@ -110,7 +127,8 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Configuracao do cupom salva com sucesso.')),
+          content: Text('Configuracao do cupom salva com sucesso.'),
+        ),
       );
     } catch (e) {
       if (!mounted) return;
@@ -142,7 +160,12 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
         _mensagemTopoCtrl.text = padrao.mensagemTopo;
         _mensagemFinalCtrl.text = padrao.mensagemFinal;
         _obsPadraoCtrl.text = padrao.observacaoPadrao;
+        _textoDestaqueCtrl.text = padrao.textoDestaque;
+        _termoDestaqueItemCtrl.text = padrao.termoDestaqueItem;
         _exibirDataHoraEmissao = padrao.exibirDataHoraEmissao;
+        _centralizarCabecalho = padrao.centralizarCabecalho;
+        _centralizarRodape = padrao.centralizarRodape;
+        _tamanhoFonte = padrao.tamanhoFonte;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Configuracao padrao restaurada.')),
@@ -164,20 +187,47 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
     final c = _fromForm();
     final b = StringBuffer();
 
+    void writeCenteredIf(bool shouldCenter, String text) {
+      if (text.trim().isEmpty) return;
+      if (!shouldCenter) {
+        b.writeln(text.trim());
+        return;
+      }
+      final t = text.trim();
+      if (t.length >= 32) {
+        b.writeln(t);
+        return;
+      }
+      final total = 32 - t.length;
+      final left = total ~/ 2;
+      final right = total - left;
+      b.writeln('${' ' * left}$t${' ' * right}');
+    }
+
     b.writeln(linha);
-    b.writeln(
-        '      ${c.tituloCabecalho.trim().isEmpty ? 'PIZZARIA CARROSSEL' : c.tituloCabecalho.trim()}');
-    if (c.subtituloCabecalho.trim().isNotEmpty) {
-      b.writeln('      ${c.subtituloCabecalho.trim()}');
-    }
+    writeCenteredIf(
+      c.centralizarCabecalho,
+      c.tituloCabecalho.trim().isEmpty
+          ? 'PIZZARIA CARROSSEL'
+          : c.tituloCabecalho,
+    );
+    writeCenteredIf(c.centralizarCabecalho, c.subtituloCabecalho);
     if (c.cnpj.trim().isNotEmpty) {
-      b.writeln('      CNPJ: ${c.cnpj.trim()}');
+      writeCenteredIf(c.centralizarCabecalho, 'CNPJ: ${c.cnpj}');
     }
-    if (c.enderecoLinha1.trim().isNotEmpty) {
-      b.writeln('      ${c.enderecoLinha1.trim()}');
+    writeCenteredIf(c.centralizarCabecalho, c.enderecoLinha1);
+    writeCenteredIf(c.centralizarCabecalho, c.enderecoLinha2);
+    if (c.telefone.trim().isNotEmpty) {
+      writeCenteredIf(c.centralizarCabecalho, 'TEL: ${c.telefone}');
     }
-    if (c.enderecoLinha2.trim().isNotEmpty) {
-      b.writeln('      ${c.enderecoLinha2.trim()}');
+    if (c.whatsapp.trim().isNotEmpty) {
+      writeCenteredIf(c.centralizarCabecalho, 'WHATS: ${c.whatsapp}');
+    }
+    if (c.instagram.trim().isNotEmpty) {
+      writeCenteredIf(c.centralizarCabecalho, 'INSTA: ${c.instagram}');
+    }
+    if (c.website.trim().isNotEmpty) {
+      writeCenteredIf(c.centralizarCabecalho, 'SITE: ${c.website}');
     }
     b.writeln(linha);
     if (c.exibirDataHoraEmissao) {
@@ -185,29 +235,31 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
     }
     b.writeln('Cod. Entrega : A123');
     b.writeln('Cliente      : Cliente Exemplo');
+
     if (c.mensagemTopo.trim().isNotEmpty) {
       b.writeln('MSG: ${c.mensagemTopo.trim()}');
     }
+
+    if (c.textoDestaque.trim().isNotEmpty) {
+      b.writeln('>>> ${c.textoDestaque.trim().toUpperCase()} <<<');
+    }
+
     b.writeln('...');
     if (c.observacaoPadrao.trim().isNotEmpty) {
       b.writeln('OBS: ${c.observacaoPadrao.trim()}');
     }
+
+    if (c.termoDestaqueItem.trim().isNotEmpty) {
+      b.writeln(
+          'Item com "${c.termoDestaqueItem.trim()}" sera destacado automaticamente.');
+    }
+
     b.writeln(linha);
-    b.writeln(
-        '       ${c.mensagemFinal.trim().isEmpty ? 'BOM APETITE!' : c.mensagemFinal.trim()}');
+    writeCenteredIf(
+      c.centralizarRodape,
+      c.mensagemFinal.trim().isEmpty ? 'BOM APETITE!' : c.mensagemFinal,
+    );
     b.writeln(linha);
-    if (c.telefone.trim().isNotEmpty) {
-      b.writeln('Tel: ${c.telefone.trim()}');
-    }
-    if (c.whatsapp.trim().isNotEmpty) {
-      b.writeln('WhatsApp: ${c.whatsapp.trim()}');
-    }
-    if (c.instagram.trim().isNotEmpty) {
-      b.writeln('Instagram: ${c.instagram.trim()}');
-    }
-    if (c.website.trim().isNotEmpty) {
-      b.writeln('Site: ${c.website.trim()}');
-    }
 
     return b.toString();
   }
@@ -282,8 +334,7 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
                 padding: const EdgeInsets.all(Dimensions.paddingMD),
                 children: [
                   const Text(
-                    'Edite os dados de identificacao e comunicacao do cupom da pizzaria. '
-                    'As alteracoes sao salvas no Supabase e valem para seu usuario.',
+                    'Campos vazios ficam ocultos no cupom automaticamente.',
                     style: AppTextStyles.caption,
                   ),
                   const SizedBox(height: Dimensions.spacingMD),
@@ -304,32 +355,28 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
                         controller: _subtituloCtrl,
                         label: 'Subtitulo (opcional)',
                         icon: Icons.short_text,
-                        hint: 'Ex: Unidade Centro',
                       ),
                       _campo(
                         controller: _cnpjCtrl,
                         label: 'CNPJ (opcional)',
                         icon: Icons.badge_outlined,
-                        hint: '00.000.000/0001-00',
                       ),
                     ],
                   ),
                   const SizedBox(height: Dimensions.spacingMD),
                   _secao(
                     icon: Icons.location_on_outlined,
-                    titulo: 'Endereco e Contato',
+                    titulo: 'Contato',
                     children: [
                       _campo(
                         controller: _end1Ctrl,
                         label: 'Endereco linha 1 (opcional)',
                         icon: Icons.home_outlined,
-                        hint: 'Rua, numero e bairro',
                       ),
                       _campo(
                         controller: _end2Ctrl,
                         label: 'Endereco linha 2 (opcional)',
                         icon: Icons.pin_drop_outlined,
-                        hint: 'Cidade - UF',
                       ),
                       _campo(
                         controller: _telefoneCtrl,
@@ -345,13 +392,56 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
                         controller: _instagramCtrl,
                         label: 'Instagram (opcional)',
                         icon: Icons.camera_alt_outlined,
-                        hint: '@sualoja',
                       ),
                       _campo(
                         controller: _websiteCtrl,
                         label: 'Site (opcional)',
                         icon: Icons.language_outlined,
-                        hint: 'www.seusite.com.br',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: Dimensions.spacingMD),
+                  _secao(
+                    icon: Icons.tune_outlined,
+                    titulo: 'Formatacao e Destaque',
+                    children: [
+                      Text(
+                        'Tamanho da fonte do cupom: ${_tamanhoFonte.toStringAsFixed(0)}',
+                        style: AppTextStyles.body,
+                      ),
+                      Slider(
+                        min: 9,
+                        max: 22,
+                        divisions: 13,
+                        value: _tamanhoFonte.clamp(9, 22),
+                        label: _tamanhoFonte.toStringAsFixed(0),
+                        onChanged: (v) => setState(() => _tamanhoFonte = v),
+                      ),
+                      SwitchListTile(
+                        value: _centralizarCabecalho,
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Centralizar cabecalho'),
+                        onChanged: (v) =>
+                            setState(() => _centralizarCabecalho = v),
+                      ),
+                      SwitchListTile(
+                        value: _centralizarRodape,
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Centralizar rodape'),
+                        onChanged: (v) =>
+                            setState(() => _centralizarRodape = v),
+                      ),
+                      _campo(
+                        controller: _textoDestaqueCtrl,
+                        label: 'Texto de destaque (opcional)',
+                        icon: Icons.campaign_outlined,
+                        hint: 'Ex: PROMOCAO DO DIA',
+                      ),
+                      _campo(
+                        controller: _termoDestaqueItemCtrl,
+                        label: 'Termo para destacar item (opcional)',
+                        icon: Icons.local_fire_department_outlined,
+                        hint: 'Ex: CALABRESA',
                       ),
                     ],
                   ),
@@ -364,14 +454,12 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
                         controller: _mensagemTopoCtrl,
                         label: 'Mensagem de topo (opcional)',
                         icon: Icons.north_outlined,
-                        hint: 'Ex: Pedido sujeito a disponibilidade',
                         maxLines: 2,
                       ),
                       _campo(
                         controller: _obsPadraoCtrl,
                         label: 'Observacao padrao (opcional)',
                         icon: Icons.notes_outlined,
-                        hint: 'Ex: Confira o pedido ao receber',
                         maxLines: 2,
                       ),
                       _campo(
@@ -387,13 +475,8 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
                         value: _exibirDataHoraEmissao,
                         contentPadding: EdgeInsets.zero,
                         title: const Text('Exibir data/hora de emissao'),
-                        subtitle: const Text(
-                          'Inclui no cupom o momento em que ele foi gerado.',
-                          style: AppTextStyles.caption,
-                        ),
-                        onChanged: (v) => setState(() {
-                          _exibirDataHoraEmissao = v;
-                        }),
+                        onChanged: (v) =>
+                            setState(() => _exibirDataHoraEmissao = v),
                       ),
                     ],
                   ),
@@ -415,9 +498,9 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
                             ),
                             child: Text(
                               _preview(),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: 'monospace',
-                                fontSize: 12,
+                                fontSize: _tamanhoFonte.clamp(9, 22),
                                 height: 1.4,
                               ),
                             ),
