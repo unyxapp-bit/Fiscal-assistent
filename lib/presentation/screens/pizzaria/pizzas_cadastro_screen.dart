@@ -110,17 +110,25 @@ class _PizzasCadastroScreenState extends State<PizzasCadastroScreen> {
             child: Text('Nenhuma pizza cadastrada.',
                 style: TextStyle(color: Colors.grey)),
           ),
-        ...lista.map((p) => ListTile(
+        ...lista.map(
+          (p) => Card(
+            margin: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+            child: ListTile(
+              onTap: () => _abrirFormulario(p),
               leading: CircleAvatar(
                 backgroundColor: p.ativa ? Colors.orange : Colors.grey[300],
-                child: Icon(Icons.local_pizza,
-                    color: p.ativa ? Colors.white : Colors.grey),
+                child: Icon(
+                  Icons.local_pizza,
+                  color: p.ativa ? Colors.white : Colors.grey,
+                ),
               ),
-              title: Text(p.nome,
-                  style: TextStyle(color: p.ativa ? null : Colors.grey)),
+              title: Text(
+                p.nome,
+                style: TextStyle(color: p.ativa ? null : Colors.grey),
+              ),
               subtitle: Text(
                 p.ingredientes?.trim().isNotEmpty == true
-                    ? '${p.tamanhoLabel} • ${p.ingredientes}'
+                    ? '${p.tamanhoLabel} - ${p.ingredientes}'
                     : p.tamanhoLabel,
               ),
               trailing: Row(
@@ -143,7 +151,9 @@ class _PizzasCadastroScreenState extends State<PizzasCadastroScreen> {
                   ),
                 ],
               ),
-            )),
+            ),
+          ),
+        ),
       ],
     );
   }
