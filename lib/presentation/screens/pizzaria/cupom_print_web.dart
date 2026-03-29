@@ -1,11 +1,13 @@
 // lib/modules/pizza/cupom_print_web.dart
 // Usado apenas no Flutter Web
 
+import 'dart:convert';
+
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 
 void imprimirCupom(String texto) {
-  final estilo = '''
+  const estilo = '''
     <style>
       @page {
         size: 80mm auto;
@@ -20,21 +22,24 @@ void imprimirCupom(String texto) {
     </style>
   ''';
 
-  final conteudo = texto
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;');
+  final conteudoEscapado = const HtmlEscape(HtmlEscapeMode.element).convert(
+    texto,
+  );
+  final documento = '''
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    $estilo
+  </head>
+  <body><pre>$conteudoEscapado</pre></body>
+</html>
+''';
 
-  final janela = html.window.open('', '_blank');
-  janela?.document.write('''
-    <html>
-      <head>
-        <meta charset="UTF-8">
-        $estilo
-      </head>
-      <body>$conteudo</body>
-    </html>
-  ''');
-  janela?.document.close();
-  janela?.print();
+  final url = Uri.dataFromString(
+    documento,
+    mimeType: 'text/html',
+    encoding: utf8,
+  ).toString();
+  html.window.open(url, '_blank');
 }

@@ -2,8 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'pizza_models.dart';
 import 'novo_pedido_screen.dart';
+import 'cupom_widget.dart';
+import 'pizza_models.dart';
 
 class PedidosListScreen extends StatefulWidget {
   const PedidosListScreen({super.key});
