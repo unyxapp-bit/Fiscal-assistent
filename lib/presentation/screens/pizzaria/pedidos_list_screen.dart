@@ -206,9 +206,11 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
                       )
                     : RefreshIndicator(
                         onRefresh: _carregar,
-                        child: ListView.builder(
+                        child: ListView.separated(
                           padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
                           itemCount: _pedidosFiltrados.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 2),
                           itemBuilder: (_, i) {
                             final pedido = _pedidosFiltrados[i];
                             return _CardPedido(
@@ -274,6 +276,12 @@ class _CardPedido extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
+      elevation: 2,
+      shadowColor: corStatus.withValues(alpha: 0.16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: corStatus.withValues(alpha: 0.25)),
+      ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onAbrirDetalhes,
@@ -541,20 +549,17 @@ class _DetalhesPedidoSheet extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               ...pedido.itens.map(
-                (item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.local_pizza,
-                          size: 16, color: Colors.orange),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          '${item.quantidade}x ${item.tamanhoLabel} - ${item.descricao}',
-                        ),
-                      ),
-                    ],
+                (item) => Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: ListTile(
+                    dense: true,
+                    visualDensity: VisualDensity.compact,
+                    leading:
+                        const Icon(Icons.local_pizza, color: Colors.orange),
+                    title: Text(
+                      '${item.quantidade}x ${item.tamanhoLabel} - ${item.descricao}',
+                      style: const TextStyle(fontSize: 13),
+                    ),
                   ),
                 ),
               ),
