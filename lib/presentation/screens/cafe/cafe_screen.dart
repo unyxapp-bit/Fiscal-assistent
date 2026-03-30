@@ -458,157 +458,6 @@ class _TabEmIntervalo extends StatelessWidget {
 
   const _TabEmIntervalo({required this.provider});
 
-  Future<_RetornoIntervaloEscolha?> _selecionarRetornoIntervalo(
-    BuildContext context,
-    PausaCafe pausa,
-    AlocacaoProvider alocacaoProvider,
-    CaixaProvider caixaProvider,
-  ) async {
-    final caixasAtivos = caixaProvider.caixas
-        .where((c) => c.ativo && !c.emManutencao)
-        .toList()
-      ..sort((a, b) => a.numero.compareTo(b.numero));
-
-    final caixasLivres = caixasAtivos
-        .where((c) => alocacaoProvider.getAlocacaoCaixa(c.id) == null)
-        .toList();
-    if (caixasLivres.isEmpty) {
-      if (context.mounted) {
-        AppNotif.show(
-          context,
-          titulo: 'Sem caixa disponivel',
-          mensagem:
-              'Nao ha caixa livre para o retorno pos-intervalo neste momento.',
-          tipo: 'alerta',
-          cor: AppColors.warning,
-        );
-      }
-      return null;
-    }
-
-    String? caixaSelecionadoId = caixasLivres
-        .where((c) => c.id != pausa.caixaId)
-        .map((c) => c.id)
-        .firstOrNull;
-    caixaSelecionadoId ??= caixasLivres.first.id;
-    bool permitirMesmoCaixa = false;
-    final justificativaCtrl = TextEditingController();
-
-    final resultado = await showDialog<_RetornoIntervaloEscolha>(
-      context: context,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setStateDialog) {
-            final mesmoCaixaSelecionado = pausa.caixaId != null &&
-                pausa.caixaId!.isNotEmpty &&
-                caixaSelecionadoId == pausa.caixaId;
-            final precisaJustificativa =
-                mesmoCaixaSelecionado && permitirMesmoCaixa;
-            final podeConfirmar = caixaSelecionadoId != null &&
-                (!precisaJustificativa ||
-                    justificativaCtrl.text.trim().isNotEmpty);
-
-            return AlertDialog(
-              title: const Text('Retorno do intervalo'),
-              content: SizedBox(
-                width: 420,
-                child: SingleChildScrollView(
-                  child: RadioGroup<String>(
-                    groupValue: caixaSelecionadoId,
-                    onChanged: (v) =>
-                        setStateDialog(() => caixaSelecionadoId = v),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Selecione o caixa de retorno. Regra padrao: caixa diferente.',
-                        ),
-                        const SizedBox(height: 12),
-                        ...caixasAtivos.map((caixa) {
-                          final ocupado =
-                              alocacaoProvider.getAlocacaoCaixa(caixa.id) !=
-                                  null;
-                          Widget tile = RadioListTile<String>(
-                            value: caixa.id,
-                            title: Text(caixa.nomeExibicao),
-                            subtitle:
-                                Text(ocupado ? 'Ocupado agora' : 'Disponivel'),
-                            dense: true,
-                          );
-                          if (ocupado) {
-                            tile = Opacity(
-                              opacity: 0.5,
-                              child: IgnorePointer(child: tile),
-                            );
-                          }
-                          return tile;
-                        }),
-                        if (mesmoCaixaSelecionado) ...[
-                          const SizedBox(height: 8),
-                          CheckboxListTile(
-                            contentPadding: EdgeInsets.zero,
-                            value: permitirMesmoCaixa,
-                            onChanged: (v) => setStateDialog(
-                              () => permitirMesmoCaixa = v ?? false,
-                            ),
-                            title: const Text('Permitir mesmo caixa (excecao)'),
-                            subtitle: const Text(
-                              'Use somente quando necessario na operacao.',
-                            ),
-                          ),
-                          if (permitirMesmoCaixa) ...[
-                            const SizedBox(height: 8),
-                            TextField(
-                              controller: justificativaCtrl,
-                              maxLines: 3,
-                              textCapitalization: TextCapitalization.sentences,
-                              decoration: const InputDecoration(
-                                labelText: 'Justificativa da excecao *',
-                                hintText:
-                                    'Ex: falta de operador para cobertura',
-                              ),
-                              onChanged: (_) => setStateDialog(() {}),
-                            ),
-                          ],
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Cancelar'),
-                ),
-                ElevatedButton(
-                  onPressed: !podeConfirmar
-                      ? null
-                      : () => Navigator.pop(
-                            ctx,
-                            _RetornoIntervaloEscolha(
-                              caixaDestinoId: caixaSelecionadoId!,
-                              permitirMesmoCaixa: permitirMesmoCaixa,
-                              justificativaMesmoCaixa:
-                                  justificativaCtrl.text.trim().isEmpty
-                                      ? null
-                                      : justificativaCtrl.text.trim(),
-                            ),
-                          ),
-                  child: const Text('Confirmar retorno'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-
-    justificativaCtrl.dispose();
-    return resultado;
-  }
-
   Future<void> _finalizarComRegras(
     BuildContext context,
     PausaCafe pausa,
@@ -656,21 +505,10 @@ class _TabEmIntervalo extends StatelessWidget {
       return;
     }
 
-    final escolha = await _selecionarRetornoIntervalo(
-      context,
-      pausa,
-      alocacaoProvider,
-      caixaProvider,
-    );
-    if (escolha == null) return;
-
     final erro = await provider.finalizarPausaComRegra(
       pausa: pausa,
       alocacaoProvider: alocacaoProvider,
       fiscalId: fiscalId,
-      caixaDestinoIntervaloId: escolha.caixaDestinoId,
-      permitirMesmoCaixaNoIntervalo: escolha.permitirMesmoCaixa,
-      justificativaMesmoCaixa: escolha.justificativaMesmoCaixa,
     );
 
     eventoProvider.registrar(
@@ -682,16 +520,11 @@ class _TabEmIntervalo extends StatelessWidget {
 
     if (!context.mounted) return;
     if (erro == null) {
-      final caixaDestino = caixaProvider.caixas
-          .where((c) => c.id == escolha.caixaDestinoId)
-          .firstOrNull;
-      final usouExcecao = pausa.caixaId == escolha.caixaDestinoId;
       AppNotif.show(
         context,
         titulo: 'Retorno do intervalo',
         mensagem:
-            '${pausa.colaboradorNome} realocado(a) para ${caixaDestino?.nomeExibicao ?? 'caixa'}'
-            '${usouExcecao ? ' (excecao registrada)' : ''}.',
+            '${pausa.colaboradorNome} finalizou o intervalo e agora esta disponivel para nova alocacao.',
         tipo: 'saida',
         cor: AppColors.success,
       );
@@ -792,18 +625,6 @@ class _TabEmIntervalo extends StatelessWidget {
       },
     );
   }
-}
-
-class _RetornoIntervaloEscolha {
-  final String caixaDestinoId;
-  final bool permitirMesmoCaixa;
-  final String? justificativaMesmoCaixa;
-
-  const _RetornoIntervaloEscolha({
-    required this.caixaDestinoId,
-    required this.permitirMesmoCaixa,
-    this.justificativaMesmoCaixa,
-  });
 }
 
 // ---------------------------------------------------------------------------
