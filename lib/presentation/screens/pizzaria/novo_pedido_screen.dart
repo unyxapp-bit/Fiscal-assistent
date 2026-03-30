@@ -144,6 +144,7 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
+        useSafeArea: true,
         backgroundColor: Colors.transparent,
         isDismissible: false,
         builder: (_) => CupomWidget(

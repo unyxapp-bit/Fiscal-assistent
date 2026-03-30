@@ -56,6 +56,7 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (_) => CupomWidget(
         pedido: pedido,

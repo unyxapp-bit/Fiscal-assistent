@@ -218,99 +218,128 @@ class _CupomWidgetState extends State<CupomWidget> {
     return buf.toString();
   }
 
+  Widget _buildAcoes(String texto) {
+    final copiarBtn = OutlinedButton.icon(
+      icon: const Icon(Icons.copy, size: 18),
+      label: const Text('Copiar'),
+      onPressed: _loadingConfig
+          ? null
+          : () {
+              Clipboard.setData(ClipboardData(text: texto));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Cupom copiado. Cole no WhatsApp.'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+    );
+
+    final imprimirBtn = OutlinedButton.icon(
+      icon: const Icon(Icons.print, size: 18),
+      label: const Text('Imprimir'),
+      onPressed: _loadingConfig ? null : () => imprimirCupom(texto),
+    );
+
+    final concluirBtn = FilledButton.icon(
+      icon: const Icon(Icons.check_circle_outline, size: 18),
+      label: const Text('Concluir'),
+      onPressed: widget.onFechar,
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compacto = constraints.maxWidth < 460;
+        if (compacto) {
+          return Column(
+            children: [
+              SizedBox(width: double.infinity, child: copiarBtn),
+              if (kIsWeb) ...[
+                const SizedBox(height: 8),
+                SizedBox(width: double.infinity, child: imprimirBtn),
+              ],
+              const SizedBox(height: 8),
+              SizedBox(width: double.infinity, child: concluirBtn),
+            ],
+          );
+        }
+
+        return Row(
+          children: [
+            Expanded(child: copiarBtn),
+            if (kIsWeb) ...[
+              const SizedBox(width: 8),
+              Expanded(child: imprimirBtn),
+            ],
+            const SizedBox(width: 8),
+            Expanded(child: concluirBtn),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final config = _config ?? CupomDadosConfig.padrao();
     final texto = _gerarTexto(config);
+    final alturaMaximaSheet = MediaQuery.of(context).size.height * 0.9;
 
-    return Container(
-      margin: const EdgeInsets.all(12),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
+    return SafeArea(
+      child: Container(
+        margin: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: alturaMaximaSheet),
+          child: Column(
             children: [
-              const Icon(Icons.receipt_long, color: Colors.orange),
-              const SizedBox(width: 8),
-              const Text(
-                'Cupom do Pedido',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const Spacer(),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: widget.onFechar,
-              ),
-            ],
-          ),
-          const Divider(),
-          if (_loadingConfig)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
-              child: Center(child: CircularProgressIndicator()),
-            )
-          else
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                texto,
-                style: TextStyle(
-                  fontFamily: 'monospace',
-                  fontSize: config.tamanhoFonte.clamp(9, 22),
-                  height: 1.5,
-                ),
-              ),
-            ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  icon: const Icon(Icons.copy, size: 18),
-                  label: const Text('Copiar'),
-                  onPressed: _loadingConfig
-                      ? null
-                      : () {
-                          Clipboard.setData(ClipboardData(text: texto));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Cupom copiado. Cole no WhatsApp.'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        },
-                ),
-              ),
-              const SizedBox(width: 8),
-              if (kIsWeb)
-                Expanded(
-                  child: OutlinedButton.icon(
-                    icon: const Icon(Icons.print, size: 18),
-                    label: const Text('Imprimir'),
-                    onPressed:
-                        _loadingConfig ? null : () => imprimirCupom(texto),
+              Row(
+                children: [
+                  const Icon(Icons.receipt_long, color: Colors.orange),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Cupom do Pedido',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                ),
-              if (kIsWeb) const SizedBox(width: 8),
-              Expanded(
-                child: FilledButton.icon(
-                  icon: const Icon(Icons.check_circle_outline, size: 18),
-                  label: const Text('Concluir'),
-                  onPressed: widget.onFechar,
-                ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: widget.onFechar,
+                  ),
+                ],
               ),
+              const Divider(),
+              Expanded(
+                child: _loadingConfig
+                    ? const Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            texto,
+                            style: TextStyle(
+                              fontFamily: 'monospace',
+                              fontSize: config.tamanhoFonte.clamp(9, 22),
+                              height: 1.5,
+                            ),
+                          ),
+                        ),
+                      ),
+              ),
+              const SizedBox(height: 12),
+              _buildAcoes(texto),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
