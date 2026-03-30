@@ -96,16 +96,15 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
     if (t != null) setState(() => _horario = _formatarHora(t));
   }
 
-  void _adicionarItem() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => _SeletorPizza(
-        pizzas: _pizzas,
-        onAdicionado: (item) => setState(() => _itens.add(item)),
+  Future<void> _adicionarItem() async {
+    final item = await Navigator.of(context).push<ItemPedido>(
+      MaterialPageRoute(
+        builder: (_) => _SeletorPizzaScreen(pizzas: _pizzas),
       ),
     );
+
+    if (!mounted || item == null) return;
+    setState(() => _itens.add(item));
   }
 
   Future<void> _salvar() async {
@@ -307,20 +306,19 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
 }
 
 // ============================================================
-// SELETOR DE PIZZA (bottom sheet)
+// SELETOR DE PIZZA (tela dedicada)
 // ============================================================
 
-class _SeletorPizza extends StatefulWidget {
+class _SeletorPizzaScreen extends StatefulWidget {
   final List<Pizza> pizzas;
-  final void Function(ItemPedido) onAdicionado;
 
-  const _SeletorPizza({required this.pizzas, required this.onAdicionado});
+  const _SeletorPizzaScreen({required this.pizzas});
 
   @override
-  State<_SeletorPizza> createState() => _SeletorPizzaState();
+  State<_SeletorPizzaScreen> createState() => _SeletorPizzaScreenState();
 }
 
-class _SeletorPizzaState extends State<_SeletorPizza> {
+class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
   bool _meioAMeio = false;
   bool _expandGrandes = true;
   bool _expandMedias = false;
@@ -343,7 +341,7 @@ class _SeletorPizzaState extends State<_SeletorPizza> {
 
   void _adicionar() {
     if (!_podeAdicionar) return;
-    widget.onAdicionado(ItemPedido(
+    final item = ItemPedido(
       pizzaId: _p1!.id,
       pizzaNome: _p1!.nome,
       pizzaTamanho: _p1!.tamanho,
@@ -351,8 +349,8 @@ class _SeletorPizzaState extends State<_SeletorPizza> {
       pizza2Nome: _meioAMeio ? _p2!.nome : null,
       quantidade: _qtd,
       ehMeioAMeio: _meioAMeio,
-    ));
-    Navigator.pop(context);
+    );
+    Navigator.pop(context, item);
   }
 
   Widget _pizzaCard({
@@ -495,27 +493,18 @@ class _SeletorPizzaState extends State<_SeletorPizza> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(12),
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-      ),
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: SingleChildScrollView(
+    return Scaffold(
+      appBar: AppBar(title: const Text('Adicionar Pizza')),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+          16,
+          16,
+          16,
+          MediaQuery.of(context).viewInsets.bottom + 24,
+        ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Adicionar Pizza',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-
             // Meio a meio toggle (só para grandes)
             SwitchListTile(
               title: const Text('Meio a Meio (apenas grande)'),
