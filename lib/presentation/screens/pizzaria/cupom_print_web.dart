@@ -7,12 +7,25 @@ const _escape = HtmlEscape(HtmlEscapeMode.element);
 
 void imprimirCupom(String texto) {
   final corpoHtml = _renderCupom(texto);
+  final normalizedLines = texto.replaceAll('\r\n', '\n').split('\n');
+  final ruleChars = normalizedLines
+      .map((line) => line.trim())
+      .where(
+        (line) =>
+            line.length >= 16 &&
+            (RegExp(r'^=+$').hasMatch(line) ||
+                RegExp(r'^-+$').hasMatch(line)),
+      )
+      .fold<int>(0, (max, line) => line.length > max ? line.length : max);
+  final baseChars = ruleChars > 0 ? ruleChars : 32;
+  final paperWidthMm = baseChars <= 34 ? 58 : 80;
+  final safeCupomWidthMm = paperWidthMm == 58 ? 52 : 72;
 
-  const estilo = '''
+  final estilo = '''
     <style>
       @page {
-        size: 80mm auto;
-        margin: 3mm;
+        size: ${paperWidthMm}mm auto;
+        margin: 0;
       }
 
       * {
@@ -21,14 +34,15 @@ void imprimirCupom(String texto) {
 
       body {
         margin: 0;
-        padding: 14px;
+        padding: 12px 10px;
         background: #f2f3f5;
         color: #111;
         font-family: Consolas, "Courier New", monospace;
       }
 
       .cupom {
-        width: 80mm;
+        width: min(100%, ${safeCupomWidthMm}mm);
+        max-width: ${safeCupomWidthMm}mm;
         margin: 0 auto;
         background: #fff;
         border: 1px solid #111;
@@ -79,8 +93,9 @@ void imprimirCupom(String texto) {
       }
 
       .meta {
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: baseline;
         gap: 8px;
         font-size: 12.5px;
         line-height: 1.45;
@@ -92,6 +107,9 @@ void imprimirCupom(String texto) {
 
       .meta .v {
         font-weight: 700;
+        text-align: right;
+        min-width: 0;
+        overflow-wrap: anywhere;
       }
 
       .obs {
@@ -144,12 +162,24 @@ void imprimirCupom(String texto) {
       }
 
       @media print {
+        @page {
+          size: ${paperWidthMm}mm auto;
+          margin: 0;
+        }
+
+        html,
+        body {
+          width: ${paperWidthMm}mm;
+        }
+
         body {
           background: #fff;
           padding: 0;
         }
 
         .cupom {
+          width: ${safeCupomWidthMm}mm;
+          max-width: ${safeCupomWidthMm}mm;
           border: none;
           border-radius: 0;
           box-shadow: none;
@@ -180,7 +210,12 @@ void imprimirCupom(String texto) {
     </html>
   ''';
 
-  final janela = web.window.open('', '_blank', 'width=430,height=760');
+  final previewWidthPx = paperWidthMm == 58 ? 360 : 430;
+  final janela = web.window.open(
+    '',
+    '_blank',
+    'width=$previewWidthPx,height=760',
+  );
   if (janela == null) return;
 
   janela.document.open();

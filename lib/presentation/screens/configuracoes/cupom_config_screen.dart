@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../../core/constants/text_styles.dart';
@@ -33,6 +34,8 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
   bool _centralizarCabecalho = true;
   bool _centralizarRodape = true;
   double _tamanhoFonte = 12;
+  int _previewLarguraMm = 58;
+
   bool _loading = true;
   bool _saving = false;
 
@@ -61,29 +64,43 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
     super.dispose();
   }
 
+  List<TextEditingController> get _allControllers => [
+        _tituloCtrl,
+        _subtituloCtrl,
+        _cnpjCtrl,
+        _end1Ctrl,
+        _end2Ctrl,
+        _telefoneCtrl,
+        _whatsappCtrl,
+        _instagramCtrl,
+        _websiteCtrl,
+        _mensagemTopoCtrl,
+        _mensagemFinalCtrl,
+        _obsPadraoCtrl,
+        _textoDestaqueCtrl,
+        _termoDestaqueItemCtrl,
+      ];
+
+  int get _camposPreenchidos =>
+      _allControllers.where((c) => c.text.trim().isNotEmpty).length;
+
+  int get _totalCampos => _allControllers.length;
+
+  int get _larguraPreviewChars => _previewLarguraMm == 58 ? 32 : 42;
+
+  String get _nivelConfiguracao {
+    if (_camposPreenchidos >= 11) return 'Configuracao completa';
+    if (_camposPreenchidos >= 7) return 'Configuracao avancada';
+    return 'Configuracao basica';
+  }
+
   Future<void> _carregar() async {
     try {
       final config = await CupomConfigService.carregar();
       if (!mounted) return;
+
       setState(() {
-        _tituloCtrl.text = config.tituloCabecalho;
-        _subtituloCtrl.text = config.subtituloCabecalho;
-        _cnpjCtrl.text = config.cnpj;
-        _end1Ctrl.text = config.enderecoLinha1;
-        _end2Ctrl.text = config.enderecoLinha2;
-        _telefoneCtrl.text = config.telefone;
-        _whatsappCtrl.text = config.whatsapp;
-        _instagramCtrl.text = config.instagram;
-        _websiteCtrl.text = config.website;
-        _mensagemTopoCtrl.text = config.mensagemTopo;
-        _mensagemFinalCtrl.text = config.mensagemFinal;
-        _obsPadraoCtrl.text = config.observacaoPadrao;
-        _textoDestaqueCtrl.text = config.textoDestaque;
-        _termoDestaqueItemCtrl.text = config.termoDestaqueItem;
-        _exibirDataHoraEmissao = config.exibirDataHoraEmissao;
-        _centralizarCabecalho = config.centralizarCabecalho;
-        _centralizarRodape = config.centralizarRodape;
-        _tamanhoFonte = config.tamanhoFonte;
+        _aplicarConfig(config);
         _loading = false;
       });
     } catch (e) {
@@ -93,6 +110,27 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
         SnackBar(content: Text('Erro ao carregar configuracao: $e')),
       );
     }
+  }
+
+  void _aplicarConfig(CupomDadosConfig config) {
+    _tituloCtrl.text = config.tituloCabecalho;
+    _subtituloCtrl.text = config.subtituloCabecalho;
+    _cnpjCtrl.text = config.cnpj;
+    _end1Ctrl.text = config.enderecoLinha1;
+    _end2Ctrl.text = config.enderecoLinha2;
+    _telefoneCtrl.text = config.telefone;
+    _whatsappCtrl.text = config.whatsapp;
+    _instagramCtrl.text = config.instagram;
+    _websiteCtrl.text = config.website;
+    _mensagemTopoCtrl.text = config.mensagemTopo;
+    _mensagemFinalCtrl.text = config.mensagemFinal;
+    _obsPadraoCtrl.text = config.observacaoPadrao;
+    _textoDestaqueCtrl.text = config.textoDestaque;
+    _termoDestaqueItemCtrl.text = config.termoDestaqueItem;
+    _exibirDataHoraEmissao = config.exibirDataHoraEmissao;
+    _centralizarCabecalho = config.centralizarCabecalho;
+    _centralizarRodape = config.centralizarRodape;
+    _tamanhoFonte = config.tamanhoFonte;
   }
 
   CupomDadosConfig _fromForm() {
@@ -147,26 +185,11 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
     try {
       final padrao = await CupomConfigService.restaurarPadrao();
       if (!mounted) return;
+
       setState(() {
-        _tituloCtrl.text = padrao.tituloCabecalho;
-        _subtituloCtrl.text = padrao.subtituloCabecalho;
-        _cnpjCtrl.text = padrao.cnpj;
-        _end1Ctrl.text = padrao.enderecoLinha1;
-        _end2Ctrl.text = padrao.enderecoLinha2;
-        _telefoneCtrl.text = padrao.telefone;
-        _whatsappCtrl.text = padrao.whatsapp;
-        _instagramCtrl.text = padrao.instagram;
-        _websiteCtrl.text = padrao.website;
-        _mensagemTopoCtrl.text = padrao.mensagemTopo;
-        _mensagemFinalCtrl.text = padrao.mensagemFinal;
-        _obsPadraoCtrl.text = padrao.observacaoPadrao;
-        _textoDestaqueCtrl.text = padrao.textoDestaque;
-        _termoDestaqueItemCtrl.text = padrao.termoDestaqueItem;
-        _exibirDataHoraEmissao = padrao.exibirDataHoraEmissao;
-        _centralizarCabecalho = padrao.centralizarCabecalho;
-        _centralizarRodape = padrao.centralizarRodape;
-        _tamanhoFonte = padrao.tamanhoFonte;
+        _aplicarConfig(padrao);
       });
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Configuracao padrao restaurada.')),
       );
@@ -182,84 +205,107 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
     }
   }
 
+  String _duasCasas(int valor) => valor.toString().padLeft(2, '0');
+
+  String _centralizar(String texto, int largura) {
+    final t = texto.trim();
+    if (t.isEmpty || t.length >= largura) return t;
+    final total = largura - t.length;
+    final left = total ~/ 2;
+    final right = total - left;
+    return '${' ' * left}$t${' ' * right}';
+  }
+
+  String _linhaRegua(String simbolo) => simbolo * _larguraPreviewChars;
+
   String _preview() {
-    const linha = '================================';
     final c = _fromForm();
     final b = StringBuffer();
+    final agora = DateTime.now();
 
-    void writeCenteredIf(bool shouldCenter, String text) {
-      if (text.trim().isEmpty) return;
-      if (!shouldCenter) {
-        b.writeln(text.trim());
-        return;
-      }
+    void writeCabecalho(String text) {
       final t = text.trim();
-      if (t.length >= 32) {
-        b.writeln(t);
-        return;
-      }
-      final total = 32 - t.length;
-      final left = total ~/ 2;
-      final right = total - left;
-      b.writeln('${' ' * left}$t${' ' * right}');
+      if (t.isEmpty) return;
+      b.writeln(
+          c.centralizarCabecalho ? _centralizar(t, _larguraPreviewChars) : t);
     }
 
-    b.writeln(linha);
-    writeCenteredIf(
-      c.centralizarCabecalho,
+    b.writeln(_linhaRegua('='));
+    writeCabecalho(
       c.tituloCabecalho.trim().isEmpty
           ? 'PIZZARIA CARROSSEL'
           : c.tituloCabecalho,
     );
-    writeCenteredIf(c.centralizarCabecalho, c.subtituloCabecalho);
+    writeCabecalho(c.subtituloCabecalho);
     if (c.cnpj.trim().isNotEmpty) {
-      writeCenteredIf(c.centralizarCabecalho, 'CNPJ: ${c.cnpj}');
+      writeCabecalho('CNPJ: ${c.cnpj.trim()}');
     }
-    writeCenteredIf(c.centralizarCabecalho, c.enderecoLinha1);
-    writeCenteredIf(c.centralizarCabecalho, c.enderecoLinha2);
+    writeCabecalho(c.enderecoLinha1);
+    writeCabecalho(c.enderecoLinha2);
     if (c.telefone.trim().isNotEmpty) {
-      writeCenteredIf(c.centralizarCabecalho, 'TEL: ${c.telefone}');
+      writeCabecalho('TEL: ${c.telefone.trim()}');
     }
     if (c.whatsapp.trim().isNotEmpty) {
-      writeCenteredIf(c.centralizarCabecalho, 'WHATS: ${c.whatsapp}');
+      writeCabecalho('WHATS: ${c.whatsapp.trim()}');
     }
     if (c.instagram.trim().isNotEmpty) {
-      writeCenteredIf(c.centralizarCabecalho, 'INSTA: ${c.instagram}');
+      writeCabecalho('INSTA: ${c.instagram.trim()}');
     }
     if (c.website.trim().isNotEmpty) {
-      writeCenteredIf(c.centralizarCabecalho, 'SITE: ${c.website}');
+      writeCabecalho('SITE: ${c.website.trim()}');
     }
-    b.writeln(linha);
+    b.writeln(_linhaRegua('='));
+
     if (c.exibirDataHoraEmissao) {
-      b.writeln('Emissao      : 29/03/2026 18:30');
+      final data =
+          '${_duasCasas(agora.day)}/${_duasCasas(agora.month)}/${agora.year} ${_duasCasas(agora.hour)}:${_duasCasas(agora.minute)}';
+      b.writeln('Emissao      : $data');
     }
+
     b.writeln('Cod. Entrega : A123');
+    b.writeln('Data         : 30/03/2026');
+    b.writeln('Horario      : 20:45');
     b.writeln('Cliente      : Cliente Exemplo');
+    b.writeln(_linhaRegua('-'));
 
     if (c.mensagemTopo.trim().isNotEmpty) {
       b.writeln('MSG: ${c.mensagemTopo.trim()}');
+      b.writeln(_linhaRegua('-'));
     }
 
     if (c.textoDestaque.trim().isNotEmpty) {
       b.writeln('>>> ${c.textoDestaque.trim().toUpperCase()} <<<');
+      b.writeln(_linhaRegua('-'));
     }
 
-    b.writeln('...');
+    b.writeln('ITENS:');
+    b.writeln(_linhaRegua('-'));
+    b.writeln('1x Pizza GRANDE');
+    b.writeln('   Romana');
+    b.writeln('1x Pizza MEDIA (Meio a Meio)');
+    b.writeln('   1/2 Calabresa');
+    b.writeln('   1/2 Frango c/ Catupiry');
+
+    if (c.termoDestaqueItem.trim().isNotEmpty) {
+      b.writeln(_linhaRegua('-'));
+      b.writeln(
+        'Item com "${c.termoDestaqueItem.trim()}" sera destacado automatico.',
+      );
+    }
+
     if (c.observacaoPadrao.trim().isNotEmpty) {
+      b.writeln(_linhaRegua('-'));
       b.writeln('OBS: ${c.observacaoPadrao.trim()}');
     }
 
-    if (c.termoDestaqueItem.trim().isNotEmpty) {
-      b.writeln(
-          'Item com "${c.termoDestaqueItem.trim()}" sera destacado automaticamente.');
-    }
-
-    b.writeln(linha);
-    writeCenteredIf(
-      c.centralizarRodape,
-      c.mensagemFinal.trim().isEmpty ? 'BOM APETITE!' : c.mensagemFinal,
-    );
-    b.writeln(linha);
+    b.writeln(_linhaRegua('='));
+    final rodape = c.mensagemFinal.trim().isEmpty
+        ? 'BOM APETITE!'
+        : c.mensagemFinal.trim();
+    b.writeln(c.centralizarRodape
+        ? _centralizar(rodape, _larguraPreviewChars)
+        : rodape);
+    b.writeln(_linhaRegua('='));
 
     return b.toString();
   }
@@ -267,6 +313,7 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
   Widget _secao({
     required IconData icon,
     required String titulo,
+    required String descricao,
     required List<Widget> children,
   }) {
     return Card(
@@ -279,9 +326,11 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
               children: [
                 Icon(icon, color: AppColors.primary),
                 const SizedBox(width: 8),
-                Text(titulo, style: AppTextStyles.h4),
+                Expanded(child: Text(titulo, style: AppTextStyles.h4)),
               ],
             ),
+            const SizedBox(height: 4),
+            Text(descricao, style: AppTextStyles.caption),
             const SizedBox(height: Dimensions.spacingMD),
             ...children,
           ],
@@ -317,6 +366,382 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
     );
   }
 
+  Widget _switchTile({
+    required bool value,
+    required String title,
+    required String subtitle,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return SwitchListTile.adaptive(
+      value: value,
+      contentPadding: EdgeInsets.zero,
+      title: Text(title, style: AppTextStyles.body),
+      subtitle: Text(subtitle, style: AppTextStyles.caption),
+      onChanged: (v) {
+        setState(() => onChanged(v));
+      },
+    );
+  }
+
+  Widget _statusChip({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.secondary,
+        borderRadius: BorderRadius.circular(Dimensions.radiusSM),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: AppColors.primary),
+          const SizedBox(width: 6),
+          Text('$label: ', style: AppTextStyles.caption),
+          Text(value, style: AppTextStyles.label),
+        ],
+      ),
+    );
+  }
+
+  Widget _resumoConfig() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(Dimensions.paddingMD),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.secondary,
+                    borderRadius: BorderRadius.circular(Dimensions.radiusSM),
+                  ),
+                  child: const Icon(Icons.receipt_long_outlined,
+                      color: AppColors.primary),
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Configuracao do Cupom', style: AppTextStyles.h4),
+                      Text(
+                        'Campos vazios ficam ocultos automaticamente na impressao.',
+                        style: AppTextStyles.caption,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: Dimensions.spacingMD),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _statusChip(
+                  icon: Icons.checklist_outlined,
+                  label: 'Preenchimento',
+                  value: '$_camposPreenchidos/$_totalCampos',
+                ),
+                _statusChip(
+                  icon: Icons.stars_outlined,
+                  label: 'Nivel',
+                  value: _nivelConfiguracao,
+                ),
+                _statusChip(
+                  icon: Icons.text_fields,
+                  label: 'Fonte',
+                  value: '${_tamanhoFonte.toStringAsFixed(0)} pt',
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _configuracaoVisual() {
+    return _secao(
+      icon: Icons.tune_outlined,
+      titulo: 'Visual e Impressao',
+      descricao: 'Ajuste tipografia, alinhamento e simulacao de bobina.',
+      children: [
+        Text(
+          'Tamanho da fonte: ${_tamanhoFonte.toStringAsFixed(0)}',
+          style: AppTextStyles.body,
+        ),
+        Slider(
+          min: 9,
+          max: 22,
+          divisions: 13,
+          value: _tamanhoFonte.clamp(9, 22),
+          label: _tamanhoFonte.toStringAsFixed(0),
+          onChanged: (v) => setState(() => _tamanhoFonte = v),
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          'Simulacao de largura da bobina',
+          style: AppTextStyles.label,
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          children: [
+            ChoiceChip(
+              label: const Text('58mm (mais comum)'),
+              selected: _previewLarguraMm == 58,
+              onSelected: (_) => setState(() => _previewLarguraMm = 58),
+            ),
+            ChoiceChip(
+              label: const Text('80mm'),
+              selected: _previewLarguraMm == 80,
+              onSelected: (_) => setState(() => _previewLarguraMm = 80),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'A impressao web usa ajuste automatico para reduzir corte lateral.',
+          style: AppTextStyles.caption,
+        ),
+        const Divider(height: 24),
+        _switchTile(
+          value: _centralizarCabecalho,
+          title: 'Centralizar cabecalho',
+          subtitle: 'Centraliza titulo, subtitulo e dados de contato.',
+          onChanged: (v) => _centralizarCabecalho = v,
+        ),
+        _switchTile(
+          value: _centralizarRodape,
+          title: 'Centralizar rodape',
+          subtitle: 'Centraliza a mensagem final de encerramento.',
+          onChanged: (v) => _centralizarRodape = v,
+        ),
+        _campo(
+          controller: _textoDestaqueCtrl,
+          label: 'Texto de destaque (opcional)',
+          icon: Icons.campaign_outlined,
+          hint: 'Ex: PROMOCAO DO DIA',
+        ),
+        _campo(
+          controller: _termoDestaqueItemCtrl,
+          label: 'Termo para destacar item (opcional)',
+          icon: Icons.local_fire_department_outlined,
+          hint: 'Ex: CALABRESA',
+        ),
+      ],
+    );
+  }
+
+  Widget _mensagensRegras() {
+    return _secao(
+      icon: Icons.message_outlined,
+      titulo: 'Mensagens e Regras',
+      descricao: 'Defina mensagens operacionais e comportamento do cupom.',
+      children: [
+        _campo(
+          controller: _mensagemTopoCtrl,
+          label: 'Mensagem de topo (opcional)',
+          icon: Icons.north_outlined,
+          maxLines: 2,
+        ),
+        _campo(
+          controller: _obsPadraoCtrl,
+          label: 'Observacao padrao (opcional)',
+          icon: Icons.notes_outlined,
+          maxLines: 2,
+        ),
+        _campo(
+          controller: _mensagemFinalCtrl,
+          label: 'Mensagem final',
+          icon: Icons.celebration_outlined,
+          maxLines: 2,
+          validator: (v) => (v == null || v.trim().isEmpty)
+              ? 'Informe a mensagem final.'
+              : null,
+        ),
+        _switchTile(
+          value: _exibirDataHoraEmissao,
+          title: 'Exibir data/hora de emissao',
+          subtitle: 'Ajuda no controle de pedidos e conferencias.',
+          onChanged: (v) => _exibirDataHoraEmissao = v,
+        ),
+      ],
+    );
+  }
+
+  Widget _previewCard() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(Dimensions.paddingMD),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.visibility_outlined, color: AppColors.primary),
+                const SizedBox(width: 8),
+                const Expanded(
+                    child: Text('Preview do Cupom', style: AppTextStyles.h4)),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.alertInfo,
+                    borderRadius: BorderRadius.circular(Dimensions.radiusSM),
+                    border: Border.all(color: AppColors.cardBorder),
+                  ),
+                  child: Text(
+                    '$_previewLarguraMm mm',
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Simulacao visual do texto final que sera usado na impressao.',
+              style: AppTextStyles.caption,
+            ),
+            const SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.cardBorder),
+              ),
+              child: Text(
+                _preview(),
+                style: TextStyle(
+                  fontFamily: 'monospace',
+                  fontSize: _tamanhoFonte.clamp(9, 22),
+                  height: 1.4,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _acoesRodape() {
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: _saving ? null : _restaurarPadrao,
+            icon: const Icon(Icons.refresh),
+            label: const Text('Restaurar'),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: FilledButton.icon(
+            onPressed: _saving ? null : _salvar,
+            icon: _saving
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Icon(Icons.save_outlined),
+            label: const Text('Salvar'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<Widget> _buildFormularioSecoes() {
+    return [
+      _secao(
+        icon: Icons.store_outlined,
+        titulo: 'Identificacao da Loja',
+        descricao: 'Dados exibidos no cabecalho do cupom.',
+        children: [
+          _campo(
+            controller: _tituloCtrl,
+            label: 'Titulo do cabecalho',
+            icon: Icons.storefront_outlined,
+            textCapitalization: TextCapitalization.characters,
+            validator: (v) => (v == null || v.trim().isEmpty)
+                ? 'Informe o titulo da loja.'
+                : null,
+          ),
+          _campo(
+            controller: _subtituloCtrl,
+            label: 'Subtitulo (opcional)',
+            icon: Icons.short_text,
+          ),
+          _campo(
+            controller: _cnpjCtrl,
+            label: 'CNPJ (opcional)',
+            icon: Icons.badge_outlined,
+          ),
+        ],
+      ),
+      const SizedBox(height: Dimensions.spacingMD),
+      _secao(
+        icon: Icons.location_on_outlined,
+        titulo: 'Endereco e Contato',
+        descricao: 'Informacoes para cliente e canais de atendimento.',
+        children: [
+          _campo(
+            controller: _end1Ctrl,
+            label: 'Endereco linha 1 (opcional)',
+            icon: Icons.home_outlined,
+          ),
+          _campo(
+            controller: _end2Ctrl,
+            label: 'Endereco linha 2 (opcional)',
+            icon: Icons.pin_drop_outlined,
+          ),
+          _campo(
+            controller: _telefoneCtrl,
+            label: 'Telefone (opcional)',
+            icon: Icons.call_outlined,
+          ),
+          _campo(
+            controller: _whatsappCtrl,
+            label: 'WhatsApp (opcional)',
+            icon: Icons.chat_outlined,
+          ),
+          _campo(
+            controller: _instagramCtrl,
+            label: 'Instagram (opcional)',
+            icon: Icons.camera_alt_outlined,
+          ),
+          _campo(
+            controller: _websiteCtrl,
+            label: 'Site (opcional)',
+            icon: Icons.language_outlined,
+          ),
+        ],
+      ),
+      const SizedBox(height: Dimensions.spacingMD),
+      _configuracaoVisual(),
+      const SizedBox(height: Dimensions.spacingMD),
+      _mensagensRegras(),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -330,215 +755,69 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Form(
               key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.all(Dimensions.paddingMD),
-                children: [
-                  const Text(
-                    'Campos vazios ficam ocultos no cupom automaticamente.',
-                    style: AppTextStyles.caption,
-                  ),
-                  const SizedBox(height: Dimensions.spacingMD),
-                  _secao(
-                    icon: Icons.store_outlined,
-                    titulo: 'Identificacao',
-                    children: [
-                      _campo(
-                        controller: _tituloCtrl,
-                        label: 'Titulo do cabecalho',
-                        icon: Icons.storefront_outlined,
-                        textCapitalization: TextCapitalization.characters,
-                        validator: (v) => (v == null || v.trim().isEmpty)
-                            ? 'Informe o titulo da loja.'
-                            : null,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final horizontalPad = Dimensions.hPad(constraints.maxWidth);
+                  final secoes = _buildFormularioSecoes();
+                  final isWide = constraints.maxWidth >= 1080;
+
+                  if (isWide) {
+                    return SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(
+                        horizontalPad,
+                        Dimensions.paddingMD,
+                        horizontalPad,
+                        Dimensions.paddingLG,
                       ),
-                      _campo(
-                        controller: _subtituloCtrl,
-                        label: 'Subtitulo (opcional)',
-                        icon: Icons.short_text,
-                      ),
-                      _campo(
-                        controller: _cnpjCtrl,
-                        label: 'CNPJ (opcional)',
-                        icon: Icons.badge_outlined,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: Dimensions.spacingMD),
-                  _secao(
-                    icon: Icons.location_on_outlined,
-                    titulo: 'Contato',
-                    children: [
-                      _campo(
-                        controller: _end1Ctrl,
-                        label: 'Endereco linha 1 (opcional)',
-                        icon: Icons.home_outlined,
-                      ),
-                      _campo(
-                        controller: _end2Ctrl,
-                        label: 'Endereco linha 2 (opcional)',
-                        icon: Icons.pin_drop_outlined,
-                      ),
-                      _campo(
-                        controller: _telefoneCtrl,
-                        label: 'Telefone (opcional)',
-                        icon: Icons.call_outlined,
-                      ),
-                      _campo(
-                        controller: _whatsappCtrl,
-                        label: 'WhatsApp (opcional)',
-                        icon: Icons.chat_outlined,
-                      ),
-                      _campo(
-                        controller: _instagramCtrl,
-                        label: 'Instagram (opcional)',
-                        icon: Icons.camera_alt_outlined,
-                      ),
-                      _campo(
-                        controller: _websiteCtrl,
-                        label: 'Site (opcional)',
-                        icon: Icons.language_outlined,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: Dimensions.spacingMD),
-                  _secao(
-                    icon: Icons.tune_outlined,
-                    titulo: 'Formatacao e Destaque',
-                    children: [
-                      Text(
-                        'Tamanho da fonte do cupom: ${_tamanhoFonte.toStringAsFixed(0)}',
-                        style: AppTextStyles.body,
-                      ),
-                      Slider(
-                        min: 9,
-                        max: 22,
-                        divisions: 13,
-                        value: _tamanhoFonte.clamp(9, 22),
-                        label: _tamanhoFonte.toStringAsFixed(0),
-                        onChanged: (v) => setState(() => _tamanhoFonte = v),
-                      ),
-                      SwitchListTile(
-                        value: _centralizarCabecalho,
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text('Centralizar cabecalho'),
-                        onChanged: (v) =>
-                            setState(() => _centralizarCabecalho = v),
-                      ),
-                      SwitchListTile(
-                        value: _centralizarRodape,
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text('Centralizar rodape'),
-                        onChanged: (v) =>
-                            setState(() => _centralizarRodape = v),
-                      ),
-                      _campo(
-                        controller: _textoDestaqueCtrl,
-                        label: 'Texto de destaque (opcional)',
-                        icon: Icons.campaign_outlined,
-                        hint: 'Ex: PROMOCAO DO DIA',
-                      ),
-                      _campo(
-                        controller: _termoDestaqueItemCtrl,
-                        label: 'Termo para destacar item (opcional)',
-                        icon: Icons.local_fire_department_outlined,
-                        hint: 'Ex: CALABRESA',
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: Dimensions.spacingMD),
-                  _secao(
-                    icon: Icons.message_outlined,
-                    titulo: 'Mensagens e Regras',
-                    children: [
-                      _campo(
-                        controller: _mensagemTopoCtrl,
-                        label: 'Mensagem de topo (opcional)',
-                        icon: Icons.north_outlined,
-                        maxLines: 2,
-                      ),
-                      _campo(
-                        controller: _obsPadraoCtrl,
-                        label: 'Observacao padrao (opcional)',
-                        icon: Icons.notes_outlined,
-                        maxLines: 2,
-                      ),
-                      _campo(
-                        controller: _mensagemFinalCtrl,
-                        label: 'Mensagem final',
-                        icon: Icons.celebration_outlined,
-                        maxLines: 2,
-                        validator: (v) => (v == null || v.trim().isEmpty)
-                            ? 'Informe a mensagem final.'
-                            : null,
-                      ),
-                      SwitchListTile(
-                        value: _exibirDataHoraEmissao,
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text('Exibir data/hora de emissao'),
-                        onChanged: (v) =>
-                            setState(() => _exibirDataHoraEmissao = v),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: Dimensions.spacingMD),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(Dimensions.paddingMD),
-                      child: Column(
+                      child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Preview', style: AppTextStyles.h4),
-                          const SizedBox(height: 8),
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[100],
-                              borderRadius: BorderRadius.circular(8),
+                          Expanded(
+                            flex: 3,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                _resumoConfig(),
+                                const SizedBox(height: Dimensions.spacingMD),
+                                ...secoes,
+                                const SizedBox(height: Dimensions.spacingMD),
+                                _acoesRodape(),
+                              ],
                             ),
-                            child: Text(
-                              _preview(),
-                              style: TextStyle(
-                                fontFamily: 'monospace',
-                                fontSize: _tamanhoFonte.clamp(9, 22),
-                                height: 1.4,
-                              ),
+                          ),
+                          const SizedBox(width: Dimensions.spacingMD),
+                          Expanded(
+                            flex: 2,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                _previewCard(),
+                              ],
                             ),
                           ),
                         ],
                       ),
+                    );
+                  }
+
+                  return ListView(
+                    padding: EdgeInsets.fromLTRB(
+                      horizontalPad,
+                      Dimensions.paddingMD,
+                      horizontalPad,
+                      Dimensions.paddingLG,
                     ),
-                  ),
-                  const SizedBox(height: Dimensions.spacingMD),
-                  Row(
                     children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: _saving ? null : _restaurarPadrao,
-                          icon: const Icon(Icons.refresh),
-                          label: const Text('Restaurar'),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: FilledButton.icon(
-                          onPressed: _saving ? null : _salvar,
-                          icon: _saving
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : const Icon(Icons.save_outlined),
-                          label: const Text('Salvar'),
-                        ),
-                      ),
+                      _resumoConfig(),
+                      const SizedBox(height: Dimensions.spacingMD),
+                      ...secoes,
+                      const SizedBox(height: Dimensions.spacingMD),
+                      _previewCard(),
+                      const SizedBox(height: Dimensions.spacingMD),
+                      _acoesRodape(),
                     ],
-                  ),
-                ],
+                  );
+                },
               ),
             ),
     );
