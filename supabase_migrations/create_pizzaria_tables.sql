@@ -24,8 +24,12 @@ CREATE TABLE pizzas (
 -- ------------------------------------------------------------
 CREATE TABLE pedidos_pizza (
   id              uuid           PRIMARY KEY DEFAULT gen_random_uuid(),
-  nome_cliente    text           NOT NULL,
-  codigo_entrega  text           NOT NULL,
+  nome_cliente    text,
+  codigo_entrega  text,
+  endereco        text,
+  bairro          text,
+  telefone        text,
+  referencia      text,
   data_pedido     date           NOT NULL DEFAULT CURRENT_DATE,
   horario_pedido  time           NOT NULL DEFAULT CURRENT_TIME,
   observacoes     text,

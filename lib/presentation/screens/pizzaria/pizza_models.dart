@@ -73,8 +73,12 @@ class ItemPedido {
 
 class PedidoPizza {
   final String? id;
-  final String nomeCliente;
-  final String codigoEntrega;
+  final String? nomeCliente;
+  final String? codigoEntrega;
+  final String? endereco;
+  final String? bairro;
+  final String? telefone;
+  final String? referencia;
   final DateTime dataPedido;
   final String horarioPedido; // "HH:mm"
   final String? observacoes;
@@ -83,8 +87,12 @@ class PedidoPizza {
 
   PedidoPizza({
     this.id,
-    required this.nomeCliente,
-    required this.codigoEntrega,
+    this.nomeCliente,
+    this.codigoEntrega,
+    this.endereco,
+    this.bairro,
+    this.telefone,
+    this.referencia,
     required this.dataPedido,
     required this.horarioPedido,
     this.observacoes,
@@ -95,11 +103,15 @@ class PedidoPizza {
   factory PedidoPizza.fromMap(Map<String, dynamic> m, List<ItemPedido> itens) {
     return PedidoPizza(
       id: m['id'],
-      nomeCliente: m['nome_cliente'],
-      codigoEntrega: m['codigo_entrega'],
+      nomeCliente: m['nome_cliente'] as String?,
+      codigoEntrega: m['codigo_entrega'] as String?,
+      endereco: m['endereco'] as String?,
+      bairro: m['bairro'] as String?,
+      telefone: m['telefone'] as String?,
+      referencia: m['referencia'] as String?,
       dataPedido: DateTime.parse(m['data_pedido']),
       horarioPedido: (m['horario_pedido'] as String).substring(0, 5),
-      observacoes: m['observacoes'],
+      observacoes: m['observacoes'] as String?,
       status: m['status'],
       itens: itens,
     );
@@ -111,6 +123,44 @@ class PedidoPizza {
 // ============================================================
 
 class PizzaService {
+  static String _textoObrigatorio(String? valor) => (valor ?? '').trim();
+
+  static String? _textoOpcional(String? valor) {
+    final t = valor?.trim();
+    if (t == null || t.isEmpty) return null;
+    return t;
+  }
+
+  static bool _erroColunaInexistente(Object erro) {
+    final msg = erro.toString().toLowerCase();
+    return msg.contains('column') && msg.contains('does not exist');
+  }
+
+  static Map<String, dynamic> _payloadPedido(
+    PedidoPizza pedido, {
+    bool incluirCamposNovos = true,
+  }) {
+    final payload = <String, dynamic>{
+      'nome_cliente': _textoObrigatorio(pedido.nomeCliente),
+      'codigo_entrega': _textoObrigatorio(pedido.codigoEntrega),
+      'data_pedido': pedido.dataPedido.toIso8601String().substring(0, 10),
+      'horario_pedido': pedido.horarioPedido,
+      'observacoes': _textoOpcional(pedido.observacoes),
+      'status': pedido.status,
+    };
+
+    if (incluirCamposNovos) {
+      payload.addAll({
+        'endereco': _textoOpcional(pedido.endereco),
+        'bairro': _textoOpcional(pedido.bairro),
+        'telefone': _textoOpcional(pedido.telefone),
+        'referencia': _textoOpcional(pedido.referencia),
+      });
+    }
+
+    return payload;
+  }
+
   // ---------- PIZZAS ----------
 
   static Future<List<Pizza>> listarPizzas({bool somenteAtivas = true}) async {
@@ -182,18 +232,21 @@ class PizzaService {
   }
 
   static Future<String> criarPedido(PedidoPizza pedido) async {
-    final result = await _db
-        .from('pedidos_pizza')
-        .insert({
-          'nome_cliente': pedido.nomeCliente,
-          'codigo_entrega': pedido.codigoEntrega,
-          'data_pedido': pedido.dataPedido.toIso8601String().substring(0, 10),
-          'horario_pedido': pedido.horarioPedido,
-          'observacoes': pedido.observacoes,
-          'status': pedido.status,
-        })
-        .select()
-        .single();
+    dynamic result;
+    try {
+      result = await _db
+          .from('pedidos_pizza')
+          .insert(_payloadPedido(pedido))
+          .select()
+          .single();
+    } catch (e) {
+      if (!_erroColunaInexistente(e)) rethrow;
+      result = await _db
+          .from('pedidos_pizza')
+          .insert(_payloadPedido(pedido, incluirCamposNovos: false))
+          .select()
+          .single();
+    }
 
     final pedidoId = result['id'] as String;
 
@@ -217,14 +270,18 @@ class PizzaService {
 
     final pedidoId = pedido.id!;
 
-    await _db.from('pedidos_pizza').update({
-      'nome_cliente': pedido.nomeCliente,
-      'codigo_entrega': pedido.codigoEntrega,
-      'data_pedido': pedido.dataPedido.toIso8601String().substring(0, 10),
-      'horario_pedido': pedido.horarioPedido,
-      'observacoes': pedido.observacoes,
-      'status': pedido.status,
-    }).eq('id', pedidoId);
+    try {
+      await _db
+          .from('pedidos_pizza')
+          .update(_payloadPedido(pedido))
+          .eq('id', pedidoId);
+    } catch (e) {
+      if (!_erroColunaInexistente(e)) rethrow;
+      await _db
+          .from('pedidos_pizza')
+          .update(_payloadPedido(pedido, incluirCamposNovos: false))
+          .eq('id', pedidoId);
+    }
 
     await _db.from('itens_pedido').delete().eq('pedido_id', pedidoId);
 

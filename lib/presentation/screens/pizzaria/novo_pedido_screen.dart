@@ -19,6 +19,10 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nomeCtrl = TextEditingController();
   final _codigoCtrl = TextEditingController();
+  final _enderecoCtrl = TextEditingController();
+  final _bairroCtrl = TextEditingController();
+  final _telefoneCtrl = TextEditingController();
+  final _referenciaCtrl = TextEditingController();
   final _obsCtrl = TextEditingController();
 
   DateTime _data = DateTime.now();
@@ -35,8 +39,12 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
     super.initState();
     if (_isEdicao) {
       final pedido = widget.pedidoExistente!;
-      _nomeCtrl.text = pedido.nomeCliente;
-      _codigoCtrl.text = pedido.codigoEntrega;
+      _nomeCtrl.text = pedido.nomeCliente ?? '';
+      _codigoCtrl.text = pedido.codigoEntrega ?? '';
+      _enderecoCtrl.text = pedido.endereco ?? '';
+      _bairroCtrl.text = pedido.bairro ?? '';
+      _telefoneCtrl.text = pedido.telefone ?? '';
+      _referenciaCtrl.text = pedido.referencia ?? '';
       _obsCtrl.text = pedido.observacoes ?? '';
       _data = pedido.dataPedido;
       _horario = pedido.horarioPedido;
@@ -63,6 +71,10 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
   void dispose() {
     _nomeCtrl.dispose();
     _codigoCtrl.dispose();
+    _enderecoCtrl.dispose();
+    _bairroCtrl.dispose();
+    _telefoneCtrl.dispose();
+    _referenciaCtrl.dispose();
     _obsCtrl.dispose();
     super.dispose();
   }
@@ -107,6 +119,11 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
     setState(() => _itens.add(item));
   }
 
+  String? _opcional(String valor) {
+    final t = valor.trim();
+    return t.isEmpty ? null : t;
+  }
+
   Future<void> _salvar() async {
     if (!_formKey.currentState!.validate()) return;
     if (_itens.isEmpty) {
@@ -120,11 +137,15 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
 
     final pedido = PedidoPizza(
       id: _isEdicao ? widget.pedidoExistente!.id : null,
-      nomeCliente: _nomeCtrl.text.trim(),
-      codigoEntrega: _codigoCtrl.text.trim(),
+      nomeCliente: _opcional(_nomeCtrl.text),
+      codigoEntrega: _opcional(_codigoCtrl.text),
+      endereco: _opcional(_enderecoCtrl.text),
+      bairro: _opcional(_bairroCtrl.text),
+      telefone: _opcional(_telefoneCtrl.text),
+      referencia: _opcional(_referenciaCtrl.text),
       dataPedido: _data,
       horarioPedido: _horario,
-      observacoes: _obsCtrl.text.trim().isEmpty ? null : _obsCtrl.text.trim(),
+      observacoes: _opcional(_obsCtrl.text),
       status: _isEdicao ? widget.pedidoExistente!.status : 'aberto',
       itens: _itens,
     );
@@ -151,6 +172,10 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
             id: id,
             nomeCliente: pedido.nomeCliente,
             codigoEntrega: pedido.codigoEntrega,
+            endereco: pedido.endereco,
+            bairro: pedido.bairro,
+            telefone: pedido.telefone,
+            referencia: pedido.referencia,
             dataPedido: pedido.dataPedido,
             horarioPedido: pedido.horarioPedido,
             observacoes: pedido.observacoes,
@@ -188,24 +213,59 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
                   TextFormField(
                     controller: _nomeCtrl,
                     decoration: const InputDecoration(
-                      labelText: 'Nome do Cliente *',
+                      labelText: 'Nome do Cliente',
                       prefixIcon: Icon(Icons.person_outline),
                       border: OutlineInputBorder(),
                     ),
                     textCapitalization: TextCapitalization.words,
-                    validator: (v) =>
-                        v!.trim().isEmpty ? 'Informe o nome' : null,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _codigoCtrl,
                     decoration: const InputDecoration(
-                      labelText: 'Código de Entrega *',
+                      labelText: 'Codigo do Cliente',
                       prefixIcon: Icon(Icons.qr_code),
                       border: OutlineInputBorder(),
                     ),
-                    validator: (v) =>
-                        v!.trim().isEmpty ? 'Informe o código' : null,
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _enderecoCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Endereco',
+                      prefixIcon: Icon(Icons.location_on_outlined),
+                      border: OutlineInputBorder(),
+                    ),
+                    textCapitalization: TextCapitalization.words,
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _bairroCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Bairro',
+                      prefixIcon: Icon(Icons.map_outlined),
+                      border: OutlineInputBorder(),
+                    ),
+                    textCapitalization: TextCapitalization.words,
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _telefoneCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Telefone',
+                      prefixIcon: Icon(Icons.phone_outlined),
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.phone,
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _referenciaCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Referencia',
+                      prefixIcon: Icon(Icons.place_outlined),
+                      border: OutlineInputBorder(),
+                    ),
                   ),
                   const SizedBox(height: 12),
                   // Data e hora em linha
@@ -232,7 +292,7 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
                   TextFormField(
                     controller: _obsCtrl,
                     decoration: const InputDecoration(
-                      labelText: 'Observações',
+                      labelText: 'Observacoes',
                       prefixIcon: Icon(Icons.notes),
                       border: OutlineInputBorder(),
                     ),
@@ -269,7 +329,7 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
                             const Icon(Icons.local_pizza, color: Colors.orange),
                         title: Text(item.descricao),
                         subtitle: Text(
-                            '${item.tamanhoLabel} • Qtd: ${item.quantidade}'),
+                            '${item.tamanhoLabel} - Qtd: ${item.quantidade}'),
                         trailing: IconButton(
                           icon: const Icon(Icons.remove_circle_outline,
                               color: Colors.red),
@@ -293,7 +353,7 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
                               child: CircularProgressIndicator(
                                   strokeWidth: 2, color: Colors.white))
                           : Text(
-                              _isEdicao ? 'Salvar Alterações' : 'Gerar Cupom',
+                              _isEdicao ? 'Salvar Alteracoes' : 'Gerar Cupom',
                               style: const TextStyle(fontSize: 16),
                             ),
                     ),
@@ -331,7 +391,7 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
   List<Pizza> get _medias =>
       widget.pizzas.where((p) => p.tamanho == 'media').toList();
 
-  // Meio a meio só para grandes
+  // Meio a meio so para grandes
   List<Pizza> get _opcoesMeio => _grandes;
 
   bool get _podeAdicionar {
@@ -424,21 +484,49 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
       );
     }
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: pizzas.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-        childAspectRatio: 2.7,
-      ),
-      itemBuilder: (_, i) => _pizzaCard(
-        pizza: pizzas[i],
-        selecionada: selecionada,
-        onSelecionar: onSelecionar,
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final largura = constraints.maxWidth;
+
+        final int colunas;
+        if (largura >= 1400) {
+          colunas = 5;
+        } else if (largura >= 1100) {
+          colunas = 4;
+        } else if (largura >= 360) {
+          colunas = 3;
+        } else {
+          colunas = 2;
+        }
+
+        final double proporcao;
+        if (colunas >= 5) {
+          proporcao = 3.1;
+        } else if (colunas == 4) {
+          proporcao = 2.9;
+        } else if (colunas == 3) {
+          proporcao = 2.4;
+        } else {
+          proporcao = 2.1;
+        }
+
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: pizzas.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: colunas,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+            childAspectRatio: proporcao,
+          ),
+          itemBuilder: (_, i) => _pizzaCard(
+            pizza: pizzas[i],
+            selecionada: selecionada,
+            onSelecionar: onSelecionar,
+          ),
+        );
+      },
     );
   }
 
@@ -505,7 +593,7 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Meio a meio toggle (só para grandes)
+            // Meio a meio toggle (so para grandes)
             SwitchListTile(
               title: const Text('Meio a Meio (apenas grande)'),
               value: _meioAMeio,

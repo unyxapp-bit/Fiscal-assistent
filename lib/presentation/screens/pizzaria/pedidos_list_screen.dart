@@ -83,8 +83,8 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
       builder: (_) => AlertDialog(
         title: const Text('Excluir pedido?'),
         content: Text(
-          'Deseja excluir o pedido de ${pedido.nomeCliente} '
-          '(cod: ${pedido.codigoEntrega})?',
+          'Deseja excluir o pedido de ${_textoPedido(pedido.nomeCliente, vazio: 'cliente sem nome')} '
+          '(cod. cliente: ${_textoPedido(pedido.codigoEntrega)})?',
         ),
         actions: [
           TextButton(
@@ -298,7 +298,7 @@ class _CardPedido extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          pedido.nomeCliente,
+                          _textoPedido(pedido.nomeCliente, vazio: 'Sem nome'),
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -306,7 +306,7 @@ class _CardPedido extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Cod: ${pedido.codigoEntrega} • ${pedido.horarioPedido} • ${DateFormat('dd/MM').format(pedido.dataPedido)}',
+                          'Cod. cliente: ${_textoPedido(pedido.codigoEntrega)} • ${pedido.horarioPedido} • ${DateFormat('dd/MM').format(pedido.dataPedido)}',
                           style:
                               TextStyle(color: Colors.grey[600], fontSize: 12),
                         ),
@@ -534,15 +534,23 @@ class _DetalhesPedidoSheet extends StatelessWidget {
               ),
               const Divider(),
               Text(
-                pedido.nomeCliente,
+                _textoPedido(pedido.nomeCliente, vazio: 'Sem nome'),
                 style:
                     const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
-              Text('Codigo: ${pedido.codigoEntrega}'),
+              Text('Codigo do Cliente: ${_textoPedido(pedido.codigoEntrega)}'),
               Text(
                   'Data: ${DateFormat('dd/MM/yyyy').format(pedido.dataPedido)}'),
               Text('Horario: ${pedido.horarioPedido}'),
+              if ((pedido.endereco ?? '').trim().isNotEmpty)
+                Text('Endereco: ${pedido.endereco!.trim()}'),
+              if ((pedido.bairro ?? '').trim().isNotEmpty)
+                Text('Bairro: ${pedido.bairro!.trim()}'),
+              if ((pedido.telefone ?? '').trim().isNotEmpty)
+                Text('Telefone: ${pedido.telefone!.trim()}'),
+              if ((pedido.referencia ?? '').trim().isNotEmpty)
+                Text('Referencia: ${pedido.referencia!.trim()}'),
               const SizedBox(height: 12),
               const Text(
                 'Itens',
@@ -664,6 +672,11 @@ class _ChipFiltro extends StatelessWidget {
       ),
     );
   }
+}
+
+String _textoPedido(String? valor, {String vazio = '-'}) {
+  final t = valor?.trim() ?? '';
+  return t.isEmpty ? vazio : t;
 }
 
 String _statusLabel(String status) {

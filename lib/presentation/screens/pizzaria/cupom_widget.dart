@@ -79,6 +79,11 @@ class _CupomWidgetState extends State<CupomWidget> {
     return '>>> ${t.toUpperCase()} <<<';
   }
 
+  String _textoOuPadrao(String? texto, {String padrao = '-'}) {
+    final t = texto?.trim() ?? '';
+    return t.isEmpty ? padrao : t;
+  }
+
   String _gerarTexto(CupomDadosConfig config) {
     final pedido = widget.pedido;
     final buf = StringBuffer();
@@ -142,12 +147,32 @@ class _CupomWidgetState extends State<CupomWidget> {
       );
     }
 
-    buf.writeln('Cod. Entrega : ${pedido.codigoEntrega}');
+    buf.writeln('Cod. Cliente : ${_textoOuPadrao(pedido.codigoEntrega)}');
     buf.writeln(
       'Data         : ${DateFormat('dd/MM/yyyy').format(pedido.dataPedido)}',
     );
     buf.writeln('Horario      : ${pedido.horarioPedido}');
-    buf.writeln('Cliente      : ${pedido.nomeCliente}');
+    buf.writeln('Cliente      : ${_textoOuPadrao(pedido.nomeCliente)}');
+    _writeLabeledIfHasValue(
+      buf,
+      label: 'Endereco     : ',
+      value: pedido.endereco ?? '',
+    );
+    _writeLabeledIfHasValue(
+      buf,
+      label: 'Bairro       : ',
+      value: pedido.bairro ?? '',
+    );
+    _writeLabeledIfHasValue(
+      buf,
+      label: 'Telefone     : ',
+      value: pedido.telefone ?? '',
+    );
+    _writeLabeledIfHasValue(
+      buf,
+      label: 'Referencia   : ',
+      value: pedido.referencia ?? '',
+    );
     buf.writeln(_linhaFina);
 
     if (config.mensagemTopo.trim().isNotEmpty) {
