@@ -109,14 +109,14 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
   }
 
   Future<void> _adicionarItem() async {
-    final item = await Navigator.of(context).push<ItemPedido>(
+    final itens = await Navigator.of(context).push<List<ItemPedido>>(
       MaterialPageRoute(
         builder: (_) => _SeletorPizzaScreen(pizzas: _pizzas),
       ),
     );
 
-    if (!mounted || item == null) return;
-    setState(() => _itens.add(item));
+    if (!mounted || itens == null || itens.isEmpty) return;
+    setState(() => _itens.addAll(itens));
   }
 
   String? _opcional(String valor) {
@@ -385,6 +385,7 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
   Pizza? _p1;
   Pizza? _p2;
   int _qtd = 1;
+  final List<ItemPedido> _itensSelecionados = [];
 
   List<Pizza> get _grandes =>
       widget.pizzas.where((p) => p.tamanho == 'grande').toList();
@@ -399,9 +400,9 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
     return _p1 != null;
   }
 
-  void _adicionar() {
-    if (!_podeAdicionar) return;
-    final item = ItemPedido(
+  ItemPedido? _itemAtual() {
+    if (!_podeAdicionar) return null;
+    return ItemPedido(
       pizzaId: _p1!.id,
       pizzaNome: _p1!.nome,
       pizzaTamanho: _p1!.tamanho,
@@ -410,7 +411,29 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
       quantidade: _qtd,
       ehMeioAMeio: _meioAMeio,
     );
-    Navigator.pop(context, item);
+  }
+
+  void _limparSelecaoAtual() {
+    _p1 = null;
+    _p2 = null;
+    _qtd = 1;
+  }
+
+  void _adicionarNaSessao() {
+    final item = _itemAtual();
+    if (item == null) return;
+    setState(() {
+      _itensSelecionados.add(item);
+      _limparSelecaoAtual();
+    });
+  }
+
+  void _concluirSelecao() {
+    final itens = List<ItemPedido>.from(_itensSelecionados);
+    final itemAtual = _itemAtual();
+    if (itemAtual != null) itens.add(itemAtual);
+    if (itens.isEmpty) return;
+    Navigator.pop(context, itens);
   }
 
   Widget _pizzaCard({
@@ -675,11 +698,35 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
             ),
             const SizedBox(height: 8),
 
+            if (_itensSelecionados.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  '${_itensSelecionados.length} item(ns) já adicionados nesta seleção.',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
             SizedBox(
               width: double.infinity,
-              child: FilledButton(
-                onPressed: _podeAdicionar ? _adicionar : null,
-                child: const Text('Adicionar ao Pedido'),
+              child: OutlinedButton.icon(
+                onPressed: _podeAdicionar ? _adicionarNaSessao : null,
+                icon: const Icon(Icons.add),
+                label: const Text('Adicionar item e continuar'),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: (_itensSelecionados.isNotEmpty || _podeAdicionar)
+                    ? _concluirSelecao
+                    : null,
+                icon: const Icon(Icons.check),
+                label: Text(
+                  _itensSelecionados.isEmpty
+                      ? 'Adicionar ao Pedido'
+                      : 'Concluir (${_itensSelecionados.length + (_podeAdicionar ? 1 : 0)} itens)',
+                ),
               ),
             ),
           ],
