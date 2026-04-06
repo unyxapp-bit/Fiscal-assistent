@@ -69,6 +69,7 @@ class EscalaScreen extends StatefulWidget {
 
 class _EscalaScreenState extends State<EscalaScreen> {
   DateTime _semanaBase = DateTime.now();
+  DateTime? _dataImportadaPendente;
 
   // ── Semana ───────────────────────────────────────────────────────────────
 
@@ -85,6 +86,14 @@ class _EscalaScreenState extends State<EscalaScreen> {
     return d.year == h.year && d.month == h.month && d.day == h.day;
   }
 
+  bool _mesmaData(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  bool _dataNaSemanaAtual(DateTime data) {
+    return _diasDaSemana.any((dia) => _mesmaData(dia, data));
+  }
+
   bool get _ehSemanaAtual {
     final h = DateTime.now();
     final seg = _segunda;
@@ -92,8 +101,8 @@ class _EscalaScreenState extends State<EscalaScreen> {
     return !h.isBefore(seg) && !h.isAfter(dom);
   }
 
-  void _semanaAnterior() =>
-      setState(() => _semanaBase = _semanaBase.subtract(const Duration(days: 7)));
+  void _semanaAnterior() => setState(
+      () => _semanaBase = _semanaBase.subtract(const Duration(days: 7)));
 
   void _semanaSeguinte() =>
       setState(() => _semanaBase = _semanaBase.add(const Duration(days: 7)));
@@ -105,10 +114,8 @@ class _EscalaScreenState extends State<EscalaScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final colaboradorProvider =
-        context.read<ColaboradorProvider>();
-    final authUserId =
-        SupabaseClientManager.currentUserId ?? '';
+    final colaboradorProvider = context.read<ColaboradorProvider>();
+    final authUserId = SupabaseClientManager.currentUserId ?? '';
     if (colaboradorProvider.todosColaboradores.isEmpty &&
         authUserId.isNotEmpty) {
       colaboradorProvider.loadColaboradores(authUserId);
@@ -143,8 +150,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
 
       void flush(int endSlot) {
         if (problemStart == null) return;
-        final periodo =
-            '${_minToHHmm(problemStart!)}–${_minToHHmm(endSlot)}';
+        final periodo = '${_minToHHmm(problemStart!)}–${_minToHHmm(endSlot)}';
         final critico =
             worstDisp == 0 || worstInt >= (ativos.length * 0.6).ceil();
         problemas.add(_ProblemaCobertura(
@@ -172,7 +178,11 @@ class _EscalaScreenState extends State<EscalaScreen> {
           activeNow++;
           final onBreak =
               int_ >= 0 && ret >= 0 && slotMin >= int_ && slotMin < ret;
-          if (onBreak) { emInt++; } else { disp++; }
+          if (onBreak) {
+            emInt++;
+          } else {
+            disp++;
+          }
         }
         if (activeNow == 0) continue;
 
@@ -226,8 +236,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
                     criticos > 0
                         ? Icons.warning_rounded
                         : Icons.warning_amber_rounded,
-                    color:
-                        criticos > 0 ? AppColors.danger : AppColors.warning,
+                    color: criticos > 0 ? AppColors.danger : AppColors.warning,
                     size: 24,
                   ),
                   const SizedBox(width: 10),
@@ -235,7 +244,9 @@ class _EscalaScreenState extends State<EscalaScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Alertas de Cobertura', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+                        const Text('Alertas de Cobertura',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w500)),
                         Text(
                           '${problemas.length} período(s) com atenção'
                           '${criticos > 0 ? " · $criticos crítico(s)" : ""}',
@@ -267,8 +278,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
                       color: bg,
                       borderRadius:
                           BorderRadius.circular(Dimensions.borderRadius),
-                      border:
-                          Border.all(color: color.withValues(alpha: 0.35)),
+                      border: Border.all(color: color.withValues(alpha: 0.35)),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -293,8 +303,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
                                 ),
                               ),
                               const SizedBox(height: 2),
-                              Text(p.descricao,
-                                  style: AppTextStyles.caption),
+                              Text(p.descricao, style: AppTextStyles.caption),
                             ],
                           ),
                         ),
@@ -304,8 +313,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) =>
-                                    EscalaDiaScreen(data: p.dia),
+                                builder: (_) => EscalaDiaScreen(data: p.dia),
                               ),
                             );
                           },
@@ -338,8 +346,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
   // ── Geração automática ───────────────────────────────────────────────────
 
   Future<void> _gerarEscala(BuildContext context) async {
-    final colaboradorProvider =
-        context.read<ColaboradorProvider>();
+    final colaboradorProvider = context.read<ColaboradorProvider>();
     final escalaProvider = context.read<EscalaProvider>();
     final colaboradores = colaboradorProvider.todosColaboradores;
 
@@ -347,28 +354,52 @@ class _EscalaScreenState extends State<EscalaScreen> {
       AppNotif.show(
         context,
         titulo: 'Sem Colaboradores',
-        mensagem: 'Nenhum colaborador cadastrado. Cadastre colaboradores primeiro.',
+        mensagem:
+            'Nenhum colaborador cadastrado. Cadastre colaboradores primeiro.',
         tipo: 'alerta',
         cor: AppColors.danger,
       );
       return;
     }
 
-    // Verifica se já existe algum turno na semana
-    final diasDaSemana = _diasDaSemana;
-    final temEscalaExistente = diasDaSemana.any((dia) =>
-        escalaProvider.getTurnosByData(dia).isNotEmpty);
+    final dataAlvo = _dataImportadaPendente;
+    if (dataAlvo == null) {
+      AppNotif.show(
+        context,
+        titulo: 'Importacao Necessaria',
+        mensagem:
+            'Use "Importar registros" e escolha a data antes de gerar a escala automatica.',
+        tipo: 'alerta',
+        cor: AppColors.statusAtencao,
+      );
+      return;
+    }
 
+    final dataFormatada = DateFormat('dd/MM/yyyy', 'pt_BR').format(dataAlvo);
+    if (!_dataNaSemanaAtual(dataAlvo)) {
+      AppNotif.show(
+        context,
+        titulo: 'Data Fora da Semana',
+        mensagem:
+            'A data importada ($dataFormatada) nao pertence a semana aberta. Abra a semana correta antes de gerar.',
+        tipo: 'alerta',
+        cor: AppColors.statusAtencao,
+      );
+      return;
+    }
+
+    final temEscalaExistente =
+        escalaProvider.getTurnosByData(dataAlvo).isNotEmpty;
     bool substituir = false;
 
     if (temEscalaExistente) {
       final resposta = await showDialog<String>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Gerar Escala Automática'),
-          content: const Text(
-            'Esta semana já possui turnos cadastrados.\n'
-            'Deseja substituir os existentes ou apenas preencher os dias vazios?',
+          title: const Text('Gerar Escala Automatica'),
+          content: Text(
+            'A data $dataFormatada ja possui turnos cadastrados.\n'
+            'Deseja substituir os existentes ou apenas preencher os faltantes desse dia?',
           ),
           actions: [
             TextButton(
@@ -377,13 +408,14 @@ class _EscalaScreenState extends State<EscalaScreen> {
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx, 'preencher'),
-              child: const Text('Só dias vazios'),
+              child: const Text('So faltantes'),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(ctx, 'substituir'),
               style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white),
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+              ),
               child: const Text('Substituir tudo'),
             ),
           ],
@@ -396,13 +428,11 @@ class _EscalaScreenState extends State<EscalaScreen> {
       final confirmar = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Gerar Escala Automática'),
+          title: const Text('Gerar Escala Automatica'),
           content: Text(
-            'Preencher a escala da semana de '
-            '${DateFormat("dd/MM", "pt_BR").format(_segunda)} a '
-            '${DateFormat("dd/MM", "pt_BR").format(_segunda.add(const Duration(days: 6)))} '
-            'com base nos registros de ponto?\n\n'
-            '${colaboradores.where((c) => c.ativo).length} colaboradores ativos serão incluídos.',
+            'Gerar a escala automatica apenas para $dataFormatada '
+            'com base nos registros importados?\n\n'
+            '${colaboradores.where((c) => c.ativo).length} colaboradores ativos serao considerados.',
           ),
           actions: [
             TextButton(
@@ -412,8 +442,9 @@ class _EscalaScreenState extends State<EscalaScreen> {
             ElevatedButton(
               onPressed: () => Navigator.pop(ctx, true),
               style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white),
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+              ),
               child: const Text('Gerar'),
             ),
           ],
@@ -422,29 +453,34 @@ class _EscalaScreenState extends State<EscalaScreen> {
       if (confirmar != true) return;
     }
 
-    final resultado = await escalaProvider.gerarEscalaDaSemana(
+    final resultado = await escalaProvider.gerarEscalaPorDia(
       colaboradores: colaboradores,
-      segunda: _segunda,
+      data: dataAlvo,
       substituirExistentes: substituir,
     );
 
     if (!context.mounted) return;
 
+    setState(() => _dataImportadaPendente = null);
+
     final criados = resultado['criados'] ?? 0;
     final semRegistro = resultado['semRegistro'] ?? 0;
 
-    // Validação de cobertura após geração
-    final problemas = criados > 0 ? _validarCobertura(escalaProvider) : <_ProblemaCobertura>[];
+    final problemas = criados > 0
+        ? _validarCobertura(escalaProvider)
+            .where((p) => _mesmaData(p.dia, dataAlvo))
+            .toList()
+        : <_ProblemaCobertura>[];
     final criticos = problemas.where((p) => p.critico).length;
 
     AppNotif.show(
       context,
       titulo: criados > 0 ? 'Escala Gerada' : 'Sem Registros',
       mensagem: criados > 0
-          ? '$criados turno(s) gerado(s).'
-              '${semRegistro > 0 ? " $semRegistro dia(s) sem registro." : ""}'
+          ? '$criados turno(s) gerado(s) para $dataFormatada.'
+              '${semRegistro > 0 ? " $semRegistro colaborador(es) sem registro nessa data." : ""}'
               '${problemas.isNotEmpty ? " ${problemas.length} alerta(s) de cobertura." : ""}'
-          : 'Nenhum registro de ponto encontrado para a semana.',
+          : 'Nenhum registro de ponto encontrado para $dataFormatada.',
       tipo: criados > 0 ? 'saida' : 'alerta',
       cor: criticos > 0
           ? AppColors.danger
@@ -456,14 +492,13 @@ class _EscalaScreenState extends State<EscalaScreen> {
           ? SnackBarAction(
               label: 'Ver Alertas (${problemas.length})',
               textColor: Colors.white,
-              onPressed: () =>
-                  _mostrarRelatorioCobertura(context, problemas),
+              onPressed: () => _mostrarRelatorioCobertura(context, problemas),
             )
           : null,
     );
   }
 
-  // ── UI ───────────────────────────────────────────────────────────────────
+  // UI
 
   @override
   Widget build(BuildContext context) {
@@ -497,10 +532,21 @@ class _EscalaScreenState extends State<EscalaScreen> {
           IconButton(
             icon: const Icon(Icons.upload_file_outlined),
             tooltip: 'Importar registros por texto',
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                  builder: (_) => const ImportarEscalaScreen()),
-            ),
+            onPressed: () async {
+              final dataImportada = await Navigator.of(context).push<DateTime>(
+                MaterialPageRoute(
+                  builder: (_) => const ImportarEscalaScreen(),
+                ),
+              );
+              if (!mounted || dataImportada == null) return;
+              setState(() {
+                _dataImportadaPendente = DateTime(
+                  dataImportada.year,
+                  dataImportada.month,
+                  dataImportada.day,
+                );
+              });
+            },
           ),
           IconButton(
             icon: provider.gerando
@@ -587,8 +633,8 @@ class _EscalaScreenState extends State<EscalaScreen> {
                 borderRadius: BorderRadius.circular(Dimensions.borderRadius),
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 10, horizontal: 16),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withValues(alpha: 0.08),
                     borderRadius:
@@ -623,8 +669,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
                   SizedBox(
                       width: 16,
                       height: 16,
-                      child:
-                          CircularProgressIndicator(strokeWidth: 2)),
+                      child: CircularProgressIndicator(strokeWidth: 2)),
                   SizedBox(width: 8),
                   Text('Gerando escala...'),
                 ],
@@ -641,13 +686,10 @@ class _EscalaScreenState extends State<EscalaScreen> {
               itemBuilder: (context, index) {
                 final dia = diasSemana[index];
                 final turnos = provider.getTurnosByData(dia);
-                final trabalhando =
-                    turnos.where((t) => t.trabalhando).toList();
-                final folgas =
-                    turnos.where((t) => t.folga || t.feriado).length;
+                final trabalhando = turnos.where((t) => t.trabalhando).toList();
+                final folgas = turnos.where((t) => t.folga || t.feriado).length;
                 final hoje = _ehHoje(dia);
-                final nomeDia =
-                    DateFormat('EEEE', 'pt_BR').format(dia);
+                final nomeDia = DateFormat('EEEE', 'pt_BR').format(dia);
 
                 // Breakdown por departamento
                 final nCaixa = trabalhando
@@ -656,30 +698,26 @@ class _EscalaScreenState extends State<EscalaScreen> {
                         t.departamento == DepartamentoTipo.self)
                     .length;
                 final nFiscal = trabalhando
-                    .where(
-                        (t) => t.departamento == DepartamentoTipo.fiscal)
+                    .where((t) => t.departamento == DepartamentoTipo.fiscal)
                     .length;
                 final nPacote = trabalhando
-                    .where(
-                        (t) => t.departamento == DepartamentoTipo.pacote)
+                    .where((t) => t.departamento == DepartamentoTipo.pacote)
                     .length;
                 final nOutros = trabalhando.length - nCaixa - nFiscal - nPacote;
 
                 return Card(
-                  color: hoje
-                      ? AppColors.primary.withValues(alpha: 0.07)
-                      : null,
+                  color:
+                      hoje ? AppColors.primary.withValues(alpha: 0.07) : null,
                   shape: RoundedRectangleBorder(
                     borderRadius:
                         BorderRadius.circular(Dimensions.borderRadius),
                     side: hoje
-                        ? const BorderSide(
-                            color: AppColors.primary, width: 2)
+                        ? const BorderSide(color: AppColors.primary, width: 2)
                         : BorderSide.none,
                   ),
                   child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     leading: Container(
                       width: 52,
                       height: 52,
@@ -697,9 +735,8 @@ class _EscalaScreenState extends State<EscalaScreen> {
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: hoje
-                                  ? Colors.white
-                                  : AppColors.textPrimary,
+                              color:
+                                  hoje ? Colors.white : AppColors.textPrimary,
                             ),
                           ),
                           Text(
@@ -719,16 +756,14 @@ class _EscalaScreenState extends State<EscalaScreen> {
                     title: Text(
                       _capitalizar(nomeDia),
                       style: AppTextStyles.h4.copyWith(
-                        color: hoje
-                            ? AppColors.primary
-                            : AppColors.textPrimary,
+                        color: hoje ? AppColors.primary : AppColors.textPrimary,
                       ),
                     ),
                     subtitle: turnos.isEmpty
                         ? Text(
                             'Sem escala cadastrada',
-                            style: AppTextStyles.caption.copyWith(
-                                color: AppColors.textSecondary),
+                            style: AppTextStyles.caption
+                                .copyWith(color: AppColors.textSecondary),
                           )
                         : Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -736,8 +771,8 @@ class _EscalaScreenState extends State<EscalaScreen> {
                               Text(
                                 '${trabalhando.length} trabalhando'
                                 '${folgas > 0 ? " • $folgas folga(s)" : ""}',
-                                style: AppTextStyles.caption.copyWith(
-                                    color: AppColors.textSecondary),
+                                style: AppTextStyles.caption
+                                    .copyWith(color: AppColors.textSecondary),
                               ),
                               if (trabalhando.isNotEmpty) ...[
                                 const SizedBox(height: 4),
@@ -773,8 +808,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color:
-                                  AppColors.success.withValues(alpha: 0.1),
+                              color: AppColors.success.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(

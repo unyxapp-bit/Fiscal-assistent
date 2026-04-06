@@ -11,10 +11,10 @@ class TurnoLocal {
   final String colaboradorNome;
   final DepartamentoTipo departamento;
   final DateTime data;
-  final String? entrada;    // HH:mm
-  final String? intervalo;  // HH:mm
-  final String? retorno;    // HH:mm
-  final String? saida;      // HH:mm
+  final String? entrada; // HH:mm
+  final String? intervalo; // HH:mm
+  final String? retorno; // HH:mm
+  final String? saida; // HH:mm
   final bool folga;
   final bool feriado;
   final String? observacao;
@@ -38,8 +38,8 @@ class TurnoLocal {
         id: m['id'] as String,
         colaboradorId: m['colaborador_id'] as String,
         colaboradorNome: m['colaborador_nome'] as String,
-        departamento:
-            DepartamentoTipo.fromString(m['departamento'] as String? ?? 'fiscal'),
+        departamento: DepartamentoTipo.fromString(
+            m['departamento'] as String? ?? 'fiscal'),
         data: DateTime.parse(m['data'] as String),
         entrada: m['entrada'] as String?,
         intervalo: m['intervalo'] as String?,
@@ -113,16 +113,48 @@ class TurnoLocal {
   }
 }
 
+typedef BuscarRegistrosPontoPorDia = Future<List<Map<String, dynamic>>>
+    Function(
+  List<String> colaboradorIds,
+  DateTime data,
+);
+
+typedef UpsertTurnosEscala = Future<void> Function(
+  List<Map<String, dynamic>> turnos,
+);
+
+typedef RemoverTurnosEscala = Future<void> Function(List<String> ids);
+
 class EscalaProvider with ChangeNotifier {
   static const _table = 'turnos_escala';
 
   final List<TurnoLocal> _turnos = [];
   bool _gerando = false;
+  final BuscarRegistrosPontoPorDia? _buscarRegistrosPontoPorDia;
+  final UpsertTurnosEscala? _upsertTurnosEscala;
+  final RemoverTurnosEscala? _removerTurnosEscala;
+  final String? _fiscalIdOverride;
+
+  EscalaProvider({
+    BuscarRegistrosPontoPorDia? buscarRegistrosPontoPorDia,
+    UpsertTurnosEscala? upsertTurnosEscala,
+    RemoverTurnosEscala? removerTurnosEscala,
+    String? fiscalIdOverride,
+    List<TurnoLocal>? turnosIniciais,
+  })  : _buscarRegistrosPontoPorDia = buscarRegistrosPontoPorDia,
+        _upsertTurnosEscala = upsertTurnosEscala,
+        _removerTurnosEscala = removerTurnosEscala,
+        _fiscalIdOverride = fiscalIdOverride {
+    if (turnosIniciais != null) {
+      _turnos.addAll(turnosIniciais);
+    }
+  }
 
   List<TurnoLocal> get turnos => List.unmodifiable(_turnos);
   bool get gerando => _gerando;
 
-  String get _fiscalId => SupabaseClientManager.currentUserId!;
+  String get _fiscalId =>
+      _fiscalIdOverride ?? SupabaseClientManager.currentUserId!;
 
   /// Carrega todos os turnos do Supabase.
   Future<void> load() async {
@@ -258,15 +290,60 @@ class EscalaProvider with ChangeNotifier {
     return s.length > 5 ? s.substring(0, 5) : s;
   }
 
-  // ── Geração automática ─────────────────────────────────────────────────────
+  // Geracao automatica
 
-  /// Gera a escala da semana a partir dos registros de ponto de todos os
-  /// colaboradores ativos. Faz uma única query ao Supabase para a semana inteira.
+  Future<List<Map<String, dynamic>>> _buscarRegistrosPorDia(
+    List<String> colaboradorIds,
+    DateTime data,
+  ) async {
+    if (_buscarRegistrosPontoPorDia != null) {
+      return _buscarRegistrosPontoPorDia!(colaboradorIds, data);
+    }
+
+    final rows = await SupabaseClientManager.client
+        .from('registros_ponto')
+        .select()
+        .inFilter('colaborador_id', colaboradorIds)
+        .eq('data', _dateKey(data));
+
+    return (rows as List)
+        .map((row) => Map<String, dynamic>.from(row as Map))
+        .toList();
+  }
+
+  Future<void> _upsertTurnos(List<TurnoLocal> turnos) async {
+    if (turnos.isEmpty) return;
+
+    final rows = turnos.map((t) => t.toMap(_fiscalId)).toList();
+    if (_upsertTurnosEscala != null) {
+      await _upsertTurnosEscala!(rows);
+      return;
+    }
+
+    await SupabaseClientManager.client.from(_table).upsert(rows);
+  }
+
+  Future<void> _removerTurnosPorIds(List<String> ids) async {
+    if (ids.isEmpty) return;
+
+    if (_removerTurnosEscala != null) {
+      await _removerTurnosEscala!(ids);
+      return;
+    }
+
+    await SupabaseClientManager.client
+        .from(_table)
+        .delete()
+        .inFilter('id', ids);
+  }
+
+  /// Gera a escala apenas para a data informada, usando exclusivamente os
+  /// registros de ponto desse dia.
   ///
   /// Retorna um mapa com as chaves 'criados' e 'semRegistro'.
-  Future<Map<String, int>> gerarEscalaDaSemana({
+  Future<Map<String, int>> gerarEscalaPorDia({
     required List<Colaborador> colaboradores,
-    required DateTime segunda,
+    required DateTime data,
     bool substituirExistentes = false,
   }) async {
     _gerando = true;
@@ -283,77 +360,71 @@ class EscalaProvider with ChangeNotifier {
         return {'criados': 0, 'semRegistro': 0};
       }
 
-      final segundaNorm =
-          DateTime(segunda.year, segunda.month, segunda.day);
+      final dataNormalizada = DateTime(data.year, data.month, data.day);
+      final rows = await _buscarRegistrosPorDia(
+        ativos.map((c) => c.id).toList(),
+        dataNormalizada,
+      );
 
-      // Busca todos os registros dos colaboradores (sem filtro de data),
-      // ordenados do mais recente para o mais antigo, para usar como template
-      // de qualquer semana independente do ano.
-      final umAnoAtras = segundaNorm.subtract(const Duration(days: 365 * 2));
-      final rows = await SupabaseClientManager.client
-          .from('registros_ponto')
-          .select()
-          .inFilter('colaborador_id', ativos.map((c) => c.id).toList())
-          .gte('data', _dateKey(umAnoAtras))
-          .order('data', ascending: false);
+      final regMap = <String, Map<String, dynamic>>{};
+      for (final row in rows) {
+        final cId = row['colaborador_id'] as String;
+        regMap[cId] = row;
+      }
 
-      // Map: colaboradorId → weekday (1=Seg…7=Dom) → linha mais recente
-      final regMap = <String, Map<int, Map<String, dynamic>>>{};
-      for (final row in (rows as List)) {
-        final m = row as Map<String, dynamic>;
-        final cId = m['colaborador_id'] as String;
-        final date = DateTime.parse((m['data'] as String).substring(0, 10));
-        final wd = date.weekday; // 1=Seg, 7=Dom
-        regMap.putIfAbsent(cId, () => <int, Map<String, dynamic>>{});
-        // Só guarda o mais recente (já ordenado desc)
-        regMap[cId]!.putIfAbsent(wd, () => m);
+      final idsParaRemover = substituirExistentes
+          ? _turnos
+              .where((t) =>
+                  t.data.year == dataNormalizada.year &&
+                  t.data.month == dataNormalizada.month &&
+                  t.data.day == dataNormalizada.day)
+              .map((t) => t.id)
+              .toList()
+          : <String>[];
+
+      if (idsParaRemover.isNotEmpty) {
+        _turnos.removeWhere((t) => idsParaRemover.contains(t.id));
+        await _removerTurnosPorIds(idsParaRemover);
       }
 
       final novosTurnos = <TurnoLocal>[];
 
       for (final colab in ativos) {
-        for (int d = 0; d < 7; d++) {
-          final dia = DateTime(
-              segundaNorm.year, segundaNorm.month, segundaNorm.day + d);
-
-          // Pular se já existe e não queremos substituir
-          if (!substituirExistentes && getTurno(colab.id, dia) != null) {
-            continue;
-          }
-
-          final reg = regMap[colab.id]?[dia.weekday];
-
-          if (reg != null) {
-            final obs = (reg['observacao'] as String?)?.toUpperCase();
-            final folga = obs == 'FOLGA';
-            final feriado = obs == 'FERIADO';
-
-            final existente = getTurno(colab.id, dia);
-            novosTurnos.add(TurnoLocal(
-              id: existente?.id ?? const Uuid().v4(),
-              colaboradorId: colab.id,
-              colaboradorNome: colab.nome,
-              departamento: colab.departamento,
-              data: dia,
-              entrada: folga || feriado ? null : _parseTime(reg['entrada']),
-              intervalo: folga || feriado
-                  ? null
-                  : _parseTime(reg['intervalo_saida']),
-              retorno: folga || feriado
-                  ? null
-                  : _parseTime(reg['intervalo_retorno']),
-              saida: folga || feriado ? null : _parseTime(reg['saida']),
-              folga: folga,
-              feriado: feriado,
-            ));
-            criados++;
-          } else {
-            semRegistro++;
-          }
+        final reg = regMap[colab.id];
+        if (reg == null) {
+          semRegistro++;
+          continue;
         }
+
+        if (!substituirExistentes &&
+            getTurno(colab.id, dataNormalizada) != null) {
+          continue;
+        }
+
+        final obsOriginal = reg['observacao'] as String?;
+        final obs = obsOriginal?.toUpperCase();
+        final folga = obs == 'FOLGA';
+        final feriado = obs == 'FERIADO';
+
+        novosTurnos.add(TurnoLocal(
+          id: const Uuid().v4(),
+          colaboradorId: colab.id,
+          colaboradorNome: colab.nome,
+          departamento: colab.departamento,
+          data: dataNormalizada,
+          entrada: folga || feriado ? null : _parseTime(reg['entrada']),
+          intervalo:
+              folga || feriado ? null : _parseTime(reg['intervalo_saida']),
+          retorno:
+              folga || feriado ? null : _parseTime(reg['intervalo_retorno']),
+          saida: folga || feriado ? null : _parseTime(reg['saida']),
+          folga: folga,
+          feriado: feriado,
+          observacao: obsOriginal,
+        ));
+        criados++;
       }
 
-      // Atualizar estado local em lote
       for (final nt in novosTurnos) {
         _turnos.removeWhere((t) =>
             t.colaboradorId == nt.colaboradorId &&
@@ -363,12 +434,7 @@ class EscalaProvider with ChangeNotifier {
         _turnos.add(nt);
       }
 
-      // Bulk upsert para o Supabase
-      if (novosTurnos.isNotEmpty) {
-        await SupabaseClientManager.client
-            .from(_table)
-            .upsert(novosTurnos.map((t) => t.toMap(_fiscalId)).toList());
-      }
+      await _upsertTurnos(novosTurnos);
     } catch (e) {
       if (kDebugMode) {
         debugPrint('[EscalaProvider] Erro ao gerar escala: $e');

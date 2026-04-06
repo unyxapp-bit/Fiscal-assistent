@@ -107,7 +107,7 @@ Planejamento semanal dos turnos. Três níveis:
 - 12:00–21:40 (intervalo 16:00–17:00)
 - 14:00–22:00 (intervalo 18:00–18:40)
 
-**Geração automática:** ao clicar em "Gerar Escala da Semana", o app busca o histórico de registros de ponto de cada colaborador e usa o padrão de cada dia da semana como template. Se um colaborador sempre trabalhou às 08:00 nas segundas-feiras, a escala será preenchida com esse horário automaticamente.
+**Geração automática:** após usar "Importar registros" e escolher uma data, o botão de geração automática preenche somente esse dia da escala usando apenas os registros importados para a data selecionada.
 
 ---
 

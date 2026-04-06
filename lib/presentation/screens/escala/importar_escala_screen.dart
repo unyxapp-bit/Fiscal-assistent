@@ -15,17 +15,36 @@ bool _isTime(String s) => RegExp(r'^\d{1,2}:\d{2}$').hasMatch(s);
 
 String _normalizeNome(String s) {
   // Remove parenthesized suffixes e.g. "(Self)", "(Fiscal)"
-  var r = s.toUpperCase().trim().replaceAll(RegExp(r'\s*\([^)]*\)\s*'), ' ').trim();
+  var r =
+      s.toUpperCase().trim().replaceAll(RegExp(r'\s*\([^)]*\)\s*'), ' ').trim();
   // Remove excess spaces
   r = r.replaceAll(RegExp(r'\s+'), ' ');
   // Remove common Portuguese accents
   const Map<String, String> accents = {
-    'À': 'A', 'Á': 'A', 'Â': 'A', 'Ã': 'A', 'Ä': 'A',
-    'È': 'E', 'É': 'E', 'Ê': 'E', 'Ë': 'E',
-    'Ì': 'I', 'Í': 'I', 'Î': 'I', 'Ï': 'I',
-    'Ò': 'O', 'Ó': 'O', 'Ô': 'O', 'Õ': 'O', 'Ö': 'O',
-    'Ù': 'U', 'Ú': 'U', 'Û': 'U', 'Ü': 'U',
-    'Ç': 'C', 'Ñ': 'N',
+    'À': 'A',
+    'Á': 'A',
+    'Â': 'A',
+    'Ã': 'A',
+    'Ä': 'A',
+    'È': 'E',
+    'É': 'E',
+    'Ê': 'E',
+    'Ë': 'E',
+    'Ì': 'I',
+    'Í': 'I',
+    'Î': 'I',
+    'Ï': 'I',
+    'Ò': 'O',
+    'Ó': 'O',
+    'Ô': 'O',
+    'Õ': 'O',
+    'Ö': 'O',
+    'Ù': 'U',
+    'Ú': 'U',
+    'Û': 'U',
+    'Ü': 'U',
+    'Ç': 'C',
+    'Ñ': 'N',
   };
   for (final e in accents.entries) {
     r = r.replaceAll(e.key, e.value);
@@ -194,8 +213,7 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
   }
 
   void _analisar() {
-    final colaboradorProvider =
-        context.read<ColaboradorProvider>();
+    final colaboradorProvider = context.read<ColaboradorProvider>();
     final todos = colaboradorProvider.todosColaboradores;
 
     // Build normalized name → Colaborador map
@@ -211,9 +229,8 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
         .where((l) => l.isNotEmpty)
         .toList();
 
-    final resultado = linhasTexto
-        .map((l) => _parseLinha(l, _data, mapa))
-        .toList();
+    final resultado =
+        linhasTexto.map((l) => _parseLinha(l, _data, mapa)).toList();
 
     setState(() => _linhas = resultado);
   }
@@ -222,14 +239,15 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
     final linhas = _linhas;
     if (linhas == null) return;
 
-    final importaveis =
-        linhas.where((l) => l.importavel).map((l) => l.toRegistroPonto()).toList();
+    final importaveis = linhas
+        .where((l) => l.importavel)
+        .map((l) => l.toRegistroPonto())
+        .toList();
     if (importaveis.isEmpty) return;
 
     setState(() => _importando = true);
 
-    final provider =
-        context.read<RegistroPontoProvider>();
+    final provider = context.read<RegistroPontoProvider>();
     final resultado = await provider.importarBatch(importaveis);
 
     if (!mounted) return;
@@ -247,7 +265,7 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
       cor: erro == 0 ? AppColors.success : AppColors.danger,
     );
 
-    if (erro == 0) Navigator.of(context).pop();
+    if (erro == 0) Navigator.of(context).pop(_data);
   }
 
   @override
@@ -271,12 +289,12 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // ── Data ─────────────────────────────────────────────────
-                  const Text('Data dos registros', style: AppTextStyles.subtitle),
+                  const Text('Data dos registros',
+                      style: AppTextStyles.subtitle),
                   const SizedBox(height: Dimensions.spacingSM),
                   InkWell(
                     onTap: _pickDate,
-                    borderRadius:
-                        BorderRadius.circular(Dimensions.radiusMD),
+                    borderRadius: BorderRadius.circular(Dimensions.radiusMD),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: Dimensions.paddingMD,
@@ -293,8 +311,7 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
                           const Icon(Icons.calendar_today,
                               color: AppColors.primary, size: 20),
                           const SizedBox(width: Dimensions.spacingSM),
-                          Text(_formatDate(_data),
-                              style: AppTextStyles.body),
+                          Text(_formatDate(_data), style: AppTextStyles.body),
                           const Spacer(),
                           const Icon(Icons.arrow_drop_down,
                               color: AppColors.textSecondary),
@@ -313,8 +330,7 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
                     decoration: BoxDecoration(
                       color: AppColors.cardBackground,
                       border: Border.all(color: AppColors.cardBorder),
-                      borderRadius:
-                          BorderRadius.circular(Dimensions.radiusMD),
+                      borderRadius: BorderRadius.circular(Dimensions.radiusMD),
                     ),
                     child: TextField(
                       controller: _textController,
@@ -356,8 +372,8 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
                         const Spacer(),
                         Text(
                           '$importaveis/${linhas.length} encontrados',
-                          style: AppTextStyles.caption.copyWith(
-                              color: AppColors.textSecondary),
+                          style: AppTextStyles.caption
+                              .copyWith(color: AppColors.textSecondary),
                         ),
                       ],
                     ),
@@ -404,7 +420,13 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
 
   String _formatDate(DateTime date) {
     const dias = [
-      'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'
+      'Segunda',
+      'Terça',
+      'Quarta',
+      'Quinta',
+      'Sexta',
+      'Sábado',
+      'Domingo'
     ];
     final diaSemana = dias[date.weekday - 1];
     return '$diaSemana, ${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
@@ -478,8 +500,8 @@ class _LinhaCard extends StatelessWidget {
                 if (status == _Status.naoEncontrado)
                   Text(
                     'Colaborador não encontrado',
-                    style: AppTextStyles.caption
-                        .copyWith(color: AppColors.danger),
+                    style:
+                        AppTextStyles.caption.copyWith(color: AppColors.danger),
                   ),
 
                 const SizedBox(height: 4),
@@ -493,13 +515,21 @@ class _LinhaCard extends StatelessWidget {
                     runSpacing: 4,
                     children: [
                       if (linha.entrada != null)
-                        _Tag(label: '↑ ${linha.entrada!}', color: AppColors.primary),
+                        _Tag(
+                            label: '↑ ${linha.entrada!}',
+                            color: AppColors.primary),
                       if (linha.intervaloSaida != null)
-                        _Tag(label: '⏸ ${linha.intervaloSaida!}', color: AppColors.statusCafe),
+                        _Tag(
+                            label: '⏸ ${linha.intervaloSaida!}',
+                            color: AppColors.statusCafe),
                       if (linha.intervaloRetorno != null)
-                        _Tag(label: '▶ ${linha.intervaloRetorno!}', color: AppColors.statusAtivo),
+                        _Tag(
+                            label: '▶ ${linha.intervaloRetorno!}',
+                            color: AppColors.statusAtivo),
                       if (linha.saida != null)
-                        _Tag(label: '↓ ${linha.saida!}', color: AppColors.statusSaida),
+                        _Tag(
+                            label: '↓ ${linha.saida!}',
+                            color: AppColors.statusSaida),
                     ],
                   ),
 
