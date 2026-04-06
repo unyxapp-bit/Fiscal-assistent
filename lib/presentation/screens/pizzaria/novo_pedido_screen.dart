@@ -446,49 +446,99 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
         ? Theme.of(context).colorScheme.primary
         : Colors.grey.withOpacity(0.25);
 
-    return Card(
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: corBorda, width: isSelecionada ? 1.6 : 1),
-      ),
-      elevation: isSelecionada ? 1.5 : 0,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => setState(() => onSelecionar(pizza)),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          child: Row(
-            children: [
-              Icon(
-                Icons.local_pizza_outlined,
-                color: isSelecionada
-                    ? Theme.of(context).colorScheme.primary
-                    : Colors.orange,
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  pizza.nome,
-                  style: TextStyle(
-                    fontWeight:
-                        isSelecionada ? FontWeight.w700 : FontWeight.w500,
-                  ),
-                ),
-              ),
-              Radio<Pizza>(
-                value: pizza,
-                groupValue: selecionada,
-                onChanged: (v) {
-                  if (v != null) {
-                    setState(() => onSelecionar(v));
-                  }
-                },
-              ),
-            ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final layoutCompacto = constraints.maxWidth < 210;
+
+        return Card(
+          margin: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: corBorda, width: isSelecionada ? 1.6 : 1),
           ),
-        ),
-      ),
+          elevation: isSelecionada ? 1.5 : 0,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => setState(() => onSelecionar(pizza)),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: layoutCompacto ? 10 : 12,
+                vertical: layoutCompacto ? 12 : 10,
+              ),
+              child: layoutCompacto
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.local_pizza_outlined,
+                              color: isSelecionada
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.orange,
+                            ),
+                            const Spacer(),
+                            Radio<Pizza>(
+                              value: pizza,
+                              groupValue: selecionada,
+                              visualDensity: VisualDensity.compact,
+                              onChanged: (v) {
+                                if (v != null) {
+                                  setState(() => onSelecionar(v));
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          pizza.nome,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontWeight: isSelecionada
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        Icon(
+                          Icons.local_pizza_outlined,
+                          color: isSelecionada
+                              ? Theme.of(context).colorScheme.primary
+                              : Colors.orange,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            pizza.nome,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontWeight: isSelecionada
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        Radio<Pizza>(
+                          value: pizza,
+                          groupValue: selecionada,
+                          onChanged: (v) {
+                            if (v != null) {
+                              setState(() => onSelecionar(v));
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -516,21 +566,25 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
           colunas = 5;
         } else if (largura >= 1100) {
           colunas = 4;
-        } else if (largura >= 360) {
+        } else if (largura >= 720) {
           colunas = 3;
-        } else {
+        } else if (largura >= 430) {
           colunas = 2;
+        } else {
+          colunas = 1;
         }
 
-        final double proporcao;
+        final double alturaCard;
         if (colunas >= 5) {
-          proporcao = 3.1;
+          alturaCard = 84;
         } else if (colunas == 4) {
-          proporcao = 2.9;
+          alturaCard = 88;
         } else if (colunas == 3) {
-          proporcao = 2.4;
+          alturaCard = 96;
+        } else if (colunas == 2) {
+          alturaCard = largura < 520 ? 132 : 118;
         } else {
-          proporcao = 2.1;
+          alturaCard = 92;
         }
 
         return GridView.builder(
@@ -541,7 +595,7 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
             crossAxisCount: colunas,
             crossAxisSpacing: 8,
             mainAxisSpacing: 8,
-            childAspectRatio: proporcao,
+            mainAxisExtent: alturaCard,
           ),
           itemBuilder: (_, i) => _pizzaCard(
             pizza: pizzas[i],
