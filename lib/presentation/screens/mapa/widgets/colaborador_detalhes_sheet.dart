@@ -200,6 +200,218 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     return '${m}min';
   }
 
+  Widget _buildOperacaoDashboard(JornadaResult jornada) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const gap = 10.0;
+        final largura = constraints.maxWidth;
+        final usarDuasColunas = largura >= 420;
+        final larguraCard = usarDuasColunas ? (largura - gap) / 2 : largura;
+
+        return Wrap(
+          spacing: gap,
+          runSpacing: gap,
+          children: [
+            SizedBox(
+              width: larguraCard,
+              child: _buildAtivoDesdeCard(jornada),
+            ),
+            SizedBox(
+              width: larguraCard,
+              child: _buildJornadaCard(jornada),
+            ),
+            SizedBox(
+              width: largura,
+              child: _buildIntervaloCard(jornada),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildAtivoDesdeCard(JornadaResult jornada) {
+    late final String valor;
+    late final String detalhe;
+    late final IconData icone;
+    late final Color cor;
+
+    if (_carregando) {
+      valor = '--';
+      detalhe = 'Carregando ponto';
+      icone = Icons.sync;
+      cor = AppColors.textSecondary;
+    } else if (jornada.status == 'sem_ponto') {
+      final alocadoEm = widget.alocacao?.alocadoEm;
+      if (alocadoEm != null) {
+        valor = '${alocadoEm.hour.toString().padLeft(2, '0')}:'
+            '${alocadoEm.minute.toString().padLeft(2, '0')}';
+        detalhe = 'pela alocação';
+        icone = Icons.access_time;
+        cor = AppColors.textSecondary;
+      } else {
+        valor = 'Sem ponto';
+        detalhe = 'sem registro de hoje';
+        icone = Icons.event_busy;
+        cor = AppColors.textSecondary;
+      }
+    } else if (jornada.status == 'escala') {
+      valor = jornada.entrada ?? '--';
+      detalhe = 'baseado na escala';
+      icone = Icons.schedule;
+      cor = AppColors.statusAtencao;
+    } else {
+      valor = jornada.entrada ?? '--';
+      detalhe = 'registro de ponto';
+      icone = Icons.fingerprint;
+      cor = AppColors.primary;
+    }
+
+    return _DashboardInfoCard(
+      titulo: 'Ativo desde',
+      valor: valor,
+      detalhe: detalhe,
+      icone: icone,
+      cor: cor,
+    );
+  }
+
+  Widget _buildJornadaCard(JornadaResult jornada) {
+    late final String titulo;
+    late final String valor;
+    late final String detalhe;
+    late final IconData icone;
+    late final Color cor;
+
+    if (_carregando) {
+      titulo = 'Jornada líquida';
+      valor = '--';
+      detalhe = 'Aguardando cálculo';
+      icone = Icons.timer_outlined;
+      cor = AppColors.textSecondary;
+    } else if (jornada.status == 'sem_ponto') {
+      titulo = 'Jornada líquida';
+      valor = 'Sem ponto';
+      detalhe = 'sem registro de hoje';
+      icone = Icons.timer_off_outlined;
+      cor = AppColors.textSecondary;
+    } else if (jornada.status == 'escala') {
+      titulo = 'Jornada estimada';
+      valor = _formatDuracao(jornada.liquida);
+      detalhe = 'estimada pela escala';
+      icone = Icons.timelapse_outlined;
+      cor = AppColors.statusAtencao;
+    } else {
+      titulo = 'Jornada líquida';
+      valor = _formatDuracao(jornada.liquida);
+      detalhe = _statusResumo(jornada.status);
+      icone = Icons.timer_outlined;
+      cor = _corJornada(jornada.status);
+    }
+
+    return _DashboardInfoCard(
+      titulo: titulo,
+      valor: valor,
+      detalhe: detalhe,
+      icone: icone,
+      cor: cor,
+    );
+  }
+
+  Widget _buildIntervaloCard(JornadaResult jornada) {
+    final colaborador = widget.colaborador;
+    late final String valor;
+    late final String detalhe;
+    late final IconData icone;
+    late final Color cor;
+
+    if (colaborador == null) {
+      valor = '--';
+      detalhe = 'sem colaborador';
+      icone = Icons.event_busy;
+      cor = AppColors.textSecondary;
+    } else {
+      final cafeProvider =
+          Provider.of<CafeProvider>(widget.providerContext, listen: false);
+
+      if (cafeProvider.colaboradorEmPausa(colaborador.id)) {
+        final minutos = widget.pausa?.minutosDecorridos;
+        valor = minutos != null ? '$minutos min' : 'Em café';
+        detalhe = minutos != null ? 'pausa ativa no café' : 'pausa ativa';
+        icone = Icons.coffee;
+        cor = AppColors.statusCafe;
+      } else if (widget.alocacaoProvider.isIntervaloMarcado(colaborador.id) ||
+          cafeProvider.colaboradorJaFezIntervaloHoje(colaborador.id)) {
+        valor = 'Concluído';
+        detalhe = 'intervalo já registrado';
+        icone = Icons.check_circle;
+        cor = AppColors.success;
+      } else {
+        final intervaloStr =
+            _registroHoje?.intervaloSaida ?? widget.turno?.intervalo;
+        if (intervaloStr == null || intervaloStr.isEmpty) {
+          valor = 'Sem horário';
+          detalhe = 'nenhum intervalo previsto';
+          icone = Icons.event_busy;
+          cor = AppColors.textSecondary;
+        } else {
+          final parts = intervaloStr.split(':');
+          final h = parts.length >= 2 ? int.tryParse(parts[0]) : null;
+          final m = parts.length >= 2 ? int.tryParse(parts[1]) : null;
+
+          if (h == null || m == null) {
+            valor = 'Sem horário';
+            detalhe = 'intervalo inválido';
+            icone = Icons.event_busy;
+            cor = AppColors.textSecondary;
+          } else {
+            final now = DateTime.now();
+            final intervaloTime = DateTime(now.year, now.month, now.day, h, m);
+            final diff = intervaloTime.difference(now);
+
+            if (diff.inSeconds > 0) {
+              final minutos = diff.inMinutes;
+              valor = minutos > 0 ? '$minutos min' : '< 1 min';
+              detalhe = 'para o intervalo ($intervaloStr)';
+              icone = Icons.hourglass_top;
+              cor = AppColors.primary;
+            } else {
+              final passou = diff.inMinutes.abs();
+              valor = passou == 0 ? 'Agora' : '$passou min';
+              detalhe = passou == 0
+                  ? 'horário do intervalo ($intervaloStr)'
+                  : 'aguardando desde $intervaloStr';
+              icone = Icons.schedule;
+              cor = AppColors.warning;
+            }
+          }
+        }
+      }
+    }
+
+    return _DashboardInfoCard(
+      titulo: 'Intervalo',
+      valor: valor,
+      detalhe: detalhe,
+      icone: icone,
+      cor: cor,
+      trailing: StatusBadge(status: jornada.status),
+    );
+  }
+
+  String _statusResumo(String status) {
+    switch (status) {
+      case 'trabalhando':
+        return 'em atividade';
+      case 'intervalo':
+        return 'em pausa';
+      case 'encerrado':
+        return 'jornada encerrada';
+      default:
+        return 'sem ponto';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final jornada = _calcJornada();
@@ -351,71 +563,9 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                 ),
               ),
 
-            // Jornada baseada no ponto
-            if (_carregando)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 14,
-                      height: 14,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                    SizedBox(width: 8),
-                    Text('Carregando ponto...'),
-                  ],
-                ),
-              )
-            else if (jornada.status == 'sem_ponto')
-              InfoRow(
-                icon: Icons.access_time,
-                label: 'Alocado às',
-                value:
-                    '${widget.alocacao!.alocadoEm.hour.toString().padLeft(2, '0')}:'
-                    '${widget.alocacao!.alocadoEm.minute.toString().padLeft(2, '0')} '
-                    '(sem registro de ponto hoje)',
-                iconColor: AppColors.textSecondary,
-              )
-            else if (jornada.status == 'escala') ...[
-              InfoRow(
-                icon: Icons.schedule,
-                label: 'Ativo desde',
-                value: '${jornada.entrada} (escala)',
-                iconColor: AppColors.statusAtencao,
-              ),
-              const SizedBox(height: 6),
-              InfoRow(
-                icon: Icons.timer_outlined,
-                label: 'Jornada estimada',
-                value: _formatDuracao(jornada.liquida),
-                iconColor: AppColors.statusAtencao,
-              ),
-              const SizedBox(height: 6),
-              const StatusBadge(status: 'trabalhando'),
-            ] else ...[
-              InfoRow(
-                icon: Icons.fingerprint,
-                label: 'Ativo desde',
-                value: '${jornada.entrada} (ponto)',
-                iconColor: AppColors.primary,
-              ),
-              const SizedBox(height: 6),
-              InfoRow(
-                icon: Icons.timer_outlined,
-                label: 'Jornada líquida',
-                value: _formatDuracao(jornada.liquida),
-                iconColor: _corJornada(jornada.status),
-              ),
-              const SizedBox(height: 6),
-              StatusBadge(status: jornada.status),
-            ],
+            _buildOperacaoDashboard(jornada),
 
             const SizedBox(height: 12),
-
-            // Banner de countdown / aguardando intervalo
-            _buildIntervaloStatusBanner(),
-
             if (widget.turno != null) ...[
               InkWell(
                 onTap: () => setState(() => _mostrarEscala = !_mostrarEscala),
@@ -1294,102 +1444,6 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     );
   }
 
-  // ── Banner de status do intervalo ─────────────────────────────────────────
-  // Mostra countdown ou "Aguardando Intervalo" com tempo decorrido.
-  Widget _buildIntervaloStatusBanner() {
-    if (widget.colaborador == null) return const SizedBox.shrink();
-
-    // Se já está em pausa ativa, o alerta de pausa já cobre isso
-    final cafeProvider =
-        Provider.of<CafeProvider>(widget.providerContext, listen: false);
-    if (cafeProvider.colaboradorEmPausa(widget.colaborador!.id)) {
-      return const SizedBox.shrink();
-    }
-
-    // Se o intervalo já foi marcado como feito, não mostra o banner
-    if (widget.alocacaoProvider.isIntervaloMarcado(widget.colaborador!.id)) {
-      return const SizedBox.shrink();
-    }
-    if (cafeProvider.colaboradorJaFezIntervaloHoje(widget.colaborador!.id)) {
-      return const SizedBox.shrink();
-    }
-
-    // Usa horário de intervalo do registro de ponto, ou da escala como fallback
-    final intervaloStr =
-        _registroHoje?.intervaloSaida ?? widget.turno?.intervalo;
-    if (intervaloStr == null || intervaloStr.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    final parts = intervaloStr.split(':');
-    if (parts.length < 2) return const SizedBox.shrink();
-    final h = int.tryParse(parts[0]);
-    final m = int.tryParse(parts[1]);
-    if (h == null || m == null) return const SizedBox.shrink();
-
-    final now = DateTime.now();
-    final intervaloTime = DateTime(now.year, now.month, now.day, h, m);
-    final diff = intervaloTime.difference(now);
-
-    if (diff.inSeconds > 0) {
-      // Falta tempo — countdown
-      final minutos = diff.inMinutes;
-      return Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: AppColors.primary.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.primary.withValues(alpha: 0.22)),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.hourglass_top, size: 15, color: AppColors.primary),
-            const SizedBox(width: 8),
-            Text(
-              minutos > 0
-                  ? '$minutos min para o intervalo ($intervaloStr)'
-                  : 'Intervalo em menos de 1 min ($intervaloStr)',
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      );
-    } else {
-      // Passou do horário — Aguardando Intervalo
-      final passou = diff.inMinutes.abs();
-      return Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: AppColors.warning.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.warning.withValues(alpha: 0.28)),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.schedule, size: 15, color: AppColors.warning),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                passou == 0
-                    ? 'Horário de intervalo agora ($intervaloStr)'
-                    : 'Aguardando Intervalo · $passou min desde $intervaloStr',
-                style: AppTextStyles.caption.copyWith(
-                  color: AppColors.warning,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-  }
-
   Color _corJornada(String status) {
     switch (status) {
       case 'encerrado':
@@ -1672,6 +1726,95 @@ class _OcorrenciaRow extends StatelessWidget {
 // ─────────────────────────────────────────────
 // Badge de status da jornada
 // ─────────────────────────────────────────────
+
+// Card base do dashboard operacional
+class _DashboardInfoCard extends StatelessWidget {
+  final String titulo;
+  final String valor;
+  final String detalhe;
+  final IconData icone;
+  final Color cor;
+  final Widget? trailing;
+
+  const _DashboardInfoCard({
+    required this.titulo,
+    required this.valor,
+    required this.detalhe,
+    required this.icone,
+    required this.cor,
+    this.trailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: cor.withValues(alpha: 0.18)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: cor.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icone, size: 18, color: cor),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  titulo.toUpperCase(),
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+              ),
+              if (trailing != null) ...[
+                const SizedBox(width: 10),
+                Flexible(child: trailing!),
+              ],
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            valor,
+            style: AppTextStyles.h4.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            detalhe,
+            style: AppTextStyles.caption.copyWith(
+              color: cor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class StatusBadge extends StatelessWidget {
   final String status;
 
