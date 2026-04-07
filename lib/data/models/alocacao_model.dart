@@ -30,6 +30,25 @@ class AlocacaoModel extends Equatable {
     this.intervaloMarcadoFeito = false,
   });
 
+  static DateTime _parseHorarioLocal(dynamic value) {
+    final parsed = DateTime.parse(value as String);
+    if (!parsed.isUtc) return parsed;
+
+    // Alocacoes historicamente usam horario local de operacao.
+    // Quando o banco devolve esses valores com offset UTC, preservamos o
+    // horario "de parede" para manter a duracao exibida consistente.
+    return DateTime(
+      parsed.year,
+      parsed.month,
+      parsed.day,
+      parsed.hour,
+      parsed.minute,
+      parsed.second,
+      parsed.millisecond,
+      parsed.microsecond,
+    );
+  }
+
   /// Cria AlocacaoModel a partir de JSON (Supabase)
   factory AlocacaoModel.fromJson(Map<String, dynamic> json) {
     return AlocacaoModel(
@@ -39,18 +58,18 @@ class AlocacaoModel extends Equatable {
       turnoEscalaId: json['turno_escala_id'] as String?,
       // Suporta tanto o nome novo (alocado_em) quanto o antigo (horario_inicio)
       alocadoEm: json['alocado_em'] != null
-          ? DateTime.parse(json['alocado_em'] as String)
-          : DateTime.parse(json['horario_inicio'] as String),
+          ? _parseHorarioLocal(json['alocado_em'])
+          : _parseHorarioLocal(json['horario_inicio']),
       // Suporta tanto liberado_em quanto horario_fim
       liberadoEm: json['liberado_em'] != null
-          ? DateTime.parse(json['liberado_em'] as String)
+          ? _parseHorarioLocal(json['liberado_em'])
           : (json['horario_fim'] != null
-              ? DateTime.parse(json['horario_fim'] as String)
+              ? _parseHorarioLocal(json['horario_fim'])
               : null),
       motivoLiberacao: json['motivo_liberacao'] as String?,
       alocadoPor: json['alocado_por'] as String?,
       observacoes: json['observacoes'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: _parseHorarioLocal(json['created_at']),
       intervaloMarcadoFeito: json['intervalo_marcado_feito'] as bool? ?? false,
     );
   }
@@ -134,7 +153,8 @@ class AlocacaoModel extends Equatable {
       alocadoPor: alocadoPor ?? this.alocadoPor,
       observacoes: observacoes ?? this.observacoes,
       createdAt: createdAt ?? this.createdAt,
-      intervaloMarcadoFeito: intervaloMarcadoFeito ?? this.intervaloMarcadoFeito,
+      intervaloMarcadoFeito:
+          intervaloMarcadoFeito ?? this.intervaloMarcadoFeito,
     );
   }
 
