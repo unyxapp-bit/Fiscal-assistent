@@ -218,7 +218,9 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                     cafeProvider.getPausaAtivaPorCaixa(c.id) != null)
                 .toList();
             final normais = caixasTodos
-                .where((c) => c.tipo == TipoCaixa.normal)
+                .where((c) =>
+                    c.tipo == TipoCaixa.normal ||
+                    c.tipo == TipoCaixa.preferencial)
                 .where((c) =>
                     alocacaoProvider.getAlocacaoCaixa(c.id) != null ||
                     cafeProvider.getPausaAtivaPorCaixa(c.id) != null)
