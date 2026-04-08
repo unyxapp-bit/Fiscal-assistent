@@ -1,5 +1,7 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
@@ -13,6 +15,58 @@ class ChecklistExecucaoScreen extends StatelessWidget {
   final String execucaoId;
 
   const ChecklistExecucaoScreen({super.key, required this.execucaoId});
+
+  String _formatDateTime(DateTime dt) {
+    final dia = dt.day.toString().padLeft(2, '0');
+    final mes = dt.month.toString().padLeft(2, '0');
+    final hora = dt.hour.toString().padLeft(2, '0');
+    final minuto = dt.minute.toString().padLeft(2, '0');
+    return '$dia/$mes/${dt.year} \u00e0s $hora:$minuto';
+  }
+
+  String _textoExecucao(ChecklistExecucao exec, String titulo) {
+    final buf = StringBuffer();
+    buf.writeln('*$titulo*');
+    buf.writeln();
+    buf.writeln('Data: ${_formatDateTime(exec.data)}');
+    buf.writeln(
+      'Status: ${exec.concluido ? 'Conclu\u00eddo' : 'Em andamento'}',
+    );
+    buf.writeln('Progresso: ${exec.marcados}/${exec.totalItens} itens');
+    if (exec.concluido && exec.concluidoEm != null) {
+      buf.writeln('Conclus\u00e3o: ${_formatDateTime(exec.concluidoEm!)}');
+    }
+    buf.writeln();
+    buf.writeln('Itens:');
+    for (var i = 0; i < exec.itens.length; i++) {
+      final marcado =
+          i < exec.itensMarcados.length && exec.itensMarcados[i] == true;
+      buf.writeln('${marcado ? '[x]' : '[ ]'} ${exec.itens[i]}');
+    }
+    return buf.toString().trim();
+  }
+
+  Future<void> _copiarExecucao(
+    BuildContext context,
+    ChecklistExecucao exec,
+    String titulo,
+  ) async {
+    await Clipboard.setData(ClipboardData(text: _textoExecucao(exec, titulo)));
+    if (!context.mounted) return;
+    AppNotif.show(
+      context,
+      titulo: 'Copiado',
+      mensagem: 'Checklist copiado para a \u00e1rea de transfer\u00eancia',
+      tipo: 'intervalo',
+    );
+  }
+
+  void _compartilharExecucao(ChecklistExecucao exec, String titulo) {
+    Share.share(
+      _textoExecucao(exec, titulo),
+      subject: titulo,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,9 +107,14 @@ class ChecklistExecucaoScreen extends StatelessWidget {
                 try {
                   await provider.concluir(execucaoId);
                   if (!context.mounted) return;
-                  final eventoProvider = Provider.of<EventoTurnoProvider>(context, listen: false);
+                  final eventoProvider =
+                      Provider.of<EventoTurnoProvider>(context, listen: false);
                   if (eventoProvider.turnoAtivo) {
-                    final fiscalId = Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+                    final fiscalId =
+                        Provider.of<AuthProvider>(context, listen: false)
+                                .user
+                                ?.id ??
+                            '';
                     eventoProvider.registrar(
                       fiscalId: fiscalId,
                       tipo: TipoEvento.checklistConcluido,
@@ -83,6 +142,38 @@ class ChecklistExecucaoScreen extends StatelessWidget {
               label: const Text('Concluir',
                   style: TextStyle(color: AppColors.success)),
             ),
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'copiar') {
+                _copiarExecucao(context, exec, titulo);
+              }
+              if (value == 'compartilhar') {
+                _compartilharExecucao(exec, titulo);
+              }
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(
+                value: 'copiar',
+                child: Row(
+                  children: [
+                    Icon(Icons.copy_outlined, size: 18),
+                    SizedBox(width: 8),
+                    Text('Copiar'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'compartilhar',
+                child: Row(
+                  children: [
+                    Icon(Icons.share_outlined, size: 18),
+                    SizedBox(width: 8),
+                    Text('Compartilhar'),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
       body: Column(
@@ -100,7 +191,9 @@ class ChecklistExecucaoScreen extends StatelessWidget {
                       '${exec.marcados} de ${exec.totalItens} itens',
                       style: AppTextStyles.body.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: concluido ? AppColors.success : AppColors.textPrimary,
+                        color: concluido
+                            ? AppColors.success
+                            : AppColors.textPrimary,
                       ),
                     ),
                     Text(
@@ -129,24 +222,25 @@ class ChecklistExecucaoScreen extends StatelessWidget {
           if (concluido) ...[
             const SizedBox(height: Dimensions.spacingSM),
             Container(
-              margin: const EdgeInsets.symmetric(
-                  horizontal: Dimensions.paddingMD),
+              margin:
+                  const EdgeInsets.symmetric(horizontal: Dimensions.paddingMD),
               padding: const EdgeInsets.all(Dimensions.paddingSM),
               decoration: BoxDecoration(
                 color: AppColors.success.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(Dimensions.radiusMD),
-                border: Border.all(
-                    color: AppColors.success.withValues(alpha: 0.3)),
+                border:
+                    Border.all(color: AppColors.success.withValues(alpha: 0.3)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.check_circle, color: AppColors.success, size: 18),
+                  const Icon(Icons.check_circle,
+                      color: AppColors.success, size: 18),
                   const SizedBox(width: 8),
                   Text(
                     'Checklist concluído!',
-                    style: AppTextStyles.body
-                        .copyWith(color: AppColors.success, fontWeight: FontWeight.w600),
+                    style: AppTextStyles.body.copyWith(
+                        color: AppColors.success, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -158,8 +252,8 @@ class ChecklistExecucaoScreen extends StatelessWidget {
           // ── Lista de itens ───────────────────────────────────────────────
           Expanded(
             child: ListView.separated(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: Dimensions.paddingMD),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: Dimensions.paddingMD),
               itemCount: exec.itens.length,
               separatorBuilder: (_, __) =>
                   const Divider(height: 1, indent: 16, endIndent: 16),
@@ -184,11 +278,9 @@ class ChecklistExecucaoScreen extends StatelessWidget {
                   title: Text(
                     exec.itens[i],
                     style: AppTextStyles.body.copyWith(
-                      decoration:
-                          marcado ? TextDecoration.lineThrough : null,
-                      color: marcado
-                          ? AppColors.inactive
-                          : AppColors.textPrimary,
+                      decoration: marcado ? TextDecoration.lineThrough : null,
+                      color:
+                          marcado ? AppColors.inactive : AppColors.textPrimary,
                     ),
                   ),
                   secondary: CircleAvatar(
