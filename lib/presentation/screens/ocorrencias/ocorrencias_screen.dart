@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../core/constants/colors.dart';
@@ -36,28 +36,10 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     super.dispose();
   }
 
-  void _compartilharOcorrencia(Ocorrencia oc) {
-    Share.share(
-      _gerarTextoOcorrencia(oc),
-      subject: 'Ocorrencia ${oc.gravidade.nome}',
-    );
-  }
-
-  void _copiarOcorrencia(Ocorrencia oc) {
-    Clipboard.setData(ClipboardData(text: _gerarTextoOcorrencia(oc)));
-    AppNotif.show(
-      context,
-      titulo: 'Copiado',
-      mensagem: 'Ocorrencia copiada para a area de transferencia',
-      tipo: 'intervalo',
-      cor: AppColors.success,
-    );
-  }
-
-  String _gerarTextoOcorrencia(Ocorrencia oc) {
+  String _textoOcorrencia(Ocorrencia oc) {
     final fmt = _formatDateTime(oc.registradaEm);
     final buf = StringBuffer();
-    buf.writeln('Ocorrencia - ${oc.gravidade.nome}');
+    buf.writeln('*Ocorrência - ${oc.gravidade.nome}*');
     buf.writeln();
     buf.writeln('Tipo: ${oc.tipo}');
     if (oc.caixaId != null && oc.caixaId!.isNotEmpty) {
@@ -70,7 +52,25 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     buf.writeln(oc.descricao);
     buf.writeln();
     buf.write('Registrada em: $fmt');
-    return buf.toString().trim();
+    return buf.toString();
+  }
+
+  void _compartilharOcorrencia(Ocorrencia oc) {
+    Share.share(
+      _textoOcorrencia(oc),
+      subject: 'Ocorrência ${oc.gravidade.nome}',
+    );
+  }
+
+  Future<void> _copiarOcorrencia(Ocorrencia oc) async {
+    await Clipboard.setData(ClipboardData(text: _textoOcorrencia(oc)));
+    if (!mounted) return;
+    AppNotif.show(
+      context,
+      titulo: 'Copiado',
+      mensagem: 'Ocorrência copiada para a área de transferência',
+      tipo: 'intervalo',
+    );
   }
 
   String _formatDateTime(DateTime dt) {
@@ -78,7 +78,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     final m = dt.month.toString().padLeft(2, '0');
     final h = dt.hour.toString().padLeft(2, '0');
     final min = dt.minute.toString().padLeft(2, '0');
-    return '$d/$m/${dt.year} Ã s $h:$min';
+    return '$d/$m/${dt.year} às $h:$min';
   }
 
   void _confirmarDelete(
@@ -89,8 +89,8 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Excluir ocorrÃªncia'),
-        content: const Text('Deseja excluir esta ocorrÃªncia?'),
+        title: const Text('Excluir ocorrência'),
+        content: const Text('Deseja excluir esta ocorrência?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -125,8 +125,8 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
             const SizedBox(height: 16),
             Text(
               showResolver
-                  ? 'Nenhuma ocorrÃªncia aberta'
-                  : 'Nenhuma ocorrÃªncia resolvida',
+                  ? 'Nenhuma ocorrência aberta'
+                  : 'Nenhuma ocorrência resolvida',
               style: AppTextStyles.h4.copyWith(color: AppColors.textSecondary),
             ),
           ],
@@ -232,7 +232,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                     eventoProvider.registrar(
                       fiscalId: fiscalId,
                       tipo: TipoEvento.ocorrenciaResolvida,
-                      detalhe: '${oc.tipo} â€” ${oc.gravidade.nome}',
+                      detalhe: '${oc.tipo} — ${oc.gravidade.nome}',
                     );
                   }
                 }
@@ -292,7 +292,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('OcorrÃªncias'),
+        title: const Text('Ocorrências'),
         backgroundColor: AppColors.background,
         elevation: 0,
         bottom: TabBar(
