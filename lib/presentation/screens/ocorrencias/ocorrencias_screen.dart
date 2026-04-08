@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
+import '../../../core/utils/app_notif.dart';
 import '../../../domain/entities/evento_turno.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/evento_turno_provider.dart';
@@ -35,9 +37,27 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
   }
 
   void _compartilharOcorrencia(Ocorrencia oc) {
+    Share.share(
+      _gerarTextoOcorrencia(oc),
+      subject: 'Ocorrencia ${oc.gravidade.nome}',
+    );
+  }
+
+  void _copiarOcorrencia(Ocorrencia oc) {
+    Clipboard.setData(ClipboardData(text: _gerarTextoOcorrencia(oc)));
+    AppNotif.show(
+      context,
+      titulo: 'Copiado',
+      mensagem: 'Ocorrencia copiada para a area de transferencia',
+      tipo: 'intervalo',
+      cor: AppColors.success,
+    );
+  }
+
+  String _gerarTextoOcorrencia(Ocorrencia oc) {
     final fmt = _formatDateTime(oc.registradaEm);
     final buf = StringBuffer();
-    buf.writeln('⚠️ *Ocorrência — ${oc.gravidade.nome}*');
+    buf.writeln('Ocorrencia - ${oc.gravidade.nome}');
     buf.writeln();
     buf.writeln('Tipo: ${oc.tipo}');
     if (oc.caixaId != null && oc.caixaId!.isNotEmpty) {
@@ -49,8 +69,8 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     buf.writeln();
     buf.writeln(oc.descricao);
     buf.writeln();
-    buf.write('🕐 Registrada em: $fmt');
-    Share.share(buf.toString(), subject: 'Ocorrência ${oc.gravidade.nome}');
+    buf.write('Registrada em: $fmt');
+    return buf.toString().trim();
   }
 
   String _formatDateTime(DateTime dt) {
@@ -58,7 +78,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     final m = dt.month.toString().padLeft(2, '0');
     final h = dt.hour.toString().padLeft(2, '0');
     final min = dt.minute.toString().padLeft(2, '0');
-    return '$d/$m/${dt.year} às $h:$min';
+    return '$d/$m/${dt.year} Ã s $h:$min';
   }
 
   void _confirmarDelete(
@@ -69,8 +89,8 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Excluir ocorrência'),
-        content: const Text('Deseja excluir esta ocorrência?'),
+        title: const Text('Excluir ocorrÃªncia'),
+        content: const Text('Deseja excluir esta ocorrÃªncia?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -105,8 +125,8 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
             const SizedBox(height: 16),
             Text(
               showResolver
-                  ? 'Nenhuma ocorrência aberta'
-                  : 'Nenhuma ocorrência resolvida',
+                  ? 'Nenhuma ocorrÃªncia aberta'
+                  : 'Nenhuma ocorrÃªncia resolvida',
               style: AppTextStyles.h4.copyWith(color: AppColors.textSecondary),
             ),
           ],
@@ -212,10 +232,11 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                     eventoProvider.registrar(
                       fiscalId: fiscalId,
                       tipo: TipoEvento.ocorrenciaResolvida,
-                      detalhe: '${oc.tipo} — ${oc.gravidade.nome}',
+                      detalhe: '${oc.tipo} â€” ${oc.gravidade.nome}',
                     );
                   }
                 }
+                if (v == 'copiar') _copiarOcorrencia(oc);
                 if (v == 'compartilhar') _compartilharOcorrencia(oc);
                 if (v == 'deletar') _confirmarDelete(ctx, oc, provider);
               },
@@ -230,6 +251,14 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                       Text('Marcar como resolvida'),
                     ]),
                   ),
+                const PopupMenuItem(
+                  value: 'copiar',
+                  child: Row(children: [
+                    Icon(Icons.copy_outlined, size: 18),
+                    SizedBox(width: 8),
+                    Text('Copiar'),
+                  ]),
+                ),
                 const PopupMenuItem(
                   value: 'compartilhar',
                   child: Row(children: [
@@ -263,7 +292,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Ocorrências'),
+        title: const Text('OcorrÃªncias'),
         backgroundColor: AppColors.background,
         elevation: 0,
         bottom: TabBar(
