@@ -3,6 +3,58 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/datasources/remote/supabase_client.dart';
 
+const _checklistModoPrefix = '[[modo_execucao:';
+const _checklistModoSuffix = ']]';
+
+class _ChecklistDescricaoMetadata {
+  final String descricao;
+  final ModoExecucaoChecklist modoExecucao;
+
+  const _ChecklistDescricaoMetadata({
+    required this.descricao,
+    required this.modoExecucao,
+  });
+}
+
+_ChecklistDescricaoMetadata _parseDescricaoChecklist(String? raw) {
+  final texto = raw ?? '';
+  final match = RegExp(
+    r'^\[\[modo_execucao:([a-z_]+)\]\]\s*',
+    dotAll: true,
+  ).firstMatch(texto);
+
+  if (match == null) {
+    return const _ChecklistDescricaoMetadata(
+      descricao: '',
+      modoExecucao: ModoExecucaoChecklist.continuo,
+    ).copyWithDescricao(texto);
+  }
+
+  return _ChecklistDescricaoMetadata(
+    descricao: texto.substring(match.end).trimLeft(),
+    modoExecucao: ModoExecucaoChecklistX.fromValue(match.group(1)),
+  );
+}
+
+String _serializarDescricaoChecklist(
+  String descricao,
+  ModoExecucaoChecklist modoExecucao,
+) {
+  final limpa = _parseDescricaoChecklist(descricao).descricao.trim();
+  final cabecalho =
+      '$_checklistModoPrefix${modoExecucao.toValue}$_checklistModoSuffix';
+  return limpa.isEmpty ? cabecalho : '$cabecalho\n$limpa';
+}
+
+extension on _ChecklistDescricaoMetadata {
+  _ChecklistDescricaoMetadata copyWithDescricao(String value) {
+    return _ChecklistDescricaoMetadata(
+      descricao: value,
+      modoExecucao: modoExecucao,
+    );
+  }
+}
+
 // ── Legacy items (fallback para execuções antigas sem snapshot) ───────────────
 
 const _itensAbertura = [
@@ -106,6 +158,49 @@ extension PeriodizacaoChecklistX on PeriodizacaoChecklist {
   }
 }
 
+enum ModoExecucaoChecklist {
+  continuo,
+  usoUnico,
+}
+
+extension ModoExecucaoChecklistX on ModoExecucaoChecklist {
+  String get label {
+    switch (this) {
+      case ModoExecucaoChecklist.continuo:
+        return 'Uso continuo';
+      case ModoExecucaoChecklist.usoUnico:
+        return 'Uso unico';
+    }
+  }
+
+  String get descricaoCurta {
+    switch (this) {
+      case ModoExecucaoChecklist.continuo:
+        return 'Pode ser respondido novamente sempre que precisar.';
+      case ModoExecucaoChecklist.usoUnico:
+        return 'Depois da primeira conclusao, sai da lista de resposta.';
+    }
+  }
+
+  String get toValue {
+    switch (this) {
+      case ModoExecucaoChecklist.continuo:
+        return 'continuo';
+      case ModoExecucaoChecklist.usoUnico:
+        return 'uso_unico';
+    }
+  }
+
+  static ModoExecucaoChecklist fromValue(String? value) {
+    switch (value) {
+      case 'uso_unico':
+        return ModoExecucaoChecklist.usoUnico;
+      default:
+        return ModoExecucaoChecklist.continuo;
+    }
+  }
+}
+
 // ── ChecklistTemplate ─────────────────────────────────────────────────────────
 
 class ChecklistTemplate {
@@ -118,6 +213,7 @@ class ChecklistTemplate {
   final bool isDefault;
   final DateTime createdAt;
   final PeriodizacaoChecklist periodizacao;
+  final ModoExecucaoChecklist modoExecucao;
 
   /// Horário no formato "HH:mm" — usado apenas quando [periodizacao] ==
   /// [PeriodizacaoChecklist.horarioEspecifico].
@@ -133,6 +229,7 @@ class ChecklistTemplate {
     this.isDefault = false,
     required this.createdAt,
     this.periodizacao = PeriodizacaoChecklist.qualquerHorario,
+    this.modoExecucao = ModoExecucaoChecklist.continuo,
     this.horarioNotificacao,
   });
 
@@ -146,6 +243,7 @@ class ChecklistTemplate {
     String? corHex,
     List<String>? itens,
     PeriodizacaoChecklist? periodizacao,
+    ModoExecucaoChecklist? modoExecucao,
     String? horarioNotificacao,
     bool clearHorario = false,
   }) =>
@@ -159,15 +257,17 @@ class ChecklistTemplate {
         isDefault: isDefault,
         createdAt: createdAt,
         periodizacao: periodizacao ?? this.periodizacao,
-        horarioNotificacao:
-            clearHorario ? null : (horarioNotificacao ?? this.horarioNotificacao),
+        modoExecucao: modoExecucao ?? this.modoExecucao,
+        horarioNotificacao: clearHorario
+            ? null
+            : (horarioNotificacao ?? this.horarioNotificacao),
       );
 
   Map<String, dynamic> toMap(String fiscalId) => {
         'id': id,
         'fiscal_id': fiscalId,
         'titulo': titulo,
-        'descricao': descricao,
+        'descricao': _serializarDescricaoChecklist(descricao, modoExecucao),
         'icone_key': iconeKey,
         'cor_hex': corHex,
         'itens': itens,
@@ -177,20 +277,23 @@ class ChecklistTemplate {
         'horario_notificacao': horarioNotificacao,
       };
 
-  static ChecklistTemplate fromMap(Map<String, dynamic> m) =>
-      ChecklistTemplate(
-        id: m['id'] as String,
-        titulo: m['titulo'] as String,
-        descricao: m['descricao'] as String? ?? '',
-        iconeKey: m['icone_key'] as String? ?? 'checklist',
-        corHex: m['cor_hex'] as String? ?? '4CAF50',
-        itens: List<String>.from(m['itens'] as List? ?? []),
-        isDefault: m['is_default'] as bool? ?? false,
-        createdAt: DateTime.parse(m['created_at'] as String),
-        periodizacao:
-            PeriodizacaoChecklistX.fromValue(m['periodizacao'] as String?),
-        horarioNotificacao: m['horario_notificacao'] as String?,
-      );
+  static ChecklistTemplate fromMap(Map<String, dynamic> m) {
+    final metadata = _parseDescricaoChecklist(m['descricao'] as String? ?? '');
+    return ChecklistTemplate(
+      id: m['id'] as String,
+      titulo: m['titulo'] as String,
+      descricao: metadata.descricao,
+      iconeKey: m['icone_key'] as String? ?? 'checklist',
+      corHex: m['cor_hex'] as String? ?? '4CAF50',
+      itens: List<String>.from(m['itens'] as List? ?? []),
+      isDefault: m['is_default'] as bool? ?? false,
+      createdAt: DateTime.parse(m['created_at'] as String),
+      periodizacao:
+          PeriodizacaoChecklistX.fromValue(m['periodizacao'] as String?),
+      modoExecucao: metadata.modoExecucao,
+      horarioNotificacao: m['horario_notificacao'] as String?,
+    );
+  }
 }
 
 // ── ChecklistExecucao ─────────────────────────────────────────────────────────
@@ -253,6 +356,8 @@ class ChecklistProvider with ChangeNotifier {
 
   List<ChecklistExecucao> get todas => _execucoes;
   List<ChecklistTemplate> get templates => _templates;
+  ChecklistTemplate? templateById(String templateId) =>
+      _templates.where((t) => t.id == templateId).firstOrNull;
 
   /// Última execução do template no dia de hoje.
   ChecklistExecucao? execucaoHoje(String templateId) {
@@ -282,6 +387,52 @@ class ChecklistProvider with ChangeNotifier {
       }
     } catch (_) {}
     return null;
+  }
+
+  ChecklistExecucao? execucaoAberta(String templateId) {
+    try {
+      return _execucoes.firstWhere(
+        (e) => e.tipo == templateId && !e.concluido,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  ChecklistExecucao? ultimaExecucao(String templateId) {
+    try {
+      return _execucoes.firstWhere((e) => e.tipo == templateId);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  ChecklistExecucao? ultimaExecucaoConcluida(String templateId) {
+    try {
+      return _execucoes.firstWhere(
+        (e) => e.tipo == templateId && e.concluido,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  bool jaFoiConcluidoAlgumaVez(String templateId) =>
+      ultimaExecucaoConcluida(templateId) != null;
+
+  bool estaDisponivelNoTurno(String templateId) {
+    final template = templateById(templateId);
+    if (template == null) return true;
+    if (template.modoExecucao == ModoExecucaoChecklist.continuo) return true;
+    return !jaFoiConcluidoAlgumaVez(templateId) ||
+        execucaoAberta(templateId) != null;
+  }
+
+  bool podeIniciarNovaExecucao(String templateId) {
+    final template = templateById(templateId);
+    if (template == null) return true;
+    if (template.modoExecucao == ModoExecucaoChecklist.continuo) return true;
+    return !jaFoiConcluidoAlgumaVez(templateId);
   }
 
   bool foiConcluidoHoje(String templateId) =>
@@ -318,7 +469,9 @@ class ChecklistProvider with ChangeNotifier {
   /// Retorna true se o template deve mostrar alerta agora:
   /// não concluído hoje E dentro da janela de notificação.
   bool deveNotificarAgora(String templateId) =>
-      !foiConcluidoHoje(templateId) && estaNoJanela(templateId);
+      estaDisponivelNoTurno(templateId) &&
+      !foiConcluidoHoje(templateId) &&
+      estaNoJanela(templateId);
 
   /// Templates com checklist pendente cuja janela de notificação está ativa.
   List<ChecklistTemplate> get templatesPendentesAgora =>
@@ -420,7 +573,9 @@ class ChecklistProvider with ChangeNotifier {
 
   Future<void> _upsertTemplate(ChecklistTemplate t) async {
     try {
-      await SupabaseClientManager.client.from(_tableT).upsert(t.toMap(_fiscalId));
+      await SupabaseClientManager.client
+          .from(_tableT)
+          .upsert(t.toMap(_fiscalId));
     } catch (e) {
       if (kDebugMode) {
         debugPrint('[ChecklistProvider] Erro ao sync template: $e');
@@ -437,6 +592,13 @@ class ChecklistProvider with ChangeNotifier {
     try {
       template = _templates.firstWhere((t) => t.id == templateId);
     } catch (_) {}
+    final execucaoPendente = execucaoAberta(templateId);
+    if (execucaoPendente != null) return execucaoPendente;
+    if (template != null &&
+        template.modoExecucao == ModoExecucaoChecklist.usoUnico &&
+        jaFoiConcluidoAlgumaVez(templateId)) {
+      throw StateError('Checklist de uso unico ja foi concluido.');
+    }
     final exec = ChecklistExecucao(
       id: const Uuid().v4(),
       tipo: templateId,
@@ -528,8 +690,7 @@ class ChecklistProvider with ChangeNotifier {
     final itensMarcados = {
       for (final e in itensRaw.entries) int.parse(e.key): e.value as bool,
     };
-    final snapshot =
-        List<String>.from(m['itens_snapshot'] as List? ?? []);
+    final snapshot = List<String>.from(m['itens_snapshot'] as List? ?? []);
     return ChecklistExecucao(
       id: m['id'] as String,
       tipo: m['tipo'] as String,
@@ -570,6 +731,7 @@ class ChecklistProvider with ChangeNotifier {
         isDefault: true,
         createdAt: now,
         periodizacao: PeriodizacaoChecklist.abertura,
+        modoExecucao: ModoExecucaoChecklist.continuo,
       ),
       ChecklistTemplate(
         id: const Uuid().v5(ns, 'checklist:fechamento'),
@@ -581,6 +743,7 @@ class ChecklistProvider with ChangeNotifier {
         isDefault: true,
         createdAt: now,
         periodizacao: PeriodizacaoChecklist.fechamento,
+        modoExecucao: ModoExecucaoChecklist.continuo,
       ),
     ];
   }

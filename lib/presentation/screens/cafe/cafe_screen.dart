@@ -43,6 +43,25 @@ class _CafeScreenState extends State<CafeScreen>
     super.dispose();
   }
 
+  Future<void> _reloadData() async {
+    if (!mounted) return;
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final userId = authProvider.user?.id;
+
+    await Future.wait([
+      Provider.of<CafeProvider>(context, listen: false).load(),
+      Provider.of<EscalaProvider>(context, listen: false).load(),
+      if (userId != null)
+        Provider.of<AlocacaoProvider>(context, listen: false)
+            .loadAlocacoes(userId),
+      if (userId != null)
+        Provider.of<ColaboradorProvider>(context, listen: false)
+            .loadColaboradores(userId),
+      if (userId != null)
+        Provider.of<CaixaProvider>(context, listen: false).loadCaixas(userId),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<CafeProvider>(
@@ -91,6 +110,10 @@ class _CafeScreenState extends State<CafeScreen>
             backgroundColor: AppColors.background,
             elevation: 0,
             actions: [
+              IconButton(
+                icon: const Icon(Icons.refresh),
+                onPressed: _reloadData,
+              ),
               if (provider.pausasFinalizadas.isNotEmpty)
                 TextButton.icon(
                   onPressed: () => _confirmarLimpar(context, provider),
@@ -122,6 +145,164 @@ class _CafeScreenState extends State<CafeScreen>
           ),
           body: Column(
             children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  Dimensions.paddingMD,
+                  12,
+                  Dimensions.paddingMD,
+                  0,
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            BorderRadius.circular(Dimensions.radiusLG),
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            AppColors.alertWarning,
+                            Colors.white,
+                            AppColors.alertInfo,
+                          ],
+                        ),
+                        border: Border.all(
+                          color: AppColors.statusCafe.withValues(alpha: 0.16),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.statusCafe.withValues(alpha: 0.06),
+                            blurRadius: 18,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(Dimensions.paddingMD),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  width: 46,
+                                  height: 46,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.statusCafe
+                                        .withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: const Icon(
+                                    Icons.free_breakfast_rounded,
+                                    color: AppColors.statusCafe,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Painel de pausas',
+                                        style: AppTextStyles.h3,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        temAlertas
+                                            ? 'Existem pausas que pedem retorno imediato.'
+                                            : 'Acompanhe quem pode sair, quem esta fora e quem ja retornou.',
+                                        style: AppTextStyles.body.copyWith(
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: Dimensions.spacingSM),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                _CafeInfoChip(
+                                  icon: Icons.people_outline,
+                                  color: AppColors.primary,
+                                  label: '$totalDisponiveis disponiveis',
+                                ),
+                                _CafeInfoChip(
+                                  icon: Icons.coffee,
+                                  color: AppColors.statusCafe,
+                                  label:
+                                      '${provider.pausasAtivas.length} em pausa',
+                                ),
+                                _CafeInfoChip(
+                                  icon: Icons.warning_amber_rounded,
+                                  color: temAlertas
+                                      ? AppColors.danger
+                                      : AppColors.success,
+                                  label: temAlertas
+                                      ? '${provider.totalEmAtraso} em atraso'
+                                      : 'Sem atraso',
+                                ),
+                                _CafeInfoChip(
+                                  icon: Icons.check_circle_outline,
+                                  color: AppColors.success,
+                                  label:
+                                      '${provider.pausasFinalizadas.length} ja fizeram',
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: Dimensions.spacingMD),
+                    Wrap(
+                      spacing: Dimensions.spacingSM,
+                      runSpacing: Dimensions.spacingSM,
+                      children: [
+                        _CafeResumoCard(
+                          icon: Icons.people_outline,
+                          color: AppColors.primary,
+                          label: 'Disponiveis',
+                          value: '$totalDisponiveis',
+                          subtitle: 'Prontos para pausa',
+                        ),
+                        _CafeResumoCard(
+                          icon: Icons.coffee,
+                          color: AppColors.statusCafe,
+                          label: 'Em intervalo',
+                          value: '${provider.pausasAtivas.length}',
+                          subtitle: 'Fora do caixa agora',
+                        ),
+                        _CafeResumoCard(
+                          icon: Icons.warning_amber_rounded,
+                          color: temAlertas
+                              ? AppColors.danger
+                              : AppColors.statusAtencao,
+                          label: 'Em atencao',
+                          value: '${provider.totalEmAtraso}',
+                          subtitle: temAlertas
+                              ? 'Precisam retornar'
+                              : 'Operacao estavel',
+                        ),
+                        _CafeResumoCard(
+                          icon: Icons.history,
+                          color: AppColors.success,
+                          label: 'Historico',
+                          value: '${provider.pausasFinalizadas.length}',
+                          subtitle: 'Pausas encerradas hoje',
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
               // Banner de alerta — visível em qualquer aba; clique vai para "Em Intervalo"
               if (temAlertas)
                 GestureDetector(
@@ -683,6 +864,121 @@ class _TabHistorico extends StatelessWidget {
 // ---------------------------------------------------------------------------
 // Card: pausa ativa com countdown e progress bar
 // ---------------------------------------------------------------------------
+class _CafeInfoChip extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String label;
+
+  const _CafeInfoChip({
+    required this.icon,
+    required this.color,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: AppTextStyles.caption.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CafeResumoCard extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String label;
+  final String value;
+  final String subtitle;
+
+  const _CafeResumoCard({
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.value,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final larguraTela = MediaQuery.sizeOf(context).width;
+    final larguraPainel = larguraTela > Dimensions.maxContentWidth
+        ? Dimensions.maxContentWidth
+        : larguraTela - (Dimensions.paddingMD * 2);
+    final larguraCard = (larguraPainel - Dimensions.spacingSM) / 2;
+
+    return SizedBox(
+      width: larguraCard,
+      child: Container(
+        decoration: AppStyles.softCard(
+          tint: color,
+          radius: Dimensions.radiusMD,
+          elevated: false,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(Dimensions.paddingSM),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: color, size: 18),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                value,
+                style: AppTextStyles.h2.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: AppTextStyles.label.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _PausaAtivaCard extends StatelessWidget {
   final PausaCafe pausa;
   final VoidCallback onFinalizar;

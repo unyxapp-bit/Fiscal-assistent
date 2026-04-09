@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import '../../../core/constants/app_styles.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
@@ -931,6 +932,34 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
         .where((t) =>
             matchSearch(t) && outroSetorProvider.isNaLista(t.colaboradorId))
         .toList();
+    final larguraTela = MediaQuery.sizeOf(context).width;
+    final larguraPainel = larguraTela > Dimensions.maxContentWidth
+        ? Dimensions.maxContentWidth
+        : larguraTela - (Dimensions.paddingMD * 2);
+    final larguraCardResumo = (larguraPainel - Dimensions.spacingSM) / 2;
+
+    int? calcMinIntervaloTurno(TurnoLocal turno) {
+      if (turno.intervalo == null) return null;
+      if (cafeProvider.colaboradorEmPausa(turno.colaboradorId)) return null;
+      final intervaloJaFeito =
+          alocacaoProvider.isIntervaloMarcado(turno.colaboradorId) ||
+              cafeProvider.colaboradorJaFezIntervaloHoje(turno.colaboradorId);
+      if (intervaloJaFeito) return null;
+      final parts = turno.intervalo!.split(':');
+      if (parts.length < 2) return null;
+      final agoraMin = agora.hour * 60 + agora.minute;
+      final intervaloMin =
+          (int.tryParse(parts[0]) ?? 0) * 60 + (int.tryParse(parts[1]) ?? 0);
+      return agoraMin - intervaloMin;
+    }
+
+    final emPausa = turnosHoje
+        .where((t) => cafeProvider.colaboradorEmPausa(t.colaboradorId))
+        .length;
+    final alocadosEmAtencao = jaAlocados.where((t) {
+      final min = calcMinIntervaloTurno(t);
+      return min != null && min >= 15;
+    }).length;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -950,63 +979,308 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
         child: ListView(
           padding: const EdgeInsets.all(Dimensions.paddingMD),
           children: [
-            // Data e hora
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              width: double.infinity,
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.07),
-                borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.schedule,
-                      color: AppColors.primary, size: 18),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      _cap(dataLabel),
-                      style:
-                          AppTextStyles.body.copyWith(color: AppColors.primary),
-                    ),
+                borderRadius: BorderRadius.circular(Dimensions.radiusLG),
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppColors.secondary,
+                    Colors.white,
+                    AppColors.alertInfo,
+                  ],
+                ),
+                border: Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.14),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.06),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
                   ),
-                  Text(horaLabel,
-                      style:
-                          AppTextStyles.h3.copyWith(color: AppColors.primary)),
                 ],
               ),
-            ),
-
-            const SizedBox(height: Dimensions.spacingMD),
-
-            // ── Barra de busca ───────────────────────────────────────────
-            TextField(
-              controller: _searchCtrl,
-              decoration: InputDecoration(
-                hintText: 'Buscar colaborador...',
-                hintStyle: AppTextStyles.caption
-                    .copyWith(color: AppColors.textSecondary),
-                prefixIcon:
-                    const Icon(Icons.search, color: AppColors.textSecondary),
-                suffixIcon: q.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.close,
-                            color: AppColors.textSecondary, size: 18),
-                        onPressed: () => _searchCtrl.clear(),
-                      )
-                    : null,
-                filled: true,
-                fillColor: AppColors.backgroundSection,
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-                  borderSide: BorderSide.none,
+              child: Padding(
+                padding: const EdgeInsets.all(Dimensions.paddingMD),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 46,
+                          height: 46,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Icon(
+                            Icons.groups_2_outlined,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Painel de alocacao',
+                                style: AppTextStyles.h3,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${_cap(dataLabel)} ? $horaLabel',
+                                style: AppTextStyles.body.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: Dimensions.spacingSM),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        _PainelInfoChip(
+                          icon: Icons.person_add_alt_1,
+                          color: AppColors.statusAtivo,
+                          label: '${disponiveis.length} disponiveis',
+                        ),
+                        _PainelInfoChip(
+                          icon: Icons.point_of_sale,
+                          color: AppColors.primary,
+                          label: '${jaAlocados.length} no caixa',
+                        ),
+                        _PainelInfoChip(
+                          icon: Icons.coffee,
+                          color: AppColors.statusCafe,
+                          label: '$emPausa em pausa',
+                        ),
+                        _PainelInfoChip(
+                          icon: Icons.storefront_outlined,
+                          color: const Color(0xFF5C6BC0),
+                          label: '${emOutroSetor.length} em outro setor',
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),
-
+            const SizedBox(height: Dimensions.spacingMD),
+            Wrap(
+              spacing: Dimensions.spacingSM,
+              runSpacing: Dimensions.spacingSM,
+              children: [
+                SizedBox(
+                  width: larguraCardResumo,
+                  child: _PainelResumoCard(
+                    icon: Icons.person_add_alt_1,
+                    color: AppColors.statusAtivo,
+                    label: 'Disponiveis',
+                    value: '${disponiveis.length}',
+                    subtitle: 'Prontos para nova alocacao',
+                  ),
+                ),
+                SizedBox(
+                  width: larguraCardResumo,
+                  child: _PainelResumoCard(
+                    icon: Icons.point_of_sale,
+                    color: AppColors.primary,
+                    label: 'Ja alocados',
+                    value: '${jaAlocados.length}',
+                    subtitle: 'Colaboradores no caixa',
+                  ),
+                ),
+                SizedBox(
+                  width: larguraCardResumo,
+                  child: _PainelResumoCard(
+                    icon: Icons.warning_amber_rounded,
+                    color: alocadosEmAtencao > 0
+                        ? AppColors.danger
+                        : AppColors.statusAtencao,
+                    label: 'Em atencao',
+                    value: '$alocadosEmAtencao',
+                    subtitle: alocadosEmAtencao > 0
+                        ? 'Atrasados para intervalo'
+                        : 'Sem urgencia agora',
+                  ),
+                ),
+                SizedBox(
+                  width: larguraCardResumo,
+                  child: _PainelResumoCard(
+                    icon: Icons.directions_walk,
+                    color: AppColors.statusAtencao,
+                    label: 'A caminho',
+                    value: '${aChegar.length}',
+                    subtitle: 'Entram nas proximas horas',
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: Dimensions.spacingMD),
+            Container(
+              decoration: AppStyles.softCard(
+                tint: AppColors.blueGrey,
+                radius: Dimensions.radiusLG,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(Dimensions.paddingMD),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            color: AppColors.blueGrey.withValues(alpha: 0.10),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: const Icon(
+                            Icons.manage_search_rounded,
+                            color: AppColors.blueGrey,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Leitura da alocacao',
+                                style: AppTextStyles.h4,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                q.isEmpty
+                                    ? 'Busque por nome e acompanhe o quadro de disponibilidade.'
+                                    : 'Filtro ativo para "${_searchCtrl.text.trim()}".',
+                                style: AppTextStyles.caption.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (q.isNotEmpty)
+                          TextButton.icon(
+                            onPressed: () => _searchCtrl.clear(),
+                            icon: const Icon(Icons.close, size: 16),
+                            label: const Text('Limpar'),
+                            style: TextButton.styleFrom(
+                              foregroundColor: AppColors.primary,
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: Dimensions.spacingSM),
+                    TextField(
+                      controller: _searchCtrl,
+                      decoration: InputDecoration(
+                        hintText: 'Buscar colaborador...',
+                        hintStyle: AppTextStyles.caption
+                            .copyWith(color: AppColors.textSecondary),
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          color: AppColors.textSecondary,
+                        ),
+                        suffixIcon: q.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(
+                                  Icons.close,
+                                  color: AppColors.textSecondary,
+                                  size: 18,
+                                ),
+                                onPressed: () => _searchCtrl.clear(),
+                              )
+                            : null,
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 12,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(Dimensions.borderRadius),
+                          borderSide:
+                              const BorderSide(color: AppColors.cardBorder),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(Dimensions.borderRadius),
+                          borderSide:
+                              const BorderSide(color: AppColors.cardBorder),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: Dimensions.spacingSM),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        _PainelInfoChip(
+                          icon: Icons.filter_alt_outlined,
+                          color: AppColors.primary,
+                          label: q.isEmpty ? 'Sem filtro' : 'Busca ativa',
+                        ),
+                        _PainelInfoChip(
+                          icon: Icons.beach_access,
+                          color: AppColors.statusAtencao,
+                          label: '${folgas.length} folgas',
+                        ),
+                        _PainelInfoChip(
+                          icon: Icons.coffee,
+                          color: AppColors.statusCafe,
+                          label: '$emPausa pausas',
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            if (alocadosEmAtencao > 0) ...[
+              const SizedBox(height: Dimensions.spacingMD),
+              Container(
+                padding: const EdgeInsets.all(Dimensions.paddingMD),
+                decoration: AppStyles.softCard(
+                  tint: AppColors.danger,
+                  radius: Dimensions.radiusLG,
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.warning_amber_rounded,
+                      color: AppColors.danger,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        '$alocadosEmAtencao colaborador(es) ja passaram do horario ideal de intervalo. Vale priorizar liberacao ou troca.',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.danger,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: Dimensions.spacingLG),
-
             if (turnosHoje.isEmpty) ...[
               const _Empty(
                 icon: Icons.calendar_today,
@@ -1119,7 +1393,6 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 ],
               ],
             ],
-
             const SizedBox(height: 80),
           ],
         ),
@@ -1256,6 +1529,112 @@ class _IntervaloBanner extends StatelessWidget {
 }
 
 // ─── Widgets internos ────────────────────────────────────────────────────────
+
+class _PainelInfoChip extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String label;
+
+  const _PainelInfoChip({
+    required this.icon,
+    required this.color,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: AppTextStyles.caption.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PainelResumoCard extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String label;
+  final String value;
+  final String subtitle;
+
+  const _PainelResumoCard({
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.value,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: AppStyles.softCard(
+        tint: color,
+        radius: Dimensions.radiusMD,
+        elevated: false,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(Dimensions.paddingSM),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 18),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              value,
+              style: AppTextStyles.h2.copyWith(
+                color: color,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: AppTextStyles.label.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class _Header extends StatelessWidget {
   final IconData icon;

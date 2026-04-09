@@ -1,10 +1,11 @@
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import '../../../core/constants/app_styles.dart';
 import '../../../core/constants/colors.dart';
-import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
+import '../../../core/constants/text_styles.dart';
 import '../../../core/utils/app_notif.dart';
 import '../../providers/checklist_provider.dart';
 import 'checklist_execucao_screen.dart';
@@ -13,24 +14,50 @@ import 'checklist_template_form_screen.dart';
 class ChecklistScreen extends StatelessWidget {
   const ChecklistScreen({super.key});
 
-  String _statusTexto(ChecklistTemplate template, ChecklistExecucao? execucao) {
-    if (execucao == null) {
-      return 'N\u00e3o iniciado hoje';
-    }
-    if (execucao.concluido && execucao.concluidoEm != null) {
-      return 'Conclu\u00eddo em ${_formatTime(execucao.concluidoEm!)}';
-    }
-    return 'Em andamento - ${execucao.marcados}/${execucao.totalItens} itens';
+  String _formatTime(DateTime dt) {
+    final h = dt.hour.toString().padLeft(2, '0');
+    final m = dt.minute.toString().padLeft(2, '0');
+    return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')} as $h:$m';
   }
 
   String _periodizacaoTexto(ChecklistTemplate template) {
     if (template.periodizacao == PeriodizacaoChecklist.qualquerHorario) {
-      return 'Qualquer hor\u00e1rio';
+      return 'Qualquer horario';
     }
     if (template.periodizacao == PeriodizacaoChecklist.horarioEspecifico) {
-      return 'Hor\u00e1rio: ${template.horarioNotificacao ?? '--:--'} (+/-30 min)';
+      return 'Horario: ${template.horarioNotificacao ?? '--:--'} (+/-30 min)';
     }
     return template.periodizacao.label;
+  }
+
+  String _statusTexto({
+    required ChecklistTemplate template,
+    required ChecklistProvider provider,
+    required ChecklistExecucao? execucaoAberta,
+    required ChecklistExecucao? ultimaExecucao,
+  }) {
+    if (execucaoAberta != null) {
+      return 'Em andamento - ${execucaoAberta.marcados}/${execucaoAberta.totalItens} itens';
+    }
+
+    if (ultimaExecucao == null) {
+      return template.modoExecucao == ModoExecucaoChecklist.continuo
+          ? 'Pronto para responder'
+          : 'Disponivel para a primeira resposta';
+    }
+
+    if (template.modoExecucao == ModoExecucaoChecklist.usoUnico &&
+        provider.jaFoiConcluidoAlgumaVez(template.id) &&
+        ultimaExecucao.concluido &&
+        ultimaExecucao.concluidoEm != null) {
+      return 'Uso unico concluido em ${_formatTime(ultimaExecucao.concluidoEm!)}';
+    }
+
+    if (ultimaExecucao.concluido && ultimaExecucao.concluidoEm != null) {
+      return 'Ultima execucao concluida em ${_formatTime(ultimaExecucao.concluidoEm!)}';
+    }
+
+    return 'Execucao pendente para revisar';
   }
 
   String _textoChecklist(
@@ -44,8 +71,14 @@ class ChecklistScreen extends StatelessWidget {
       buf.writeln(template.descricao);
     }
     buf.writeln();
-    buf.writeln('Status: ${_statusTexto(template, execucao)}');
+    buf.writeln('Modo: ${template.modoExecucao.label}');
     buf.writeln('Agendamento: ${_periodizacaoTexto(template)}');
+    final status = execucao == null
+        ? 'Sem execucao iniciada'
+        : execucao.concluido
+            ? 'Concluido'
+            : 'Em andamento';
+    buf.writeln('Status: $status');
     buf.writeln();
     buf.writeln('Itens:');
 
@@ -53,8 +86,7 @@ class ChecklistScreen extends StatelessWidget {
       final marcado = execucao != null &&
           i < execucao.itensMarcados.length &&
           execucao.itensMarcados[i] == true;
-      final prefixo = marcado ? '[x]' : '[ ]';
-      buf.writeln('$prefixo ${template.itens[i]}');
+      buf.writeln('${marcado ? '[x]' : '[ ]'} ${template.itens[i]}');
     }
 
     return buf.toString().trim();
@@ -72,7 +104,7 @@ class ChecklistScreen extends StatelessWidget {
     AppNotif.show(
       context,
       titulo: 'Copiado',
-      mensagem: 'Checklist copiado para a \u00e1rea de transfer\u00eancia',
+      mensagem: 'Checklist copiado para a area de transferencia',
       tipo: 'intervalo',
     );
   }
@@ -87,174 +119,270 @@ class ChecklistScreen extends StatelessWidget {
     );
   }
 
-  String _formatTime(DateTime dt) {
-    final h = dt.hour.toString().padLeft(2, '0');
-    final m = dt.minute.toString().padLeft(2, '0');
-    return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')} às $h:$m';
+  Future<void> _abrirChecklist(
+    BuildContext context,
+    ChecklistProvider provider,
+    ChecklistTemplate template,
+    ChecklistExecucao? execucaoAberta,
+    ChecklistExecucao? ultimaExecucao,
+  ) async {
+    try {
+      ChecklistExecucao? execucao = execucaoAberta;
+
+      if (execucao == null &&
+          template.modoExecucao == ModoExecucaoChecklist.usoUnico &&
+          provider.jaFoiConcluidoAlgumaVez(template.id)) {
+        execucao = ultimaExecucao;
+      }
+
+      execucao ??= await provider.iniciar(template.id);
+
+      if (!context.mounted) return;
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => ChecklistExecucaoScreen(execucaoId: execucao!.id),
+        ),
+      );
+    } on StateError {
+      if (!context.mounted) return;
+      AppNotif.show(
+        context,
+        titulo: 'Checklist bloqueado',
+        mensagem:
+            'Esse checklist eh de uso unico e ja foi concluido anteriormente.',
+        tipo: 'alerta',
+        cor: AppColors.warning,
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      AppNotif.show(
+        context,
+        titulo: 'Erro ao iniciar checklist',
+        mensagem: 'Nao foi possivel salvar no Supabase.',
+        tipo: 'erro',
+        cor: AppColors.danger,
+      );
+    }
   }
 
-  // ── Card de cada template ─────────────────────────────────────────────────
+  Widget _buildInfoChip({
+    required IconData icon,
+    required Color color,
+    required String label,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: AppTextStyles.caption.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildCard(
     BuildContext context,
     ChecklistProvider provider,
     ChecklistTemplate template,
   ) {
-    final execucao = provider.execucaoHoje(template.id);
-    final concluido = execucao?.concluido == true;
-    final emAndamento = execucao != null && !concluido;
+    final execucaoAberta = provider.execucaoAberta(template.id);
+    final ultimaExecucao = provider.ultimaExecucao(template.id);
+    final execucaoVisual = execucaoAberta ?? ultimaExecucao;
     final cor = template.cor;
+    final emAndamento = execucaoAberta != null;
+    final bloqueadoUsoUnico =
+        template.modoExecucao == ModoExecucaoChecklist.usoUnico &&
+            provider.jaFoiConcluidoAlgumaVez(template.id) &&
+            execucaoAberta == null;
+    final concluido = execucaoVisual?.concluido == true;
+    final corStatus = bloqueadoUsoUnico
+        ? AppColors.textSecondary
+        : emAndamento
+            ? AppColors.statusAtencao
+            : concluido
+                ? AppColors.success
+                : cor;
+    final iconeStatus = bloqueadoUsoUnico
+        ? Icons.lock_outline
+        : emAndamento
+            ? Icons.pending
+            : concluido
+                ? (template.modoExecucao == ModoExecucaoChecklist.continuo
+                    ? Icons.refresh
+                    : Icons.check_circle)
+                : Icons.play_circle_outline;
+    final labelAcao = bloqueadoUsoUnico
+        ? 'Ver ultima execucao'
+        : emAndamento
+            ? 'Continuar'
+            : concluido &&
+                    template.modoExecucao == ModoExecucaoChecklist.continuo
+                ? 'Responder novamente'
+                : 'Iniciar checklist';
 
     return Card(
       margin: const EdgeInsets.only(bottom: Dimensions.spacingMD),
       child: InkWell(
         borderRadius: BorderRadius.circular(Dimensions.radiusMD),
-        onTap: () async {
-          try {
-            final exec = execucao ?? await provider.iniciar(template.id);
-            if (!context.mounted) return;
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => ChecklistExecucaoScreen(execucaoId: exec.id),
-              ),
-            );
-          } catch (_) {
-            if (!context.mounted) return;
-            AppNotif.show(
-              context,
-              titulo: 'Erro ao iniciar checklist',
-              mensagem: 'Nao foi possivel salvar no Supabase.',
-              tipo: 'erro',
-              cor: AppColors.danger,
-            );
-          }
-        },
+        onTap: () => _abrirChecklist(
+          context,
+          provider,
+          template,
+          execucaoAberta,
+          ultimaExecucao,
+        ),
         child: Padding(
           padding: const EdgeInsets.all(Dimensions.paddingMD),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Ícone
                   CircleAvatar(
                     backgroundColor: cor.withValues(alpha: 0.15),
                     child: Icon(template.icone, color: cor),
                   ),
                   const SizedBox(width: Dimensions.spacingMD),
-
-                  // Título e status
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(template.titulo, style: AppTextStyles.h4),
+                        const SizedBox(height: 2),
                         Text(
-                          execucao == null
-                              ? 'Não iniciado hoje'
-                              : concluido
-                                  ? 'Concluído às ${_formatTime(execucao.concluidoEm!)}'
-                                  : 'Em andamento — ${execucao.marcados}/${execucao.totalItens} itens',
+                          _statusTexto(
+                            template: template,
+                            provider: provider,
+                            execucaoAberta: execucaoAberta,
+                            ultimaExecucao: ultimaExecucao,
+                          ),
                           style: AppTextStyles.caption.copyWith(
-                            color: concluido
-                                ? AppColors.success
-                                : emAndamento
-                                    ? AppColors.statusAtencao
-                                    : AppColors.textSecondary,
+                            color: corStatus,
                           ),
                         ),
                       ],
                     ),
                   ),
-
-                  // Status icon + menu
-                  Icon(
-                    concluido
-                        ? Icons.check_circle
-                        : emAndamento
-                            ? Icons.pending
-                            : Icons.play_circle_outline,
-                    color: concluido
-                        ? AppColors.success
-                        : emAndamento
-                            ? AppColors.statusAtencao
-                            : AppColors.inactive,
-                    size: 26,
-                  ),
+                  Icon(iconeStatus, color: corStatus, size: 24),
                   const SizedBox(width: 4),
                   PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_vert,
-                        color: AppColors.textSecondary, size: 20),
-                    onSelected: (v) =>
-                        _onMenu(context, v, template, provider, execucao),
+                    icon: const Icon(
+                      Icons.more_vert,
+                      color: AppColors.textSecondary,
+                      size: 20,
+                    ),
+                    onSelected: (v) => _onMenu(
+                      context,
+                      v,
+                      template,
+                      provider,
+                      execucaoVisual,
+                    ),
                     itemBuilder: (_) => [
                       const PopupMenuItem(
                         value: 'copiar',
-                        child: Row(children: [
-                          Icon(Icons.copy_outlined, size: 18),
-                          SizedBox(width: 8),
-                          Text('Copiar'),
-                        ]),
+                        child: Row(
+                          children: [
+                            Icon(Icons.copy_outlined, size: 18),
+                            SizedBox(width: 8),
+                            Text('Copiar'),
+                          ],
+                        ),
                       ),
                       const PopupMenuItem(
                         value: 'compartilhar',
-                        child: Row(children: [
-                          Icon(Icons.share_outlined, size: 18),
-                          SizedBox(width: 8),
-                          Text('Compartilhar'),
-                        ]),
+                        child: Row(
+                          children: [
+                            Icon(Icons.share_outlined, size: 18),
+                            SizedBox(width: 8),
+                            Text('Compartilhar'),
+                          ],
+                        ),
                       ),
                       const PopupMenuItem(
                         value: 'editar',
-                        child: Row(children: [
-                          Icon(Icons.edit, size: 18),
-                          SizedBox(width: 8),
-                          Text('Editar'),
-                        ]),
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit, size: 18),
+                            SizedBox(width: 8),
+                            Text('Editar'),
+                          ],
+                        ),
                       ),
                       if (!template.isDefault)
                         const PopupMenuItem(
                           value: 'deletar',
-                          child: Row(children: [
-                            Icon(Icons.delete_outline,
-                                size: 18, color: AppColors.danger),
-                            SizedBox(width: 8),
-                            Text('Deletar',
-                                style: TextStyle(color: AppColors.danger)),
-                          ]),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.delete_outline,
+                                size: 18,
+                                color: AppColors.danger,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'Deletar',
+                                style: TextStyle(color: AppColors.danger),
+                              ),
+                            ],
+                          ),
                         ),
                     ],
                   ),
                 ],
               ),
-
-              // Badge de periodização
-              if (template.periodizacao !=
-                  PeriodizacaoChecklist.qualquerHorario) ...[
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const SizedBox(width: 52), // alinha com o título
-                    const Icon(Icons.schedule,
-                        size: 12, color: AppColors.textSecondary),
-                    const SizedBox(width: 4),
-                    Text(
-                      template.periodizacao ==
-                              PeriodizacaoChecklist.horarioEspecifico
-                          ? 'Horário: ${template.horarioNotificacao ?? '--:--'} (±30 min)'
-                          : template.periodizacao.label,
-                      style: AppTextStyles.caption
-                          .copyWith(color: AppColors.textSecondary),
-                    ),
-                  ],
+              const SizedBox(height: Dimensions.spacingSM),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _buildInfoChip(
+                    icon:
+                        template.modoExecucao == ModoExecucaoChecklist.continuo
+                            ? Icons.autorenew_rounded
+                            : Icons.lock_outline,
+                    color:
+                        template.modoExecucao == ModoExecucaoChecklist.continuo
+                            ? AppColors.primary
+                            : AppColors.statusAtencao,
+                    label: template.modoExecucao.label,
+                  ),
+                  _buildInfoChip(
+                    icon: Icons.schedule,
+                    color: AppColors.textSecondary,
+                    label: _periodizacaoTexto(template),
+                  ),
+                ],
+              ),
+              if (template.descricao.isNotEmpty) ...[
+                const SizedBox(height: Dimensions.spacingSM),
+                Text(
+                  template.descricao,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
-
-              // Barra de progresso
-              if (execucao != null) ...[
+              if (execucaoVisual != null) ...[
                 const SizedBox(height: Dimensions.spacingMD),
                 LinearProgressIndicator(
-                  value: execucao.progresso,
+                  value: execucaoVisual.progresso,
                   backgroundColor: AppColors.inactive.withValues(alpha: 0.2),
                   valueColor: AlwaysStoppedAnimation<Color>(
                     concluido ? AppColors.success : cor,
@@ -264,59 +392,42 @@ class ChecklistScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '${execucao.marcados} de ${execucao.totalItens} itens marcados',
-                  style: AppTextStyles.caption
-                      .copyWith(color: AppColors.textSecondary),
+                  '${execucaoVisual.marcados} de ${execucaoVisual.totalItens} itens marcados',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
-
               const SizedBox(height: Dimensions.spacingSM),
-
-              // Botão de ação
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: () async {
-                    try {
-                      final exec =
-                          execucao ?? await provider.iniciar(template.id);
-                      if (!context.mounted) return;
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              ChecklistExecucaoScreen(execucaoId: exec.id),
-                        ),
-                      );
-                    } catch (_) {
-                      if (!context.mounted) return;
-                      AppNotif.show(
-                        context,
-                        titulo: 'Erro ao iniciar checklist',
-                        mensagem: 'Nao foi possivel salvar no Supabase.',
-                        tipo: 'erro',
-                        cor: AppColors.danger,
-                      );
-                    }
-                  },
+                  onPressed: () => _abrirChecklist(
+                    context,
+                    provider,
+                    template,
+                    execucaoAberta,
+                    ultimaExecucao,
+                  ),
                   icon: Icon(
-                    concluido
-                        ? Icons.visibility
+                    bloqueadoUsoUnico
+                        ? Icons.visibility_outlined
                         : emAndamento
                             ? Icons.play_arrow
-                            : Icons.start,
+                            : concluido &&
+                                    template.modoExecucao ==
+                                        ModoExecucaoChecklist.continuo
+                                ? Icons.refresh
+                                : Icons.start,
                     size: 18,
-                    color: cor,
+                    color: corStatus,
                   ),
                   label: Text(
-                    concluido
-                        ? 'Ver detalhes'
-                        : emAndamento
-                            ? 'Continuar'
-                            : 'Iniciar checklist',
-                    style: TextStyle(color: cor),
+                    labelAcao,
+                    style: TextStyle(color: corStatus),
                   ),
                   style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: cor.withValues(alpha: 0.5)),
+                    side: BorderSide(color: corStatus.withValues(alpha: 0.45)),
                   ),
                 ),
               ),
@@ -342,9 +453,11 @@ class ChecklistScreen extends StatelessWidget {
         _compartilharChecklist(template, execucao);
         break;
       case 'editar':
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => ChecklistTemplateFormScreen(template: template),
-        ));
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => ChecklistTemplateFormScreen(template: template),
+          ),
+        );
         break;
       case 'deletar':
         showDialog(
@@ -352,7 +465,8 @@ class ChecklistScreen extends StatelessWidget {
           builder: (ctx) => AlertDialog(
             title: const Text('Deletar checklist'),
             content: Text(
-                'Deletar "${template.titulo}"? As execuções já registradas não serão afetadas.'),
+              'Deletar "${template.titulo}"? As execucoes ja registradas nao serao afetadas.',
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
@@ -375,8 +489,10 @@ class ChecklistScreen extends StatelessWidget {
                     );
                   }
                 },
-                child: const Text('Deletar',
-                    style: TextStyle(color: AppColors.danger)),
+                child: const Text(
+                  'Deletar',
+                  style: TextStyle(color: AppColors.danger),
+                ),
               ),
             ],
           ),
@@ -385,17 +501,48 @@ class ChecklistScreen extends StatelessWidget {
     }
   }
 
+  int _prioridadeTemplate(
+      ChecklistProvider provider, ChecklistTemplate template) {
+    if (provider.execucaoAberta(template.id) != null) return 0;
+    if (!provider.foiConcluidoHoje(template.id)) return 1;
+    return 2;
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ChecklistProvider>(context);
-    final templates = provider.templates;
+    final templates = provider.templates.toList();
     final total = templates.length;
-    final concluidos = provider.totalConcluidosHoje;
-    // Templates ainda não concluídos hoje (ocultar os já finalizados)
-    final pendentes =
-        templates.where((t) => !provider.foiConcluidoHoje(t.id)).toList();
-    final concluidosHoje =
-        templates.where((t) => provider.foiConcluidoHoje(t.id)).toList();
+    final concluidosHoje = provider.totalConcluidosHoje;
+
+    final ativos =
+        templates.where((t) => provider.estaDisponivelNoTurno(t.id)).toList()
+          ..sort((a, b) {
+            final prioridade = _prioridadeTemplate(provider, a)
+                .compareTo(_prioridadeTemplate(provider, b));
+            if (prioridade != 0) return prioridade;
+            return a.titulo.compareTo(b.titulo);
+          });
+
+    final arquivadosUsoUnico = templates
+        .where(
+          (t) =>
+              t.modoExecucao == ModoExecucaoChecklist.usoUnico &&
+              provider.jaFoiConcluidoAlgumaVez(t.id),
+        )
+        .toList()
+      ..sort((a, b) => a.titulo.compareTo(b.titulo));
+
+    final execucoesAbertasIds = {
+      for (final t in ativos)
+        if (provider.execucaoAberta(t.id) != null)
+          provider.execucaoAberta(t.id)!.id,
+    };
+
+    final historicoRecente = provider.todas
+        .where((exec) => !execucoesAbertasIds.contains(exec.id))
+        .take(8)
+        .toList();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -405,199 +552,242 @@ class ChecklistScreen extends StatelessWidget {
         elevation: 0,
       ),
       body: LayoutBuilder(
-          builder: (context, constraints) => SingleChildScrollView(
-                padding: EdgeInsets.symmetric(
-                  horizontal: Dimensions.hPad(constraints.maxWidth),
-                  vertical: Dimensions.paddingMD,
+        builder: (context, constraints) => SingleChildScrollView(
+          padding: EdgeInsets.symmetric(
+            horizontal: Dimensions.hPad(constraints.maxWidth),
+            vertical: Dimensions.paddingMD,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(Dimensions.paddingMD),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.2),
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
                   children: [
-                    // ── Resumo do dia ─────────────────────────────────────────────
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(Dimensions.paddingMD),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.05),
-                        borderRadius:
-                            BorderRadius.circular(Dimensions.radiusMD),
-                        border: Border.all(
-                            color: AppColors.primary.withValues(alpha: 0.2)),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.today,
-                              color: AppColors.primary, size: 18),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Checklists de hoje',
-                            style: AppTextStyles.body.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const Spacer(),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: concluidos == total && total > 0
-                                  ? AppColors.success.withValues(alpha: 0.1)
-                                  : AppColors.inactive.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              '$concluidos / $total concluídos',
-                              style: AppTextStyles.caption.copyWith(
-                                color: concluidos == total && total > 0
-                                    ? AppColors.success
-                                    : AppColors.textSecondary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
+                    const Icon(Icons.today, color: AppColors.primary, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Checklists de hoje',
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-
-                    const SizedBox(height: Dimensions.spacingLG),
-                    const Text('Turno de Hoje', style: AppTextStyles.h3),
-                    const SizedBox(height: Dimensions.spacingMD),
-
-                    // ── Cards de templates ────────────────────────────────────────
-                    if (templates.isEmpty)
-                      Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 40),
-                          child: Column(
-                            children: [
-                              const Icon(Icons.checklist,
-                                  size: 56, color: AppColors.inactive),
-                              const SizedBox(height: 12),
-                              Text(
-                                'Nenhum checklist criado',
-                                style: AppTextStyles.h4
-                                    .copyWith(color: AppColors.textSecondary),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Use o botão + para criar o primeiro',
-                                style: AppTextStyles.body
-                                    .copyWith(color: AppColors.textSecondary),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    else if (pendentes.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 24),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.check_circle,
-                                color: AppColors.success, size: 20),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Todos os checklists de hoje foram concluídos!',
-                              style: AppTextStyles.body
-                                  .copyWith(color: AppColors.success),
-                            ),
-                          ],
-                        ),
-                      )
-                    else
-                      ...pendentes.map((t) => _buildCard(context, provider, t)),
-
-                    // ── Concluídos hoje (recolhido) ───────────────────────────────
-                    if (concluidosHoje.isNotEmpty) ...[
-                      const SizedBox(height: Dimensions.spacingMD),
-                      ExpansionTile(
-                        leading: const Icon(Icons.check_circle,
-                            color: AppColors.success, size: 20),
-                        title: Text(
-                          'Concluídos hoje (${concluidosHoje.length})',
-                          style: AppTextStyles.body.copyWith(
-                            color: AppColors.success,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        tilePadding: EdgeInsets.zero,
-                        childrenPadding: EdgeInsets.zero,
-                        children: concluidosHoje
-                            .map((t) => _buildCard(context, provider, t))
-                            .toList(),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
                       ),
-                    ],
-
-                    // ── Histórico recente ─────────────────────────────────────────
-                    if (provider.todas.length > templates.length) ...[
-                      const SizedBox(height: Dimensions.spacingMD),
-                      const Text('Histórico Recente', style: AppTextStyles.h3),
-                      const SizedBox(height: Dimensions.spacingSM),
-                      ...provider.todas
-                          .skip(templates.length)
-                          .take(8)
-                          .map((exec) {
-                        // Tenta resolver template para nome/cor
-                        ChecklistTemplate? tmpl;
-                        try {
-                          tmpl = provider.templates
-                              .firstWhere((t) => t.id == exec.tipo);
-                        } catch (_) {}
-                        final nomeExec = tmpl?.titulo ??
-                            (exec.tipo == 'abertura'
-                                ? 'Abertura da Loja'
-                                : exec.tipo == 'fechamento'
-                                    ? 'Fechamento da Loja'
-                                    : exec.tipo);
-                        final corExec = tmpl?.cor ??
-                            (exec.tipo == 'abertura'
-                                ? AppColors.success
-                                : AppColors.danger);
-                        final iconeExec = tmpl?.icone ??
-                            (exec.tipo == 'abertura'
-                                ? Icons.lock_open
-                                : Icons.lock);
-
-                        return ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: Icon(
-                            iconeExec,
-                            color:
-                                exec.concluido ? corExec : AppColors.inactive,
-                          ),
-                          title: Text(nomeExec, style: AppTextStyles.body),
-                          subtitle: Text(
-                            '${exec.data.day.toString().padLeft(2, '0')}/${exec.data.month.toString().padLeft(2, '0')} · '
-                            '${exec.marcados}/${exec.totalItens} itens',
-                            style: AppTextStyles.caption
-                                .copyWith(color: AppColors.textSecondary),
-                          ),
-                          trailing: Icon(
-                            exec.concluido
-                                ? Icons.check_circle
-                                : Icons.cancel_outlined,
-                            color: exec.concluido
-                                ? AppColors.success
-                                : AppColors.inactive,
-                            size: 20,
-                          ),
-                          onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  ChecklistExecucaoScreen(execucaoId: exec.id),
-                            ),
-                          ),
-                        );
-                      }),
-                    ],
+                      decoration: BoxDecoration(
+                        color: concluidosHoje == total && total > 0
+                            ? AppColors.success.withValues(alpha: 0.1)
+                            : AppColors.inactive.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '$concluidosHoje / $total concluidos',
+                        style: AppTextStyles.caption.copyWith(
+                          color: concluidosHoje == total && total > 0
+                              ? AppColors.success
+                              : AppColors.textSecondary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-              )),
+              ),
+              const SizedBox(height: Dimensions.spacingMD),
+              Container(
+                width: double.infinity,
+                decoration: AppStyles.softCard(
+                  tint: AppColors.statusAtencao,
+                  radius: Dimensions.radiusMD,
+                  elevated: false,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(Dimensions.paddingMD),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color:
+                              AppColors.statusAtencao.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.info_outline,
+                          color: AppColors.statusAtencao,
+                          size: 18,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Uso continuo fica sempre liberado para novas respostas. Uso unico sai da lista apos a primeira conclusao.',
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: Dimensions.spacingLG),
+              const Text('Turno de Hoje', style: AppTextStyles.h3),
+              const SizedBox(height: Dimensions.spacingMD),
+              if (templates.isEmpty)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 40),
+                    child: Column(
+                      children: [
+                        const Icon(
+                          Icons.checklist,
+                          size: 56,
+                          color: AppColors.inactive,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Nenhum checklist criado',
+                          style: AppTextStyles.h4.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Use o botao + para criar o primeiro',
+                          style: AppTextStyles.body.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else if (ativos.isEmpty)
+                Container(
+                  padding: const EdgeInsets.all(Dimensions.paddingMD),
+                  decoration: AppStyles.softCard(
+                    tint: AppColors.success,
+                    radius: Dimensions.radiusMD,
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.check_circle,
+                        color: AppColors.success,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Nenhum checklist ativo para responder agora.',
+                          style: AppTextStyles.body.copyWith(
+                            color: AppColors.success,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                ...ativos.map((t) => _buildCard(context, provider, t)),
+              if (arquivadosUsoUnico.isNotEmpty) ...[
+                const SizedBox(height: Dimensions.spacingMD),
+                ExpansionTile(
+                  leading: const Icon(
+                    Icons.lock_outline,
+                    color: AppColors.statusAtencao,
+                    size: 20,
+                  ),
+                  title: Text(
+                    'Uso unico concluido (${arquivadosUsoUnico.length})',
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.statusAtencao,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  tilePadding: EdgeInsets.zero,
+                  childrenPadding: EdgeInsets.zero,
+                  children: arquivadosUsoUnico
+                      .map((t) => _buildCard(context, provider, t))
+                      .toList(),
+                ),
+              ],
+              if (historicoRecente.isNotEmpty) ...[
+                const SizedBox(height: Dimensions.spacingMD),
+                const Text('Historico Recente', style: AppTextStyles.h3),
+                const SizedBox(height: Dimensions.spacingSM),
+                ...historicoRecente.map((exec) {
+                  final template = provider.templateById(exec.tipo);
+                  final nomeExec = template?.titulo ??
+                      (exec.tipo == 'abertura'
+                          ? 'Abertura da Loja'
+                          : exec.tipo == 'fechamento'
+                              ? 'Fechamento da Loja'
+                              : exec.tipo);
+                  final corExec = template?.cor ??
+                      (exec.tipo == 'abertura'
+                          ? AppColors.success
+                          : AppColors.danger);
+                  final iconeExec = template?.icone ??
+                      (exec.tipo == 'abertura' ? Icons.lock_open : Icons.lock);
+
+                  return ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(
+                      iconeExec,
+                      color: exec.concluido ? corExec : AppColors.inactive,
+                    ),
+                    title: Text(nomeExec, style: AppTextStyles.body),
+                    subtitle: Text(
+                      '${exec.data.day.toString().padLeft(2, '0')}/${exec.data.month.toString().padLeft(2, '0')} · ${exec.marcados}/${exec.totalItens} itens',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    trailing: Icon(
+                      exec.concluido
+                          ? Icons.check_circle
+                          : Icons.cancel_outlined,
+                      color: exec.concluido
+                          ? AppColors.success
+                          : AppColors.inactive,
+                      size: 20,
+                    ),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            ChecklistExecucaoScreen(execucaoId: exec.id),
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ],
+          ),
+        ),
+      ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => const ChecklistTemplateFormScreen(),
-        )),
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => const ChecklistTemplateFormScreen(),
+          ),
+        ),
         backgroundColor: AppColors.primary,
         icon: const Icon(Icons.add),
         label: const Text('Novo Checklist'),
