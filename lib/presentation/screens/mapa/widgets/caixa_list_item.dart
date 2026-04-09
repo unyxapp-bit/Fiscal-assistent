@@ -73,7 +73,7 @@ class CaixaListItem extends StatelessWidget {
       child: InkWell(
         onTap: () => _showDetalhes(
           context,
-          colaborador,
+          colaboradorRef,
           alocacaoProvider,
           escalaProvider,
           cafeProvider,

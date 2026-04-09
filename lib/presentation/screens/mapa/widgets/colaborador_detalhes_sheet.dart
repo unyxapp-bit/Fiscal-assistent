@@ -502,7 +502,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
             providerContext: widget.providerContext,
           ),
 
-          if (widget.colaborador != null && widget.alocacao != null) ...[
+          if (widget.colaborador != null) ...[
             // Avatar + nome + departamento
             Row(
               children: [
@@ -598,252 +598,286 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
               ],
             ],
 
-            const SizedBox(height: 20),
+            if (widget.alocacao != null) ...[
+              const SizedBox(height: 20),
 
-            // ── AÇÕES RÁPIDAS ─────────────────────────────────────────────
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              decoration: const BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: AppColors.cardBorder),
-                  bottom: BorderSide(color: AppColors.cardBorder),
+              // ── AÇÕES RÁPIDAS ─────────────────────────────────────────────
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: const BoxDecoration(
+                  border: Border(
+                    top: BorderSide(color: AppColors.cardBorder),
+                    bottom: BorderSide(color: AppColors.cardBorder),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'AÇÕES RÁPIDAS',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildActionBtn(
+                            icon: Icons.swap_horiz,
+                            label: 'Trocar',
+                            color: Colors.blue,
+                            onTap: _trocarColaborador,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildActionBtn(
+                            icon: Icons.coffee,
+                            label: 'Café',
+                            color: const Color(0xFF8D6E63),
+                            onTap: _enviarParaCafe,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildActionBtn(
+                            icon: Icons.restaurant,
+                            label: 'Intervalo',
+                            color: Colors.orange,
+                            onTap: _enviarParaIntervalo,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildActionBtn(
+                            icon: Icons.report_problem,
+                            label: 'Ocorrência',
+                            color: AppColors.danger,
+                            onTap: _registrarOcorrencia,
+                          ),
+                        ),
+                      ],
+                    ),
+                    // ── Botão "Intervalo já feito" ─────────────────────────
+                    Builder(builder: (context) {
+                      if (widget.turno?.intervalo == null) {
+                        return const SizedBox.shrink();
+                      }
+                      final parts = widget.turno!.intervalo!.split(':');
+                      if (parts.length < 2) return const SizedBox.shrink();
+                      final agora = DateTime.now();
+                      final agoraMin = agora.hour * 60 + agora.minute;
+                      final intervaloMin = (int.tryParse(parts[0]) ?? 0) * 60 +
+                          (int.tryParse(parts[1]) ?? 0);
+                      final minPassado = agoraMin - intervaloMin;
+                      if (minPassado <= 0) return const SizedBox.shrink();
+                      final cafeProvider = Provider.of<CafeProvider>(
+                          widget.providerContext,
+                          listen: false);
+                      if (cafeProvider.colaboradorJaFezIntervaloHoje(
+                          widget.colaborador!.id)) {
+                        return const SizedBox.shrink();
+                      }
+                      final jaMarcado = widget.alocacaoProvider
+                          .isIntervaloMarcado(widget.colaborador!.id);
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: OutlinedButton.icon(
+                          onPressed: jaMarcado
+                              ? () {
+                                  // Intervalo já feito no horário correto:
+                                  // remove o estado "aguardando liberação" e fecha
+                                  widget.alocacaoProvider
+                                      .desmarcarAguardandoIntervalo(
+                                          widget.colaborador!.id);
+                                  Navigator.of(context).pop();
+                                }
+                              : _marcarIntervaloJaFeito,
+                          icon: Icon(
+                            jaMarcado
+                                ? Icons.check_circle
+                                : Icons.check_circle_outline,
+                            size: 18,
+                          ),
+                          label: Text(jaMarcado
+                              ? 'Intervalo já registrado'
+                              : 'Intervalo já feito'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.green.shade700,
+                            side: BorderSide(
+                                color: jaMarcado
+                                    ? Colors.green.shade200
+                                    : Colors.green.shade700),
+                            minimumSize: const Size(double.infinity, 40),
+                          ),
+                        ),
+                      );
+                    }),
+
+                    // ── Botão "Aguardando liberação para intervalo" ────────
+                    Builder(builder: (context) {
+                      final cafeProvider = Provider.of<CafeProvider>(
+                          widget.providerContext,
+                          listen: false);
+                      // Não mostrar se já está em pausa ou intervalo marcado
+                      if (cafeProvider
+                          .colaboradorEmPausa(widget.colaborador!.id)) {
+                        return const SizedBox.shrink();
+                      }
+                      if (widget.alocacaoProvider
+                          .isIntervaloMarcado(widget.colaborador!.id)) {
+                        return const SizedBox.shrink();
+                      }
+                      if (cafeProvider.colaboradorJaFezIntervaloHoje(
+                          widget.colaborador!.id)) {
+                        return const SizedBox.shrink();
+                      }
+                      final aguardando = widget.alocacaoProvider
+                          .isAguardandoIntervalo(widget.colaborador!.id);
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: OutlinedButton.icon(
+                          onPressed: aguardando
+                              ? () {
+                                  widget.alocacaoProvider
+                                      .desmarcarAguardandoIntervalo(
+                                          widget.colaborador!.id);
+                                  setState(() {});
+                                }
+                              : () {
+                                  widget.alocacaoProvider
+                                      .marcarAguardandoIntervalo(
+                                          widget.colaborador!.id);
+                                  // Registrar na timeline
+                                  final eventoProvider =
+                                      Provider.of<EventoTurnoProvider>(
+                                          widget.providerContext,
+                                          listen: false);
+                                  final fiscalId = Provider.of<AuthProvider>(
+                                              widget.providerContext,
+                                              listen: false)
+                                          .user
+                                          ?.id ??
+                                      '';
+                                  eventoProvider.registrar(
+                                    fiscalId: fiscalId,
+                                    tipo:
+                                        TipoEvento.intervaloAguardandoLiberacao,
+                                    colaboradorNome: widget.colaborador!.nome,
+                                    caixaNome: widget.caixa.nomeExibicao,
+                                    detalhe: widget.turno?.intervalo != null
+                                        ? 'previsto ${widget.turno!.intervalo}'
+                                        : null,
+                                  );
+                                  setState(() {});
+                                },
+                          icon: Icon(
+                            aguardando
+                                ? Icons.pending_actions
+                                : Icons.access_time,
+                            size: 18,
+                          ),
+                          label: Text(aguardando
+                              ? 'Aguardando liberação (toque para cancelar)'
+                              : 'Aguardando liberação para intervalo'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: aguardando
+                                ? AppColors.warning
+                                : AppColors.textSecondary,
+                            side: BorderSide(
+                              color: aguardando
+                                  ? AppColors.warning
+                                  : AppColors.cardBorder,
+                            ),
+                            minimumSize: const Size(double.infinity, 40),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'AÇÕES RÁPIDAS',
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.8,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildActionBtn(
-                          icon: Icons.swap_horiz,
-                          label: 'Trocar',
-                          color: Colors.blue,
-                          onTap: _trocarColaborador,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _buildActionBtn(
-                          icon: Icons.coffee,
-                          label: 'Café',
-                          color: const Color(0xFF8D6E63),
-                          onTap: _enviarParaCafe,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _buildActionBtn(
-                          icon: Icons.restaurant,
-                          label: 'Intervalo',
-                          color: Colors.orange,
-                          onTap: _enviarParaIntervalo,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildActionBtn(
-                          icon: Icons.report_problem,
-                          label: 'Ocorrência',
-                          color: AppColors.danger,
-                          onTap: _registrarOcorrencia,
-                        ),
-                      ),
-                    ],
-                  ),
-                  // ── Botão "Intervalo já feito" ─────────────────────────
-                  Builder(builder: (context) {
-                    if (widget.turno?.intervalo == null) {
-                      return const SizedBox.shrink();
-                    }
-                    final parts = widget.turno!.intervalo!.split(':');
-                    if (parts.length < 2) return const SizedBox.shrink();
-                    final agora = DateTime.now();
-                    final agoraMin = agora.hour * 60 + agora.minute;
-                    final intervaloMin = (int.tryParse(parts[0]) ?? 0) * 60 +
-                        (int.tryParse(parts[1]) ?? 0);
-                    final minPassado = agoraMin - intervaloMin;
-                    if (minPassado <= 0) return const SizedBox.shrink();
-                    final cafeProvider = Provider.of<CafeProvider>(
-                        widget.providerContext,
-                        listen: false);
-                    if (cafeProvider.colaboradorJaFezIntervaloHoje(
-                        widget.colaborador!.id)) {
-                      return const SizedBox.shrink();
-                    }
-                    final jaMarcado = widget.alocacaoProvider
-                        .isIntervaloMarcado(widget.colaborador!.id);
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: OutlinedButton.icon(
-                        onPressed: jaMarcado
-                            ? () {
-                                // Intervalo já feito no horário correto:
-                                // remove o estado "aguardando liberação" e fecha
-                                widget.alocacaoProvider
-                                    .desmarcarAguardandoIntervalo(
-                                        widget.colaborador!.id);
-                                Navigator.of(context).pop();
-                              }
-                            : _marcarIntervaloJaFeito,
-                        icon: Icon(
-                          jaMarcado
-                              ? Icons.check_circle
-                              : Icons.check_circle_outline,
-                          size: 18,
-                        ),
-                        label: Text(jaMarcado
-                            ? 'Intervalo já registrado'
-                            : 'Intervalo já feito'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.green.shade700,
-                          side: BorderSide(
-                              color: jaMarcado
-                                  ? Colors.green.shade200
-                                  : Colors.green.shade700),
-                          minimumSize: const Size(double.infinity, 40),
-                        ),
-                      ),
-                    );
-                  }),
 
-                  // ── Botão "Aguardando liberação para intervalo" ────────
-                  Builder(builder: (context) {
-                    final cafeProvider = Provider.of<CafeProvider>(
-                        widget.providerContext,
-                        listen: false);
-                    // Não mostrar se já está em pausa ou intervalo marcado
-                    if (cafeProvider
-                        .colaboradorEmPausa(widget.colaborador!.id)) {
-                      return const SizedBox.shrink();
-                    }
-                    if (widget.alocacaoProvider
-                        .isIntervaloMarcado(widget.colaborador!.id)) {
-                      return const SizedBox.shrink();
-                    }
-                    if (cafeProvider.colaboradorJaFezIntervaloHoje(
-                        widget.colaborador!.id)) {
-                      return const SizedBox.shrink();
-                    }
-                    final aguardando = widget.alocacaoProvider
-                        .isAguardandoIntervalo(widget.colaborador!.id);
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: OutlinedButton.icon(
-                        onPressed: aguardando
-                            ? () {
-                                widget.alocacaoProvider
-                                    .desmarcarAguardandoIntervalo(
-                                        widget.colaborador!.id);
-                                setState(() {});
-                              }
-                            : () {
-                                widget.alocacaoProvider
-                                    .marcarAguardandoIntervalo(
-                                        widget.colaborador!.id);
-                                // Registrar na timeline
-                                final eventoProvider =
-                                    Provider.of<EventoTurnoProvider>(
-                                        widget.providerContext,
-                                        listen: false);
-                                final fiscalId = Provider.of<AuthProvider>(
-                                            widget.providerContext,
-                                            listen: false)
-                                        .user
-                                        ?.id ??
-                                    '';
-                                eventoProvider.registrar(
-                                  fiscalId: fiscalId,
-                                  tipo: TipoEvento.intervaloAguardandoLiberacao,
-                                  colaboradorNome: widget.colaborador!.nome,
-                                  caixaNome: widget.caixa.nomeExibicao,
-                                  detalhe: widget.turno?.intervalo != null
-                                      ? 'previsto ${widget.turno!.intervalo}'
-                                      : null,
-                                );
-                                setState(() {});
-                              },
-                        icon: Icon(
-                          aguardando
-                              ? Icons.pending_actions
-                              : Icons.access_time,
-                          size: 18,
-                        ),
-                        label: Text(aguardando
-                            ? 'Aguardando liberação (toque para cancelar)'
-                            : 'Aguardando liberação para intervalo'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: aguardando
-                              ? AppColors.warning
-                              : AppColors.textSecondary,
-                          side: BorderSide(
-                            color: aguardando
-                                ? AppColors.warning
-                                : AppColors.cardBorder,
-                          ),
-                          minimumSize: const Size(double.infinity, 40),
-                        ),
-                      ),
-                    );
-                  }),
-                ],
-              ),
-            ),
+              const SizedBox(height: 16),
 
-            const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  final providerCtx = widget.providerContext;
+                  final eventoProvider = Provider.of<EventoTurnoProvider>(
+                      providerCtx,
+                      listen: false);
+                  final fiscalId =
+                      Provider.of<AuthProvider>(providerCtx, listen: false)
+                              .user
+                              ?.id ??
+                          '';
+                  final navigator = Navigator.of(context);
 
-            ElevatedButton.icon(
-              onPressed: () async {
-                final providerCtx = widget.providerContext;
-                final eventoProvider = Provider.of<EventoTurnoProvider>(
+                  navigator.pop();
+                  await widget.alocacaoProvider.liberarAlocacao(
+                    widget.alocacao!.id,
+                    'Liberado pelo mapa visual',
+                  );
+                  eventoProvider.registrar(
+                    fiscalId: fiscalId,
+                    tipo: TipoEvento.colaboradorLiberado,
+                    colaboradorNome: widget.colaborador?.nome,
+                    caixaNome: widget.caixa.nomeExibicao,
+                  );
+                  AppNotif.show(
                     providerCtx,
-                    listen: false);
-                final fiscalId =
-                    Provider.of<AuthProvider>(providerCtx, listen: false)
-                            .user
-                            ?.id ??
-                        '';
-                final navigator = Navigator.of(context);
-
-                navigator.pop();
-                await widget.alocacaoProvider.liberarAlocacao(
-                  widget.alocacao!.id,
-                  'Liberado pelo mapa visual',
-                );
-                eventoProvider.registrar(
-                  fiscalId: fiscalId,
-                  tipo: TipoEvento.colaboradorLiberado,
-                  colaboradorNome: widget.colaborador?.nome,
-                  caixaNome: widget.caixa.nomeExibicao,
-                );
-                AppNotif.show(
-                  providerCtx,
-                  titulo: 'Colaborador Liberado',
-                  mensagem: 'Colaborador liberado!',
-                  tipo: 'saida',
-                  cor: AppColors.success,
-                );
-              },
-              icon: const Icon(Icons.exit_to_app),
-              label: Text(widget.liberarLabel),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.danger,
-                minimumSize: const Size(double.infinity, 48),
+                    titulo: 'Colaborador Liberado',
+                    mensagem: 'Colaborador liberado!',
+                    tipo: 'saida',
+                    cor: AppColors.success,
+                  );
+                },
+                icon: const Icon(Icons.exit_to_app),
+                label: Text(widget.liberarLabel),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.danger,
+                  minimumSize: const Size(double.infinity, 48),
+                ),
               ),
-            ),
+            ] else if (widget.pausa != null) ...[
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.statusCafe.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppColors.statusCafe.withValues(alpha: 0.24),
+                  ),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.info_outline,
+                      color: AppColors.statusCafe,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Esta pessoa esta em pausa no momento. As acoes de troca e liberacao voltam a aparecer quando houver nova alocacao ativa.',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ] else ...[
             Text(
               widget.caixa.emManutencao
