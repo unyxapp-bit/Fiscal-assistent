@@ -18,7 +18,7 @@ import '../../../widgets/excecao_dialog.dart';
 
 const Color _kBalcaoColor = Color(0xFF009688);
 
-/// Card de balcão exibindo fiscais alocados (sem limite fixo)
+/// Card de balcÃƒÂ£o exibindo fiscais alocados (sem limite fixo)
 class BalcaoListItem extends StatelessWidget {
   final Caixa balcao;
   final List<Alocacao> alocacoes;
@@ -33,7 +33,7 @@ class BalcaoListItem extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -47,16 +47,16 @@ class BalcaoListItem extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Liberar fiscal'),
-        content: const Text('Deseja liberar este fiscal do balcão?'),
+        title: Text('Liberar fiscal'),
+        content: Text('Deseja liberar este fiscal do balcÃƒÂ£o?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Liberar', style: TextStyle(color: Colors.red)),
+            child: Text('Liberar', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -88,7 +88,7 @@ class BalcaoListItem extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -100,7 +100,7 @@ class BalcaoListItem extends StatelessWidget {
         pausa: pausa,
         alocacaoProvider: alocacaoProvider,
         providerContext: context,
-        liberarLabel: 'Liberar Balcão',
+        liberarLabel: 'Liberar BalcÃƒÂ£o',
       ),
     );
   }
@@ -114,18 +114,18 @@ class BalcaoListItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-        side: const BorderSide(color: _kBalcaoColor, width: 2),
+        side: BorderSide(color: _kBalcaoColor, width: 2),
       ),
       child: Padding(
         padding: const EdgeInsets.all(Dimensions.paddingMD),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Cabeçalho
+            // CabeÃƒÂ§alho
             Row(
               children: [
-                const Icon(Icons.support_agent, color: _kBalcaoColor, size: 20),
-                const SizedBox(width: 8),
+                Icon(Icons.support_agent, color: _kBalcaoColor, size: 20),
+                SizedBox(width: 8),
                 Text(
                   balcao.nomeExibicao,
                   style: AppTextStyles.subtitle.copyWith(
@@ -156,9 +156,9 @@ class BalcaoListItem extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: Dimensions.spacingMD),
+            SizedBox(height: Dimensions.spacingMD),
 
-            // Slots: um por alocação ativa + botão de adicionar
+            // Slots: um por alocaÃƒÂ§ÃƒÂ£o ativa + botÃƒÂ£o de adicionar
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -197,7 +197,7 @@ class BalcaoListItem extends StatelessWidget {
   }
 }
 
-// ── Slots ──────────────────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬ Slots Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 class _OcupadoSlot extends StatelessWidget {
   final Alocacao alocacao;
@@ -236,14 +236,14 @@ class _OcupadoSlot extends StatelessWidget {
               backgroundColor: _kBalcaoColor,
               child: Text(
                 colaborador?.iniciais ?? nome.substring(0, 1).toUpperCase(),
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               nome.split(' ').first,
               style:
@@ -252,10 +252,10 @@ class _OcupadoSlot extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             GestureDetector(
               onTap: onLiberar,
-              child: const Icon(Icons.logout, size: 16, color: Colors.red),
+              child: Icon(Icons.logout, size: 16, color: Colors.red),
             ),
           ],
         ),
@@ -291,7 +291,7 @@ class _VazioSlot extends StatelessWidget {
               size: 28,
               color: _kBalcaoColor.withValues(alpha: 0.6),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               '+ Fiscal',
               style: AppTextStyles.caption.copyWith(
@@ -307,7 +307,7 @@ class _VazioSlot extends StatelessWidget {
   }
 }
 
-// ── Picker de colaborador ──────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬ Picker de colaborador Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 class _ColaboradorPickerSheet extends StatelessWidget {
   final Caixa balcao;
@@ -327,7 +327,7 @@ class _ColaboradorPickerSheet extends StatelessWidget {
         .map((t) => t.colaboradorId)
         .toSet();
 
-    // Balcão: mostra todos os colaboradores ativos (sem restrição de alocação)
+    // BalcÃƒÂ£o: mostra todos os colaboradores ativos (sem restriÃƒÂ§ÃƒÂ£o de alocaÃƒÂ§ÃƒÂ£o)
     final disponiveis = colaboradorProvider.colaboradores
         .where((c) => c.ativo && idsEscalaTrabalhando.contains(c.id))
         .toList();
@@ -346,23 +346,23 @@ class _ColaboradorPickerSheet extends StatelessWidget {
           Row(
             children: [
               Text(
-                'Adicionar fiscal — ${balcao.nomeExibicao}',
+                'Adicionar fiscal Ã¢â‚¬â€ ${balcao.nomeExibicao}',
                 style: AppTextStyles.subtitle
                     .copyWith(fontWeight: FontWeight.bold),
               ),
               const Spacer(),
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close),
+                icon: Icon(Icons.close),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           if (disponiveis.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(vertical: 24),
               child: Center(
-                child: Text('Nenhum fiscal disponível no momento'),
+                child: Text('Nenhum fiscal disponÃƒÂ­vel no momento'),
               ),
             )
           else
@@ -380,7 +380,7 @@ class _ColaboradorPickerSheet extends StatelessWidget {
                       backgroundColor: _kBalcaoColor,
                       child: Text(
                         colaborador.iniciais,
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: Colors.white,
                             fontSize: 13,
                             fontWeight: FontWeight.bold),
@@ -395,13 +395,13 @@ class _ColaboradorPickerSheet extends StatelessWidget {
                         caixaId: balcao.id,
                         fiscalId: authProvider.user?.id ?? '',
                       );
-                      // Se retornou exceção (já trabalhou aqui hoje),
-                      // abrir diálogo para justificar
+                      // Se retornou exceÃƒÂ§ÃƒÂ£o (jÃƒÂ¡ trabalhou aqui hoje),
+                      // abrir diÃƒÂ¡logo para justificar
                       if (alocacaoProvider.mostrarDialogExcecao &&
                           context.mounted) {
                         final motivo =
                             alocacaoProvider.resultadoExcecao?.motivoExcecao ??
-                                'Justifique o motivo da exceção.';
+                                'Justifique o motivo da exceÃƒÂ§ÃƒÂ£o.';
                         final tipo =
                             alocacaoProvider.resultadoExcecao?.tipoExcecao ??
                                 '';

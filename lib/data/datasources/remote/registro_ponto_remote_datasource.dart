@@ -18,7 +18,8 @@ class RegistroPontoRemoteDataSource {
           .order('data', ascending: false);
 
       return (response as List)
-          .map((json) => RegistroPontoModel.fromJson(json as Map<String, dynamic>))
+          .map((json) =>
+              RegistroPontoModel.fromJson(json as Map<String, dynamic>))
           .toList();
     } catch (e) {
       throw ServerException('Erro ao buscar registros de ponto: $e');
@@ -31,11 +32,8 @@ class RegistroPontoRemoteDataSource {
     try {
       final json = model.toJson();
       json.remove('id'); // Supabase gera o ID
-      final response = await _client
-          .from('registros_ponto')
-          .insert(json)
-          .select()
-          .single();
+      final response =
+          await _client.from('registros_ponto').insert(json).select().single();
 
       return RegistroPontoModel.fromJson(response);
     } catch (e) {

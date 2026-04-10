@@ -42,8 +42,8 @@ class NotaDetailScreen extends StatelessWidget {
 
     if (nota == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Detalhes da Nota')),
-        body: const Center(
+        appBar: AppBar(title: Text('Detalhes da Nota')),
+        body: Center(
           child: Text('Nota nao encontrada.'),
         ),
       );
@@ -54,10 +54,10 @@ class NotaDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
-        title: const Text('Detalhes da Nota', style: AppTextStyles.h3),
+        title: Text('Detalhes da Nota', style: AppTextStyles.h3),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_outlined),
+            icon: Icon(Icons.edit_outlined),
             tooltip: 'Editar',
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => NotaFormScreen(nota: nota)),
@@ -71,7 +71,7 @@ class NotaDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(nota.titulo, style: AppTextStyles.h2),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -82,32 +82,32 @@ class NotaDetailScreen extends StatelessWidget {
                   backgroundColor: nota.tipo.cor.withValues(alpha: 0.12),
                 ),
                 if (nota.importante)
-                  const Chip(
+                  Chip(
                     avatar: Icon(Icons.star, size: 16, color: Colors.orange),
                     label: Text('Importante'),
                   ),
                 if (nota.concluida)
-                  const Chip(
+                  Chip(
                     avatar: Icon(Icons.check_circle,
                         size: 16, color: AppColors.success),
                     label: Text('Concluida'),
                   ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Text(
               'Criada em ${_formatDateTime(nota.createdAt)}',
               style: AppTextStyles.caption
                   .copyWith(color: AppColors.textSecondary),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               'Atualizada em ${_formatDateTime(nota.updatedAt)}',
               style: AppTextStyles.caption
                   .copyWith(color: AppColors.textSecondary),
             ),
             if (nota.dataLembrete != null) ...[
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 'Prazo/Lembrete: ${_formatDateTime(nota.dataLembrete!)}',
                 style: AppTextStyles.caption.copyWith(
@@ -117,9 +117,9 @@ class NotaDetailScreen extends StatelessWidget {
                 ),
               ),
             ],
-            const SizedBox(height: 16),
-            const Text('Conteudo', style: AppTextStyles.h4),
-            const SizedBox(height: 8),
+            SizedBox(height: 16),
+            Text('Conteudo', style: AppTextStyles.h4),
+            SizedBox(height: 8),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
@@ -135,23 +135,23 @@ class NotaDetailScreen extends StatelessWidget {
             ),
             if ((nota.fotoUrl != null && nota.fotoUrl!.isNotEmpty) ||
                 (nota.arquivoUrl != null && nota.arquivoUrl!.isNotEmpty)) ...[
-              const SizedBox(height: 16),
-              const Text('Anexos', style: AppTextStyles.h4),
-              const SizedBox(height: 8),
+              SizedBox(height: 16),
+              Text('Anexos', style: AppTextStyles.h4),
+              SizedBox(height: 8),
               Card(
                 child: Column(
                   children: [
                     if (nota.fotoUrl != null && nota.fotoUrl!.isNotEmpty)
                       ListTile(
-                        leading: const Icon(Icons.photo_outlined),
-                        title: const Text('Foto'),
+                        leading: Icon(Icons.photo_outlined),
+                        title: Text('Foto'),
                         subtitle: Text(
                           nota.fotoNome ?? 'arquivo de imagem',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         trailing: IconButton(
-                          icon: const Icon(Icons.copy_outlined),
+                          icon: Icon(Icons.copy_outlined),
                           onPressed: () =>
                               _copiar(context, nota.fotoUrl!, 'URL da foto'),
                         ),
@@ -160,18 +160,18 @@ class NotaDetailScreen extends StatelessWidget {
                         nota.fotoUrl!.isNotEmpty &&
                         nota.arquivoUrl != null &&
                         nota.arquivoUrl!.isNotEmpty)
-                      const Divider(height: 1),
+                      Divider(height: 1),
                     if (nota.arquivoUrl != null && nota.arquivoUrl!.isNotEmpty)
                       ListTile(
-                        leading: const Icon(Icons.attach_file),
-                        title: const Text('Arquivo'),
+                        leading: Icon(Icons.attach_file),
+                        title: Text('Arquivo'),
                         subtitle: Text(
                           nota.arquivoNome ?? 'arquivo anexado',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         trailing: IconButton(
-                          icon: const Icon(Icons.copy_outlined),
+                          icon: Icon(Icons.copy_outlined),
                           onPressed: () => _copiar(
                               context, nota.arquivoUrl!, 'URL do arquivo'),
                         ),

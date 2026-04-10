@@ -47,7 +47,7 @@ class SituacaoGuia {
   final String id;
   final String titulo;
   final String categoria;
-  final String corHex;   // ex: 'FF9800'
+  final String corHex; // ex: 'FF9800'
   final String iconeKey; // ex: 'caixa'
   final List<String> passos;
   final bool isDefault;
@@ -99,10 +99,7 @@ class SituacaoGuia {
         categoria: m['categoria'] as String,
         corHex: m['cor_hex'] as String? ?? '607D8B',
         iconeKey: m['icone_key'] as String? ?? 'outro',
-        passos: (m['passos'] as List?)
-                ?.map((e) => e.toString())
-                .toList() ??
-            [],
+        passos: (m['passos'] as List?)?.map((e) => e.toString()).toList() ?? [],
         isDefault: m['is_default'] as bool? ?? false,
       );
 }
@@ -188,5 +185,4 @@ class GuiaRapidoProvider with ChangeNotifier {
       rethrow;
     }
   }
-
 }

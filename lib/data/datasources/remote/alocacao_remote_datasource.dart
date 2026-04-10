@@ -81,11 +81,8 @@ class AlocacaoRemoteDataSource {
       final fiscalId = _client.auth.currentUser?.id;
       if (fiscalId != null) json['fiscal_id'] = fiscalId;
 
-      final response = await _client
-          .from('alocacoes')
-          .insert(json)
-          .select()
-          .single();
+      final response =
+          await _client.from('alocacoes').insert(json).select().single();
 
       return AlocacaoModel.fromJson(response);
     } catch (e) {
@@ -149,15 +146,12 @@ class AlocacaoRemoteDataSource {
 
   /// Stream de alocações ativas (Realtime)
   Stream<List<AlocacaoModel>> watchAlocacoesAtivas(String fiscalId) {
-    return _client
-        .from('alocacoes')
-        .stream(primaryKey: ['id'])
-        .map(
-          (data) => data
-              .map((json) => AlocacaoModel.fromJson(json))
-              .where((alocacao) => alocacao.liberadoEm == null)
-              .toList()
-              ..sort((a, b) => a.alocadoEm.compareTo(b.alocadoEm)),
-        );
+    return _client.from('alocacoes').stream(primaryKey: ['id']).map(
+      (data) => data
+          .map((json) => AlocacaoModel.fromJson(json))
+          .where((alocacao) => alocacao.liberadoEm == null)
+          .toList()
+        ..sort((a, b) => a.alocadoEm.compareTo(b.alocadoEm)),
+    );
   }
 }

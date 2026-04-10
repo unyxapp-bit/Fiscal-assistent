@@ -51,7 +51,8 @@ enum DepartamentoTipo {
         return DepartamentoTipo.seguranca;
       default:
         if (kDebugMode) {
-          print('[DepartamentoTipo] Departamento desconhecido: $value, usando fiscal como padrão');
+          print(
+              '[DepartamentoTipo] Departamento desconhecido: $value, usando fiscal como padrão');
         }
         return DepartamentoTipo.fiscal; // Fallback seguro
     }

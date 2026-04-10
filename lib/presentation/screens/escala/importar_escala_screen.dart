@@ -9,7 +9,7 @@ import '../../../domain/entities/registro_ponto.dart';
 import '../../providers/colaborador_provider.dart';
 import '../../providers/registro_ponto_provider.dart';
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬ Helpers Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 bool _isTime(String s) => RegExp(r'^\d{1,2}:\d{2}$').hasMatch(s);
 
@@ -21,30 +21,30 @@ String _normalizeNome(String s) {
   r = r.replaceAll(RegExp(r'\s+'), ' ');
   // Remove common Portuguese accents
   const Map<String, String> accents = {
-    'À': 'A',
-    'Á': 'A',
-    'Â': 'A',
-    'Ã': 'A',
-    'Ä': 'A',
-    'È': 'E',
-    'É': 'E',
-    'Ê': 'E',
-    'Ë': 'E',
-    'Ì': 'I',
-    'Í': 'I',
-    'Î': 'I',
-    'Ï': 'I',
-    'Ò': 'O',
-    'Ó': 'O',
-    'Ô': 'O',
-    'Õ': 'O',
-    'Ö': 'O',
-    'Ù': 'U',
-    'Ú': 'U',
-    'Û': 'U',
-    'Ü': 'U',
-    'Ç': 'C',
-    'Ñ': 'N',
+    'Ãƒâ‚¬': 'A',
+    'ÃƒÂ': 'A',
+    'Ãƒâ€š': 'A',
+    'ÃƒÆ’': 'A',
+    'Ãƒâ€ž': 'A',
+    'ÃƒË†': 'E',
+    'Ãƒâ€°': 'E',
+    'ÃƒÅ ': 'E',
+    'Ãƒâ€¹': 'E',
+    'ÃƒÅ’': 'I',
+    'ÃƒÂ': 'I',
+    'ÃƒÅ½': 'I',
+    'ÃƒÂ': 'I',
+    'Ãƒâ€™': 'O',
+    'Ãƒâ€œ': 'O',
+    'Ãƒâ€': 'O',
+    'Ãƒâ€¢': 'O',
+    'Ãƒâ€“': 'O',
+    'Ãƒâ„¢': 'U',
+    'ÃƒÅ¡': 'U',
+    'Ãƒâ€º': 'U',
+    'ÃƒÅ“': 'U',
+    'Ãƒâ€¡': 'C',
+    'Ãƒâ€˜': 'N',
   };
   for (final e in accents.entries) {
     r = r.replaceAll(e.key, e.value);
@@ -52,7 +52,7 @@ String _normalizeNome(String s) {
   return r;
 }
 
-// ── Modelo de linha parseada ──────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬ Modelo de linha parseada Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 enum _Status { ok, parcial, naoEncontrado }
 
@@ -141,12 +141,12 @@ _LinhaParseada _parseLinha(
 
   final nameEnd = tokens.length - timeCount;
   if (nameEnd <= 0) {
-    // All tokens look like times — no name
+    // All tokens look like times Ã¢â‚¬â€ no name
     return _LinhaParseada(
       linhaOriginal: linha,
       nomeTexto: linha,
       data: data,
-      aviso: 'Nome não identificado',
+      aviso: 'Nome nÃƒÂ£o identificado',
     );
   }
 
@@ -157,9 +157,9 @@ _LinhaParseada _parseLinha(
 
   String? aviso;
   if (timeCount > 0 && timeCount < 4) {
-    aviso = 'Apenas $timeCount horário(s) encontrado(s)';
+    aviso = 'Apenas $timeCount horÃƒÂ¡rio(s) encontrado(s)';
   } else if (timeCount == 0) {
-    aviso = 'Nenhum horário encontrado';
+    aviso = 'Nenhum horÃƒÂ¡rio encontrado';
   }
 
   return _LinhaParseada(
@@ -176,7 +176,7 @@ _LinhaParseada _parseLinha(
   );
 }
 
-// ── Tela principal ────────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬ Tela principal Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 class ImportarEscalaScreen extends StatefulWidget {
   const ImportarEscalaScreen({super.key});
@@ -216,7 +216,7 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
     final colaboradorProvider = context.read<ColaboradorProvider>();
     final todos = colaboradorProvider.todosColaboradores;
 
-    // Build normalized name → Colaborador map
+    // Build normalized name Ã¢â€ â€™ Colaborador map
     final mapa = <String, Colaborador>{};
     for (final c in todos) {
       mapa[_normalizeNome(c.nome)] = c;
@@ -258,7 +258,9 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
 
     AppNotif.show(
       context,
-      titulo: erro == 0 ? 'Importação Concluída' : 'Importação com Erros',
+      titulo: erro == 0
+          ? 'ImportaÃƒÂ§ÃƒÂ£o ConcluÃƒÂ­da'
+          : 'ImportaÃƒÂ§ÃƒÂ£o com Erros',
       mensagem: '$ok registro(s) importado(s).'
           '${erro > 0 ? " $erro falhou." : ""}',
       tipo: erro == 0 ? 'saida' : 'alerta',
@@ -276,7 +278,7 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Importar Registros'),
+        title: Text('Importar Registros'),
         backgroundColor: AppColors.background,
         elevation: 0,
       ),
@@ -288,10 +290,9 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Data ─────────────────────────────────────────────────
-                  const Text('Data dos registros',
-                      style: AppTextStyles.subtitle),
-                  const SizedBox(height: Dimensions.spacingSM),
+                  // Ã¢â€â‚¬Ã¢â€â‚¬ Data Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+                  Text('Data dos registros', style: AppTextStyles.subtitle),
+                  SizedBox(height: Dimensions.spacingSM),
                   InkWell(
                     onTap: _pickDate,
                     borderRadius: BorderRadius.circular(Dimensions.radiusMD),
@@ -308,24 +309,24 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.calendar_today,
+                          Icon(Icons.calendar_today,
                               color: AppColors.primary, size: 20),
-                          const SizedBox(width: Dimensions.spacingSM),
+                          SizedBox(width: Dimensions.spacingSM),
                           Text(_formatDate(_data), style: AppTextStyles.body),
                           const Spacer(),
-                          const Icon(Icons.arrow_drop_down,
+                          Icon(Icons.arrow_drop_down,
                               color: AppColors.textSecondary),
                         ],
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: Dimensions.spacingLG),
+                  SizedBox(height: Dimensions.spacingLG),
 
-                  // ── Texto ─────────────────────────────────────────────────
-                  const Text('Cole o texto da escala abaixo',
+                  // Ã¢â€â‚¬Ã¢â€â‚¬ Texto Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+                  Text('Cole o texto da escala abaixo',
                       style: AppTextStyles.subtitle),
-                  const SizedBox(height: Dimensions.spacingSM),
+                  SizedBox(height: Dimensions.spacingSM),
                   Container(
                     decoration: BoxDecoration(
                       color: AppColors.cardBackground,
@@ -335,9 +336,8 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
                     child: TextField(
                       controller: _textController,
                       maxLines: 10,
-                      style: const TextStyle(
-                          fontFamily: 'monospace', fontSize: 13),
-                      decoration: const InputDecoration(
+                      style: TextStyle(fontFamily: 'monospace', fontSize: 13),
+                      decoration: InputDecoration(
                         hintText:
                             'Ex:\nANA VITORIA 08:00 12:00 13:00 17:00\nMARCO AURELIO 09:00 13:00 14:00 18:00\nJOAO FOLGA',
                         contentPadding: EdgeInsets.all(12),
@@ -349,26 +349,26 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: Dimensions.spacingMD),
+                  SizedBox(height: Dimensions.spacingMD),
 
-                  // ── Botão Analisar ────────────────────────────────────────
+                  // Ã¢â€â‚¬Ã¢â€â‚¬ BotÃƒÂ£o Analisar Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: _textController.text.trim().isEmpty
                           ? null
                           : _analisar,
-                      icon: const Icon(Icons.search),
-                      label: const Text('Analisar Texto'),
+                      icon: Icon(Icons.search),
+                      label: Text('Analisar Texto'),
                     ),
                   ),
 
-                  // ── Preview ───────────────────────────────────────────────
+                  // Ã¢â€â‚¬Ã¢â€â‚¬ Preview Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                   if (linhas != null) ...[
-                    const SizedBox(height: Dimensions.spacingLG),
+                    SizedBox(height: Dimensions.spacingLG),
                     Row(
                       children: [
-                        const Text('Prévia', style: AppTextStyles.subtitle),
+                        Text('PrÃƒÂ©via', style: AppTextStyles.subtitle),
                         const Spacer(),
                         Text(
                           '$importaveis/${linhas.length} encontrados',
@@ -377,11 +377,11 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: Dimensions.spacingSM),
+                    SizedBox(height: Dimensions.spacingSM),
                     ...linhas.map((l) => _LinhaCard(linha: l)),
                   ],
 
-                  const SizedBox(height: 80), // space for FAB
+                  SizedBox(height: 80), // space for FAB
                 ],
               ),
             ),
@@ -396,13 +396,13 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
                 child: ElevatedButton.icon(
                   onPressed: _importando ? null : _importar,
                   icon: _importando
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(
                               strokeWidth: 2, color: Colors.white),
                         )
-                      : const Icon(Icons.upload),
+                      : Icon(Icons.upload),
                   label: Text(_importando
                       ? 'Importando...'
                       : 'Importar $importaveis registro(s)'),
@@ -421,11 +421,11 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
   String _formatDate(DateTime date) {
     const dias = [
       'Segunda',
-      'Terça',
+      'TerÃƒÂ§a',
       'Quarta',
       'Quinta',
       'Sexta',
-      'Sábado',
+      'SÃƒÂ¡bado',
       'Domingo'
     ];
     final diaSemana = dias[date.weekday - 1];
@@ -433,7 +433,7 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
   }
 }
 
-// ── Card de prévia ────────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬ Card de prÃƒÂ©via Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 class _LinhaCard extends StatelessWidget {
   final _LinhaParseada linha;
@@ -475,7 +475,7 @@ class _LinhaCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: iconColor, size: 20),
-          const SizedBox(width: Dimensions.spacingSM),
+          SizedBox(width: Dimensions.spacingSM),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -499,12 +499,12 @@ class _LinhaCard extends StatelessWidget {
                   ),
                 if (status == _Status.naoEncontrado)
                   Text(
-                    'Colaborador não encontrado',
+                    'Colaborador nÃƒÂ£o encontrado',
                     style:
                         AppTextStyles.caption.copyWith(color: AppColors.danger),
                   ),
 
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
 
                 // Times / observacao
                 if (linha.observacao != null)
@@ -516,19 +516,19 @@ class _LinhaCard extends StatelessWidget {
                     children: [
                       if (linha.entrada != null)
                         _Tag(
-                            label: '↑ ${linha.entrada!}',
+                            label: 'Ã¢â€ â€˜ ${linha.entrada!}',
                             color: AppColors.primary),
                       if (linha.intervaloSaida != null)
                         _Tag(
-                            label: '⏸ ${linha.intervaloSaida!}',
+                            label: 'Ã¢ÂÂ¸ ${linha.intervaloSaida!}',
                             color: AppColors.statusCafe),
                       if (linha.intervaloRetorno != null)
                         _Tag(
-                            label: '▶ ${linha.intervaloRetorno!}',
+                            label: 'Ã¢â€“Â¶ ${linha.intervaloRetorno!}',
                             color: AppColors.statusAtivo),
                       if (linha.saida != null)
                         _Tag(
-                            label: '↓ ${linha.saida!}',
+                            label: 'Ã¢â€ â€œ ${linha.saida!}',
                             color: AppColors.statusSaida),
                     ],
                   ),

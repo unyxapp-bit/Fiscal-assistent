@@ -153,9 +153,8 @@ class AuthProvider with ChangeNotifier {
 
       await _authDataSource.resetPassword(email.trim());
 
-      _status = _user != null
-          ? AuthStatus.authenticated
-          : AuthStatus.unauthenticated;
+      _status =
+          _user != null ? AuthStatus.authenticated : AuthStatus.unauthenticated;
       notifyListeners();
       return true;
     } on ServerException catch (e) {
@@ -174,9 +173,8 @@ class AuthProvider with ChangeNotifier {
   void clearError() {
     _errorMessage = null;
     if (_status == AuthStatus.error) {
-      _status = _user != null
-          ? AuthStatus.authenticated
-          : AuthStatus.unauthenticated;
+      _status =
+          _user != null ? AuthStatus.authenticated : AuthStatus.unauthenticated;
     }
     notifyListeners();
   }

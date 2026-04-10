@@ -37,25 +37,21 @@ class ColaboradorProvider with ChangeNotifier {
   String get searchQuery => _searchQuery;
 
   // Contadores por departamento (baseados na lista completa, não filtrada)
-  int get totalCaixa =>
-      _colaboradores
-          .where((c) => c.departamento == DepartamentoTipo.caixa && c.ativo)
-          .length;
+  int get totalCaixa => _colaboradores
+      .where((c) => c.departamento == DepartamentoTipo.caixa && c.ativo)
+      .length;
 
-  int get totalFiscal =>
-      _colaboradores
-          .where((c) => c.departamento == DepartamentoTipo.fiscal && c.ativo)
-          .length;
+  int get totalFiscal => _colaboradores
+      .where((c) => c.departamento == DepartamentoTipo.fiscal && c.ativo)
+      .length;
 
-  int get totalPacote =>
-      _colaboradores
-          .where((c) => c.departamento == DepartamentoTipo.pacote && c.ativo)
-          .length;
+  int get totalPacote => _colaboradores
+      .where((c) => c.departamento == DepartamentoTipo.pacote && c.ativo)
+      .length;
 
-  int get totalSelf =>
-      _colaboradores
-          .where((c) => c.departamento == DepartamentoTipo.self && c.ativo)
-          .length;
+  int get totalSelf => _colaboradores
+      .where((c) => c.departamento == DepartamentoTipo.self && c.ativo)
+      .length;
 
   int get totalAtivos => _colaboradores.where((c) => c.ativo).length;
 
@@ -73,7 +69,8 @@ class ColaboradorProvider with ChangeNotifier {
         _repository = repository;
 
   /// Carrega colaboradores (pula se já carregado; use forceRefresh para recarregar)
-  Future<void> loadColaboradores(String fiscalId, {bool forceRefresh = false}) async {
+  Future<void> loadColaboradores(String fiscalId,
+      {bool forceRefresh = false}) async {
     if (!forceRefresh &&
         _status == ColaboradorStatus.loaded &&
         _colaboradores.isNotEmpty) {
@@ -81,7 +78,8 @@ class ColaboradorProvider with ChangeNotifier {
     }
     try {
       if (kDebugMode) {
-        print('[ColaboradorProvider] Iniciando loadColaboradores para fiscalId: $fiscalId');
+        print(
+            '[ColaboradorProvider] Iniciando loadColaboradores para fiscalId: $fiscalId');
       }
       _status = ColaboradorStatus.loading;
       _errorMessage = null;
@@ -89,7 +87,8 @@ class ColaboradorProvider with ChangeNotifier {
 
       _colaboradores = await _getColaboradores.call(fiscalId);
       if (kDebugMode) {
-        print('[ColaboradorProvider] ${_colaboradores.length} colaboradores carregados');
+        print(
+            '[ColaboradorProvider] ${_colaboradores.length} colaboradores carregados');
       }
       _applyFilters();
 

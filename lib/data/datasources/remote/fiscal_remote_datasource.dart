@@ -15,15 +15,13 @@ class FiscalRemoteDataSource {
         print('[FiscalRemoteDataSource] Buscando fiscal para userId: $userId');
       }
       // Na tabela fiscais, o id É o user_id (PRIMARY KEY REFERENCES auth.users)
-      final response = await _client
-          .from('fiscais')
-          .select()
-          .eq('id', userId)
-          .maybeSingle();
+      final response =
+          await _client.from('fiscais').select().eq('id', userId).maybeSingle();
 
       if (response == null) {
         if (kDebugMode) {
-          print('[FiscalRemoteDataSource] Nenhum fiscal encontrado para userId: $userId');
+          print(
+              '[FiscalRemoteDataSource] Nenhum fiscal encontrado para userId: $userId');
         }
         return null;
       }
@@ -43,11 +41,8 @@ class FiscalRemoteDataSource {
   /// Busca fiscal pelo ID
   Future<FiscalModel?> getFiscalById(String id) async {
     try {
-      final response = await _client
-          .from('fiscais')
-          .select()
-          .eq('id', id)
-          .maybeSingle();
+      final response =
+          await _client.from('fiscais').select().eq('id', id).maybeSingle();
 
       if (response == null) return null;
 

@@ -16,7 +16,7 @@ class FormularioRespostasScreen extends StatelessWidget {
     required this.formulario,
   });
 
-  // ── Helper: campo pelo label ─────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Helper: campo pelo label Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   CampoFormulario? _findCampo(String label) {
     try {
@@ -26,33 +26,33 @@ class FormularioRespostasScreen extends StatelessWidget {
     }
   }
 
-  // ── Formato de data ──────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Formato de data Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   String _formatDateTime(DateTime dt) {
     final dia = dt.day.toString().padLeft(2, '0');
     final mes = dt.month.toString().padLeft(2, '0');
     final hora = dt.hour.toString().padLeft(2, '0');
     final min = dt.minute.toString().padLeft(2, '0');
-    return '$dia/$mes/${dt.year} às $hora:$min';
+    return '$dia/$mes/${dt.year} ÃƒÂ s $hora:$min';
   }
 
-  // ── Texto formatado para clipboard ───────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Texto formatado para clipboard Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   String _respostaParaTexto(RespostaFormulario resposta) {
     final buf = StringBuffer();
     buf.writeln(formulario.titulo);
     buf.writeln(_formatDateTime(resposta.preenchidoEm));
-    buf.writeln('─' * 30);
+    buf.writeln('Ã¢â€â‚¬' * 30);
     for (final e in resposta.valores.entries) {
       final val = e.value?.toString().isNotEmpty == true
           ? e.value.toString()
-          : '(não preenchido)';
+          : '(nÃƒÂ£o preenchido)';
       buf.writeln('${e.key}: $val');
     }
     return buf.toString().trim();
   }
 
-  // ── Delete com confirmação ───────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Delete com confirmaÃƒÂ§ÃƒÂ£o Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   void _confirmarDelete(
     BuildContext context,
@@ -63,20 +63,19 @@ class FormularioRespostasScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Excluir resposta'),
+        title: Text('Excluir resposta'),
         content: Text('Excluir a Resposta #$numero?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
               provider.deletarResposta(resposta.id);
               Navigator.pop(ctx);
             },
-            child: const Text('Excluir',
-                style: TextStyle(color: AppColors.danger)),
+            child: Text('Excluir', style: TextStyle(color: AppColors.danger)),
           ),
         ],
       ),
@@ -110,17 +109,17 @@ class FormularioRespostasScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.inbox_outlined,
+                  Icon(Icons.inbox_outlined,
                       size: 64, color: AppColors.inactive),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   Text(
                     'Nenhuma resposta ainda',
                     style: AppTextStyles.h4
                         .copyWith(color: AppColors.textSecondary),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Text(
-                    'Preencha o formulário para ver\nas respostas aqui',
+                    'Preencha o formulÃƒÂ¡rio para ver\nas respostas aqui',
                     textAlign: TextAlign.center,
                     style: AppTextStyles.body
                         .copyWith(color: AppColors.textSecondary),
@@ -135,8 +134,7 @@ class FormularioRespostasScreen extends StatelessWidget {
                 final resposta = respostas[index];
                 final numero = respostas.length - index;
                 return Card(
-                  margin:
-                      const EdgeInsets.only(bottom: Dimensions.spacingSM),
+                  margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
                   child: ListTile(
                     leading: Container(
                       width: 40,
@@ -154,8 +152,7 @@ class FormularioRespostasScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    title: Text('Resposta #$numero',
-                        style: AppTextStyles.h4),
+                    title: Text('Resposta #$numero', style: AppTextStyles.h4),
                     subtitle: Text(
                       _formatDateTime(resposta.preenchidoEm),
                       style: AppTextStyles.caption.copyWith(
@@ -167,7 +164,7 @@ class FormularioRespostasScreen extends StatelessWidget {
                       children: [
                         // Copiar
                         IconButton(
-                          icon: const Icon(Icons.copy,
+                          icon: Icon(Icons.copy,
                               size: 18, color: AppColors.textSecondary),
                           tooltip: 'Copiar resposta',
                           onPressed: () {
@@ -176,25 +173,25 @@ class FormularioRespostasScreen extends StatelessWidget {
                             AppNotif.show(
                               context,
                               titulo: 'Copiado',
-                              mensagem: 'Resposta copiada para área de transferência',
+                              mensagem:
+                                  'Resposta copiada para ÃƒÂ¡rea de transferÃƒÂªncia',
                               tipo: 'intervalo',
                             );
                           },
                         ),
                         // Deletar
                         IconButton(
-                          icon: const Icon(Icons.delete_outline,
+                          icon: Icon(Icons.delete_outline,
                               size: 18, color: AppColors.danger),
                           tooltip: 'Excluir resposta',
                           onPressed: () => _confirmarDelete(
                               context, resposta, provider, numero),
                         ),
-                        const Icon(Icons.chevron_right,
+                        Icon(Icons.chevron_right,
                             color: AppColors.textSecondary),
                       ],
                     ),
-                    onTap: () =>
-                        _mostrarDetalhes(context, resposta, numero),
+                    onTap: () => _mostrarDetalhes(context, resposta, numero),
                   ),
                 );
               },
@@ -202,7 +199,7 @@ class FormularioRespostasScreen extends StatelessWidget {
     );
   }
 
-  // ── Bottom sheet de detalhes ─────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Bottom sheet de detalhes Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   void _mostrarDetalhes(
     BuildContext context,
@@ -212,8 +209,9 @@ class FormularioRespostasScreen extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (ctx) => DraggableScrollableSheet(
         initialChildSize: 0.7,
@@ -233,7 +231,7 @@ class FormularioRespostasScreen extends StatelessWidget {
               ),
             ),
 
-            // Cabeçalho
+            // CabeÃƒÂ§alho
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
@@ -242,58 +240,54 @@ class FormularioRespostasScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(formulario.titulo,
-                            style: AppTextStyles.h3),
+                        Text(formulario.titulo, style: AppTextStyles.h3),
                         Text(
                           _formatDateTime(resposta.preenchidoEm),
-                          style: AppTextStyles.caption.copyWith(
-                              color: AppColors.textSecondary),
+                          style: AppTextStyles.caption
+                              .copyWith(color: AppColors.textSecondary),
                         ),
                       ],
                     ),
                   ),
                   // Copiar tudo
                   IconButton(
-                    icon: const Icon(Icons.copy),
+                    icon: Icon(Icons.copy),
                     tooltip: 'Copiar tudo',
                     onPressed: () {
-                      Clipboard.setData(ClipboardData(
-                          text: _respostaParaTexto(resposta)));
+                      Clipboard.setData(
+                          ClipboardData(text: _respostaParaTexto(resposta)));
                       AppNotif.show(
                         context,
                         titulo: 'Copiado',
-                        mensagem: 'Copiado para área de transferência',
+                        mensagem: 'Copiado para ÃƒÂ¡rea de transferÃƒÂªncia',
                         tipo: 'intervalo',
                       );
                     },
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: Icon(Icons.close),
                     onPressed: () => Navigator.pop(ctx),
                   ),
                 ],
               ),
             ),
 
-            const Divider(),
+            Divider(),
 
-            // Conteúdo
+            // ConteÃƒÂºdo
             Expanded(
               child: ListView.separated(
                 controller: scrollCtrl,
                 padding: const EdgeInsets.all(16),
                 itemCount: resposta.valores.length,
-                separatorBuilder: (_, __) => const Divider(height: 24),
+                separatorBuilder: (_, __) => Divider(height: 24),
                 itemBuilder: (ctx, i) {
-                  final entry =
-                      resposta.valores.entries.elementAt(i);
+                  final entry = resposta.valores.entries.elementAt(i);
                   final campo = _findCampo(entry.key);
-                  final valStr =
-                      entry.value?.toString().isNotEmpty == true
-                          ? entry.value.toString()
-                          : '(não preenchido)';
-                  final preenchido =
-                      entry.value?.toString().isNotEmpty == true;
+                  final valStr = entry.value?.toString().isNotEmpty == true
+                      ? entry.value.toString()
+                      : '(nÃƒÂ£o preenchido)';
+                  final preenchido = entry.value?.toString().isNotEmpty == true;
 
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -305,8 +299,8 @@ class FormularioRespostasScreen extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      // Exibição especial para Sim/Não
+                      SizedBox(height: 4),
+                      // ExibiÃƒÂ§ÃƒÂ£o especial para Sim/NÃƒÂ£o
                       if (campo?.tipo == TipoCampo.simNao && preenchido)
                         Row(
                           children: [
@@ -319,7 +313,7 @@ class FormularioRespostasScreen extends StatelessWidget {
                                   : AppColors.danger,
                               size: 20,
                             ),
-                            const SizedBox(width: 6),
+                            SizedBox(width: 6),
                             Text(
                               valStr,
                               style: AppTextStyles.body.copyWith(

@@ -1,57 +1,75 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_theme.dart';
+
 class AppColors {
+  static AppThemeTokens get _tokens => AppThemes.activeTokens;
+  static bool get _isGamer => AppThemes.activeVariant == AppThemeVariant.gamer;
+
   // Backgrounds
-  static const Color background = Color(0xFFF8FAFC);
-  static const Color backgroundSection = Color(0xFFF1F5F9);
+  static Color get background => _tokens.background;
+  static Color get backgroundSection => _tokens.backgroundSection;
 
   // Surfaces
-  static const Color cardBackground = Color(0xFFFFFFFF);
-  static const Color cardBorder = Color(0xFFE2E8F0);
-  static const Color divider = Color(0xFFCBD5E1);
+  static Color get cardBackground => _tokens.cardBackground;
+  static Color get cardBorder => _tokens.cardBorder;
+  static Color get divider => _tokens.divider;
 
   // Text
-  static const Color textPrimary = Color(0xFF0F172A);
-  static const Color textSecondary = Color(0xFF64748B);
-  static const Color textOnColor = Color(0xFFFFFFFF);
+  static Color get textPrimary => _tokens.textPrimary;
+  static Color get textSecondary => _tokens.textSecondary;
+  static Color get textOnColor => _tokens.textOnColor;
 
   // Status
-  static const Color statusAtivo = Color(0xFF10B981);
-  static const Color statusInativo = Color(0xFFEF4444);
-  static const Color statusAtencao = Color(0xFFF59E0B);
-  static const Color statusInfo = Color(0xFF2563EB);
-  static const Color statusCafe = Color(0xFFC2410C);
-  static const Color statusIntervalo = Color(0xFFD97706);
-  static const Color statusSelf = Color(0xFF0891B2);
-  static const Color inactive = Color(0xFF94A3B8);
+  static Color get statusAtivo => _tokens.success;
+  static Color get statusInativo =>
+      _isGamer ? const Color(0xFFFF6B8A) : const Color(0xFFEF4444);
+  static Color get statusAtencao => _tokens.warning;
+  static Color get statusInfo => _tokens.info;
+  static Color get statusCafe =>
+      _isGamer ? const Color(0xFFFFB86B) : const Color(0xFFC2410C);
+  static Color get statusIntervalo =>
+      _isGamer ? const Color(0xFFFBBF24) : const Color(0xFFD97706);
+  static Color get statusSelf =>
+      _isGamer ? const Color(0xFF22D3EE) : const Color(0xFF0891B2);
+  static Color get inactive =>
+      _isGamer ? const Color(0xFF64748B) : const Color(0xFF94A3B8);
 
   // Actions
-  static const Color primary = Color(0xFF2563EB);
-  static const Color success = Color(0xFF10B981);
-  static const Color danger = Color(0xFFEF4444);
-  static const Color secondary = Color(0xFFEFF6FF);
+  static Color get primary => _tokens.primary;
+  static Color get success => _tokens.success;
+  static Color get danger => _tokens.danger;
+  static Color get secondary => _tokens.secondary;
 
   // Alerts
-  static const Color alertCritical = Color(0xFFFEF2F2);
-  static const Color alertWarning = Color(0xFFFFF7ED);
-  static const Color alertInfo = Color(0xFFEFF6FF);
-  static const Color alertSuccess = Color(0xFFECFDF5);
+  static Color get alertCritical => _tokens.alertCritical;
+  static Color get alertWarning => _tokens.alertWarning;
+  static Color get alertInfo => _tokens.alertInfo;
+  static Color get alertSuccess => _tokens.alertSuccess;
 
   // Extra status
-  static const Color statusSaida = Color(0xFFEA580C);
-  static const Color statusFolga = Color(0xFF94A3B8);
+  static Color get statusSaida =>
+      _isGamer ? const Color(0xFFFF8A5B) : const Color(0xFFEA580C);
+  static Color get statusFolga => inactive;
 
   // Dashboard module colors
-  static const Color coffee = Color(0xFF9A3412);
-  static const Color teal = Color(0xFF0F766E);
-  static const Color cyan = Color(0xFF0E7490);
-  static const Color pink = Color(0xFFDB2777);
-  static const Color blueGrey = Color(0xFF475569);
-  static const Color indigo = Color(0xFF1D4ED8);
-  static const Color deepPurple = Color(0xFF0B3B8A);
+  static Color get coffee =>
+      _isGamer ? const Color(0xFFFF9E57) : const Color(0xFF9A3412);
+  static Color get teal =>
+      _isGamer ? const Color(0xFF2DD4BF) : const Color(0xFF0F766E);
+  static Color get cyan =>
+      _isGamer ? const Color(0xFF22D3EE) : const Color(0xFF0E7490);
+  static Color get pink =>
+      _isGamer ? const Color(0xFFFF4FD8) : const Color(0xFFDB2777);
+  static Color get blueGrey =>
+      _isGamer ? const Color(0xFF7C8EA6) : const Color(0xFF475569);
+  static Color get indigo =>
+      _isGamer ? const Color(0xFF7DD3FC) : const Color(0xFF1D4ED8);
+  static Color get deepPurple =>
+      _isGamer ? const Color(0xFF38BDF8) : const Color(0xFF0B3B8A);
 
   // Aliases
-  static const Color info = statusInfo;
-  static const Color warning = statusAtencao;
-  static const Color border = cardBorder;
+  static Color get info => statusInfo;
+  static Color get warning => statusAtencao;
+  static Color get border => cardBorder;
 }

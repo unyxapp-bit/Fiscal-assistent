@@ -40,7 +40,7 @@ class CaixaListItem extends StatelessWidget {
     final isOcupado = alocacao != null;
     final isEmPausa = pausaCaixa != null && !isOcupado;
 
-    // Colaborador em pausa (para buscar turno mesmo sem alocação ativa)
+    // Colaborador em pausa (para buscar turno mesmo sem alocaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ativa)
     final colaboradorEmPausa = isEmPausa && pausaCaixa.colaboradorId.isNotEmpty
         ? colaboradorProvider.colaboradores
             .where((c) => c.id == pausaCaixa.colaboradorId)
@@ -55,7 +55,7 @@ class CaixaListItem extends StatelessWidget {
             .firstOrNull
         : null;
 
-    // Situação do intervalo agendado (apenas quando ocupado e não em pausa real)
+    // SituaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o do intervalo agendado (apenas quando ocupado e nÃƒÆ’Ã‚Â£o em pausa real)
     final bool intervaloJaFeito = colaborador != null &&
         (alocacaoProvider.isIntervaloMarcado(colaborador.id) ||
             cafeProvider.colaboradorJaFezIntervaloHoje(colaborador.id));
@@ -94,7 +94,7 @@ class CaixaListItem extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Avatar com número do caixa
+                    // Avatar com nÃƒÆ’Ã‚Âºmero do caixa
                     Container(
                       width: 44,
                       height: 44,
@@ -114,9 +114,9 @@ class CaixaListItem extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
 
-                    // ── Informações centrais ─────────────────
+                    // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ InformaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes centrais ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,31 +127,31 @@ class CaixaListItem extends StatelessWidget {
                             children: [
                               Icon(caixa.tipo.icone,
                                   size: 14, color: AppColors.textSecondary),
-                              const SizedBox(width: 4),
+                              SizedBox(width: 4),
                               Text(caixa.nomeExibicao, style: AppTextStyles.h4),
-                              const SizedBox(width: 6),
+                              SizedBox(width: 6),
                               Text(
-                                '· ${caixa.tipo.nome}',
+                                'Ãƒâ€šÃ‚Â· ${caixa.tipo.nome}',
                                 style: AppTextStyles.caption
                                     .copyWith(color: AppColors.textSecondary),
                               ),
                             ],
                           ),
 
-                          // Localização + loja
+                          // LocalizaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o + loja
                           if (caixa.localizacao != null ||
                               caixa.loja != null) ...[
-                            const SizedBox(height: 2),
+                            SizedBox(height: 2),
                             Row(
                               children: [
-                                const Icon(Icons.location_on,
+                                Icon(Icons.location_on,
                                     size: 11, color: AppColors.textSecondary),
-                                const SizedBox(width: 2),
+                                SizedBox(width: 2),
                                 Expanded(
                                   child: Text(
                                     [caixa.loja, caixa.localizacao]
                                         .whereType<String>()
-                                        .join(' · '),
+                                        .join(' Ãƒâ€šÃ‚Â· '),
                                     style: AppTextStyles.caption.copyWith(
                                         color: AppColors.textSecondary),
                                   ),
@@ -162,9 +162,9 @@ class CaixaListItem extends StatelessWidget {
 
                           // Colaborador alocado
                           if (colaborador != null) ...[
-                            const SizedBox(height: 5),
-                            const Divider(height: 1, thickness: 0.5),
-                            const SizedBox(height: 5),
+                            SizedBox(height: 5),
+                            Divider(height: 1, thickness: 0.5),
+                            SizedBox(height: 5),
                             Row(
                               children: [
                                 CircleAvatar(
@@ -175,14 +175,14 @@ class CaixaListItem extends StatelessWidget {
                                     colaborador.iniciais.length > 1
                                         ? colaborador.iniciais[0]
                                         : colaborador.iniciais,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 9,
                                       fontWeight: FontWeight.bold,
                                       color: AppColors.primary,
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 6),
+                                SizedBox(width: 6),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
@@ -209,11 +209,11 @@ class CaixaListItem extends StatelessWidget {
                             ),
                           ],
 
-                          // Colaborador em pausa (sem alocação ativa)
+                          // Colaborador em pausa (sem alocaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ativa)
                           if (isEmPausa && colaboradorEmPausa != null) ...[
-                            const SizedBox(height: 5),
-                            const Divider(height: 1, thickness: 0.5),
-                            const SizedBox(height: 5),
+                            SizedBox(height: 5),
+                            Divider(height: 1, thickness: 0.5),
+                            SizedBox(height: 5),
                             Row(
                               children: [
                                 CircleAvatar(
@@ -224,14 +224,14 @@ class CaixaListItem extends StatelessWidget {
                                     colaboradorEmPausa.iniciais.length > 1
                                         ? colaboradorEmPausa.iniciais[0]
                                         : colaboradorEmPausa.iniciais,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 9,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.orange,
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 6),
+                                SizedBox(width: 6),
                                 Expanded(
                                   child: Text(
                                     colaboradorEmPausa.nome,
@@ -248,9 +248,9 @@ class CaixaListItem extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
 
-                    // ── Trailing: badge de status ──────────────
+                    // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Trailing: badge de status ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
                     _buildTrailing(
                       isOcupado,
                       isEmPausa,
@@ -263,7 +263,7 @@ class CaixaListItem extends StatelessWidget {
                 ),
               ),
 
-              // ── Faixa: situação do intervalo agendado ──────────
+              // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Faixa: situaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o do intervalo agendado ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
               if (minIntervalo != null && minIntervalo > -60)
                 _buildIntervaloBar(minIntervalo),
             ],
@@ -282,13 +282,13 @@ class CaixaListItem extends StatelessWidget {
     int? minIntervalo,
   }) {
     if (caixa.emManutencao) {
-      return const _StatusChip(
-          label: 'Manutenção',
+      return _StatusChip(
+          label: 'ManutenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o',
           color: AppColors.statusAtencao,
           icon: Icons.build);
     }
     if (!caixa.ativo) {
-      return const _StatusChip(
+      return _StatusChip(
           label: 'Inativo', color: AppColors.inactive, icon: Icons.power_off);
     }
     if (isOcupado) {
@@ -310,11 +310,11 @@ class CaixaListItem extends StatelessWidget {
                   color: AppColors.danger,
                   icon: Icons.warning_amber_rounded,
                 )
-              : const _StatusChip(
+              : _StatusChip(
                   label: 'Ocupado',
                   color: AppColors.statusAtivo,
                   icon: Icons.person),
-          const SizedBox(height: 3),
+          SizedBox(height: 3),
           Text(
             entradaEscala != null
                 ? 'entrada $horarioLabel'
@@ -330,7 +330,7 @@ class CaixaListItem extends StatelessWidget {
     if (isEmPausa && pausaCaixa != null) {
       final isCafe = pausaCaixa.isCafe;
       final label = isCafe
-          ? 'Café ${pausaCaixa.minutosDecorridos}min'
+          ? 'CafÃƒÆ’Ã‚Â© ${pausaCaixa.minutosDecorridos}min'
           : 'Intervalo ${pausaCaixa.minutosDecorridos}min';
       final cor =
           pausaCaixa.emAtraso ? AppColors.danger : Colors.orange.shade700;
@@ -339,11 +339,11 @@ class CaixaListItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           _StatusChip(
-            label: isCafe ? 'Em Café' : 'Em Intervalo',
+            label: isCafe ? 'Em CafÃƒÆ’Ã‚Â©' : 'Em Intervalo',
             color: cor,
             icon: isCafe ? Icons.coffee : Icons.restaurant,
           ),
-          const SizedBox(height: 3),
+          SizedBox(height: 3),
           Text(
             label,
             style: TextStyle(
@@ -355,8 +355,8 @@ class CaixaListItem extends StatelessWidget {
         ],
       );
     }
-    return const _StatusChip(
-        label: 'Disponível',
+    return _StatusChip(
+        label: 'DisponÃƒÆ’Ã‚Â­vel',
         color: AppColors.success,
         icon: Icons.check_circle_outline);
   }
@@ -372,15 +372,16 @@ class CaixaListItem extends StatelessWidget {
       icone = Icons.schedule;
       texto = 'Intervalo em ${-min}min';
     } else if (min < 15) {
-      // Atraso leve (0–14 min)
+      // Atraso leve (0ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“14 min)
       cor = Colors.orange.shade900;
       icone = Icons.warning_amber;
       texto = '${min}min em atraso para o intervalo';
     } else {
-      // Em atenção (15+ min)
+      // Em atenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o (15+ min)
       cor = AppColors.danger;
       icone = Icons.error_outline;
-      texto = '${min}min sem intervalo — Em Atenção';
+      texto =
+          '${min}min sem intervalo ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Em AtenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o';
     }
 
     final bgColor = min >= 15
@@ -395,7 +396,7 @@ class CaixaListItem extends StatelessWidget {
       child: Row(
         children: [
           Icon(icone, size: 13, color: cor),
-          const SizedBox(width: 5),
+          SizedBox(width: 5),
           Text(
             texto,
             style: TextStyle(
@@ -409,7 +410,7 @@ class CaixaListItem extends StatelessWidget {
     );
   }
 
-  /// Positivo = minutos ATRASADO; Negativo = minutos RESTANTES; null = sem horário
+  /// Positivo = minutos ATRASADO; Negativo = minutos RESTANTES; null = sem horÃƒÆ’Ã‚Â¡rio
   int? _calcMinIntervalo(TurnoLocal? turno) {
     if (turno?.intervalo == null) return null;
     final parts = turno!.intervalo!.split(':');
@@ -449,7 +450,7 @@ class CaixaListItem extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -466,16 +467,15 @@ class CaixaListItem extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
+// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
 // Badge de status inline
-// ─────────────────────────────────────────────
+// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
 class _StatusChip extends StatelessWidget {
   final String label;
   final Color color;
   final IconData icon;
 
-  const _StatusChip(
-      {required this.label, required this.color, required this.icon});
+  _StatusChip({required this.label, required this.color, required this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -490,7 +490,7 @@ class _StatusChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 12, color: color),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Text(
             label,
             style: TextStyle(

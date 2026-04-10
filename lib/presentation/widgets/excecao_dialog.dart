@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../domain/entities/colaborador.dart';
 import '../../domain/entities/caixa.dart';
 
-/// Dialog para justificar exceção (regra quebrada)
+/// Dialog para justificar exceÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o (regra quebrada)
 class ExcecaoDialog extends StatefulWidget {
   final Colaborador? colaborador;
   final Caixa? caixa;
@@ -45,11 +45,11 @@ class _ExcecaoDialogState extends State<ExcecaoDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Row(
+      title: Row(
         children: [
           Icon(Icons.warning, color: Colors.orange),
           SizedBox(width: 8),
-          Text('Exceção de Alocação'),
+          Text('ExceÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o de AlocaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o'),
         ],
       ),
       content: SingleChildScrollView(
@@ -57,7 +57,7 @@ class _ExcecaoDialogState extends State<ExcecaoDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Motivo da exceção
+            // Motivo da exceÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -67,22 +67,22 @@ class _ExcecaoDialogState extends State<ExcecaoDialog> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Motivo:',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.orange,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     widget.motivo,
-                    style: const TextStyle(fontSize: 14),
+                    style: TextStyle(fontSize: 14),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
 
             // Detalhes
             if (widget.colaborador != null)
@@ -91,7 +91,7 @@ class _ExcecaoDialogState extends State<ExcecaoDialog> {
                 child: RichText(
                   text: TextSpan(
                     children: [
-                      const TextSpan(
+                      TextSpan(
                         text: 'Colaborador: ',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -100,7 +100,7 @@ class _ExcecaoDialogState extends State<ExcecaoDialog> {
                       ),
                       TextSpan(
                         text: widget.colaborador!.nome,
-                        style: const TextStyle(color: Colors.black87),
+                        style: TextStyle(color: Colors.black87),
                       ),
                     ],
                   ),
@@ -112,7 +112,7 @@ class _ExcecaoDialogState extends State<ExcecaoDialog> {
                 child: RichText(
                   text: TextSpan(
                     children: [
-                      const TextSpan(
+                      TextSpan(
                         text: 'Caixa: ',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -121,7 +121,7 @@ class _ExcecaoDialogState extends State<ExcecaoDialog> {
                       ),
                       TextSpan(
                         text: widget.caixa!.numero.toString(),
-                        style: const TextStyle(color: Colors.black87),
+                        style: TextStyle(color: Colors.black87),
                       ),
                     ],
                   ),
@@ -129,20 +129,21 @@ class _ExcecaoDialogState extends State<ExcecaoDialog> {
               ),
 
             // Campo de justificativa
-            const Text(
+            Text(
               'Justifique o motivo:',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             TextField(
               controller: _justificativaController,
               maxLines: 3,
               minLines: 2,
               decoration: InputDecoration(
-                hintText: 'Em qual motivo o colaborador trabalha nesta caixa novamente?',
+                hintText:
+                    'Em qual motivo o colaborador trabalha nesta caixa novamente?',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -158,7 +159,7 @@ class _ExcecaoDialogState extends State<ExcecaoDialog> {
             Navigator.pop(context);
             widget.onCancel();
           },
-          child: const Text('Cancelar'),
+          child: Text('Cancelar'),
         ),
         ElevatedButton(
           onPressed: _justificativaController.text.trim().isEmpty
@@ -170,7 +171,7 @@ class _ExcecaoDialogState extends State<ExcecaoDialog> {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.orange,
           ),
-          child: const Text('Justificar e Alocar'),
+          child: Text('Justificar e Alocar'),
         ),
       ],
     );

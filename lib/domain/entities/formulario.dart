@@ -56,8 +56,7 @@ class CampoFormulario {
     }
     final m = raw as Map<String, dynamic>;
     final rawId = (m['id'] as String?) ?? '';
-    final id =
-        rawId.isNotEmpty ? rawId : (m['label'] as String? ?? 'campo');
+    final id = rawId.isNotEmpty ? rawId : (m['label'] as String? ?? 'campo');
     return CampoFormulario(
       id: id,
       label: m['label'] as String? ?? id,

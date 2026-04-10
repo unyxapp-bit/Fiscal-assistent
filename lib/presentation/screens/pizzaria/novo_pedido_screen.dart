@@ -128,8 +128,7 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (_itens.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Adicione pelo menos uma pizza ao pedido.')),
+        SnackBar(content: Text('Adicione pelo menos uma pizza ao pedido.')),
       );
       return;
     }
@@ -202,7 +201,7 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(_isEdicao ? 'Editar Pedido' : 'Novo Pedido')),
       body: _carregando
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator())
           : Form(
               key: _formKey,
               child: ListView(
@@ -212,93 +211,93 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
                   const _Secao('Dados do Pedido'),
                   TextFormField(
                     controller: _nomeCtrl,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Nome do Cliente',
                       prefixIcon: Icon(Icons.person_outline),
                       border: OutlineInputBorder(),
                     ),
                     textCapitalization: TextCapitalization.words,
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   TextFormField(
                     controller: _codigoCtrl,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Codigo do Cliente',
                       prefixIcon: Icon(Icons.qr_code),
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   TextFormField(
                     controller: _enderecoCtrl,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Endereco',
                       prefixIcon: Icon(Icons.location_on_outlined),
                       border: OutlineInputBorder(),
                     ),
                     textCapitalization: TextCapitalization.words,
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   TextFormField(
                     controller: _bairroCtrl,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Bairro',
                       prefixIcon: Icon(Icons.map_outlined),
                       border: OutlineInputBorder(),
                     ),
                     textCapitalization: TextCapitalization.words,
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   TextFormField(
                     controller: _telefoneCtrl,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Telefone',
                       prefixIcon: Icon(Icons.phone_outlined),
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.phone,
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   TextFormField(
                     controller: _referenciaCtrl,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Referencia',
                       prefixIcon: Icon(Icons.place_outlined),
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   // Data e hora em linha
                   Row(
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          icon: const Icon(Icons.calendar_today),
+                          icon: Icon(Icons.calendar_today),
                           label: Text(DateFormat('dd/MM/yyyy').format(_data)),
                           onPressed: _escolherData,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       Expanded(
                         child: OutlinedButton.icon(
-                          icon: const Icon(Icons.access_time),
+                          icon: Icon(Icons.access_time),
                           label: Text(_horario),
                           onPressed: _escolherHora,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   TextFormField(
                     controller: _obsCtrl,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Observacoes',
                       prefixIcon: Icon(Icons.notes),
                       border: OutlineInputBorder(),
                     ),
                     maxLines: 2,
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
 
                   // ---- Itens ----
                   Row(
@@ -307,13 +306,13 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
                       const _Secao('Pizzas do Pedido'),
                       TextButton.icon(
                         onPressed: _adicionarItem,
-                        icon: const Icon(Icons.add),
-                        label: const Text('Adicionar'),
+                        icon: Icon(Icons.add),
+                        label: Text('Adicionar'),
                       ),
                     ],
                   ),
                   if (_itens.isEmpty)
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
                       child: Center(
                           child: Text('Nenhuma pizza adicionada.',
@@ -325,13 +324,12 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
                     return Card(
                       margin: const EdgeInsets.only(bottom: 8),
                       child: ListTile(
-                        leading:
-                            const Icon(Icons.local_pizza, color: Colors.orange),
+                        leading: Icon(Icons.local_pizza, color: Colors.orange),
                         title: Text(item.descricao),
                         subtitle: Text(
                             '${item.tamanhoLabel} - Qtd: ${item.quantidade}'),
                         trailing: IconButton(
-                          icon: const Icon(Icons.remove_circle_outline,
+                          icon: Icon(Icons.remove_circle_outline,
                               color: Colors.red),
                           onPressed: () => setState(() => _itens.removeAt(i)),
                         ),
@@ -339,7 +337,7 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
                     );
                   }),
 
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
                   SizedBox(
                     height: 52,
                     child: FilledButton.icon(
@@ -347,14 +345,14 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
                       icon: Icon(
                           _isEdicao ? Icons.save_outlined : Icons.receipt_long),
                       label: _salvando
-                          ? const SizedBox(
+                          ? SizedBox(
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(
                                   strokeWidth: 2, color: Colors.white))
                           : Text(
                               _isEdicao ? 'Salvar Alteracoes' : 'Gerar Cupom',
-                              style: const TextStyle(fontSize: 16),
+                              style: TextStyle(fontSize: 16),
                             ),
                     ),
                   ),
@@ -490,7 +488,7 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         Text(
                           pizza.nome,
                           maxLines: 2,
@@ -511,7 +509,7 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
                               ? Theme.of(context).colorScheme.primary
                               : Colors.orange,
                         ),
-                        const SizedBox(width: 10),
+                        SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             pizza.nome,
@@ -548,7 +546,7 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
     required ValueChanged<Pizza> onSelecionar,
   }) {
     if (pizzas.isEmpty) {
-      return const Padding(
+      return Padding(
         padding: EdgeInsets.only(top: 8, bottom: 8),
         child: Text(
           'Nenhuma pizza nessa categoria.',
@@ -626,7 +624,7 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
                 Expanded(
                   child: Text(
                     titulo,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.grey,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -659,7 +657,7 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Adicionar Pizza')),
+      appBar: AppBar(title: Text('Adicionar Pizza')),
       body: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
           16,
@@ -672,7 +670,7 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
           children: [
             // Meio a meio toggle (so para grandes)
             SwitchListTile(
-              title: const Text('Meio a Meio (apenas grande)'),
+              title: Text('Meio a Meio (apenas grande)'),
               value: _meioAMeio,
               onChanged: (v) => setState(() {
                 _meioAMeio = v;
@@ -681,12 +679,11 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
               }),
               contentPadding: EdgeInsets.zero,
             ),
-            const Divider(),
+            Divider(),
 
             if (!_meioAMeio) ...[
-              const Text('Sabor',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 8),
+              Text('Sabor', style: TextStyle(fontWeight: FontWeight.w600)),
+              SizedBox(height: 8),
               _categoriaExpansivel(
                 titulo: 'Grandes',
                 expandida: _expandGrandes,
@@ -697,7 +694,7 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
                   onSelecionar: (v) => _p1 = v,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               _categoriaExpansivel(
                 titulo: 'Medias',
                 expandida: _expandMedias,
@@ -709,20 +706,18 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
                 ),
               ),
             ] else ...[
-              const Text('Metade 1',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 4),
-              const SizedBox(height: 8),
+              Text('Metade 1', style: TextStyle(fontWeight: FontWeight.w600)),
+              SizedBox(height: 4),
+              SizedBox(height: 8),
               _pizzaGrid(
                 pizzas: _opcoesMeio,
                 selecionada: _p1,
                 onSelecionar: (v) => _p1 = v,
               ),
-              const Divider(),
-              const Text('Metade 2',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 4),
-              const SizedBox(height: 8),
+              Divider(),
+              Text('Metade 2', style: TextStyle(fontWeight: FontWeight.w600)),
+              SizedBox(height: 4),
+              SizedBox(height: 8),
               _pizzaGrid(
                 pizzas: _opcoesMeio,
                 selecionada: _p2,
@@ -730,52 +725,52 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
               ),
             ],
 
-            const Divider(),
+            Divider(),
             // Quantidade
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('Quantidade: ',
+                Text('Quantidade: ',
                     style: TextStyle(fontWeight: FontWeight.w600)),
                 IconButton(
-                  icon: const Icon(Icons.remove_circle_outline),
+                  icon: Icon(Icons.remove_circle_outline),
                   onPressed: _qtd > 1 ? () => setState(() => _qtd--) : null,
                 ),
                 Text('$_qtd',
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold)),
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 IconButton(
-                  icon: const Icon(Icons.add_circle_outline),
+                  icon: Icon(Icons.add_circle_outline),
                   onPressed: () => setState(() => _qtd++),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
 
             if (_itensSelecionados.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Text(
-                  '${_itensSelecionados.length} item(ns) já adicionados nesta seleção.',
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  '${_itensSelecionados.length} item(ns) jÃƒÆ’Ã‚Â¡ adicionados nesta seleÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o.',
+                  style: TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: _podeAdicionar ? _adicionarNaSessao : null,
-                icon: const Icon(Icons.add),
-                label: const Text('Adicionar item e continuar'),
+                icon: Icon(Icons.add),
+                label: Text('Adicionar item e continuar'),
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
                 onPressed: (_itensSelecionados.isNotEmpty || _podeAdicionar)
                     ? _concluirSelecao
                     : null,
-                icon: const Icon(Icons.check),
+                icon: Icon(Icons.check),
                 label: Text(
                   _itensSelecionados.isEmpty
                       ? 'Adicionar ao Pedido'
@@ -798,6 +793,6 @@ class _Secao extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: Text(texto,
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
       );
 }

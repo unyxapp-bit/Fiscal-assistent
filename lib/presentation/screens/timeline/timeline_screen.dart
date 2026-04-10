@@ -18,22 +18,21 @@ class TimelineScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<EventoTurnoProvider>(
       builder: (context, eventoProvider, _) {
-        final authProvider =
-            Provider.of<AuthProvider>(context, listen: false);
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
         final fiscalId = authProvider.user?.id ?? '';
         final eventos = eventoProvider.eventos;
 
         return Scaffold(
           backgroundColor: AppColors.background,
           appBar: AppBar(
-            title: const Text('Timeline de Hoje'),
+            title: Text('Timeline de Hoje'),
             backgroundColor: AppColors.background,
             elevation: 0,
             actions: [
               if (eventoProvider.relatorios.isNotEmpty)
                 IconButton(
-                  icon: const Icon(Icons.history),
-                  tooltip: 'Relatórios do Dia',
+                  icon: Icon(Icons.history),
+                  tooltip: 'RelatÃƒÂ³rios do Dia',
                   onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -42,7 +41,7 @@ class TimelineScreen extends StatelessWidget {
                 ),
               if (eventos.isNotEmpty)
                 IconButton(
-                  icon: const Icon(Icons.share),
+                  icon: Icon(Icons.share),
                   tooltip: 'Exportar Timeline',
                   onPressed: () => _exportarTimeline(context, eventos),
                 ),
@@ -55,8 +54,8 @@ class TimelineScreen extends StatelessWidget {
               ? FloatingActionButton.extended(
                   onPressed: () =>
                       _confirmarFinalTurno(context, eventoProvider, fiscalId),
-                  icon: const Icon(Icons.flag),
-                  label: const Text('Final de Turno'),
+                  icon: Icon(Icons.flag),
+                  label: Text('Final de Turno'),
                   backgroundColor: AppColors.danger,
                   foregroundColor: Colors.white,
                 )
@@ -76,7 +75,7 @@ class TimelineScreen extends StatelessWidget {
             size: 64,
             color: AppColors.inactive,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(
             turnoAtivo
                 ? 'Nenhum evento registrado ainda'
@@ -110,20 +109,20 @@ class TimelineScreen extends StatelessWidget {
     final confirmar = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Encerrar Turno'),
-        content: const Text(
-            'Deseja encerrar o turno agora?\nUm relatório será gerado e salvo automaticamente.'),
+        title: Text('Encerrar Turno'),
+        content: Text(
+            'Deseja encerrar o turno agora?\nUm relatÃƒÂ³rio serÃƒÂ¡ gerado e salvo automaticamente.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.danger,
                 foregroundColor: Colors.white),
-            child: const Text('Encerrar'),
+            child: Text('Encerrar'),
           ),
         ],
       ),
@@ -139,11 +138,11 @@ class TimelineScreen extends StatelessWidget {
       AppNotif.show(
         context,
         titulo: 'Turno Encerrado',
-        mensagem: 'Turno encerrado! Relatório salvo.',
+        mensagem: 'Turno encerrado! RelatÃƒÂ³rio salvo.',
         tipo: 'saida',
         cor: AppColors.success,
         acao: SnackBarAction(
-          label: 'Ver Relatório',
+          label: 'Ver RelatÃƒÂ³rio',
           textColor: Colors.white,
           onPressed: () => Navigator.push(
             context,
@@ -160,7 +159,7 @@ class TimelineScreen extends StatelessWidget {
     final hoje = dateFmt.format(DateTime.now());
 
     final buffer = StringBuffer();
-    buffer.writeln('TIMELINE DE HOJE — $hoje');
+    buffer.writeln('TIMELINE DE HOJE Ã¢â‚¬â€ $hoje');
     buffer.writeln('=' * 40);
     buffer.writeln('Total de eventos: ${eventos.length}');
     buffer.writeln();
@@ -180,7 +179,7 @@ class TimelineScreen extends StatelessWidget {
     AppNotif.show(
       context,
       titulo: 'Copiado',
-      mensagem: 'Timeline copiada para a área de transferência!',
+      mensagem: 'Timeline copiada para a ÃƒÂ¡rea de transferÃƒÂªncia!',
       tipo: 'saida',
       cor: AppColors.success,
       acao: SnackBarAction(
@@ -189,16 +188,14 @@ class TimelineScreen extends StatelessWidget {
         onPressed: () => showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: const Text('Timeline Exportada'),
+            title: Text('Timeline Exportada'),
             content: SingleChildScrollView(
               child: Text(texto,
-                  style:
-                      const TextStyle(fontFamily: 'monospace', fontSize: 12)),
+                  style: TextStyle(fontFamily: 'monospace', fontSize: 12)),
             ),
             actions: [
               TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Fechar')),
+                  onPressed: () => Navigator.pop(ctx), child: Text('Fechar')),
             ],
           ),
         ),
@@ -207,7 +204,7 @@ class TimelineScreen extends StatelessWidget {
   }
 }
 
-// ─── Card de evento na timeline ─────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Card de evento na timeline Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 class _EventoCard extends StatelessWidget {
   final EventoTurno evento;
@@ -237,9 +234,9 @@ class _EventoCard extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
 
-        // Conteúdo
+        // ConteÃƒÂºdo
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(bottom: 8),
@@ -260,17 +257,17 @@ class _EventoCard extends StatelessWidget {
                   ],
                 ),
                 if (evento.colaboradorNome != null) ...[
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Row(
                     children: [
-                      const Icon(Icons.person_outline,
+                      Icon(Icons.person_outline,
                           size: 12, color: AppColors.textSecondary),
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           evento.colaboradorNome! +
                               (evento.caixaNome != null
-                                  ? ' → ${evento.caixaNome}'
+                                  ? ' Ã¢â€ â€™ ${evento.caixaNome}'
                                   : ''),
                           style: AppTextStyles.caption,
                         ),
@@ -279,7 +276,7 @@ class _EventoCard extends StatelessWidget {
                   ),
                 ],
                 if (evento.detalhe != null) ...[
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text(
                     evento.detalhe!,
                     style: AppTextStyles.caption
@@ -297,39 +294,50 @@ class _EventoCard extends StatelessWidget {
   (IconData, Color) _iconeCor(TipoEvento tipo) {
     return switch (tipo) {
       TipoEvento.turnoIniciado => (Icons.play_circle, AppColors.statusAtivo),
-      TipoEvento.colaboradorAlocado =>
-        (Icons.swap_horiz, AppColors.primary),
-      TipoEvento.colaboradorLiberado =>
-        (Icons.exit_to_app, AppColors.statusSaida),
+      TipoEvento.colaboradorAlocado => (Icons.swap_horiz, AppColors.primary),
+      TipoEvento.colaboradorLiberado => (
+          Icons.exit_to_app,
+          AppColors.statusSaida
+        ),
       TipoEvento.cafeIniciado => (Icons.coffee, AppColors.statusCafe),
-      TipoEvento.cafeEncerrado =>
-        (Icons.check_circle, AppColors.statusCafe),
-      TipoEvento.intervaloIniciado =>
-        (Icons.restaurant, AppColors.statusAtencao),
-      TipoEvento.intervaloEncerrado =>
-        (Icons.check_circle, AppColors.statusAtencao),
-      TipoEvento.intervaloMarcadoFeito =>
-        (Icons.check_circle_outline, Colors.green),
-      TipoEvento.empacotadorAdicionado =>
-        (Icons.inventory_2, const Color(0xFF795548)),
-      TipoEvento.empacotadorRemovido =>
-        (Icons.remove_circle_outline, const Color(0xFF795548)),
-      TipoEvento.checklistConcluido =>
-        (Icons.checklist, AppColors.success),
-      TipoEvento.entregaCadastrada =>
-        (Icons.local_shipping, AppColors.primary),
-      TipoEvento.entregaStatusAlterado =>
-        (Icons.swap_horiz, AppColors.primary),
-      TipoEvento.ocorrenciaRegistrada =>
-        (Icons.warning_amber, AppColors.danger),
-      TipoEvento.ocorrenciaResolvida =>
-        (Icons.check_circle, AppColors.success),
-      TipoEvento.anotacaoCriada =>
-        (Icons.note_add, const Color(0xFF7B1FA2)),
-      TipoEvento.formularioRespondido =>
-        (Icons.assignment_turned_in, AppColors.primary),
-      TipoEvento.intervaloAguardandoLiberacao =>
-        (Icons.pending_actions, AppColors.warning),
+      TipoEvento.cafeEncerrado => (Icons.check_circle, AppColors.statusCafe),
+      TipoEvento.intervaloIniciado => (
+          Icons.restaurant,
+          AppColors.statusAtencao
+        ),
+      TipoEvento.intervaloEncerrado => (
+          Icons.check_circle,
+          AppColors.statusAtencao
+        ),
+      TipoEvento.intervaloMarcadoFeito => (
+          Icons.check_circle_outline,
+          Colors.green
+        ),
+      TipoEvento.empacotadorAdicionado => (
+          Icons.inventory_2,
+          const Color(0xFF795548)
+        ),
+      TipoEvento.empacotadorRemovido => (
+          Icons.remove_circle_outline,
+          const Color(0xFF795548)
+        ),
+      TipoEvento.checklistConcluido => (Icons.checklist, AppColors.success),
+      TipoEvento.entregaCadastrada => (Icons.local_shipping, AppColors.primary),
+      TipoEvento.entregaStatusAlterado => (Icons.swap_horiz, AppColors.primary),
+      TipoEvento.ocorrenciaRegistrada => (
+          Icons.warning_amber,
+          AppColors.danger
+        ),
+      TipoEvento.ocorrenciaResolvida => (Icons.check_circle, AppColors.success),
+      TipoEvento.anotacaoCriada => (Icons.note_add, const Color(0xFF7B1FA2)),
+      TipoEvento.formularioRespondido => (
+          Icons.assignment_turned_in,
+          AppColors.primary
+        ),
+      TipoEvento.intervaloAguardandoLiberacao => (
+          Icons.pending_actions,
+          AppColors.warning
+        ),
     };
   }
 }

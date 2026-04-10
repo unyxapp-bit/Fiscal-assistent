@@ -6,7 +6,7 @@ import '../../../core/constants/dimensions.dart';
 import '../../providers/procedimento_provider.dart';
 import '../../../core/utils/app_notif.dart';
 
-// Entrada interna para cada passo (chave única + controller)
+// Entrada interna para cada passo (chave ÃƒÂºnica + controller)
 class _PassoEntry {
   final Key key = UniqueKey();
   final TextEditingController controller;
@@ -26,8 +26,7 @@ class ProcedimentoFormScreen extends StatefulWidget {
   });
 
   @override
-  State<ProcedimentoFormScreen> createState() =>
-      _ProcedimentoFormScreenState();
+  State<ProcedimentoFormScreen> createState() => _ProcedimentoFormScreenState();
 }
 
 class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
@@ -43,7 +42,7 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
   static const _categorias = [
     ('abertura', 'Abertura'),
     ('fechamento', 'Fechamento'),
-    ('emergencia', 'Emergência'),
+    ('emergencia', 'EmergÃƒÂªncia'),
     ('rotina', 'Rotina'),
     ('fiscal', 'Fiscal'),
     ('caixa', 'Caixa'),
@@ -58,8 +57,7 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
       _descricaoController.text = proc.descricao;
       _categoriaSelecionada = proc.categoria;
       _favorito = proc.favorito;
-      _tempoEstimadoController.text =
-          proc.tempoEstimado?.toString() ?? '';
+      _tempoEstimadoController.text = proc.tempoEstimado?.toString() ?? '';
       for (final passo in proc.passos) {
         _passos.add(_PassoEntry(passo));
       }
@@ -87,7 +85,7 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
     if (_passos.length <= 1) {
       AppNotif.show(
         context,
-        titulo: 'Campo Inválido',
+        titulo: 'Campo InvÃƒÂ¡lido',
         mensagem: 'Deve haver pelo menos 1 passo',
         tipo: 'alerta',
         cor: AppColors.warning,
@@ -119,7 +117,7 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
     if (passos.isEmpty) {
       AppNotif.show(
         context,
-        titulo: 'Campo Inválido',
+        titulo: 'Campo InvÃƒÂ¡lido',
         mensagem: 'Adicione pelo menos 1 passo',
         tipo: 'alerta',
         cor: AppColors.danger,
@@ -127,11 +125,10 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
       return;
     }
 
-    final provider =
-        Provider.of<ProcedimentoProvider>(context, listen: false);
+    final provider = Provider.of<ProcedimentoProvider>(context, listen: false);
 
     if (widget.procedimento == null) {
-      // Favorito passado diretamente na criação (sem toggleFavorito)
+      // Favorito passado diretamente na criaÃƒÂ§ÃƒÂ£o (sem toggleFavorito)
       provider.adicionarProcedimento(
         titulo: _tituloController.text.trim(),
         descricao: _descricaoController.text.trim(),
@@ -190,43 +187,43 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Título ─────────────────────────────────────────────────
+              // Ã¢â€â‚¬Ã¢â€â‚¬ TÃƒÂ­tulo Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
               TextFormField(
                 controller: _tituloController,
-                decoration: const InputDecoration(
-                  labelText: 'Título *',
-                  hintText: 'Ex: Emissão de Nota Fiscal',
+                decoration: InputDecoration(
+                  labelText: 'TÃƒÂ­tulo *',
+                  hintText: 'Ex: EmissÃƒÂ£o de Nota Fiscal',
                   prefixIcon: Icon(Icons.title),
                 ),
                 textCapitalization: TextCapitalization.sentences,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Título é obrigatório';
+                    return 'TÃƒÂ­tulo ÃƒÂ© obrigatÃƒÂ³rio';
                   }
                   return null;
                 },
               ),
 
-              const SizedBox(height: Dimensions.spacingLG),
+              SizedBox(height: Dimensions.spacingLG),
 
-              // ── Descrição ───────────────────────────────────────────────
+              // Ã¢â€â‚¬Ã¢â€â‚¬ DescriÃƒÂ§ÃƒÂ£o Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
               TextFormField(
                 controller: _descricaoController,
-                decoration: const InputDecoration(
-                  labelText: 'Descrição',
-                  hintText: 'Breve descrição do procedimento',
+                decoration: InputDecoration(
+                  labelText: 'DescriÃƒÂ§ÃƒÂ£o',
+                  hintText: 'Breve descriÃƒÂ§ÃƒÂ£o do procedimento',
                   prefixIcon: Icon(Icons.description),
                   alignLabelWithHint: true,
                 ),
                 maxLines: 3,
               ),
 
-              const SizedBox(height: Dimensions.spacingLG),
+              SizedBox(height: Dimensions.spacingLG),
 
-              // ── Categoria ───────────────────────────────────────────────
+              // Ã¢â€â‚¬Ã¢â€â‚¬ Categoria Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
               DropdownButtonFormField<String>(
                 initialValue: _categoriaSelecionada,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Categoria *',
                   prefixIcon: Icon(Icons.category),
                 ),
@@ -236,9 +233,8 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                     child: Row(
                       children: [
                         Icon(cat.$1.categoriaIcon,
-                            size: 16,
-                            color: cat.$1.categoriaColor),
-                        const SizedBox(width: 8),
+                            size: 16, color: cat.$1.categoriaColor),
+                        SizedBox(width: 8),
                         Text(cat.$2),
                       ],
                     ),
@@ -251,12 +247,12 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                 },
               ),
 
-              const SizedBox(height: Dimensions.spacingLG),
+              SizedBox(height: Dimensions.spacingLG),
 
-              // ── Tempo estimado ──────────────────────────────────────────
+              // Ã¢â€â‚¬Ã¢â€â‚¬ Tempo estimado Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
               TextFormField(
                 controller: _tempoEstimadoController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Tempo estimado (minutos)',
                   hintText: 'Ex: 15',
                   prefixIcon: Icon(Icons.timer),
@@ -265,45 +261,41 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                 keyboardType: TextInputType.number,
               ),
 
-              const SizedBox(height: Dimensions.spacingLG),
+              SizedBox(height: Dimensions.spacingLG),
 
-              // ── Favorito ───────────────────────────────────────────────
+              // Ã¢â€â‚¬Ã¢â€â‚¬ Favorito Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
               Card(
                 child: CheckboxListTile(
                   value: _favorito,
-                  onChanged: (v) =>
-                      setState(() => _favorito = v ?? false),
-                  title: const Text('Marcar como favorito'),
+                  onChanged: (v) => setState(() => _favorito = v ?? false),
+                  title: Text('Marcar como favorito'),
                   secondary: Icon(
                     _favorito ? Icons.star : Icons.star_outline,
-                    color: _favorito
-                        ? Colors.orange
-                        : AppColors.textSecondary,
+                    color: _favorito ? Colors.orange : AppColors.textSecondary,
                   ),
                 ),
               ),
 
-              const SizedBox(height: Dimensions.spacingXL),
+              SizedBox(height: Dimensions.spacingXL),
 
-              // ── Passos (reordenáveis) ───────────────────────────────────
+              // Ã¢â€â‚¬Ã¢â€â‚¬ Passos (reordenÃƒÂ¡veis) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Passos *', style: AppTextStyles.h4),
+                  Text('Passos *', style: AppTextStyles.h4),
                   IconButton(
-                    icon: const Icon(Icons.add_circle,
-                        color: AppColors.primary),
+                    icon: Icon(Icons.add_circle, color: AppColors.primary),
                     onPressed: _adicionarPasso,
                     tooltip: 'Adicionar passo',
                   ),
                 ],
               ),
               Text(
-                'Segure e arraste ≡ para reordenar',
+                'Segure e arraste Ã¢â€°Â¡ para reordenar',
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary),
               ),
-              const SizedBox(height: Dimensions.spacingSM),
+              SizedBox(height: Dimensions.spacingSM),
 
               // ReorderableListView com shrinkWrap dentro do scroll pai
               ReorderableListView(
@@ -315,23 +307,22 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                   for (int i = 0; i < _passos.length; i++)
                     Padding(
                       key: _passos[i].key,
-                      padding: const EdgeInsets.only(
-                          bottom: Dimensions.spacingSM),
+                      padding:
+                          const EdgeInsets.only(bottom: Dimensions.spacingSM),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Handle de arraste
                           ReorderableDragStartListener(
                             index: i,
-                            child: const Padding(
-                              padding:
-                                  EdgeInsets.only(top: 16, right: 4),
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 16, right: 4),
                               child: Icon(Icons.drag_handle,
                                   color: AppColors.inactive),
                             ),
                           ),
 
-                          // Número do passo
+                          // NÃƒÂºmero do passo
                           Container(
                             width: 32,
                             height: 32,
@@ -350,7 +341,7 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: Dimensions.spacingSM),
+                          SizedBox(width: Dimensions.spacingSM),
 
                           // Campo de texto
                           Expanded(
@@ -360,7 +351,7 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                                 hintText: 'Digite o passo ${i + 1}',
                                 suffixIcon: _passos.length > 1
                                     ? IconButton(
-                                        icon: const Icon(
+                                        icon: Icon(
                                           Icons.remove_circle,
                                           color: AppColors.danger,
                                         ),
@@ -377,9 +368,9 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                 ],
               ),
 
-              const SizedBox(height: Dimensions.spacingXL),
+              SizedBox(height: Dimensions.spacingXL),
 
-              // ── Botões ─────────────────────────────────────────────────
+              // Ã¢â€â‚¬Ã¢â€â‚¬ BotÃƒÂµes Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
               Row(
                 children: [
                   Expanded(
@@ -389,10 +380,10 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                         minimumSize:
                             const Size.fromHeight(Dimensions.buttonHeight),
                       ),
-                      child: const Text('Cancelar'),
+                      child: Text('Cancelar'),
                     ),
                   ),
-                  const SizedBox(width: Dimensions.spacingSM),
+                  SizedBox(width: Dimensions.spacingSM),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _salvar,

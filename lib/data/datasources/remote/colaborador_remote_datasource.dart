@@ -12,7 +12,8 @@ class ColaboradorRemoteDataSource {
   Future<List<ColaboradorModel>> getColaboradores(String fiscalId) async {
     try {
       if (kDebugMode) {
-        print('[ColaboradorRemoteDataSource] Buscando colaboradores para fiscalId: $fiscalId');
+        print(
+            '[ColaboradorRemoteDataSource] Buscando colaboradores para fiscalId: $fiscalId');
       }
       final response = await _client
           .from('colaboradores')
@@ -21,12 +22,14 @@ class ColaboradorRemoteDataSource {
           .order('nome');
 
       if (kDebugMode) {
-        print('[ColaboradorRemoteDataSource] ${(response as List).length} colaboradores retornados');
+        print(
+            '[ColaboradorRemoteDataSource] ${(response as List).length} colaboradores retornados');
       }
 
       // Filtrar apenas ativos e associar fiscal_id ao usuário atual nos registros sem dono
       final list = (response as List)
-          .map((json) => ColaboradorModel.fromJson(json as Map<String, dynamic>))
+          .map(
+              (json) => ColaboradorModel.fromJson(json as Map<String, dynamic>))
           .toList();
 
       // Atualizar em background os registros órfãos (fiscal_id null)
@@ -81,7 +84,8 @@ class ColaboradorRemoteDataSource {
   }
 
   /// Cria novo colaborador
-  Future<ColaboradorModel> createColaborador(ColaboradorModel colaborador) async {
+  Future<ColaboradorModel> createColaborador(
+      ColaboradorModel colaborador) async {
     try {
       final response = await _client
           .from('colaboradores')
@@ -96,7 +100,8 @@ class ColaboradorRemoteDataSource {
   }
 
   /// Atualiza colaborador
-  Future<ColaboradorModel> updateColaborador(ColaboradorModel colaborador) async {
+  Future<ColaboradorModel> updateColaborador(
+      ColaboradorModel colaborador) async {
     try {
       final response = await _client
           .from('colaboradores')
@@ -121,9 +126,9 @@ class ColaboradorRemoteDataSource {
   }
 
   /// Associa colaboradores sem fiscal_id ao fiscal atual (migração única).
-  void _adotarRegistrosOrfaos(
-      String fiscalId, List<ColaboradorModel> lista) {
-    final orfaos = lista.where((c) => c.fiscalId.isEmpty).map((c) => c.id).toList();
+  void _adotarRegistrosOrfaos(String fiscalId, List<ColaboradorModel> lista) {
+    final orfaos =
+        lista.where((c) => c.fiscalId.isEmpty).map((c) => c.id).toList();
     if (orfaos.isEmpty) return;
 
     _client
@@ -132,7 +137,8 @@ class ColaboradorRemoteDataSource {
         .inFilter('id', orfaos)
         .then((_) {
           if (kDebugMode) {
-            print('[ColaboradorRemoteDataSource] ${orfaos.length} colaboradores associados ao fiscal $fiscalId');
+            print(
+                '[ColaboradorRemoteDataSource] ${orfaos.length} colaboradores associados ao fiscal $fiscalId');
           }
         })
         .catchError((e) {

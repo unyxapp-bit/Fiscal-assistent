@@ -7,7 +7,7 @@ import '../../providers/fiscal_provider.dart';
 import '../profile/profile_screen.dart';
 import 'cupom_config_screen.dart';
 
-/// Tela de Configurações — exibe informações da loja e atalhos de perfil
+/// Tela de ConfiguraÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â exibe informaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes da loja e atalhos de perfil
 class ConfiguracoesScreen extends StatelessWidget {
   const ConfiguracoesScreen({super.key});
 
@@ -16,7 +16,7 @@ class ConfiguracoesScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Configurações'),
+        title: Text('ConfiguraÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes'),
         backgroundColor: AppColors.background,
         elevation: 0,
       ),
@@ -31,7 +31,7 @@ class ConfiguracoesScreen extends StatelessWidget {
                       vertical: Dimensions.paddingMD,
                     ),
                     children: [
-                      // ── Informações da Loja ────────────────────────────────────────
+                      // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ InformaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes da Loja ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
                       Card(
                         child: Padding(
                           padding: const EdgeInsets.all(Dimensions.paddingMD),
@@ -40,11 +40,12 @@ class ConfiguracoesScreen extends StatelessWidget {
                             children: [
                               Row(
                                 children: [
-                                  const Icon(Icons.store_outlined,
+                                  Icon(Icons.store_outlined,
                                       color: AppColors.primary, size: 20),
-                                  const SizedBox(width: 8),
-                                  const Expanded(
-                                    child: Text('Informações da Loja',
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                        'InformaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes da Loja',
                                         style: AppTextStyles.h4),
                                   ),
                                   TextButton.icon(
@@ -53,9 +54,8 @@ class ConfiguracoesScreen extends StatelessWidget {
                                           builder: (_) =>
                                               const ProfileScreen()),
                                     ),
-                                    icon: const Icon(Icons.edit_outlined,
-                                        size: 16),
-                                    label: const Text('Editar',
+                                    icon: Icon(Icons.edit_outlined, size: 16),
+                                    label: Text('Editar',
                                         style: TextStyle(fontSize: 13)),
                                     style: TextButton.styleFrom(
                                       foregroundColor: AppColors.primary,
@@ -65,26 +65,28 @@ class ConfiguracoesScreen extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: Dimensions.spacingMD),
+                              SizedBox(height: Dimensions.spacingMD),
                               if (fiscal == null)
-                                const Center(child: CircularProgressIndicator())
+                                Center(child: CircularProgressIndicator())
                               else ...[
                                 _InfoRow(
                                     label: 'Loja',
-                                    value: fiscal.loja ?? 'Não informado'),
-                                const Divider(height: 24),
+                                    value:
+                                        fiscal.loja ?? 'NÃƒÆ’Ã‚Â£o informado'),
+                                Divider(height: 24),
                                 _InfoRow(label: 'Fiscal', value: fiscal.nome),
-                                const Divider(height: 24),
+                                Divider(height: 24),
                                 _InfoRow(label: 'E-mail', value: fiscal.email),
-                                const Divider(height: 24),
+                                Divider(height: 24),
                                 _InfoRow(
                                   label: 'Telefone',
-                                  value: fiscal.telefone ?? 'Não informado',
+                                  value:
+                                      fiscal.telefone ?? 'NÃƒÆ’Ã‚Â£o informado',
                                   valueColor: fiscal.telefone == null
                                       ? AppColors.textSecondary
                                       : null,
                                 ),
-                                const Divider(height: 24),
+                                Divider(height: 24),
                                 _InfoRow(
                                   label: 'Status',
                                   value: fiscal.ativo ? 'Ativo' : 'Inativo',
@@ -98,51 +100,50 @@ class ConfiguracoesScreen extends StatelessWidget {
                         ),
                       ),
 
-                      const SizedBox(height: Dimensions.spacingMD),
+                      SizedBox(height: Dimensions.spacingMD),
 
-                      // ── Atalhos ────────────────────────────────────────────────────
+                      // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Atalhos ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
                       Card(
                         child: Column(
                           children: [
                             ListTile(
-                              leading: const Icon(Icons.person_outline,
+                              leading: Icon(Icons.person_outline,
                                   color: AppColors.primary),
-                              title: const Text('Editar Perfil',
+                              title: Text('Editar Perfil',
                                   style: AppTextStyles.body),
-                              subtitle: const Text('Nome, telefone, loja',
+                              subtitle: Text('Nome, telefone, loja',
                                   style: AppTextStyles.caption),
-                              trailing: const Icon(Icons.arrow_forward_ios,
+                              trailing: Icon(Icons.arrow_forward_ios,
                                   size: 14, color: AppColors.textSecondary),
                               onTap: () => Navigator.of(context).push(
                                 MaterialPageRoute(
                                     builder: (_) => const ProfileScreen()),
                               ),
                             ),
-                            const Divider(height: 1, indent: 56),
+                            Divider(height: 1, indent: 56),
                             ListTile(
-                              leading: const Icon(Icons.receipt_long_outlined,
+                              leading: Icon(Icons.receipt_long_outlined,
                                   color: AppColors.primary),
-                              title: const Text('Dados do Cupom',
+                              title: Text('Dados do Cupom',
                                   style: AppTextStyles.body),
-                              subtitle: const Text(
-                                  'Layout completo da impressao',
+                              subtitle: Text('Layout completo da impressao',
                                   style: AppTextStyles.caption),
-                              trailing: const Icon(Icons.arrow_forward_ios,
+                              trailing: Icon(Icons.arrow_forward_ios,
                                   size: 14, color: AppColors.textSecondary),
                               onTap: () => Navigator.of(context).push(
                                 MaterialPageRoute(
                                     builder: (_) => const CupomConfigScreen()),
                               ),
                             ),
-                            const Divider(height: 1, indent: 56),
+                            Divider(height: 1, indent: 56),
                             ListTile(
-                              leading: const Icon(Icons.lock_outline,
+                              leading: Icon(Icons.lock_outline,
                                   color: AppColors.textSecondary),
-                              title: const Text('Alterar Senha',
+                              title: Text('Alterar Senha',
                                   style: AppTextStyles.body),
-                              subtitle: const Text('Altere a senha de acesso',
+                              subtitle: Text('Altere a senha de acesso',
                                   style: AppTextStyles.caption),
-                              trailing: const Icon(Icons.arrow_forward_ios,
+                              trailing: Icon(Icons.arrow_forward_ios,
                                   size: 14, color: AppColors.textSecondary),
                               onTap: () => Navigator.of(context).push(
                                 MaterialPageRoute(

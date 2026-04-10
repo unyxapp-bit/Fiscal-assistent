@@ -11,10 +11,11 @@ import '../../providers/entrega_provider.dart';
 import '../../providers/evento_turno_provider.dart';
 import '../../../core/utils/app_notif.dart';
 
-/// Tela de Formulário de Entrega
+/// Tela de FormulÃƒÆ’Ã‚Â¡rio de Entrega
 /// Permite cadastrar ou editar uma entrega
 class EntregaFormScreen extends StatefulWidget {
-  final Entrega? entrega; // Null para nova, preenchido para edição
+  final Entrega?
+      entrega; // Null para nova, preenchido para ediÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o
 
   const EntregaFormScreen({
     super.key,
@@ -37,7 +38,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
   String _cidadeSelecionada = 'Baependi';
   DateTime? _horarioMarcado;
 
-  final List<String> _cidades = ['Baependi', 'Caxambu', 'Cruzília'];
+  final List<String> _cidades = ['Baependi', 'Caxambu', 'CruzÃƒÆ’Ã‚Â­lia'];
 
   @override
   void initState() {
@@ -74,7 +75,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
       builder: (context, child) {
         return Theme(
           data: ThemeData.light().copyWith(
-            colorScheme: const ColorScheme.light(
+            colorScheme: ColorScheme.light(
               primary: AppColors.primary,
             ),
           ),
@@ -99,16 +100,17 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
 
   /// Abre bottom sheet com campo de texto para colar o CSV.
   Future<void> _abrirSheetCsv() async {
-    // Tenta pré-preencher com o que está no clipboard
+    // Tenta prÃƒÆ’Ã‚Â©-preencher com o que estÃƒÆ’Ã‚Â¡ no clipboard
     final clipData = await Clipboard.getData(Clipboard.kTextPlain);
-    final csvController = TextEditingController(text: clipData?.text?.trim() ?? '');
+    final csvController =
+        TextEditingController(text: clipData?.text?.trim() ?? '');
 
     if (!mounted) return;
 
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (sheetCtx) {
@@ -135,37 +137,40 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                   ),
                 ),
               ),
-              const Text('Preencher via CSV', style: AppTextStyles.h3),
-              const SizedBox(height: 4),
+              Text('Preencher via CSV', style: AppTextStyles.h3),
+              SizedBox(height: 4),
               Text(
                 'Cole abaixo o texto copiado do sistema de pedidos.',
-                style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               TextField(
                 controller: csvController,
                 maxLines: 6,
                 decoration: InputDecoration(
-                  hintText: 'fiscal_id,cliente_nome,bairro,...\n[dados da entrega]',
-                  hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                  hintText:
+                      'fiscal_id,cliente_nome,bairro,...\n[dados da entrega]',
+                  hintStyle:
+                      TextStyle(color: Colors.grey.shade400, fontSize: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                   contentPadding: const EdgeInsets.all(12),
                   suffixIcon: IconButton(
-                    icon: const Icon(Icons.clear, size: 18),
+                    icon: Icon(Icons.clear, size: 18),
                     onPressed: () => csvController.clear(),
                     tooltip: 'Limpar',
                   ),
                 ),
-                style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
+                style: TextStyle(fontSize: 12, fontFamily: 'monospace'),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  icon: const Icon(Icons.auto_fix_high),
-                  label: const Text('Preencher Formulário'),
+                  icon: Icon(Icons.auto_fix_high),
+                  label: Text('Preencher FormulÃƒÆ’Ã‚Â¡rio'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
@@ -187,7 +192,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                       AppNotif.show(
                         context,
                         titulo: 'CSV Aplicado',
-                        mensagem: 'Formulário preenchido com sucesso!',
+                        mensagem: 'FormulÃƒÆ’Ã‚Â¡rio preenchido com sucesso!',
                         tipo: 'saida',
                         cor: AppColors.success,
                       );
@@ -210,13 +215,14 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
     if (texto.isEmpty) return 'Nenhum texto para processar.';
 
     final linhas = const CsvToListConverter(eol: '\n').convert(texto);
-    if (linhas.length < 2) return 'Formato CSV inválido (esperado cabeçalho + dados).';
+    if (linhas.length < 2)
+      return 'Formato CSV invÃƒÆ’Ã‚Â¡lido (esperado cabeÃƒÆ’Ã‚Â§alho + dados).';
 
     final cabecalhos = linhas[0].map((e) => e.toString().trim()).toList();
     final valores = linhas[1].map((e) => e.toString().trim()).toList();
 
     if (cabecalhos.length != valores.length) {
-      return 'Número de colunas inconsistente (${cabecalhos.length} cabeçalhos, ${valores.length} valores).';
+      return 'NÃƒÆ’Ã‚Âºmero de colunas inconsistente (${cabecalhos.length} cabeÃƒÆ’Ã‚Â§alhos, ${valores.length} valores).';
     }
 
     final mapa = {
@@ -242,7 +248,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
       if (mapa['observacoes']?.isNotEmpty == true) {
         _observacoesController.text = mapa['observacoes']!;
       }
-      // Comparação case-insensitive para cidade (ex: BAEPENDI → Baependi)
+      // ComparaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o case-insensitive para cidade (ex: BAEPENDI ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ Baependi)
       if (mapa['cidade']?.isNotEmpty == true) {
         final cidadeNormalizada = _cidades.firstWhere(
           (c) => c.toLowerCase() == mapa['cidade']!.toLowerCase(),
@@ -260,7 +266,8 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
   Future<void> _salvar() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final entregaProvider = Provider.of<EntregaProvider>(context, listen: false);
+    final entregaProvider =
+        Provider.of<EntregaProvider>(context, listen: false);
 
     if (widget.entrega == null) {
       // Nova entrega
@@ -281,13 +288,16 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
 
       if (!mounted) return;
 
-      final eventoProvider = Provider.of<EventoTurnoProvider>(context, listen: false);
+      final eventoProvider =
+          Provider.of<EventoTurnoProvider>(context, listen: false);
       if (eventoProvider.turnoAtivo) {
-        final fiscalId = Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+        final fiscalId =
+            Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
         eventoProvider.registrar(
           fiscalId: fiscalId,
           tipo: TipoEvento.entregaCadastrada,
-          detalhe: 'NF ${_numeroNFController.text.trim()} — ${_nomeClienteController.text.trim()}',
+          detalhe:
+              'NF ${_numeroNFController.text.trim()} ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ${_nomeClienteController.text.trim()}',
         );
       }
 
@@ -333,7 +343,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
   }
 
   String _formatHorario(DateTime? horario) {
-    if (horario == null) return 'Não definido';
+    if (horario == null) return 'NÃƒÆ’Ã‚Â£o definido';
     return '${horario.hour.toString().padLeft(2, '0')}:${horario.minute.toString().padLeft(2, '0')}';
   }
 
@@ -352,7 +362,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.content_paste_rounded),
+            icon: Icon(Icons.content_paste_rounded),
             tooltip: 'Preencher via CSV',
             onPressed: _abrirSheetCsv,
           ),
@@ -365,29 +375,29 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Número da NF
+              // NÃƒÆ’Ã‚Âºmero da NF
               TextFormField(
                 controller: _numeroNFController,
-                decoration: const InputDecoration(
-                  labelText: 'Número da NF *',
+                decoration: InputDecoration(
+                  labelText: 'NÃƒÆ’Ã‚Âºmero da NF *',
                   hintText: 'Ex: 12345',
                   prefixIcon: Icon(Icons.receipt_long),
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Número da NF é obrigatório';
+                    return 'NÃƒÆ’Ã‚Âºmero da NF ÃƒÆ’Ã‚Â© obrigatÃƒÆ’Ã‚Â³rio';
                   }
                   return null;
                 },
               ),
 
-              const SizedBox(height: Dimensions.spacingMD),
+              SizedBox(height: Dimensions.spacingMD),
 
               // Nome do Cliente
               TextFormField(
                 controller: _nomeClienteController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Nome do Cliente *',
                   hintText: 'Digite o nome completo',
                   prefixIcon: Icon(Icons.person),
@@ -395,7 +405,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                 textCapitalization: TextCapitalization.words,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Nome do cliente é obrigatório';
+                    return 'Nome do cliente ÃƒÆ’Ã‚Â© obrigatÃƒÆ’Ã‚Â³rio';
                   }
                   if (value.trim().length < 3) {
                     return 'Nome deve ter pelo menos 3 caracteres';
@@ -404,12 +414,12 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                 },
               ),
 
-              const SizedBox(height: Dimensions.spacingMD),
+              SizedBox(height: Dimensions.spacingMD),
 
               // Telefone
               TextFormField(
                 controller: _telefoneController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Telefone',
                   hintText: '(35) 99999-9999',
                   prefixIcon: Icon(Icons.phone),
@@ -417,31 +427,31 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                 keyboardType: TextInputType.phone,
               ),
 
-              const SizedBox(height: Dimensions.spacingMD),
+              SizedBox(height: Dimensions.spacingMD),
 
-              // Endereço
+              // EndereÃƒÆ’Ã‚Â§o
               TextFormField(
                 controller: _enderecoController,
-                decoration: const InputDecoration(
-                  labelText: 'Endereço *',
-                  hintText: 'Rua, número e complemento',
+                decoration: InputDecoration(
+                  labelText: 'EndereÃƒÆ’Ã‚Â§o *',
+                  hintText: 'Rua, nÃƒÆ’Ã‚Âºmero e complemento',
                   prefixIcon: Icon(Icons.home),
                 ),
                 textCapitalization: TextCapitalization.words,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Endereço é obrigatório';
+                    return 'EndereÃƒÆ’Ã‚Â§o ÃƒÆ’Ã‚Â© obrigatÃƒÆ’Ã‚Â³rio';
                   }
                   return null;
                 },
               ),
 
-              const SizedBox(height: Dimensions.spacingMD),
+              SizedBox(height: Dimensions.spacingMD),
 
               // Bairro
               TextFormField(
                 controller: _bairroController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Bairro *',
                   hintText: 'Digite o bairro',
                   prefixIcon: Icon(Icons.location_city),
@@ -449,18 +459,18 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                 textCapitalization: TextCapitalization.words,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Bairro é obrigatório';
+                    return 'Bairro ÃƒÆ’Ã‚Â© obrigatÃƒÆ’Ã‚Â³rio';
                   }
                   return null;
                 },
               ),
 
-              const SizedBox(height: Dimensions.spacingMD),
+              SizedBox(height: Dimensions.spacingMD),
 
               // Cidade (Dropdown)
               DropdownButtonFormField<String>(
                 initialValue: _cidadeSelecionada,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Cidade *',
                   prefixIcon: Icon(Icons.location_on),
                 ),
@@ -477,43 +487,44 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                 },
               ),
 
-              const SizedBox(height: Dimensions.spacingMD),
+              SizedBox(height: Dimensions.spacingMD),
 
-              // Horário Marcado
+              // HorÃƒÆ’Ã‚Â¡rio Marcado
               Card(
                 child: ListTile(
-                  leading: const Icon(Icons.access_time, color: AppColors.primary),
-                  title: const Text('Horário Marcado'),
+                  leading: Icon(Icons.access_time, color: AppColors.primary),
+                  title: Text('HorÃƒÆ’Ã‚Â¡rio Marcado'),
                   subtitle: Text(_formatHorario(_horarioMarcado)),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (_horarioMarcado != null)
                         IconButton(
-                          icon: const Icon(Icons.clear, size: 20),
+                          icon: Icon(Icons.clear, size: 20),
                           onPressed: () {
                             setState(() => _horarioMarcado = null);
                           },
-                          tooltip: 'Remover horário',
+                          tooltip: 'Remover horÃƒÆ’Ã‚Â¡rio',
                         ),
                       IconButton(
-                        icon: const Icon(Icons.edit),
+                        icon: Icon(Icons.edit),
                         onPressed: _selecionarHorario,
-                        tooltip: 'Definir horário',
+                        tooltip: 'Definir horÃƒÆ’Ã‚Â¡rio',
                       ),
                     ],
                   ),
                 ),
               ),
 
-              const SizedBox(height: Dimensions.spacingMD),
+              SizedBox(height: Dimensions.spacingMD),
 
-              // Observações
+              // ObservaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes
               TextFormField(
                 controller: _observacoesController,
-                decoration: const InputDecoration(
-                  labelText: 'Observações',
-                  hintText: 'Informações adicionais sobre a entrega',
+                decoration: InputDecoration(
+                  labelText: 'ObservaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes',
+                  hintText:
+                      'InformaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes adicionais sobre a entrega',
                   prefixIcon: Icon(Icons.note),
                   alignLabelWithHint: true,
                 ),
@@ -521,9 +532,9 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                 textCapitalization: TextCapitalization.sentences,
               ),
 
-              const SizedBox(height: Dimensions.spacingXL),
+              SizedBox(height: Dimensions.spacingXL),
 
-              // Informação sobre status inicial
+              // InformaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o sobre status inicial
               if (isNova)
                 Container(
                   padding: const EdgeInsets.all(Dimensions.paddingMD),
@@ -533,14 +544,14 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.info_outline,
                         color: AppColors.info,
                       ),
-                      const SizedBox(width: Dimensions.spacingSM),
+                      SizedBox(width: Dimensions.spacingSM),
                       Expanded(
                         child: Text(
-                          'A entrega será criada com status "Separada"',
+                          'A entrega serÃƒÆ’Ã‚Â¡ criada com status "Separada"',
                           style: AppTextStyles.body.copyWith(
                             color: AppColors.info,
                           ),
@@ -550,26 +561,28 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                   ),
                 ),
 
-              const SizedBox(height: Dimensions.spacingLG),
+              SizedBox(height: Dimensions.spacingLG),
 
-              // Botões
+              // BotÃƒÆ’Ã‚Âµes
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
                       style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(Dimensions.buttonHeight),
+                        minimumSize:
+                            const Size.fromHeight(Dimensions.buttonHeight),
                       ),
-                      child: const Text('Cancelar'),
+                      child: Text('Cancelar'),
                     ),
                   ),
-                  const SizedBox(width: Dimensions.spacingSM),
+                  SizedBox(width: Dimensions.spacingSM),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _salvar,
                       style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(Dimensions.buttonHeight),
+                        minimumSize:
+                            const Size.fromHeight(Dimensions.buttonHeight),
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                       ),

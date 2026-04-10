@@ -126,7 +126,7 @@ class _MapaDashboardItem {
   });
 }
 
-/// Tela de mapa de caixas — abas: Mapa | Caixas
+/// Tela de mapa de caixas ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â abas: Mapa | Caixas
 class MapaCaixasScreen extends StatefulWidget {
   const MapaCaixasScreen({super.key});
 
@@ -185,7 +185,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
     final plantao = Provider.of<PacotePlantaoProvider>(context, listen: false);
     final agora = DateTime.now();
 
-    // ── Caixas ──────────────────────────────────────────────────────────────
+    // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Caixas ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
     /*
     for (final turno in escala.turnosHoje) {
       if (turno.saida == null || turno.folga || turno.feriado) continue;
@@ -205,14 +205,14 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
       _saidasProcessadas.add(turno.colaboradorId);
       alocacao.liberarAlocacao(
         alocacaoAtiva.id,
-        'Encerramento automático — horário de saída atingido (${turno.saida})',
+        'Encerramento automÃƒÆ’Ã‚Â¡tico ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â horÃƒÆ’Ã‚Â¡rio de saÃƒÆ’Ã‚Â­da atingido (${turno.saida})',
       );
 
       if (mounted) {
         AppNotif.show(
           context,
-          titulo: 'Saída Automática',
-          mensagem: '${turno.colaboradorNome} atingiu o horário de saída e foi liberado(a) do caixa',
+          titulo: 'SaÃƒÆ’Ã‚Â­da AutomÃƒÆ’Ã‚Â¡tica',
+          mensagem: '${turno.colaboradorNome} atingiu o horÃƒÆ’Ã‚Â¡rio de saÃƒÆ’Ã‚Â­da e foi liberado(a) do caixa',
           tipo: 'saida',
           cor: AppColors.success,
           duracao: const Duration(seconds: 5),
@@ -221,7 +221,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
     }
 
     */
-    // ── Pacotes ─────────────────────────────────────────────────────────────
+    // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Pacotes ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
     for (final p in plantao.plantao.toList()) {
       if (_saidasProcessadas.contains(p.colaboradorId)) continue;
 
@@ -248,9 +248,9 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
       if (mounted) {
         AppNotif.show(
           context,
-          titulo: 'Saída Automática',
+          titulo: 'SaÃƒÆ’Ã‚Â­da AutomÃƒÆ’Ã‚Â¡tica',
           mensagem:
-              '${turno.colaboradorNome} atingiu o horário de saída e foi removido(a) do plantão de pacotes',
+              '${turno.colaboradorNome} atingiu o horÃƒÆ’Ã‚Â¡rio de saÃƒÆ’Ã‚Â­da e foi removido(a) do plantÃƒÆ’Ã‚Â£o de pacotes',
           tipo: 'saida',
           cor: AppColors.success,
           duracao: const Duration(seconds: 5),
@@ -292,34 +292,34 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
   String _normalizarBusca(String valor) {
     const mapa = {
       'a': 'a',
-      'á': 'a',
-      'à': 'a',
-      'â': 'a',
-      'ã': 'a',
-      'ä': 'a',
+      'ÃƒÆ’Ã‚Â¡': 'a',
+      'ÃƒÆ’Ã‚Â ': 'a',
+      'ÃƒÆ’Ã‚Â¢': 'a',
+      'ÃƒÆ’Ã‚Â£': 'a',
+      'ÃƒÆ’Ã‚Â¤': 'a',
       'e': 'e',
-      'é': 'e',
-      'è': 'e',
-      'ê': 'e',
-      'ë': 'e',
+      'ÃƒÆ’Ã‚Â©': 'e',
+      'ÃƒÆ’Ã‚Â¨': 'e',
+      'ÃƒÆ’Ã‚Âª': 'e',
+      'ÃƒÆ’Ã‚Â«': 'e',
       'i': 'i',
-      'í': 'i',
-      'ì': 'i',
-      'î': 'i',
-      'ï': 'i',
+      'ÃƒÆ’Ã‚Â­': 'i',
+      'ÃƒÆ’Ã‚Â¬': 'i',
+      'ÃƒÆ’Ã‚Â®': 'i',
+      'ÃƒÆ’Ã‚Â¯': 'i',
       'o': 'o',
-      'ó': 'o',
-      'ò': 'o',
-      'ô': 'o',
-      'õ': 'o',
-      'ö': 'o',
+      'ÃƒÆ’Ã‚Â³': 'o',
+      'ÃƒÆ’Ã‚Â²': 'o',
+      'ÃƒÆ’Ã‚Â´': 'o',
+      'ÃƒÆ’Ã‚Âµ': 'o',
+      'ÃƒÆ’Ã‚Â¶': 'o',
       'u': 'u',
-      'ú': 'u',
-      'ù': 'u',
-      'û': 'u',
-      'ü': 'u',
-      'ç': 'c',
-      'ñ': 'n',
+      'ÃƒÆ’Ã‚Âº': 'u',
+      'ÃƒÆ’Ã‚Â¹': 'u',
+      'ÃƒÆ’Ã‚Â»': 'u',
+      'ÃƒÆ’Ã‚Â¼': 'u',
+      'ÃƒÆ’Ã‚Â§': 'c',
+      'ÃƒÆ’Ã‚Â±': 'n',
     };
 
     final lower = valor.toLowerCase();
@@ -545,11 +545,11 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
       onChanged: (value) => setState(() => _buscaMapa = value),
       decoration: InputDecoration(
         hintText: 'Buscar por caixa, colaborador ou localizacao',
-        prefixIcon: const Icon(Icons.search),
+        prefixIcon: Icon(Icons.search),
         suffixIcon: _buscaMapa.trim().isEmpty
             ? null
             : IconButton(
-                icon: const Icon(Icons.close),
+                icon: Icon(Icons.close),
                 onPressed: () {
                   _buscaMapaCtrl.clear();
                   setState(() => _buscaMapa = '');
@@ -560,15 +560,15 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         contentPadding: const EdgeInsets.symmetric(vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.cardBorder),
+          borderSide: BorderSide(color: AppColors.cardBorder),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.cardBorder),
+          borderSide: BorderSide(color: AppColors.cardBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.4),
+          borderSide: BorderSide(color: AppColors.primary, width: 1.4),
         ),
       ),
     );
@@ -628,7 +628,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
           );
         }),
         FilterChip(
-          label: const Text('Mostrar livres'),
+          label: Text('Mostrar livres'),
           selected: _mostrarLivres,
           showCheckmark: false,
           labelStyle: AppTextStyles.caption.copyWith(
@@ -693,7 +693,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 15, color: color),
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
           Text(
             label,
             style: AppTextStyles.caption.copyWith(
@@ -738,18 +738,18 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                       color: AppColors.blueGrey.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.tune_rounded,
                       color: AppColors.blueGrey,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Leitura do mapa', style: AppTextStyles.h4),
-                        const SizedBox(height: 2),
+                        Text('Leitura do mapa', style: AppTextStyles.h4),
+                        SizedBox(height: 2),
                         Text(
                           'Mostrando $totalVisiveis de $totalGeral caixas em $localizacoes area(s).',
                           style: AppTextStyles.caption.copyWith(
@@ -762,8 +762,8 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                   if (_temControlesMapaAtivos)
                     TextButton.icon(
                       onPressed: _limparControlesMapa,
-                      icon: const Icon(Icons.restart_alt, size: 16),
-                      label: const Text('Limpar'),
+                      icon: Icon(Icons.restart_alt, size: 16),
+                      label: Text('Limpar'),
                       style: TextButton.styleFrom(
                         foregroundColor: AppColors.primary,
                         textStyle: AppTextStyles.caption.copyWith(
@@ -789,10 +789,10 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
               ),
             ),
             AnimatedCrossFade(
-              firstChild: const SizedBox(width: double.infinity),
+              firstChild: SizedBox(width: double.infinity),
               secondChild: Column(
                 children: [
-                  const SizedBox(height: Dimensions.spacingSM),
+                  SizedBox(height: Dimensions.spacingSM),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -814,11 +814,11 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                       ),
                     ],
                   ),
-                  const SizedBox(height: Dimensions.spacingMD),
+                  SizedBox(height: Dimensions.spacingMD),
                   _buildMapaBusca(),
-                  const SizedBox(height: Dimensions.spacingSM),
+                  SizedBox(height: Dimensions.spacingSM),
                   _buildMapaFiltros(),
-                  const SizedBox(height: Dimensions.spacingSM),
+                  SizedBox(height: Dimensions.spacingSM),
                   _buildMapaLegenda(),
                 ],
               ),
@@ -902,13 +902,13 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                       color: corDestaque,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(label, style: AppTextStyles.h4),
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2),
                         Text(
                           '$total caixa(s) visivel(is) nesta area.',
                           style: AppTextStyles.caption.copyWith(
@@ -936,7 +936,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                 ],
               ),
             ),
-            const SizedBox(height: Dimensions.spacingSM),
+            SizedBox(height: Dimensions.spacingSM),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -967,7 +967,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                   ),
               ],
             ),
-            const SizedBox(height: Dimensions.spacingMD),
+            SizedBox(height: Dimensions.spacingMD),
             ...itens.map(
               (item) => Padding(
                 padding: const EdgeInsets.only(bottom: Dimensions.spacingSM),
@@ -1006,26 +1006,26 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                     color: AppColors.warning.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.emergency_outlined,
                     size: 18,
                     color: AppColors.warning,
                   ),
                 ),
-                const SizedBox(width: 10),
-                const Expanded(
+                SizedBox(width: 10),
+                Expanded(
                   child: Text('Excecoes do mapa', style: AppTextStyles.h4),
                 ),
               ],
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               'Pontos que pedem leitura imediata antes de trocar o quadro.',
               style: AppTextStyles.caption.copyWith(
                 color: AppColors.textSecondary,
               ),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -1043,7 +1043,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(item.icon, size: 16, color: item.color),
-                      const SizedBox(width: 6),
+                      SizedBox(width: 6),
                       Text(
                         item.label,
                         style: AppTextStyles.caption.copyWith(
@@ -1097,14 +1097,14 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                       color: AppColors.success.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.auto_awesome_outlined,
                       size: 18,
                       color: AppColors.success,
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  const Expanded(
+                  SizedBox(width: 10),
+                  Expanded(
                     child:
                         Text('Sugestoes automaticas', style: AppTextStyles.h4),
                   ),
@@ -1126,17 +1126,17 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
               ),
             ),
             AnimatedCrossFade(
-              firstChild: const SizedBox(width: double.infinity),
+              firstChild: SizedBox(width: double.infinity),
               secondChild: Column(
                 children: [
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     'Atalhos de decisao para destravar pausa, troca e cobertura.',
                     style: AppTextStyles.caption.copyWith(
                       color: AppColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
                   ...sugestoes.map(
                     (sugestao) => Padding(
                       padding: const EdgeInsets.only(bottom: 10),
@@ -1166,7 +1166,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                                   size: 18,
                                 ),
                               ),
-                              const SizedBox(width: 10),
+                              SizedBox(width: 10),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1175,7 +1175,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                                       sugestao.title,
                                       style: AppTextStyles.label,
                                     ),
-                                    const SizedBox(height: 2),
+                                    SizedBox(height: 2),
                                     Text(
                                       sugestao.subtitle,
                                       style: AppTextStyles.caption.copyWith(
@@ -1185,7 +1185,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                                   ],
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 8),
                               Text(
                                 sugestao.actionLabel,
                                 style: AppTextStyles.caption.copyWith(
@@ -1264,7 +1264,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         onTap: () => showModalBottomSheet(
           context: context,
           isScrollControlled: true,
-          shape: const RoundedRectangleBorder(
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(
               top: Radius.circular(Dimensions.radiusSheet),
             ),
@@ -1288,7 +1288,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         icon: Icons.coffee,
         onTap: () => showModalBottomSheet(
           context: context,
-          shape: const RoundedRectangleBorder(
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(
               top: Radius.circular(Dimensions.radiusSheet),
             ),
@@ -1308,7 +1308,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         icon: Icons.point_of_sale,
         onTap: () => showModalBottomSheet(
           context: context,
-          shape: const RoundedRectangleBorder(
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(
               top: Radius.circular(Dimensions.radiusSheet),
             ),
@@ -1325,7 +1325,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         onTap: () => showModalBottomSheet(
           context: context,
           isScrollControlled: true,
-          shape: const RoundedRectangleBorder(
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(
               top: Radius.circular(Dimensions.radiusSheet),
             ),
@@ -1348,7 +1348,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
           width: double.infinity,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(Dimensions.radiusLG),
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
@@ -1388,21 +1388,21 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                           color: AppColors.primary.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.monitor_heart_outlined,
                           color: AppColors.primary,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Painel operacional',
                               style: AppTextStyles.h3,
                             ),
-                            const SizedBox(height: 4),
+                            SizedBox(height: 4),
                             Text(
                               resumo,
                               style: AppTextStyles.body.copyWith(
@@ -1430,10 +1430,10 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                   ),
                 ),
                 AnimatedCrossFade(
-                  firstChild: const SizedBox(width: double.infinity),
+                  firstChild: SizedBox(width: double.infinity),
                   secondChild: Column(
                     children: [
-                      const SizedBox(height: Dimensions.spacingSM),
+                      SizedBox(height: Dimensions.spacingSM),
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
@@ -1470,7 +1470,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
             ),
           ),
         ),
-        const SizedBox(height: Dimensions.spacingSM),
+        SizedBox(height: Dimensions.spacingSM),
         LayoutBuilder(
           builder: (context, constraints) {
             final largura = constraints.maxWidth;
@@ -1730,14 +1730,14 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                     statuses: statuses,
                     localizacoesVisiveis: grupos.length,
                   ),
-                  const SizedBox(height: Dimensions.spacingMD),
+                  SizedBox(height: Dimensions.spacingMD),
                   _buildMapaControlesCard(
                     totalVisiveis: totalVisiveisPainel,
                     totalGeral: totalGeralPainel,
                     localizacoes: areasVisiveisPainel,
                   ),
                   if (excecoes.isNotEmpty || sugestoes.isNotEmpty) ...[
-                    const SizedBox(height: Dimensions.spacingMD),
+                    SizedBox(height: Dimensions.spacingMD),
                     if (insightsEmLinha &&
                         excecoes.isNotEmpty &&
                         sugestoes.isNotEmpty)
@@ -1745,18 +1745,18 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(child: _buildExcecoesFaixa(excecoes)),
-                          const SizedBox(width: Dimensions.spacingSM),
+                          SizedBox(width: Dimensions.spacingSM),
                           Expanded(child: _buildSugestoesCard(sugestoes)),
                         ],
                       )
                     else ...[
                       _buildExcecoesFaixa(excecoes),
                       if (excecoes.isNotEmpty && sugestoes.isNotEmpty)
-                        const SizedBox(height: Dimensions.spacingMD),
+                        SizedBox(height: Dimensions.spacingMD),
                       _buildSugestoesCard(sugestoes),
                     ],
                   ],
-                  const SizedBox(height: Dimensions.spacingLG),
+                  SizedBox(height: Dimensions.spacingLG),
                   if (semResultadosLocal &&
                       !mostrarBalcoes &&
                       !mostrarCobertura)
@@ -1771,14 +1771,14 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                       label: 'Mapa por localizacao',
                       count: secoesLocalizacao.length,
                     ),
-                    const SizedBox(height: Dimensions.spacingXS),
+                    SizedBox(height: Dimensions.spacingXS),
                     Text(
                       'As areas abaixo ja aparecem priorizadas por atencao, pausa e ocupacao.',
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.textSecondary,
                       ),
                     ),
-                    const SizedBox(height: Dimensions.spacingSM),
+                    SizedBox(height: Dimensions.spacingSM),
                     if (localizacoesEmDuasColunas)
                       Wrap(
                         spacing: Dimensions.spacingSM,
@@ -1800,21 +1800,21 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                           child: secao,
                         ),
                       ),
-                    const SizedBox(height: Dimensions.spacingLG),
+                    SizedBox(height: Dimensions.spacingLG),
                   ],
                   if (mostrarBalcoes) ...[
                     _SectionHeader(
                       label: 'Balcoes',
                       count: balcoesFiltrados.length,
                     ),
-                    const SizedBox(height: Dimensions.spacingXS),
+                    SizedBox(height: Dimensions.spacingXS),
                     Text(
                       'Separados do mapa principal para leitura mais rapida de frente de loja.',
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.textSecondary,
                       ),
                     ),
-                    const SizedBox(height: Dimensions.spacingSM),
+                    SizedBox(height: Dimensions.spacingSM),
                     ...balcoesFiltrados.map((balcao) {
                       final alocacoes =
                           alocacaoProvider.getAlocacoesCaixa(balcao.id);
@@ -1828,25 +1828,25 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                         ),
                       );
                     }),
-                    const SizedBox(height: Dimensions.spacingLG),
+                    SizedBox(height: Dimensions.spacingLG),
                   ],
                   if (mostrarCobertura) ...[
-                    const _SectionHeader(
+                    _SectionHeader(
                       label: 'Cobertura e apoio',
                       count: 2,
                     ),
-                    const SizedBox(height: Dimensions.spacingXS),
+                    SizedBox(height: Dimensions.spacingXS),
                     Text(
                       'Use estas listas para decidir trocas e reforcos fora do mapa.',
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.textSecondary,
                       ),
                     ),
-                    const SizedBox(height: Dimensions.spacingSM),
+                    SizedBox(height: Dimensions.spacingSM),
                     const PacoteSection(),
-                    const SizedBox(height: Dimensions.spacingMD),
+                    SizedBox(height: Dimensions.spacingMD),
                     const OutroSetorSection(),
-                    const SizedBox(height: Dimensions.spacingMD),
+                    SizedBox(height: Dimensions.spacingMD),
                   ],
                 ],
               );
@@ -1865,13 +1865,13 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Mapa de Caixas'),
+        title: Text('Mapa de Caixas'),
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
           if (_tabIndex == 0)
             IconButton(
-              icon: const Icon(Icons.refresh),
+              icon: Icon(Icons.refresh),
               onPressed: _loadData,
             ),
         ],
@@ -1892,13 +1892,13 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          // ── ABA 1: MAPA ──────────────────────────────────────────────────
+          // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ ABA 1: MAPA ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
 
           Builder(
             builder: (context) =>
                 _buildMapaTab(context, caixaProvider, alocacaoProvider),
           ),
-          // ── ABA 2: CAIXAS ────────────────────────────────────────────────
+          // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ ABA 2: CAIXAS ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
           _CaixasBody(onRefresh: _loadData),
         ],
       ),
@@ -1913,8 +1913,8 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                 );
                 _loadData();
               },
-              icon: const Icon(Icons.add),
-              label: const Text('Novo Caixa'),
+              icon: Icon(Icons.add),
+              label: Text('Novo Caixa'),
               backgroundColor: AppColors.success,
             ),
     );
@@ -1932,14 +1932,14 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
             shape: BoxShape.circle,
           ),
         ),
-        const SizedBox(width: 4),
+        SizedBox(width: 4),
         Text(label, style: AppTextStyles.caption),
       ],
     );
   }
 }
 
-// ── Aba "Caixas" ──────────────────────────────────────────────────────────────
+// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Aba "Caixas" ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
 
 class _CaixasBody extends StatelessWidget {
   final Future<void> Function() onRefresh;
@@ -1968,7 +1968,7 @@ class _CaixasBody extends StatelessWidget {
               ? const EmptyStateWidget(
                   icon: Icons.point_of_sale,
                   title: 'Nenhum caixa',
-                  message: 'Você não possui caixas cadastrados',
+                  message: 'VocÃƒÆ’Ã‚Âª nÃƒÆ’Ã‚Â£o possui caixas cadastrados',
                 )
               : RefreshIndicator(
                   onRefresh: onRefresh,
@@ -2019,7 +2019,7 @@ class _StatsBar extends StatelessWidget {
               value: provider.totalAtivos.toString(),
               color: AppColors.success),
           _StatItem(
-              label: 'Manutenção',
+              label: 'ManutenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o',
               value: provider.totalEmManutencao.toString(),
               color: Colors.orange),
           _StatItem(
@@ -2051,7 +2051,7 @@ class _StatItem extends StatelessWidget {
         Text(value,
             style: AppTextStyles.h3
                 .copyWith(color: color, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(label,
             style:
                 AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
@@ -2097,7 +2097,7 @@ class _FilterBar extends StatelessWidget {
                     : AppColors.textPrimary,
                 size: 20,
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 provider.mostrarApenasAtivos ? 'Apenas Ativos' : 'Ver Todos',
                 style: AppTextStyles.label.copyWith(
@@ -2117,20 +2117,20 @@ class _FilterBar extends StatelessWidget {
   }
 }
 
-// ── Seção com cabeçalho e contador ────────────────────────────────────────────
+// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ SeÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o com cabeÃƒÆ’Ã‚Â§alho e contador ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
 
 class _SectionHeader extends StatelessWidget {
   final String label;
   final int count;
 
-  const _SectionHeader({required this.label, required this.count});
+  _SectionHeader({required this.label, required this.count});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Text(label, style: AppTextStyles.h3),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
@@ -2207,7 +2207,7 @@ class _DashItem extends StatelessWidget {
                 fontWeight: FontWeight.w800,
               ),
             ),
-            const SizedBox(height: 2),
+            SizedBox(height: 2),
             Text(
               label,
               style: AppTextStyles.body.copyWith(
@@ -2215,7 +2215,7 @@ class _DashItem extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               subtitle,
               maxLines: 2,
@@ -2276,21 +2276,21 @@ class _OcupadosSheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          const Row(
+          Row(
             children: [
               Icon(Icons.point_of_sale, size: 18, color: AppColors.primary),
               SizedBox(width: 6),
               Text('Caixas ocupados', style: AppTextStyles.h3),
             ],
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
-            'Mostra quais caixas estão contando como ocupados.',
+            'Mostra quais caixas estÃƒÆ’Ã‚Â£o contando como ocupados.',
             style: AppTextStyles.caption.copyWith(
               color: AppColors.textSecondary,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           if (!temOcupados)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -2307,7 +2307,7 @@ class _OcupadosSheet extends StatelessWidget {
                 shrinkWrap: true,
                 itemCount: caixas.length,
                 separatorBuilder: (_, __) =>
-                    const Divider(height: 16, color: AppColors.cardBorder),
+                    Divider(height: 16, color: AppColors.cardBorder),
                 itemBuilder: (_, i) {
                   final caixa = caixas[i];
                   final alocacao = alocacaoProvider.getAlocacaoCaixa(caixa.id);
@@ -2316,7 +2316,7 @@ class _OcupadosSheet extends StatelessWidget {
                   final nomeAlocado = alocacao != null
                       ? (colabById[alocacao.colaboradorId]?.nome ??
                           caixa.colaboradorAlocadoNome ??
-                          '—')
+                          'ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â')
                       : null;
                   final nomePausa = pausa?.colaboradorNome;
 
@@ -2332,7 +2332,7 @@ class _OcupadosSheet extends StatelessWidget {
                       backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                       child: Text(
                         caixa.numero.toString(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
                         ),
@@ -2355,14 +2355,14 @@ class _OcupadosSheet extends StatelessWidget {
                             ),
                           ),
                         if (nomeAlocado == null && nomePausa == null)
-                          const Text(
-                            'Sem detalhes da ocupação',
+                          Text(
+                            'Sem detalhes da ocupaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o',
                             style: AppTextStyles.caption,
                           ),
                       ],
                     ),
                     trailing: (alocacao != null || pausa != null)
-                        ? const Icon(Icons.more_vert, size: 18)
+                        ? Icon(Icons.more_vert, size: 18)
                         : null,
                   );
                 },
@@ -2381,7 +2381,7 @@ class _OcupadosSheet extends StatelessWidget {
   ) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -2401,19 +2401,19 @@ class _OcupadosSheet extends StatelessWidget {
             ),
             Row(
               children: [
-                const Icon(Icons.point_of_sale,
-                    size: 18, color: AppColors.primary),
-                const SizedBox(width: 6),
+                Icon(Icons.point_of_sale, size: 18, color: AppColors.primary),
+                SizedBox(width: 6),
                 Text(caixa.nomeExibicao, style: AppTextStyles.h3),
               ],
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             if (alocacao != null)
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.exit_to_app, color: AppColors.danger),
-                title: const Text('Liberar caixa'),
-                subtitle: const Text('Remove a alocação ativa deste caixa'),
+                leading: Icon(Icons.exit_to_app, color: AppColors.danger),
+                title: Text('Liberar caixa'),
+                subtitle:
+                    Text('Remove a alocaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ativa deste caixa'),
                 onTap: () {
                   Navigator.pop(context);
                   _confirmarLiberar(context, caixa, alocacao);
@@ -2422,9 +2422,9 @@ class _OcupadosSheet extends StatelessWidget {
             if (pausa != null)
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.coffee, color: AppColors.statusCafe),
-                title: const Text('Finalizar pausa'),
-                subtitle: const Text('Encerra a pausa ativa deste caixa'),
+                leading: Icon(Icons.coffee, color: AppColors.statusCafe),
+                title: Text('Finalizar pausa'),
+                subtitle: Text('Encerra a pausa ativa deste caixa'),
                 onTap: () {
                   Navigator.pop(context);
                   _confirmarFinalizarPausa(context, pausa);
@@ -2434,7 +2434,7 @@ class _OcupadosSheet extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Text(
-                  'Não há alocação ou pausa ativa para este caixa.',
+                  'NÃƒÆ’Ã‚Â£o hÃƒÆ’Ã‚Â¡ alocaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ou pausa ativa para este caixa.',
                   style: AppTextStyles.caption
                       .copyWith(color: AppColors.textSecondary),
                 ),
@@ -2453,12 +2453,12 @@ class _OcupadosSheet extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Liberar caixa'),
+        title: Text('Liberar caixa'),
         content: Text('Deseja liberar ${caixa.nomeExibicao}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           TextButton(
             onPressed: () async {
@@ -2477,7 +2477,7 @@ class _OcupadosSheet extends StatelessWidget {
                 );
               }
             },
-            child: const Text(
+            child: Text(
               'Liberar',
               style: TextStyle(color: AppColors.danger),
             ),
@@ -2494,12 +2494,12 @@ class _OcupadosSheet extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Finalizar pausa'),
+        title: Text('Finalizar pausa'),
         content: Text('Deseja finalizar a pausa de ${pausa.colaboradorNome}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           TextButton(
             onPressed: () async {
@@ -2562,7 +2562,7 @@ class _OcupadosSheet extends StatelessWidget {
                 }
               }
             },
-            child: const Text(
+            child: Text(
               'Finalizar',
               style: TextStyle(color: AppColors.danger),
             ),
@@ -2619,7 +2619,7 @@ class _OcupadosSheet extends StatelessWidget {
                   justificativaCtrl.text.trim().isNotEmpty);
 
           return AlertDialog(
-            title: const Text('Retorno do intervalo'),
+            title: Text('Retorno do intervalo'),
             content: SizedBox(
               width: 420,
               child: SingleChildScrollView(
@@ -2631,8 +2631,8 @@ class _OcupadosSheet extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Regra padrao: retornar em caixa diferente.'),
-                      const SizedBox(height: 12),
+                      Text('Regra padrao: retornar em caixa diferente.'),
+                      SizedBox(height: 12),
                       ...caixasAtivos.map((caixa) {
                         final ocupado =
                             alocacaoProvider.getAlocacaoCaixa(caixa.id) != null;
@@ -2652,25 +2652,25 @@ class _OcupadosSheet extends StatelessWidget {
                         return tile;
                       }),
                       if (mesmoCaixaSelecionado) ...[
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         CheckboxListTile(
                           contentPadding: EdgeInsets.zero,
                           value: permitirMesmoCaixa,
                           onChanged: (v) => setStateDialog(
                             () => permitirMesmoCaixa = v ?? false,
                           ),
-                          title: const Text('Permitir mesmo caixa (excecao)'),
-                          subtitle: const Text(
+                          title: Text('Permitir mesmo caixa (excecao)'),
+                          subtitle: Text(
                             'Necessario justificar para auditoria.',
                           ),
                         ),
                         if (permitirMesmoCaixa) ...[
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8),
                           TextField(
                             controller: justificativaCtrl,
                             maxLines: 3,
                             textCapitalization: TextCapitalization.sentences,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Justificativa da excecao *',
                             ),
                             onChanged: (_) => setStateDialog(() {}),
@@ -2685,7 +2685,7 @@ class _OcupadosSheet extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: const Text('Cancelar'),
+                child: Text('Cancelar'),
               ),
               ElevatedButton(
                 onPressed: !podeConfirmar
@@ -2701,7 +2701,7 @@ class _OcupadosSheet extends StatelessWidget {
                                     : justificativaCtrl.text.trim(),
                           ),
                         ),
-                child: const Text('Confirmar retorno'),
+                child: Text('Confirmar retorno'),
               ),
             ],
           );
@@ -2744,14 +2744,14 @@ class _PausasSheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          const Row(
+          Row(
             children: [
               Icon(Icons.coffee, size: 18, color: AppColors.statusCafe),
               SizedBox(width: 6),
               Text('Pausas ativas', style: AppTextStyles.h3),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           if (pausas.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -2768,7 +2768,7 @@ class _PausasSheet extends StatelessWidget {
                 shrinkWrap: true,
                 itemCount: pausas.length,
                 separatorBuilder: (_, __) =>
-                    const Divider(height: 16, color: AppColors.cardBorder),
+                    Divider(height: 16, color: AppColors.cardBorder),
                 itemBuilder: (_, i) {
                   final pausa = pausas[i];
                   final caixa = caixasTodos
@@ -2792,7 +2792,7 @@ class _PausasSheet extends StatelessWidget {
                       style: AppTextStyles.caption,
                     ),
                     trailing: pausa.emAtraso
-                        ? const Icon(
+                        ? Icon(
                             Icons.warning_amber_rounded,
                             color: AppColors.danger,
                           )
@@ -2833,14 +2833,14 @@ class _LivresSheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          const Row(
+          Row(
             children: [
               Icon(Icons.point_of_sale, size: 18, color: AppColors.success),
               SizedBox(width: 6),
               Text('Caixas livres', style: AppTextStyles.h3),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           if (statuses.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -2857,7 +2857,7 @@ class _LivresSheet extends StatelessWidget {
                 shrinkWrap: true,
                 itemCount: statuses.length,
                 separatorBuilder: (_, __) =>
-                    const Divider(height: 16, color: AppColors.cardBorder),
+                    Divider(height: 16, color: AppColors.cardBorder),
                 itemBuilder: (_, i) {
                   final status = statuses[i];
                   return ListTile(
@@ -2867,7 +2867,7 @@ class _LivresSheet extends StatelessWidget {
                           AppColors.success.withValues(alpha: 0.12),
                       child: Text(
                         status.caixa.numero.toString(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.success,
                           fontWeight: FontWeight.bold,
                         ),
@@ -2935,7 +2935,7 @@ class _CoberturaSheet extends StatelessWidget {
                 ),
               ),
             ),
-            const Row(
+            Row(
               children: [
                 Icon(
                   Icons.groups_2_outlined,
@@ -2946,15 +2946,14 @@ class _CoberturaSheet extends StatelessWidget {
                 Text('Cobertura da operacao', style: AppTextStyles.h3),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             _SectionHeader(
               label: 'No caixa',
               count: alocacoes.length,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             if (alocacoes.isEmpty)
-              const Text('Nenhuma alocacao ativa.',
-                  style: AppTextStyles.caption)
+              Text('Nenhuma alocacao ativa.', style: AppTextStyles.caption)
             else
               ...alocacoes.map((alocacao) {
                 final caixa = caixasTodos
@@ -2964,7 +2963,7 @@ class _CoberturaSheet extends StatelessWidget {
                 return ListTile(
                   contentPadding: EdgeInsets.zero,
                   dense: true,
-                  leading: const Icon(
+                  leading: Icon(
                     Icons.point_of_sale,
                     color: AppColors.primary,
                   ),
@@ -2975,48 +2974,46 @@ class _CoberturaSheet extends StatelessWidget {
                   ),
                 );
               }),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             _SectionHeader(
               label: 'Pacotes',
               count: plantao.length,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             if (plantao.isEmpty)
-              const Text('Sem cobertura em pacotes.',
-                  style: AppTextStyles.caption)
+              Text('Sem cobertura em pacotes.', style: AppTextStyles.caption)
             else
               ...plantao.map((item) {
                 final colaborador = colabById[item.colaboradorId];
                 return ListTile(
                   contentPadding: EdgeInsets.zero,
                   dense: true,
-                  leading: const Icon(
+                  leading: Icon(
                     Icons.inventory_2_outlined,
                     color: AppColors.success,
                   ),
                   title: Text(colaborador?.nome ?? 'Colaborador'),
-                  subtitle: const Text(
+                  subtitle: Text(
                     'Empacotador disponivel na cobertura',
                     style: AppTextStyles.caption,
                   ),
                 );
               }),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             _SectionHeader(
               label: 'Outro setor',
               count: outroSetor.length,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             if (outroSetor.isEmpty)
-              const Text('Sem apoio em outro setor.',
-                  style: AppTextStyles.caption)
+              Text('Sem apoio em outro setor.', style: AppTextStyles.caption)
             else
               ...outroSetor.map((item) {
                 final colaborador = colabById[item.colaboradorId];
                 return ListTile(
                   contentPadding: EdgeInsets.zero,
                   dense: true,
-                  leading: const Icon(
+                  leading: Icon(
                     Icons.storefront_outlined,
                     color: AppColors.statusAtencao,
                   ),

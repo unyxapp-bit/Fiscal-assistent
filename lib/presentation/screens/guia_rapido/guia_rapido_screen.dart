@@ -49,12 +49,12 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Excluir situação'),
+        title: Text('Excluir situaÃƒÂ§ÃƒÂ£o'),
         content: Text('Excluir "${s.titulo}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           TextButton(
             onPressed: () async {
@@ -73,8 +73,7 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
                 );
               }
             },
-            child: const Text('Excluir',
-                style: TextStyle(color: AppColors.danger)),
+            child: Text('Excluir', style: TextStyle(color: AppColors.danger)),
           ),
         ],
       ),
@@ -91,7 +90,7 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Guia Rápido'),
+        title: Text('Guia RÃƒÂ¡pido'),
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
@@ -99,7 +98,7 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
             padding: const EdgeInsets.only(right: 8),
             child: Center(
               child: Text(
-                '${filtradas.length} situações',
+                '${filtradas.length} situaÃƒÂ§ÃƒÂµes',
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary),
               ),
@@ -109,18 +108,18 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
       ),
       body: Column(
         children: [
-          // ── Busca ──────────────────────────────────────────────────
+          // Ã¢â€â‚¬Ã¢â€â‚¬ Busca Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
           Padding(
             padding: const EdgeInsets.fromLTRB(
                 Dimensions.paddingMD, 8, Dimensions.paddingMD, 4),
             child: TextField(
               controller: _searchCtrl,
               decoration: InputDecoration(
-                hintText: 'O que está acontecendo?',
-                prefixIcon: const Icon(Icons.search),
+                hintText: 'O que estÃƒÂ¡ acontecendo?',
+                prefixIcon: Icon(Icons.search),
                 suffixIcon: _query.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear),
+                        icon: Icon(Icons.clear),
                         onPressed: () {
                           _searchCtrl.clear();
                           setState(() => _query = '');
@@ -129,16 +128,14 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
                     : null,
                 isDense: true,
                 border: OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(Dimensions.radiusMD),
+                  borderRadius: BorderRadius.circular(Dimensions.radiusMD),
                 ),
               ),
-              onChanged: (v) =>
-                  setState(() => _query = v.toLowerCase().trim()),
+              onChanged: (v) => setState(() => _query = v.toLowerCase().trim()),
             ),
           ),
 
-          // ── Chips de categoria ─────────────────────────────────────
+          // Ã¢â€â‚¬Ã¢â€â‚¬ Chips de categoria Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(
@@ -148,12 +145,10 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: FilterChip(
-                    label: const Text('Todas'),
+                    label: Text('Todas'),
                     selected: _categoriaFiltro == null,
-                    onSelected: (_) =>
-                        setState(() => _categoriaFiltro = null),
-                    selectedColor:
-                        AppColors.primary.withValues(alpha: 0.15),
+                    onSelected: (_) => setState(() => _categoriaFiltro = null),
+                    selectedColor: AppColors.primary.withValues(alpha: 0.15),
                     checkmarkColor: AppColors.primary,
                     labelStyle: TextStyle(
                       color: _categoriaFiltro == null
@@ -176,17 +171,14 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
                     child: FilterChip(
                       label: Text(cat),
                       selected: isSelected,
-                      onSelected: (_) => setState(() =>
-                          _categoriaFiltro = isSelected ? null : cat),
+                      onSelected: (_) => setState(
+                          () => _categoriaFiltro = isSelected ? null : cat),
                       selectedColor: cor.withValues(alpha: 0.15),
                       checkmarkColor: cor,
                       labelStyle: TextStyle(
-                        color: isSelected
-                            ? cor
-                            : AppColors.textSecondary,
-                        fontWeight: isSelected
-                            ? FontWeight.w600
-                            : FontWeight.normal,
+                        color: isSelected ? cor : AppColors.textSecondary,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.normal,
                       ),
                     ),
                   );
@@ -195,20 +187,20 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
             ),
           ),
 
-          // ── Lista ──────────────────────────────────────────────────
+          // Ã¢â€â‚¬Ã¢â€â‚¬ Lista Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
           Expanded(
             child: filtradas.isEmpty
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.search_off,
+                        Icon(Icons.search_off,
                             size: 64, color: AppColors.inactive),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         Text(
                           todas.isEmpty
                               ? 'Carregando guia...'
-                              : 'Nenhuma situação encontrada',
+                              : 'Nenhuma situaÃƒÂ§ÃƒÂ£o encontrada',
                           style: AppTextStyles.h4
                               .copyWith(color: AppColors.textSecondary),
                         ),
@@ -221,17 +213,14 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
                     itemBuilder: (ctx, i) {
                       final s = filtradas[i];
                       return Card(
-                        margin: const EdgeInsets.only(
-                            bottom: Dimensions.spacingSM),
+                        margin:
+                            const EdgeInsets.only(bottom: Dimensions.spacingSM),
                         child: ExpansionTile(
                           leading: CircleAvatar(
-                            backgroundColor:
-                                s.cor.withValues(alpha: 0.15),
-                            child:
-                                Icon(s.icone, color: s.cor, size: 20),
+                            backgroundColor: s.cor.withValues(alpha: 0.15),
+                            child: Icon(s.icone, color: s.cor, size: 20),
                           ),
-                          title:
-                              Text(s.titulo, style: AppTextStyles.h4),
+                          title: Text(s.titulo, style: AppTextStyles.h4),
                           subtitle: Text(
                             s.categoria,
                             style: TextStyle(
@@ -244,27 +233,22 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.edit_outlined,
-                                    size: 18,
-                                    color: AppColors.textSecondary),
+                                icon: Icon(Icons.edit_outlined,
+                                    size: 18, color: AppColors.textSecondary),
                                 tooltip: 'Editar',
-                                onPressed: () =>
-                                    Navigator.of(context).push(
+                                onPressed: () => Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder: (_) =>
-                                        GuiaRapidoFormScreen(
-                                            situacao: s),
+                                        GuiaRapidoFormScreen(situacao: s),
                                   ),
                                 ),
                               ),
                               IconButton(
-                                icon: const Icon(
-                                    Icons.delete_outline,
-                                    size: 18,
-                                    color: AppColors.danger),
+                                icon: Icon(Icons.delete_outline,
+                                    size: 18, color: AppColors.danger),
                                 tooltip: 'Excluir',
-                                onPressed: () => _confirmarDelete(
-                                    ctx, s, provider),
+                                onPressed: () =>
+                                    _confirmarDelete(ctx, s, provider),
                               ),
                             ],
                           ),
@@ -274,8 +258,8 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
                               Dimensions.paddingMD,
                               Dimensions.paddingMD),
                           children: [
-                            const Divider(height: 1),
-                            const SizedBox(height: Dimensions.spacingMD),
+                            Divider(height: 1),
+                            SizedBox(height: Dimensions.spacingMD),
                             ...s.passos.asMap().entries.map(
                                   (e) => Padding(
                                     padding: const EdgeInsets.only(
@@ -288,8 +272,8 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
                                           width: 24,
                                           height: 24,
                                           decoration: BoxDecoration(
-                                            color: s.cor
-                                                .withValues(alpha: 0.12),
+                                            color:
+                                                s.cor.withValues(alpha: 0.12),
                                             shape: BoxShape.circle,
                                           ),
                                           child: Center(
@@ -303,7 +287,7 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(width: 10),
+                                        SizedBox(width: 10),
                                         Expanded(
                                           child: Text(
                                             e.value,
@@ -324,11 +308,10 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(
-              builder: (_) => const GuiaRapidoFormScreen()),
+          MaterialPageRoute(builder: (_) => const GuiaRapidoFormScreen()),
         ),
-        icon: const Icon(Icons.add),
-        label: const Text('Nova Situação'),
+        icon: Icon(Icons.add),
+        label: Text('Nova SituaÃƒÂ§ÃƒÂ£o'),
         backgroundColor: AppColors.primary,
       ),
     );

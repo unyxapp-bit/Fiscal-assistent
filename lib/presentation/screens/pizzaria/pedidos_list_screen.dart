@@ -81,7 +81,7 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Excluir pedido?'),
+        title: Text('Excluir pedido?'),
         content: Text(
           'Deseja excluir o pedido de ${_textoPedido(pedido.nomeCliente, vazio: 'cliente sem nome')} '
           '(cod. cliente: ${_textoPedido(pedido.codigoEntrega)})?',
@@ -89,11 +89,11 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Excluir', style: TextStyle(color: Colors.red)),
+            child: Text('Excluir', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -104,7 +104,7 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
     await PizzaService.excluirPedido(pedido.id!);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Pedido excluido com sucesso.')),
+      SnackBar(content: Text('Pedido excluido com sucesso.')),
     );
     _carregar();
   }
@@ -140,9 +140,9 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pedidos de Pizza'),
+        title: Text('Pedidos de Pizza'),
         actions: [
-          IconButton(icon: const Icon(Icons.refresh), onPressed: _carregar),
+          IconButton(icon: Icon(Icons.refresh), onPressed: _carregar),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -153,8 +153,8 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
           );
           _carregar();
         },
-        icon: const Icon(Icons.add),
-        label: const Text('Novo Pedido'),
+        icon: Icon(Icons.add),
+        label: Text('Novo Pedido'),
       ),
       body: Column(
         children: [
@@ -197,9 +197,9 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
           ),
           Expanded(
             child: _loading
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(child: CircularProgressIndicator())
                 : _pedidosFiltrados.isEmpty
-                    ? const Center(
+                    ? Center(
                         child: Text(
                           'Nenhum pedido encontrado.',
                           style: TextStyle(color: Colors.grey),
@@ -210,8 +210,7 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
                         child: ListView.separated(
                           padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
                           itemCount: _pedidosFiltrados.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 2),
+                          separatorBuilder: (_, __) => SizedBox(height: 2),
                           itemBuilder: (_, i) {
                             final pedido = _pedidosFiltrados[i];
                             return _CardPedido(
@@ -299,14 +298,14 @@ class _CardPedido extends StatelessWidget {
                       children: [
                         Text(
                           _textoPedido(pedido.nomeCliente, vazio: 'Sem nome'),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2),
                         Text(
-                          'Cod. cliente: ${_textoPedido(pedido.codigoEntrega)} • ${pedido.horarioPedido} • ${DateFormat('dd/MM').format(pedido.dataPedido)}',
+                          'Cod. cliente: ${_textoPedido(pedido.codigoEntrega)} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ${pedido.horarioPedido} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ${DateFormat('dd/MM').format(pedido.dataPedido)}',
                           style:
                               TextStyle(color: Colors.grey[600], fontSize: 12),
                         ),
@@ -382,22 +381,22 @@ class _CardPedido extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               ...pedido.itens.take(3).map(
                     (item) => Padding(
                       padding: const EdgeInsets.only(bottom: 4),
                       child: Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.local_pizza,
                             size: 16,
                             color: Colors.orange,
                           ),
-                          const SizedBox(width: 6),
+                          SizedBox(width: 6),
                           Expanded(
                             child: Text(
                               '${item.quantidade}x ${item.tamanhoLabel} - ${item.descricao}',
-                              style: const TextStyle(fontSize: 13),
+                              style: TextStyle(fontSize: 13),
                             ),
                           ),
                         ],
@@ -411,53 +410,51 @@ class _CardPedido extends StatelessWidget {
                 ),
               if (pedido.observacoes != null &&
                   pedido.observacoes!.isNotEmpty) ...[
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.info_outline,
-                        size: 14, color: Colors.grey),
-                    const SizedBox(width: 4),
+                    Icon(Icons.info_outline, size: 14, color: Colors.grey),
+                    SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         pedido.observacoes!,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style:
-                            const TextStyle(fontSize: 12, color: Colors.grey),
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                     ),
                   ],
                 ),
               ],
-              const SizedBox(height: 10),
-              const Divider(height: 1),
-              const SizedBox(height: 8),
+              SizedBox(height: 10),
+              Divider(height: 1),
+              SizedBox(height: 8),
               Row(
                 children: [
                   OutlinedButton.icon(
-                    icon: const Icon(Icons.visibility_outlined, size: 16),
-                    label: const Text('Detalhes'),
+                    icon: Icon(Icons.visibility_outlined, size: 16),
+                    label: Text('Detalhes'),
                     onPressed: onAbrirDetalhes,
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 8,
                       ),
-                      textStyle: const TextStyle(fontSize: 13),
+                      textStyle: TextStyle(fontSize: 13),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   OutlinedButton.icon(
-                    icon: const Icon(Icons.receipt_long, size: 16),
-                    label: const Text('Cupom'),
+                    icon: Icon(Icons.receipt_long, size: 16),
+                    label: Text('Cupom'),
                     onPressed: onVerCupom,
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 8,
                       ),
-                      textStyle: const TextStyle(fontSize: 13),
+                      textStyle: TextStyle(fontSize: 13),
                     ),
                   ),
                   const Spacer(),
@@ -472,7 +469,7 @@ class _CardPedido extends StatelessWidget {
                           horizontal: 14,
                           vertical: 8,
                         ),
-                        textStyle: const TextStyle(fontSize: 13),
+                        textStyle: TextStyle(fontSize: 13),
                       ),
                       child: Text(_labelProximoStatus),
                     ),
@@ -519,26 +516,25 @@ class _DetalhesPedidoSheet extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.receipt_long, color: Colors.orange),
-                  const SizedBox(width: 8),
-                  const Text(
+                  Icon(Icons.receipt_long, color: Colors.orange),
+                  SizedBox(width: 8),
+                  Text(
                     'Pedido Completo',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close),
+                    icon: Icon(Icons.close),
                   ),
                 ],
               ),
-              const Divider(),
+              Divider(),
               Text(
                 _textoPedido(pedido.nomeCliente, vazio: 'Sem nome'),
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text('Codigo do Cliente: ${_textoPedido(pedido.codigoEntrega)}'),
               Text(
                   'Data: ${DateFormat('dd/MM/yyyy').format(pedido.dataPedido)}'),
@@ -551,43 +547,42 @@ class _DetalhesPedidoSheet extends StatelessWidget {
                 Text('Telefone: ${pedido.telefone!.trim()}'),
               if ((pedido.referencia ?? '').trim().isNotEmpty)
                 Text('Referencia: ${pedido.referencia!.trim()}'),
-              const SizedBox(height: 12),
-              const Text(
+              SizedBox(height: 12),
+              Text(
                 'Itens',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               ...pedido.itens.map(
                 (item) => Card(
                   margin: const EdgeInsets.only(bottom: 8),
                   child: ListTile(
                     dense: true,
                     visualDensity: VisualDensity.compact,
-                    leading:
-                        const Icon(Icons.local_pizza, color: Colors.orange),
+                    leading: Icon(Icons.local_pizza, color: Colors.orange),
                     title: Text(
                       '${item.quantidade}x ${item.tamanhoLabel} - ${item.descricao}',
-                      style: const TextStyle(fontSize: 13),
+                      style: TextStyle(fontSize: 13),
                     ),
                   ),
                 ),
               ),
               if (pedido.observacoes != null &&
                   pedido.observacoes!.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                const Text(
+                SizedBox(height: 8),
+                Text(
                   'Observacoes',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(pedido.observacoes!),
               ],
-              const SizedBox(height: 16),
-              const Text(
+              SizedBox(height: 16),
+              Text(
                 'Status do pedido',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 children: statuses
@@ -604,34 +599,33 @@ class _DetalhesPedidoSheet extends StatelessWidget {
                     )
                     .toList(),
               ),
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: onVerCupom,
-                      icon: const Icon(Icons.receipt_long),
-                      label: const Text('Cupom'),
+                      icon: Icon(Icons.receipt_long),
+                      label: Text('Cupom'),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: onEditar,
-                      icon: const Icon(Icons.edit_outlined),
-                      label: const Text('Editar'),
+                      icon: Icon(Icons.edit_outlined),
+                      label: Text('Editar'),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: onExcluir,
-                  icon: const Icon(Icons.delete_outline, color: Colors.red),
-                  label: const Text('Excluir',
-                      style: TextStyle(color: Colors.red)),
+                  icon: Icon(Icons.delete_outline, color: Colors.red),
+                  label: Text('Excluir', style: TextStyle(color: Colors.red)),
                 ),
               ),
             ],

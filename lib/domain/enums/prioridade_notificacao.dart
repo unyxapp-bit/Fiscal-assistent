@@ -33,7 +33,8 @@ enum PrioridadeNotificacao {
   String toJson() => name;
 
   /// Retorna se deve tocar som
-  bool get deveTocarSom => this == PrioridadeNotificacao.alta ||
+  bool get deveTocarSom =>
+      this == PrioridadeNotificacao.alta ||
       this == PrioridadeNotificacao.critica;
 
   /// Retorna se deve vibrar

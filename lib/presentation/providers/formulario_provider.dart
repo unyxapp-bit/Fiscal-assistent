@@ -28,9 +28,7 @@ class FormularioProvider with ChangeNotifier {
   String get _fiscalId => SupabaseClientManager.currentUserId!;
 
   List<RespostaFormulario> respostasPorFormulario(String formularioId) =>
-      _respostas
-          .where((r) => r.formularioId == formularioId)
-          .toList()
+      _respostas.where((r) => r.formularioId == formularioId).toList()
         ..sort((a, b) => b.preenchidoEm.compareTo(a.preenchidoEm));
 
   int totalRespostasPorFormulario(String formularioId) =>
@@ -147,17 +145,21 @@ class FormularioProvider with ChangeNotifier {
   void adicionarResposta(RespostaFormulario resposta) {
     _respostas.add(resposta);
     notifyListeners();
-    SupabaseClientManager.client.from(_tableR).insert({
-      'id': resposta.id,
-      'fiscal_id': _fiscalId,
-      'formulario_id': resposta.formularioId,
-      'valores': resposta.valores,
-      'preenchido_em': resposta.preenchidoEm.toIso8601String(),
-    }).then((_) {}).catchError((e) {
-      if (kDebugMode) {
-        debugPrint('[FormularioProvider] Erro ao salvar resposta: $e');
-      }
-    });
+    SupabaseClientManager.client
+        .from(_tableR)
+        .insert({
+          'id': resposta.id,
+          'fiscal_id': _fiscalId,
+          'formulario_id': resposta.formularioId,
+          'valores': resposta.valores,
+          'preenchido_em': resposta.preenchidoEm.toIso8601String(),
+        })
+        .then((_) {})
+        .catchError((e) {
+          if (kDebugMode) {
+            debugPrint('[FormularioProvider] Erro ao salvar resposta: $e');
+          }
+        });
   }
 
   void deletarResposta(String id) {
@@ -178,21 +180,25 @@ class FormularioProvider with ChangeNotifier {
   // ─── Sync ─────────────────────────────────────────────────────────────────
 
   void _upsertF(Formulario f) {
-    SupabaseClientManager.client.from(_tableF).upsert({
-      'id': f.id,
-      'fiscal_id': _fiscalId,
-      'titulo': f.titulo,
-      'descricao': f.descricao,
-      'template': f.template,
-      'ativo': f.ativo,
-      'campos': f.campos.map((c) => c.toMap()).toList(),
-      'created_at': f.createdAt.toIso8601String(),
-      'updated_at': f.updatedAt.toIso8601String(),
-    }).then((_) {}).catchError((e) {
-      if (kDebugMode) {
-        debugPrint('[FormularioProvider] Erro ao sincronizar: $e');
-      }
-    });
+    SupabaseClientManager.client
+        .from(_tableF)
+        .upsert({
+          'id': f.id,
+          'fiscal_id': _fiscalId,
+          'titulo': f.titulo,
+          'descricao': f.descricao,
+          'template': f.template,
+          'ativo': f.ativo,
+          'campos': f.campos.map((c) => c.toMap()).toList(),
+          'created_at': f.createdAt.toIso8601String(),
+          'updated_at': f.updatedAt.toIso8601String(),
+        })
+        .then((_) {})
+        .catchError((e) {
+          if (kDebugMode) {
+            debugPrint('[FormularioProvider] Erro ao sincronizar: $e');
+          }
+        });
   }
 
   // ─── Parse ────────────────────────────────────────────────────────────────
@@ -316,16 +322,14 @@ class FormularioProvider with ChangeNotifier {
         template: true,
         campos: [
           _c(oc, 'Data e hora'),
-          _c(oc, 'Tipo de ocorrência',
-              tipo: TipoCampo.opcoes,
-              opcoes: [
-                'Roubo/Furto',
-                'Acidente',
-                'Briga',
-                'Problema com cliente',
-                'Falha de sistema',
-                'Outro'
-              ]),
+          _c(oc, 'Tipo de ocorrência', tipo: TipoCampo.opcoes, opcoes: [
+            'Roubo/Furto',
+            'Acidente',
+            'Briga',
+            'Problema com cliente',
+            'Falha de sistema',
+            'Outro'
+          ]),
           _c(oc, 'Descrição detalhada'),
           _c(oc, 'Pessoas envolvidas'),
           _c(oc, 'Ação tomada'),
@@ -363,8 +367,7 @@ class FormularioProvider with ChangeNotifier {
           _c(pf, 'Seção / Departamento'),
           _c(pf, 'Quantidade estimada', tipo: TipoCampo.numero),
           _c(pf, 'Urgência',
-              tipo: TipoCampo.opcoes,
-              opcoes: ['Alta', 'Média', 'Baixa']),
+              tipo: TipoCampo.opcoes, opcoes: ['Alta', 'Média', 'Baixa']),
           _c(pf, 'Observações', obrigatorio: false),
         ],
         createdAt: now,

@@ -6,7 +6,7 @@ import '../../../../domain/entities/colaborador.dart';
 import '../../../../domain/entities/alocacao.dart';
 import '../../../../domain/enums/departamento_tipo.dart';
 
-/// Card compacto para exibição em grade (3 colunas)
+/// Card compacto para exibiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o em grade (3 colunas)
 class ColaboradorGridCard extends StatelessWidget {
   final Colaborador colaborador;
   final VoidCallback onTap;
@@ -65,17 +65,16 @@ class ColaboradorGridCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ListTile(
-                        leading: const Icon(Icons.edit),
-                        title: const Text('Editar'),
+                        leading: Icon(Icons.edit),
+                        title: Text('Editar'),
                         onTap: () {
                           Navigator.pop(context);
                           onTap();
                         },
                       ),
                       ListTile(
-                        leading:
-                            const Icon(Icons.delete, color: Colors.red),
-                        title: const Text('Deletar',
+                        leading: Icon(Icons.delete, color: Colors.red),
+                        title: Text('Deletar',
                             style: TextStyle(color: Colors.red)),
                         onTap: () {
                           Navigator.pop(context);
@@ -103,17 +102,17 @@ class ColaboradorGridCard extends StatelessWidget {
                 radius: 22,
                 child: Text(
                   colaborador.gerarIniciais(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               Text(
                 colaborador.nome.split(' ').first,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
@@ -121,10 +120,9 @@ class ColaboradorGridCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
@@ -140,18 +138,17 @@ class ColaboradorGridCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-
               if (showDetails) ...[
-                const SizedBox(height: 8),
-                const Divider(height: 1, thickness: 0.5),
-                const SizedBox(height: 6),
+                SizedBox(height: 8),
+                Divider(height: 1, thickness: 0.5),
+                SizedBox(height: 6),
                 if (alocacaoAtual != null) ...[
                   _detalhe(
                     Icons.login,
                     _fmtHora(alocacaoAtual!.alocadoEm),
                     AppColors.statusAtivo,
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   _detalhe(
                     Icons.coffee,
                     alocacaoAtual!.intervaloMarcadoFeito ? 'Feito' : 'Pendente',
@@ -159,7 +156,7 @@ class ColaboradorGridCard extends StatelessWidget {
                         ? AppColors.statusCafe
                         : AppColors.statusAtencao,
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   _detalhe(
                     Icons.logout,
                     alocacaoAtual!.liberadoEm != null
@@ -170,8 +167,8 @@ class ColaboradorGridCard extends StatelessWidget {
                         : AppColors.textSecondary,
                   ),
                 ] else
-                  const Text(
-                    'Disponível',
+                  Text(
+                    'DisponÃƒÆ’Ã‚Â­vel',
                     style: TextStyle(
                       fontSize: 10,
                       color: AppColors.statusAtivo,
@@ -191,7 +188,7 @@ class ColaboradorGridCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Icon(icon, size: 11, color: cor),
-        const SizedBox(width: 3),
+        SizedBox(width: 3),
         Text(
           label,
           style: TextStyle(
@@ -258,7 +255,7 @@ class ColaboradorListItem extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: Dimensions.spacingSM),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-        side: const BorderSide(color: AppColors.cardBorder),
+        side: BorderSide(color: AppColors.cardBorder),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.all(Dimensions.paddingSM),
@@ -275,7 +272,7 @@ class ColaboradorListItem extends StatelessWidget {
             ),
           ),
         ),
-        // Informações principais
+        // InformaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes principais
         title: Text(
           colaborador.nome,
           style: AppTextStyles.subtitle,
@@ -302,9 +299,9 @@ class ColaboradorListItem extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             if (colaborador.observacoes != null) ...[
-              const SizedBox(width: 6),
+              SizedBox(width: 6),
               Expanded(
                 child: Text(
                   colaborador.observacoes!,
@@ -322,7 +319,7 @@ class ColaboradorListItem extends StatelessWidget {
           itemBuilder: (BuildContext context) => [
             PopupMenuItem(
               onTap: onTap,
-              child: const Row(
+              child: Row(
                 children: [
                   Icon(Icons.edit, size: 20),
                   SizedBox(width: 8),
@@ -333,7 +330,7 @@ class ColaboradorListItem extends StatelessWidget {
             if (onDelete != null)
               PopupMenuItem(
                 onTap: onDelete,
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(Icons.delete, size: 20, color: Colors.red),
                     SizedBox(width: 8),

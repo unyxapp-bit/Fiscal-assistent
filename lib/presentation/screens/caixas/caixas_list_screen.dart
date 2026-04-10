@@ -43,13 +43,13 @@ class _CaixasListScreenState extends State<CaixasListScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Caixas'),
+        title: Text('Caixas'),
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
           if (caixaProvider.caixas.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.refresh),
+              icon: Icon(Icons.refresh),
               onPressed: _loadCaixas,
             ),
         ],
@@ -70,7 +70,7 @@ class _CaixasListScreenState extends State<CaixasListScreen> {
                       ? const EmptyStateWidget(
                           icon: Icons.point_of_sale,
                           title: 'Nenhum caixa',
-                          message: 'Você não possui caixas cadastrados',
+                          message: 'VocÃƒÂª nÃƒÂ£o possui caixas cadastrados',
                         )
                       : RefreshIndicator(
                           onRefresh: _loadCaixas,
@@ -96,8 +96,8 @@ class _CaixasListScreenState extends State<CaixasListScreen> {
             ),
           );
         },
-        icon: const Icon(Icons.add),
-        label: const Text('Novo Caixa'),
+        icon: Icon(Icons.add),
+        label: Text('Novo Caixa'),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -117,7 +117,7 @@ class _CaixasListScreenState extends State<CaixasListScreen> {
             color: AppColors.success,
           ),
           _buildStatItem(
-            label: 'Manutenção',
+            label: 'ManutenÃƒÂ§ÃƒÂ£o',
             value: provider.totalEmManutencao.toString(),
             color: Colors.orange,
           ),
@@ -150,7 +150,7 @@ class _CaixasListScreenState extends State<CaixasListScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(
           label,
           style: AppTextStyles.caption.copyWith(
@@ -178,8 +178,7 @@ class _CaixasListScreenState extends State<CaixasListScreen> {
                   color: provider.mostrarApenasAtivos
                       ? AppColors.primary
                       : AppColors.cardBackground,
-                  borderRadius:
-                      BorderRadius.circular(Dimensions.borderRadius),
+                  borderRadius: BorderRadius.circular(Dimensions.borderRadius),
                   border: Border.all(
                     color: provider.mostrarApenasAtivos
                         ? AppColors.primary
@@ -196,7 +195,7 @@ class _CaixasListScreenState extends State<CaixasListScreen> {
                           : AppColors.textPrimary,
                       size: 20,
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Text(
                       provider.mostrarApenasAtivos
                           ? 'Apenas Ativos'

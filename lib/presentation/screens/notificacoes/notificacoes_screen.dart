@@ -16,14 +16,14 @@ class NotificacoesScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Notificações'),
+        title: Text('NotificaÃƒÂ§ÃƒÂµes'),
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
           if (provider.totalNaoLidas > 0)
             TextButton(
               onPressed: () => provider.marcarTodasComoLidas(),
-              child: const Text('Marcar todas'),
+              child: Text('Marcar todas'),
             ),
         ],
       ),
@@ -32,14 +32,14 @@ class NotificacoesScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.notifications_none,
                     size: 64,
                     color: AppColors.inactive,
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   Text(
-                    'Nenhuma notificação',
+                    'Nenhuma notificaÃƒÂ§ÃƒÂ£o',
                     style: AppTextStyles.body.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -55,7 +55,9 @@ class NotificacoesScreen extends StatelessWidget {
                 final timeFormat = DateFormat('HH:mm');
 
                 return Card(
-                  color: notif.lida ? null : AppColors.primary.withValues(alpha: 0.05),
+                  color: notif.lida
+                      ? null
+                      : AppColors.primary.withValues(alpha: 0.05),
                   margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
                   child: ListTile(
                     leading: CircleAvatar(
@@ -68,15 +70,16 @@ class NotificacoesScreen extends StatelessWidget {
                     title: Text(
                       notif.titulo,
                       style: AppTextStyles.h4.copyWith(
-                        fontWeight: notif.lida ? FontWeight.normal : FontWeight.bold,
+                        fontWeight:
+                            notif.lida ? FontWeight.normal : FontWeight.bold,
                       ),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4),
                         Text(notif.mensagem),
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4),
                         Text(
                           timeFormat.format(notif.criadoEm),
                           style: AppTextStyles.caption.copyWith(
@@ -87,7 +90,7 @@ class NotificacoesScreen extends StatelessWidget {
                     ),
                     onTap: () => provider.marcarComoLida(notif.id),
                     trailing: IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: Icon(Icons.close),
                       iconSize: 16,
                       onPressed: () => provider.removerNotificacao(notif.id),
                     ),

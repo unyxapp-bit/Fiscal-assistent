@@ -23,9 +23,9 @@ import '../../../../data/services/notification_service.dart';
 import '../../../providers/ocorrencia_provider.dart';
 import '../../../../core/utils/app_notif.dart';
 
-// ─────────────────────────────────────────────
-// Resultado do cálculo de jornada
-// ─────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// Resultado do cÃƒÂ¡lculo de jornada
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 class JornadaResult {
   final String? entrada;
   final Duration liquida;
@@ -44,9 +44,9 @@ class JornadaResult {
       );
 }
 
-// ─────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 // Bottom sheet com carregamento de registro_ponto
-// ─────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 class ColaboradorDetalhesSheet extends StatefulWidget {
   final Caixa caixa;
   final Colaborador? colaborador;
@@ -86,7 +86,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     if (widget.colaborador != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _carregarRegistro());
     }
-    // Atualiza countdown a cada 30 s quando há horário de intervalo na escala
+    // Atualiza countdown a cada 30 s quando hÃƒÂ¡ horÃƒÂ¡rio de intervalo na escala
     if (widget.turno?.intervalo != null) {
       _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
         if (mounted) setState(() {});
@@ -142,7 +142,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
       return DateTime(base.year, base.month, base.day, h, m);
     }
 
-    // Sem registro de ponto — tenta usar horário de escala como estimativa
+    // Sem registro de ponto Ã¢â‚¬â€ tenta usar horÃƒÂ¡rio de escala como estimativa
     if (r == null || r.entrada == null || r.entrada!.isEmpty) {
       final turnoEntrada = parse(widget.turno?.entrada);
       if (turnoEntrada == null) return JornadaResult.semPonto();
@@ -246,7 +246,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
       if (alocadoEm != null) {
         valor = '${alocadoEm.hour.toString().padLeft(2, '0')}:'
             '${alocadoEm.minute.toString().padLeft(2, '0')}';
-        detalhe = 'pela alocação';
+        detalhe = 'pela alocaÃƒÂ§ÃƒÂ£o';
         icone = Icons.access_time;
         cor = AppColors.textSecondary;
       } else {
@@ -284,13 +284,13 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     late final Color cor;
 
     if (_carregando) {
-      titulo = 'Jornada líquida';
+      titulo = 'Jornada lÃƒÂ­quida';
       valor = '--';
-      detalhe = 'Aguardando cálculo';
+      detalhe = 'Aguardando cÃƒÂ¡lculo';
       icone = Icons.timer_outlined;
       cor = AppColors.textSecondary;
     } else if (jornada.status == 'sem_ponto') {
-      titulo = 'Jornada líquida';
+      titulo = 'Jornada lÃƒÂ­quida';
       valor = 'Sem ponto';
       detalhe = 'sem registro de hoje';
       icone = Icons.timer_off_outlined;
@@ -302,7 +302,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
       icone = Icons.timelapse_outlined;
       cor = AppColors.statusAtencao;
     } else {
-      titulo = 'Jornada líquida';
+      titulo = 'Jornada lÃƒÂ­quida';
       valor = _formatDuracao(jornada.liquida);
       detalhe = _statusResumo(jornada.status);
       icone = Icons.timer_outlined;
@@ -336,21 +336,21 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
 
       if (cafeProvider.colaboradorEmPausa(colaborador.id)) {
         final minutos = widget.pausa?.minutosDecorridos;
-        valor = minutos != null ? '$minutos min' : 'Em café';
-        detalhe = minutos != null ? 'pausa ativa no café' : 'pausa ativa';
+        valor = minutos != null ? '$minutos min' : 'Em cafÃƒÂ©';
+        detalhe = minutos != null ? 'pausa ativa no cafÃƒÂ©' : 'pausa ativa';
         icone = Icons.coffee;
         cor = AppColors.statusCafe;
       } else if (widget.alocacaoProvider.isIntervaloMarcado(colaborador.id) ||
           cafeProvider.colaboradorJaFezIntervaloHoje(colaborador.id)) {
-        valor = 'Concluído';
-        detalhe = 'intervalo já registrado';
+        valor = 'ConcluÃƒÂ­do';
+        detalhe = 'intervalo jÃƒÂ¡ registrado';
         icone = Icons.check_circle;
         cor = AppColors.success;
       } else {
         final intervaloStr =
             _registroHoje?.intervaloSaida ?? widget.turno?.intervalo;
         if (intervaloStr == null || intervaloStr.isEmpty) {
-          valor = 'Sem horário';
+          valor = 'Sem horÃƒÂ¡rio';
           detalhe = 'nenhum intervalo previsto';
           icone = Icons.event_busy;
           cor = AppColors.textSecondary;
@@ -360,8 +360,8 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
           final m = parts.length >= 2 ? int.tryParse(parts[1]) : null;
 
           if (h == null || m == null) {
-            valor = 'Sem horário';
-            detalhe = 'intervalo inválido';
+            valor = 'Sem horÃƒÂ¡rio';
+            detalhe = 'intervalo invÃƒÂ¡lido';
             icone = Icons.event_busy;
             cor = AppColors.textSecondary;
           } else {
@@ -379,7 +379,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
               final passou = diff.inMinutes.abs();
               valor = passou == 0 ? 'Agora' : '$passou min';
               detalhe = passou == 0
-                  ? 'horário do intervalo ($intervaloStr)'
+                  ? 'horÃƒÂ¡rio do intervalo ($intervaloStr)'
                   : 'aguardando desde $intervaloStr';
               icone = Icons.schedule;
               cor = AppColors.warning;
@@ -446,14 +446,14 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
             ),
           ),
 
-          // Cabeçalho
+          // CabeÃƒÂ§alho
           Row(
             children: [
               Icon(widget.caixa.tipo.icone,
                   color: widget.caixa.tipo.cor, size: 22),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(widget.caixa.nomeExibicao, style: AppTextStyles.h2),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
@@ -467,7 +467,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                 ),
               ),
               if (widget.caixa.localizacao != null) ...[
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -478,9 +478,9 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.location_on,
+                      Icon(Icons.location_on,
                           size: 12, color: AppColors.textSecondary),
-                      const SizedBox(width: 3),
+                      SizedBox(width: 3),
                       Text(
                         widget.caixa.localizacao!,
                         style: AppTextStyles.caption
@@ -493,9 +493,9 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
             ],
           ),
 
-          const Divider(height: 24),
+          Divider(height: 24),
 
-          // ── INFO DO CAIXA ─────────────────────────────────────────────────
+          // Ã¢â€â‚¬Ã¢â€â‚¬ INFO DO CAIXA Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
           _SobreCaixaSection(
             caixa: widget.caixa,
             ocorrencias: ocorrenciasCaixa,
@@ -511,14 +511,14 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                   backgroundColor: AppColors.primary,
                   child: Text(
                     widget.colaborador!.iniciais,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -535,9 +535,9 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
               ],
             ),
 
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
 
-            // Alerta de pausa de café
+            // Alerta de pausa de cafÃƒÂ©
             if (widget.pausa != null)
               Container(
                 margin: const EdgeInsets.only(bottom: 12),
@@ -550,9 +550,9 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                 child: Row(
                   children: [
                     Icon(Icons.coffee, color: Colors.orange.shade700, size: 18),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Text(
-                      'Em pausa de café — ${widget.pausa.minutosDecorridos}min decorridos'
+                      'Em pausa de cafÃƒÂ© Ã¢â‚¬â€ ${widget.pausa.minutosDecorridos}min decorridos'
                       '${widget.pausa.emAtraso ? ' (${widget.pausa.minutosExcedidos}min em atraso)' : ''}',
                       style: AppTextStyles.caption.copyWith(
                         color: Colors.orange.shade800,
@@ -565,7 +565,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
 
             _buildOperacaoDashboard(jornada),
 
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             if (widget.turno != null) ...[
               InkWell(
                 onTap: () => setState(() => _mostrarEscala = !_mostrarEscala),
@@ -574,10 +574,10 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                   padding: const EdgeInsets.symmetric(vertical: 6),
                   child: Row(
                     children: [
-                      const Icon(Icons.schedule,
+                      Icon(Icons.schedule,
                           size: 16, color: AppColors.textSecondary),
-                      const SizedBox(width: 6),
-                      const Text(
+                      SizedBox(width: 6),
+                      Text(
                         'Escala de hoje',
                         style: AppTextStyles.label,
                       ),
@@ -593,18 +593,18 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                 ),
               ),
               if (_mostrarEscala) ...[
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 HorarioGrid(turno: widget.turno!),
               ],
             ],
 
             if (widget.alocacao != null) ...[
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
-              // ── AÇÕES RÁPIDAS ─────────────────────────────────────────────
+              // Ã¢â€â‚¬Ã¢â€â‚¬ AÃƒâ€¡Ãƒâ€¢ES RÃƒÂPIDAS Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   border: Border(
                     top: BorderSide(color: AppColors.cardBorder),
                     bottom: BorderSide(color: AppColors.cardBorder),
@@ -614,14 +614,14 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'AÇÕES RÁPIDAS',
+                      'AÃƒâ€¡Ãƒâ€¢ES RÃƒÂPIDAS',
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.textSecondary,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.8,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10),
                     Row(
                       children: [
                         Expanded(
@@ -632,16 +632,16 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                             onTap: _trocarColaborador,
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Expanded(
                           child: _buildActionBtn(
                             icon: Icons.coffee,
-                            label: 'Café',
+                            label: 'CafÃƒÂ©',
                             color: const Color(0xFF8D6E63),
                             onTap: _enviarParaCafe,
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Expanded(
                           child: _buildActionBtn(
                             icon: Icons.restaurant,
@@ -652,20 +652,20 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Row(
                       children: [
                         Expanded(
                           child: _buildActionBtn(
                             icon: Icons.report_problem,
-                            label: 'Ocorrência',
+                            label: 'OcorrÃƒÂªncia',
                             color: AppColors.danger,
                             onTap: _registrarOcorrencia,
                           ),
                         ),
                       ],
                     ),
-                    // ── Botão "Intervalo já feito" ─────────────────────────
+                    // Ã¢â€â‚¬Ã¢â€â‚¬ BotÃƒÂ£o "Intervalo jÃƒÂ¡ feito" Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                     Builder(builder: (context) {
                       if (widget.turno?.intervalo == null) {
                         return const SizedBox.shrink();
@@ -692,8 +692,8 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                         child: OutlinedButton.icon(
                           onPressed: jaMarcado
                               ? () {
-                                  // Intervalo já feito no horário correto:
-                                  // remove o estado "aguardando liberação" e fecha
+                                  // Intervalo jÃƒÂ¡ feito no horÃƒÂ¡rio correto:
+                                  // remove o estado "aguardando liberaÃƒÂ§ÃƒÂ£o" e fecha
                                   widget.alocacaoProvider
                                       .desmarcarAguardandoIntervalo(
                                           widget.colaborador!.id);
@@ -707,8 +707,8 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                             size: 18,
                           ),
                           label: Text(jaMarcado
-                              ? 'Intervalo já registrado'
-                              : 'Intervalo já feito'),
+                              ? 'Intervalo jÃƒÂ¡ registrado'
+                              : 'Intervalo jÃƒÂ¡ feito'),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.green.shade700,
                             side: BorderSide(
@@ -721,12 +721,12 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                       );
                     }),
 
-                    // ── Botão "Aguardando liberação para intervalo" ────────
+                    // Ã¢â€â‚¬Ã¢â€â‚¬ BotÃƒÂ£o "Aguardando liberaÃƒÂ§ÃƒÂ£o para intervalo" Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                     Builder(builder: (context) {
                       final cafeProvider = Provider.of<CafeProvider>(
                           widget.providerContext,
                           listen: false);
-                      // Não mostrar se já está em pausa ou intervalo marcado
+                      // NÃƒÂ£o mostrar se jÃƒÂ¡ estÃƒÂ¡ em pausa ou intervalo marcado
                       if (cafeProvider
                           .colaboradorEmPausa(widget.colaborador!.id)) {
                         return const SizedBox.shrink();
@@ -785,8 +785,8 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                             size: 18,
                           ),
                           label: Text(aguardando
-                              ? 'Aguardando liberação (toque para cancelar)'
-                              : 'Aguardando liberação para intervalo'),
+                              ? 'Aguardando liberaÃƒÂ§ÃƒÂ£o (toque para cancelar)'
+                              : 'Aguardando liberaÃƒÂ§ÃƒÂ£o para intervalo'),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: aguardando
                                 ? AppColors.warning
@@ -805,7 +805,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
               ElevatedButton.icon(
                 onPressed: () async {
@@ -839,7 +839,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                     cor: AppColors.success,
                   );
                 },
-                icon: const Icon(Icons.exit_to_app),
+                icon: Icon(Icons.exit_to_app),
                 label: Text(widget.liberarLabel),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.danger,
@@ -847,7 +847,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                 ),
               ),
             ] else if (widget.pausa != null) ...[
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -860,12 +860,12 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.info_outline,
                       color: AppColors.statusCafe,
                       size: 18,
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Esta pessoa esta em pausa no momento. As acoes de troca e liberacao voltam a aparecer quando houver nova alocacao ativa.',
@@ -881,14 +881,14 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
           ] else ...[
             Text(
               widget.caixa.emManutencao
-                  ? 'Caixa em manutenção'
+                  ? 'Caixa em manutenÃƒÂ§ÃƒÂ£o'
                   : !widget.caixa.ativo
                       ? 'Caixa inativo'
-                      : 'Caixa disponível',
+                      : 'Caixa disponÃƒÂ­vel',
               style: AppTextStyles.body,
             ),
             if (widget.caixa.ativo && !widget.caixa.emManutencao) ...[
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               ElevatedButton.icon(
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -904,8 +904,8 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                     ),
                   );
                 },
-                icon: const Icon(Icons.swap_horiz),
-                label: const Text('Alocar Colaborador'),
+                icon: Icon(Icons.swap_horiz),
+                label: Text('Alocar Colaborador'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   minimumSize: const Size(double.infinity, 48),
@@ -918,7 +918,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     );
   }
 
-  // ── Botão de ação compacto ──────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ BotÃƒÂ£o de aÃƒÂ§ÃƒÂ£o compacto Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   Widget _buildActionBtn({
     required IconData icon,
@@ -940,7 +940,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, color: color, size: 20),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
@@ -955,7 +955,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     );
   }
 
-  // ── Trocar Colaborador ─────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Trocar Colaborador Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   void _trocarColaborador() {
     final colaboradorProvider =
@@ -976,7 +976,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     final disponiveis = colaboradorProvider.colaboradores.where((c) {
       if (!c.ativo) return false;
       if (idsAlocados.contains(c.id)) return false;
-      // Excluir quem está em pausa de café
+      // Excluir quem estÃƒÂ¡ em pausa de cafÃƒÂ©
       if (cafeProvider.colaboradorEmPausa(c.id)) return false;
       // Excluir quem sai em menos de 30 minutos
       final turno = escalaProvider.getTurno(c.id, agora);
@@ -994,7 +994,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -1021,8 +1021,8 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                       ),
                     ),
                   ),
-                  const Text('Trocar Colaborador', style: AppTextStyles.h3),
-                  const SizedBox(height: 4),
+                  Text('Trocar Colaborador', style: AppTextStyles.h3),
+                  SizedBox(height: 4),
                   Text(
                     'Substituto para ${widget.caixa.nomeExibicao}',
                     style: AppTextStyles.caption
@@ -1031,13 +1031,13 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                 ],
               ),
             ),
-            const Divider(height: 1),
+            Divider(height: 1),
             Expanded(
               child: disponiveis.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Padding(
                         padding: EdgeInsets.all(24),
-                        child: Text('Nenhum colaborador disponível'),
+                        child: Text('Nenhum colaborador disponÃƒÂ­vel'),
                       ),
                     )
                   : ListView.builder(
@@ -1051,7 +1051,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                                 Colors.blue.withValues(alpha: 0.10),
                             child: Text(
                               c.iniciais,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.blue,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
@@ -1061,8 +1061,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                           title: Text(c.nome, style: AppTextStyles.body),
                           subtitle: Text(c.departamento.nome,
                               style: AppTextStyles.caption),
-                          trailing:
-                              const Icon(Icons.arrow_forward_ios, size: 14),
+                          trailing: Icon(Icons.arrow_forward_ios, size: 14),
                           onTap: () => _confirmarTroca(sheetCtx, c),
                         );
                       },
@@ -1086,19 +1085,18 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Confirmar Troca'),
+        title: Text('Confirmar Troca'),
         content: Text(
             'Substituir ${widget.colaborador!.nome} por ${novo.nome} no ${widget.caixa.nomeExibicao}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-            child:
-                const Text('Confirmar', style: TextStyle(color: Colors.white)),
+            child: Text('Confirmar', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -1143,7 +1141,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     }
   }
 
-  // ── Café ───────────────────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ CafÃƒÂ© Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   Future<void> _enviarParaCafe() async {
     final providerCtx = widget.providerContext;
@@ -1157,20 +1155,19 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Enviar para Café ☕'),
+        title: Text('Enviar para CafÃƒÂ© Ã¢Ëœâ€¢'),
         content: Text(
-            'Enviar ${widget.colaborador!.nome} para 10 min de café?\nO caixa será liberado automaticamente.'),
+            'Enviar ${widget.colaborador!.nome} para 10 min de cafÃƒÂ©?\nO caixa serÃƒÂ¡ liberado automaticamente.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF8D6E63)),
-            child:
-                const Text('Confirmar', style: TextStyle(color: Colors.white)),
+            child: Text('Confirmar', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -1199,16 +1196,16 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
       navigator.pop();
       AppNotif.show(
         providerCtx,
-        titulo: 'Café Iniciado',
+        titulo: 'CafÃƒÂ© Iniciado',
         mensagem:
-            '${widget.colaborador!.nome} — pausa de café iniciada (10 min)',
+            '${widget.colaborador!.nome} Ã¢â‚¬â€ pausa de cafÃƒÂ© iniciada (10 min)',
         tipo: 'cafe',
         cor: const Color(0xFF8D6E63),
       );
     }
   }
 
-  // ── Intervalo ──────────────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Intervalo Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   Future<void> _enviarParaIntervalo() async {
     int duracaoMinutos = 60;
@@ -1248,9 +1245,9 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     if (jaFezIntervalo) {
       AppNotif.show(
         providerCtx,
-        titulo: 'Intervalo já realizado',
+        titulo: 'Intervalo jÃƒÂ¡ realizado',
         mensagem:
-            'Este colaborador já fez o intervalo hoje. Disponível somente para café (10 min).',
+            'Este colaborador jÃƒÂ¡ fez o intervalo hoje. DisponÃƒÂ­vel somente para cafÃƒÂ© (10 min).',
         tipo: 'intervalo',
         cor: Colors.orange,
       );
@@ -1260,19 +1257,18 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Enviar para Intervalo 🍽️'),
+        title: Text('Enviar para Intervalo Ã°Å¸ÂÂ½Ã¯Â¸Â'),
         content: Text(
-            'Enviar ${widget.colaborador!.nome} para intervalo de $duracaoMinutos min?\nO caixa será liberado e uma notificação de retorno será agendada.'),
+            'Enviar ${widget.colaborador!.nome} para intervalo de $duracaoMinutos min?\nO caixa serÃƒÂ¡ liberado e uma notificaÃƒÂ§ÃƒÂ£o de retorno serÃƒÂ¡ agendada.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-            child:
-                const Text('Confirmar', style: TextStyle(color: Colors.white)),
+            child: Text('Confirmar', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -1301,7 +1297,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     final retornoEm = DateTime.now().add(Duration(minutes: duracaoMinutos));
     NotificationService.instance.scheduleAlert(
       id: (widget.colaborador!.id.hashCode.abs() % 100000) + 1,
-      title: 'Intervalo encerrado 🍽️',
+      title: 'Intervalo encerrado Ã°Å¸ÂÂ½Ã¯Â¸Â',
       body:
           '${widget.colaborador!.nome} deve ser realocado(a) apos o intervalo.',
       scheduledAt: retornoEm,
@@ -1313,7 +1309,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
         providerCtx,
         titulo: 'Intervalo Iniciado',
         mensagem:
-            '${widget.colaborador!.nome} — intervalo de $duracaoMinutos min. Notificação agendada.',
+            '${widget.colaborador!.nome} Ã¢â‚¬â€ intervalo de $duracaoMinutos min. NotificaÃƒÂ§ÃƒÂ£o agendada.',
         tipo: 'intervalo',
         cor: Colors.orange,
       );
@@ -1324,22 +1320,22 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Intervalo já realizado?'),
-        content: const Text(
+        title: Text('Intervalo jÃƒÂ¡ realizado?'),
+        content: Text(
           'Esse colaborador fez o tempo completo do intervalo?',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Não'),
+            child: Text('NÃƒÂ£o'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Sim'),
+            child: Text('Sim'),
           ),
         ],
       ),
@@ -1356,13 +1352,13 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
         builder: (_, setStateDialog) {
           final podeSalvar = controller.text.trim().isNotEmpty;
           return AlertDialog(
-            title: const Text('Motivo do intervalo incompleto'),
+            title: Text('Motivo do intervalo incompleto'),
             content: TextField(
               controller: controller,
               maxLines: 4,
               autofocus: true,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: 'Descreva o motivo...',
               ),
               onChanged: (_) => setStateDialog(() {}),
@@ -1370,7 +1366,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: const Text('Cancelar'),
+                child: Text('Cancelar'),
               ),
               ElevatedButton(
                 onPressed: !podeSalvar
@@ -1379,7 +1375,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                         motivo = controller.text.trim();
                         Navigator.pop(ctx);
                       },
-                child: const Text('Salvar'),
+                child: Text('Salvar'),
               ),
             ],
           );
@@ -1427,7 +1423,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
           tipo: TipoEvento.ocorrenciaRegistrada,
           colaboradorNome: widget.colaborador!.nome,
           caixaNome: widget.caixa.nomeExibicao,
-          detalhe: 'Intervalo incompleto - Média',
+          detalhe: 'Intervalo incompleto - MÃƒÂ©dia',
         );
       }
     }
@@ -1457,7 +1453,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
       titulo: 'Intervalo atualizado',
       mensagem: fezCompleto
           ? '${widget.colaborador!.nome} foi marcado(a) com intervalo feito.'
-          : 'Ocorrência registrada e intervalo marcado como feito.',
+          : 'OcorrÃƒÂªncia registrada e intervalo marcado como feito.',
       tipo: 'saida',
       cor: AppColors.success,
     );
@@ -1490,9 +1486,9 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
   }
 }
 
-// ─────────────────────────────────────────────
-// Seção "Sobre este Caixa"
-// ─────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// SeÃƒÂ§ÃƒÂ£o "Sobre este Caixa"
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 class _SobreCaixaSection extends StatefulWidget {
   final Caixa caixa;
   final List<Ocorrencia> ocorrencias;
@@ -1522,7 +1518,7 @@ class _SobreCaixaSectionState extends State<_SobreCaixaSection> {
         ? widget.ocorrencias
         : widget.ocorrencias.take(3).toList();
 
-    // Se não há nada para mostrar, não renderiza nada
+    // Se nÃƒÂ£o hÃƒÂ¡ nada para mostrar, nÃƒÂ£o renderiza nada
     if (!temObservacoes && widget.ocorrencias.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -1530,7 +1526,7 @@ class _SobreCaixaSectionState extends State<_SobreCaixaSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Label da seção
+        // Label da seÃƒÂ§ÃƒÂ£o
         Padding(
           padding: const EdgeInsets.only(bottom: 8),
           child: Text(
@@ -1543,7 +1539,7 @@ class _SobreCaixaSectionState extends State<_SobreCaixaSection> {
           ),
         ),
 
-        // ── Observações ───────────────────────────────────────────────────
+        // Ã¢â€â‚¬Ã¢â€â‚¬ ObservaÃƒÂ§ÃƒÂµes Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         if (temObservacoes)
           Container(
             margin: const EdgeInsets.only(bottom: 8),
@@ -1556,9 +1552,9 @@ class _SobreCaixaSectionState extends State<_SobreCaixaSection> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.sticky_note_2_outlined,
+                Icon(Icons.sticky_note_2_outlined,
                     size: 15, color: AppColors.textSecondary),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     widget.caixa.observacoes!,
@@ -1569,21 +1565,21 @@ class _SobreCaixaSectionState extends State<_SobreCaixaSection> {
             ),
           ),
 
-        // ── Ocorrências vinculadas ────────────────────────────────────────
+        // Ã¢â€â‚¬Ã¢â€â‚¬ OcorrÃƒÂªncias vinculadas Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         if (widget.ocorrencias.isNotEmpty) ...[
           // Contador resumo
           Row(
             children: [
-              const Icon(Icons.report_outlined,
+              Icon(Icons.report_outlined,
                   size: 14, color: AppColors.textSecondary),
-              const SizedBox(width: 4),
+              SizedBox(width: 4),
               Text(
-                '${widget.ocorrencias.length} ocorrência(s)',
+                '${widget.ocorrencias.length} ocorrÃƒÂªncia(s)',
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary),
               ),
               if (ocorrenciasAbertas.isNotEmpty) ...[
-                const SizedBox(width: 6),
+                SizedBox(width: 6),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -1600,7 +1596,7 @@ class _SobreCaixaSectionState extends State<_SobreCaixaSection> {
               ],
               if (ocorrenciasResolvidas.isNotEmpty &&
                   ocorrenciasAbertas.isEmpty) ...[
-                const SizedBox(width: 6),
+                SizedBox(width: 6),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -1617,12 +1613,12 @@ class _SobreCaixaSectionState extends State<_SobreCaixaSection> {
               ],
             ],
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
 
-          // Lista compacta de ocorrências
+          // Lista compacta de ocorrÃƒÂªncias
           ...ocorrenciasVisiveis.map((o) => _OcorrenciaRow(ocorrencia: o)),
 
-          // Botão "Ver mais / menos"
+          // BotÃƒÂ£o "Ver mais / menos"
           if (widget.ocorrencias.length > 3)
             GestureDetector(
               onTap: () => setState(
@@ -1652,15 +1648,15 @@ class _SobreCaixaSectionState extends State<_SobreCaixaSection> {
             ),
         ],
 
-        const Divider(height: 20),
+        Divider(height: 20),
       ],
     );
   }
 }
 
-// ─────────────────────────────────────────────
-// Linha compacta de ocorrência
-// ─────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// Linha compacta de ocorrÃƒÂªncia
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 class _OcorrenciaRow extends StatelessWidget {
   final Ocorrencia ocorrencia;
 
@@ -1695,7 +1691,7 @@ class _OcorrenciaRow extends StatelessWidget {
               shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1719,7 +1715,7 @@ class _OcorrenciaRow extends StatelessWidget {
                   ],
                 ),
                 if (ocorrencia.descricao.isNotEmpty) ...[
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text(
                     ocorrencia.descricao,
                     style: AppTextStyles.caption
@@ -1731,7 +1727,7 @@ class _OcorrenciaRow extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
           // Badge resolvida/aberta
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
@@ -1757,9 +1753,9 @@ class _OcorrenciaRow extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 // Badge de status da jornada
-// ─────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 // Card base do dashboard operacional
 class _DashboardInfoCard extends StatelessWidget {
@@ -1810,7 +1806,7 @@ class _DashboardInfoCard extends StatelessWidget {
                 ),
                 child: Icon(icone, size: 18, color: cor),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Expanded(
                 child: Text(
                   titulo.toUpperCase(),
@@ -1822,12 +1818,12 @@ class _DashboardInfoCard extends StatelessWidget {
                 ),
               ),
               if (trailing != null) ...[
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Flexible(child: trailing!),
               ],
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Text(
             valor,
             style: AppTextStyles.h4.copyWith(
@@ -1835,7 +1831,7 @@ class _DashboardInfoCard extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             detalhe,
             style: AppTextStyles.caption.copyWith(
@@ -1878,7 +1874,7 @@ class StatusBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: color),
-          const SizedBox(width: 5),
+          SizedBox(width: 5),
           Text(
             label,
             style: AppTextStyles.caption.copyWith(
@@ -1892,29 +1888,29 @@ class StatusBadge extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-// Linha de informação com ícone
-// ─────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// Linha de informaÃƒÂ§ÃƒÂ£o com ÃƒÂ­cone
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 class InfoRow extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
-  final Color iconColor;
+  final Color? iconColor;
 
-  const InfoRow({
+  InfoRow({
     super.key,
     required this.icon,
     required this.label,
     required this.value,
-    this.iconColor = AppColors.textSecondary,
+    this.iconColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: iconColor),
-        const SizedBox(width: 6),
+        Icon(icon, size: 16, color: iconColor ?? AppColors.textSecondary),
+        SizedBox(width: 6),
         Text(
           '$label: ',
           style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
@@ -1927,9 +1923,9 @@ class InfoRow extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-// Grid 2×2 com horários da escala de hoje
-// ─────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// Grid 2Ãƒâ€”2 com horÃƒÂ¡rios da escala de hoje
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 class HorarioGrid extends StatelessWidget {
   final TurnoLocal turno;
 
@@ -1951,7 +1947,7 @@ class HorarioGrid extends StatelessWidget {
             label: 'Intervalo',
             value: turno.intervalo),
         HorarioChip(icon: Icons.replay, label: 'Retorno', value: turno.retorno),
-        HorarioChip(icon: Icons.logout, label: 'Saída', value: turno.saida),
+        HorarioChip(icon: Icons.logout, label: 'SaÃƒÂ­da', value: turno.saida),
       ],
     );
   }
@@ -1981,7 +1977,7 @@ class HorarioChip extends StatelessWidget {
       child: Row(
         children: [
           Icon(icon, size: 13, color: AppColors.textSecondary),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1989,8 +1985,7 @@ class HorarioChip extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
-                      fontSize: 9, color: AppColors.textSecondary),
+                  style: TextStyle(fontSize: 9, color: AppColors.textSecondary),
                 ),
                 Text(
                   value ?? '--:--',

@@ -7,8 +7,10 @@ class SupabaseClientManager {
 
   static Future<void> initialize() async {
     // Tenta carregar do .env, com fallback para valores hardcoded
-    final url = dotenv.env['SUPABASE_URL'] ?? 'https://rpbqquxnnpsiyredhkvv.supabase.co';
-    final anonKey = dotenv.env['SUPABASE_ANON_KEY'] ?? 'sb_publishable_ysgHVMVFL_9LA1kEGa1FGQ_HlHIn3dV';
+    final url = dotenv.env['SUPABASE_URL'] ??
+        'https://rpbqquxnnpsiyredhkvv.supabase.co';
+    final anonKey = dotenv.env['SUPABASE_ANON_KEY'] ??
+        'sb_publishable_ysgHVMVFL_9LA1kEGa1FGQ_HlHIn3dV';
 
     if (url.isEmpty) {
       throw Exception('SUPABASE_URL não configurada');
@@ -21,7 +23,8 @@ class SupabaseClientManager {
     // Debug: mostra se as chaves foram carregadas (apenas primeiros/últimos caracteres)
     if (dotenv.env['ENVIRONMENT'] == 'development') {
       debugPrint('[Supabase] URL carregada: ${url.substring(0, 30)}...');
-      debugPrint('[Supabase] Key carregada: ${anonKey.substring(0, 20)}...${anonKey.substring(anonKey.length - 10)}');
+      debugPrint(
+          '[Supabase] Key carregada: ${anonKey.substring(0, 20)}...${anonKey.substring(anonKey.length - 10)}');
     }
 
     await Supabase.initialize(

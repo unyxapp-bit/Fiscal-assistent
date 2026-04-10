@@ -164,7 +164,7 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
       await CupomConfigService.salvar(_fromForm());
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('Configuracao do cupom salva com sucesso.'),
         ),
       );
@@ -191,7 +191,7 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Configuracao padrao restaurada.')),
+        SnackBar(content: Text('Configuracao padrao restaurada.')),
       );
     } catch (e) {
       if (!mounted) return;
@@ -325,13 +325,13 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
             Row(
               children: [
                 Icon(icon, color: AppColors.primary),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Expanded(child: Text(titulo, style: AppTextStyles.h4)),
               ],
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(descricao, style: AppTextStyles.caption),
-            const SizedBox(height: Dimensions.spacingMD),
+            SizedBox(height: Dimensions.spacingMD),
             ...children,
           ],
         ),
@@ -399,7 +399,7 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 16, color: AppColors.primary),
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
           Text('$label: ', style: AppTextStyles.caption),
           Text(value, style: AppTextStyles.label),
         ],
@@ -422,11 +422,11 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
                     color: AppColors.secondary,
                     borderRadius: BorderRadius.circular(Dimensions.radiusSM),
                   ),
-                  child: const Icon(Icons.receipt_long_outlined,
+                  child: Icon(Icons.receipt_long_outlined,
                       color: AppColors.primary),
                 ),
-                const SizedBox(width: 10),
-                const Expanded(
+                SizedBox(width: 10),
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -440,7 +440,7 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: Dimensions.spacingMD),
+            SizedBox(height: Dimensions.spacingMD),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -486,33 +486,33 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
           label: _tamanhoFonte.toStringAsFixed(0),
           onChanged: (v) => setState(() => _tamanhoFonte = v),
         ),
-        const SizedBox(height: 4),
-        const Text(
+        SizedBox(height: 4),
+        Text(
           'Simulacao de largura da bobina',
           style: AppTextStyles.label,
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         Wrap(
           spacing: 8,
           children: [
             ChoiceChip(
-              label: const Text('58mm (mais comum)'),
+              label: Text('58mm (mais comum)'),
               selected: _previewLarguraMm == 58,
               onSelected: (_) => setState(() => _previewLarguraMm = 58),
             ),
             ChoiceChip(
-              label: const Text('80mm'),
+              label: Text('80mm'),
               selected: _previewLarguraMm == 80,
               onSelected: (_) => setState(() => _previewLarguraMm = 80),
             ),
           ],
         ),
-        const SizedBox(height: 8),
-        const Text(
+        SizedBox(height: 8),
+        Text(
           'A impressao web usa ajuste automatico para reduzir corte lateral.',
           style: AppTextStyles.caption,
         ),
-        const Divider(height: 24),
+        Divider(height: 24),
         _switchTile(
           value: _centralizarCabecalho,
           title: 'Centralizar cabecalho',
@@ -587,9 +587,9 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.visibility_outlined, color: AppColors.primary),
-                const SizedBox(width: 8),
-                const Expanded(
+                Icon(Icons.visibility_outlined, color: AppColors.primary),
+                SizedBox(width: 8),
+                Expanded(
                     child: Text('Preview do Cupom', style: AppTextStyles.h4)),
                 Container(
                   padding:
@@ -609,12 +609,12 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            const Text(
+            SizedBox(height: 8),
+            Text(
               'Simulacao visual do texto final que sera usado na impressao.',
               style: AppTextStyles.caption,
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
@@ -644,16 +644,16 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
         Expanded(
           child: OutlinedButton.icon(
             onPressed: _saving ? null : _restaurarPadrao,
-            icon: const Icon(Icons.refresh),
-            label: const Text('Restaurar'),
+            icon: Icon(Icons.refresh),
+            label: Text('Restaurar'),
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         Expanded(
           child: FilledButton.icon(
             onPressed: _saving ? null : _salvar,
             icon: _saving
-                ? const SizedBox(
+                ? SizedBox(
                     width: 16,
                     height: 16,
                     child: CircularProgressIndicator(
@@ -661,8 +661,8 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
                       color: Colors.white,
                     ),
                   )
-                : const Icon(Icons.save_outlined),
-            label: const Text('Salvar'),
+                : Icon(Icons.save_outlined),
+            label: Text('Salvar'),
           ),
         ),
       ],
@@ -697,7 +697,7 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
           ),
         ],
       ),
-      const SizedBox(height: Dimensions.spacingMD),
+      SizedBox(height: Dimensions.spacingMD),
       _secao(
         icon: Icons.location_on_outlined,
         titulo: 'Endereco e Contato',
@@ -735,9 +735,9 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
           ),
         ],
       ),
-      const SizedBox(height: Dimensions.spacingMD),
+      SizedBox(height: Dimensions.spacingMD),
       _configuracaoVisual(),
-      const SizedBox(height: Dimensions.spacingMD),
+      SizedBox(height: Dimensions.spacingMD),
       _mensagensRegras(),
     ];
   }
@@ -747,12 +747,12 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Dados do Cupom'),
+        title: Text('Dados do Cupom'),
         backgroundColor: AppColors.background,
         elevation: 0,
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator())
           : Form(
               key: _formKey,
               child: LayoutBuilder(
@@ -778,14 +778,14 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 _resumoConfig(),
-                                const SizedBox(height: Dimensions.spacingMD),
+                                SizedBox(height: Dimensions.spacingMD),
                                 ...secoes,
-                                const SizedBox(height: Dimensions.spacingMD),
+                                SizedBox(height: Dimensions.spacingMD),
                                 _acoesRodape(),
                               ],
                             ),
                           ),
-                          const SizedBox(width: Dimensions.spacingMD),
+                          SizedBox(width: Dimensions.spacingMD),
                           Expanded(
                             flex: 2,
                             child: Column(
@@ -809,11 +809,11 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
                     ),
                     children: [
                       _resumoConfig(),
-                      const SizedBox(height: Dimensions.spacingMD),
+                      SizedBox(height: Dimensions.spacingMD),
                       ...secoes,
-                      const SizedBox(height: Dimensions.spacingMD),
+                      SizedBox(height: Dimensions.spacingMD),
                       _previewCard(),
-                      const SizedBox(height: Dimensions.spacingMD),
+                      SizedBox(height: Dimensions.spacingMD),
                       _acoesRodape(),
                     ],
                   );

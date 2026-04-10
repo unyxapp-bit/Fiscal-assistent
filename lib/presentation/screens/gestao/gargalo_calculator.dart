@@ -66,10 +66,11 @@ class GargaloCalculator {
         if (s.turno.departamento != setor) continue;
         if (!s.turno.trabalhando) continue;
 
-        final entrada = s.alocacao?.alocadoEm ?? _parseTurnoTime(
-          s.turno.data,
-          s.turno.entrada,
-        );
+        final entrada = s.alocacao?.alocadoEm ??
+            _parseTurnoTime(
+              s.turno.data,
+              s.turno.entrada,
+            );
         var saida = _parseTurnoTime(s.turno.data, s.turno.saida);
         var intervalo = _parseTurnoTime(s.turno.data, s.turno.intervalo);
 
@@ -112,8 +113,7 @@ class GargaloCalculator {
 
       final capacidadeMinima = _capacidadeMinima(setor);
       final drop = slots.isEmpty ? 0 : slots.last.quantidade - presentes;
-      final gargalo =
-          presentes < capacidadeMinima || (drop >= 2);
+      final gargalo = presentes < capacidadeMinima || (drop >= 2);
 
       slots.add(
         SlotDisponibilidade(

@@ -35,7 +35,7 @@ class CaixaGridItem extends StatelessWidget {
     final escalaProvider = Provider.of<EscalaProvider>(context);
     final cafeProvider = Provider.of<CafeProvider>(context);
 
-    // Buscar colaborador se há alocação
+    // Buscar colaborador se hÃƒÂ¡ alocaÃƒÂ§ÃƒÂ£o
     final colaborador = alocacao != null
         ? colaboradorProvider.colaboradores
             .where((c) => c.id == alocacao!.colaboradorId)
@@ -61,7 +61,7 @@ class CaixaGridItem extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Número do caixa
+              // NÃƒÂºmero do caixa
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -70,7 +70,7 @@ class CaixaGridItem extends StatelessWidget {
                     color: _getIconColor(isOcupado, isDisponivel),
                     size: 20,
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4),
                   Text(
                     caixa.nomeExibicao,
                     style: AppTextStyles.h4.copyWith(
@@ -81,7 +81,7 @@ class CaixaGridItem extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
 
               // Status
               if (colaborador != null) ...[
@@ -102,7 +102,7 @@ class CaixaGridItem extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   colaborador.nome.split(' ').first,
                   style: AppTextStyles.caption.copyWith(
@@ -113,25 +113,25 @@ class CaixaGridItem extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               ] else if (caixa.emManutencao) ...[
-                const Icon(
+                Icon(
                   Icons.build,
                   color: Colors.white,
                   size: 20,
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
-                  'Manutenção',
+                  'ManutenÃƒÂ§ÃƒÂ£o',
                   style: AppTextStyles.caption.copyWith(
                     color: Colors.white,
                   ),
                 ),
               ] else if (!caixa.ativo) ...[
-                const Icon(
+                Icon(
                   Icons.power_off,
                   color: Colors.white,
                   size: 20,
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   'Inativo',
                   style: AppTextStyles.caption.copyWith(
@@ -139,14 +139,14 @@ class CaixaGridItem extends StatelessWidget {
                   ),
                 ),
               ] else ...[
-                const Icon(
+                Icon(
                   Icons.check_circle,
                   color: Colors.white,
                   size: 20,
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
-                  'Disponível',
+                  'DisponÃƒÂ­vel',
                   style: AppTextStyles.caption.copyWith(
                     color: Colors.white,
                   ),
@@ -189,7 +189,7 @@ class CaixaGridItem extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -206,12 +206,12 @@ class CaixaGridItem extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-// Resultado do cálculo de jornada
-// ─────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// Resultado do cÃƒÂ¡lculo de jornada
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 class _JornadaResult {
   final String? entrada; // "HH:mm" da entrada no ponto
-  final Duration liquida; // tempo líquido de trabalho
+  final Duration liquida; // tempo lÃƒÂ­quido de trabalho
   final String
       status; // 'trabalhando' | 'intervalo' | 'encerrado' | 'sem_ponto'
 
@@ -228,9 +228,9 @@ class _JornadaResult {
       );
 }
 
-// ─────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 // Bottom sheet com carregamento de registro_ponto
-// ─────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 class _DetalhesSheet extends StatefulWidget {
   final Caixa caixa;
   final Colaborador? colaborador;
@@ -294,7 +294,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
     }
   }
 
-  /// Calcula a jornada líquida com base no registro de ponto de hoje.
+  /// Calcula a jornada lÃƒÂ­quida com base no registro de ponto de hoje.
   _JornadaResult _calcJornada() {
     final r = _registroHoje;
     if (r == null || r.entrada == null || r.entrada!.isEmpty) {
@@ -318,12 +318,12 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
     final intRetorno = parse(r.intervaloRetorno);
     final saida = parse(r.saida);
 
-    // ── Determinar status ──────────────────────────────
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Determinar status Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     String status;
     DateTime fimCalculo;
 
     if (saida != null && now.isAfter(saida)) {
-      // Jornada já encerrada: trava no horário de saída
+      // Jornada jÃƒÂ¡ encerrada: trava no horÃƒÂ¡rio de saÃƒÂ­da
       status = 'encerrado';
       fimCalculo = saida;
     } else if (intSaida != null &&
@@ -337,10 +337,10 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
       fimCalculo = now;
     }
 
-    // ── Jornada bruta ──────────────────────────────────
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Jornada bruta Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     final bruta = fimCalculo.difference(entrada);
 
-    // ── Descontar intervalo COMPLETO (só quando já retornou) ──
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Descontar intervalo COMPLETO (sÃƒÂ³ quando jÃƒÂ¡ retornou) Ã¢â€â‚¬Ã¢â€â‚¬
     Duration desconto = Duration.zero;
     if (intSaida != null &&
         intRetorno != null &&
@@ -374,21 +374,21 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 16),
-        const Text('Ocorrências deste caixa', style: AppTextStyles.label),
-        const SizedBox(height: 6),
+        SizedBox(height: 16),
+        Text('OcorrÃƒÂªncias deste caixa', style: AppTextStyles.label),
+        SizedBox(height: 6),
         Row(
           children: [
-            const Icon(Icons.report_outlined,
+            Icon(Icons.report_outlined,
                 size: 14, color: AppColors.textSecondary),
-            const SizedBox(width: 4),
+            SizedBox(width: 4),
             Text(
-              '${ocorrencias.length} ocorrência(s)',
+              '${ocorrencias.length} ocorrÃƒÂªncia(s)',
               style: AppTextStyles.caption
                   .copyWith(color: AppColors.textSecondary),
             ),
             if (ocorrenciasAbertas.isNotEmpty) ...[
-              const SizedBox(width: 6),
+              SizedBox(width: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
@@ -404,7 +404,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
             ],
           ],
         ),
-        const SizedBox(height: 6),
+        SizedBox(height: 6),
         ...ocorrenciasVisiveis.map(
           (o) => _OcorrenciaRow(ocorrencia: o),
         ),
@@ -435,7 +435,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
               ),
             ),
           ),
-        const Divider(height: 20),
+        Divider(height: 20),
       ],
     );
   }
@@ -471,14 +471,14 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
             ),
           ),
 
-          // Cabeçalho — caixa
+          // CabeÃƒÂ§alho Ã¢â‚¬â€ caixa
           Row(
             children: [
               Icon(widget.caixa.tipo.icone,
                   color: widget.caixa.tipo.cor, size: 22),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(widget.caixa.nomeExibicao, style: AppTextStyles.h2),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
@@ -494,7 +494,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
             ],
           ),
 
-          const Divider(height: 24),
+          Divider(height: 24),
 
           if (widget.colaborador != null && widget.alocacao != null) ...[
             // Avatar + nome + departamento
@@ -505,14 +505,14 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                   backgroundColor: AppColors.primary,
                   child: Text(
                     widget.colaborador!.iniciais,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -529,9 +529,9 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
               ],
             ),
 
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
 
-            // Alerta de pausa de café
+            // Alerta de pausa de cafÃƒÂ©
             if (widget.pausa != null)
               Container(
                 margin: const EdgeInsets.only(bottom: 12),
@@ -544,9 +544,9 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                 child: Row(
                   children: [
                     Icon(Icons.coffee, color: Colors.orange.shade700, size: 18),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Text(
-                      'Em pausa de café — ${widget.pausa.minutosDecorridos}min decorridos'
+                      'Em pausa de cafÃƒÂ© Ã¢â‚¬â€ ${widget.pausa.minutosDecorridos}min decorridos'
                       '${widget.pausa.emAtraso ? ' (${widget.pausa.minutosExcedidos}min em atraso)' : ''}',
                       style: AppTextStyles.caption.copyWith(
                         color: Colors.orange.shade800,
@@ -557,9 +557,9 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                 ),
               ),
 
-            // ── Jornada baseada no ponto ──────────────────
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Jornada baseada no ponto Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
             if (_carregando)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(vertical: 8),
                 child: Row(
                   children: [
@@ -574,10 +574,10 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                 ),
               )
             else if (jornada.status == 'sem_ponto')
-              // Sem registro de ponto → fallback para horário de alocação
+              // Sem registro de ponto Ã¢â€ â€™ fallback para horÃƒÂ¡rio de alocaÃƒÂ§ÃƒÂ£o
               _InfoRow(
                 icon: Icons.access_time,
-                label: 'Alocado às',
+                label: 'Alocado ÃƒÂ s',
                 value:
                     '${widget.alocacao!.alocadoEm.hour.toString().padLeft(2, '0')}:'
                     '${widget.alocacao!.alocadoEm.minute.toString().padLeft(2, '0')} '
@@ -592,33 +592,33 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                 value: '${jornada.entrada} (ponto)',
                 iconColor: AppColors.primary,
               ),
-              const SizedBox(height: 6),
-              // Linha: Jornada líquida
+              SizedBox(height: 6),
+              // Linha: Jornada lÃƒÂ­quida
               _InfoRow(
                 icon: Icons.timer_outlined,
-                label: 'Jornada líquida',
+                label: 'Jornada lÃƒÂ­quida',
                 value: _formatDuracao(jornada.liquida),
                 iconColor: _corJornada(jornada.status),
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               // Badge de status
               _StatusBadge(status: jornada.status),
             ],
 
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
 
-            // Horários da escala
+            // HorÃƒÂ¡rios da escala
             if (widget.turno != null) ...[
-              const Text('Escala de hoje', style: AppTextStyles.label),
-              const SizedBox(height: 8),
+              Text('Escala de hoje', style: AppTextStyles.label),
+              SizedBox(height: 8),
               _HorarioGrid(turno: widget.turno!),
             ],
 
             _buildOcorrenciasSection(ocorrencias),
 
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
 
-            // Botão Liberar
+            // BotÃƒÂ£o Liberar
             ElevatedButton.icon(
               onPressed: () async {
                 Navigator.of(context).pop();
@@ -636,8 +636,8 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                   );
                 }
               },
-              icon: const Icon(Icons.exit_to_app),
-              label: const Text('Liberar Caixa'),
+              icon: Icon(Icons.exit_to_app),
+              label: Text('Liberar Caixa'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.danger,
                 minimumSize: const Size(double.infinity, 48),
@@ -646,15 +646,15 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
           ] else ...[
             Text(
               widget.caixa.emManutencao
-                  ? 'Caixa em manutenção'
+                  ? 'Caixa em manutenÃƒÂ§ÃƒÂ£o'
                   : !widget.caixa.ativo
                       ? 'Caixa inativo'
-                      : 'Caixa disponível',
+                      : 'Caixa disponÃƒÂ­vel',
               style: AppTextStyles.body,
             ),
             _buildOcorrenciasSection(ocorrencias),
             if (widget.caixa.ativo && !widget.caixa.emManutencao) ...[
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               ElevatedButton.icon(
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -670,8 +670,8 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                     ),
                   );
                 },
-                icon: const Icon(Icons.swap_horiz),
-                label: const Text('Alocar Colaborador'),
+                icon: Icon(Icons.swap_horiz),
+                label: Text('Alocar Colaborador'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   minimumSize: const Size(double.infinity, 48),
@@ -696,9 +696,9 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
   }
 }
 
-// ─────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 // Badge de status da jornada
-// ─────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 class _StatusBadge extends StatelessWidget {
   final String status;
 
@@ -728,7 +728,7 @@ class _StatusBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: color),
-          const SizedBox(width: 5),
+          SizedBox(width: 5),
           Text(
             label,
             style: AppTextStyles.caption.copyWith(
@@ -742,28 +742,28 @@ class _StatusBadge extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-// Linha de informação com ícone
-// ─────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// Linha de informaÃƒÂ§ÃƒÂ£o com ÃƒÂ­cone
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
-  final Color iconColor;
+  final Color? iconColor;
 
   const _InfoRow({
     required this.icon,
     required this.label,
     required this.value,
-    this.iconColor = AppColors.textSecondary,
+    this.iconColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: iconColor),
-        const SizedBox(width: 6),
+        Icon(icon, size: 16, color: iconColor ?? AppColors.textSecondary),
+        SizedBox(width: 6),
         Text(
           '$label: ',
           style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
@@ -776,9 +776,9 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-// Grid 2×2 com horários da escala de hoje
-// ─────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// Grid 2Ãƒâ€”2 com horÃƒÂ¡rios da escala de hoje
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 class _HorarioGrid extends StatelessWidget {
   final TurnoLocal turno;
 
@@ -801,7 +801,7 @@ class _HorarioGrid extends StatelessWidget {
             value: turno.intervalo),
         _HorarioChip(
             icon: Icons.replay, label: 'Retorno', value: turno.retorno),
-        _HorarioChip(icon: Icons.logout, label: 'Saída', value: turno.saida),
+        _HorarioChip(icon: Icons.logout, label: 'SaÃƒÂ­da', value: turno.saida),
       ],
     );
   }
@@ -830,7 +830,7 @@ class _HorarioChip extends StatelessWidget {
       child: Row(
         children: [
           Icon(icon, size: 13, color: AppColors.textSecondary),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -838,8 +838,7 @@ class _HorarioChip extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
-                      fontSize: 9, color: AppColors.textSecondary),
+                  style: TextStyle(fontSize: 9, color: AppColors.textSecondary),
                 ),
                 Text(
                   value ?? '--:--',
@@ -893,7 +892,7 @@ class _OcorrenciaRow extends StatelessWidget {
               shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -917,7 +916,7 @@ class _OcorrenciaRow extends StatelessWidget {
                   ],
                 ),
                 if (ocorrencia.descricao.isNotEmpty) ...[
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text(
                     ocorrencia.descricao,
                     style: AppTextStyles.caption
@@ -929,7 +928,7 @@ class _OcorrenciaRow extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
             decoration: BoxDecoration(

@@ -29,7 +29,7 @@ class _FormularioPreenchimentoScreenState
   /// Controladores de texto para campos do tipo texto/numero.
   final Map<String, TextEditingController> _textCtrls = {};
 
-  /// Valores para todos os campos (simNao → 'Sim'/'Não'/null, opcoes → String/null).
+  /// Valores para todos os campos (simNao Ã¢â€ â€™ 'Sim'/'NÃƒÂ£o'/null, opcoes Ã¢â€ â€™ String/null).
   final Map<String, dynamic> _valores = {};
 
   @override
@@ -55,12 +55,12 @@ class _FormularioPreenchimentoScreenState
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Limpar formulário'),
-        content: const Text('Deseja apagar todos os campos?'),
+        title: Text('Limpar formulÃƒÂ¡rio'),
+        content: Text('Deseja apagar todos os campos?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
@@ -74,7 +74,7 @@ class _FormularioPreenchimentoScreenState
               });
               Navigator.pop(ctx);
             },
-            child: const Text('Limpar'),
+            child: Text('Limpar'),
           ),
         ],
       ),
@@ -101,9 +101,11 @@ class _FormularioPreenchimentoScreenState
         .adicionarResposta(resposta);
 
     if (!mounted) return;
-    final eventoProvider = Provider.of<EventoTurnoProvider>(context, listen: false);
+    final eventoProvider =
+        Provider.of<EventoTurnoProvider>(context, listen: false);
     if (eventoProvider.turnoAtivo) {
-      final fiscalId = Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+      final fiscalId =
+          Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
       eventoProvider.registrar(
         fiscalId: fiscalId,
         tipo: TipoEvento.formularioRespondido,
@@ -112,8 +114,8 @@ class _FormularioPreenchimentoScreenState
     }
     AppNotif.show(
       context,
-      titulo: 'Formulário Enviado',
-      mensagem: 'Formulário enviado com sucesso!',
+      titulo: 'FormulÃƒÂ¡rio Enviado',
+      mensagem: 'FormulÃƒÂ¡rio enviado com sucesso!',
       tipo: 'saida',
       cor: AppColors.success,
     );
@@ -130,7 +132,7 @@ class _FormularioPreenchimentoScreenState
         title: Text(widget.formulario.titulo, style: AppTextStyles.h3),
         actions: [
           IconButton(
-            icon: const Icon(Icons.clear_all),
+            icon: Icon(Icons.clear_all),
             onPressed: _limpar,
             tooltip: 'Limpar',
           ),
@@ -141,15 +143,14 @@ class _FormularioPreenchimentoScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Banner descrição
+            // Banner descriÃƒÂ§ÃƒÂ£o
             if (widget.formulario.descricao.isNotEmpty) ...[
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(Dimensions.paddingMD),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.05),
-                  borderRadius:
-                      BorderRadius.circular(Dimensions.radiusMD),
+                  borderRadius: BorderRadius.circular(Dimensions.radiusMD),
                   border: Border.all(
                       color: AppColors.primary.withValues(alpha: 0.2)),
                 ),
@@ -158,13 +159,13 @@ class _FormularioPreenchimentoScreenState
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.description,
+                        Icon(Icons.description,
                             color: AppColors.primary, size: 18),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Text(
                           widget.formulario.template
                               ? 'Template Oficial'
-                              : 'Formulário Personalizado',
+                              : 'FormulÃƒÂ¡rio Personalizado',
                           style: AppTextStyles.caption.copyWith(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w600,
@@ -172,46 +173,45 @@ class _FormularioPreenchimentoScreenState
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Text(widget.formulario.descricao,
                         style: AppTextStyles.body
                             .copyWith(color: AppColors.textSecondary)),
                   ],
                 ),
               ),
-              const SizedBox(height: Dimensions.spacingLG),
+              SizedBox(height: Dimensions.spacingLG),
             ],
 
             Text(
-              '${widget.formulario.campos.length} campos — todos opcionais',
+              '${widget.formulario.campos.length} campos Ã¢â‚¬â€ todos opcionais',
               style: AppTextStyles.caption
                   .copyWith(color: AppColors.textSecondary),
             ),
-            const SizedBox(height: Dimensions.spacingMD),
+            SizedBox(height: Dimensions.spacingMD),
 
             // Campos
             ...widget.formulario.campos.asMap().entries.map(
                   (e) => Padding(
-                    padding: const EdgeInsets.only(
-                        bottom: Dimensions.spacingMD),
+                    padding:
+                        const EdgeInsets.only(bottom: Dimensions.spacingMD),
                     child: _buildCampo(e.key, e.value),
                   ),
                 ),
 
             // Carimbo de data
-            const SizedBox(height: Dimensions.spacingSM),
+            SizedBox(height: Dimensions.spacingSM),
             Container(
               padding: const EdgeInsets.all(Dimensions.paddingSM),
               decoration: BoxDecoration(
                 color: AppColors.backgroundSection,
-                borderRadius:
-                    BorderRadius.circular(Dimensions.radiusMD),
+                borderRadius: BorderRadius.circular(Dimensions.radiusMD),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.access_time,
+                  Icon(Icons.access_time,
                       size: 16, color: AppColors.textSecondary),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Text(
                     'Preenchido em: ${_formatDateTime(DateTime.now())}',
                     style: AppTextStyles.caption
@@ -221,30 +221,30 @@ class _FormularioPreenchimentoScreenState
               ),
             ),
 
-            const SizedBox(height: Dimensions.spacingXL),
+            SizedBox(height: Dimensions.spacingXL),
 
-            // Botões
+            // BotÃƒÂµes
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.of(context).pop(),
                     style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(
-                          Dimensions.buttonHeight),
+                      minimumSize:
+                          const Size.fromHeight(Dimensions.buttonHeight),
                     ),
-                    child: const Text('Cancelar'),
+                    child: Text('Cancelar'),
                   ),
                 ),
-                const SizedBox(width: Dimensions.spacingSM),
+                SizedBox(width: Dimensions.spacingSM),
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: _enviar,
-                    icon: const Icon(Icons.send),
-                    label: const Text('Enviar'),
+                    icon: Icon(Icons.send),
+                    label: Text('Enviar'),
                     style: ElevatedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(
-                          Dimensions.buttonHeight),
+                      minimumSize:
+                          const Size.fromHeight(Dimensions.buttonHeight),
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                     ),
@@ -308,8 +308,7 @@ class _FormularioPreenchimentoScreenState
               ),
             ),
           ),
-          keyboardType:
-              const TextInputType.numberWithOptions(decimal: true),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
         );
 
       case TipoCampo.simNao:
@@ -325,8 +324,7 @@ class _FormularioPreenchimentoScreenState
                   children: [
                     CircleAvatar(
                       radius: 12,
-                      backgroundColor:
-                          AppColors.primary.withValues(alpha: 0.1),
+                      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                       child: Text(
                         '${index + 1}',
                         style: AppTextStyles.caption.copyWith(
@@ -335,7 +333,7 @@ class _FormularioPreenchimentoScreenState
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         '$label$obrigLabel',
@@ -344,7 +342,7 @@ class _FormularioPreenchimentoScreenState
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Row(
                   children: [
                     Expanded(
@@ -353,19 +351,17 @@ class _FormularioPreenchimentoScreenState
                         icon: Icons.check_circle_outline,
                         selected: valor == 'Sim',
                         color: AppColors.success,
-                        onTap: () => setState(
-                            () => _valores[label] = 'Sim'),
+                        onTap: () => setState(() => _valores[label] = 'Sim'),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Expanded(
                       child: _SimNaoButton(
-                        label: 'Não',
+                        label: 'NÃƒÂ£o',
                         icon: Icons.cancel_outlined,
-                        selected: valor == 'Não',
+                        selected: valor == 'NÃƒÂ£o',
                         color: AppColors.danger,
-                        onTap: () => setState(
-                            () => _valores[label] = 'Não'),
+                        onTap: () => setState(() => _valores[label] = 'NÃƒÂ£o'),
                       ),
                     ),
                   ],
@@ -388,8 +384,7 @@ class _FormularioPreenchimentoScreenState
                   children: [
                     CircleAvatar(
                       radius: 12,
-                      backgroundColor:
-                          AppColors.primary.withValues(alpha: 0.1),
+                      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                       child: Text(
                         '${index + 1}',
                         style: AppTextStyles.caption.copyWith(
@@ -398,7 +393,7 @@ class _FormularioPreenchimentoScreenState
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         '$label$obrigLabel',
@@ -407,7 +402,7 @@ class _FormularioPreenchimentoScreenState
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 RadioGroup<String>(
                   groupValue: valor,
                   onChanged: (v) => setState(() => _valores[label] = v),
@@ -437,11 +432,11 @@ class _FormularioPreenchimentoScreenState
     final mes = dt.month.toString().padLeft(2, '0');
     final hora = dt.hour.toString().padLeft(2, '0');
     final min = dt.minute.toString().padLeft(2, '0');
-    return '$dia/$mes/${dt.year} às $hora:$min';
+    return '$dia/$mes/${dt.year} ÃƒÂ s $hora:$min';
   }
 }
 
-// ── Botão Sim/Não ─────────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬ BotÃƒÂ£o Sim/NÃƒÂ£o Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 class _SimNaoButton extends StatelessWidget {
   final String label;
@@ -478,13 +473,12 @@ class _SimNaoButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, color: selected ? color : AppColors.inactive, size: 18),
-            const SizedBox(width: 6),
+            SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(
                 color: selected ? color : AppColors.textSecondary,
-                fontWeight:
-                    selected ? FontWeight.bold : FontWeight.normal,
+                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
           ],

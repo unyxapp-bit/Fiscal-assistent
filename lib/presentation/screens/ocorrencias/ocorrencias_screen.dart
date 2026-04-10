@@ -39,7 +39,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
   String _textoOcorrencia(Ocorrencia oc) {
     final fmt = _formatDateTime(oc.registradaEm);
     final buf = StringBuffer();
-    buf.writeln('*Ocorrência - ${oc.gravidade.nome}*');
+    buf.writeln('*OcorrÃƒÂªncia - ${oc.gravidade.nome}*');
     buf.writeln();
     buf.writeln('Tipo: ${oc.tipo}');
     if (oc.caixaId != null && oc.caixaId!.isNotEmpty) {
@@ -58,7 +58,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
   void _compartilharOcorrencia(Ocorrencia oc) {
     Share.share(
       _textoOcorrencia(oc),
-      subject: 'Ocorrência ${oc.gravidade.nome}',
+      subject: 'OcorrÃƒÂªncia ${oc.gravidade.nome}',
     );
   }
 
@@ -68,7 +68,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     AppNotif.show(
       context,
       titulo: 'Copiado',
-      mensagem: 'Ocorrência copiada para a área de transferência',
+      mensagem: 'OcorrÃƒÂªncia copiada para a ÃƒÂ¡rea de transferÃƒÂªncia',
       tipo: 'intervalo',
     );
   }
@@ -78,7 +78,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     final m = dt.month.toString().padLeft(2, '0');
     final h = dt.hour.toString().padLeft(2, '0');
     final min = dt.minute.toString().padLeft(2, '0');
-    return '$d/$m/${dt.year} às $h:$min';
+    return '$d/$m/${dt.year} ÃƒÂ s $h:$min';
   }
 
   void _confirmarDelete(
@@ -89,20 +89,19 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Excluir ocorrência'),
-        content: const Text('Deseja excluir esta ocorrência?'),
+        title: Text('Excluir ocorrÃƒÂªncia'),
+        content: Text('Deseja excluir esta ocorrÃƒÂªncia?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
               provider.deletar(oc.id);
               Navigator.pop(ctx);
             },
-            child: const Text('Excluir',
-                style: TextStyle(color: AppColors.danger)),
+            child: Text('Excluir', style: TextStyle(color: AppColors.danger)),
           ),
         ],
       ),
@@ -120,13 +119,13 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.check_circle_outline,
+            Icon(Icons.check_circle_outline,
                 size: 64, color: AppColors.inactive),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               showResolver
-                  ? 'Nenhuma ocorrência aberta'
-                  : 'Nenhuma ocorrência resolvida',
+                  ? 'Nenhuma ocorrÃƒÂªncia aberta'
+                  : 'Nenhuma ocorrÃƒÂªncia resolvida',
               style: AppTextStyles.h4.copyWith(color: AppColors.textSecondary),
             ),
           ],
@@ -181,7 +180,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   oc.descricao,
                   maxLines: 2,
@@ -189,7 +188,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                   style:
                       AppTextStyles.body.copyWith(color: AppColors.textPrimary),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   _formatDateTime(oc.registradaEm),
                   style: AppTextStyles.caption
@@ -232,7 +231,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                     eventoProvider.registrar(
                       fiscalId: fiscalId,
                       tipo: TipoEvento.ocorrenciaResolvida,
-                      detalhe: '${oc.tipo} — ${oc.gravidade.nome}',
+                      detalhe: '${oc.tipo} Ã¢â‚¬â€ ${oc.gravidade.nome}',
                     );
                   }
                 }
@@ -242,7 +241,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
               },
               itemBuilder: (_) => [
                 if (showResolver)
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'resolver',
                     child: Row(children: [
                       Icon(Icons.check_circle,
@@ -251,7 +250,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                       Text('Marcar como resolvida'),
                     ]),
                   ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'copiar',
                   child: Row(children: [
                     Icon(Icons.copy_outlined, size: 18),
@@ -259,7 +258,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                     Text('Copiar'),
                   ]),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'compartilhar',
                   child: Row(children: [
                     Icon(Icons.share, size: 18),
@@ -267,7 +266,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                     Text('Compartilhar'),
                   ]),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'deletar',
                   child: Row(children: [
                     Icon(Icons.delete, size: 18, color: AppColors.danger),
@@ -292,7 +291,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Ocorrências'),
+        title: Text('OcorrÃƒÂªncias'),
         backgroundColor: AppColors.background,
         elevation: 0,
         bottom: TabBar(
@@ -302,9 +301,9 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('Abertas'),
+                  Text('Abertas'),
                   if (abertas.isNotEmpty) ...[
-                    const SizedBox(width: 6),
+                    SizedBox(width: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 1),
@@ -314,7 +313,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                       ),
                       child: Text(
                         '${abertas.length}',
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: Colors.white,
                             fontSize: 11,
                             fontWeight: FontWeight.bold),
@@ -328,9 +327,9 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('Resolvidas'),
+                  Text('Resolvidas'),
                   if (resolvidas.isNotEmpty) ...[
-                    const SizedBox(width: 6),
+                    SizedBox(width: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 1),
@@ -340,7 +339,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                       ),
                       child: Text(
                         '${resolvidas.length}',
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: Colors.white,
                             fontSize: 11,
                             fontWeight: FontWeight.bold),
@@ -364,8 +363,8 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
         onPressed: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const OcorrenciaFormScreen()),
         ),
-        icon: const Icon(Icons.add),
-        label: const Text('Registrar'),
+        icon: Icon(Icons.add),
+        label: Text('Registrar'),
         backgroundColor: AppColors.danger,
       ),
     );

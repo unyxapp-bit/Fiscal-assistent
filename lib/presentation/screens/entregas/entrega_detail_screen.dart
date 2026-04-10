@@ -12,7 +12,7 @@ import 'entrega_form_screen.dart';
 import '../../../core/utils/app_notif.dart';
 
 /// Tela de Detalhes da Entrega
-/// Mostra informações completas, timeline e permite mudança de status
+/// Mostra informaÃƒÂ§ÃƒÂµes completas, timeline e permite mudanÃƒÂ§a de status
 class EntregaDetailScreen extends StatelessWidget {
   final Entrega entrega;
 
@@ -72,23 +72,28 @@ class EntregaDetailScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirmar'),
-        content: const Text('Marcar esta entrega como "Em Rota"?'),
+        title: Text('Confirmar'),
+        content: Text('Marcar esta entrega como "Em Rota"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () {
               provider.atualizarStatus(entrega.id, 'em_rota');
-              final eventoProvider = Provider.of<EventoTurnoProvider>(context, listen: false);
+              final eventoProvider =
+                  Provider.of<EventoTurnoProvider>(context, listen: false);
               if (eventoProvider.turnoAtivo) {
-                final fiscalId = Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+                final fiscalId =
+                    Provider.of<AuthProvider>(context, listen: false)
+                            .user
+                            ?.id ??
+                        '';
                 eventoProvider.registrar(
                   fiscalId: fiscalId,
                   tipo: TipoEvento.entregaStatusAlterado,
-                  detalhe: 'NF ${entrega.numeroNota} → Em Rota',
+                  detalhe: 'NF ${entrega.numeroNota} Ã¢â€ â€™ Em Rota',
                 );
               }
               Navigator.pop(context);
@@ -104,7 +109,7 @@ class EntregaDetailScreen extends StatelessWidget {
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Confirmar'),
+            child: Text('Confirmar'),
           ),
         ],
       ),
@@ -117,23 +122,28 @@ class EntregaDetailScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirmar'),
-        content: const Text('Marcar esta entrega como "Entregue"?'),
+        title: Text('Confirmar'),
+        content: Text('Marcar esta entrega como "Entregue"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () {
               provider.atualizarStatus(entrega.id, 'entregue');
-              final eventoProvider = Provider.of<EventoTurnoProvider>(context, listen: false);
+              final eventoProvider =
+                  Provider.of<EventoTurnoProvider>(context, listen: false);
               if (eventoProvider.turnoAtivo) {
-                final fiscalId = Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
+                final fiscalId =
+                    Provider.of<AuthProvider>(context, listen: false)
+                            .user
+                            ?.id ??
+                        '';
                 eventoProvider.registrar(
                   fiscalId: fiscalId,
                   tipo: TipoEvento.entregaStatusAlterado,
-                  detalhe: 'NF ${entrega.numeroNota} → Entregue',
+                  detalhe: 'NF ${entrega.numeroNota} Ã¢â€ â€™ Entregue',
                 );
               }
               Navigator.pop(context);
@@ -149,7 +159,7 @@ class EntregaDetailScreen extends StatelessWidget {
               backgroundColor: AppColors.success,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Confirmar'),
+            child: Text('Confirmar'),
           ),
         ],
       ),
@@ -162,14 +172,14 @@ class EntregaDetailScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Cancelar Entrega'),
-        content: const Text(
-          'Tem certeza que deseja cancelar esta entrega? Esta ação não pode ser desfeita.',
+        title: Text('Cancelar Entrega'),
+        content: Text(
+          'Tem certeza que deseja cancelar esta entrega? Esta aÃƒÂ§ÃƒÂ£o nÃƒÂ£o pode ser desfeita.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Não'),
+            child: Text('NÃƒÂ£o'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -187,7 +197,7 @@ class EntregaDetailScreen extends StatelessWidget {
               backgroundColor: AppColors.danger,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Sim, Cancelar'),
+            child: Text('Sim, Cancelar'),
           ),
         ],
       ),
@@ -199,14 +209,14 @@ class EntregaDetailScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Excluir Entrega'),
-        content: const Text(
-          'Tem certeza que deseja excluir esta entrega? Esta ação não pode ser desfeita.',
+        title: Text('Excluir Entrega'),
+        content: Text(
+          'Tem certeza que deseja excluir esta entrega? Esta aÃƒÂ§ÃƒÂ£o nÃƒÂ£o pode ser desfeita.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -218,7 +228,7 @@ class EntregaDetailScreen extends StatelessWidget {
               backgroundColor: AppColors.danger,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Excluir'),
+            child: Text('Excluir'),
           ),
         ],
       ),
@@ -250,16 +260,16 @@ class EntregaDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
-        title: const Text('Detalhes da Entrega', style: AppTextStyles.h3),
+        title: Text('Detalhes da Entrega', style: AppTextStyles.h3),
         actions: [
           if (entrega.status != 'entregue' && entrega.status != 'cancelada')
             IconButton(
-              icon: const Icon(Icons.edit),
+              icon: Icon(Icons.edit),
               onPressed: () => _editarEntrega(context),
               tooltip: 'Editar',
             ),
           IconButton(
-            icon: const Icon(Icons.delete_outline),
+            icon: Icon(Icons.delete_outline),
             onPressed: () => _excluirEntrega(context),
             tooltip: 'Excluir',
             color: AppColors.danger,
@@ -282,7 +292,8 @@ class EntregaDetailScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(Dimensions.paddingMD),
                       decoration: BoxDecoration(
                         color: _getStatusColor(entrega.status),
-                        borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+                        borderRadius:
+                            BorderRadius.circular(Dimensions.radiusMD),
                       ),
                       child: Icon(
                         _getStatusIcon(entrega.status),
@@ -290,7 +301,7 @@ class EntregaDetailScreen extends StatelessWidget {
                         size: Dimensions.iconXL,
                       ),
                     ),
-                    const SizedBox(width: Dimensions.spacingMD),
+                    SizedBox(width: Dimensions.spacingMD),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -301,7 +312,7 @@ class EntregaDetailScreen extends StatelessWidget {
                               color: _getStatusColor(entrega.status),
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4),
                           Text(
                             'NF: ${entrega.numeroNota}',
                             style: AppTextStyles.body.copyWith(
@@ -316,11 +327,11 @@ class EntregaDetailScreen extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: Dimensions.spacingLG),
+            SizedBox(height: Dimensions.spacingLG),
 
-            // Informações do Cliente
-            const Text('Informações do Cliente', style: AppTextStyles.h3),
-            const SizedBox(height: Dimensions.spacingSM),
+            // InformaÃƒÂ§ÃƒÂµes do Cliente
+            Text('InformaÃƒÂ§ÃƒÂµes do Cliente', style: AppTextStyles.h3),
+            SizedBox(height: Dimensions.spacingSM),
 
             Card(
               child: Padding(
@@ -332,33 +343,34 @@ class EntregaDetailScreen extends StatelessWidget {
                       'Nome',
                       entrega.clienteNome,
                     ),
-                    if (entrega.telefone != null && entrega.telefone!.isNotEmpty) ...[
-                      const Divider(height: 24),
+                    if (entrega.telefone != null &&
+                        entrega.telefone!.isNotEmpty) ...[
+                      Divider(height: 24),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.phone,
+                          Icon(Icons.phone,
                               color: AppColors.primary,
                               size: Dimensions.iconMD),
-                          const SizedBox(width: Dimensions.spacingSM),
+                          SizedBox(width: Dimensions.spacingSM),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   'Telefone',
-                                  style: AppTextStyles.caption.copyWith(
-                                      color: AppColors.textSecondary),
+                                  style: AppTextStyles.caption
+                                      .copyWith(color: AppColors.textSecondary),
                                 ),
-                                const SizedBox(height: 4),
+                                SizedBox(height: 4),
                                 Text(entrega.telefone!,
                                     style: AppTextStyles.body),
                               ],
                             ),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.copy_outlined, size: 18),
-                            tooltip: 'Copiar número',
+                            icon: Icon(Icons.copy_outlined, size: 18),
+                            tooltip: 'Copiar nÃƒÂºmero',
                             color: AppColors.textSecondary,
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
@@ -368,7 +380,7 @@ class EntregaDetailScreen extends StatelessWidget {
                               AppNotif.show(
                                 context,
                                 titulo: 'Copiado',
-                                mensagem: 'Número copiado',
+                                mensagem: 'NÃƒÂºmero copiado',
                                 tipo: 'intervalo',
                               );
                             },
@@ -376,29 +388,29 @@ class EntregaDetailScreen extends StatelessWidget {
                         ],
                       ),
                     ],
-                    const Divider(height: 24),
+                    Divider(height: 24),
                     _buildInfoRow(
                       Icons.home,
-                      'Endereço',
+                      'EndereÃƒÂ§o',
                       entrega.endereco,
                     ),
-                    const Divider(height: 24),
+                    Divider(height: 24),
                     _buildInfoRow(
                       Icons.location_city,
                       'Bairro',
                       entrega.bairro,
                     ),
-                    const Divider(height: 24),
+                    Divider(height: 24),
                     _buildInfoRow(
                       Icons.location_on,
                       'Cidade',
                       entrega.cidade,
                     ),
                     if (entrega.horarioMarcado != null) ...[
-                      const Divider(height: 24),
+                      Divider(height: 24),
                       _buildInfoRow(
                         Icons.access_time,
-                        'Horário Marcado',
+                        'HorÃƒÂ¡rio Marcado',
                         _formatTime(entrega.horarioMarcado!),
                       ),
                     ],
@@ -407,11 +419,11 @@ class EntregaDetailScreen extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: Dimensions.spacingLG),
+            SizedBox(height: Dimensions.spacingLG),
 
             // Timeline da Entrega
-            const Text('Timeline', style: AppTextStyles.h3),
-            const SizedBox(height: Dimensions.spacingSM),
+            Text('Timeline', style: AppTextStyles.h3),
+            SizedBox(height: Dimensions.spacingSM),
 
             Card(
               child: Padding(
@@ -478,19 +490,20 @@ class EntregaDetailScreen extends StatelessWidget {
               ),
             ),
 
-            // Observações
-            if (entrega.observacoes != null && entrega.observacoes!.isNotEmpty) ...[
-              const SizedBox(height: Dimensions.spacingLG),
-              const Text('Observações', style: AppTextStyles.h3),
-              const SizedBox(height: Dimensions.spacingSM),
+            // ObservaÃƒÂ§ÃƒÂµes
+            if (entrega.observacoes != null &&
+                entrega.observacoes!.isNotEmpty) ...[
+              SizedBox(height: Dimensions.spacingLG),
+              Text('ObservaÃƒÂ§ÃƒÂµes', style: AppTextStyles.h3),
+              SizedBox(height: Dimensions.spacingSM),
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(Dimensions.paddingMD),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.note, color: AppColors.textSecondary),
-                      const SizedBox(width: Dimensions.spacingSM),
+                      Icon(Icons.note, color: AppColors.textSecondary),
+                      SizedBox(width: Dimensions.spacingSM),
                       Expanded(
                         child: Text(
                           entrega.observacoes!,
@@ -503,16 +516,16 @@ class EntregaDetailScreen extends StatelessWidget {
               ),
             ],
 
-            const SizedBox(height: Dimensions.spacingXL),
+            SizedBox(height: Dimensions.spacingXL),
 
-            // Botões de Ação
+            // BotÃƒÂµes de AÃƒÂ§ÃƒÂ£o
             if (entrega.status == 'separada') ...[
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () => _marcarEmRota(context),
-                  icon: const Icon(Icons.directions_car),
-                  label: const Text('Marcar em Rota'),
+                  icon: Icon(Icons.directions_car),
+                  label: Text('Marcar em Rota'),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size.fromHeight(Dimensions.buttonHeight),
                     backgroundColor: AppColors.primary,
@@ -520,7 +533,7 @@ class EntregaDetailScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: Dimensions.spacingSM),
+              SizedBox(height: Dimensions.spacingSM),
             ],
 
             if (entrega.status == 'em_rota') ...[
@@ -528,8 +541,8 @@ class EntregaDetailScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () => _marcarEntregue(context),
-                  icon: const Icon(Icons.check_circle),
-                  label: const Text('Marcar Entregue'),
+                  icon: Icon(Icons.check_circle),
+                  label: Text('Marcar Entregue'),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size.fromHeight(Dimensions.buttonHeight),
                     backgroundColor: AppColors.success,
@@ -537,7 +550,7 @@ class EntregaDetailScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: Dimensions.spacingSM),
+              SizedBox(height: Dimensions.spacingSM),
             ],
 
             if (entrega.status != 'entregue' && entrega.status != 'cancelada')
@@ -545,12 +558,12 @@ class EntregaDetailScreen extends StatelessWidget {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () => _cancelarEntrega(context),
-                  icon: const Icon(Icons.cancel),
-                  label: const Text('Cancelar Entrega'),
+                  icon: Icon(Icons.cancel),
+                  label: Text('Cancelar Entrega'),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size.fromHeight(Dimensions.buttonHeight),
                     foregroundColor: AppColors.danger,
-                    side: const BorderSide(color: AppColors.danger),
+                    side: BorderSide(color: AppColors.danger),
                   ),
                 ),
               ),
@@ -565,7 +578,7 @@ class EntregaDetailScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, color: AppColors.primary, size: Dimensions.iconMD),
-        const SizedBox(width: Dimensions.spacingSM),
+        SizedBox(width: Dimensions.spacingSM),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -576,7 +589,7 @@ class EntregaDetailScreen extends StatelessWidget {
                   color: AppColors.textSecondary,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 value,
                 style: AppTextStyles.body,
@@ -614,7 +627,7 @@ class EntregaDetailScreen extends StatelessWidget {
             size: 20,
           ),
         ),
-        const SizedBox(width: Dimensions.spacingMD),
+        SizedBox(width: Dimensions.spacingMD),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -626,11 +639,13 @@ class EntregaDetailScreen extends StatelessWidget {
                   color: completed ? color : AppColors.textSecondary,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 subtitle,
                 style: AppTextStyles.caption.copyWith(
-                  color: completed ? AppColors.textPrimary : AppColors.textSecondary,
+                  color: completed
+                      ? AppColors.textPrimary
+                      : AppColors.textSecondary,
                 ),
               ),
             ],

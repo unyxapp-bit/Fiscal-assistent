@@ -72,13 +72,13 @@ class _SelecaoCaixaSheetState extends State<SelecaoCaixaSheet> {
     final status = _statusKey(caixa);
     switch (status) {
       case 'ativo':
-        return const Icon(Icons.check_circle, color: AppColors.success);
+        return Icon(Icons.check_circle, color: AppColors.success);
       case 'inativo':
-        return const Icon(Icons.cancel, color: AppColors.inactive);
+        return Icon(Icons.cancel, color: AppColors.inactive);
       case 'manutencao':
-        return const Icon(Icons.construction, color: AppColors.statusAtencao);
+        return Icon(Icons.construction, color: AppColors.statusAtencao);
       default:
-        return const Icon(Icons.help);
+        return Icon(Icons.help);
     }
   }
 
@@ -97,15 +97,15 @@ class _SelecaoCaixaSheetState extends State<SelecaoCaixaSheet> {
         children: [
           Row(
             children: [
-              const Text('Selecionar Caixa', style: AppTextStyles.h3),
+              Text('Selecionar Caixa', style: AppTextStyles.h3),
               const Spacer(),
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close),
+                icon: Icon(Icons.close),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -113,7 +113,7 @@ class _SelecaoCaixaSheetState extends State<SelecaoCaixaSheet> {
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: FilterChip(
-                    label: const Text('Tipo'),
+                    label: Text('Tipo'),
                     onSelected: (_) {
                       setState(() => _filtroTipo = null);
                       _atualizar();
@@ -144,11 +144,11 @@ class _SelecaoCaixaSheetState extends State<SelecaoCaixaSheet> {
                       ),
                     ),
                   ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: FilterChip(
-                    label: const Text('Status'),
+                    label: Text('Status'),
                     onSelected: (_) {
                       setState(() => _filtroStatus = null);
                       _atualizar();
@@ -173,7 +173,7 @@ class _SelecaoCaixaSheetState extends State<SelecaoCaixaSheet> {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Expanded(
             child: _filtered.isEmpty
                 ? const _VazioCaixa()
@@ -209,14 +209,14 @@ class _SelecaoCaixaSheetState extends State<SelecaoCaixaSheet> {
                                   style:
                                       AppTextStyles.h3.copyWith(color: corTipo),
                                 ),
-                                const SizedBox(height: 4),
+                                SizedBox(height: 4),
                                 Text(
                                   _getNomeTipo(caixa.tipo),
                                   style: AppTextStyles.caption.copyWith(
                                     color: AppColors.textSecondary,
                                   ),
                                 ),
-                                const SizedBox(height: 8),
+                                SizedBox(height: 8),
                                 _getIconStatus(caixa),
                               ],
                             ),
@@ -246,8 +246,8 @@ class _VazioCaixa extends StatelessWidget {
           children: [
             Icon(Icons.inbox,
                 size: 44, color: AppColors.inactive.withValues(alpha: 0.9)),
-            const SizedBox(height: 8),
-            const Text('Nenhuma caixa encontrada', style: AppTextStyles.body),
+            SizedBox(height: 8),
+            Text('Nenhuma caixa encontrada', style: AppTextStyles.body),
           ],
         ),
       ),

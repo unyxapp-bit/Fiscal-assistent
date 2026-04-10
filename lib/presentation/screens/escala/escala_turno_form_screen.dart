@@ -22,8 +22,7 @@ class EscalaTurnoFormScreen extends StatefulWidget {
   });
 
   @override
-  State<EscalaTurnoFormScreen> createState() =>
-      _EscalaTurnoFormScreenState();
+  State<EscalaTurnoFormScreen> createState() => _EscalaTurnoFormScreenState();
 }
 
 class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
@@ -54,7 +53,7 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
         _tipoTurno = 'trabalho';
       }
 
-      // Colaborador já selecionado (será preenchido no build)
+      // Colaborador jÃƒÂ¡ selecionado (serÃƒÂ¡ preenchido no build)
     }
   }
 
@@ -77,8 +76,7 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
 
   /// Busca o registro de ponto do colaborador para o dia do turno e preenche os campos.
   Future<void> _preencherHorariosDoRegistro(String colaboradorId) async {
-    final provider =
-        Provider.of<RegistroPontoProvider>(context, listen: false);
+    final provider = Provider.of<RegistroPontoProvider>(context, listen: false);
     await provider.loadRegistros(colaboradorId);
 
     if (!mounted) return;
@@ -124,18 +122,17 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
         .toList()
       ..sort((a, b) => a.nome.compareTo(b.nome));
 
-    // Pré-selecionar colaborador na edição
+    // PrÃƒÂ©-selecionar colaborador na ediÃƒÂ§ÃƒÂ£o
     if (_colaboradorSelecionado == null && widget.turnoExistente != null) {
       try {
-        _colaboradorSelecionado = colaboradores.firstWhere(
-            (c) => c.id == widget.turnoExistente!.colaboradorId);
+        _colaboradorSelecionado = colaboradores
+            .firstWhere((c) => c.id == widget.turnoExistente!.colaboradorId);
       } catch (_) {}
     }
 
     final editando = widget.turnoExistente != null;
-    final dateLabel = DateFormat(
-            "EEEE, dd 'de' MMMM", 'pt_BR')
-        .format(widget.data);
+    final dateLabel =
+        DateFormat("EEEE, dd 'de' MMMM", 'pt_BR').format(widget.data);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -154,28 +151,27 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
               padding: const EdgeInsets.all(Dimensions.paddingMD),
               decoration: BoxDecoration(
                 color: AppColors.primary.withValues(alpha: 0.07),
-                borderRadius:
-                    BorderRadius.circular(Dimensions.borderRadius),
+                borderRadius: BorderRadius.circular(Dimensions.borderRadius),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.calendar_today,
+                  Icon(Icons.calendar_today,
                       color: AppColors.primary, size: 20),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Text(
                     _capitalizar(dateLabel),
-                    style: AppTextStyles.body
-                        .copyWith(color: AppColors.primary),
+                    style:
+                        AppTextStyles.body.copyWith(color: AppColors.primary),
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: Dimensions.spacingLG),
+            SizedBox(height: Dimensions.spacingLG),
 
             // Colaborador
-            const Text('Colaborador *', style: AppTextStyles.label),
-            const SizedBox(height: 8),
+            Text('Colaborador *', style: AppTextStyles.label),
+            SizedBox(height: 8),
             colaboradores.isEmpty
                 ? Container(
                     padding: const EdgeInsets.all(Dimensions.paddingMD),
@@ -184,8 +180,8 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
                       borderRadius:
                           BorderRadius.circular(Dimensions.borderRadius),
                     ),
-                    child: const Text(
-                      'Nenhum colaborador cadastrado. Vá em Colaboradores e cadastre primeiro.',
+                    child: Text(
+                      'Nenhum colaborador cadastrado. VÃƒÂ¡ em Colaboradores e cadastre primeiro.',
                       style: AppTextStyles.body,
                     ),
                   )
@@ -193,10 +189,10 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
                     initialValue: _colaboradorSelecionado,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(
-                            Dimensions.borderRadius),
+                        borderRadius:
+                            BorderRadius.circular(Dimensions.borderRadius),
                       ),
-                      prefixIcon: const Icon(Icons.person),
+                      prefixIcon: Icon(Icons.person),
                       hintText: 'Selecione o colaborador',
                     ),
                     items: colaboradores.map((c) {
@@ -211,29 +207,29 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
                     onChanged: _onColaboradorChanged,
                   ),
 
-            const SizedBox(height: Dimensions.spacingLG),
+            SizedBox(height: Dimensions.spacingLG),
 
             // Tipo do turno
-            const Text('Tipo do Turno *', style: AppTextStyles.label),
-            const SizedBox(height: 8),
+            Text('Tipo do Turno *', style: AppTextStyles.label),
+            SizedBox(height: 8),
             Row(
               children: [
-                _buildTipoChip('trabalho', 'Trabalhando',
-                    Icons.work, AppColors.statusAtivo),
-                const SizedBox(width: 8),
-                _buildTipoChip('folga', 'Folga Semanal',
-                    Icons.weekend, AppColors.inactive),
-                const SizedBox(width: 8),
-                _buildTipoChip('feriado', 'Feriado',
-                    Icons.celebration, AppColors.statusAtencao),
+                _buildTipoChip('trabalho', 'Trabalhando', Icons.work,
+                    AppColors.statusAtivo),
+                SizedBox(width: 8),
+                _buildTipoChip('folga', 'Folga Semanal', Icons.weekend,
+                    AppColors.inactive),
+                SizedBox(width: 8),
+                _buildTipoChip('feriado', 'Feriado', Icons.celebration,
+                    AppColors.statusAtencao),
               ],
             ),
 
-            // Campos de horário (só se trabalhando)
+            // Campos de horÃƒÂ¡rio (sÃƒÂ³ se trabalhando)
             if (_tipoTurno == 'trabalho') ...[
-              const SizedBox(height: Dimensions.spacingLG),
-              const Text('Horários', style: AppTextStyles.label),
-              const SizedBox(height: 8),
+              SizedBox(height: Dimensions.spacingLG),
+              Text('HorÃƒÂ¡rios', style: AppTextStyles.label),
+              SizedBox(height: 8),
 
               // Grid 2x2
               Row(
@@ -245,7 +241,7 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
                       icon: Icons.login,
                     ),
                   ),
-                  const SizedBox(width: Dimensions.spacingSM),
+                  SizedBox(width: Dimensions.spacingSM),
                   Expanded(
                     child: _buildHorarioField(
                       label: 'Intervalo',
@@ -255,7 +251,7 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: Dimensions.spacingSM),
+              SizedBox(height: Dimensions.spacingSM),
               Row(
                 children: [
                   Expanded(
@@ -265,10 +261,10 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
                       icon: Icons.keyboard_return,
                     ),
                   ),
-                  const SizedBox(width: Dimensions.spacingSM),
+                  SizedBox(width: Dimensions.spacingSM),
                   Expanded(
                     child: _buildHorarioField(
-                      label: 'Saída',
+                      label: 'SaÃƒÂ­da',
                       controller: _saidaController,
                       icon: Icons.logout,
                     ),
@@ -276,42 +272,40 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
                 ],
               ),
 
-              const SizedBox(height: Dimensions.spacingSM),
-              // Atalhos de horários frequentes
+              SizedBox(height: Dimensions.spacingSM),
+              // Atalhos de horÃƒÂ¡rios frequentes
               _buildAtalhosHorarios(),
             ],
 
-            const SizedBox(height: Dimensions.spacingLG),
+            SizedBox(height: Dimensions.spacingLG),
 
-            // Observação
+            // ObservaÃƒÂ§ÃƒÂ£o
             TextFormField(
               controller: _observacaoController,
               maxLines: 2,
               decoration: InputDecoration(
-                labelText: 'Observação (opcional)',
+                labelText: 'ObservaÃƒÂ§ÃƒÂ£o (opcional)',
                 hintText: 'Ex: Cobertura, troca de folga...',
-                prefixIcon: const Icon(Icons.note_alt_outlined, size: 18),
+                prefixIcon: Icon(Icons.note_alt_outlined, size: 18),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(Dimensions.borderRadius),
                 ),
               ),
             ),
 
-            const SizedBox(height: Dimensions.spacingXL),
+            SizedBox(height: Dimensions.spacingXL),
 
-            // Botão salvar
+            // BotÃƒÂ£o salvar
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed:
-                    _colaboradorSelecionado == null ? null : _salvar,
-                icon: const Icon(Icons.check),
+                onPressed: _colaboradorSelecionado == null ? null : _salvar,
+                icon: Icon(Icons.check),
                 label: Text(editando ? 'Atualizar' : 'Salvar'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
               ),
             ),
@@ -321,8 +315,7 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
     );
   }
 
-  Widget _buildTipoChip(
-      String tipo, String label, IconData icon, Color cor) {
+  Widget _buildTipoChip(String tipo, String label, IconData icon, Color cor) {
     final sel = _tipoTurno == tipo;
     return Expanded(
       child: GestureDetector(
@@ -330,7 +323,8 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
           decoration: BoxDecoration(
-            color: sel ? cor.withValues(alpha: 0.15) : AppColors.backgroundSection,
+            color:
+                sel ? cor.withValues(alpha: 0.15) : AppColors.backgroundSection,
             borderRadius: BorderRadius.circular(Dimensions.borderRadius),
             border: Border.all(
               color: sel ? cor : AppColors.border,
@@ -340,13 +334,12 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
           child: Column(
             children: [
               Icon(icon, color: sel ? cor : AppColors.textSecondary, size: 22),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 label,
                 style: AppTextStyles.caption.copyWith(
                   color: sel ? cor : AppColors.textSecondary,
-                  fontWeight:
-                      sel ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: sel ? FontWeight.bold : FontWeight.normal,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -382,12 +375,12 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
   Widget _buildAtalhosHorarios() {
     // Atalhos de turnos comuns em supermercados
     final atalhos = [
-      ('07:40–17:40', '07:40', '12:30', '13:30', '17:40'),
-      ('08:00–18:00', '08:00', '12:00', '13:00', '18:00'),
-      ('09:00–18:00', '09:00', '13:00', '14:00', '18:00'),
-      ('11:20–21:20', '11:20', '14:20', '16:20', '21:20'),
-      ('12:00–21:40', '12:00', '16:00', '17:00', '21:40'),
-      ('14:00–22:00', '14:00', '18:00', '18:40', '22:00'),
+      ('07:40Ã¢â‚¬â€œ17:40', '07:40', '12:30', '13:30', '17:40'),
+      ('08:00Ã¢â‚¬â€œ18:00', '08:00', '12:00', '13:00', '18:00'),
+      ('09:00Ã¢â‚¬â€œ18:00', '09:00', '13:00', '14:00', '18:00'),
+      ('11:20Ã¢â‚¬â€œ21:20', '11:20', '14:20', '16:20', '21:20'),
+      ('12:00Ã¢â‚¬â€œ21:40', '12:00', '16:00', '17:00', '21:40'),
+      ('14:00Ã¢â‚¬â€œ22:00', '14:00', '18:00', '18:40', '22:00'),
     ];
 
     return Column(
@@ -395,10 +388,9 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
       children: [
         Text(
           'Atalhos de turno',
-          style: AppTextStyles.caption
-              .copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
         ),
-        const SizedBox(height: 6),
+        SizedBox(height: 6),
         Wrap(
           spacing: 6,
           runSpacing: 4,
@@ -424,8 +416,7 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
     );
   }
 
-  Future<void> _selecionarHorario(
-      TextEditingController controller) async {
+  Future<void> _selecionarHorario(TextEditingController controller) async {
     // Parsear valor atual se houver
     TimeOfDay? inicial;
     if (controller.text.isNotEmpty) {
@@ -443,8 +434,7 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
       initialTime: inicial ?? const TimeOfDay(hour: 8, minute: 0),
       builder: (context, child) {
         return MediaQuery(
-          data: MediaQuery.of(context)
-              .copyWith(alwaysUse24HourFormat: true),
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
           child: child!,
         );
       },
@@ -461,8 +451,7 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
   void _salvar() {
     if (_colaboradorSelecionado == null) return;
 
-    final provider =
-        Provider.of<EscalaProvider>(context, listen: false);
+    final provider = Provider.of<EscalaProvider>(context, listen: false);
 
     provider.adicionarOuAtualizarTurno(
       colaboradorId: _colaboradorSelecionado!.id,

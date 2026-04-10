@@ -1,7 +1,8 @@
 /// Tipos de ação que podem ser registradas no histórico
 enum TipoAcao {
   alocacaoCaixa('Alocação em Caixa', 'Colaborador alocado em caixa'),
-  liberacaoIntervalo('Liberação Intervalo', 'Colaborador liberado para intervalo'),
+  liberacaoIntervalo(
+      'Liberação Intervalo', 'Colaborador liberado para intervalo'),
   liberacaoCafe('Liberação Café', 'Colaborador liberado para café'),
   retornoIntervalo('Retorno Intervalo', 'Colaborador retornou do intervalo'),
   retornoCafe('Retorno Café', 'Colaborador retornou do café'),

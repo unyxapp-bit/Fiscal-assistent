@@ -138,8 +138,8 @@ class EntregaProvider with ChangeNotifier {
           .order('separado_em', ascending: false);
       _entregas
         ..clear()
-        ..addAll(
-            (rows as List).map((r) => Entrega.fromMap(r as Map<String, dynamic>)));
+        ..addAll((rows as List)
+            .map((r) => Entrega.fromMap(r as Map<String, dynamic>)));
       notifyListeners();
     } catch (e) {
       if (kDebugMode) debugPrint('[EntregaProvider] Erro ao carregar: $e');

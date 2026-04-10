@@ -13,7 +13,7 @@ import '../../providers/evento_turno_provider.dart';
 import '../../providers/nota_provider.dart';
 import '../../../core/utils/app_notif.dart';
 
-/// Tela de Formulário de Nota — criar ou editar anotações, tarefas e lembretes.
+/// Tela de FormulÃƒÆ’Ã‚Â¡rio de Nota ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â criar ou editar anotaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes, tarefas e lembretes.
 class NotaFormScreen extends StatefulWidget {
   final Nota? nota;
   final TipoLembrete? tipoInicial;
@@ -84,7 +84,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
       lastDate: now.add(const Duration(days: 365 * 2)),
       builder: (context, child) => Theme(
         data: ThemeData.light().copyWith(
-          colorScheme: const ColorScheme.light(primary: AppColors.primary),
+          colorScheme: ColorScheme.light(primary: AppColors.primary),
         ),
         child: child!,
       ),
@@ -98,7 +98,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
           : TimeOfDay.now(),
       builder: (context, child) => Theme(
         data: ThemeData.light().copyWith(
-          colorScheme: const ColorScheme.light(primary: AppColors.primary),
+          colorScheme: ColorScheme.light(primary: AppColors.primary),
         ),
         child: child!,
       ),
@@ -176,7 +176,8 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
 
       if ((_fotoSelecionada != null || _arquivoSelecionado != null) &&
           fiscalId.isEmpty) {
-        throw Exception('Usuário não autenticado para upload de anexo');
+        throw Exception(
+            'UsuÃƒÆ’Ã‚Â¡rio nÃƒÆ’Ã‚Â£o autenticado para upload de anexo');
       }
 
       if (_fotoSelecionada != null) {
@@ -263,7 +264,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
       AppNotif.show(
         context,
         titulo: 'Erro ao salvar',
-        mensagem: 'Não foi possível salvar com anexos: $e',
+        mensagem: 'NÃƒÆ’Ã‚Â£o foi possÃƒÆ’Ã‚Â­vel salvar com anexos: $e',
         tipo: 'alerta',
         cor: AppColors.danger,
       );
@@ -277,7 +278,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
     final mes = dt.month.toString().padLeft(2, '0');
     final h = dt.hour.toString().padLeft(2, '0');
     final m = dt.minute.toString().padLeft(2, '0');
-    return '$dia/$mes/${dt.year} às $h:$m';
+    return '$dia/$mes/${dt.year} ÃƒÆ’Ã‚Â s $h:$m';
   }
 
   @override
@@ -313,9 +314,9 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Seletor de Tipo ─────────────────────────────────────────
-              const Text('Tipo', style: AppTextStyles.h4),
-              const SizedBox(height: Dimensions.spacingSM),
+              // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Seletor de Tipo ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+              Text('Tipo', style: AppTextStyles.h4),
+              SizedBox(height: Dimensions.spacingSM),
               Row(
                 children: TipoLembrete.values.map((tipo) {
                   final sel = _tipo == tipo;
@@ -345,7 +346,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                               Icon(tipo.icone,
                                   color: sel ? tipo.cor : AppColors.inactive,
                                   size: 20),
-                              const SizedBox(height: 4),
+                              SizedBox(height: 4),
                               Text(
                                 tipo.nome,
                                 style: AppTextStyles.caption.copyWith(
@@ -365,63 +366,63 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                 }).toList(),
               ),
 
-              const SizedBox(height: Dimensions.spacingLG),
+              SizedBox(height: Dimensions.spacingLG),
 
-              // ── Título ──────────────────────────────────────────────────
+              // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ TÃƒÆ’Ã‚Â­tulo ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
               TextFormField(
                 controller: _tituloController,
                 decoration: InputDecoration(
-                  labelText: 'Título *',
+                  labelText: 'TÃƒÆ’Ã‚Â­tulo *',
                   hintText: _tipo == TipoLembrete.tarefa
                       ? 'O que precisa fazer?'
                       : _tipo == TipoLembrete.lembrete
                           ? 'Do que quer ser lembrado?'
-                          : 'Assunto da anotação',
-                  prefixIcon: const Icon(Icons.title),
+                          : 'Assunto da anotaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o',
+                  prefixIcon: Icon(Icons.title),
                 ),
                 textCapitalization: TextCapitalization.sentences,
                 validator: (v) => (v == null || v.trim().isEmpty)
-                    ? 'Título é obrigatório'
+                    ? 'TÃƒÆ’Ã‚Â­tulo ÃƒÆ’Ã‚Â© obrigatÃƒÆ’Ã‚Â³rio'
                     : null,
               ),
 
-              const SizedBox(height: Dimensions.spacingMD),
+              SizedBox(height: Dimensions.spacingMD),
 
-              // ── Conteúdo ────────────────────────────────────────────────
+              // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ ConteÃƒÆ’Ã‚Âºdo ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
               TextFormField(
                 controller: _conteudoController,
                 decoration: InputDecoration(
                   labelText: _tipo == TipoLembrete.tarefa
                       ? 'Detalhes (opcional)'
-                      : 'Conteúdo',
+                      : 'ConteÃƒÆ’Ã‚Âºdo',
                   hintText: _tipo == TipoLembrete.anotacao
-                      ? 'Escreva sua anotação...'
+                      ? 'Escreva sua anotaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o...'
                       : _tipo == TipoLembrete.tarefa
-                          ? 'Mais informações sobre a tarefa...'
+                          ? 'Mais informaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes sobre a tarefa...'
                           : 'Detalhes do lembrete...',
-                  prefixIcon: const Icon(Icons.notes),
+                  prefixIcon: Icon(Icons.notes),
                   alignLabelWithHint: true,
                 ),
                 maxLines: 4,
                 textCapitalization: TextCapitalization.sentences,
                 validator: _tipo == TipoLembrete.anotacao
                     ? (v) => (v == null || v.trim().isEmpty)
-                        ? 'Conteúdo é obrigatório para anotações'
+                        ? 'ConteÃƒÆ’Ã‚Âºdo ÃƒÆ’Ã‚Â© obrigatÃƒÆ’Ã‚Â³rio para anotaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes'
                         : null
                     : null,
               ),
 
-              // ── Data / Prazo (Lembrete e Tarefa) ────────────────────────
+              // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Data / Prazo (Lembrete e Tarefa) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
 
-              const SizedBox(height: Dimensions.spacingMD),
-              const Text('Anexos (opcional)', style: AppTextStyles.h4),
-              const SizedBox(height: Dimensions.spacingSM),
+              SizedBox(height: Dimensions.spacingMD),
+              Text('Anexos (opcional)', style: AppTextStyles.h4),
+              SizedBox(height: Dimensions.spacingSM),
               Card(
                 child: Column(
                   children: [
                     ListTile(
-                      leading: const Icon(Icons.photo_camera_outlined),
-                      title: const Text('Foto'),
+                      leading: Icon(Icons.photo_camera_outlined),
+                      title: Text('Foto'),
                       subtitle: Text(
                         _fotoSelecionada?.nomeArquivo ??
                             _fotoNomeAtual ??
@@ -435,21 +436,21 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                           if (_fotoSelecionada != null || _fotoUrlAtual != null)
                             IconButton(
                               onPressed: _salvando ? null : _removerFoto,
-                              icon: const Icon(Icons.delete_outline),
+                              icon: Icon(Icons.delete_outline),
                               tooltip: 'Remover foto',
                             ),
                           IconButton(
                             onPressed: _salvando ? null : _selecionarFoto,
-                            icon: const Icon(Icons.add_a_photo_outlined),
+                            icon: Icon(Icons.add_a_photo_outlined),
                             tooltip: 'Selecionar foto',
                           ),
                         ],
                       ),
                     ),
-                    const Divider(height: 1),
+                    Divider(height: 1),
                     ListTile(
-                      leading: const Icon(Icons.attach_file),
-                      title: const Text('Arquivo'),
+                      leading: Icon(Icons.attach_file),
+                      title: Text('Arquivo'),
                       subtitle: Text(
                         _arquivoSelecionado?.nomeArquivo ??
                             _arquivoNomeAtual ??
@@ -464,12 +465,12 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                               _arquivoUrlAtual != null)
                             IconButton(
                               onPressed: _salvando ? null : _removerArquivo,
-                              icon: const Icon(Icons.delete_outline),
+                              icon: Icon(Icons.delete_outline),
                               tooltip: 'Remover arquivo',
                             ),
                           IconButton(
                             onPressed: _salvando ? null : _selecionarArquivo,
-                            icon: const Icon(Icons.upload_file_outlined),
+                            icon: Icon(Icons.upload_file_outlined),
                             tooltip: 'Selecionar arquivo',
                           ),
                         ],
@@ -480,10 +481,10 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
               ),
 
               if (showDate) ...[
-                const SizedBox(height: Dimensions.spacingMD),
+                SizedBox(height: Dimensions.spacingMD),
                 Card(
                   child: ListTile(
-                    leading: const Icon(Icons.alarm, color: AppColors.primary),
+                    leading: Icon(Icons.alarm, color: AppColors.primary),
                     title: Text(
                       _tipo == TipoLembrete.tarefa
                           ? 'Prazo (opcional)'
@@ -492,7 +493,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                     subtitle: Text(
                       _dataLembrete != null
                           ? _formatDataLembrete(_dataLembrete!)
-                          : 'Não definido',
+                          : 'NÃƒÆ’Ã‚Â£o definido',
                       style: AppTextStyles.body.copyWith(
                         color: _dataLembrete != null
                             ? AppColors.primary
@@ -504,12 +505,12 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                       children: [
                         if (_dataLembrete != null)
                           IconButton(
-                            icon: const Icon(Icons.clear, size: 18),
+                            icon: Icon(Icons.clear, size: 18),
                             onPressed: () =>
                                 setState(() => _dataLembrete = null),
                           ),
                         IconButton(
-                          icon: const Icon(Icons.edit_calendar),
+                          icon: Icon(Icons.edit_calendar),
                           onPressed: _selecionarDataHora,
                         ),
                       ],
@@ -518,11 +519,12 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                 ),
               ],
 
-              // ── Toggle notificação (só Lembrete) ─────────────────────────
+              // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Toggle notificaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o (sÃƒÆ’Ã‚Â³ Lembrete) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
               if (_tipo == TipoLembrete.lembrete) ...[
                 SwitchListTile(
-                  title: const Text('Notificação ativa'),
-                  subtitle: const Text('Desative se não quiser ser notificado'),
+                  title: Text('NotificaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ativa'),
+                  subtitle:
+                      Text('Desative se nÃƒÆ’Ã‚Â£o quiser ser notificado'),
                   value: _lembreteAtivo,
                   onChanged: (v) => setState(() => _lembreteAtivo = v),
                   activeThumbColor: AppColors.primary,
@@ -530,9 +532,9 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                 ),
               ],
 
-              const SizedBox(height: Dimensions.spacingMD),
+              SizedBox(height: Dimensions.spacingMD),
 
-              // ── Banner de importante ────────────────────────────────────
+              // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Banner de importante ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
               if (_importante)
                 Container(
                   padding: const EdgeInsets.all(Dimensions.paddingSM),
@@ -544,8 +546,8 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.star, color: Colors.orange, size: 18),
-                      const SizedBox(width: 8),
+                      Icon(Icons.star, color: Colors.orange, size: 18),
+                      SizedBox(width: 8),
                       Text(
                         'Marcado como importante',
                         style: AppTextStyles.caption.copyWith(
@@ -557,9 +559,9 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                   ),
                 ),
 
-              const SizedBox(height: Dimensions.spacingXL),
+              SizedBox(height: Dimensions.spacingXL),
 
-              // ── Botões ──────────────────────────────────────────────────
+              // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ BotÃƒÆ’Ã‚Âµes ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
               Row(
                 children: [
                   Expanded(
@@ -570,10 +572,10 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                         minimumSize:
                             const Size.fromHeight(Dimensions.buttonHeight),
                       ),
-                      child: const Text('Cancelar'),
+                      child: Text('Cancelar'),
                     ),
                   ),
-                  const SizedBox(width: Dimensions.spacingSM),
+                  SizedBox(width: Dimensions.spacingSM),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _salvando ? null : _salvar,
@@ -584,7 +586,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                         foregroundColor: Colors.white,
                       ),
                       child: _salvando
-                          ? const SizedBox(
+                          ? SizedBox(
                               width: 18,
                               height: 18,
                               child: CircularProgressIndicator(

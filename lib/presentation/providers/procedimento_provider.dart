@@ -71,7 +71,8 @@ class Procedimento {
   final String id;
   final String titulo;
   final String descricao;
-  final String categoria; // abertura, fechamento, emergencia, rotina, fiscal, caixa
+  final String
+      categoria; // abertura, fechamento, emergencia, rotina, fiscal, caixa
   final List<String> passos;
   bool favorito;
   final int? tempoEstimado;
@@ -231,10 +232,10 @@ class ProcedimentoProvider with ChangeNotifier {
           .eq('id', id)
           .then((_) {})
           .catchError((e) {
-        if (kDebugMode) {
-          debugPrint('[ProcedimentoProvider] Erro ao toggle: $e');
-        }
-      });
+            if (kDebugMode) {
+              debugPrint('[ProcedimentoProvider] Erro ao toggle: $e');
+            }
+          });
     }
   }
 
@@ -282,22 +283,26 @@ class ProcedimentoProvider with ChangeNotifier {
   // ── Internos ───────────────────────────────────────────────────────────────
 
   void _upsert(Procedimento p, {String? seedKey}) {
-    SupabaseClientManager.client.from(_table).upsert({
-      'id': p.id,
-      'fiscal_id': _fiscalId,
-      if (seedKey != null) 'seed_key': seedKey,
-      'titulo': p.titulo,
-      'descricao': p.descricao,
-      'categoria': p.categoria,
-      'passos': p.passos,
-      'favorito': p.favorito,
-      'tempo_estimado': p.tempoEstimado,
-      'updated_at': DateTime.now().toIso8601String(),
-    }).then((_) {}).catchError((e) {
-      if (kDebugMode) {
-        debugPrint('[ProcedimentoProvider] Erro ao sync: $e');
-      }
-    });
+    SupabaseClientManager.client
+        .from(_table)
+        .upsert({
+          'id': p.id,
+          'fiscal_id': _fiscalId,
+          if (seedKey != null) 'seed_key': seedKey,
+          'titulo': p.titulo,
+          'descricao': p.descricao,
+          'categoria': p.categoria,
+          'passos': p.passos,
+          'favorito': p.favorito,
+          'tempo_estimado': p.tempoEstimado,
+          'updated_at': DateTime.now().toIso8601String(),
+        })
+        .then((_) {})
+        .catchError((e) {
+          if (kDebugMode) {
+            debugPrint('[ProcedimentoProvider] Erro ao sync: $e');
+          }
+        });
   }
 
   Future<void> _seedProcedimentos() async {
@@ -342,7 +347,8 @@ class ProcedimentoProvider with ChangeNotifier {
         Procedimento(
           id: const Uuid().v4(),
           titulo: 'FATURA DM CARD',
-          descricao: 'Procedimento para processar e emitir fatura do cartão DM Card',
+          descricao:
+              'Procedimento para processar e emitir fatura do cartão DM Card',
           categoria: 'caixa',
           passos: [
             'Acessar o sistema',
@@ -405,7 +411,8 @@ class ProcedimentoProvider with ChangeNotifier {
         Procedimento(
           id: const Uuid().v4(),
           titulo: 'IMPRIMIR VASILHAMES',
-          descricao: 'Procedimento para imprimir etiquetas de controle de vasilhames',
+          descricao:
+              'Procedimento para imprimir etiquetas de controle de vasilhames',
           categoria: 'rotina',
           passos: [
             'Acessar Sistema > Relatórios',

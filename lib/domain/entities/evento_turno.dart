@@ -7,8 +7,10 @@ enum TipoEvento {
   cafeEncerrado('cafe_encerrado', 'Café encerrado'),
   intervaloIniciado('intervalo_iniciado', 'Intervalo iniciado'),
   intervaloEncerrado('intervalo_encerrado', 'Intervalo encerrado'),
-  intervaloMarcadoFeito('intervalo_marcado_feito', 'Intervalo marcado como feito'),
-  intervaloAguardandoLiberacao('intervalo_aguardando_liberacao', 'Aguardando liberação para intervalo'),
+  intervaloMarcadoFeito(
+      'intervalo_marcado_feito', 'Intervalo marcado como feito'),
+  intervaloAguardandoLiberacao(
+      'intervalo_aguardando_liberacao', 'Aguardando liberação para intervalo'),
   empacotadorAdicionado('empacotador_adicionado', 'Empacotador adicionado'),
   empacotadorRemovido('empacotador_removido', 'Empacotador removido'),
   checklistConcluido('checklist_concluido', 'Checklist concluído'),

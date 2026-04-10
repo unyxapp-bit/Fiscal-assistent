@@ -19,7 +19,7 @@ import 'pacote_detalhes_sheet.dart';
 
 const Color _kPacoteColor = Color(0xFF795548); // marrom
 
-/// Seção de plantão de empacotadores no Mapa
+/// SeÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o de plantÃƒÆ’Ã‚Â£o de empacotadores no Mapa
 class PacoteSection extends StatelessWidget {
   const PacoteSection({super.key});
 
@@ -32,11 +32,11 @@ class PacoteSection extends StatelessWidget {
     final eventoProvider =
         Provider.of<EventoTurnoProvider>(context, listen: false);
     final escalaProvider = Provider.of<EscalaProvider>(context, listen: false);
-    // listen: true — CafeProvider notifica a cada segundo via Timer.periodic,
+    // listen: true ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â CafeProvider notifica a cada segundo via Timer.periodic,
     // fazendo o countdown de intervalo atualizar automaticamente.
     final cafeProvider = Provider.of<CafeProvider>(context);
 
-    // Função local: positivo = minutos atrasado, negativo = minutos restantes
+    // FunÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o local: positivo = minutos atrasado, negativo = minutos restantes
     int? calcMinIntervalo(TurnoLocal? turno) {
       if (turno?.intervalo == null) return null;
       final parts = turno!.intervalo!.split(':');
@@ -53,7 +53,7 @@ class PacoteSection extends StatelessWidget {
         alocacaoProvider.isIntervaloMarcado(colaboradorId) ||
         cafeProvider.colaboradorJaFezIntervaloHoje(colaboradorId);
 
-    // Verifica se algum empacotador está em atenção (15+ min atrasado)
+    // Verifica se algum empacotador estÃƒÆ’Ã‚Â¡ em atenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o (15+ min atrasado)
     final hayAtencao = plantao.any((p) {
       final turno = escalaProvider.turnosHoje
           .where((t) => t.colaboradorId == p.colaboradorId)
@@ -80,7 +80,7 @@ class PacoteSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Cabeçalho
+            // CabeÃƒÆ’Ã‚Â§alho
             Row(
               children: [
                 Icon(
@@ -88,7 +88,7 @@ class PacoteSection extends StatelessWidget {
                   color: hayAtencao ? AppColors.danger : _kPacoteColor,
                   size: 20,
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Text(
                   'Pacotes',
                   style: AppTextStyles.subtitle.copyWith(
@@ -119,14 +119,14 @@ class PacoteSection extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: Dimensions.spacingMD),
+            SizedBox(height: Dimensions.spacingMD),
 
-            // Chips de empacotadores + botão adicionar
+            // Chips de empacotadores + botÃƒÆ’Ã‚Â£o adicionar
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
-                // Chips dos empacotadores no plantão
+                // Chips dos empacotadores no plantÃƒÆ’Ã‚Â£o
                 ...plantao.map((p) {
                   final colaborador = colaboradorProvider.colaboradores
                       .cast<Colaborador?>()
@@ -152,7 +152,7 @@ class PacoteSection extends StatelessWidget {
                       : calcMinIntervalo(turno);
                   final emAtencao = minIntervalo != null && minIntervalo >= 15;
 
-                  // Cor e label dinâmicos
+                  // Cor e label dinÃƒÆ’Ã‚Â¢micos
                   final Color chipColor;
                   final String chipLabel;
                   final IconData chipAvatarIcon;
@@ -161,7 +161,7 @@ class PacoteSection extends StatelessWidget {
                     final isCafe = pausaAtiva.isCafe;
                     chipColor = Colors.orange;
                     chipLabel =
-                        '${nome.split(' ').first} · ${pausaAtiva.minutosDecorridos}min';
+                        '${nome.split(' ').first} Ãƒâ€šÃ‚Â· ${pausaAtiva.minutosDecorridos}min';
                     chipAvatarIcon = isCafe ? Icons.coffee : Icons.restaurant;
                   } else if (isIntervaloConcluido) {
                     chipColor = AppColors.success;
@@ -169,18 +169,20 @@ class PacoteSection extends StatelessWidget {
                     chipAvatarIcon = Icons.check_circle;
                   } else if (emAtencao) {
                     chipColor = AppColors.danger;
-                    chipLabel = '${nome.split(' ').first} · ${minIntervalo}min';
+                    chipLabel =
+                        '${nome.split(' ').first} Ãƒâ€šÃ‚Â· ${minIntervalo}min';
                     chipAvatarIcon = Icons.warning_amber_rounded;
                   } else if (minIntervalo != null && minIntervalo >= 0) {
-                    // Atraso leve (0–14 min)
+                    // Atraso leve (0ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“14 min)
                     chipColor = Colors.amber.shade700;
-                    chipLabel = '${nome.split(' ').first} · ${minIntervalo}min';
+                    chipLabel =
+                        '${nome.split(' ').first} Ãƒâ€šÃ‚Â· ${minIntervalo}min';
                     chipAvatarIcon = Icons.schedule;
                   } else if (minIntervalo != null && minIntervalo > -60) {
-                    // Countdown (1–59 min antes)
+                    // Countdown (1ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“59 min antes)
                     chipColor = Colors.orange.shade600;
                     chipLabel =
-                        '${nome.split(' ').first} · ${-minIntervalo}min';
+                        '${nome.split(' ').first} Ãƒâ€šÃ‚Â· ${-minIntervalo}min';
                     chipAvatarIcon = Icons.schedule;
                   } else {
                     chipColor = _kPacoteColor;
@@ -207,7 +209,7 @@ class PacoteSection extends StatelessWidget {
                             backgroundColor: chipColor,
                             child: Text(
                               iniciais,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
@@ -221,7 +223,7 @@ class PacoteSection extends StatelessWidget {
                         color: chipColor,
                       ),
                     ),
-                    deleteIcon: const Icon(Icons.close, size: 16),
+                    deleteIcon: Icon(Icons.close, size: 16),
                     deleteIconColor: Colors.red,
                     onDeleted: () {
                       eventoProvider.registrar(
@@ -241,9 +243,9 @@ class PacoteSection extends StatelessWidget {
                   );
                 }),
 
-                // Botão adicionar
+                // BotÃƒÆ’Ã‚Â£o adicionar
                 ActionChip(
-                  avatar: const Icon(Icons.add, size: 16, color: _kPacoteColor),
+                  avatar: Icon(Icons.add, size: 16, color: _kPacoteColor),
                   label: Text(
                     '+ Empacotador',
                     style: AppTextStyles.caption.copyWith(color: _kPacoteColor),
@@ -262,9 +264,9 @@ class PacoteSection extends StatelessWidget {
               ],
             ),
 
-            // Banner de atenção — aparece quando há atraso ≥ 15 min
+            // Banner de atenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â aparece quando hÃƒÆ’Ã‚Â¡ atraso ÃƒÂ¢Ã¢â‚¬Â°Ã‚Â¥ 15 min
             if (hayAtencao) ...[
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -272,7 +274,7 @@ class PacoteSection extends StatelessWidget {
                   color: AppColors.danger.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(Icons.warning_amber_rounded,
                         size: 14, color: AppColors.danger),
@@ -310,7 +312,7 @@ class PacoteSection extends StatelessWidget {
     if (colaborador == null) {
       AppNotif.show(
         context,
-        titulo: 'Empacotador não encontrado',
+        titulo: 'Empacotador nÃƒÆ’Ã‚Â£o encontrado',
         mensagem: 'Atualize a lista de colaboradores para ver os detalhes.',
         tipo: 'alerta',
         cor: AppColors.warning,
@@ -328,7 +330,7 @@ class PacoteSection extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -352,7 +354,7 @@ class PacoteSection extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -366,7 +368,7 @@ class PacoteSection extends StatelessWidget {
   }
 }
 
-// ── Picker de empacotadores ────────────────────────────────────────────────────
+// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Picker de empacotadores ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
 
 class _EmpacotadorPickerSheet extends StatelessWidget {
   final String fiscalId;
@@ -385,12 +387,14 @@ class _EmpacotadorPickerSheet extends StatelessWidget {
     if (turno == null) return 'Sem escala hoje';
     final partes = <String>[];
     if (turno.entrada != null && turno.saida != null) {
-      partes.add('${turno.entrada}–${turno.saida}');
+      partes.add('${turno.entrada}ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“${turno.saida}');
     }
     if (turno.intervalo != null) {
       partes.add('Intervalo: ${turno.intervalo}');
     }
-    return partes.isEmpty ? 'Sem horário' : partes.join('  •  ');
+    return partes.isEmpty
+        ? 'Sem horÃƒÆ’Ã‚Â¡rio'
+        : partes.join('  ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢  ');
   }
 
   @override
@@ -400,7 +404,7 @@ class _EmpacotadorPickerSheet extends StatelessWidget {
         .map((t) => t.colaboradorId)
         .toSet();
 
-    // Apenas empacotadores ativos que ainda não estão na lista hoje
+    // Apenas empacotadores ativos que ainda nÃƒÆ’Ã‚Â£o estÃƒÆ’Ã‚Â£o na lista hoje
     final disponiveis = colaboradorProvider.colaboradores
         .where((c) =>
             c.ativo &&
@@ -430,16 +434,17 @@ class _EmpacotadorPickerSheet extends StatelessWidget {
               const Spacer(),
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close),
+                icon: Icon(Icons.close),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           if (disponiveis.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(vertical: 24),
               child: Center(
-                child: Text('Todos os empacotadores já estão na lista'),
+                child: Text(
+                    'Todos os empacotadores jÃƒÆ’Ã‚Â¡ estÃƒÆ’Ã‚Â£o na lista'),
               ),
             )
           else
@@ -460,7 +465,7 @@ class _EmpacotadorPickerSheet extends StatelessWidget {
                       backgroundColor: _kPacoteColor,
                       child: Text(
                         colaborador.iniciais,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 13,
                           fontWeight: FontWeight.bold,

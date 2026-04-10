@@ -72,13 +72,13 @@ class ChecklistExecucaoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = Provider.of<ChecklistProvider>(context);
 
-    // Recupera a execução atual
+    // Recupera a execuÃƒÂ§ÃƒÂ£o atual
     final exec = provider.todas.firstWhere(
       (e) => e.id == execucaoId,
       orElse: () => provider.todas.first,
     );
 
-    // Resolve título e cor a partir do template (com fallback legado)
+    // Resolve tÃƒÂ­tulo e cor a partir do template (com fallback legado)
     ChecklistTemplate? template;
     try {
       template = provider.templates.firstWhere((t) => t.id == exec.tipo);
@@ -123,8 +123,8 @@ class ChecklistExecucaoScreen extends StatelessWidget {
                   }
                   AppNotif.show(
                     context,
-                    titulo: 'Checklist Concluído',
-                    mensagem: '$titulo concluído!',
+                    titulo: 'Checklist ConcluÃƒÂ­do',
+                    mensagem: '$titulo concluÃƒÂ­do!',
                     tipo: 'saida',
                     cor: AppColors.success,
                   );
@@ -138,9 +138,9 @@ class ChecklistExecucaoScreen extends StatelessWidget {
                   );
                 }
               },
-              icon: const Icon(Icons.check_circle, color: AppColors.success),
-              label: const Text('Concluir',
-                  style: TextStyle(color: AppColors.success)),
+              icon: Icon(Icons.check_circle, color: AppColors.success),
+              label:
+                  Text('Concluir', style: TextStyle(color: AppColors.success)),
             ),
           PopupMenuButton<String>(
             onSelected: (value) {
@@ -178,7 +178,7 @@ class ChecklistExecucaoScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // ── Barra de progresso ───────────────────────────────────────────
+          // Ã¢â€â‚¬Ã¢â€â‚¬ Barra de progresso Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
           Padding(
             padding: const EdgeInsets.fromLTRB(
                 Dimensions.paddingMD, 8, Dimensions.paddingMD, 0),
@@ -205,7 +205,7 @@ class ChecklistExecucaoScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 LinearProgressIndicator(
                   value: progresso,
                   backgroundColor: AppColors.inactive.withValues(alpha: 0.2),
@@ -220,7 +220,7 @@ class ChecklistExecucaoScreen extends StatelessWidget {
           ),
 
           if (concluido) ...[
-            const SizedBox(height: Dimensions.spacingSM),
+            SizedBox(height: Dimensions.spacingSM),
             Container(
               margin:
                   const EdgeInsets.symmetric(horizontal: Dimensions.paddingMD),
@@ -234,11 +234,10 @@ class ChecklistExecucaoScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.check_circle,
-                      color: AppColors.success, size: 18),
-                  const SizedBox(width: 8),
+                  Icon(Icons.check_circle, color: AppColors.success, size: 18),
+                  SizedBox(width: 8),
                   Text(
-                    'Checklist concluído!',
+                    'Checklist concluÃƒÂ­do!',
                     style: AppTextStyles.body.copyWith(
                         color: AppColors.success, fontWeight: FontWeight.w600),
                   ),
@@ -247,16 +246,16 @@ class ChecklistExecucaoScreen extends StatelessWidget {
             ),
           ],
 
-          const SizedBox(height: Dimensions.spacingMD),
+          SizedBox(height: Dimensions.spacingMD),
 
-          // ── Lista de itens ───────────────────────────────────────────────
+          // Ã¢â€â‚¬Ã¢â€â‚¬ Lista de itens Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
           Expanded(
             child: ListView.separated(
               padding:
                   const EdgeInsets.symmetric(horizontal: Dimensions.paddingMD),
               itemCount: exec.itens.length,
               separatorBuilder: (_, __) =>
-                  const Divider(height: 1, indent: 16, endIndent: 16),
+                  Divider(height: 1, indent: 16, endIndent: 16),
               itemBuilder: (ctx, i) {
                 final marcado = exec.itensMarcados[i] == true;
                 return CheckboxListTile(

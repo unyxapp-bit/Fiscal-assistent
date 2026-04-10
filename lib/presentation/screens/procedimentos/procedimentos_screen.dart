@@ -42,20 +42,19 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Excluir procedimento'),
+        title: Text('Excluir procedimento'),
         content: Text('Excluir "${proc.titulo}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
               provider.removerProcedimento(proc.id);
               Navigator.pop(ctx);
             },
-            child: const Text('Excluir',
-                style: TextStyle(color: AppColors.danger)),
+            child: Text('Excluir', style: TextStyle(color: AppColors.danger)),
           ),
         ],
       ),
@@ -97,7 +96,7 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
     AppNotif.show(
       context,
       titulo: 'Copiado',
-      mensagem: 'Copiado para área de transferência',
+      mensagem: 'Copiado para ÃƒÂ¡rea de transferÃƒÂªncia',
       tipo: 'intervalo',
     );
   }
@@ -124,7 +123,7 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 proc.categoria.categoriaNome,
                 style: AppTextStyles.caption
@@ -133,9 +132,8 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
               if (proc.tempoEstimado != null)
                 Row(
                   children: [
-                    const Icon(Icons.timer,
-                        size: 12, color: AppColors.textSecondary),
-                    const SizedBox(width: 3),
+                    Icon(Icons.timer, size: 12, color: AppColors.textSecondary),
+                    SizedBox(width: 3),
                     Text(
                       '${proc.tempoEstimado} min',
                       style: AppTextStyles.caption
@@ -146,26 +144,23 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
             ],
           ),
           trailing: PopupMenuButton<String>(
-            onSelected: (v) =>
-                _onMenuSelected(v, proc, provider, context),
+            onSelected: (v) => _onMenuSelected(v, proc, provider, context),
             itemBuilder: (_) => [
               PopupMenuItem(
                 value: 'favorito',
                 child: Row(children: [
                   Icon(
-                    proc.favorito
-                        ? Icons.star
-                        : Icons.star_outline,
+                    proc.favorito ? Icons.star : Icons.star_outline,
                     size: 18,
                     color: Colors.orange,
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Text(proc.favorito
                       ? 'Remover favorito'
                       : 'Adicionar favorito'),
                 ]),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'editar',
                 child: Row(children: [
                   Icon(Icons.edit, size: 18),
@@ -173,7 +168,7 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                   Text('Editar'),
                 ]),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'copiar',
                 child: Row(children: [
                   Icon(Icons.copy, size: 18),
@@ -181,13 +176,12 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                   Text('Copiar'),
                 ]),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'deletar',
                 child: Row(children: [
                   Icon(Icons.delete, size: 18, color: AppColors.danger),
                   SizedBox(width: 8),
-                  Text('Deletar',
-                      style: TextStyle(color: AppColors.danger)),
+                  Text('Deletar', style: TextStyle(color: AppColors.danger)),
                 ]),
               ),
             ],
@@ -201,20 +195,19 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
   Widget build(BuildContext context) {
     final provider = Provider.of<ProcedimentoProvider>(context);
     final filtrados = provider.procedimentosFiltrados;
-    final isFiltering = _searchController.text.isNotEmpty ||
-        provider.filtroCategoria != null;
-    final favoritosFiltrados =
-        filtrados.where((p) => p.favorito).toList();
+    final isFiltering =
+        _searchController.text.isNotEmpty || provider.filtroCategoria != null;
+    final favoritosFiltrados = filtrados.where((p) => p.favorito).toList();
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Procedimentos'),
+        title: Text('Procedimentos'),
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: Icon(Icons.add),
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => const ProcedimentoFormScreen(),
             )),
@@ -224,7 +217,7 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
       ),
       body: Column(
         children: [
-          // ── Busca ────────────────────────────────────────────────────────
+          // Ã¢â€â‚¬Ã¢â€â‚¬ Busca Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
           Padding(
             padding: const EdgeInsets.fromLTRB(
                 Dimensions.paddingMD, 8, Dimensions.paddingMD, 4),
@@ -232,10 +225,10 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Buscar procedimento...',
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: Icon(Icons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear),
+                        icon: Icon(Icons.clear),
                         onPressed: () {
                           _searchController.clear();
                           provider.setSearchQuery('');
@@ -244,15 +237,14 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                     : null,
                 isDense: true,
                 border: OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(Dimensions.radiusMD),
+                  borderRadius: BorderRadius.circular(Dimensions.radiusMD),
                 ),
               ),
               onChanged: provider.setSearchQuery,
             ),
           ),
 
-          // ── Chips de categoria ────────────────────────────────────────────
+          // Ã¢â€â‚¬Ã¢â€â‚¬ Chips de categoria Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(
@@ -263,13 +255,10 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: FilterChip(
-                    label: Text(
-                        'Todos (${provider.procedimentos.length})'),
+                    label: Text('Todos (${provider.procedimentos.length})'),
                     selected: provider.filtroCategoria == null,
-                    onSelected: (_) =>
-                        provider.setFiltroCategoria(null),
-                    selectedColor:
-                        AppColors.primary.withValues(alpha: 0.15),
+                    onSelected: (_) => provider.setFiltroCategoria(null),
+                    selectedColor: AppColors.primary.withValues(alpha: 0.15),
                     checkmarkColor: AppColors.primary,
                     labelStyle: TextStyle(
                       color: provider.filtroCategoria == null
@@ -290,20 +279,16 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: FilterChip(
-                      label:
-                          Text('${cat.categoriaNome} ($count)'),
+                      label: Text('${cat.categoriaNome} ($count)'),
                       selected: isSelected,
-                      onSelected: (_) => provider.setFiltroCategoria(
-                          isSelected ? null : cat),
+                      onSelected: (_) =>
+                          provider.setFiltroCategoria(isSelected ? null : cat),
                       selectedColor: cor.withValues(alpha: 0.15),
                       checkmarkColor: cor,
                       labelStyle: TextStyle(
-                        color: isSelected
-                            ? cor
-                            : AppColors.textSecondary,
-                        fontWeight: isSelected
-                            ? FontWeight.w600
-                            : FontWeight.normal,
+                        color: isSelected ? cor : AppColors.textSecondary,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.normal,
                       ),
                     ),
                   );
@@ -312,16 +297,16 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
             ),
           ),
 
-          // ── Lista ─────────────────────────────────────────────────────────
+          // Ã¢â€â‚¬Ã¢â€â‚¬ Lista Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
           Expanded(
             child: filtrados.isEmpty
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.menu_book,
+                        Icon(Icons.menu_book,
                             size: 64, color: AppColors.inactive),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         Text(
                           isFiltering
                               ? 'Nenhum resultado encontrado'
@@ -333,32 +318,29 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                     ),
                   )
                 : SingleChildScrollView(
-                    padding:
-                        const EdgeInsets.all(Dimensions.paddingMD),
+                    padding: const EdgeInsets.all(Dimensions.paddingMD),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Seção Favoritos (só quando não está filtrando)
-                        if (!isFiltering &&
-                            favoritosFiltrados.isNotEmpty) ...[
-                          const Text('Favoritos',
-                              style: AppTextStyles.h3),
-                          const SizedBox(height: Dimensions.spacingSM),
-                          ...favoritosFiltrados.map((proc) =>
-                              _buildCard(context, proc, provider)),
-                          const SizedBox(height: Dimensions.spacingLG),
+                        // SeÃƒÂ§ÃƒÂ£o Favoritos (sÃƒÂ³ quando nÃƒÂ£o estÃƒÂ¡ filtrando)
+                        if (!isFiltering && favoritosFiltrados.isNotEmpty) ...[
+                          Text('Favoritos', style: AppTextStyles.h3),
+                          SizedBox(height: Dimensions.spacingSM),
+                          ...favoritosFiltrados.map(
+                              (proc) => _buildCard(context, proc, provider)),
+                          SizedBox(height: Dimensions.spacingLG),
                         ],
 
-                        // Seção Todos
+                        // SeÃƒÂ§ÃƒÂ£o Todos
                         Text(
                           isFiltering
                               ? 'Resultados (${filtrados.length})'
                               : 'Todos os Procedimentos',
                           style: AppTextStyles.h3,
                         ),
-                        const SizedBox(height: Dimensions.spacingSM),
-                        ...filtrados.map((proc) =>
-                            _buildCard(context, proc, provider)),
+                        SizedBox(height: Dimensions.spacingSM),
+                        ...filtrados
+                            .map((proc) => _buildCard(context, proc, provider)),
                       ],
                     ),
                   ),

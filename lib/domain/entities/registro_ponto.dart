@@ -5,10 +5,10 @@ class RegistroPonto extends Equatable {
   final String id;
   final String colaboradorId;
   final DateTime data;
-  final String? entrada;          // HH:mm
-  final String? intervaloSaida;   // HH:mm — saída para intervalo
+  final String? entrada; // HH:mm
+  final String? intervaloSaida; // HH:mm — saída para intervalo
   final String? intervaloRetorno; // HH:mm — retorno do intervalo
-  final String? saida;            // HH:mm
+  final String? saida; // HH:mm
   final String? observacao;
 
   const RegistroPonto({

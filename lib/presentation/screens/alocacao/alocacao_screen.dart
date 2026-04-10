@@ -22,7 +22,7 @@ import '../../providers/outro_setor_provider.dart';
 import '../../../core/utils/app_notif.dart';
 import '../../widgets/excecao_dialog.dart';
 
-/// Tela de alocação — lista colaboradores disponíveis agora e permite
+/// Tela de alocaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â lista colaboradores disponÃƒÆ’Ã‚Â­veis agora e permite
 /// alocar em um caixa com dois toques.
 class AlocacaoScreen extends StatefulWidget {
   final String fiscalId;
@@ -89,7 +89,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(Dimensions.radiusSheet),
         ),
@@ -169,7 +169,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -197,11 +197,11 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     backgroundColor: AppColors.primary,
                     child: Text(
                       turno.colaboradorNome[0].toUpperCase(),
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,23 +222,24 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 ],
               ),
             ),
-            const Divider(height: 1),
+            Divider(height: 1),
             Expanded(
               child: ListView(
                 controller: scrollCtrl,
                 children: [
-                  // ── Opção Empacotador (apenas para depto. pacote e sem troca) ─
+                  // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ OpÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o Empacotador (apenas para depto. pacote e sem troca) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
                   if (isEmpacotador && alocacaoIdParaLiberar == null)
                     ListTile(
                       leading: CircleAvatar(
                         backgroundColor:
                             const Color(0xFF795548).withValues(alpha: 0.10),
-                        child: const Icon(Icons.inventory_2,
-                            color: Color(0xFF795548)),
+                        child:
+                            Icon(Icons.inventory_2, color: Color(0xFF795548)),
                       ),
-                      title: const Text('Empacotador',
+                      title: Text('Empacotador',
                           style: TextStyle(fontWeight: FontWeight.w600)),
-                      subtitle: Text('Adicionar ao plantão de empacotadores',
+                      subtitle: Text(
+                          'Adicionar ao plantÃƒÆ’Ã‚Â£o de empacotadores',
                           style: AppTextStyles.caption
                               .copyWith(color: AppColors.textSecondary)),
                       trailing: ElevatedButton(
@@ -252,7 +253,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                         ),
                         onPressed: () => _alocarComoEmpacotador(
                             sheetCtx, turno, pacoteProvider),
-                        child: const Text('Alocar'),
+                        child: Text('Alocar'),
                       ),
                     ),
                   if (isEmpacotador &&
@@ -262,22 +263,22 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 4),
                       child: Row(children: [
-                        const Expanded(child: Divider()),
+                        Expanded(child: Divider()),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: Text('ou em caixa',
                               style: AppTextStyles.caption
                                   .copyWith(color: AppColors.textSecondary)),
                         ),
-                        const Expanded(child: Divider()),
+                        Expanded(child: Divider()),
                       ]),
                     ),
-                  // ── Caixas disponíveis ────────────────────────────────────
+                  // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Caixas disponÃƒÆ’Ã‚Â­veis ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
                   if (disponiveis.isEmpty && !isEmpacotador)
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.all(24),
                       child: Text(
-                        'Nenhum caixa disponível no momento.',
+                        'Nenhum caixa disponÃƒÆ’Ã‚Â­vel no momento.',
                         style: AppTextStyles.body,
                       ),
                     )
@@ -358,7 +359,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
         context,
         titulo: 'Empacotador Adicionado',
         mensagem:
-            '${turno.colaboradorNome} adicionado ao plantão de empacotadores!',
+            '${turno.colaboradorNome} adicionado ao plantÃƒÆ’Ã‚Â£o de empacotadores!',
         tipo: 'saida',
         cor: const Color(0xFF795548),
       );
@@ -407,7 +408,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
 
     if (alocacaoProvider.mostrarDialogExcecao) {
       final motivo = alocacaoProvider.resultadoExcecao?.motivoExcecao ??
-          'Justifique o motivo da exceção.';
+          'Justifique o motivo da exceÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o.';
       final tipo = alocacaoProvider.resultadoExcecao?.tipoExcecao ?? '';
       await showDialog(
         context: context,
@@ -495,7 +496,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
 
     // 1. Libera o caixa atual
     await alocacaoProvider.liberarAlocacao(alocacaoIdAtual,
-        'Troca de caixa — realocado em ${novoCaixa.nomeExibicao}');
+        'Troca de caixa ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â realocado em ${novoCaixa.nomeExibicao}');
 
     if (!mounted) return;
     if (alocacaoProvider.error != null) {
@@ -528,7 +529,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
 
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -546,7 +547,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            // ── Cabeçalho ──────────────────────────────────────────────────
+            // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ CabeÃƒÆ’Ã‚Â§alho ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
             Row(
               children: [
                 CircleAvatar(
@@ -554,13 +555,13 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                   backgroundColor: AppColors.primary.withValues(alpha: 0.12),
                   child: Text(
                     turno.colaboradorNome[0].toUpperCase(),
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.primary,
                         fontWeight: FontWeight.bold,
                         fontSize: 16),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -571,7 +572,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                           children: [
                             Icon(caixa.tipo.icone,
                                 size: 12, color: AppColors.textSecondary),
-                            const SizedBox(width: 4),
+                            SizedBox(width: 4),
                             Text(
                               caixa.nomeExibicao,
                               style: AppTextStyles.caption
@@ -587,26 +588,26 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
               ],
             ),
 
-            // ── Info de intervalo ──────────────────────────────────────────
+            // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Info de intervalo ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
             if (turno.intervalo != null) ...[
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               _IntervaloBanner(turno: turno),
             ],
 
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
 
-            // ── Ações ──────────────────────────────────────────────────────
+            // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ AÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.blue,
-                      side: const BorderSide(color: Colors.blue),
+                      side: BorderSide(color: Colors.blue),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    icon: const Icon(Icons.swap_horiz, size: 18),
-                    label: const Text('Trocar',
+                    icon: Icon(Icons.swap_horiz, size: 18),
+                    label: Text('Trocar',
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 12)),
                     onPressed: () {
@@ -615,16 +616,16 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     },
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Expanded(
                   child: OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFF5C6BC0),
-                      side: const BorderSide(color: Color(0xFF5C6BC0)),
+                      side: BorderSide(color: Color(0xFF5C6BC0)),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    icon: const Icon(Icons.store, size: 18),
-                    label: const Text('Outro Setor',
+                    icon: Icon(Icons.store, size: 18),
+                    label: Text('Outro Setor',
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 12)),
                     onPressed: () {
@@ -633,7 +634,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     },
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Expanded(
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
@@ -643,8 +644,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    icon: const Icon(Icons.logout, size: 18),
-                    label: const Text('Liberar',
+                    icon: Icon(Icons.logout, size: 18),
+                    label: Text('Liberar',
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 12)),
                     onPressed: () => _confirmarLiberacao(
@@ -703,11 +704,11 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     }
   }
 
-  /// Setores rápidos para seleção
+  /// Setores rÃƒÆ’Ã‚Â¡pidos para seleÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o
   static const _setoresRapidos = [
     'Estoque',
     'Padaria',
-    'Açougue',
+    'AÃƒÆ’Ã‚Â§ougue',
     'Frios',
     'Hortifruti',
     'Limpeza',
@@ -720,7 +721,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     final outroSetorProvider =
         Provider.of<OutroSetorProvider>(context, listen: false);
 
-    // Verifica se já está em outro setor
+    // Verifica se jÃƒÆ’Ã‚Â¡ estÃƒÆ’Ã‚Â¡ em outro setor
     final jaEmOutroSetor = outroSetorProvider.isNaLista(turno.colaboradorId);
     if (jaEmOutroSetor) {
       final item = outroSetorProvider.getByColaborador(turno.colaboradorId);
@@ -729,7 +730,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
         AppNotif.show(
           context,
           titulo: 'Removido do Setor',
-          mensagem: '${turno.colaboradorNome} retornou à disponibilidade.',
+          mensagem:
+              '${turno.colaboradorNome} retornou ÃƒÆ’Ã‚Â  disponibilidade.',
           tipo: 'saida',
           cor: const Color(0xFF5C6BC0),
         );
@@ -742,7 +744,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -773,11 +775,11 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       const Color(0xFF5C6BC0).withValues(alpha: 0.12),
                   child: Text(
                     turno.colaboradorNome[0].toUpperCase(),
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: Color(0xFF5C6BC0), fontWeight: FontWeight.bold),
                   ),
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -793,7 +795,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -807,16 +809,15 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                         },
                         backgroundColor:
                             const Color(0xFF5C6BC0).withValues(alpha: 0.08),
-                        side: const BorderSide(
-                            color: Color(0xFF5C6BC0), width: 0.8),
-                        labelStyle: const TextStyle(
+                        side: BorderSide(color: Color(0xFF5C6BC0), width: 0.8),
+                        labelStyle: TextStyle(
                             color: Color(0xFF5C6BC0),
                             fontWeight: FontWeight.w600,
                             fontSize: 12),
                       ))
                   .toList(),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             TextField(
               controller: customCtrl,
               decoration: InputDecoration(
@@ -832,7 +833,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                   borderSide: BorderSide.none,
                 ),
                 suffixIcon: IconButton(
-                  icon: const Icon(Icons.check, color: Color(0xFF5C6BC0)),
+                  icon: Icon(Icons.check, color: Color(0xFF5C6BC0)),
                   onPressed: () async {
                     final texto = customCtrl.text.trim();
                     if (texto.isEmpty) return;
@@ -1020,7 +1021,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       AppColors.statusAtivo.withValues(alpha: 0.12),
                   child: Text(
                     turno.colaboradorNome[0].toUpperCase(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.statusAtivo,
                       fontWeight: FontWeight.bold,
                     ),
@@ -1034,7 +1035,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       '${turno.entrada}-${turno.saida}',
                   ].join(' | '),
                 ),
-                trailing: const Icon(
+                trailing: Icon(
                   Icons.arrow_forward_ios,
                   size: 14,
                   color: AppColors.textSecondary,
@@ -1067,7 +1068,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
               backgroundColor: AppColors.primary.withValues(alpha: 0.12),
               child: Text(
                 turno.colaboradorNome[0].toUpperCase(),
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.bold,
                 ),
@@ -1077,7 +1078,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
             subtitle: Text(
               '${caixa?.nomeExibicao ?? 'Caixa'} | ${_formatTempoDecorrido(al?.alocadoEm)}',
             ),
-            trailing: const Icon(
+            trailing: Icon(
               Icons.arrow_forward_ios,
               size: 14,
               color: AppColors.textSecondary,
@@ -1112,7 +1113,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
               backgroundColor: AppColors.danger.withValues(alpha: 0.12),
               child: Text(
                 turno.colaboradorNome[0].toUpperCase(),
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.danger,
                   fontWeight: FontWeight.bold,
                 ),
@@ -1122,7 +1123,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
             subtitle: Text(
               '${caixa?.nomeExibicao ?? 'Caixa'} | $atraso min em atraso',
             ),
-            trailing: const Icon(
+            trailing: Icon(
               Icons.arrow_forward_ios,
               size: 14,
               color: AppColors.textSecondary,
@@ -1153,7 +1154,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       AppColors.statusAtencao.withValues(alpha: 0.12),
                   child: Text(
                     turno.colaboradorNome[0].toUpperCase(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.statusAtencao,
                       fontWeight: FontWeight.bold,
                     ),
@@ -1214,12 +1215,12 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Alocar Colaborador'),
+        title: Text('Alocar Colaborador'),
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: Icon(Icons.refresh),
             onPressed: _reload,
           ),
         ],
@@ -1233,7 +1234,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(Dimensions.radiusLG),
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
@@ -1273,21 +1274,21 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                               color: AppColors.primary.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.groups_2_outlined,
                               color: AppColors.primary,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Painel de alocacao',
                                   style: AppTextStyles.h3,
                                 ),
-                                const SizedBox(height: 4),
+                                SizedBox(height: 4),
                                 Text(
                                   '${_cap(dataLabel)} | $horaLabel',
                                   style: AppTextStyles.body.copyWith(
@@ -1315,10 +1316,10 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       ),
                     ),
                     AnimatedCrossFade(
-                      firstChild: const SizedBox(width: double.infinity),
+                      firstChild: SizedBox(width: double.infinity),
                       secondChild: Column(
                         children: [
-                          const SizedBox(height: Dimensions.spacingSM),
+                          SizedBox(height: Dimensions.spacingSM),
                           Wrap(
                             spacing: 8,
                             runSpacing: 8,
@@ -1356,7 +1357,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: Dimensions.spacingMD),
+            SizedBox(height: Dimensions.spacingMD),
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -1369,7 +1370,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
               ),
               itemBuilder: (_, index) => resumoCards[index],
             ),
-            const SizedBox(height: Dimensions.spacingMD),
+            SizedBox(height: Dimensions.spacingMD),
             Container(
               decoration: AppStyles.softCard(
                 tint: AppColors.blueGrey,
@@ -1395,21 +1396,21 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                               color: AppColors.blueGrey.withValues(alpha: 0.10),
                               borderRadius: BorderRadius.circular(14),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.manage_search_rounded,
                               color: AppColors.blueGrey,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Leitura da alocacao',
                                   style: AppTextStyles.h4,
                                 ),
-                                const SizedBox(height: 2),
+                                SizedBox(height: 2),
                                 Text(
                                   q.isEmpty
                                       ? 'Busque por nome e acompanhe o quadro de disponibilidade.'
@@ -1424,8 +1425,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                           if (q.isNotEmpty)
                             TextButton.icon(
                               onPressed: () => _searchCtrl.clear(),
-                              icon: const Icon(Icons.close, size: 16),
-                              label: const Text('Limpar'),
+                              icon: Icon(Icons.close, size: 16),
+                              label: Text('Limpar'),
                               style: TextButton.styleFrom(
                                 foregroundColor: AppColors.primary,
                               ),
@@ -1448,10 +1449,10 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       ),
                     ),
                     AnimatedCrossFade(
-                      firstChild: const SizedBox(width: double.infinity),
+                      firstChild: SizedBox(width: double.infinity),
                       secondChild: Column(
                         children: [
-                          const SizedBox(height: Dimensions.spacingSM),
+                          SizedBox(height: Dimensions.spacingSM),
                           TextField(
                             controller: _searchCtrl,
                             decoration: InputDecoration(
@@ -1459,13 +1460,13 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                               hintStyle: AppTextStyles.caption.copyWith(
                                 color: AppColors.textSecondary,
                               ),
-                              prefixIcon: const Icon(
+                              prefixIcon: Icon(
                                 Icons.search,
                                 color: AppColors.textSecondary,
                               ),
                               suffixIcon: q.isNotEmpty
                                   ? IconButton(
-                                      icon: const Icon(
+                                      icon: Icon(
                                         Icons.close,
                                         color: AppColors.textSecondary,
                                         size: 18,
@@ -1483,7 +1484,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                                 borderRadius: BorderRadius.circular(
                                   Dimensions.borderRadius,
                                 ),
-                                borderSide: const BorderSide(
+                                borderSide: BorderSide(
                                   color: AppColors.cardBorder,
                                 ),
                               ),
@@ -1491,13 +1492,13 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                                 borderRadius: BorderRadius.circular(
                                   Dimensions.borderRadius,
                                 ),
-                                borderSide: const BorderSide(
+                                borderSide: BorderSide(
                                   color: AppColors.cardBorder,
                                 ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: Dimensions.spacingSM),
+                          SizedBox(height: Dimensions.spacingSM),
                           Wrap(
                             spacing: 8,
                             runSpacing: 8,
@@ -1531,7 +1532,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
               ),
             ),
             if (alocadosEmAtencao > 0) ...[
-              const SizedBox(height: Dimensions.spacingMD),
+              SizedBox(height: Dimensions.spacingMD),
               Container(
                 padding: const EdgeInsets.all(Dimensions.paddingMD),
                 decoration: AppStyles.softCard(
@@ -1541,11 +1542,11 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.warning_amber_rounded,
                       color: AppColors.danger,
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         '$alocadosEmAtencao colaborador(es) ja passaram do horario ideal de intervalo. Vale priorizar liberacao ou troca.',
@@ -1559,25 +1560,26 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 ),
               ),
             ],
-            const SizedBox(height: Dimensions.spacingLG),
+            SizedBox(height: Dimensions.spacingLG),
             if (turnosHoje.isEmpty) ...[
               const _Empty(
                 icon: Icons.calendar_today,
                 msg:
-                    'Nenhuma escala cadastrada para hoje.\nVá em "Escala Semanal" e cadastre.',
+                    'Nenhuma escala cadastrada para hoje.\nVÃƒÆ’Ã‚Â¡ em "Escala Semanal" e cadastre.',
               ),
             ] else ...[
-              // Disponíveis agora
+              // DisponÃƒÆ’Ã‚Â­veis agora
               _Header(
                   icon: Icons.person_add,
-                  label: 'Disponíveis agora',
+                  label: 'DisponÃƒÆ’Ã‚Â­veis agora',
                   count: disponiveis.length,
                   color: AppColors.statusAtivo),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               if (disponiveis.isEmpty)
                 const _Empty(
                   icon: Icons.hourglass_empty,
-                  msg: 'Nenhum colaborador disponível neste horário.',
+                  msg:
+                      'Nenhum colaborador disponÃƒÆ’Ã‚Â­vel neste horÃƒÆ’Ã‚Â¡rio.',
                 )
               else
                 ...disponiveis.map((t) => _CardDisponivel(
@@ -1587,15 +1589,15 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       minutosParaChegar: _minutosParaChegar(t),
                     )),
 
-              // Já alocados
+              // JÃƒÆ’Ã‚Â¡ alocados
               if (jaAlocados.isNotEmpty) ...[
-                const SizedBox(height: Dimensions.spacingLG),
+                SizedBox(height: Dimensions.spacingLG),
                 _Header(
                     icon: Icons.point_of_sale,
-                    label: 'Já alocados',
+                    label: 'JÃƒÆ’Ã‚Â¡ alocados',
                     count: jaAlocados.length,
                     color: AppColors.primary),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 ...jaAlocados.map((t) {
                   final al =
                       alocacaoProvider.getAlocacaoColaborador(t.colaboradorId);
@@ -1610,25 +1612,25 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
 
               // Em Outro Setor
               if (emOutroSetor.isNotEmpty) ...[
-                const SizedBox(height: Dimensions.spacingLG),
+                SizedBox(height: Dimensions.spacingLG),
                 _Header(
                     icon: Icons.store,
                     label: 'Em outro setor',
                     count: emOutroSetor.length,
                     color: const Color(0xFF5C6BC0)),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 ...emOutroSetor.map((t) {
                   final item =
                       outroSetorProvider.getByColaborador(t.colaboradorId);
                   return _CardOutroSetor(
                     turno: t,
-                    setor: item?.setor ?? '—',
+                    setor: item?.setor ?? 'ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â',
                     onChamarDeVolta: item != null
                         ? () {
                             outroSetorProvider.remover(item.id);
                             AppNotif.show(
                               context,
-                              titulo: 'De Volta à Disponibilidade',
+                              titulo: 'De Volta ÃƒÆ’Ã‚Â  Disponibilidade',
                               mensagem:
                                   '${t.colaboradorNome} saiu de ${item.setor}.',
                               tipo: 'saida',
@@ -1642,13 +1644,13 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
 
               // A caminho
               if (aChegar.isNotEmpty) ...[
-                const SizedBox(height: Dimensions.spacingLG),
+                SizedBox(height: Dimensions.spacingLG),
                 _Header(
                     icon: Icons.directions_walk,
                     label: 'A caminho',
                     count: aChegar.length,
                     color: AppColors.statusAtencao),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 ...aChegar.map((t) => _CardAChegar(
                       turno: t,
                       minutosParaChegar: _minutosParaChegar(t) ?? 0,
@@ -1657,7 +1659,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
 
               // Folgas
               if (folgas.isNotEmpty) ...[
-                const SizedBox(height: Dimensions.spacingLG),
+                SizedBox(height: Dimensions.spacingLG),
                 _HeaderToggle(
                   icon: Icons.beach_access,
                   label: 'Folgas / Feriados',
@@ -1667,12 +1669,12 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                   onTap: () => setState(() => _mostrarFolgas = !_mostrarFolgas),
                 ),
                 if (_mostrarFolgas) ...[
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   ...folgas.map((t) => _CardFolga(turno: t)),
                 ],
               ],
             ],
-            const SizedBox(height: 80),
+            SizedBox(height: 80),
           ],
         ),
       ),
@@ -1682,7 +1684,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
   String _cap(String s) => s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
 }
 
-// ─── Widgets auxiliares do sheet ─────────────────────────────────────────────
+// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Widgets auxiliares do sheet ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
 
 class _TempoAlocadoBadge extends StatefulWidget {
   final DateTime alocadoEm;
@@ -1728,7 +1730,7 @@ class _TempoAlocadoBadgeState extends State<_TempoAlocadoBadge> {
         children: [
           Text(
             _tempo(),
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.primary,
               fontWeight: FontWeight.bold,
               fontSize: 13,
@@ -1776,7 +1778,7 @@ class _IntervaloBanner extends StatelessWidget {
     } else if (min < 0) {
       cor = Colors.orange.shade800;
       icone = Icons.schedule;
-      texto = 'Intervalo em ${-min}min — aproximando';
+      texto = 'Intervalo em ${-min}min ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â aproximando';
     } else if (min < 15) {
       cor = Colors.orange.shade900;
       icone = Icons.warning_amber;
@@ -1784,7 +1786,8 @@ class _IntervaloBanner extends StatelessWidget {
     } else {
       cor = AppColors.danger;
       icone = Icons.error_outline;
-      texto = '${min}min sem intervalo — Em Atenção';
+      texto =
+          '${min}min sem intervalo ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Em AtenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o';
     }
 
     return Container(
@@ -1797,7 +1800,7 @@ class _IntervaloBanner extends StatelessWidget {
       child: Row(
         children: [
           Icon(icone, size: 14, color: cor),
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
           Text(texto,
               style: TextStyle(
                   fontSize: 12, color: cor, fontWeight: FontWeight.w600)),
@@ -1807,7 +1810,7 @@ class _IntervaloBanner extends StatelessWidget {
   }
 }
 
-// ─── Widgets internos ────────────────────────────────────────────────────────
+// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Widgets internos ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
 
 class _PainelInfoChip extends StatelessWidget {
   final IconData icon;
@@ -1832,7 +1835,7 @@ class _PainelInfoChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: color),
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
           Text(
             label,
             style: AppTextStyles.caption.copyWith(
@@ -1904,7 +1907,7 @@ class _PainelResumoCard extends StatelessWidget {
                 fontWeight: FontWeight.w800,
               ),
             ),
-            const SizedBox(height: 2),
+            SizedBox(height: 2),
             Text(
               label,
               style: AppTextStyles.body.copyWith(
@@ -1912,7 +1915,7 @@ class _PainelResumoCard extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               subtitle,
               maxLines: 2,
@@ -1984,13 +1987,13 @@ class _ResumoAlocacaoSheet extends StatelessWidget {
                     ),
                     child: Icon(icon, color: color, size: 20),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(title, style: AppTextStyles.h4),
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2),
                         Text(
                           subtitle,
                           style: AppTextStyles.caption.copyWith(
@@ -2003,7 +2006,7 @@ class _ResumoAlocacaoSheet extends StatelessWidget {
                 ],
               ),
             ),
-            const Divider(height: 1),
+            Divider(height: 1),
             Expanded(
               child: children.isEmpty
                   ? Center(
@@ -2046,9 +2049,9 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(children: [
       Icon(icon, size: 16, color: color),
-      const SizedBox(width: 6),
+      SizedBox(width: 6),
       Text(label, style: AppTextStyles.subtitle.copyWith(color: color)),
-      const SizedBox(width: 6),
+      SizedBox(width: 6),
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
         decoration: BoxDecoration(
@@ -2089,9 +2092,9 @@ class _HeaderToggle extends StatelessWidget {
         child: Row(
           children: [
             Icon(icon, size: 16, color: color),
-            const SizedBox(width: 6),
+            SizedBox(width: 6),
             Text(label, style: AppTextStyles.subtitle.copyWith(color: color)),
-            const SizedBox(width: 6),
+            SizedBox(width: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
               decoration: BoxDecoration(
@@ -2146,7 +2149,7 @@ class _CardDisponivel extends StatelessWidget {
             if (onOutroSetor != null)
               IconButton(
                 tooltip: 'Outro setor',
-                icon: const Icon(Icons.store_outlined),
+                icon: Icon(Icons.store_outlined),
                 color: AppColors.statusIntervalo,
                 onPressed: onOutroSetor,
               ),
@@ -2160,7 +2163,7 @@ class _CardDisponivel extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               ),
               onPressed: onAlocar,
-              child: const Text('Alocar'),
+              child: Text('Alocar'),
             ),
           ],
         );
@@ -2181,10 +2184,10 @@ class _CardDisponivel extends StatelessWidget {
                       ? AppColors.statusAtencao
                       : AppColors.statusAtivo,
                   child: Text(turno.colaboradorNome[0].toUpperCase(),
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -2196,7 +2199,7 @@ class _CardDisponivel extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
                         subtitulo,
                         style: AppTextStyles.caption
@@ -2208,7 +2211,7 @@ class _CardDisponivel extends StatelessWidget {
                   ),
                 ),
                 if (!acoesEmbaixo) ...[
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   acoes(),
                 ],
               ],
@@ -2220,7 +2223,7 @@ class _CardDisponivel extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 cabecalho,
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [acoes()],
@@ -2234,7 +2237,7 @@ class _CardDisponivel extends StatelessWidget {
   }
 }
 
-// ─── Card de colaborador alocado com timer dinâmico ──────────────────────────
+// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Card de colaborador alocado com timer dinÃƒÆ’Ã‚Â¢mico ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
 
 class _CardAlocado extends StatefulWidget {
   final TurnoLocal turno;
@@ -2300,9 +2303,8 @@ class _CardAlocadoState extends State<_CardAlocado> {
                   color: emAtencao ? AppColors.danger : AppColors.primary,
                   fontWeight: FontWeight.bold)),
         ),
-        const SizedBox(width: 4),
-        const Icon(Icons.chevron_right,
-            size: 18, color: AppColors.textSecondary),
+        SizedBox(width: 4),
+        Icon(Icons.chevron_right, size: 18, color: AppColors.textSecondary),
       ],
     );
   }
@@ -2356,7 +2358,7 @@ class _CardAlocadoState extends State<_CardAlocado> {
                               fontWeight: FontWeight.bold),
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      SizedBox(width: 10),
                       Expanded(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -2368,7 +2370,7 @@ class _CardAlocadoState extends State<_CardAlocado> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(height: 2),
+                            SizedBox(height: 2),
                             Text(
                               subtitulo,
                               style: AppTextStyles.caption
@@ -2380,7 +2382,7 @@ class _CardAlocadoState extends State<_CardAlocado> {
                         ),
                       ),
                       if (!acoesEmbaixo) ...[
-                        const SizedBox(width: 10),
+                        SizedBox(width: 10),
                         _buildAcoes(emAtencao),
                       ],
                     ],
@@ -2392,7 +2394,7 @@ class _CardAlocadoState extends State<_CardAlocado> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       cabecalho,
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [_buildAcoes(emAtencao)],
@@ -2403,7 +2405,7 @@ class _CardAlocadoState extends State<_CardAlocado> {
               ),
             ),
           ),
-          // ── Faixa de aviso de intervalo ─────────────────────────────
+          // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Faixa de aviso de intervalo ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
           if (minIntervalo != null && minIntervalo > -60)
             _buildIntervaloBar(minIntervalo),
         ],
@@ -2427,7 +2429,8 @@ class _CardAlocadoState extends State<_CardAlocado> {
     } else {
       cor = AppColors.danger;
       icone = Icons.error_outline;
-      texto = '${min}min sem intervalo — Em Atenção';
+      texto =
+          '${min}min sem intervalo ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Em AtenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o';
     }
 
     final bgColor = min >= 15
@@ -2440,7 +2443,7 @@ class _CardAlocadoState extends State<_CardAlocado> {
       child: Row(
         children: [
           Icon(icone, size: 13, color: cor),
-          const SizedBox(width: 5),
+          SizedBox(width: 5),
           Text(
             texto,
             style: TextStyle(
@@ -2501,11 +2504,11 @@ class _CardAChegar extends StatelessWidget {
                   backgroundColor:
                       AppColors.statusAtencao.withValues(alpha: 0.10),
                   child: Text(turno.colaboradorNome[0].toUpperCase(),
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: AppColors.statusAtencao,
                           fontWeight: FontWeight.bold)),
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -2517,7 +2520,7 @@ class _CardAChegar extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
                         subtitulo,
                         style: AppTextStyles.caption
@@ -2529,7 +2532,7 @@ class _CardAChegar extends StatelessWidget {
                   ),
                 ),
                 if (!acoesEmbaixo) ...[
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   _buildChip(),
                 ],
               ],
@@ -2541,7 +2544,7 @@ class _CardAChegar extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 cabecalho,
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [_buildChip()],
@@ -2568,7 +2571,7 @@ class _CardFolga extends StatelessWidget {
         leading: CircleAvatar(
           backgroundColor: AppColors.inactive.withValues(alpha: 0.10),
           child: Text(turno.colaboradorNome[0].toUpperCase(),
-              style: const TextStyle(
+              style: TextStyle(
                   color: AppColors.inactive, fontWeight: FontWeight.bold)),
         ),
         title: Text(turno.colaboradorNome,
@@ -2585,7 +2588,7 @@ class _CardFolga extends StatelessWidget {
   }
 }
 
-// ─── Card de colaborador em outro setor ──────────────────────────────────────
+// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Card de colaborador em outro setor ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
 
 class _CardOutroSetor extends StatelessWidget {
   final TurnoLocal turno;
@@ -2603,11 +2606,11 @@ class _CardOutroSetor extends StatelessWidget {
     return OutlinedButton.icon(
       style: OutlinedButton.styleFrom(
         foregroundColor: kColor,
-        side: const BorderSide(color: kColor),
+        side: BorderSide(color: kColor),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       ),
-      icon: const Icon(Icons.undo, size: 14),
-      label: const Text('Chamar',
+      icon: Icon(Icons.undo, size: 14),
+      label: Text('Chamar',
           style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
       onPressed: onChamarDeVolta,
     );
@@ -2630,11 +2633,11 @@ class _CardOutroSetor extends StatelessWidget {
                   backgroundColor: kColor.withValues(alpha: 0.12),
                   child: Text(
                     turno.colaboradorNome[0].toUpperCase(),
-                    style: const TextStyle(
-                        color: kColor, fontWeight: FontWeight.bold),
+                    style:
+                        TextStyle(color: kColor, fontWeight: FontWeight.bold),
                   ),
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -2646,12 +2649,11 @@ class _CardOutroSetor extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Row(
                         children: [
-                          const Icon(Icons.location_on,
-                              size: 11, color: kColor),
-                          const SizedBox(width: 3),
+                          Icon(Icons.location_on, size: 11, color: kColor),
+                          SizedBox(width: 3),
                           Expanded(
                             child: Text(
                               setor,
@@ -2667,7 +2669,7 @@ class _CardOutroSetor extends StatelessWidget {
                   ),
                 ),
                 if (!acoesEmbaixo) ...[
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   _buildBotao(),
                 ],
               ],
@@ -2679,7 +2681,7 @@ class _CardOutroSetor extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 cabecalho,
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [_buildBotao()],
@@ -2704,7 +2706,7 @@ class _Empty extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 24),
       child: Column(children: [
         Icon(icon, size: 48, color: AppColors.textSecondary),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Text(msg,
             style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
             textAlign: TextAlign.center),

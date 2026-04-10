@@ -13,8 +13,7 @@ void imprimirCupom(String texto) {
       .where(
         (line) =>
             line.length >= 16 &&
-            (RegExp(r'^=+$').hasMatch(line) ||
-                RegExp(r'^-+$').hasMatch(line)),
+            (RegExp(r'^=+$').hasMatch(line) || RegExp(r'^-+$').hasMatch(line)),
       )
       .fold<int>(0, (max, line) => line.length > max ? line.length : max);
   final baseChars = ruleChars > 0 ? ruleChars : 32;

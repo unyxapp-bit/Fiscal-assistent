@@ -29,18 +29,18 @@ class _NotasScreenState extends State<NotasScreen> {
     super.dispose();
   }
 
-  // ── Verifica se há filtros não-padrão ativos ────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Verifica se hÃƒÂ¡ filtros nÃƒÂ£o-padrÃƒÂ£o ativos Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   bool _filtroAtivo(NotaProvider provider) {
     return provider.filtroTipo != null ||
         provider.mostrarApenasPendentes ||
         provider.ordenacao != OrdenacaoNota.importancia;
   }
 
-  // ── Bottom sheet para escolher tipo ao criar ─────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Bottom sheet para escolher tipo ao criar Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   void _mostrarMenuCriar(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -60,14 +60,14 @@ class _NotasScreenState extends State<NotasScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            const Text('Criar nova', style: AppTextStyles.h4),
-            const SizedBox(height: 8),
+            SizedBox(height: 16),
+            Text('Criar nova', style: AppTextStyles.h4),
+            SizedBox(height: 8),
             ...TipoLembrete.values.map((tipo) {
               const descricoes = {
                 TipoLembrete.anotacao: 'Texto livre para registros',
                 TipoLembrete.tarefa: 'Item a fazer, com prazo opcional',
-                TipoLembrete.lembrete: 'Alerta em data e hora específicos',
+                TipoLembrete.lembrete: 'Alerta em data e hora especÃƒÂ­ficos',
               };
               return ListTile(
                 contentPadding: EdgeInsets.zero,
@@ -93,11 +93,11 @@ class _NotasScreenState extends State<NotasScreen> {
     );
   }
 
-  // ── Bottom sheet de filtros / ordenação ─────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Bottom sheet de filtros / ordenaÃƒÂ§ÃƒÂ£o Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   void _abrirMenuFiltro(BuildContext context, NotaProvider provider) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -119,9 +119,9 @@ class _NotasScreenState extends State<NotasScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
-                const Text('Ordenar por', style: AppTextStyles.h4),
-                const SizedBox(height: 8),
+                SizedBox(height: 16),
+                Text('Ordenar por', style: AppTextStyles.h4),
+                SizedBox(height: 8),
                 RadioGroup<OrdenacaoNota>(
                   groupValue: provider.ordenacao,
                   onChanged: (v) {
@@ -133,8 +133,8 @@ class _NotasScreenState extends State<NotasScreen> {
                   child: Column(
                     children: OrdenacaoNota.values.map((o) {
                       const labels = {
-                        OrdenacaoNota.importancia: 'Importância',
-                        OrdenacaoNota.dataCriacao: 'Data de criação',
+                        OrdenacaoNota.importancia: 'ImportÃƒÂ¢ncia',
+                        OrdenacaoNota.dataCriacao: 'Data de criaÃƒÂ§ÃƒÂ£o',
                         OrdenacaoNota.dataVencimento: 'Prazo / vencimento',
                         OrdenacaoNota.tipo: 'Tipo',
                       };
@@ -148,9 +148,9 @@ class _NotasScreenState extends State<NotasScreen> {
                     }).toList(),
                   ),
                 ),
-                const Divider(),
+                Divider(),
                 SwitchListTile(
-                  title: const Text('Apenas pendentes'),
+                  title: Text('Apenas pendentes'),
                   value: provider.mostrarApenasPendentes,
                   activeThumbColor: AppColors.primary,
                   contentPadding: EdgeInsets.zero,
@@ -159,7 +159,7 @@ class _NotasScreenState extends State<NotasScreen> {
                     setModalState(() {});
                   },
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
@@ -168,7 +168,7 @@ class _NotasScreenState extends State<NotasScreen> {
                       _searchController.clear();
                       Navigator.pop(ctx);
                     },
-                    child: const Text('Limpar filtros'),
+                    child: Text('Limpar filtros'),
                   ),
                 ),
               ],
@@ -179,37 +179,36 @@ class _NotasScreenState extends State<NotasScreen> {
     );
   }
 
-  // ── Confirmação de delete ─────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ ConfirmaÃƒÂ§ÃƒÂ£o de delete Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   Future<bool> _confirmarDelete(
       BuildContext context, Nota nota, NotaProvider provider) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Confirmar exclusão'),
+        title: Text('Confirmar exclusÃƒÂ£o'),
         content: Text('Deletar "${nota.titulo}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Deletar',
-                style: TextStyle(color: AppColors.danger)),
+            child: Text('Deletar', style: TextStyle(color: AppColors.danger)),
           ),
         ],
       ),
     );
     if (confirm == true) provider.deletarNota(nota.id);
-    return false; // não deixa o Dismissible remover o widget (já notifyListeners)
+    return false; // nÃƒÂ£o deixa o Dismissible remover o widget (jÃƒÂ¡ notifyListeners)
   }
 
-  // ── Itens da lista com seções ─────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Itens da lista com seÃƒÂ§ÃƒÂµes Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   List<Widget> _buildListItems(NotaProvider provider) {
     final notas = provider.notas;
     if (notas.isEmpty) return [];
 
-    // Com busca ativa: lista plana sem seções
+    // Com busca ativa: lista plana sem seÃƒÂ§ÃƒÂµes
     if (provider.searchQuery.isNotEmpty) {
       return notas.map((n) => _buildNotaCard(n, provider)).toList();
     }
@@ -223,7 +222,7 @@ class _NotasScreenState extends State<NotasScreen> {
         if (pendentes.isNotEmpty) _sectionHeader('Pendentes', Colors.orange),
         ...pendentes.map((n) => _buildNotaCard(n, provider)),
         if (concluidas.isNotEmpty)
-          _sectionHeader('Concluídas', AppColors.success),
+          _sectionHeader('ConcluÃƒÂ­das', AppColors.success),
         ...concluidas.map((n) => _buildNotaCard(n, provider)),
       ];
     }
@@ -239,7 +238,7 @@ class _NotasScreenState extends State<NotasScreen> {
       ];
     }
 
-    // Todos — vencidos no topo se houver
+    // Todos Ã¢â‚¬â€ vencidos no topo se houver
     final vencidos = notas.where((n) => n.isVencido).toList();
     final restante = notas.where((n) => !n.isVencido).toList();
     return [
@@ -262,7 +261,7 @@ class _NotasScreenState extends State<NotasScreen> {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           Text(
             titulo.toUpperCase(),
             style: AppTextStyles.caption.copyWith(
@@ -276,7 +275,7 @@ class _NotasScreenState extends State<NotasScreen> {
     );
   }
 
-  // ── Card de nota individual ───────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Card de nota individual Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildNotaCard(Nota nota, NotaProvider provider) {
     final isTarefa = nota.tipo == TipoLembrete.tarefa;
     return Dismissible(
@@ -288,14 +287,14 @@ class _NotasScreenState extends State<NotasScreen> {
               color: Colors.green.shade400,
               alignment: Alignment.centerLeft,
               padding: const EdgeInsets.only(left: 20),
-              child: const Icon(Icons.check, color: Colors.white),
+              child: Icon(Icons.check, color: Colors.white),
             )
           : const SizedBox.shrink(),
       secondaryBackground: Container(
         color: AppColors.danger,
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
-        child: const Icon(Icons.delete, color: Colors.white),
+        child: Icon(Icons.delete, color: Colors.white),
       ),
       confirmDismiss: (direction) async {
         if (direction == DismissDirection.startToEnd) {
@@ -309,7 +308,7 @@ class _NotasScreenState extends State<NotasScreen> {
         shape: nota.importante
             ? RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(Dimensions.radiusMD),
-                side: const BorderSide(color: Colors.orange, width: 1.5),
+                side: BorderSide(color: Colors.orange, width: 1.5),
               )
             : null,
         child: InkWell(
@@ -350,7 +349,7 @@ class _NotasScreenState extends State<NotasScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (nota.conteudo.isNotEmpty) ...[
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2),
                     Text(
                       nota.conteudo,
                       maxLines: 1,
@@ -359,12 +358,12 @@ class _NotasScreenState extends State<NotasScreen> {
                           .copyWith(color: AppColors.textSecondary),
                     ),
                   ],
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Row(
                     children: [
                       if (nota.importante) ...[
-                        const Icon(Icons.star, size: 12, color: Colors.orange),
-                        const SizedBox(width: 4),
+                        Icon(Icons.star, size: 12, color: Colors.orange),
+                        SizedBox(width: 4),
                       ],
                       if (nota.dataLembrete != null) ...[
                         Icon(
@@ -374,7 +373,7 @@ class _NotasScreenState extends State<NotasScreen> {
                               ? AppColors.danger
                               : AppColors.textSecondary,
                         ),
-                        const SizedBox(width: 3),
+                        SizedBox(width: 3),
                         Text(
                           _formatData(nota.dataLembrete!),
                           style: AppTextStyles.caption.copyWith(
@@ -384,7 +383,7 @@ class _NotasScreenState extends State<NotasScreen> {
                           ),
                         ),
                         if (nota.isVencido) ...[
-                          const SizedBox(width: 6),
+                          SizedBox(width: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 4, vertical: 1),
@@ -392,14 +391,14 @@ class _NotasScreenState extends State<NotasScreen> {
                               color: AppColors.danger,
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: const Text(
+                            child: Text(
                               'Vencido',
                               style:
                                   TextStyle(color: Colors.white, fontSize: 9),
                             ),
                           ),
                         ],
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                       ],
                       if (!nota.isVencido || nota.dataLembrete == null)
                         Text(
@@ -414,7 +413,7 @@ class _NotasScreenState extends State<NotasScreen> {
               trailing: PopupMenuButton<String>(
                 onSelected: (value) => _onMenuSelected(value, nota, provider),
                 itemBuilder: (ctx) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'editar',
                     child: Row(
                       children: [
@@ -435,10 +434,10 @@ class _NotasScreenState extends State<NotasScreen> {
                                 : Icons.check_circle_outline,
                             size: 18,
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: 8),
                           Text(nota.concluida
                               ? 'Marcar pendente'
-                              : 'Marcar concluída'),
+                              : 'Marcar concluÃƒÂ­da'),
                         ],
                       ),
                     ),
@@ -451,7 +450,7 @@ class _NotasScreenState extends State<NotasScreen> {
                           size: 18,
                           color: Colors.orange,
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Text(nota.importante
                             ? 'Remover importante'
                             : 'Marcar importante'),
@@ -470,14 +469,14 @@ class _NotasScreenState extends State<NotasScreen> {
                                 : Icons.notifications_active,
                             size: 18,
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: 8),
                           Text(nota.lembreteAtivo
-                              ? 'Desativar notificação'
-                              : 'Ativar notificação'),
+                              ? 'Desativar notificaÃƒÂ§ÃƒÂ£o'
+                              : 'Ativar notificaÃƒÂ§ÃƒÂ£o'),
                         ],
                       ),
                     ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'copiar',
                     child: Row(
                       children: [
@@ -487,7 +486,7 @@ class _NotasScreenState extends State<NotasScreen> {
                       ],
                     ),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'compartilhar',
                     child: Row(
                       children: [
@@ -497,7 +496,7 @@ class _NotasScreenState extends State<NotasScreen> {
                       ],
                     ),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'delete',
                     child: Row(
                       children: [
@@ -555,7 +554,7 @@ class _NotasScreenState extends State<NotasScreen> {
     if (nota.dataLembrete != null) {
       final fmt = DateFormat('dd/MM/yyyy HH:mm').format(nota.dataLembrete!);
       buf.writeln();
-      buf.write('📅 ${nota.tipo.nome}: $fmt');
+      buf.write('Ã°Å¸â€œâ€¦ ${nota.tipo.nome}: $fmt');
     } else {
       buf.write('\n_${nota.tipo.nome}_');
     }
@@ -568,7 +567,7 @@ class _NotasScreenState extends State<NotasScreen> {
     AppNotif.show(
       context,
       titulo: 'Copiado',
-      mensagem: 'Copiado para área de transferência',
+      mensagem: 'Copiado para ÃƒÂ¡rea de transferÃƒÂªncia',
       tipo: 'intervalo',
     );
   }
@@ -582,10 +581,10 @@ class _NotasScreenState extends State<NotasScreen> {
     final mes = dt.month.toString().padLeft(2, '0');
     final h = dt.hour.toString().padLeft(2, '0');
     final m = dt.minute.toString().padLeft(2, '0');
-    return '$dia/$mes às $h:$m';
+    return '$dia/$mes ÃƒÂ s $h:$m';
   }
 
-  // ── Chip de tipo ──────────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Chip de tipo Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildTipoChip(
     String label,
     TipoLembrete? tipo,
@@ -607,19 +606,19 @@ class _NotasScreenState extends State<NotasScreen> {
     );
   }
 
-  // ── Build ─────────────────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Build Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<NotaProvider>(context);
     final vencidos = provider.totalLembretesVencidos;
     final lembretesLabel = vencidos > 0
-        ? 'Lembretes ($vencidos⚠)'
+        ? 'Lembretes ($vencidosÃ¢Å¡Â )'
         : 'Lembretes (${provider.lembretes.length})';
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Anotações e Lembretes'),
+        title: Text('AnotaÃƒÂ§ÃƒÂµes e Lembretes'),
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
@@ -627,7 +626,7 @@ class _NotasScreenState extends State<NotasScreen> {
             icon: Stack(
               clipBehavior: Clip.none,
               children: [
-                const Icon(Icons.filter_list),
+                Icon(Icons.filter_list),
                 if (_filtroAtivo(provider))
                   Positioned(
                     right: -2,
@@ -635,7 +634,7 @@ class _NotasScreenState extends State<NotasScreen> {
                     child: Container(
                       width: 8,
                       height: 8,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: AppColors.primary,
                         shape: BoxShape.circle,
                       ),
@@ -643,14 +642,14 @@ class _NotasScreenState extends State<NotasScreen> {
                   ),
               ],
             ),
-            tooltip: 'Filtros e ordenação',
+            tooltip: 'Filtros e ordenaÃƒÂ§ÃƒÂ£o',
             onPressed: () => _abrirMenuFiltro(context, provider),
           ),
         ],
       ),
       body: Column(
         children: [
-          // ── Busca ──────────────────────────────────────────────────────────
+          // Ã¢â€â‚¬Ã¢â€â‚¬ Busca Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
           Padding(
             padding: const EdgeInsets.fromLTRB(
                 Dimensions.paddingMD, 8, Dimensions.paddingMD, 0),
@@ -658,10 +657,10 @@ class _NotasScreenState extends State<NotasScreen> {
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Buscar...',
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: Icon(Icons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear),
+                        icon: Icon(Icons.clear),
                         onPressed: () {
                           _searchController.clear();
                           provider.setSearchQuery('');
@@ -680,9 +679,9 @@ class _NotasScreenState extends State<NotasScreen> {
             ),
           ),
 
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
-          // ── Cards de resumo ─────────────────────────────────────────────────
+          // Ã¢â€â‚¬Ã¢â€â‚¬ Cards de resumo Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
           Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: Dimensions.paddingMD),
@@ -702,7 +701,7 @@ class _NotasScreenState extends State<NotasScreen> {
                             provider.tarefas.length,
                   ),
                 ),
-                const SizedBox(width: Dimensions.spacingSM),
+                SizedBox(width: Dimensions.spacingSM),
                 Expanded(
                   child: _StatCard(
                     label: 'Lembretes',
@@ -715,7 +714,7 @@ class _NotasScreenState extends State<NotasScreen> {
                         : TipoLembrete.lembrete.icone,
                   ),
                 ),
-                const SizedBox(width: Dimensions.spacingSM),
+                SizedBox(width: Dimensions.spacingSM),
                 Expanded(
                   child: _StatCard(
                     label: 'Total',
@@ -728,9 +727,9 @@ class _NotasScreenState extends State<NotasScreen> {
             ),
           ),
 
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
-          // ── Chips de filtro por tipo ────────────────────────────────────────
+          // Ã¢â€â‚¬Ã¢â€â‚¬ Chips de filtro por tipo Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
           SizedBox(
             height: 46,
             child: ListView(
@@ -740,21 +739,21 @@ class _NotasScreenState extends State<NotasScreen> {
               children: [
                 _buildTipoChip(
                     'Todos (${provider.totalNotas})', null, provider),
-                const SizedBox(width: 8),
-                _buildTipoChip('Anotações (${provider.anotacoes.length})',
+                SizedBox(width: 8),
+                _buildTipoChip('AnotaÃƒÂ§ÃƒÂµes (${provider.anotacoes.length})',
                     TipoLembrete.anotacao, provider),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 _buildTipoChip('Tarefas (${provider.tarefas.length})',
                     TipoLembrete.tarefa, provider),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 _buildTipoChip(lembretesLabel, TipoLembrete.lembrete, provider),
               ],
             ),
           ),
 
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
-          // ── Lista ───────────────────────────────────────────────────────────
+          // Ã¢â€â‚¬Ã¢â€â‚¬ Lista Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
           Expanded(
             child: provider.notas.isEmpty
                 ? RefreshIndicator(
@@ -768,22 +767,21 @@ class _NotasScreenState extends State<NotasScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.note_outlined,
+                                Icon(Icons.note_outlined,
                                     size: 64, color: AppColors.inactive),
-                                const SizedBox(height: 16),
+                                SizedBox(height: 16),
                                 Text(
                                   provider.searchQuery.isNotEmpty
                                       ? 'Nenhum resultado para "${provider.searchQuery}"'
-                                      : 'Nenhuma anotação ainda',
+                                      : 'Nenhuma anotaÃƒÂ§ÃƒÂ£o ainda',
                                   style: AppTextStyles.body
                                       .copyWith(color: AppColors.textSecondary),
                                   textAlign: TextAlign.center,
                                 ),
                                 if (provider.searchQuery.isEmpty) ...[
-                                  const SizedBox(height: 24),
-                                  const Text('Criar:',
-                                      style: AppTextStyles.label),
-                                  const SizedBox(height: 8),
+                                  SizedBox(height: 24),
+                                  Text('Criar:', style: AppTextStyles.label),
+                                  SizedBox(height: 8),
                                   Wrap(
                                     spacing: 8,
                                     children: TipoLembrete.values
@@ -831,13 +829,13 @@ class _NotasScreenState extends State<NotasScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => _mostrarMenuCriar(context),
         backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add),
+        child: Icon(Icons.add),
       ),
     );
   }
 }
 
-// ── Stat card ────────────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬ Stat card Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 class _StatCard extends StatelessWidget {
   final String label;
@@ -862,7 +860,7 @@ class _StatCard extends StatelessWidget {
         child: Column(
           children: [
             Icon(icon, color: color, size: 22),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               value,
               style: AppTextStyles.h3
@@ -871,7 +869,7 @@ class _StatCard extends StatelessWidget {
             Text(label,
                 style: AppTextStyles.caption, textAlign: TextAlign.center),
             if (progresso != null) ...[
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(

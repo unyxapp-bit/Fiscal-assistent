@@ -56,7 +56,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-          title: const Text('Formulários'),
+          title: Text('FormulÃƒÂ¡rios'),
           backgroundColor: AppColors.background,
           elevation: 0,
           bottom: const TabBar(
@@ -76,11 +76,11 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
               child: TextField(
                 controller: _searchCtrl,
                 decoration: InputDecoration(
-                  hintText: 'Buscar formulário...',
-                  prefixIcon: const Icon(Icons.search),
+                  hintText: 'Buscar formulÃƒÂ¡rio...',
+                  prefixIcon: Icon(Icons.search),
                   suffixIcon: _query.isNotEmpty
                       ? IconButton(
-                          icon: const Icon(Icons.clear),
+                          icon: Icon(Icons.clear),
                           onPressed: () {
                             _searchCtrl.clear();
                             setState(() => _query = '');
@@ -100,10 +100,10 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
             Expanded(
               child: TabBarView(
                 children: [
-                  _buildLista(context, provider,
-                      _filtrar(provider.templates), isTemplate: true),
-                  _buildLista(context, provider,
-                      _filtrar(provider.personalizados),
+                  _buildLista(context, provider, _filtrar(provider.templates),
+                      isTemplate: true),
+                  _buildLista(
+                      context, provider, _filtrar(provider.personalizados),
                       isTemplate: false),
                   _buildTodasRespostas(context, provider),
                 ],
@@ -113,11 +113,10 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
         ),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute(
-                builder: (_) => const FormularioEditorScreen()),
+            MaterialPageRoute(builder: (_) => const FormularioEditorScreen()),
           ),
-          icon: const Icon(Icons.add),
-          label: const Text('Criar Formulário'),
+          icon: Icon(Icons.add),
+          label: Text('Criar FormulÃƒÂ¡rio'),
           backgroundColor: AppColors.primary,
         ),
       ),
@@ -135,16 +134,17 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.description_outlined,
+            Icon(Icons.description_outlined,
                 size: 64, color: AppColors.inactive),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               _query.isNotEmpty
                   ? 'Nenhum resultado para "$_query"'
                   : isTemplate
-                      ? 'Nenhum template disponível'
-                      : 'Nenhum formulário personalizado',
-              style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+                      ? 'Nenhum template disponÃƒÂ­vel'
+                      : 'Nenhum formulÃƒÂ¡rio personalizado',
+              style:
+                  AppTextStyles.body.copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
           ],
@@ -194,7 +194,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
                         ),
                         child: Text(
                           '$hoje',
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: Colors.white,
                               fontSize: 10,
                               fontWeight: FontWeight.bold),
@@ -216,10 +216,10 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
                         color: AppColors.inactive.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Inativo',
-                        style: TextStyle(
-                            fontSize: 10, color: AppColors.inactive),
+                        style:
+                            TextStyle(fontSize: 10, color: AppColors.inactive),
                       ),
                     ),
                 ],
@@ -227,7 +227,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   if (f.descricao.isNotEmpty)
                     Text(
                       f.descricao,
@@ -236,18 +236,18 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
                       style: AppTextStyles.caption
                           .copyWith(color: AppColors.textSecondary),
                     ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Row(
                     children: [
                       Text(
-                        '${f.campos.length} campos  •  $totalRespostas respostas',
+                        '${f.campos.length} campos  Ã¢â‚¬Â¢  $totalRespostas respostas',
                         style: AppTextStyles.caption.copyWith(
                           color: AppColors.textSecondary,
                           fontSize: 12,
                         ),
                       ),
                       if (hoje > 0) ...[
-                        const SizedBox(width: 6),
+                        SizedBox(width: 6),
                         Text(
                           '(+$hoje hoje)',
                           style: AppTextStyles.caption.copyWith(
@@ -266,7 +266,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
                     _onMenuSelected(value, f, provider, isTemplate),
                 itemBuilder: (_) => [
                   if (!inativo)
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'preencher',
                       child: Row(children: [
                         Icon(Icons.edit_note, size: 18),
@@ -274,7 +274,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
                         Text('Preencher'),
                       ]),
                     ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'respostas',
                     child: Row(children: [
                       Icon(Icons.history, size: 18),
@@ -282,7 +282,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
                       Text('Ver Respostas'),
                     ]),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'editar',
                     child: Row(children: [
                       Icon(Icons.edit, size: 18),
@@ -291,7 +291,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
                     ]),
                   ),
                   if (isTemplate)
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'duplicar',
                       child: Row(children: [
                         Icon(Icons.content_copy, size: 18),
@@ -307,12 +307,12 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
                           f.ativo ? Icons.visibility_off : Icons.visibility,
                           size: 18,
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Text(f.ativo ? 'Desativar' : 'Ativar'),
                       ]),
                     ),
                   if (!isTemplate)
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'delete',
                       child: Row(children: [
                         Icon(Icons.delete, size: 18, color: AppColors.danger),
@@ -339,13 +339,13 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
     );
   }
 
-  // ── 3ª aba: todas as respostas ───────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ 3Ã‚Âª aba: todas as respostas Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   Widget _buildTodasRespostas(
       BuildContext context, FormularioProvider provider) {
     var todas = provider.respostas;
 
-    // Filtrar por título do formulário se houver query ativa
+    // Filtrar por tÃƒÂ­tulo do formulÃƒÂ¡rio se houver query ativa
     if (_query.isNotEmpty) {
       final ids = provider.formularios
           .where((f) => f.titulo.toLowerCase().contains(_query))
@@ -359,20 +359,18 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.inbox_outlined,
-                size: 64, color: AppColors.inactive),
-            const SizedBox(height: 16),
+            Icon(Icons.inbox_outlined, size: 64, color: AppColors.inactive),
+            SizedBox(height: 16),
             Text(
               _query.isNotEmpty
                   ? 'Nenhuma resposta para "$_query"'
                   : 'Nenhuma resposta registrada',
-              style: AppTextStyles.h4
-                  .copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.h4.copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
-              'Preencha um formulário para\nver as respostas aqui',
+              'Preencha um formulÃƒÂ¡rio para\nver as respostas aqui',
               textAlign: TextAlign.center,
               style:
                   AppTextStyles.body.copyWith(color: AppColors.textSecondary),
@@ -394,7 +392,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
             break;
           }
         }
-        final titulo = form?.titulo ?? 'Formulário removido';
+        final titulo = form?.titulo ?? 'FormulÃƒÂ¡rio removido';
         final filled = r.valores.values
             .where((v) => v != null && v.toString().isNotEmpty)
             .length;
@@ -410,8 +408,8 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
                 color: AppColors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.description,
-                  color: AppColors.primary, size: 20),
+              child:
+                  Icon(Icons.description, color: AppColors.primary, size: 20),
             ),
             title: Text(titulo,
                 style: AppTextStyles.h4,
@@ -420,7 +418,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   _fmtDt(r.preenchidoEm),
                   style: AppTextStyles.caption
@@ -438,18 +436,18 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.copy,
+                  icon: Icon(Icons.copy,
                       size: 18, color: AppColors.textSecondary),
                   tooltip: 'Copiar',
                   onPressed: () {
                     final buf = StringBuffer();
                     buf.writeln(titulo);
                     buf.writeln(_fmtDt(r.preenchidoEm));
-                    buf.writeln('─' * 30);
+                    buf.writeln('Ã¢â€â‚¬' * 30);
                     for (final e in r.valores.entries) {
                       final v = e.value?.toString().isNotEmpty == true
                           ? e.value.toString()
-                          : '(não preenchido)';
+                          : '(nÃƒÂ£o preenchido)';
                       buf.writeln('${e.key}: $v');
                     }
                     Clipboard.setData(
@@ -457,13 +455,13 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
                     AppNotif.show(
                       context,
                       titulo: 'Copiado',
-                      mensagem: 'Copiado para área de transferência',
+                      mensagem: 'Copiado para ÃƒÂ¡rea de transferÃƒÂªncia',
                       tipo: 'intervalo',
                     );
                   },
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline,
+                  icon: Icon(Icons.delete_outline,
                       size: 18, color: AppColors.danger),
                   tooltip: 'Excluir',
                   onPressed: () =>
@@ -483,7 +481,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
     final m = dt.month.toString().padLeft(2, '0');
     final h = dt.hour.toString().padLeft(2, '0');
     final min = dt.minute.toString().padLeft(2, '0');
-    return '$d/$m/${dt.year} às $h:$min';
+    return '$d/$m/${dt.year} ÃƒÂ s $h:$min';
   }
 
   void _confirmarDeleteResposta(
@@ -495,20 +493,19 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Excluir resposta'),
+        title: Text('Excluir resposta'),
         content: Text('Excluir resposta de "$titulo"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
               provider.deletarResposta(r.id);
               Navigator.pop(ctx);
             },
-            child: const Text('Excluir',
-                style: TextStyle(color: AppColors.danger)),
+            child: Text('Excluir', style: TextStyle(color: AppColors.danger)),
           ),
         ],
       ),
@@ -524,8 +521,9 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (ctx) => DraggableScrollableSheet(
         initialChildSize: 0.7,
@@ -561,27 +559,25 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: Icon(Icons.close),
                     onPressed: () => Navigator.pop(ctx),
                   ),
                 ],
               ),
             ),
-            const Divider(),
+            Divider(),
             Expanded(
               child: ListView.separated(
                 controller: scrollCtrl,
                 padding: const EdgeInsets.all(16),
                 itemCount: r.valores.length,
-                separatorBuilder: (_, __) => const Divider(height: 24),
+                separatorBuilder: (_, __) => Divider(height: 24),
                 itemBuilder: (ctx, i) {
                   final entry = r.valores.entries.elementAt(i);
-                  final valStr =
-                      entry.value?.toString().isNotEmpty == true
-                          ? entry.value.toString()
-                          : '(não preenchido)';
-                  final preenchido =
-                      entry.value?.toString().isNotEmpty == true;
+                  final valStr = entry.value?.toString().isNotEmpty == true
+                      ? entry.value.toString()
+                      : '(nÃƒÂ£o preenchido)';
+                  final preenchido = entry.value?.toString().isNotEmpty == true;
 
                   TipoCampo? tipo;
                   if (form != null) {
@@ -603,7 +599,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       if (tipo == TipoCampo.simNao && preenchido)
                         Row(
                           children: [
@@ -616,7 +612,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
                                   : AppColors.danger,
                               size: 20,
                             ),
-                            const SizedBox(width: 6),
+                            SizedBox(width: 6),
                             Text(
                               valStr,
                               style: AppTextStyles.body.copyWith(
@@ -648,7 +644,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
     );
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   void _onMenuSelected(
     String value,
@@ -669,8 +665,8 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
         provider.duplicarTemplate(f);
         AppNotif.show(
           context,
-          titulo: 'Cópia Criada',
-          mensagem: 'Cópia criada na aba Personalizados!',
+          titulo: 'CÃƒÂ³pia Criada',
+          mensagem: 'CÃƒÂ³pia criada na aba Personalizados!',
           tipo: 'saida',
           cor: AppColors.success,
         );
@@ -685,24 +681,24 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: const Text('Confirmar exclusão'),
+            title: Text('Confirmar exclusÃƒÂ£o'),
             content: Text(
               totalRespostas > 0
-                  ? 'Deletar "${f.titulo}"? Isso também excluirá $totalRespostas resposta(s).'
+                  ? 'Deletar "${f.titulo}"? Isso tambÃƒÂ©m excluirÃƒÂ¡ $totalRespostas resposta(s).'
                   : 'Deletar "${f.titulo}"?',
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: const Text('Cancelar'),
+                child: Text('Cancelar'),
               ),
               TextButton(
                 onPressed: () {
                   provider.deletarFormulario(f.id);
                   Navigator.pop(ctx);
                 },
-                child: const Text('Deletar',
-                    style: TextStyle(color: AppColors.danger)),
+                child:
+                    Text('Deletar', style: TextStyle(color: AppColors.danger)),
               ),
             ],
           ),

@@ -12,7 +12,8 @@ import '../../../core/utils/app_notif.dart';
 class RegistroPontoFormScreen extends StatefulWidget {
   final String colaboradorId;
   final RegistroPonto? registroExistente;
-  /// Data pré-selecionada (opcional, ex: ao abrir da tela de turno)
+
+  /// Data prÃƒÂ©-selecionada (opcional, ex: ao abrir da tela de turno)
   final DateTime? dataInicial;
 
   const RegistroPontoFormScreen({
@@ -119,8 +120,7 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
 
   Future<void> _handleSave() async {
     setState(() => _isLoading = true);
-    final provider =
-        Provider.of<RegistroPontoProvider>(context, listen: false);
+    final provider = Provider.of<RegistroPontoProvider>(context, listen: false);
 
     bool success;
 
@@ -222,8 +222,8 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Data
-            const Text('Data', style: AppTextStyles.subtitle),
-            const SizedBox(height: Dimensions.spacingSM),
+            Text('Data', style: AppTextStyles.subtitle),
+            SizedBox(height: Dimensions.spacingSM),
             InkWell(
               onTap: _pickDate,
               borderRadius: BorderRadius.circular(Dimensions.radiusMD),
@@ -235,39 +235,37 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.cardBackground,
                   border: Border.all(color: AppColors.cardBorder),
-                  borderRadius:
-                      BorderRadius.circular(Dimensions.radiusMD),
+                  borderRadius: BorderRadius.circular(Dimensions.radiusMD),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.calendar_today,
+                    Icon(Icons.calendar_today,
                         color: AppColors.primary, size: 20),
-                    const SizedBox(width: Dimensions.spacingSM),
+                    SizedBox(width: Dimensions.spacingSM),
                     Text(
                       _formatDate(_data),
                       style: AppTextStyles.body,
                     ),
                     const Spacer(),
-                    const Icon(Icons.arrow_drop_down,
-                        color: AppColors.textSecondary),
+                    Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
                   ],
                 ),
               ),
             ),
 
-            const SizedBox(height: Dimensions.spacingLG),
+            SizedBox(height: Dimensions.spacingLG),
 
             // Tipo
-            const Text('Tipo', style: AppTextStyles.subtitle),
-            const SizedBox(height: Dimensions.spacingSM),
+            Text('Tipo', style: AppTextStyles.subtitle),
+            SizedBox(height: Dimensions.spacingSM),
             _buildTipoSelector(),
 
-            const SizedBox(height: Dimensions.spacingLG),
+            SizedBox(height: Dimensions.spacingLG),
 
-            // Horários (somente para trabalho)
+            // HorÃƒÂ¡rios (somente para trabalho)
             if (_tipo == 'trabalho') ...[
-              const Text('Horários', style: AppTextStyles.subtitle),
-              const SizedBox(height: Dimensions.spacingSM),
+              Text('HorÃƒÂ¡rios', style: AppTextStyles.subtitle),
+              SizedBox(height: Dimensions.spacingSM),
               Row(
                 children: [
                   Expanded(
@@ -278,10 +276,10 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
                       color: AppColors.primary,
                     ),
                   ),
-                  const SizedBox(width: Dimensions.spacingMD),
+                  SizedBox(width: Dimensions.spacingMD),
                   Expanded(
                     child: _buildTimeTile(
-                      label: 'Saída',
+                      label: 'SaÃƒÂ­da',
                       icon: Icons.logout,
                       controller: _saidaController,
                       color: AppColors.statusSaida,
@@ -289,7 +287,7 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: Dimensions.spacingMD),
+              SizedBox(height: Dimensions.spacingMD),
               Row(
                 children: [
                   Expanded(
@@ -300,7 +298,7 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
                       color: AppColors.statusCafe,
                     ),
                   ),
-                  const SizedBox(width: Dimensions.spacingMD),
+                  SizedBox(width: Dimensions.spacingMD),
                   Expanded(
                     child: _buildTimeTile(
                       label: 'Retorno',
@@ -312,33 +310,31 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
                 ],
               ),
 
-              const SizedBox(height: Dimensions.spacingLG),
+              SizedBox(height: Dimensions.spacingLG),
 
-              // Observação (trabalho)
-              const Text('Observação (Opcional)',
+              // ObservaÃƒÂ§ÃƒÂ£o (trabalho)
+              Text('ObservaÃƒÂ§ÃƒÂ£o (Opcional)',
                   style: AppTextStyles.subtitle),
-              const SizedBox(height: Dimensions.spacingSM),
+              SizedBox(height: Dimensions.spacingSM),
               TextFormField(
                 controller: _observacaoController,
                 decoration: InputDecoration(
                   hintText: 'Ex: Self, Vipp, etc',
-                  prefixIcon: const Icon(Icons.note),
+                  prefixIcon: Icon(Icons.note),
                   filled: true,
                   fillColor: AppColors.cardBackground,
                   border: OutlineInputBorder(
-                    borderRadius:
-                        BorderRadius.circular(Dimensions.radiusMD),
-                    borderSide:
-                        const BorderSide(color: AppColors.cardBorder),
+                    borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+                    borderSide: BorderSide(color: AppColors.cardBorder),
                   ),
                 ),
                 maxLines: 2,
               ),
 
-              const SizedBox(height: Dimensions.spacingLG),
+              SizedBox(height: Dimensions.spacingLG),
             ],
 
-            // Botões
+            // BotÃƒÂµes
             Row(
               children: [
                 Expanded(
@@ -350,10 +346,10 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
                         vertical: Dimensions.paddingSM,
                       ),
                     ),
-                    child: const Text('Cancelar'),
+                    child: Text('Cancelar'),
                   ),
                 ),
-                const SizedBox(width: Dimensions.spacingMD),
+                SizedBox(width: Dimensions.spacingMD),
                 Expanded(
                   child: PrimaryButton(
                     onPressed: _isLoading ? () {} : _handleSave,
@@ -371,9 +367,24 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
 
   Widget _buildTipoSelector() {
     final tipos = [
-      (key: 'trabalho', label: 'Trabalho', icon: Icons.work, color: AppColors.primary),
-      (key: 'folga', label: 'Folga', icon: Icons.weekend, color: AppColors.statusFolga),
-      (key: 'feriado', label: 'Feriado', icon: Icons.celebration, color: AppColors.statusAtencao),
+      (
+        key: 'trabalho',
+        label: 'Trabalho',
+        icon: Icons.work,
+        color: AppColors.primary
+      ),
+      (
+        key: 'folga',
+        label: 'Folga',
+        icon: Icons.weekend,
+        color: AppColors.statusFolga
+      ),
+      (
+        key: 'feriado',
+        label: 'Feriado',
+        icon: Icons.celebration,
+        color: AppColors.statusAtencao
+      ),
     ];
 
     return Row(
@@ -398,22 +409,20 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
                   color: isSelected ? t.color : AppColors.cardBorder,
                   width: isSelected ? 2 : 1,
                 ),
-                borderRadius:
-                    BorderRadius.circular(Dimensions.radiusMD),
+                borderRadius: BorderRadius.circular(Dimensions.radiusMD),
               ),
               child: Column(
                 children: [
                   Icon(t.icon,
                       color: isSelected ? t.color : AppColors.textSecondary,
                       size: 22),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     t.label,
                     style: AppTextStyles.caption.copyWith(
                       color: isSelected ? t.color : AppColors.textSecondary,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.normal,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
                 ],
@@ -447,7 +456,7 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
         child: Row(
           children: [
             Icon(icon, color: color, size: 18),
-            const SizedBox(width: 6),
+            SizedBox(width: 6),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -482,7 +491,13 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
 
   String _formatDate(DateTime date) {
     const dias = [
-      'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'
+      'Segunda',
+      'TerÃƒÂ§a',
+      'Quarta',
+      'Quinta',
+      'Sexta',
+      'SÃƒÂ¡bado',
+      'Domingo'
     ];
     final diaSemana = dias[date.weekday - 1];
     return '$diaSemana, ${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';

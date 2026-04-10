@@ -45,16 +45,16 @@ class _PizzasCadastroScreenState extends State<PizzasCadastroScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Excluir pizza?'),
+        title: Text('Excluir pizza?'),
         content:
             Text('Deseja excluir "${pizza.nome} (${pizza.tamanhoLabel})"?'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar')),
+              child: Text('Cancelar')),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Excluir', style: TextStyle(color: Colors.red)),
+            child: Text('Excluir', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -72,23 +72,23 @@ class _PizzasCadastroScreenState extends State<PizzasCadastroScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cardápio de Pizzas'),
+        title: Text('CardÃƒÂ¡pio de Pizzas'),
         actions: [
-          IconButton(icon: const Icon(Icons.refresh), onPressed: _carregar),
+          IconButton(icon: Icon(Icons.refresh), onPressed: _carregar),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _abrirFormulario(),
-        icon: const Icon(Icons.add),
-        label: const Text('Nova Pizza'),
+        icon: Icon(Icons.add),
+        label: Text('Nova Pizza'),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator())
           : ListView(
               padding: const EdgeInsets.only(bottom: 80),
               children: [
-                _secao('🍕 Pizzas Grandes', grandes),
-                _secao('🍕 Pizzas Médias', medias),
+                _secao('Ã°Å¸Ââ€¢ Pizzas Grandes', grandes),
+                _secao('Ã°Å¸Ââ€¢ Pizzas MÃƒÂ©dias', medias),
               ],
             ),
     );
@@ -101,11 +101,10 @@ class _PizzasCadastroScreenState extends State<PizzasCadastroScreen> {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
           child: Text(titulo,
-              style:
-                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         ),
         if (lista.isEmpty)
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: Text('Nenhuma pizza cadastrada.',
                 style: TextStyle(color: Colors.grey)),
@@ -142,11 +141,11 @@ class _PizzasCadastroScreenState extends State<PizzasCadastroScreen> {
                     },
                   ),
                   IconButton(
-                    icon: const Icon(Icons.edit_outlined),
+                    icon: Icon(Icons.edit_outlined),
                     onPressed: () => _abrirFormulario(p),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                    icon: Icon(Icons.delete_outline, color: Colors.red),
                     onPressed: () => _confirmarDelete(p),
                   ),
                 ],
@@ -160,7 +159,7 @@ class _PizzasCadastroScreenState extends State<PizzasCadastroScreen> {
 }
 
 // ============================================================
-// BOTTOM SHEET — Formulário de pizza
+// BOTTOM SHEET Ã¢â‚¬â€ FormulÃƒÂ¡rio de pizza
 // ============================================================
 
 class _FormPizza extends StatefulWidget {
@@ -241,22 +240,22 @@ class _FormPizzaState extends State<_FormPizza> {
         children: [
           Text(
             widget.pizza == null ? 'Nova Pizza' : 'Editar Pizza',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           TextField(
             controller: _nomeCtrl,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Nome do sabor',
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.local_pizza),
             ),
             textCapitalization: TextCapitalization.words,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           TextField(
             controller: _ingredientesCtrl,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Ingredientes',
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.list_alt),
@@ -265,9 +264,9 @@ class _FormPizzaState extends State<_FormPizza> {
             textCapitalization: TextCapitalization.sentences,
             maxLines: 2,
           ),
-          const SizedBox(height: 16),
-          const Text('Tamanho'),
-          const SizedBox(height: 8),
+          SizedBox(height: 16),
+          Text('Tamanho'),
+          SizedBox(height: 8),
           SegmentedButton<String>(
             segments: const [
               ButtonSegment(
@@ -276,24 +275,24 @@ class _FormPizzaState extends State<_FormPizza> {
                   icon: Icon(Icons.circle)),
               ButtonSegment(
                   value: 'media',
-                  label: Text('Média'),
+                  label: Text('MÃƒÂ©dia'),
                   icon: Icon(Icons.circle_outlined)),
             ],
             selected: {_tamanho},
             onSelectionChanged: (s) => setState(() => _tamanho = s.first),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
             child: FilledButton(
               onPressed: _salvando ? null : _salvar,
               child: _salvando
-                  ? const SizedBox(
+                  ? SizedBox(
                       height: 20,
                       width: 20,
                       child: CircularProgressIndicator(
                           strokeWidth: 2, color: Colors.white))
-                  : const Text('Salvar'),
+                  : Text('Salvar'),
             ),
           ),
         ],

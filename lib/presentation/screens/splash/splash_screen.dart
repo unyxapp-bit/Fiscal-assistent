@@ -44,25 +44,25 @@ class _SplashScreenState extends State<SplashScreen> {
                     color: AppColors.primary.withValues(alpha: 0.2),
                   ),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.receipt_long,
                   size: 54,
                   color: AppColors.primary,
                 ),
               ),
-              const SizedBox(height: 22),
+              SizedBox(height: 22),
               Text(
                 'Fiscal',
                 style: AppTextStyles.h2.copyWith(color: AppColors.primary),
               ),
-              const SizedBox(height: 6),
-              const Text(
+              SizedBox(height: 6),
+              Text(
                 'Assistente de Gestao de Caixa',
                 style: AppTextStyles.label,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 22),
-              const SizedBox(
+              SizedBox(height: 22),
+              SizedBox(
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(strokeWidth: 2.4),

@@ -70,8 +70,8 @@ class OcorrenciaDetailScreen extends StatelessWidget {
 
     if (ocorrencia == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Detalhes da Ocorrencia')),
-        body: const Center(child: Text('Ocorrencia nao encontrada.')),
+        appBar: AppBar(title: Text('Detalhes da Ocorrencia')),
+        body: Center(child: Text('Ocorrencia nao encontrada.')),
       );
     }
 
@@ -80,16 +80,16 @@ class OcorrenciaDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
-        title: const Text('Detalhes da Ocorrencia', style: AppTextStyles.h3),
+        title: Text('Detalhes da Ocorrencia', style: AppTextStyles.h3),
         actions: [
           if (!ocorrencia.resolvida)
             IconButton(
-              icon: const Icon(Icons.check_circle_outline),
+              icon: Icon(Icons.check_circle_outline),
               tooltip: 'Marcar como resolvida',
               onPressed: () => _marcarComoResolvida(context, ocorrencia),
             ),
           IconButton(
-            icon: const Icon(Icons.edit_outlined),
+            icon: Icon(Icons.edit_outlined),
             tooltip: 'Editar',
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(
@@ -114,7 +114,7 @@ class OcorrenciaDetailScreen extends StatelessWidget {
                     color: ocorrencia.gravidade.cor,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: Text(ocorrencia.tipo, style: AppTextStyles.h3),
                 ),
@@ -136,7 +136,7 @@ class OcorrenciaDetailScreen extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -158,7 +158,7 @@ class OcorrenciaDetailScreen extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Text(
               'Registrada em ${_formatDateTime(ocorrencia.registradaEm)}',
               style: AppTextStyles.caption
@@ -193,9 +193,9 @@ class OcorrenciaDetailScreen extends StatelessWidget {
                       .copyWith(color: AppColors.textSecondary),
                 ),
               ),
-            const SizedBox(height: 16),
-            const Text('Descricao', style: AppTextStyles.h4),
-            const SizedBox(height: 8),
+            SizedBox(height: 16),
+            Text('Descricao', style: AppTextStyles.h4),
+            SizedBox(height: 8),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
@@ -215,24 +215,24 @@ class OcorrenciaDetailScreen extends StatelessWidget {
                     ocorrencia.fotoUrl!.isNotEmpty) ||
                 (ocorrencia.arquivoUrl != null &&
                     ocorrencia.arquivoUrl!.isNotEmpty)) ...[
-              const SizedBox(height: 16),
-              const Text('Anexos', style: AppTextStyles.h4),
-              const SizedBox(height: 8),
+              SizedBox(height: 16),
+              Text('Anexos', style: AppTextStyles.h4),
+              SizedBox(height: 8),
               Card(
                 child: Column(
                   children: [
                     if (ocorrencia.fotoUrl != null &&
                         ocorrencia.fotoUrl!.isNotEmpty)
                       ListTile(
-                        leading: const Icon(Icons.photo_outlined),
-                        title: const Text('Foto'),
+                        leading: Icon(Icons.photo_outlined),
+                        title: Text('Foto'),
                         subtitle: Text(
                           ocorrencia.fotoNome ?? 'arquivo de imagem',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         trailing: IconButton(
-                          icon: const Icon(Icons.copy_outlined),
+                          icon: Icon(Icons.copy_outlined),
                           onPressed: () => _copiar(
                               context, ocorrencia.fotoUrl!, 'URL da foto'),
                         ),
@@ -241,19 +241,19 @@ class OcorrenciaDetailScreen extends StatelessWidget {
                         ocorrencia.fotoUrl!.isNotEmpty &&
                         ocorrencia.arquivoUrl != null &&
                         ocorrencia.arquivoUrl!.isNotEmpty)
-                      const Divider(height: 1),
+                      Divider(height: 1),
                     if (ocorrencia.arquivoUrl != null &&
                         ocorrencia.arquivoUrl!.isNotEmpty)
                       ListTile(
-                        leading: const Icon(Icons.attach_file),
-                        title: const Text('Arquivo'),
+                        leading: Icon(Icons.attach_file),
+                        title: Text('Arquivo'),
                         subtitle: Text(
                           ocorrencia.arquivoNome ?? 'arquivo anexado',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         trailing: IconButton(
-                          icon: const Icon(Icons.copy_outlined),
+                          icon: Icon(Icons.copy_outlined),
                           onPressed: () => _copiar(
                             context,
                             ocorrencia.arquivoUrl!,

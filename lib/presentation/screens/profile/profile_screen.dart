@@ -8,7 +8,7 @@ import '../../providers/fiscal_provider.dart';
 import '../../../core/utils/app_notif.dart';
 
 /// Tela de Perfil do Fiscal
-/// Permite visualizar e editar informações do perfil
+/// Permite visualizar e editar informaÃƒÂ§ÃƒÂµes do perfil
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -31,7 +31,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _obscureNovaSenha = true;
   bool _obscureConfirmarSenha = true;
 
-  final List<String> _lojas = ['Baependi', 'Caxambu', 'Cruzília'];
+  final List<String> _lojas = ['Baependi', 'Caxambu', 'CruzÃƒÂ­lia'];
 
   @override
   void initState() {
@@ -107,8 +107,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_novaSenhaController.text != _confirmarSenhaController.text) {
       AppNotif.show(
         context,
-        titulo: 'Senha Inválida',
-        mensagem: 'As senhas não coincidem',
+        titulo: 'Senha InvÃƒÂ¡lida',
+        mensagem: 'As senhas nÃƒÂ£o coincidem',
         tipo: 'alerta',
         cor: AppColors.danger,
       );
@@ -118,7 +118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_novaSenhaController.text.length < 6) {
       AppNotif.show(
         context,
-        titulo: 'Senha Inválida',
+        titulo: 'Senha InvÃƒÂ¡lida',
         mensagem: 'A senha deve ter pelo menos 6 caracteres',
         tipo: 'alerta',
         cor: AppColors.danger,
@@ -126,7 +126,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
 
-    // TODO: Implementar alteração de senha via AuthProvider
+    // TODO: Implementar alteraÃƒÂ§ÃƒÂ£o de senha via AuthProvider
     AppNotif.show(
       context,
       titulo: 'Em Desenvolvimento',
@@ -150,11 +150,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
-        title: const Text('Meu Perfil', style: AppTextStyles.h3),
+        title: Text('Meu Perfil', style: AppTextStyles.h3),
         actions: [
           if (!_isEditMode && !_isChangingPassword)
             IconButton(
-              icon: const Icon(Icons.edit),
+              icon: Icon(Icons.edit),
               onPressed: () => setState(() => _isEditMode = true),
               tooltip: 'Editar Perfil',
             ),
@@ -163,12 +163,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: Consumer2<FiscalProvider, AuthProvider>(
         builder: (context, fiscalProvider, authProvider, _) {
           if (fiscalProvider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator());
           }
 
           final fiscal = fiscalProvider.fiscal;
           if (fiscal == null) {
-            return const Center(
+            return Center(
               child: Text('Nenhum perfil encontrado'),
             );
           }
@@ -186,59 +186,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       radius: 50,
                       backgroundColor: AppColors.primary,
                       child: Text(
-                        fiscal.nome.isNotEmpty ? fiscal.nome[0].toUpperCase() : 'U',
+                        fiscal.nome.isNotEmpty
+                            ? fiscal.nome[0].toUpperCase()
+                            : 'U',
                         style: AppTextStyles.h1.copyWith(color: Colors.white),
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: Dimensions.spacingXL),
+                  SizedBox(height: Dimensions.spacingXL),
 
-                  // Informações do Perfil
+                  // InformaÃƒÂ§ÃƒÂµes do Perfil
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(Dimensions.paddingMD),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Informações Pessoais', style: AppTextStyles.h4),
-                          const SizedBox(height: Dimensions.spacingMD),
+                          Text('InformaÃƒÂ§ÃƒÂµes Pessoais',
+                              style: AppTextStyles.h4),
+                          SizedBox(height: Dimensions.spacingMD),
 
                           // Nome
                           TextFormField(
                             controller: _nomeController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Nome Completo',
                               prefixIcon: Icon(Icons.person),
                             ),
                             enabled: _isEditMode,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Nome é obrigatório';
+                                return 'Nome ÃƒÂ© obrigatÃƒÂ³rio';
                               }
                               return null;
                             },
                           ),
 
-                          const SizedBox(height: Dimensions.spacingMD),
+                          SizedBox(height: Dimensions.spacingMD),
 
                           // Email (readonly)
                           TextFormField(
                             initialValue: fiscal.email,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Email',
                               prefixIcon: Icon(Icons.email),
-                              helperText: 'O email não pode ser alterado',
+                              helperText: 'O email nÃƒÂ£o pode ser alterado',
                             ),
                             enabled: false,
                           ),
 
-                          const SizedBox(height: Dimensions.spacingMD),
+                          SizedBox(height: Dimensions.spacingMD),
 
                           // Telefone
                           TextFormField(
                             controller: _telefoneController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Telefone (opcional)',
                               prefixIcon: Icon(Icons.phone),
                               hintText: '(00) 00000-0000',
@@ -247,12 +250,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             enabled: _isEditMode,
                           ),
 
-                          const SizedBox(height: Dimensions.spacingMD),
+                          SizedBox(height: Dimensions.spacingMD),
 
                           // Loja
                           DropdownButtonFormField<String>(
                             initialValue: _lojaSelecionada,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Loja',
                               prefixIcon: Icon(Icons.store),
                             ),
@@ -263,12 +266,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               );
                             }).toList(),
                             onChanged: _isEditMode
-                                ? (value) => setState(() => _lojaSelecionada = value)
+                                ? (value) =>
+                                    setState(() => _lojaSelecionada = value)
                                 : null,
                           ),
 
                           if (_isEditMode) ...[
-                            const SizedBox(height: Dimensions.spacingLG),
+                            SizedBox(height: Dimensions.spacingLG),
                             Row(
                               children: [
                                 Expanded(
@@ -277,14 +281,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       _loadProfileData();
                                       setState(() => _isEditMode = false);
                                     },
-                                    child: const Text('Cancelar'),
+                                    child: Text('Cancelar'),
                                   ),
                                 ),
-                                const SizedBox(width: Dimensions.spacingSM),
+                                SizedBox(width: Dimensions.spacingSM),
                                 Expanded(
                                   child: ElevatedButton(
                                     onPressed: _salvarPerfil,
-                                    child: const Text('Salvar'),
+                                    child: Text('Salvar'),
                                   ),
                                 ),
                               ],
@@ -295,24 +299,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: Dimensions.spacingLG),
+                  SizedBox(height: Dimensions.spacingLG),
 
-                  // Alteração de Senha
+                  // AlteraÃƒÂ§ÃƒÂ£o de Senha
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(Dimensions.paddingMD),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Segurança', style: AppTextStyles.h4),
-                          const SizedBox(height: Dimensions.spacingMD),
-
+                          Text('SeguranÃƒÂ§a', style: AppTextStyles.h4),
+                          SizedBox(height: Dimensions.spacingMD),
                           if (!_isChangingPassword) ...[
                             ListTile(
-                              leading: const Icon(Icons.lock, color: AppColors.primary),
-                              title: const Text('Alterar Senha'),
-                              trailing: const Icon(Icons.chevron_right),
-                              onTap: () => setState(() => _isChangingPassword = true),
+                              leading:
+                                  Icon(Icons.lock, color: AppColors.primary),
+                              title: Text('Alterar Senha'),
+                              trailing: Icon(Icons.chevron_right),
+                              onTap: () =>
+                                  setState(() => _isChangingPassword = true),
                             ),
                           ] else ...[
                             // Senha Atual
@@ -320,54 +325,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               controller: _senhaAtualController,
                               decoration: InputDecoration(
                                 labelText: 'Senha Atual',
-                                prefixIcon: const Icon(Icons.lock_outline),
+                                prefixIcon: Icon(Icons.lock_outline),
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _obscureSenhaAtual ? Icons.visibility : Icons.visibility_off,
+                                    _obscureSenhaAtual
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
                                   ),
-                                  onPressed: () => setState(() => _obscureSenhaAtual = !_obscureSenhaAtual),
+                                  onPressed: () => setState(() =>
+                                      _obscureSenhaAtual = !_obscureSenhaAtual),
                                 ),
                               ),
                               obscureText: _obscureSenhaAtual,
                             ),
 
-                            const SizedBox(height: Dimensions.spacingMD),
+                            SizedBox(height: Dimensions.spacingMD),
 
                             // Nova Senha
                             TextFormField(
                               controller: _novaSenhaController,
                               decoration: InputDecoration(
                                 labelText: 'Nova Senha',
-                                prefixIcon: const Icon(Icons.lock),
+                                prefixIcon: Icon(Icons.lock),
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _obscureNovaSenha ? Icons.visibility : Icons.visibility_off,
+                                    _obscureNovaSenha
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
                                   ),
-                                  onPressed: () => setState(() => _obscureNovaSenha = !_obscureNovaSenha),
+                                  onPressed: () => setState(() =>
+                                      _obscureNovaSenha = !_obscureNovaSenha),
                                 ),
                               ),
                               obscureText: _obscureNovaSenha,
                             ),
 
-                            const SizedBox(height: Dimensions.spacingMD),
+                            SizedBox(height: Dimensions.spacingMD),
 
                             // Confirmar Senha
                             TextFormField(
                               controller: _confirmarSenhaController,
                               decoration: InputDecoration(
                                 labelText: 'Confirmar Nova Senha',
-                                prefixIcon: const Icon(Icons.lock),
+                                prefixIcon: Icon(Icons.lock),
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _obscureConfirmarSenha ? Icons.visibility : Icons.visibility_off,
+                                    _obscureConfirmarSenha
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
                                   ),
-                                  onPressed: () => setState(() => _obscureConfirmarSenha = !_obscureConfirmarSenha),
+                                  onPressed: () => setState(() =>
+                                      _obscureConfirmarSenha =
+                                          !_obscureConfirmarSenha),
                                 ),
                               ),
                               obscureText: _obscureConfirmarSenha,
                             ),
 
-                            const SizedBox(height: Dimensions.spacingLG),
+                            SizedBox(height: Dimensions.spacingLG),
 
                             Row(
                               children: [
@@ -381,14 +396,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         _confirmarSenhaController.clear();
                                       });
                                     },
-                                    child: const Text('Cancelar'),
+                                    child: Text('Cancelar'),
                                   ),
                                 ),
-                                const SizedBox(width: Dimensions.spacingSM),
+                                SizedBox(width: Dimensions.spacingSM),
                                 Expanded(
                                   child: ElevatedButton(
                                     onPressed: _alterarSenha,
-                                    child: const Text('Alterar Senha'),
+                                    child: Text('Alterar Senha'),
                                   ),
                                 ),
                               ],
@@ -399,9 +414,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: Dimensions.spacingLG),
+                  SizedBox(height: Dimensions.spacingLG),
 
-                  // Botão de Logout
+                  // BotÃƒÂ£o de Logout
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
@@ -409,12 +424,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
-                            title: const Text('Sair'),
-                            content: const Text('Deseja realmente sair do aplicativo?'),
+                            title: Text('Sair'),
+                            content:
+                                Text('Deseja realmente sair do aplicativo?'),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: const Text('Cancelar'),
+                                child: Text('Cancelar'),
                               ),
                               ElevatedButton(
                                 onPressed: () {
@@ -424,22 +440,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.danger,
                                 ),
-                                child: const Text('Sair'),
+                                child: Text('Sair'),
                               ),
                             ],
                           ),
                         );
                       },
-                      icon: const Icon(Icons.logout),
-                      label: const Text('Sair da Conta'),
+                      icon: Icon(Icons.logout),
+                      label: Text('Sair da Conta'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.danger,
-                        padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingMD),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: Dimensions.paddingMD),
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: Dimensions.spacingMD),
+                  SizedBox(height: Dimensions.spacingMD),
 
                   // Info da conta
                   Center(

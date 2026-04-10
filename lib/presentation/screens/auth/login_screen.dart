@@ -74,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const SizedBox(height: 28),
+                      SizedBox(height: 28),
                       Container(
                         decoration: AppStyles.softCard(
                           tint: AppColors.inactive,
@@ -98,19 +98,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                       AppColors.primary.withValues(alpha: 0.22),
                                 ),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.receipt_long,
                                 size: 46,
                                 color: AppColors.primary,
                               ),
                             ),
-                            const SizedBox(height: 20),
-                            const Text(
+                            SizedBox(height: 20),
+                            Text(
                               'Bem-vindo',
                               style: AppTextStyles.h2,
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 6),
+                            SizedBox(height: 6),
                             Text(
                               'Entre para continuar',
                               style: AppTextStyles.body.copyWith(
@@ -118,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 22),
+                            SizedBox(height: 22),
                             CustomTextField(
                               controller: _emailController,
                               label: 'Email',
@@ -135,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 return null;
                               },
                             ),
-                            const SizedBox(height: Dimensions.spacingMD),
+                            SizedBox(height: Dimensions.spacingMD),
                             CustomTextField(
                               controller: _passwordController,
                               label: 'Senha',
@@ -164,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 return null;
                               },
                             ),
-                            const SizedBox(height: Dimensions.spacingLG),
+                            SizedBox(height: Dimensions.spacingLG),
                             PrimaryButton(
                               text: 'Entrar',
                               onPressed: _handleLogin,
@@ -172,11 +172,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       TextButton(
                         onPressed: _navigateToRegister,
                         child: RichText(
-                          text: const TextSpan(
+                          text: TextSpan(
                             style: AppTextStyles.body,
                             children: [
                               TextSpan(

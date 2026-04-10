@@ -43,8 +43,7 @@ class EscalaDiaScreen extends StatelessWidget {
         .toList()
       ..sort((a, b) => entradaOrd(a).compareTo(entradaOrd(b)));
 
-    final dateFormat =
-        DateFormat("EEEE, dd 'de' MMMM 'de' yyyy", 'pt_BR');
+    final dateFormat = DateFormat("EEEE, dd 'de' MMMM 'de' yyyy", 'pt_BR');
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -57,7 +56,7 @@ class EscalaDiaScreen extends StatelessWidget {
         actions: [
           if (turnos.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.delete_sweep),
+              icon: Icon(Icons.delete_sweep),
               tooltip: 'Limpar dia',
               onPressed: () => _confirmarLimparDia(context, provider),
             ),
@@ -68,27 +67,27 @@ class EscalaDiaScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.calendar_today,
+                  Icon(Icons.calendar_today,
                       size: 64, color: AppColors.inactive),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   Text(
                     _capitalizar(dateFormat.format(data)),
                     style: AppTextStyles.h4
                         .copyWith(color: AppColors.textSecondary),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Text(
                     'Nenhuma escala cadastrada para este dia',
                     style: AppTextStyles.body
                         .copyWith(color: AppColors.textSecondary),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
                   ElevatedButton.icon(
                     onPressed: () => _abrirFormulario(context, null),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Adicionar Colaborador'),
+                    icon: Icon(Icons.add),
+                    label: Text('Adicionar Colaborador'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
@@ -100,50 +99,48 @@ class EscalaDiaScreen extends StatelessWidget {
           : ListView(
               padding: const EdgeInsets.all(Dimensions.paddingMD),
               children: [
-                // Cabeçalho com data completa
+                // CabeÃƒÂ§alho com data completa
                 Text(
                   _capitalizar(dateFormat.format(data)),
-                  style: AppTextStyles.h4
-                      .copyWith(color: AppColors.textSecondary),
+                  style:
+                      AppTextStyles.h4.copyWith(color: AppColors.textSecondary),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   '${turnos.where((t) => t.trabalhando).length} trabalhando'
-                  ' • ${turnos.where((t) => t.folga || t.feriado).length} folga/feriado',
+                  ' Ã¢â‚¬Â¢ ${turnos.where((t) => t.folga || t.feriado).length} folga/feriado',
                   style: AppTextStyles.caption
                       .copyWith(color: AppColors.textSecondary),
                 ),
 
-                const SizedBox(height: Dimensions.spacingLG),
+                SizedBox(height: Dimensions.spacingLG),
 
                 // CAIXA
                 if (caixas.isNotEmpty) ...[
                   _buildSecaoHeader('CAIXA / SELF'),
                   ...caixas.map((t) => _buildTurnoCard(context, t, provider)),
-                  const SizedBox(height: Dimensions.spacingMD),
+                  SizedBox(height: Dimensions.spacingMD),
                 ],
 
                 // FISCAL
                 if (fiscais.isNotEmpty) ...[
                   _buildSecaoHeader('FISCAL'),
-                  ...fiscais
-                      .map((t) => _buildTurnoCard(context, t, provider)),
-                  const SizedBox(height: Dimensions.spacingMD),
+                  ...fiscais.map((t) => _buildTurnoCard(context, t, provider)),
+                  SizedBox(height: Dimensions.spacingMD),
                 ],
 
                 // OUTROS
                 if (outros.isNotEmpty) ...[
                   _buildSecaoHeader('OUTROS SETORES'),
-                  ...outros
-                      .map((t) => _buildTurnoCard(context, t, provider)),
-                  const SizedBox(height: Dimensions.spacingMD),
+                  ...outros.map((t) => _buildTurnoCard(context, t, provider)),
+                  SizedBox(height: Dimensions.spacingMD),
                 ],
               ],
             ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _abrirFormulario(context, null),
-        icon: const Icon(Icons.person_add),
-        label: const Text('Adicionar'),
+        icon: Icon(Icons.person_add),
+        label: Text('Adicionar'),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -152,8 +149,7 @@ class EscalaDiaScreen extends StatelessWidget {
 
   Widget _buildSecaoHeader(String titulo) {
     return Padding(
-      padding:
-          const EdgeInsets.only(bottom: Dimensions.spacingSM),
+      padding: const EdgeInsets.only(bottom: Dimensions.spacingSM),
       child: Row(
         children: [
           Container(
@@ -164,7 +160,7 @@ class EscalaDiaScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           Text(
             titulo,
             style: AppTextStyles.label.copyWith(
@@ -186,8 +182,7 @@ class EscalaDiaScreen extends StatelessWidget {
             : AppColors.statusAtivo;
 
     return Card(
-      margin:
-          const EdgeInsets.only(bottom: Dimensions.spacingSM),
+      margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: cor.withValues(alpha: 0.15),
@@ -197,17 +192,16 @@ class EscalaDiaScreen extends StatelessWidget {
                 .first
                 .substring(0, 1)
                 .toUpperCase(),
-            style: TextStyle(
-                color: cor, fontWeight: FontWeight.bold),
+            style: TextStyle(color: cor, fontWeight: FontWeight.bold),
           ),
         ),
         title: Text(turno.colaboradorNome, style: AppTextStyles.h4),
         subtitle: turno.trabalhando
             ? Text(
-                'Entrada: ${turno.entrada ?? "–"}  '
-                'Intervalo: ${turno.intervalo ?? "–"}  '
-                'Retorno: ${turno.retorno ?? "–"}  '
-                'Saída: ${turno.saida ?? "–"}',
+                'Entrada: ${turno.entrada ?? "Ã¢â‚¬â€œ"}  '
+                'Intervalo: ${turno.intervalo ?? "Ã¢â‚¬â€œ"}  '
+                'Retorno: ${turno.retorno ?? "Ã¢â‚¬â€œ"}  '
+                'SaÃƒÂ­da: ${turno.saida ?? "Ã¢â‚¬â€œ"}',
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary),
               )
@@ -224,7 +218,7 @@ class EscalaDiaScreen extends StatelessWidget {
             }
           },
           itemBuilder: (_) => [
-            const PopupMenuItem(
+            PopupMenuItem(
               value: 'editar',
               child: Row(children: [
                 Icon(Icons.edit, size: 18),
@@ -232,13 +226,12 @@ class EscalaDiaScreen extends StatelessWidget {
                 Text('Editar'),
               ]),
             ),
-            const PopupMenuItem(
+            PopupMenuItem(
               value: 'remover',
               child: Row(children: [
                 Icon(Icons.delete, size: 18, color: AppColors.danger),
                 SizedBox(width: 8),
-                Text('Remover',
-                    style: TextStyle(color: AppColors.danger)),
+                Text('Remover', style: TextStyle(color: AppColors.danger)),
               ]),
             ),
           ],
@@ -258,26 +251,24 @@ class EscalaDiaScreen extends StatelessWidget {
     );
   }
 
-  void _confirmarLimparDia(
-      BuildContext context, EscalaProvider provider) {
+  void _confirmarLimparDia(BuildContext context, EscalaProvider provider) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Limpar dia'),
-        content: const Text(
-            'Deseja remover todos os turnos cadastrados para este dia?'),
+        title: Text('Limpar dia'),
+        content:
+            Text('Deseja remover todos os turnos cadastrados para este dia?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
               provider.limparDia(data);
               Navigator.pop(ctx);
             },
-            child: const Text('Limpar',
-                style: TextStyle(color: AppColors.danger)),
+            child: Text('Limpar', style: TextStyle(color: AppColors.danger)),
           ),
         ],
       ),

@@ -70,8 +70,7 @@ class Dimensions {
 
   /// Padding horizontal que centraliza o conteúdo em telas largas.
   /// Em telefones: paddingMD (16px). Em tablets: margem calculada para fixar em maxContentWidth.
-  static double hPad(double screenWidth) =>
-      screenWidth > maxContentWidth
-          ? (screenWidth - maxContentWidth) / 2
-          : paddingMD;
+  static double hPad(double screenWidth) => screenWidth > maxContentWidth
+      ? (screenWidth - maxContentWidth) / 2
+      : paddingMD;
 }

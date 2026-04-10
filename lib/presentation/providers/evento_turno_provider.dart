@@ -8,7 +8,7 @@ import '../../domain/entities/relatorio_dia.dart';
 
 /// Provider responsável por registrar todos os eventos do turno e
 /// gerar o relatório ao encerrar.
-/// 
+///
 /// ✅ Migrado para usar **apenas Supabase** (removido SQLite/Drift)
 class EventoTurnoProvider with ChangeNotifier {
   EventoTurnoProvider();
@@ -46,9 +46,8 @@ class EventoTurnoProvider with ChangeNotifier {
       _eventos = (supaRows as List).map(_eventoFromSupabase).toList();
 
       // Verifica se há turno ativo (turno_iniciado nos eventos de hoje)
-      final inicio = _eventos
-          .where((e) => e.tipo == TipoEvento.turnoIniciado)
-          .lastOrNull;
+      final inicio =
+          _eventos.where((e) => e.tipo == TipoEvento.turnoIniciado).lastOrNull;
       if (inicio != null) {
         _turnoAtivo = true;
         _turnoIniciadoEm = inicio.timestamp;
@@ -61,8 +60,7 @@ class EventoTurnoProvider with ChangeNotifier {
           .eq('fiscal_id', fiscalId)
           .order('turno_iniciado_em', ascending: false)
           .limit(30);
-      _relatorios =
-          (supaRels as List).map(_relatorioFromSupabase).toList();
+      _relatorios = (supaRels as List).map(_relatorioFromSupabase).toList();
     } catch (e) {
       debugPrint('[EventoTurnoProvider] Erro ao carregar: $e');
       _eventos = [];
@@ -127,18 +125,15 @@ class EventoTurnoProvider with ChangeNotifier {
     final hoje = agora;
 
     // Conta totais
-    int alocacoes = _eventos
-        .where((e) => e.tipo == TipoEvento.colaboradorAlocado)
-        .length;
+    int alocacoes =
+        _eventos.where((e) => e.tipo == TipoEvento.colaboradorAlocado).length;
     final Set<String> colaboradores = _eventos
         .where((e) => e.colaboradorNome != null)
         .map((e) => e.colaboradorNome!)
         .toSet();
-    int cafes =
-        _eventos.where((e) => e.tipo == TipoEvento.cafeIniciado).length;
-    int intervalos = _eventos
-        .where((e) => e.tipo == TipoEvento.intervaloIniciado)
-        .length;
+    int cafes = _eventos.where((e) => e.tipo == TipoEvento.cafeIniciado).length;
+    int intervalos =
+        _eventos.where((e) => e.tipo == TipoEvento.intervaloIniciado).length;
     int empacotadores = _eventos
         .where((e) => e.tipo == TipoEvento.empacotadorAdicionado)
         .length;
@@ -146,8 +141,7 @@ class EventoTurnoProvider with ChangeNotifier {
     final dataStr =
         '${hoje.year.toString().padLeft(4, '0')}-${hoje.month.toString().padLeft(2, '0')}-${hoje.day.toString().padLeft(2, '0')}';
 
-    final eventosJson =
-        jsonEncode(_eventos.map((e) => e.toJson()).toList());
+    final eventosJson = jsonEncode(_eventos.map((e) => e.toJson()).toList());
 
     final relatorio = RelatorioDia(
       id: const Uuid().v4(),

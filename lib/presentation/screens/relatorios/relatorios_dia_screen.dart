@@ -21,7 +21,7 @@ class RelatoriosDiaScreen extends StatelessWidget {
         return Scaffold(
           backgroundColor: AppColors.background,
           appBar: AppBar(
-            title: const Text('Relatório do Dia'),
+            title: Text('RelatÃƒÂ³rio do Dia'),
             backgroundColor: AppColors.background,
             elevation: 0,
           ),
@@ -32,10 +32,9 @@ class RelatoriosDiaScreen extends StatelessWidget {
                   itemCount: relatorios.length,
                   itemBuilder: (_, i) => _RelatorioCard(
                     relatorio: relatorios[i],
-                    onExcluir: () => _confirmarExclusao(
-                        context, provider, relatorios[i]),
-                    onCompartilhar: () =>
-                        _compartilhar(relatorios[i]),
+                    onExcluir: () =>
+                        _confirmarExclusao(context, provider, relatorios[i]),
+                    onCompartilhar: () => _compartilhar(relatorios[i]),
                   ),
                 ),
         );
@@ -48,11 +47,10 @@ class RelatoriosDiaScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.summarize_outlined,
-              size: 64, color: AppColors.inactive),
-          const SizedBox(height: 16),
+          Icon(Icons.summarize_outlined, size: 64, color: AppColors.inactive),
+          SizedBox(height: 16),
           Text(
-            'Nenhum relatório gerado ainda.\nEncerre o turno na Timeline para gerar um.',
+            'Nenhum relatÃƒÂ³rio gerado ainda.\nEncerre o turno na Timeline para gerar um.',
             style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
             textAlign: TextAlign.center,
           ),
@@ -67,21 +65,20 @@ class RelatoriosDiaScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Excluir Relatório'),
+        title: Text('Excluir RelatÃƒÂ³rio'),
         content: Text(
-            'Excluir o relatório de ${dateFmt.format(relatorio.turnoIniciadoEm)}? Esta ação não pode ser desfeita.'),
+            'Excluir o relatÃƒÂ³rio de ${dateFmt.format(relatorio.turnoIniciadoEm)}? Esta aÃƒÂ§ÃƒÂ£o nÃƒÂ£o pode ser desfeita.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
               provider.removerRelatorio(relatorio.id);
             },
-            child: const Text('Excluir',
-                style: TextStyle(color: AppColors.danger)),
+            child: Text('Excluir', style: TextStyle(color: AppColors.danger)),
           ),
         ],
       ),
@@ -90,7 +87,8 @@ class RelatoriosDiaScreen extends StatelessWidget {
 
   void _compartilhar(RelatorioDia relatorio) {
     Share.share(_gerarTexto(relatorio),
-        subject: 'Relatório do turno — ${DateFormat('dd/MM/yyyy').format(relatorio.turnoIniciadoEm)}');
+        subject:
+            'RelatÃƒÂ³rio do turno Ã¢â‚¬â€ ${DateFormat('dd/MM/yyyy').format(relatorio.turnoIniciadoEm)}');
   }
 
   static String _gerarTexto(RelatorioDia r) {
@@ -102,28 +100,30 @@ class RelatoriosDiaScreen extends StatelessWidget {
         : '${dur.inMinutes}min';
 
     final buf = StringBuffer();
-    buf.writeln('📊 Relatório do Turno — ${dateFmt.format(r.turnoIniciadoEm)}');
-    buf.writeln('⏰ ${timeFmt.format(r.turnoIniciadoEm)} → ${timeFmt.format(r.turnoEncerradoEm)} ($durStr)');
+    buf.writeln(
+        'Ã°Å¸â€œÅ  RelatÃƒÂ³rio do Turno Ã¢â‚¬â€ ${dateFmt.format(r.turnoIniciadoEm)}');
+    buf.writeln(
+        'Ã¢ÂÂ° ${timeFmt.format(r.turnoIniciadoEm)} Ã¢â€ â€™ ${timeFmt.format(r.turnoEncerradoEm)} ($durStr)');
     buf.writeln();
-    buf.writeln('📋 Resumo:');
-    buf.writeln('• ${r.totalAlocacoes} alocações');
-    buf.writeln('• ${r.totalColaboradores} colaboradores');
-    buf.writeln('• ${r.totalCafes} cafés');
-    buf.writeln('• ${r.totalIntervalos} intervalos');
+    buf.writeln('Ã°Å¸â€œâ€¹ Resumo:');
+    buf.writeln('Ã¢â‚¬Â¢ ${r.totalAlocacoes} alocaÃƒÂ§ÃƒÂµes');
+    buf.writeln('Ã¢â‚¬Â¢ ${r.totalColaboradores} colaboradores');
+    buf.writeln('Ã¢â‚¬Â¢ ${r.totalCafes} cafÃƒÂ©s');
+    buf.writeln('Ã¢â‚¬Â¢ ${r.totalIntervalos} intervalos');
     if (r.totalEmpacotadores > 0) {
-      buf.writeln('• ${r.totalEmpacotadores} empacotadores');
+      buf.writeln('Ã¢â‚¬Â¢ ${r.totalEmpacotadores} empacotadores');
     }
 
     if (r.eventos.isNotEmpty) {
       buf.writeln();
-      buf.writeln('📅 Eventos:');
+      buf.writeln('Ã°Å¸â€œâ€¦ Eventos:');
       for (final e in r.eventos) {
         final hora = timeFmt.format(e.timestamp);
         final partes = [
           hora,
           e.tipo.label,
           if (e.colaboradorNome != null) e.colaboradorNome!,
-          if (e.caixaNome != null) '→ ${e.caixaNome}',
+          if (e.caixaNome != null) 'Ã¢â€ â€™ ${e.caixaNome}',
           if (e.detalhe != null) '(${e.detalhe})',
         ];
         buf.writeln(partes.join(' '));
@@ -134,7 +134,7 @@ class RelatoriosDiaScreen extends StatelessWidget {
   }
 }
 
-// ─── Card de relatório ────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Card de relatÃƒÂ³rio Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 class _RelatorioCard extends StatelessWidget {
   final RelatorioDia relatorio;
@@ -160,7 +160,7 @@ class _RelatorioCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: Dimensions.spacingMD),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-        side: const BorderSide(color: AppColors.cardBorder),
+        side: BorderSide(color: AppColors.cardBorder),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(Dimensions.borderRadius),
@@ -170,12 +170,12 @@ class _RelatorioCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Cabeçalho: data + duração + ações
+              // CabeÃƒÂ§alho: data + duraÃƒÂ§ÃƒÂ£o + aÃƒÂ§ÃƒÂµes
               Row(
                 children: [
-                  const Icon(Icons.calendar_today,
+                  Icon(Icons.calendar_today,
                       size: 16, color: AppColors.primary),
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6),
                   Text(
                     dateFmt.format(relatorio.turnoIniciadoEm),
                     style: AppTextStyles.h4.copyWith(color: AppColors.primary),
@@ -195,36 +195,36 @@ class _RelatorioCard extends StatelessWidget {
                           fontWeight: FontWeight.bold),
                     ),
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4),
                   IconButton(
-                    icon: const Icon(Icons.share_outlined, size: 18),
+                    icon: Icon(Icons.share_outlined, size: 18),
                     tooltip: 'Compartilhar',
                     onPressed: onCompartilhar,
                     color: AppColors.textSecondary,
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                        minWidth: 32, minHeight: 32),
+                    constraints:
+                        const BoxConstraints(minWidth: 32, minHeight: 32),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete_outline, size: 18),
+                    icon: Icon(Icons.delete_outline, size: 18),
                     tooltip: 'Excluir',
                     onPressed: onExcluir,
                     color: AppColors.danger,
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                        minWidth: 32, minHeight: 32),
+                    constraints:
+                        const BoxConstraints(minWidth: 32, minHeight: 32),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
-                '${timeFmt.format(relatorio.turnoIniciadoEm)} → ${timeFmt.format(relatorio.turnoEncerradoEm)}',
+                '${timeFmt.format(relatorio.turnoIniciadoEm)} Ã¢â€ â€™ ${timeFmt.format(relatorio.turnoEncerradoEm)}',
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary),
               ),
 
-              const Divider(height: 16),
+              Divider(height: 16),
 
               // Totais em grade
               Wrap(
@@ -233,7 +233,7 @@ class _RelatorioCard extends StatelessWidget {
                 children: [
                   _Stat(
                       icon: Icons.swap_horiz,
-                      label: 'Alocações',
+                      label: 'AlocaÃƒÂ§ÃƒÂµes',
                       value: relatorio.totalAlocacoes,
                       color: AppColors.primary),
                   _Stat(
@@ -243,7 +243,7 @@ class _RelatorioCard extends StatelessWidget {
                       color: AppColors.statusAtivo),
                   _Stat(
                       icon: Icons.coffee,
-                      label: 'Cafés',
+                      label: 'CafÃƒÂ©s',
                       value: relatorio.totalCafes,
                       color: AppColors.statusCafe),
                   _Stat(
@@ -259,7 +259,7 @@ class _RelatorioCard extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -268,8 +268,8 @@ class _RelatorioCard extends StatelessWidget {
                     style: AppTextStyles.caption
                         .copyWith(color: AppColors.textSecondary),
                   ),
-                  const SizedBox(width: 4),
-                  const Icon(Icons.chevron_right,
+                  SizedBox(width: 4),
+                  Icon(Icons.chevron_right,
                       size: 16, color: AppColors.textSecondary),
                 ],
               ),
@@ -312,7 +312,7 @@ class _Stat extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 14, color: color),
-        const SizedBox(width: 4),
+        SizedBox(width: 4),
         Text(
           '$value $label',
           style: AppTextStyles.caption.copyWith(color: color),
@@ -322,7 +322,7 @@ class _Stat extends StatelessWidget {
   }
 }
 
-// ─── Tela de detalhes de um relatório ─────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Tela de detalhes de um relatÃƒÂ³rio Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 class _RelatorioDetalheScreen extends StatelessWidget {
   final RelatorioDia relatorio;
@@ -343,17 +343,18 @@ class _RelatorioDetalheScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Relatório — ${dateFmt.format(relatorio.turnoIniciadoEm)}'),
+        title: Text(
+            'RelatÃƒÂ³rio Ã¢â‚¬â€ ${dateFmt.format(relatorio.turnoIniciadoEm)}'),
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.share_outlined),
+            icon: Icon(Icons.share_outlined),
             tooltip: 'Compartilhar',
             onPressed: onCompartilhar,
           ),
           IconButton(
-            icon: const Icon(Icons.delete_outline),
+            icon: Icon(Icons.delete_outline),
             tooltip: 'Excluir',
             color: AppColors.danger,
             onPressed: () {
@@ -374,36 +375,36 @@ class _RelatorioDetalheScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('RESUMO DO TURNO', style: AppTextStyles.label),
-                  const SizedBox(height: 12),
+                  Text('RESUMO DO TURNO', style: AppTextStyles.label),
+                  SizedBox(height: 12),
                   _InfoLinha(
                     icon: Icons.play_circle,
-                    label: 'Início',
+                    label: 'InÃƒÂ­cio',
                     value: timeFmt.format(relatorio.turnoIniciadoEm),
                     color: AppColors.statusAtivo,
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6),
                   _InfoLinha(
                     icon: Icons.flag,
                     label: 'Encerramento',
                     value: timeFmt.format(relatorio.turnoEncerradoEm),
                     color: AppColors.danger,
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6),
                   _InfoLinha(
                     icon: Icons.timer,
-                    label: 'Duração',
+                    label: 'DuraÃƒÂ§ÃƒÂ£o',
                     value: _fmtDuracao(relatorio.duracaoTurno),
                     color: AppColors.primary,
                   ),
-                  const Divider(height: 20),
+                  Divider(height: 20),
                   Wrap(
                     spacing: 16,
                     runSpacing: 8,
                     children: [
                       _Stat(
                           icon: Icons.swap_horiz,
-                          label: 'Alocações',
+                          label: 'AlocaÃƒÂ§ÃƒÂµes',
                           value: relatorio.totalAlocacoes,
                           color: AppColors.primary),
                       _Stat(
@@ -413,7 +414,7 @@ class _RelatorioDetalheScreen extends StatelessWidget {
                           color: AppColors.statusAtivo),
                       _Stat(
                           icon: Icons.coffee,
-                          label: 'Cafés',
+                          label: 'CafÃƒÂ©s',
                           value: relatorio.totalCafes,
                           color: AppColors.statusCafe),
                       _Stat(
@@ -433,12 +434,12 @@ class _RelatorioDetalheScreen extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: Dimensions.spacingMD),
+          SizedBox(height: Dimensions.spacingMD),
 
           // Lista de eventos
           if (relatorio.eventos.isNotEmpty) ...[
-            const Text('EVENTOS DO TURNO', style: AppTextStyles.label),
-            const SizedBox(height: 8),
+            Text('EVENTOS DO TURNO', style: AppTextStyles.label),
+            SizedBox(height: 8),
             ...relatorio.eventos.map((evento) {
               final (icon, color) = _iconeCor(evento.tipo);
               return Padding(
@@ -450,20 +451,19 @@ class _RelatorioDetalheScreen extends StatelessWidget {
                       backgroundColor: color.withValues(alpha: 0.15),
                       child: Icon(icon, size: 14, color: color),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(evento.tipo.label,
                               style: AppTextStyles.caption.copyWith(
-                                  color: color,
-                                  fontWeight: FontWeight.w600)),
+                                  color: color, fontWeight: FontWeight.w600)),
                           if (evento.colaboradorNome != null)
                             Text(
                               evento.colaboradorNome! +
                                   (evento.caixaNome != null
-                                      ? ' → ${evento.caixaNome}'
+                                      ? ' Ã¢â€ â€™ ${evento.caixaNome}'
                                       : '') +
                                   (evento.detalhe != null
                                       ? ' (${evento.detalhe})'
@@ -499,37 +499,49 @@ class _RelatorioDetalheScreen extends StatelessWidget {
     return switch (tipo) {
       TipoEvento.turnoIniciado => (Icons.play_circle, AppColors.statusAtivo),
       TipoEvento.colaboradorAlocado => (Icons.swap_horiz, AppColors.primary),
-      TipoEvento.colaboradorLiberado =>
-        (Icons.exit_to_app, AppColors.statusSaida),
+      TipoEvento.colaboradorLiberado => (
+          Icons.exit_to_app,
+          AppColors.statusSaida
+        ),
       TipoEvento.cafeIniciado => (Icons.coffee, AppColors.statusCafe),
-      TipoEvento.cafeEncerrado =>
-        (Icons.check_circle, AppColors.statusCafe),
-      TipoEvento.intervaloIniciado =>
-        (Icons.restaurant, AppColors.statusAtencao),
-      TipoEvento.intervaloEncerrado =>
-        (Icons.check_circle, AppColors.statusAtencao),
-      TipoEvento.intervaloMarcadoFeito =>
-        (Icons.check_circle_outline, Colors.green),
-      TipoEvento.intervaloAguardandoLiberacao =>
-        (Icons.pending_actions, AppColors.warning),
-      TipoEvento.empacotadorAdicionado =>
-        (Icons.inventory_2, const Color(0xFF795548)),
-      TipoEvento.empacotadorRemovido =>
-        (Icons.remove_circle_outline, const Color(0xFF795548)),
-      TipoEvento.checklistConcluido =>
-        (Icons.checklist, AppColors.success),
-      TipoEvento.entregaCadastrada =>
-        (Icons.local_shipping, AppColors.primary),
-      TipoEvento.entregaStatusAlterado =>
-        (Icons.swap_horiz, AppColors.primary),
-      TipoEvento.ocorrenciaRegistrada =>
-        (Icons.warning_amber, AppColors.danger),
-      TipoEvento.ocorrenciaResolvida =>
-        (Icons.check_circle, AppColors.success),
-      TipoEvento.anotacaoCriada =>
-        (Icons.note_add, const Color(0xFF7B1FA2)),
-      TipoEvento.formularioRespondido =>
-        (Icons.assignment_turned_in, AppColors.primary),
+      TipoEvento.cafeEncerrado => (Icons.check_circle, AppColors.statusCafe),
+      TipoEvento.intervaloIniciado => (
+          Icons.restaurant,
+          AppColors.statusAtencao
+        ),
+      TipoEvento.intervaloEncerrado => (
+          Icons.check_circle,
+          AppColors.statusAtencao
+        ),
+      TipoEvento.intervaloMarcadoFeito => (
+          Icons.check_circle_outline,
+          Colors.green
+        ),
+      TipoEvento.intervaloAguardandoLiberacao => (
+          Icons.pending_actions,
+          AppColors.warning
+        ),
+      TipoEvento.empacotadorAdicionado => (
+          Icons.inventory_2,
+          const Color(0xFF795548)
+        ),
+      TipoEvento.empacotadorRemovido => (
+          Icons.remove_circle_outline,
+          const Color(0xFF795548)
+        ),
+      TipoEvento.checklistConcluido => (Icons.checklist, AppColors.success),
+      TipoEvento.entregaCadastrada => (Icons.local_shipping, AppColors.primary),
+      TipoEvento.entregaStatusAlterado => (Icons.swap_horiz, AppColors.primary),
+      TipoEvento.ocorrenciaRegistrada => (
+          Icons.warning_amber,
+          AppColors.danger
+        ),
+      TipoEvento.ocorrenciaResolvida => (Icons.check_circle, AppColors.success),
+      TipoEvento.anotacaoCriada => (Icons.note_add, const Color(0xFF7B1FA2)),
+      TipoEvento.formularioRespondido => (
+          Icons.assignment_turned_in,
+          AppColors.primary
+        ),
     };
   }
 }
@@ -552,10 +564,10 @@ class _InfoLinha extends StatelessWidget {
     return Row(
       children: [
         Icon(icon, size: 15, color: color),
-        const SizedBox(width: 6),
+        SizedBox(width: 6),
         Text('$label: ',
-            style: AppTextStyles.caption
-                .copyWith(color: AppColors.textSecondary)),
+            style:
+                AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
         Text(value,
             style: AppTextStyles.caption
                 .copyWith(fontWeight: FontWeight.w600, color: color)),

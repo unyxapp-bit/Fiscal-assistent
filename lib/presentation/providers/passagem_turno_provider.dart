@@ -29,8 +29,7 @@ class PassagemTurnoProvider with ChangeNotifier {
 
   List<PassagemTurno> get historico => _passagens;
 
-  PassagemTurno? get ultima =>
-      _passagens.isEmpty ? null : _passagens.first;
+  PassagemTurno? get ultima => _passagens.isEmpty ? null : _passagens.first;
 
   String get _fiscalId => SupabaseClientManager.currentUserId!;
 
@@ -86,18 +85,22 @@ class PassagemTurnoProvider with ChangeNotifier {
   }
 
   void _upsert(PassagemTurno p) {
-    SupabaseClientManager.client.from(_table).upsert({
-      'id': p.id,
-      'fiscal_id': _fiscalId,
-      'resumo': p.resumo,
-      'pendencias': p.pendencias,
-      'recados': p.recados,
-      'registrada_em': p.registradaEm.toIso8601String(),
-    }).then((_) {}).catchError((e) {
-      if (kDebugMode) {
-        debugPrint('[PassagemTurnoProvider] Erro ao sync: $e');
-      }
-    });
+    SupabaseClientManager.client
+        .from(_table)
+        .upsert({
+          'id': p.id,
+          'fiscal_id': _fiscalId,
+          'resumo': p.resumo,
+          'pendencias': p.pendencias,
+          'recados': p.recados,
+          'registrada_em': p.registradaEm.toIso8601String(),
+        })
+        .then((_) {})
+        .catchError((e) {
+          if (kDebugMode) {
+            debugPrint('[PassagemTurnoProvider] Erro ao sync: $e');
+          }
+        });
   }
 
   PassagemTurno _fromMap(Map<String, dynamic> m) => PassagemTurno(

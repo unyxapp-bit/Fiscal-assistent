@@ -84,7 +84,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     if (authProvider.user == null) {
-      _showError('Usuário não autenticado');
+      _showError('UsuÃƒÂ¡rio nÃƒÂ£o autenticado');
       return;
     }
 
@@ -93,7 +93,8 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
     try {
       final success = _colaboradorAtual != null
           ? await _updateColaborador(collaboradorProvider)
-          : await _createColaborador(collaboradorProvider, authProvider.user!.id);
+          : await _createColaborador(
+              collaboradorProvider, authProvider.user!.id);
 
       if (!mounted) return;
 
@@ -128,8 +129,9 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
       fiscalId: userId,
       nome: _nomeController.text.trim(),
       departamento: _departamentoSelecionado,
-      observacoes:
-          _observacoesController.text.isEmpty ? null : _observacoesController.text.trim(),
+      observacoes: _observacoesController.text.isEmpty
+          ? null
+          : _observacoesController.text.trim(),
       ativo: _ativo,
     );
   }
@@ -178,8 +180,8 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Nome
-                const Text('Nome do Colaborador', style: AppTextStyles.subtitle),
-                const SizedBox(height: Dimensions.spacingSM),
+                Text('Nome do Colaborador', style: AppTextStyles.subtitle),
+                SizedBox(height: Dimensions.spacingSM),
                 CustomTextField(
                   controller: _nomeController,
                   label: 'Nome',
@@ -187,7 +189,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                   prefixIcon: Icons.person,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Nome é obrigatório';
+                      return 'Nome ÃƒÂ© obrigatÃƒÂ³rio';
                     }
                     if (value.length < 3) {
                       return 'Nome deve ter pelo menos 3 caracteres';
@@ -196,18 +198,19 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                   },
                 ),
 
-                const SizedBox(height: Dimensions.spacingLG),
+                SizedBox(height: Dimensions.spacingLG),
 
                 // Departamento
-                const Text('Departamento', style: AppTextStyles.subtitle),
-                const SizedBox(height: Dimensions.spacingSM),
+                Text('Departamento', style: AppTextStyles.subtitle),
+                SizedBox(height: Dimensions.spacingSM),
                 _buildDepartamentoSelector(),
 
-                const SizedBox(height: Dimensions.spacingLG),
+                SizedBox(height: Dimensions.spacingLG),
 
-                // Observações
-                const Text('Observações (Opcional)', style: AppTextStyles.subtitle),
-                const SizedBox(height: Dimensions.spacingSM),
+                // ObservaÃƒÂ§ÃƒÂµes
+                Text('ObservaÃƒÂ§ÃƒÂµes (Opcional)',
+                    style: AppTextStyles.subtitle),
+                SizedBox(height: Dimensions.spacingSM),
                 CustomTextField(
                   controller: _observacoesController,
                   label: 'Observacoes',
@@ -217,16 +220,16 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                   validator: null,
                 ),
 
-                const SizedBox(height: Dimensions.spacingLG),
+                SizedBox(height: Dimensions.spacingLG),
 
-                // --- Seção Status ---
-                const Text('Status', style: AppTextStyles.subtitle),
-                const SizedBox(height: Dimensions.spacingSM),
+                // --- SeÃƒÂ§ÃƒÂ£o Status ---
+                Text('Status', style: AppTextStyles.subtitle),
+                SizedBox(height: Dimensions.spacingSM),
                 _buildStatusCard(),
 
-                const SizedBox(height: Dimensions.spacingXL),
+                SizedBox(height: Dimensions.spacingXL),
 
-                // Botões
+                // BotÃƒÂµes
                 Row(
                   children: [
                     Expanded(
@@ -239,10 +242,10 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                             vertical: Dimensions.paddingSM,
                           ),
                         ),
-                        child: const Text('Cancelar'),
+                        child: Text('Cancelar'),
                       ),
                     ),
-                    const SizedBox(width: Dimensions.spacingMD),
+                    SizedBox(width: Dimensions.spacingMD),
                     Expanded(
                       child: PrimaryButton(
                         onPressed: _isLoading ? () {} : _handleSave,
@@ -264,9 +267,11 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
     return Card(
       color: AppColors.cardBackground,
       child: SwitchListTile(
-        title: const Text('Colaborador Ativo'),
+        title: Text('Colaborador Ativo'),
         subtitle: Text(
-          _ativo ? 'Aparece nas listas e escalas' : 'Oculto das listas e escalas',
+          _ativo
+              ? 'Aparece nas listas e escalas'
+              : 'Oculto das listas e escalas',
           style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
         ),
         value: _ativo,

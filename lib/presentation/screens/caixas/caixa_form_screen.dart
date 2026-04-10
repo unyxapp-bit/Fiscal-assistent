@@ -26,7 +26,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
   final _lojaController = TextEditingController();
   final _observacoesController = TextEditingController();
 
-  // valor de TipoCaixa.toJson() — 'pdv' | 'rapido' | 'preferencial' | 'self_service' | 'balcao'
+  // valor de TipoCaixa.toJson() ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â 'pdv' | 'rapido' | 'preferencial' | 'self_service' | 'balcao'
   String _tipoSelecionado = 'pdv';
   String? _localizacaoSelecionada;
   bool _emManutencao = false;
@@ -70,7 +70,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
       AppNotif.show(
         context,
         titulo: 'Erro',
-        mensagem: 'Erro: Usuário não autenticado',
+        mensagem: 'Erro: UsuÃƒÆ’Ã‚Â¡rio nÃƒÆ’Ã‚Â£o autenticado',
         tipo: 'alerta',
         cor: AppColors.danger,
       );
@@ -165,30 +165,31 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Número
+              // NÃƒÆ’Ã‚Âºmero
               TextFormField(
                 controller: _numeroController,
-                decoration: const InputDecoration(
-                  labelText: 'Número do Caixa *',
+                decoration: InputDecoration(
+                  labelText: 'NÃƒÆ’Ã‚Âºmero do Caixa *',
                   hintText: 'Ex: 1, 2, 3...',
                   prefixIcon: Icon(Icons.numbers),
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Número é obrigatório';
+                    return 'NÃƒÆ’Ã‚Âºmero ÃƒÆ’Ã‚Â© obrigatÃƒÆ’Ã‚Â³rio';
                   }
                   final n = int.tryParse(value);
-                  if (n == null || n < 1) return 'Número inválido';
+                  if (n == null || n < 1)
+                    return 'NÃƒÆ’Ã‚Âºmero invÃƒÆ’Ã‚Â¡lido';
                   return null;
                 },
               ),
 
-              const SizedBox(height: Dimensions.spacingLG),
+              SizedBox(height: Dimensions.spacingLG),
 
               // Tipo
-              const Text('Tipo de Caixa *', style: AppTextStyles.body),
-              const SizedBox(height: Dimensions.spacingSM),
+              Text('Tipo de Caixa *', style: AppTextStyles.body),
+              SizedBox(height: Dimensions.spacingSM),
               Column(
                 children: [
                   Row(
@@ -200,15 +201,14 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                           icon: Icons.shopping_cart,
                           color: const Color(0xFF2196F3),
                           selected: _tipoSelecionado == 'pdv',
-                          onTap: () =>
-                              setState(() => _tipoSelecionado = 'pdv'),
+                          onTap: () => setState(() => _tipoSelecionado = 'pdv'),
                         ),
                       ),
-                      const SizedBox(width: Dimensions.spacingSM),
+                      SizedBox(width: Dimensions.spacingSM),
                       Expanded(
                         child: _TipoCard(
-                          label: 'Rápido',
-                          descricao: 'Até 15 vol.',
+                          label: 'RÃƒÆ’Ã‚Â¡pido',
+                          descricao: 'AtÃƒÆ’Ã‚Â© 15 vol.',
                           icon: Icons.flash_on,
                           color: const Color(0xFF4CAF50),
                           selected: _tipoSelecionado == 'rapido',
@@ -218,7 +218,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: Dimensions.spacingSM),
+                  SizedBox(height: Dimensions.spacingSM),
                   Row(
                     children: [
                       Expanded(
@@ -232,7 +232,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                               setState(() => _tipoSelecionado = 'preferencial'),
                         ),
                       ),
-                      const SizedBox(width: Dimensions.spacingSM),
+                      SizedBox(width: Dimensions.spacingSM),
                       Expanded(
                         child: _TipoCard(
                           label: 'Self Checkout',
@@ -246,13 +246,13 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: Dimensions.spacingSM),
+                  SizedBox(height: Dimensions.spacingSM),
                   Row(
                     children: [
                       Expanded(
                         child: _TipoCard(
-                          label: 'Balcão',
-                          descricao: 'Até 3 fiscais',
+                          label: 'BalcÃƒÆ’Ã‚Â£o',
+                          descricao: 'AtÃƒÆ’Ã‚Â© 3 fiscais',
                           icon: Icons.support_agent,
                           color: const Color(0xFF009688),
                           selected: _tipoSelecionado == 'balcao',
@@ -260,43 +260,43 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                               setState(() => _tipoSelecionado = 'balcao'),
                         ),
                       ),
-                      const SizedBox(width: Dimensions.spacingSM),
-                      const Expanded(child: SizedBox()),
+                      SizedBox(width: Dimensions.spacingSM),
+                      Expanded(child: SizedBox()),
                     ],
                   ),
                 ],
               ),
 
-              const SizedBox(height: Dimensions.spacingLG),
+              SizedBox(height: Dimensions.spacingLG),
 
               // Loja
               TextFormField(
                 controller: _lojaController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Loja',
                   hintText: 'Ex: Baependi, Matriz...',
                   prefixIcon: Icon(Icons.store),
                 ),
               ),
 
-              const SizedBox(height: Dimensions.spacingLG),
+              SizedBox(height: Dimensions.spacingLG),
 
-              // Localização
+              // LocalizaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o
               DropdownButtonFormField<String>(
                 initialValue: _localizacaoSelecionada,
-                decoration: const InputDecoration(
-                  labelText: 'Localização no mercado',
+                decoration: InputDecoration(
+                  labelText: 'LocalizaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o no mercado',
                   prefixIcon: Icon(Icons.location_on),
                 ),
                 items: _localizacoes
-                    .map((loc) =>
-                        DropdownMenuItem(value: loc, child: Text(loc)))
+                    .map(
+                        (loc) => DropdownMenuItem(value: loc, child: Text(loc)))
                     .toList(),
                 onChanged: (value) =>
                     setState(() => _localizacaoSelecionada = value),
               ),
 
-              const SizedBox(height: Dimensions.spacingLG),
+              SizedBox(height: Dimensions.spacingLG),
 
               // Switches
               Card(
@@ -305,21 +305,21 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                     SwitchListTile(
                       value: _ativo,
                       onChanged: (value) => setState(() => _ativo = value),
-                      title: const Text('Ativo'),
-                      subtitle: const Text('Caixa disponível para uso'),
+                      title: Text('Ativo'),
+                      subtitle: Text('Caixa disponÃƒÆ’Ã‚Â­vel para uso'),
                       secondary: Icon(
                         _ativo ? Icons.check_circle : Icons.cancel,
                         color: _ativo ? AppColors.success : AppColors.danger,
                       ),
                     ),
-                    const Divider(height: 1),
+                    Divider(height: 1),
                     SwitchListTile(
                       value: _emManutencao,
                       onChanged: (value) =>
                           setState(() => _emManutencao = value),
-                      title: const Text('Em Manutenção'),
+                      title: Text('Em ManutenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o'),
                       subtitle:
-                          const Text('Caixa temporariamente indisponível'),
+                          Text('Caixa temporariamente indisponÃƒÆ’Ã‚Â­vel'),
                       secondary: Icon(
                         _emManutencao
                             ? Icons.build
@@ -333,32 +333,33 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                 ),
               ),
 
-              const SizedBox(height: Dimensions.spacingLG),
+              SizedBox(height: Dimensions.spacingLG),
 
-              // Observações
+              // ObservaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes
               TextFormField(
                 controller: _observacoesController,
-                decoration: const InputDecoration(
-                  labelText: 'Observações (opcional)',
-                  hintText: 'Informações adicionais sobre o caixa',
+                decoration: InputDecoration(
+                  labelText: 'ObservaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes (opcional)',
+                  hintText:
+                      'InformaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes adicionais sobre o caixa',
                   prefixIcon: Icon(Icons.note),
                   alignLabelWithHint: true,
                 ),
                 maxLines: 3,
               ),
 
-              const SizedBox(height: Dimensions.spacingXL),
+              SizedBox(height: Dimensions.spacingXL),
 
-              // Botões
+              // BotÃƒÆ’Ã‚Âµes
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Cancelar'),
+                      child: Text('Cancelar'),
                     ),
                   ),
-                  const SizedBox(width: Dimensions.spacingSM),
+                  SizedBox(width: Dimensions.spacingSM),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _salvar,
@@ -426,7 +427,7 @@ class _TipoCard extends StatelessWidget {
                 size: 18,
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -441,7 +442,7 @@ class _TipoCard extends StatelessWidget {
                   ),
                   Text(
                     descricao,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10,
                       color: AppColors.textSecondary,
                     ),

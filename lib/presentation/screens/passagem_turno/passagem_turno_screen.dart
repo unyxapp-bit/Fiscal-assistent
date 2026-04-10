@@ -34,7 +34,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
     final m = dt.month.toString().padLeft(2, '0');
     final h = dt.hour.toString().padLeft(2, '0');
     final min = dt.minute.toString().padLeft(2, '0');
-    return '$d/$m/${dt.year} às $h:$min';
+    return '$d/$m/${dt.year} ÃƒÆ’Ã‚Â s $h:$min';
   }
 
   void _salvar(PassagemTurnoProvider provider) {
@@ -42,7 +42,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
     if (resumo.isEmpty) {
       AppNotif.show(
         context,
-        titulo: 'Campo Inválido',
+        titulo: 'Campo InvÃƒÆ’Ã‚Â¡lido',
         mensagem: 'Preencha ao menos o resumo do turno',
         tipo: 'alerta',
         cor: AppColors.danger,
@@ -72,13 +72,14 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
 
   String _textoCompartilhamento(PassagemTurno p) {
     final buf = StringBuffer();
-    buf.writeln('PASSAGEM DE TURNO — ${_formatDateTime(p.registradaEm)}');
-    buf.writeln('─' * 30);
+    buf.writeln(
+        'PASSAGEM DE TURNO ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ${_formatDateTime(p.registradaEm)}');
+    buf.writeln('ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬' * 30);
     buf.writeln('RESUMO DO TURNO:');
     buf.writeln(p.resumo);
     if (p.pendencias.isNotEmpty) {
       buf.writeln();
-      buf.writeln('PENDÊNCIAS:');
+      buf.writeln('PENDÃƒÆ’Ã…Â NCIAS:');
       buf.writeln(p.pendencias);
     }
     if (p.recados.isNotEmpty) {
@@ -95,7 +96,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
     AppNotif.show(
       context,
       titulo: 'Copiado',
-      mensagem: 'Copiado para área de transferência',
+      mensagem: 'Copiado para ÃƒÆ’Ã‚Â¡rea de transferÃƒÆ’Ã‚Âªncia',
       tipo: 'intervalo',
     );
   }
@@ -115,20 +116,19 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Excluir registro'),
-        content: const Text('Excluir esta passagem de turno?'),
+        title: Text('Excluir registro'),
+        content: Text('Excluir esta passagem de turno?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
               provider.deletar(p.id);
               Navigator.pop(ctx);
             },
-            child: const Text('Excluir',
-                style: TextStyle(color: AppColors.danger)),
+            child: Text('Excluir', style: TextStyle(color: AppColors.danger)),
           ),
         ],
       ),
@@ -145,25 +145,25 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.edit_note, color: AppColors.primary),
-                const SizedBox(width: 8),
-                const Expanded(
+                Icon(Icons.edit_note, color: AppColors.primary),
+                SizedBox(width: 8),
+                Expanded(
                   child:
                       Text('Nova Passagem de Turno', style: AppTextStyles.h4),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: Icon(Icons.close),
                   onPressed: () => setState(() => _showForm = false),
                 ),
               ],
             ),
-            const Divider(),
-            const SizedBox(height: Dimensions.spacingSM),
+            Divider(),
+            SizedBox(height: Dimensions.spacingSM),
 
             // Resumo
             TextFormField(
               controller: _resumoCtrl,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Resumo do turno *',
                 hintText: 'O que aconteceu de relevante no turno?',
                 prefixIcon: Icon(Icons.summarize),
@@ -172,42 +172,42 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
               maxLines: 3,
               textCapitalization: TextCapitalization.sentences,
             ),
-            const SizedBox(height: Dimensions.spacingMD),
+            SizedBox(height: Dimensions.spacingMD),
 
-            // Pendências
+            // PendÃƒÆ’Ã‚Âªncias
             TextFormField(
               controller: _pendenciasCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Pendências',
-                hintText: 'O que ficou para resolver no próximo turno?',
+              decoration: InputDecoration(
+                labelText: 'PendÃƒÆ’Ã‚Âªncias',
+                hintText: 'O que ficou para resolver no prÃƒÆ’Ã‚Â³ximo turno?',
                 prefixIcon: Icon(Icons.pending_actions),
                 alignLabelWithHint: true,
               ),
               maxLines: 2,
               textCapitalization: TextCapitalization.sentences,
             ),
-            const SizedBox(height: Dimensions.spacingMD),
+            SizedBox(height: Dimensions.spacingMD),
 
             // Recados
             TextFormField(
               controller: _recadosCtrl,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Recados',
-                hintText: 'Alguma mensagem para o próximo fiscal?',
+                hintText: 'Alguma mensagem para o prÃƒÆ’Ã‚Â³ximo fiscal?',
                 prefixIcon: Icon(Icons.message),
                 alignLabelWithHint: true,
               ),
               maxLines: 2,
               textCapitalization: TextCapitalization.sentences,
             ),
-            const SizedBox(height: Dimensions.spacingLG),
+            SizedBox(height: Dimensions.spacingLG),
 
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () => _salvar(provider),
-                icon: const Icon(Icons.save),
-                label: const Text('Registrar Passagem'),
+                icon: Icon(Icons.save),
+                label: Text('Registrar Passagem'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
@@ -229,7 +229,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
     return Card(
       margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
       child: ExpansionTile(
-        leading: const CircleAvatar(
+        leading: CircleAvatar(
           backgroundColor: Color(0x1A1976D2),
           child: Icon(Icons.handshake, color: AppColors.primary),
         ),
@@ -244,20 +244,19 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: const Icon(Icons.share_outlined,
+              icon: Icon(Icons.share_outlined,
                   size: 18, color: AppColors.textSecondary),
               tooltip: 'Compartilhar',
               onPressed: () => _compartilhar(p),
             ),
             IconButton(
-              icon: const Icon(Icons.copy,
-                  size: 18, color: AppColors.textSecondary),
+              icon: Icon(Icons.copy, size: 18, color: AppColors.textSecondary),
               tooltip: 'Copiar',
               onPressed: () => _copiar(p),
             ),
             IconButton(
-              icon: const Icon(Icons.delete_outline,
-                  size: 18, color: AppColors.danger),
+              icon:
+                  Icon(Icons.delete_outline, size: 18, color: AppColors.danger),
               tooltip: 'Excluir',
               onPressed: () => _confirmarDelete(context, p, provider),
             ),
@@ -270,16 +269,16 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Divider(),
+                Divider(),
                 _buildSection('Resumo do Turno', p.resumo),
                 if (p.pendencias.isNotEmpty) ...[
-                  const SizedBox(height: Dimensions.spacingMD),
-                  _buildSection('Pendências', p.pendencias,
+                  SizedBox(height: Dimensions.spacingMD),
+                  _buildSection('PendÃƒÆ’Ã‚Âªncias', p.pendencias,
                       icon: Icons.pending_actions,
                       cor: AppColors.statusAtencao),
                 ],
                 if (p.recados.isNotEmpty) ...[
-                  const SizedBox(height: Dimensions.spacingMD),
+                  SizedBox(height: Dimensions.spacingMD),
                   _buildSection('Recados', p.recados,
                       icon: Icons.message, cor: AppColors.primary),
                 ],
@@ -300,7 +299,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
           children: [
             if (icon != null) ...[
               Icon(icon, size: 14, color: cor ?? AppColors.textSecondary),
-              const SizedBox(width: 4),
+              SizedBox(width: 4),
             ],
             Text(
               titulo,
@@ -311,7 +310,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(conteudo, style: AppTextStyles.body),
       ],
     );
@@ -324,7 +323,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Passagem de Turno'),
+        title: Text('Passagem de Turno'),
         backgroundColor: AppColors.background,
         elevation: 0,
       ),
@@ -333,7 +332,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Formulário ou botão para iniciar
+            // FormulÃƒÆ’Ã‚Â¡rio ou botÃƒÆ’Ã‚Â£o para iniciar
             if (_showForm)
               _buildForm(provider)
             else
@@ -341,8 +340,8 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () => setState(() => _showForm = true),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Registrar Passagem de Turno'),
+                  icon: Icon(Icons.add),
+                  label: Text('Registrar Passagem de Turno'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
@@ -351,15 +350,15 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
                 ),
               ),
 
-            const SizedBox(height: Dimensions.spacingLG),
+            SizedBox(height: Dimensions.spacingLG),
 
-            // Histórico
+            // HistÃƒÆ’Ã‚Â³rico
             if (provider.historico.isNotEmpty) ...[
               Text(
-                'Histórico (${provider.historico.length})',
+                'HistÃƒÆ’Ã‚Â³rico (${provider.historico.length})',
                 style: AppTextStyles.h3,
               ),
-              const SizedBox(height: Dimensions.spacingMD),
+              SizedBox(height: Dimensions.spacingMD),
               ...provider.historico.map(
                 (p) => _buildRegistro(context, p, provider),
               ),
@@ -369,17 +368,17 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
                   padding: const EdgeInsets.only(top: 48),
                   child: Column(
                     children: [
-                      const Icon(Icons.handshake,
+                      Icon(Icons.handshake,
                           size: 64, color: AppColors.inactive),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       Text(
                         'Nenhuma passagem registrada',
                         style: AppTextStyles.h4
                             .copyWith(color: AppColors.textSecondary),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       Text(
-                        'Registre o que aconteceu no turno\npara o próximo fiscal',
+                        'Registre o que aconteceu no turno\npara o prÃƒÆ’Ã‚Â³ximo fiscal',
                         textAlign: TextAlign.center,
                         style: AppTextStyles.body
                             .copyWith(color: AppColors.textSecondary),

@@ -8,7 +8,7 @@ import '../../../domain/entities/formulario.dart';
 import '../../providers/formulario_provider.dart';
 import '../../../core/utils/app_notif.dart';
 
-// ── Estado interno de cada campo ──────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬ Estado interno de cada campo Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 class _CampoState {
   final String id;
@@ -44,7 +44,7 @@ class _CampoState {
       );
 }
 
-// ── Editor ────────────────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬ Editor Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 class FormularioEditorScreen extends StatefulWidget {
   final Formulario? formulario;
@@ -75,9 +75,8 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
           labelCtrl: TextEditingController(text: c.label),
           tipo: c.tipo,
           obrigatorio: c.obrigatorio,
-          opcoesCtrl: c.opcoes
-              .map((o) => TextEditingController(text: o))
-              .toList(),
+          opcoesCtrl:
+              c.opcoes.map((o) => TextEditingController(text: o)).toList(),
         ));
       }
     }
@@ -109,8 +108,8 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
     if (_campos.length <= 1) {
       AppNotif.show(
         context,
-        titulo: 'Campo Inválido',
-        mensagem: 'O formulário precisa ter pelo menos 1 campo',
+        titulo: 'Campo InvÃƒÂ¡lido',
+        mensagem: 'O formulÃƒÂ¡rio precisa ter pelo menos 1 campo',
         tipo: 'alerta',
       );
       return;
@@ -140,20 +139,20 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
     if (campos.isEmpty) {
       AppNotif.show(
         context,
-        titulo: 'Campo Inválido',
+        titulo: 'Campo InvÃƒÂ¡lido',
         mensagem: 'Adicione pelo menos 1 campo',
         tipo: 'alerta',
       );
       return;
     }
 
-    // Valida campos de opcoes: pelo menos 2 opções
+    // Valida campos de opcoes: pelo menos 2 opÃƒÂ§ÃƒÂµes
     for (final c in campos) {
       if (c.tipo == TipoCampo.opcoes && c.opcoes.length < 2) {
         AppNotif.show(
           context,
-          titulo: 'Campo Inválido',
-          mensagem: 'Campo "${c.label}": adicione pelo menos 2 opções',
+          titulo: 'Campo InvÃƒÂ¡lido',
+          mensagem: 'Campo "${c.label}": adicione pelo menos 2 opÃƒÂ§ÃƒÂµes',
           tipo: 'alerta',
         );
         return;
@@ -173,8 +172,8 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
       if (!mounted) return;
       AppNotif.show(
         context,
-        titulo: 'Formulário Atualizado',
-        mensagem: 'Formulário atualizado!',
+        titulo: 'FormulÃƒÂ¡rio Atualizado',
+        mensagem: 'FormulÃƒÂ¡rio atualizado!',
         tipo: 'saida',
         cor: AppColors.success,
       );
@@ -190,8 +189,8 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
       if (!mounted) return;
       AppNotif.show(
         context,
-        titulo: 'Formulário Criado',
-        mensagem: 'Formulário criado!',
+        titulo: 'FormulÃƒÂ¡rio Criado',
+        mensagem: 'FormulÃƒÂ¡rio criado!',
         tipo: 'saida',
         cor: AppColors.success,
       );
@@ -200,13 +199,14 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
     Navigator.of(context).pop(true);
   }
 
-  // ── Tipo seletor ────────────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Tipo seletor Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   void _selecionarTipo(int index) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (ctx) => Padding(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
@@ -224,9 +224,9 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            const Text('Tipo do campo', style: AppTextStyles.h4),
-            const SizedBox(height: 8),
+            SizedBox(height: 16),
+            Text('Tipo do campo', style: AppTextStyles.h4),
+            SizedBox(height: 8),
             ...TipoCampo.values.map((tipo) => ListTile(
                   leading: Icon(tipo.icone, color: AppColors.primary),
                   title: Text(tipo.nome),
@@ -240,10 +240,8 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                       _campos[index].tipo = tipo;
                       if (tipo == TipoCampo.opcoes &&
                           _campos[index].opcoesCtrl.isEmpty) {
-                        _campos[index].opcoesCtrl
-                            .add(TextEditingController());
-                        _campos[index].opcoesCtrl
-                            .add(TextEditingController());
+                        _campos[index].opcoesCtrl.add(TextEditingController());
+                        _campos[index].opcoesCtrl.add(TextEditingController());
                       }
                     });
                     Navigator.pop(ctx);
@@ -260,15 +258,15 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
       case TipoCampo.texto:
         return 'Campo de texto livre';
       case TipoCampo.simNao:
-        return 'Resposta Sim ou Não';
+        return 'Resposta Sim ou NÃƒÂ£o';
       case TipoCampo.numero:
-        return 'Valor numérico';
+        return 'Valor numÃƒÂ©rico';
       case TipoCampo.opcoes:
-        return 'Selecionar uma das opções';
+        return 'Selecionar uma das opÃƒÂ§ÃƒÂµes';
     }
   }
 
-  // ── Build ───────────────────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Build Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   @override
   Widget build(BuildContext context) {
@@ -278,13 +276,13 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
         backgroundColor: AppColors.background,
         elevation: 0,
         title: Text(
-          _isEdicao ? 'Editar Formulário' : 'Novo Formulário',
+          _isEdicao ? 'Editar FormulÃƒÂ¡rio' : 'Novo FormulÃƒÂ¡rio',
           style: AppTextStyles.h3,
         ),
         actions: [
           TextButton(
             onPressed: _salvar,
-            child: const Text(
+            child: Text(
               'Salvar',
               style: TextStyle(
                   color: AppColors.primary, fontWeight: FontWeight.bold),
@@ -300,34 +298,34 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
               padding: const EdgeInsets.all(Dimensions.paddingMD),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  // Título
+                  // TÃƒÂ­tulo
                   TextFormField(
                     controller: _tituloCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Título do Formulário *',
+                    decoration: InputDecoration(
+                      labelText: 'TÃƒÂ­tulo do FormulÃƒÂ¡rio *',
                       hintText: 'Ex: Checklist de Abertura',
                       prefixIcon: Icon(Icons.title),
                     ),
                     textCapitalization: TextCapitalization.sentences,
                     validator: (v) => v == null || v.trim().isEmpty
-                        ? 'Título obrigatório'
+                        ? 'TÃƒÂ­tulo obrigatÃƒÂ³rio'
                         : null,
                   ),
-                  const SizedBox(height: Dimensions.spacingMD),
+                  SizedBox(height: Dimensions.spacingMD),
 
-                  // Descrição
+                  // DescriÃƒÂ§ÃƒÂ£o
                   TextFormField(
                     controller: _descricaoCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Descrição',
-                      hintText: 'Para que serve este formulário?',
+                    decoration: InputDecoration(
+                      labelText: 'DescriÃƒÂ§ÃƒÂ£o',
+                      hintText: 'Para que serve este formulÃƒÂ¡rio?',
                       prefixIcon: Icon(Icons.description),
                       alignLabelWithHint: true,
                     ),
                     maxLines: 2,
                     textCapitalization: TextCapitalization.sentences,
                   ),
-                  const SizedBox(height: Dimensions.spacingLG),
+                  SizedBox(height: Dimensions.spacingLG),
 
                   // Header campos
                   Row(
@@ -339,27 +337,26 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                       ),
                       TextButton.icon(
                         onPressed: _adicionarCampo,
-                        icon: const Icon(Icons.add, size: 18),
-                        label: const Text('Adicionar'),
+                        icon: Icon(Icons.add, size: 18),
+                        label: Text('Adicionar'),
                         style: TextButton.styleFrom(
                             foregroundColor: AppColors.primary),
                       ),
                     ],
                   ),
-                  const SizedBox(height: Dimensions.spacingSM),
+                  SizedBox(height: Dimensions.spacingSM),
                 ]),
               ),
             ),
 
-            // Lista reordenável
+            // Lista reordenÃƒÂ¡vel
             SliverPadding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: Dimensions.paddingMD),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: Dimensions.paddingMD),
               sliver: SliverReorderableList(
                 itemCount: _campos.length,
                 onReorder: _onReorder,
-                itemBuilder: (ctx, index) =>
-                    _buildCampoItem(index),
+                itemBuilder: (ctx, index) => _buildCampoItem(index),
               ),
             ),
 
@@ -367,24 +364,23 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
               padding: const EdgeInsets.all(Dimensions.paddingMD),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  const SizedBox(height: Dimensions.spacingSM),
+                  SizedBox(height: Dimensions.spacingSM),
 
                   // Dica
                   Container(
                     padding: const EdgeInsets.all(Dimensions.paddingSM),
                     decoration: BoxDecoration(
                       color: AppColors.alertInfo,
-                      borderRadius:
-                          BorderRadius.circular(Dimensions.radiusMD),
+                      borderRadius: BorderRadius.circular(Dimensions.radiusMD),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline,
+                        Icon(Icons.info_outline,
                             color: AppColors.info, size: 18),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Arraste ≡ para reordenar campos. Campos Sim/Não e Opções facilitam checklists.',
+                            'Arraste Ã¢â€°Â¡ para reordenar campos. Campos Sim/NÃƒÂ£o e OpÃƒÂ§ÃƒÂµes facilitam checklists.',
                             style: AppTextStyles.caption
                                 .copyWith(color: AppColors.info),
                           ),
@@ -392,28 +388,28 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: Dimensions.spacingXL),
+                  SizedBox(height: Dimensions.spacingXL),
 
-                  // Botões
+                  // BotÃƒÂµes
                   Row(
                     children: [
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () => Navigator.of(context).pop(),
                           style: OutlinedButton.styleFrom(
-                            minimumSize: const Size.fromHeight(
-                                Dimensions.buttonHeight),
+                            minimumSize:
+                                const Size.fromHeight(Dimensions.buttonHeight),
                           ),
-                          child: const Text('Cancelar'),
+                          child: Text('Cancelar'),
                         ),
                       ),
-                      const SizedBox(width: Dimensions.spacingSM),
+                      SizedBox(width: Dimensions.spacingSM),
                       Expanded(
                         child: ElevatedButton(
                           onPressed: _salvar,
                           style: ElevatedButton.styleFrom(
-                            minimumSize: const Size.fromHeight(
-                                Dimensions.buttonHeight),
+                            minimumSize:
+                                const Size.fromHeight(Dimensions.buttonHeight),
                             backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
                           ),
@@ -422,7 +418,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: Dimensions.spacingLG),
+                  SizedBox(height: Dimensions.spacingLG),
                 ]),
               ),
             ),
@@ -446,11 +442,10 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
               Row(
                 children: [
                   // Drag handle
-                  const Icon(Icons.drag_handle,
-                      color: AppColors.inactive, size: 20),
-                  const SizedBox(width: 8),
+                  Icon(Icons.drag_handle, color: AppColors.inactive, size: 20),
+                  SizedBox(width: 8),
 
-                  // Número
+                  // NÃƒÂºmero
                   Container(
                     width: 26,
                     height: 26,
@@ -468,7 +463,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
 
                   // Label
                   Expanded(
@@ -483,7 +478,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                       textCapitalization: TextCapitalization.sentences,
                     ),
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4),
 
                   // Tipo
                   InkWell(
@@ -501,7 +496,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                         children: [
                           Icon(campo.tipo.icone,
                               color: AppColors.primary, size: 14),
-                          const SizedBox(width: 3),
+                          SizedBox(width: 3),
                           Text(
                             campo.tipo.nome,
                             style: AppTextStyles.caption.copyWith(
@@ -513,11 +508,11 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4),
 
-                  // Obrigatório toggle
+                  // ObrigatÃƒÂ³rio toggle
                   Tooltip(
-                    message: campo.obrigatorio ? 'Obrigatório' : 'Opcional',
+                    message: campo.obrigatorio ? 'ObrigatÃƒÂ³rio' : 'Opcional',
                     child: InkWell(
                       onTap: () => setState(
                           () => campo.obrigatorio = !campo.obrigatorio),
@@ -525,9 +520,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(4),
                         child: Icon(
-                          campo.obrigatorio
-                              ? Icons.lock
-                              : Icons.lock_open,
+                          campo.obrigatorio ? Icons.lock : Icons.lock_open,
                           size: 16,
                           color: campo.obrigatorio
                               ? AppColors.danger
@@ -541,51 +534,48 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                   InkWell(
                     onTap: () => _removerCampo(index),
                     borderRadius: BorderRadius.circular(4),
-                    child: const Padding(
+                    child: Padding(
                       padding: EdgeInsets.all(4),
-                      child: Icon(Icons.close,
-                          size: 16, color: AppColors.danger),
+                      child:
+                          Icon(Icons.close, size: 16, color: AppColors.danger),
                     ),
                   ),
                 ],
               ),
 
-              // Sub-lista de opções (apenas quando tipo == opcoes)
+              // Sub-lista de opÃƒÂ§ÃƒÂµes (apenas quando tipo == opcoes)
               if (campo.tipo == TipoCampo.opcoes) ...[
-                const SizedBox(height: 8),
-                const Divider(height: 1),
-                const SizedBox(height: 6),
+                SizedBox(height: 8),
+                Divider(height: 1),
+                SizedBox(height: 6),
                 ...campo.opcoesCtrl.asMap().entries.map((e) => Padding(
                       padding: const EdgeInsets.only(bottom: 6),
                       child: Row(
                         children: [
-                          const SizedBox(width: 36),
-                          const Icon(Icons.radio_button_unchecked,
+                          SizedBox(width: 36),
+                          Icon(Icons.radio_button_unchecked,
                               size: 14, color: AppColors.inactive),
-                          const SizedBox(width: 6),
+                          SizedBox(width: 6),
                           Expanded(
                             child: TextField(
                               controller: e.value,
                               decoration: InputDecoration(
-                                hintText: 'Opção ${e.key + 1}',
+                                hintText: 'OpÃƒÂ§ÃƒÂ£o ${e.key + 1}',
                                 isDense: true,
-                                contentPadding:
-                                    const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 8),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 8),
                               ),
-                              textCapitalization:
-                                  TextCapitalization.sentences,
+                              textCapitalization: TextCapitalization.sentences,
                             ),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.remove_circle_outline,
+                            icon: Icon(Icons.remove_circle_outline,
                                 size: 16, color: AppColors.danger),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                             onPressed: campo.opcoesCtrl.length > 2
                                 ? () => setState(() {
-                                      campo.opcoesCtrl[e.key]
-                                          .dispose();
+                                      campo.opcoesCtrl[e.key].dispose();
                                       campo.opcoesCtrl.removeAt(e.key);
                                     })
                                 : null,
@@ -597,8 +587,8 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                   onPressed: () => setState(() {
                     campo.opcoesCtrl.add(TextEditingController());
                   }),
-                  icon: const Icon(Icons.add, size: 14),
-                  label: const Text('Adicionar opção',
+                  icon: Icon(Icons.add, size: 14),
+                  label: Text('Adicionar opÃƒÂ§ÃƒÂ£o',
                       style: TextStyle(fontSize: 12)),
                   style: TextButton.styleFrom(
                     foregroundColor: AppColors.primary,

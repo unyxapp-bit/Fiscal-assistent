@@ -22,7 +22,8 @@ class ColaboradorDetailScreen extends StatefulWidget {
   });
 
   @override
-  State<ColaboradorDetailScreen> createState() => _ColaboradorDetailScreenState();
+  State<ColaboradorDetailScreen> createState() =>
+      _ColaboradorDetailScreenState();
 }
 
 class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
@@ -35,7 +36,8 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
   }
 
   Future<void> _loadData() async {
-    final alocacaoProvider = Provider.of<AlocacaoProvider>(context, listen: false);
+    final alocacaoProvider =
+        Provider.of<AlocacaoProvider>(context, listen: false);
     final registroPontoProvider =
         Provider.of<RegistroPontoProvider>(context, listen: false);
 
@@ -79,10 +81,10 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
-        title: const Text('Detalhes do Colaborador', style: AppTextStyles.h3),
+        title: Text('Detalhes do Colaborador', style: AppTextStyles.h3),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit),
+            icon: Icon(Icons.edit),
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -107,9 +109,8 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
           );
         },
         backgroundColor: AppColors.primary,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Novo Registro',
-            style: TextStyle(color: Colors.white)),
+        icon: Icon(Icons.add, color: Colors.white),
+        label: Text('Novo Registro', style: TextStyle(color: Colors.white)),
       ),
       body: Consumer2<AlocacaoProvider, RegistroPontoProvider>(
         builder: (context, alocacaoProvider, registroPontoProvider, _) {
@@ -118,7 +119,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Cabeçalho de Perfil
+                // CabeÃƒÂ§alho de Perfil
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(Dimensions.paddingMD),
@@ -132,12 +133,12 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                               widget.colaborador.departamento),
                           child: Text(
                             widget.colaborador.iniciais,
-                            style: AppTextStyles.h2
-                                .copyWith(color: Colors.white),
+                            style:
+                                AppTextStyles.h2.copyWith(color: Colors.white),
                           ),
                         ),
-                        const SizedBox(width: Dimensions.spacingMD),
-                        // Nome e informações
+                        SizedBox(width: Dimensions.spacingMD),
+                        // Nome e informaÃƒÂ§ÃƒÂµes
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -146,7 +147,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                                 widget.colaborador.nome,
                                 style: AppTextStyles.h3,
                               ),
-                              const SizedBox(height: 6),
+                              SizedBox(height: 6),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 10,
@@ -164,7 +165,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                                       .copyWith(color: Colors.white),
                                 ),
                               ),
-                              const SizedBox(height: 10),
+                              SizedBox(height: 10),
                               _buildStatusChip(),
                             ],
                           ),
@@ -174,9 +175,9 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                   ),
                 ),
 
-                const SizedBox(height: Dimensions.spacingLG),
+                SizedBox(height: Dimensions.spacingLG),
 
-                // Menu de seções
+                // Menu de seÃƒÂ§ÃƒÂµes
                 GridView.count(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -187,13 +188,13 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                   children: [
                     _buildMenuCard(
                       icon: Icons.info_outline,
-                      label: 'Informações',
+                      label: 'InformaÃƒÂ§ÃƒÂµes',
                       color: AppColors.primary,
                       onTap: () => _showInfoSheet(context),
                     ),
                     _buildMenuCard(
                       icon: Icons.swap_horiz,
-                      label: 'Alocações',
+                      label: 'AlocaÃƒÂ§ÃƒÂµes',
                       color: const Color(0xFF00BCD4),
                       onTap: () =>
                           _showAlocacoesSheet(context, alocacaoProvider),
@@ -207,7 +208,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                     ),
                     _buildMenuCard(
                       icon: Icons.bar_chart,
-                      label: 'Estatísticas',
+                      label: 'EstatÃƒÂ­sticas',
                       color: const Color(0xFF9C27B0),
                       onTap: () => _showEstatisticasSheet(
                           context, alocacaoProvider, registroPontoProvider),
@@ -215,7 +216,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                   ],
                 ),
 
-                const SizedBox(height: Dimensions.spacingXL),
+                SizedBox(height: Dimensions.spacingXL),
               ],
             ),
           );
@@ -224,7 +225,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
     );
   }
 
-  // ── Menu cards ────────────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Menu cards Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   Widget _buildMenuCard({
     required IconData icon,
@@ -246,12 +247,12 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
           child: Row(
             children: [
               Icon(icon, color: color, size: 22),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Expanded(
                 child: Text(
                   label,
-                  style: AppTextStyles.body
-                      .copyWith(fontWeight: FontWeight.w600),
+                  style:
+                      AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -280,19 +281,20 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
           ),
         ),
         Text(title, style: AppTextStyles.h3),
-        const SizedBox(height: Dimensions.spacingMD),
+        SizedBox(height: Dimensions.spacingMD),
       ],
     );
   }
 
-  // ── Bottom sheets ──────────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Bottom sheets Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   void _showInfoSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => Padding(
         padding: const EdgeInsets.all(Dimensions.paddingMD),
@@ -300,20 +302,21 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSheetHandle('Informações'),
+            _buildSheetHandle('InformaÃƒÂ§ÃƒÂµes'),
             _buildInfoRow('ID', widget.colaborador.id.substring(0, 8)),
-            const Divider(height: 24),
+            Divider(height: 24),
             _buildInfoRow(
                 'Status', widget.colaborador.ativo ? 'Ativo' : 'Inativo'),
-            const Divider(height: 24),
+            Divider(height: 24),
             _buildInfoRow(
                 'Criado em', _formatDate(widget.colaborador.createdAt)),
             if (widget.colaborador.observacoes != null &&
                 widget.colaborador.observacoes!.isNotEmpty) ...[
-              const Divider(height: 24),
-              _buildInfoRow('Observações', widget.colaborador.observacoes!),
+              Divider(height: 24),
+              _buildInfoRow(
+                  'ObservaÃƒÂ§ÃƒÂµes', widget.colaborador.observacoes!),
             ],
-            const SizedBox(height: Dimensions.spacingMD),
+            SizedBox(height: Dimensions.spacingMD),
           ],
         ),
       ),
@@ -324,8 +327,9 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => DraggableScrollableSheet(
         expand: false,
@@ -341,7 +345,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSheetHandle('Alocações de Hoje'),
+              _buildSheetHandle('AlocaÃƒÂ§ÃƒÂµes de Hoje'),
               Expanded(
                 child: SingleChildScrollView(
                   controller: controller,
@@ -360,8 +364,9 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => DraggableScrollableSheet(
         expand: false,
@@ -399,8 +404,9 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (_) => Padding(
         padding: const EdgeInsets.all(Dimensions.paddingMD),
@@ -408,22 +414,22 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSheetHandle('Estatísticas'),
+            _buildSheetHandle('EstatÃƒÂ­sticas'),
             _buildStatRow(
-              'Alocações Hoje',
+              'AlocaÃƒÂ§ÃƒÂµes Hoje',
               alocacaoProvider.alocacoes
                   .where((a) => a.colaboradorId == widget.colaborador.id)
                   .length
                   .toString(),
             ),
-            const Divider(height: 24),
+            Divider(height: 24),
             _buildStatRow(
               'Registros de Ponto',
               registroPontoProvider.registros.length.toString(),
             ),
-            const Divider(height: 24),
+            Divider(height: 24),
             _buildStatRow('Pontualidade', '--'),
-            const SizedBox(height: Dimensions.spacingMD),
+            SizedBox(height: Dimensions.spacingMD),
           ],
         ),
       ),
@@ -446,9 +452,9 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
           padding: const EdgeInsets.all(Dimensions.paddingMD),
           child: Column(
             children: [
-              const Text('Nenhum registro de ponto cadastrado.',
+              Text('Nenhum registro de ponto cadastrado.',
                   style: AppTextStyles.body),
-              const SizedBox(height: Dimensions.spacingSM),
+              SizedBox(height: Dimensions.spacingSM),
               TextButton.icon(
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(
@@ -457,8 +463,8 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                     ),
                   ),
                 ),
-                icon: const Icon(Icons.add),
-                label: const Text('Adicionar registro'),
+                icon: Icon(Icons.add),
+                label: Text('Adicionar registro'),
               ),
             ],
           ),
@@ -482,8 +488,9 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
     final isSpecial = obs == 'folga' || obs == 'feriado';
 
     return Container(
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.cardBorder, width: 0.5)),
+      decoration: BoxDecoration(
+        border:
+            Border(bottom: BorderSide(color: AppColors.cardBorder, width: 0.5)),
       ),
       padding: const EdgeInsets.symmetric(
           horizontal: Dimensions.paddingMD, vertical: 8),
@@ -503,12 +510,13 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
               ),
             ),
           ),
-          const SizedBox(width: 8),
-          // Conteúdo
+          SizedBox(width: 8),
+          // ConteÃƒÂºdo
           Expanded(
             child: isSpecial
                 ? Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: AppColors.inactive.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(6),
@@ -530,20 +538,22 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                       if (r.entrada != null)
                         _horarioBadge('E: ${r.entrada}', AppColors.primary),
                       if (r.intervaloSaida != null)
-                        _horarioBadge('Int: ${r.intervaloSaida}', AppColors.statusCafe),
+                        _horarioBadge(
+                            'Int: ${r.intervaloSaida}', AppColors.statusCafe),
                       if (r.intervaloRetorno != null)
-                        _horarioBadge('Ret: ${r.intervaloRetorno}', AppColors.statusAtivo),
+                        _horarioBadge('Ret: ${r.intervaloRetorno}',
+                            AppColors.statusAtivo),
                       if (r.saida != null)
                         _horarioBadge('S: ${r.saida}', AppColors.statusSaida),
                     ],
                   ),
           ),
-          // Ações
+          // AÃƒÂ§ÃƒÂµes
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                icon: const Icon(Icons.edit, size: 16),
+                icon: Icon(Icons.edit, size: 16),
                 color: AppColors.primary,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
@@ -558,7 +568,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.delete_outline, size: 16),
+                icon: Icon(Icons.delete_outline, size: 16),
                 color: AppColors.danger,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
@@ -577,18 +587,17 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Excluir registro?'),
-        content: Text(
-            'Remover o registro de ${_formatDate(r.data)}?'),
+        title: Text('Excluir registro?'),
+        content: Text('Remover o registro de ${_formatDate(r.data)}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: TextButton.styleFrom(foregroundColor: AppColors.danger),
-            child: const Text('Excluir'),
+            child: Text('Excluir'),
           ),
         ],
       ),
@@ -599,8 +608,9 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
       if (mounted) {
         AppNotif.show(
           context,
-          titulo: success ? 'Registro Excluído' : 'Erro',
-          mensagem: success ? 'Registro excluído' : 'Erro ao excluir registro',
+          titulo: success ? 'Registro ExcluÃƒÂ­do' : 'Erro',
+          mensagem:
+              success ? 'Registro excluÃƒÂ­do' : 'Erro ao excluir registro',
           tipo: success ? 'saida' : 'alerta',
           cor: success ? AppColors.success : AppColors.danger,
         );
@@ -631,7 +641,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
 
     if (widget.colaborador.statusAtual == null) {
       color = Colors.grey;
-      label = 'Disponível';
+      label = 'DisponÃƒÂ­vel';
     } else {
       switch (widget.colaborador.statusAtual!.name) {
         case 'alocado':
@@ -648,7 +658,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
           break;
         default:
           color = Colors.grey;
-          label = 'Disponível';
+          label = 'DisponÃƒÂ­vel';
       }
     }
 
@@ -686,7 +696,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
             ),
           ),
         ),
-        const SizedBox(width: Dimensions.spacingSM),
+        SizedBox(width: Dimensions.spacingSM),
         Expanded(
           child: Text(
             value,
@@ -723,11 +733,11 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
         .toList();
 
     if (alocacoesHoje.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
           padding: EdgeInsets.all(Dimensions.paddingMD),
           child: Text(
-            'Nenhuma alocação hoje',
+            'Nenhuma alocaÃƒÂ§ÃƒÂ£o hoje',
             style: AppTextStyles.body,
           ),
         ),
@@ -738,18 +748,18 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: alocacoesHoje.length,
-      separatorBuilder: (_, __) => const Divider(),
+      separatorBuilder: (_, __) => Divider(),
       itemBuilder: (context, index) {
         final alocacao = alocacoesHoje[index];
         return ListTile(
-          leading: const Icon(Icons.point_of_sale, color: AppColors.primary),
+          leading: Icon(Icons.point_of_sale, color: AppColors.primary),
           title: Text('Caixa ${alocacao.caixaId.substring(0, 8)}'),
           subtitle: Text(
-            'Início: ${_formatTime(alocacao.alocadoEm)}\n'
-            '${alocacao.liberadoEm != null ? 'Fim: ${_formatTime(alocacao.liberadoEm!)}' : 'Em operação'}',
+            'InÃƒÂ­cio: ${_formatTime(alocacao.alocadoEm)}\n'
+            '${alocacao.liberadoEm != null ? 'Fim: ${_formatTime(alocacao.liberadoEm!)}' : 'Em operaÃƒÂ§ÃƒÂ£o'}',
           ),
           trailing: alocacao.liberadoEm == null
-              ? const Icon(Icons.circle, color: AppColors.success, size: 12)
+              ? Icon(Icons.circle, color: AppColors.success, size: 12)
               : null,
         );
       },

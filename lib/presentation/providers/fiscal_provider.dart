@@ -44,7 +44,7 @@ class FiscalProvider with ChangeNotifier {
       notifyListeners();
 
       _fiscal = await _getFiscalProfile.call(userId);
-      
+
       if (kDebugMode) {
         print('[FiscalProvider] Fiscal carregado: ${_fiscal?.id}');
       }

@@ -10,10 +10,10 @@ import '../mapa/mapa_caixas_screen.dart';
 import '../cafe/cafe_screen.dart';
 import 'visao_gargalo_screen.dart';
 
-/// Hub unificado: Alocar · Mapa · Café · Visão
+/// Hub unificado: Alocar Â· Mapa Â· CafÃ© Â· VisÃ£o
 /// Usa IndexedStack para manter os timers e estado vivos ao trocar de aba.
 class GestaoScreen extends StatefulWidget {
-  /// Índice inicial (0 = Alocar, 1 = Mapa, 2 = Café, 3 = Visão)
+  /// Ãndice inicial (0 = Alocar, 1 = Mapa, 2 = CafÃ©, 3 = VisÃ£o)
   final int initialIndex;
 
   const GestaoScreen({super.key, this.initialIndex = 0});
@@ -36,11 +36,11 @@ class _GestaoScreenState extends State<GestaoScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final fiscalId = authProvider.user?.id ?? '';
 
-    // Badge de atraso no café
+    // Badge de atraso no cafÃ©
     final cafeProvider = Provider.of<CafeProvider>(context);
     final atrasos = cafeProvider.totalEmAtraso;
 
-    // Badge de gargalo na visão
+    // Badge de gargalo na visÃ£o
     final escalaProvider = Provider.of<EscalaProvider>(context);
     final alocacaoProvider = Provider.of<AlocacaoProvider>(context);
     final gargalos = contarGargalosHoje(
@@ -80,27 +80,27 @@ class _GestaoScreenState extends State<GestaoScreen> {
             icon: Badge(
               isLabelVisible: atrasos > 0,
               label: Text('$atrasos'),
-              child: const Icon(Icons.coffee_outlined),
+              child: Icon(Icons.coffee_outlined),
             ),
             selectedIcon: Badge(
               isLabelVisible: atrasos > 0,
               label: Text('$atrasos'),
-              child: const Icon(Icons.coffee),
+              child: Icon(Icons.coffee),
             ),
-            label: 'Café',
+            label: 'CafÃ©',
           ),
           NavigationDestination(
             icon: Badge(
               isLabelVisible: gargalos > 0,
               label: Text('$gargalos'),
-              child: const Icon(Icons.show_chart_outlined),
+              child: Icon(Icons.show_chart_outlined),
             ),
             selectedIcon: Badge(
               isLabelVisible: gargalos > 0,
               label: Text('$gargalos'),
-              child: const Icon(Icons.show_chart),
+              child: Icon(Icons.show_chart),
             ),
-            label: 'Visão',
+            label: 'VisÃ£o',
           ),
         ],
       ),

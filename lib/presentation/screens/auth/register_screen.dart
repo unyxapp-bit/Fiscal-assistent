@@ -76,7 +76,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Criar conta'),
+        title: Text('Criar conta'),
       ),
       body: SafeArea(
         child: authProvider.isLoading
@@ -94,15 +94,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Text('Crie sua conta', style: AppTextStyles.h2),
-                        const SizedBox(height: 6),
+                        Text('Crie sua conta', style: AppTextStyles.h2),
+                        SizedBox(height: 6),
                         Text(
                           'Preencha os dados para comecar',
                           style: AppTextStyles.body.copyWith(
                             color: AppColors.textSecondary,
                           ),
                         ),
-                        const SizedBox(height: 22),
+                        SizedBox(height: 22),
                         CustomTextField(
                           controller: _nomeController,
                           label: 'Nome completo',
@@ -119,7 +119,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: Dimensions.spacingMD),
+                        SizedBox(height: Dimensions.spacingMD),
                         CustomTextField(
                           controller: _emailController,
                           label: 'Email',
@@ -136,7 +136,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: Dimensions.spacingMD),
+                        SizedBox(height: Dimensions.spacingMD),
                         CustomTextField(
                           controller: _passwordController,
                           label: 'Senha',
@@ -165,7 +165,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: Dimensions.spacingMD),
+                        SizedBox(height: Dimensions.spacingMD),
                         CustomTextField(
                           controller: _confirmPasswordController,
                           label: 'Confirmar senha',
@@ -195,7 +195,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: Dimensions.spacingXL),
+                        SizedBox(height: Dimensions.spacingXL),
                         PrimaryButton(
                           text: 'Criar conta',
                           onPressed: _handleRegister,

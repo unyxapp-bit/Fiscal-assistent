@@ -25,7 +25,8 @@ class AuthRemoteDataSource {
     } on AuthException catch (e) {
       throw app_exceptions.ServerException(_getAuthErrorMessage(e));
     } catch (e) {
-      throw app_exceptions.ServerException('Erro inesperado ao fazer login: $e');
+      throw app_exceptions.ServerException(
+          'Erro inesperado ao fazer login: $e');
     }
   }
 
@@ -51,7 +52,8 @@ class AuthRemoteDataSource {
     } on AuthException catch (e) {
       throw app_exceptions.ServerException(_getAuthErrorMessage(e));
     } catch (e) {
-      throw app_exceptions.ServerException('Erro inesperado ao criar conta: $e');
+      throw app_exceptions.ServerException(
+          'Erro inesperado ao criar conta: $e');
     }
   }
 

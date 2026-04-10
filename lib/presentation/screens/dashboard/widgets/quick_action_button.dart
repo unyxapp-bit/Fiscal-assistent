@@ -72,7 +72,7 @@ class QuickActionButton extends StatelessWidget {
                         ),
                         child: Text(
                           badge!,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -82,7 +82,7 @@ class QuickActionButton extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               Text(
                 label,
                 textAlign: TextAlign.center,

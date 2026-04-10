@@ -47,13 +47,13 @@ class EmptyStateWidget extends StatelessWidget {
                 ),
                 child: Icon(icon, size: 34, color: AppColors.primary),
               ),
-              const SizedBox(height: Dimensions.spacingLG),
+              SizedBox(height: Dimensions.spacingLG),
               Text(
                 title,
                 style: AppTextStyles.h3.copyWith(color: AppColors.textPrimary),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: Dimensions.spacingSM),
+              SizedBox(height: Dimensions.spacingSM),
               Text(
                 message,
                 style:
@@ -61,10 +61,10 @@ class EmptyStateWidget extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               if (buttonLabel != null && onButtonPressed != null) ...[
-                const SizedBox(height: Dimensions.spacingLG),
+                SizedBox(height: Dimensions.spacingLG),
                 ElevatedButton.icon(
                   onPressed: onButtonPressed,
-                  icon: const Icon(Icons.arrow_forward, size: 18),
+                  icon: Icon(Icons.arrow_forward, size: 18),
                   label: Text(buttonLabel!),
                 ),
               ],

@@ -40,7 +40,7 @@ class CustomTextField extends StatelessWidget {
       children: [
         Text(label,
             style: AppTextStyles.label.copyWith(color: AppColors.textPrimary)),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         TextFormField(
           controller: controller,
           obscureText: obscureText,
@@ -64,24 +64,23 @@ class CustomTextField extends StatelessWidget {
                 : AppColors.backgroundSection,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(Dimensions.radiusMD),
-              borderSide: const BorderSide(color: AppColors.cardBorder),
+              borderSide: BorderSide(color: AppColors.cardBorder),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(Dimensions.radiusMD),
-              borderSide: const BorderSide(color: AppColors.cardBorder),
+              borderSide: BorderSide(color: AppColors.cardBorder),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(Dimensions.radiusMD),
-              borderSide:
-                  const BorderSide(color: AppColors.primary, width: 1.5),
+              borderSide: BorderSide(color: AppColors.primary, width: 1.5),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(Dimensions.radiusMD),
-              borderSide: const BorderSide(color: AppColors.danger),
+              borderSide: BorderSide(color: AppColors.danger),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(Dimensions.radiusMD),
-              borderSide: const BorderSide(color: AppColors.danger, width: 1.5),
+              borderSide: BorderSide(color: AppColors.danger, width: 1.5),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: Dimensions.paddingMD,

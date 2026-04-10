@@ -21,9 +21,8 @@ class ProcedimentoDetailScreen extends StatefulWidget {
       _ProcedimentoDetailScreenState();
 }
 
-class _ProcedimentoDetailScreenState
-    extends State<ProcedimentoDetailScreen> {
-  // Passos marcados como concluídos (estado apenas em memória)
+class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
+  // Passos marcados como concluÃƒÂ­dos (estado apenas em memÃƒÂ³ria)
   final Set<int> _passosConcluidos = {};
 
   void _copiar(BuildContext context, Procedimento proc) {
@@ -41,7 +40,7 @@ class _ProcedimentoDetailScreenState
     AppNotif.show(
       context,
       titulo: 'Copiado',
-      mensagem: 'Copiado para área de transferência',
+      mensagem: 'Copiado para ÃƒÂ¡rea de transferÃƒÂªncia',
       tipo: 'intervalo',
     );
   }
@@ -64,25 +63,24 @@ class _ProcedimentoDetailScreenState
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
-        title: const Text('Detalhes', style: AppTextStyles.h3),
+        title: Text('Detalhes', style: AppTextStyles.h3),
         actions: [
           // Copiar
           IconButton(
-            icon: const Icon(Icons.copy),
+            icon: Icon(Icons.copy),
             tooltip: 'Copiar procedimento',
             onPressed: () => _copiar(context, proc),
           ),
-          // Reiniciar execução (só se algum passo foi marcado)
+          // Reiniciar execuÃƒÂ§ÃƒÂ£o (sÃƒÂ³ se algum passo foi marcado)
           if (_passosConcluidos.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.restart_alt),
-              tooltip: 'Reiniciar execução',
-              onPressed: () =>
-                  setState(() => _passosConcluidos.clear()),
+              icon: Icon(Icons.restart_alt),
+              tooltip: 'Reiniciar execuÃƒÂ§ÃƒÂ£o',
+              onPressed: () => setState(() => _passosConcluidos.clear()),
             ),
           // Editar
           IconButton(
-            icon: const Icon(Icons.edit),
+            icon: Icon(Icons.edit),
             tooltip: 'Editar procedimento',
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => ProcedimentoFormScreen(procedimento: proc),
@@ -95,7 +93,7 @@ class _ProcedimentoDetailScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Cabeçalho ──────────────────────────────────────────────────
+            // Ã¢â€â‚¬Ã¢â€â‚¬ CabeÃƒÂ§alho Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
             Card(
               elevation: Dimensions.cardElevation,
               child: Padding(
@@ -107,28 +105,24 @@ class _ProcedimentoDetailScreenState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: Text(proc.titulo,
-                              style: AppTextStyles.h2),
+                          child: Text(proc.titulo, style: AppTextStyles.h2),
                         ),
                         IconButton(
                           icon: Icon(
-                            proc.favorito
-                                ? Icons.star
-                                : Icons.star_outline,
+                            proc.favorito ? Icons.star : Icons.star_outline,
                             color: proc.favorito
                                 ? Colors.orange
                                 : AppColors.textSecondary,
                             size: Dimensions.iconXL,
                           ),
-                          onPressed: () =>
-                              provider.toggleFavorito(proc.id),
+                          onPressed: () => provider.toggleFavorito(proc.id),
                           tooltip: proc.favorito
                               ? 'Remover dos favoritos'
                               : 'Adicionar aos favoritos',
                         ),
                       ],
                     ),
-                    const SizedBox(height: Dimensions.spacingSM),
+                    SizedBox(height: Dimensions.spacingSM),
 
                     // Badge categoria
                     Container(
@@ -149,7 +143,7 @@ class _ProcedimentoDetailScreenState
                             color: Colors.white,
                             size: Dimensions.iconSM,
                           ),
-                          const SizedBox(width: Dimensions.spacingXXS),
+                          SizedBox(width: Dimensions.spacingXXS),
                           Text(
                             proc.categoria.categoriaNome,
                             style: AppTextStyles.label.copyWith(
@@ -163,17 +157,17 @@ class _ProcedimentoDetailScreenState
 
                     // Tempo estimado
                     if (proc.tempoEstimado != null) ...[
-                      const SizedBox(height: Dimensions.spacingSM),
+                      SizedBox(height: Dimensions.spacingSM),
                       Row(
                         children: [
-                          const Icon(Icons.timer,
+                          Icon(Icons.timer,
                               size: Dimensions.iconMD,
                               color: AppColors.textSecondary),
-                          const SizedBox(width: Dimensions.spacingXS),
+                          SizedBox(width: Dimensions.spacingXS),
                           Text(
                             'Tempo estimado: ${proc.tempoEstimado} minutos',
-                            style: AppTextStyles.body.copyWith(
-                                color: AppColors.textSecondary),
+                            style: AppTextStyles.body
+                                .copyWith(color: AppColors.textSecondary),
                           ),
                         ],
                       ),
@@ -183,12 +177,12 @@ class _ProcedimentoDetailScreenState
               ),
             ),
 
-            const SizedBox(height: Dimensions.spacingLG),
+            SizedBox(height: Dimensions.spacingLG),
 
-            // ── Descrição ─────────────────────────────────────────────────
+            // Ã¢â€â‚¬Ã¢â€â‚¬ DescriÃƒÂ§ÃƒÂ£o Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
             if (proc.descricao.isNotEmpty) ...[
-              const Text('Descrição', style: AppTextStyles.h4),
-              const SizedBox(height: Dimensions.spacingSM),
+              Text('DescriÃƒÂ§ÃƒÂ£o', style: AppTextStyles.h4),
+              SizedBox(height: Dimensions.spacingSM),
               Card(
                 elevation: Dimensions.cardElevation,
                 child: Padding(
@@ -196,27 +190,25 @@ class _ProcedimentoDetailScreenState
                   child: Text(proc.descricao, style: AppTextStyles.body),
                 ),
               ),
-              const SizedBox(height: Dimensions.spacingLG),
+              SizedBox(height: Dimensions.spacingLG),
             ],
 
-            // ── Passos com progresso ───────────────────────────────────────
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Passos com progresso Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
             Row(
               children: [
-                const Text('Passos', style: AppTextStyles.h4),
+                Text('Passos', style: AppTextStyles.h4),
                 const Spacer(),
                 if (total > 0)
                   Text(
                     '$concluidos/$total',
                     style: AppTextStyles.caption.copyWith(
-                      color: tudo
-                          ? AppColors.success
-                          : AppColors.textSecondary,
+                      color: tudo ? AppColors.success : AppColors.textSecondary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
               ],
             ),
-            const SizedBox(height: Dimensions.spacingSM),
+            SizedBox(height: Dimensions.spacingSM),
 
             // Barra de progresso
             if (total > 0) ...[
@@ -229,7 +221,7 @@ class _ProcedimentoDetailScreenState
                 borderRadius: BorderRadius.circular(4),
                 minHeight: 6,
               ),
-              const SizedBox(height: Dimensions.spacingMD),
+              SizedBox(height: Dimensions.spacingMD),
             ],
 
             // Lista de passos com checkboxes
@@ -254,9 +246,8 @@ class _ProcedimentoDetailScreenState
                         title: Text(
                           passo,
                           style: AppTextStyles.body.copyWith(
-                            decoration: concluido
-                                ? TextDecoration.lineThrough
-                                : null,
+                            decoration:
+                                concluido ? TextDecoration.lineThrough : null,
                             color: concluido
                                 ? AppColors.inactive
                                 : AppColors.textPrimary,
@@ -267,10 +258,8 @@ class _ProcedimentoDetailScreenState
                           height: 28,
                           decoration: BoxDecoration(
                             color: concluido
-                                ? AppColors.success
-                                    .withValues(alpha: 0.15)
-                                : AppColors.primary
-                                    .withValues(alpha: 0.1),
+                                ? AppColors.success.withValues(alpha: 0.15)
+                                : AppColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(14),
                           ),
                           child: Center(
@@ -285,8 +274,7 @@ class _ProcedimentoDetailScreenState
                             ),
                           ),
                         ),
-                        controlAffinity:
-                            ListTileControlAffinity.trailing,
+                        controlAffinity: ListTileControlAffinity.trailing,
                         activeColor: AppColors.success,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: Dimensions.paddingMD,
@@ -294,35 +282,32 @@ class _ProcedimentoDetailScreenState
                         ),
                       ),
                       if (i < proc.passos.length - 1)
-                        const Divider(
-                            height: 1, indent: 16, endIndent: 16),
+                        Divider(height: 1, indent: 16, endIndent: 16),
                     ],
                   );
                 }).toList(),
               ),
             ),
 
-            // Banner de conclusão
+            // Banner de conclusÃƒÂ£o
             if (tudo) ...[
-              const SizedBox(height: Dimensions.spacingMD),
+              SizedBox(height: Dimensions.spacingMD),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(Dimensions.paddingMD),
                 decoration: BoxDecoration(
                   color: AppColors.success.withValues(alpha: 0.1),
-                  borderRadius:
-                      BorderRadius.circular(Dimensions.radiusMD),
+                  borderRadius: BorderRadius.circular(Dimensions.radiusMD),
                   border: Border.all(
                       color: AppColors.success.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.check_circle,
-                        color: AppColors.success),
-                    const SizedBox(width: 8),
+                    Icon(Icons.check_circle, color: AppColors.success),
+                    SizedBox(width: 8),
                     Text(
-                      'Procedimento concluído!',
+                      'Procedimento concluÃƒÂ­do!',
                       style:
                           AppTextStyles.h4.copyWith(color: AppColors.success),
                     ),
@@ -331,7 +316,7 @@ class _ProcedimentoDetailScreenState
               ),
             ],
 
-            const SizedBox(height: Dimensions.spacingXL),
+            SizedBox(height: Dimensions.spacingXL),
           ],
         ),
       ),

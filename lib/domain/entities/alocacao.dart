@@ -67,7 +67,8 @@ class Alocacao {
       alocadoPor: alocadoPor ?? this.alocadoPor,
       observacoes: observacoes ?? this.observacoes,
       createdAt: createdAt ?? this.createdAt,
-      intervaloMarcadoFeito: intervaloMarcadoFeito ?? this.intervaloMarcadoFeito,
+      intervaloMarcadoFeito:
+          intervaloMarcadoFeito ?? this.intervaloMarcadoFeito,
     );
   }
 }

@@ -92,29 +92,29 @@ class _SelecaoColaboradorSheetState extends State<SelecaoColaboradorSheet> {
         children: [
           Row(
             children: [
-              const Text('Selecionar Colaborador', style: AppTextStyles.h3),
+              Text('Selecionar Colaborador', style: AppTextStyles.h3),
               const Spacer(),
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close),
+                icon: Icon(Icons.close),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           TextField(
             controller: _searchController,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               hintText: 'Buscar por nome ou departamento',
               prefixIcon: Icon(Icons.search),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Expanded(
             child: _filtered.isEmpty
                 ? const _VazioColaborador()
                 : ListView.separated(
                     itemCount: _filtered.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
+                    separatorBuilder: (_, __) => SizedBox(height: 8),
                     itemBuilder: (context, index) {
                       final colaborador = _filtered[index];
                       final coreColor = _getCoreColor(colaborador.departamento);
@@ -143,14 +143,14 @@ class _SelecaoColaboradorSheetState extends State<SelecaoColaboradorSheet> {
                                   radius: 21,
                                   child: Text(
                                     colaborador.avatarIniciais ?? '?',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700,
                                       fontSize: 12,
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 12),
+                                SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
@@ -217,9 +217,8 @@ class _VazioColaborador extends StatelessWidget {
           children: [
             Icon(Icons.person_off,
                 size: 44, color: AppColors.inactive.withValues(alpha: 0.9)),
-            const SizedBox(height: 8),
-            const Text('Nenhum colaborador encontrado',
-                style: AppTextStyles.body),
+            SizedBox(height: 8),
+            Text('Nenhum colaborador encontrado', style: AppTextStyles.body),
           ],
         ),
       ),

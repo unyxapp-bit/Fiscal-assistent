@@ -28,6 +28,5 @@ class RelatorioDia {
     required this.eventos,
   });
 
-  Duration get duracaoTurno =>
-      turnoEncerradoEm.difference(turnoIniciadoEm);
+  Duration get duracaoTurno => turnoEncerradoEm.difference(turnoIniciadoEm);
 }
