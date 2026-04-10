@@ -484,11 +484,31 @@ class _DashboardScreenState extends State<DashboardScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: Dimensions.spacingSM),
+              _PrincipalHubCard(
+                turnoJaIniciado: turnoJaIniciado,
+                totalAtivos: totalAtivos,
+                totalCaixas: totalCaixas,
+                alertas: alertas.length,
+                onPrimaryAction: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const GestaoScreen(),
+                  ),
+                ),
+              ),
+              SizedBox(height: Dimensions.spacingLG),
+              _DashboardSectionHeader(
+                icon: Icons.grid_view_rounded,
+                title: 'Rotinas principais',
+                subtitle:
+                    'Acessos centrais para gestão diária de caixas, equipe, relatórios e escala.',
+              ),
+              SizedBox(height: Dimensions.spacingSM),
               _GridAcoes(
                 botoes: [
                   _BotaoAcao(
                     icon: Icons.point_of_sale,
                     label: 'Caixas',
+                    subtitle: 'Mapa, alocação e status dos caixas',
                     color: AppColors.primary,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -499,6 +519,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   _BotaoAcao(
                     icon: Icons.people,
                     label: 'Colaboradores',
+                    subtitle: 'Equipe ativa, cadastros e consulta rápida',
                     color: AppColors.statusAtivo,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -508,6 +529,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   _BotaoAcao(
                     icon: Icons.bar_chart,
                     label: 'Relat\u00f3rio',
+                    subtitle: 'Indicadores e fechamento do dia',
                     color: AppColors.cyan,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -517,12 +539,54 @@ class _DashboardScreenState extends State<DashboardScreen>
                   _BotaoAcao(
                     icon: Icons.calendar_month,
                     label: 'Escala',
+                    subtitle: 'Semana, turnos e ajustes operacionais',
                     color: AppColors.pink,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => const EscalaScreen()),
                     ),
                   ),
                 ],
+              ),
+              SizedBox(height: Dimensions.spacingLG),
+              _DashboardSectionHeader(
+                icon: Icons.insights_outlined,
+                title: 'Leitura rápida',
+                subtitle:
+                    'Resumo imediato da frente principal antes de abrir cada módulo.',
+              ),
+              SizedBox(height: Dimensions.spacingSM),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final crossAxisCount = constraints.maxWidth >= 640 ? 3 : 2;
+                  final childAspectRatio = crossAxisCount == 3 ? 1.55 : 1.38;
+                  return GridView.count(
+                    crossAxisCount: crossAxisCount,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisSpacing: Dimensions.spacingSM,
+                    mainAxisSpacing: Dimensions.spacingSM,
+                    childAspectRatio: childAspectRatio,
+                    children: [
+                      _InicioMetricTile(
+                        label: 'Colaboradores',
+                        value: totalAtivos.toString(),
+                        color: AppColors.statusAtivo,
+                      ),
+                      _InicioMetricTile(
+                        label: 'Caixas ativos',
+                        value: totalCaixas.toString(),
+                        color: AppColors.primary,
+                      ),
+                      _InicioMetricTile(
+                        label: 'Alertas',
+                        value: alertas.length.toString(),
+                        color: alertas.isEmpty
+                            ? AppColors.success
+                            : AppColors.warning,
+                      ),
+                    ],
+                  );
+                },
               ),
             ],
           ),
@@ -1421,6 +1485,7 @@ class _ProximoIntervalo {
 class _BotaoAcao {
   final IconData icon;
   final String label;
+  final String? subtitle;
   final Color color;
   final String? badge;
   final VoidCallback onPressed;
@@ -1428,6 +1493,7 @@ class _BotaoAcao {
   const _BotaoAcao({
     required this.icon,
     required this.label,
+    this.subtitle,
     required this.color,
     this.badge,
     required this.onPressed,
@@ -1452,6 +1518,7 @@ class _GridAcoes extends StatelessWidget {
               child: QuickActionButton(
                 icon: a.icon,
                 label: a.label,
+                subtitle: a.subtitle,
                 color: a.color,
                 badge: a.badge,
                 onPressed: a.onPressed,
@@ -1463,6 +1530,7 @@ class _GridAcoes extends StatelessWidget {
                   ? QuickActionButton(
                       icon: b.icon,
                       label: b.label,
+                      subtitle: b.subtitle,
                       color: b.color,
                       badge: b.badge,
                       onPressed: b.onPressed,
@@ -1585,6 +1653,140 @@ class _DashboardEmptyState extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PrincipalHubCard extends StatelessWidget {
+  final bool turnoJaIniciado;
+  final int totalAtivos;
+  final int totalCaixas;
+  final int alertas;
+  final VoidCallback onPrimaryAction;
+
+  const _PrincipalHubCard({
+    required this.turnoJaIniciado,
+    required this.totalAtivos,
+    required this.totalCaixas,
+    required this.alertas,
+    required this.onPrimaryAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.appTheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accentColor = alertas > 0 ? AppColors.warning : AppColors.primary;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(Dimensions.paddingLG),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            accentColor.withValues(alpha: isDark ? 0.24 : 0.14),
+            tokens.cardBackground,
+            tokens.backgroundSection,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(tokens.cardRadius + 2),
+        border: Border.all(
+          color: accentColor.withValues(alpha: isDark ? 0.34 : 0.18),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: tokens.shadowColor.withValues(alpha: isDark ? 0.16 : 0.06),
+            blurRadius: isDark ? 22 : 14,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _InicioBadge(
+                icon: Icons.apps_rounded,
+                label: 'Central principal',
+                color: AppColors.primary,
+              ),
+              _InicioBadge(
+                icon: turnoJaIniciado
+                    ? Icons.play_circle_outline
+                    : Icons.hourglass_top_rounded,
+                label: turnoJaIniciado
+                    ? 'Turno em andamento'
+                    : 'Aguardando início',
+                color: turnoJaIniciado ? AppColors.success : AppColors.warning,
+              ),
+              _InicioBadge(
+                icon: Icons.priority_high_rounded,
+                label: alertas > 0
+                    ? '$alertas alerta${alertas > 1 ? 's' : ''}'
+                    : 'Sem alertas',
+                color: alertas > 0 ? AppColors.warning : AppColors.success,
+              ),
+            ],
+          ),
+          SizedBox(height: Dimensions.spacingMD),
+          Text(
+            'Gestão rápida da operação',
+            style: AppTextStyles.h2.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          SizedBox(height: Dimensions.spacingXS),
+          Text(
+            'Concentre as decisões do turno em um único ponto: caixas, equipe, escala e relatórios com acesso direto.',
+            style: AppTextStyles.body.copyWith(
+              color: AppColors.textSecondary,
+              height: 1.35,
+            ),
+          ),
+          SizedBox(height: Dimensions.spacingMD),
+          Row(
+            children: [
+              Expanded(
+                child: _InicioMetricTile(
+                  label: 'Equipe ativa',
+                  value: totalAtivos.toString(),
+                  color: AppColors.statusAtivo,
+                ),
+              ),
+              SizedBox(width: Dimensions.spacingSM),
+              Expanded(
+                child: _InicioMetricTile(
+                  label: 'Caixas hoje',
+                  value: totalCaixas.toString(),
+                  color: AppColors.primary,
+                ),
+              ),
+              SizedBox(width: Dimensions.spacingSM),
+              Expanded(
+                child: _InicioMetricTile(
+                  label: 'Prioridades',
+                  value: alertas.toString(),
+                  color: alertas > 0 ? AppColors.warning : AppColors.success,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: Dimensions.spacingMD),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ElevatedButton.icon(
+              onPressed: onPrimaryAction,
+              icon: const Icon(Icons.point_of_sale_rounded),
+              label: const Text('Abrir gestão de caixas'),
             ),
           ),
         ],
