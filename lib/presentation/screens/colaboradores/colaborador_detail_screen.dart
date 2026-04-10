@@ -119,7 +119,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // CabeÃƒÂ§alho de Perfil
+                // Cabeçalho de Perfil
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(Dimensions.paddingMD),
@@ -138,7 +138,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                           ),
                         ),
                         SizedBox(width: Dimensions.spacingMD),
-                        // Nome e informaÃƒÂ§ÃƒÂµes
+                        // Nome e informações
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,7 +177,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
 
                 SizedBox(height: Dimensions.spacingLG),
 
-                // Menu de seÃƒÂ§ÃƒÂµes
+                // Menu de seções
                 GridView.count(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -188,13 +188,13 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                   children: [
                     _buildMenuCard(
                       icon: Icons.info_outline,
-                      label: 'InformaÃƒÂ§ÃƒÂµes',
+                      label: 'Informações',
                       color: AppColors.primary,
                       onTap: () => _showInfoSheet(context),
                     ),
                     _buildMenuCard(
                       icon: Icons.swap_horiz,
-                      label: 'AlocaÃƒÂ§ÃƒÂµes',
+                      label: 'Alocações',
                       color: const Color(0xFF00BCD4),
                       onTap: () =>
                           _showAlocacoesSheet(context, alocacaoProvider),
@@ -208,7 +208,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                     ),
                     _buildMenuCard(
                       icon: Icons.bar_chart,
-                      label: 'EstatÃƒÂ­sticas',
+                      label: 'Estatísticas',
                       color: const Color(0xFF9C27B0),
                       onTap: () => _showEstatisticasSheet(
                           context, alocacaoProvider, registroPontoProvider),
@@ -225,7 +225,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
     );
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Menu cards Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+  // â”€â”€ Menu cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildMenuCard({
     required IconData icon,
@@ -286,7 +286,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
     );
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Bottom sheets Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+  // â”€â”€ Bottom sheets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   void _showInfoSheet(BuildContext context) {
     showModalBottomSheet(
@@ -302,7 +302,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSheetHandle('InformaÃƒÂ§ÃƒÂµes'),
+            _buildSheetHandle('Informações'),
             _buildInfoRow('ID', widget.colaborador.id.substring(0, 8)),
             Divider(height: 24),
             _buildInfoRow(
@@ -313,8 +313,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
             if (widget.colaborador.observacoes != null &&
                 widget.colaborador.observacoes!.isNotEmpty) ...[
               Divider(height: 24),
-              _buildInfoRow(
-                  'ObservaÃƒÂ§ÃƒÂµes', widget.colaborador.observacoes!),
+              _buildInfoRow('Observações', widget.colaborador.observacoes!),
             ],
             SizedBox(height: Dimensions.spacingMD),
           ],
@@ -345,7 +344,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSheetHandle('AlocaÃƒÂ§ÃƒÂµes de Hoje'),
+              _buildSheetHandle('Alocações de Hoje'),
               Expanded(
                 child: SingleChildScrollView(
                   controller: controller,
@@ -414,9 +413,9 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSheetHandle('EstatÃƒÂ­sticas'),
+            _buildSheetHandle('Estatísticas'),
             _buildStatRow(
-              'AlocaÃƒÂ§ÃƒÂµes Hoje',
+              'Alocações Hoje',
               alocacaoProvider.alocacoes
                   .where((a) => a.colaboradorId == widget.colaborador.id)
                   .length
@@ -511,7 +510,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
             ),
           ),
           SizedBox(width: 8),
-          // ConteÃƒÂºdo
+          // Conteúdo
           Expanded(
             child: isSpecial
                 ? Container(
@@ -548,7 +547,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                     ],
                   ),
           ),
-          // AÃƒÂ§ÃƒÂµes
+          // Ações
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -608,9 +607,8 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
       if (mounted) {
         AppNotif.show(
           context,
-          titulo: success ? 'Registro ExcluÃƒÂ­do' : 'Erro',
-          mensagem:
-              success ? 'Registro excluÃƒÂ­do' : 'Erro ao excluir registro',
+          titulo: success ? 'Registro Excluído' : 'Erro',
+          mensagem: success ? 'Registro excluído' : 'Erro ao excluir registro',
           tipo: success ? 'saida' : 'alerta',
           cor: success ? AppColors.success : AppColors.danger,
         );
@@ -641,7 +639,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
 
     if (widget.colaborador.statusAtual == null) {
       color = Colors.grey;
-      label = 'DisponÃƒÂ­vel';
+      label = 'Disponível';
     } else {
       switch (widget.colaborador.statusAtual!.name) {
         case 'alocado':
@@ -658,7 +656,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
           break;
         default:
           color = Colors.grey;
-          label = 'DisponÃƒÂ­vel';
+          label = 'Disponível';
       }
     }
 
@@ -737,7 +735,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
         child: Padding(
           padding: EdgeInsets.all(Dimensions.paddingMD),
           child: Text(
-            'Nenhuma alocaÃƒÂ§ÃƒÂ£o hoje',
+            'Nenhuma alocação hoje',
             style: AppTextStyles.body,
           ),
         ),
@@ -755,8 +753,8 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
           leading: Icon(Icons.point_of_sale, color: AppColors.primary),
           title: Text('Caixa ${alocacao.caixaId.substring(0, 8)}'),
           subtitle: Text(
-            'InÃƒÂ­cio: ${_formatTime(alocacao.alocadoEm)}\n'
-            '${alocacao.liberadoEm != null ? 'Fim: ${_formatTime(alocacao.liberadoEm!)}' : 'Em operaÃƒÂ§ÃƒÂ£o'}',
+            'Início: ${_formatTime(alocacao.alocadoEm)}\n'
+            '${alocacao.liberadoEm != null ? 'Fim: ${_formatTime(alocacao.liberadoEm!)}' : 'Em operação'}',
           ),
           trailing: alocacao.liberadoEm == null
               ? Icon(Icons.circle, color: AppColors.success, size: 12)

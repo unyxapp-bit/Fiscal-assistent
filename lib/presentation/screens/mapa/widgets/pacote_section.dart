@@ -19,7 +19,7 @@ import 'pacote_detalhes_sheet.dart';
 
 const Color _kPacoteColor = Color(0xFF795548); // marrom
 
-/// SeÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o de plantÃƒÆ’Ã‚Â£o de empacotadores no Mapa
+/// Seção de plantão de empacotadores no Mapa
 class PacoteSection extends StatelessWidget {
   const PacoteSection({super.key});
 
@@ -32,11 +32,11 @@ class PacoteSection extends StatelessWidget {
     final eventoProvider =
         Provider.of<EventoTurnoProvider>(context, listen: false);
     final escalaProvider = Provider.of<EscalaProvider>(context, listen: false);
-    // listen: true ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â CafeProvider notifica a cada segundo via Timer.periodic,
+    // listen: true — CafeProvider notifica a cada segundo via Timer.periodic,
     // fazendo o countdown de intervalo atualizar automaticamente.
     final cafeProvider = Provider.of<CafeProvider>(context);
 
-    // FunÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o local: positivo = minutos atrasado, negativo = minutos restantes
+    // Função local: positivo = minutos atrasado, negativo = minutos restantes
     int? calcMinIntervalo(TurnoLocal? turno) {
       if (turno?.intervalo == null) return null;
       final parts = turno!.intervalo!.split(':');
@@ -53,7 +53,7 @@ class PacoteSection extends StatelessWidget {
         alocacaoProvider.isIntervaloMarcado(colaboradorId) ||
         cafeProvider.colaboradorJaFezIntervaloHoje(colaboradorId);
 
-    // Verifica se algum empacotador estÃƒÆ’Ã‚Â¡ em atenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o (15+ min atrasado)
+    // Verifica se algum empacotador está em atenção (15+ min atrasado)
     final hayAtencao = plantao.any((p) {
       final turno = escalaProvider.turnosHoje
           .where((t) => t.colaboradorId == p.colaboradorId)
@@ -80,7 +80,7 @@ class PacoteSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // CabeÃƒÆ’Ã‚Â§alho
+            // Cabeçalho
             Row(
               children: [
                 Icon(
@@ -121,12 +121,12 @@ class PacoteSection extends StatelessWidget {
 
             SizedBox(height: Dimensions.spacingMD),
 
-            // Chips de empacotadores + botÃƒÆ’Ã‚Â£o adicionar
+            // Chips de empacotadores + botão adicionar
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
-                // Chips dos empacotadores no plantÃƒÆ’Ã‚Â£o
+                // Chips dos empacotadores no plantão
                 ...plantao.map((p) {
                   final colaborador = colaboradorProvider.colaboradores
                       .cast<Colaborador?>()
@@ -152,7 +152,7 @@ class PacoteSection extends StatelessWidget {
                       : calcMinIntervalo(turno);
                   final emAtencao = minIntervalo != null && minIntervalo >= 15;
 
-                  // Cor e label dinÃƒÆ’Ã‚Â¢micos
+                  // Cor e label dinâmicos
                   final Color chipColor;
                   final String chipLabel;
                   final IconData chipAvatarIcon;
@@ -161,7 +161,7 @@ class PacoteSection extends StatelessWidget {
                     final isCafe = pausaAtiva.isCafe;
                     chipColor = Colors.orange;
                     chipLabel =
-                        '${nome.split(' ').first} Ãƒâ€šÃ‚Â· ${pausaAtiva.minutosDecorridos}min';
+                        '${nome.split(' ').first} · ${pausaAtiva.minutosDecorridos}min';
                     chipAvatarIcon = isCafe ? Icons.coffee : Icons.restaurant;
                   } else if (isIntervaloConcluido) {
                     chipColor = AppColors.success;
@@ -169,20 +169,18 @@ class PacoteSection extends StatelessWidget {
                     chipAvatarIcon = Icons.check_circle;
                   } else if (emAtencao) {
                     chipColor = AppColors.danger;
-                    chipLabel =
-                        '${nome.split(' ').first} Ãƒâ€šÃ‚Â· ${minIntervalo}min';
+                    chipLabel = '${nome.split(' ').first} · ${minIntervalo}min';
                     chipAvatarIcon = Icons.warning_amber_rounded;
                   } else if (minIntervalo != null && minIntervalo >= 0) {
-                    // Atraso leve (0ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“14 min)
+                    // Atraso leve (0–14 min)
                     chipColor = Colors.amber.shade700;
-                    chipLabel =
-                        '${nome.split(' ').first} Ãƒâ€šÃ‚Â· ${minIntervalo}min';
+                    chipLabel = '${nome.split(' ').first} · ${minIntervalo}min';
                     chipAvatarIcon = Icons.schedule;
                   } else if (minIntervalo != null && minIntervalo > -60) {
-                    // Countdown (1ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“59 min antes)
+                    // Countdown (1–59 min antes)
                     chipColor = Colors.orange.shade600;
                     chipLabel =
-                        '${nome.split(' ').first} Ãƒâ€šÃ‚Â· ${-minIntervalo}min';
+                        '${nome.split(' ').first} · ${-minIntervalo}min';
                     chipAvatarIcon = Icons.schedule;
                   } else {
                     chipColor = _kPacoteColor;
@@ -243,7 +241,7 @@ class PacoteSection extends StatelessWidget {
                   );
                 }),
 
-                // BotÃƒÆ’Ã‚Â£o adicionar
+                // Botão adicionar
                 ActionChip(
                   avatar: Icon(Icons.add, size: 16, color: _kPacoteColor),
                   label: Text(
@@ -264,7 +262,7 @@ class PacoteSection extends StatelessWidget {
               ],
             ),
 
-            // Banner de atenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â aparece quando hÃƒÆ’Ã‚Â¡ atraso ÃƒÂ¢Ã¢â‚¬Â°Ã‚Â¥ 15 min
+            // Banner de atenção — aparece quando há atraso ≥ 15 min
             if (hayAtencao) ...[
               SizedBox(height: 8),
               Container(
@@ -312,7 +310,7 @@ class PacoteSection extends StatelessWidget {
     if (colaborador == null) {
       AppNotif.show(
         context,
-        titulo: 'Empacotador nÃƒÆ’Ã‚Â£o encontrado',
+        titulo: 'Empacotador não encontrado',
         mensagem: 'Atualize a lista de colaboradores para ver os detalhes.',
         tipo: 'alerta',
         cor: AppColors.warning,
@@ -368,7 +366,7 @@ class PacoteSection extends StatelessWidget {
   }
 }
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Picker de empacotadores ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// â”€â”€ Picker de empacotadores â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _EmpacotadorPickerSheet extends StatelessWidget {
   final String fiscalId;
@@ -387,14 +385,12 @@ class _EmpacotadorPickerSheet extends StatelessWidget {
     if (turno == null) return 'Sem escala hoje';
     final partes = <String>[];
     if (turno.entrada != null && turno.saida != null) {
-      partes.add('${turno.entrada}ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“${turno.saida}');
+      partes.add('${turno.entrada}–${turno.saida}');
     }
     if (turno.intervalo != null) {
       partes.add('Intervalo: ${turno.intervalo}');
     }
-    return partes.isEmpty
-        ? 'Sem horÃƒÆ’Ã‚Â¡rio'
-        : partes.join('  ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢  ');
+    return partes.isEmpty ? 'Sem horário' : partes.join('  •  ');
   }
 
   @override
@@ -404,7 +400,7 @@ class _EmpacotadorPickerSheet extends StatelessWidget {
         .map((t) => t.colaboradorId)
         .toSet();
 
-    // Apenas empacotadores ativos que ainda nÃƒÆ’Ã‚Â£o estÃƒÆ’Ã‚Â£o na lista hoje
+    // Apenas empacotadores ativos que ainda não estão na lista hoje
     final disponiveis = colaboradorProvider.colaboradores
         .where((c) =>
             c.ativo &&
@@ -443,8 +439,7 @@ class _EmpacotadorPickerSheet extends StatelessWidget {
             Padding(
               padding: EdgeInsets.symmetric(vertical: 24),
               child: Center(
-                child: Text(
-                    'Todos os empacotadores jÃƒÆ’Ã‚Â¡ estÃƒÆ’Ã‚Â£o na lista'),
+                child: Text('Todos os empacotadores já estão na lista'),
               ),
             )
           else

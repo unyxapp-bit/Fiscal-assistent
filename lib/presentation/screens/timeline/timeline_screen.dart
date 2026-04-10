@@ -32,7 +32,7 @@ class TimelineScreen extends StatelessWidget {
               if (eventoProvider.relatorios.isNotEmpty)
                 IconButton(
                   icon: Icon(Icons.history),
-                  tooltip: 'RelatÃƒÂ³rios do Dia',
+                  tooltip: 'Relatórios do Dia',
                   onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -111,7 +111,7 @@ class TimelineScreen extends StatelessWidget {
       builder: (_) => AlertDialog(
         title: Text('Encerrar Turno'),
         content: Text(
-            'Deseja encerrar o turno agora?\nUm relatÃƒÂ³rio serÃƒÂ¡ gerado e salvo automaticamente.'),
+            'Deseja encerrar o turno agora?\nUm relatório será gerado e salvo automaticamente.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -138,11 +138,11 @@ class TimelineScreen extends StatelessWidget {
       AppNotif.show(
         context,
         titulo: 'Turno Encerrado',
-        mensagem: 'Turno encerrado! RelatÃƒÂ³rio salvo.',
+        mensagem: 'Turno encerrado! Relatório salvo.',
         tipo: 'saida',
         cor: AppColors.success,
         acao: SnackBarAction(
-          label: 'Ver RelatÃƒÂ³rio',
+          label: 'Ver Relatório',
           textColor: Colors.white,
           onPressed: () => Navigator.push(
             context,
@@ -159,7 +159,7 @@ class TimelineScreen extends StatelessWidget {
     final hoje = dateFmt.format(DateTime.now());
 
     final buffer = StringBuffer();
-    buffer.writeln('TIMELINE DE HOJE Ã¢â‚¬â€ $hoje');
+    buffer.writeln('TIMELINE DE HOJE — $hoje');
     buffer.writeln('=' * 40);
     buffer.writeln('Total de eventos: ${eventos.length}');
     buffer.writeln();
@@ -179,7 +179,7 @@ class TimelineScreen extends StatelessWidget {
     AppNotif.show(
       context,
       titulo: 'Copiado',
-      mensagem: 'Timeline copiada para a ÃƒÂ¡rea de transferÃƒÂªncia!',
+      mensagem: 'Timeline copiada para a área de transferência!',
       tipo: 'saida',
       cor: AppColors.success,
       acao: SnackBarAction(
@@ -204,7 +204,7 @@ class TimelineScreen extends StatelessWidget {
   }
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Card de evento na timeline Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// â”€â”€â”€ Card de evento na timeline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _EventoCard extends StatelessWidget {
   final EventoTurno evento;
@@ -236,7 +236,7 @@ class _EventoCard extends StatelessWidget {
         ),
         SizedBox(width: 12),
 
-        // ConteÃƒÂºdo
+        // Conteúdo
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(bottom: 8),
@@ -267,7 +267,7 @@ class _EventoCard extends StatelessWidget {
                         child: Text(
                           evento.colaboradorNome! +
                               (evento.caixaNome != null
-                                  ? ' Ã¢â€ â€™ ${evento.caixaNome}'
+                                  ? ' → ${evento.caixaNome}'
                                   : ''),
                           style: AppTextStyles.caption,
                         ),

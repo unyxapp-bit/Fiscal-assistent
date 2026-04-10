@@ -39,7 +39,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
   String _textoOcorrencia(Ocorrencia oc) {
     final fmt = _formatDateTime(oc.registradaEm);
     final buf = StringBuffer();
-    buf.writeln('*OcorrÃƒÂªncia - ${oc.gravidade.nome}*');
+    buf.writeln('*Ocorrência - ${oc.gravidade.nome}*');
     buf.writeln();
     buf.writeln('Tipo: ${oc.tipo}');
     if (oc.caixaId != null && oc.caixaId!.isNotEmpty) {
@@ -58,7 +58,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
   void _compartilharOcorrencia(Ocorrencia oc) {
     Share.share(
       _textoOcorrencia(oc),
-      subject: 'OcorrÃƒÂªncia ${oc.gravidade.nome}',
+      subject: 'Ocorrência ${oc.gravidade.nome}',
     );
   }
 
@@ -68,7 +68,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     AppNotif.show(
       context,
       titulo: 'Copiado',
-      mensagem: 'OcorrÃƒÂªncia copiada para a ÃƒÂ¡rea de transferÃƒÂªncia',
+      mensagem: 'Ocorrência copiada para a área de transferência',
       tipo: 'intervalo',
     );
   }
@@ -78,7 +78,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     final m = dt.month.toString().padLeft(2, '0');
     final h = dt.hour.toString().padLeft(2, '0');
     final min = dt.minute.toString().padLeft(2, '0');
-    return '$d/$m/${dt.year} ÃƒÂ s $h:$min';
+    return '$d/$m/${dt.year} às $h:$min';
   }
 
   void _confirmarDelete(
@@ -89,8 +89,8 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Excluir ocorrÃƒÂªncia'),
-        content: Text('Deseja excluir esta ocorrÃƒÂªncia?'),
+        title: Text('Excluir ocorrência'),
+        content: Text('Deseja excluir esta ocorrência?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -124,8 +124,8 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
             SizedBox(height: 16),
             Text(
               showResolver
-                  ? 'Nenhuma ocorrÃƒÂªncia aberta'
-                  : 'Nenhuma ocorrÃƒÂªncia resolvida',
+                  ? 'Nenhuma ocorrência aberta'
+                  : 'Nenhuma ocorrência resolvida',
               style: AppTextStyles.h4.copyWith(color: AppColors.textSecondary),
             ),
           ],
@@ -231,7 +231,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                     eventoProvider.registrar(
                       fiscalId: fiscalId,
                       tipo: TipoEvento.ocorrenciaResolvida,
-                      detalhe: '${oc.tipo} Ã¢â‚¬â€ ${oc.gravidade.nome}',
+                      detalhe: '${oc.tipo} — ${oc.gravidade.nome}',
                     );
                   }
                 }
@@ -291,7 +291,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('OcorrÃƒÂªncias'),
+        title: Text('Ocorrências'),
         backgroundColor: AppColors.background,
         elevation: 0,
         bottom: TabBar(

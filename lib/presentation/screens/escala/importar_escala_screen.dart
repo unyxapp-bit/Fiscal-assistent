@@ -9,8 +9,6 @@ import '../../../domain/entities/registro_ponto.dart';
 import '../../providers/colaborador_provider.dart';
 import '../../providers/registro_ponto_provider.dart';
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Helpers Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-
 bool _isTime(String s) => RegExp(r'^\d{1,2}:\d{2}$').hasMatch(s);
 
 String _normalizeNome(String s) {
@@ -21,38 +19,36 @@ String _normalizeNome(String s) {
   r = r.replaceAll(RegExp(r'\s+'), ' ');
   // Remove common Portuguese accents
   const Map<String, String> accents = {
-    'Ãƒâ‚¬': 'A',
+    'À': 'A',
     'ÃƒÂ': 'A',
-    'Ãƒâ€š': 'A',
-    'ÃƒÆ’': 'A',
-    'Ãƒâ€ž': 'A',
-    'ÃƒË†': 'E',
-    'Ãƒâ€°': 'E',
+    'Ã‚': 'A',
+    'Ã': 'A',
+    'Ä': 'A',
+    'È': 'E',
+    'É': 'E',
     'ÃƒÅ ': 'E',
-    'Ãƒâ€¹': 'E',
-    'ÃƒÅ’': 'I',
+    'Ë': 'E',
+    'Ì': 'I',
     'ÃƒÂ': 'I',
-    'ÃƒÅ½': 'I',
+    'Î': 'I',
     'ÃƒÂ': 'I',
-    'Ãƒâ€™': 'O',
-    'Ãƒâ€œ': 'O',
+    'Ò': 'O',
+    'Ó': 'O',
     'Ãƒâ€': 'O',
-    'Ãƒâ€¢': 'O',
-    'Ãƒâ€“': 'O',
-    'Ãƒâ„¢': 'U',
-    'ÃƒÅ¡': 'U',
-    'Ãƒâ€º': 'U',
-    'ÃƒÅ“': 'U',
-    'Ãƒâ€¡': 'C',
-    'Ãƒâ€˜': 'N',
+    'Õ': 'O',
+    'Ö': 'O',
+    'Ù': 'U',
+    'Ú': 'U',
+    'Û': 'U',
+    'Ü': 'U',
+    'Ç': 'C',
+    'Ñ': 'N',
   };
   for (final e in accents.entries) {
     r = r.replaceAll(e.key, e.value);
   }
   return r;
 }
-
-// Ã¢â€â‚¬Ã¢â€â‚¬ Modelo de linha parseada Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 enum _Status { ok, parcial, naoEncontrado }
 
@@ -141,12 +137,12 @@ _LinhaParseada _parseLinha(
 
   final nameEnd = tokens.length - timeCount;
   if (nameEnd <= 0) {
-    // All tokens look like times Ã¢â‚¬â€ no name
+    // All tokens look like times — no name
     return _LinhaParseada(
       linhaOriginal: linha,
       nomeTexto: linha,
       data: data,
-      aviso: 'Nome nÃƒÂ£o identificado',
+      aviso: 'Nome não identificado',
     );
   }
 
@@ -157,9 +153,9 @@ _LinhaParseada _parseLinha(
 
   String? aviso;
   if (timeCount > 0 && timeCount < 4) {
-    aviso = 'Apenas $timeCount horÃƒÂ¡rio(s) encontrado(s)';
+    aviso = 'Apenas $timeCount horário(s) encontrado(s)';
   } else if (timeCount == 0) {
-    aviso = 'Nenhum horÃƒÂ¡rio encontrado';
+    aviso = 'Nenhum horário encontrado';
   }
 
   return _LinhaParseada(
@@ -175,8 +171,6 @@ _LinhaParseada _parseLinha(
     aviso: aviso,
   );
 }
-
-// Ã¢â€â‚¬Ã¢â€â‚¬ Tela principal Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 class ImportarEscalaScreen extends StatefulWidget {
   const ImportarEscalaScreen({super.key});
@@ -216,7 +210,7 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
     final colaboradorProvider = context.read<ColaboradorProvider>();
     final todos = colaboradorProvider.todosColaboradores;
 
-    // Build normalized name Ã¢â€ â€™ Colaborador map
+    // Build normalized name → Colaborador map
     final mapa = <String, Colaborador>{};
     for (final c in todos) {
       mapa[_normalizeNome(c.nome)] = c;
@@ -258,9 +252,7 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
 
     AppNotif.show(
       context,
-      titulo: erro == 0
-          ? 'ImportaÃƒÂ§ÃƒÂ£o ConcluÃƒÂ­da'
-          : 'ImportaÃƒÂ§ÃƒÂ£o com Erros',
+      titulo: erro == 0 ? 'Importação Concluída' : 'Importação com Erros',
       mensagem: '$ok registro(s) importado(s).'
           '${erro > 0 ? " $erro falhou." : ""}',
       tipo: erro == 0 ? 'saida' : 'alerta',
@@ -290,7 +282,6 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Ã¢â€â‚¬Ã¢â€â‚¬ Data Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                   Text('Data dos registros', style: AppTextStyles.subtitle),
                   SizedBox(height: Dimensions.spacingSM),
                   InkWell(
@@ -323,7 +314,6 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
 
                   SizedBox(height: Dimensions.spacingLG),
 
-                  // Ã¢â€â‚¬Ã¢â€â‚¬ Texto Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                   Text('Cole o texto da escala abaixo',
                       style: AppTextStyles.subtitle),
                   SizedBox(height: Dimensions.spacingSM),
@@ -351,7 +341,6 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
 
                   SizedBox(height: Dimensions.spacingMD),
 
-                  // Ã¢â€â‚¬Ã¢â€â‚¬ BotÃƒÂ£o Analisar Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
@@ -363,12 +352,11 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
                     ),
                   ),
 
-                  // Ã¢â€â‚¬Ã¢â€â‚¬ Preview Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                   if (linhas != null) ...[
                     SizedBox(height: Dimensions.spacingLG),
                     Row(
                       children: [
-                        Text('PrÃƒÂ©via', style: AppTextStyles.subtitle),
+                        Text('Prévia', style: AppTextStyles.subtitle),
                         const Spacer(),
                         Text(
                           '$importaveis/${linhas.length} encontrados',
@@ -421,19 +409,17 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
   String _formatDate(DateTime date) {
     const dias = [
       'Segunda',
-      'TerÃƒÂ§a',
+      'Terça',
       'Quarta',
       'Quinta',
       'Sexta',
-      'SÃƒÂ¡bado',
+      'Sábado',
       'Domingo'
     ];
     final diaSemana = dias[date.weekday - 1];
     return '$diaSemana, ${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 }
-
-// Ã¢â€â‚¬Ã¢â€â‚¬ Card de prÃƒÂ©via Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 class _LinhaCard extends StatelessWidget {
   final _LinhaParseada linha;
@@ -499,7 +485,7 @@ class _LinhaCard extends StatelessWidget {
                   ),
                 if (status == _Status.naoEncontrado)
                   Text(
-                    'Colaborador nÃƒÂ£o encontrado',
+                    'Colaborador não encontrado',
                     style:
                         AppTextStyles.caption.copyWith(color: AppColors.danger),
                   ),
@@ -516,19 +502,19 @@ class _LinhaCard extends StatelessWidget {
                     children: [
                       if (linha.entrada != null)
                         _Tag(
-                            label: 'Ã¢â€ â€˜ ${linha.entrada!}',
+                            label: 'Entrada ${linha.entrada!}',
                             color: AppColors.primary),
                       if (linha.intervaloSaida != null)
                         _Tag(
-                            label: 'Ã¢ÂÂ¸ ${linha.intervaloSaida!}',
+                            label: '⏸ ${linha.intervaloSaida!}',
                             color: AppColors.statusCafe),
                       if (linha.intervaloRetorno != null)
                         _Tag(
-                            label: 'Ã¢â€“Â¶ ${linha.intervaloRetorno!}',
+                            label: '▶ ${linha.intervaloRetorno!}',
                             color: AppColors.statusAtivo),
                       if (linha.saida != null)
                         _Tag(
-                            label: 'Ã¢â€ â€œ ${linha.saida!}',
+                            label: 'Saída ${linha.saida!}',
                             color: AppColors.statusSaida),
                     ],
                   ),

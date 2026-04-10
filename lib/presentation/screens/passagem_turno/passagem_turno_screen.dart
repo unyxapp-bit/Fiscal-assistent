@@ -34,7 +34,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
     final m = dt.month.toString().padLeft(2, '0');
     final h = dt.hour.toString().padLeft(2, '0');
     final min = dt.minute.toString().padLeft(2, '0');
-    return '$d/$m/${dt.year} ÃƒÆ’Ã‚Â s $h:$min';
+    return '$d/$m/${dt.year} às $h:$min';
   }
 
   void _salvar(PassagemTurnoProvider provider) {
@@ -42,7 +42,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
     if (resumo.isEmpty) {
       AppNotif.show(
         context,
-        titulo: 'Campo InvÃƒÆ’Ã‚Â¡lido',
+        titulo: 'Campo Inválido',
         mensagem: 'Preencha ao menos o resumo do turno',
         tipo: 'alerta',
         cor: AppColors.danger,
@@ -72,14 +72,13 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
 
   String _textoCompartilhamento(PassagemTurno p) {
     final buf = StringBuffer();
-    buf.writeln(
-        'PASSAGEM DE TURNO ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ${_formatDateTime(p.registradaEm)}');
-    buf.writeln('ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬' * 30);
+    buf.writeln('PASSAGEM DE TURNO — ${_formatDateTime(p.registradaEm)}');
+    buf.writeln('â”€' * 30);
     buf.writeln('RESUMO DO TURNO:');
     buf.writeln(p.resumo);
     if (p.pendencias.isNotEmpty) {
       buf.writeln();
-      buf.writeln('PENDÃƒÆ’Ã…Â NCIAS:');
+      buf.writeln('PENDÊNCIAS:');
       buf.writeln(p.pendencias);
     }
     if (p.recados.isNotEmpty) {
@@ -96,7 +95,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
     AppNotif.show(
       context,
       titulo: 'Copiado',
-      mensagem: 'Copiado para ÃƒÆ’Ã‚Â¡rea de transferÃƒÆ’Ã‚Âªncia',
+      mensagem: 'Copiado para área de transferência',
       tipo: 'intervalo',
     );
   }
@@ -174,12 +173,12 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
             ),
             SizedBox(height: Dimensions.spacingMD),
 
-            // PendÃƒÆ’Ã‚Âªncias
+            // Pendências
             TextFormField(
               controller: _pendenciasCtrl,
               decoration: InputDecoration(
-                labelText: 'PendÃƒÆ’Ã‚Âªncias',
-                hintText: 'O que ficou para resolver no prÃƒÆ’Ã‚Â³ximo turno?',
+                labelText: 'Pendências',
+                hintText: 'O que ficou para resolver no próximo turno?',
                 prefixIcon: Icon(Icons.pending_actions),
                 alignLabelWithHint: true,
               ),
@@ -193,7 +192,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
               controller: _recadosCtrl,
               decoration: InputDecoration(
                 labelText: 'Recados',
-                hintText: 'Alguma mensagem para o prÃƒÆ’Ã‚Â³ximo fiscal?',
+                hintText: 'Alguma mensagem para o próximo fiscal?',
                 prefixIcon: Icon(Icons.message),
                 alignLabelWithHint: true,
               ),
@@ -273,7 +272,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
                 _buildSection('Resumo do Turno', p.resumo),
                 if (p.pendencias.isNotEmpty) ...[
                   SizedBox(height: Dimensions.spacingMD),
-                  _buildSection('PendÃƒÆ’Ã‚Âªncias', p.pendencias,
+                  _buildSection('Pendências', p.pendencias,
                       icon: Icons.pending_actions,
                       cor: AppColors.statusAtencao),
                 ],
@@ -332,7 +331,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // FormulÃƒÆ’Ã‚Â¡rio ou botÃƒÆ’Ã‚Â£o para iniciar
+            // Formulário ou botão para iniciar
             if (_showForm)
               _buildForm(provider)
             else
@@ -352,10 +351,10 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
 
             SizedBox(height: Dimensions.spacingLG),
 
-            // HistÃƒÆ’Ã‚Â³rico
+            // Histórico
             if (provider.historico.isNotEmpty) ...[
               Text(
-                'HistÃƒÆ’Ã‚Â³rico (${provider.historico.length})',
+                'Histórico (${provider.historico.length})',
                 style: AppTextStyles.h3,
               ),
               SizedBox(height: Dimensions.spacingMD),
@@ -378,7 +377,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        'Registre o que aconteceu no turno\npara o prÃƒÆ’Ã‚Â³ximo fiscal',
+                        'Registre o que aconteceu no turno\npara o próximo fiscal',
                         textAlign: TextAlign.center,
                         style: AppTextStyles.body
                             .copyWith(color: AppColors.textSecondary),

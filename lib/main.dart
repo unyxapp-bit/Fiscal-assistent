@@ -79,7 +79,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    // Inicializar formataÃ§Ã£o de datas em portuguÃªs
+    // Inicializar formatação de datas em português
     await initializeDateFormatting('pt_BR', null);
 
     // Carregar .env
@@ -88,7 +88,7 @@ void main() async {
     // Inicializar Supabase
     await SupabaseClientManager.initialize();
 
-    // Inicializar notificaÃ§Ãµes locais
+    // Inicializar notificações locais
     await NotificationService.instance.initialize();
 
     // ==================== FISCAL ====================
@@ -215,7 +215,7 @@ void main() async {
             },
           ),
 
-          // Module 13 - NotificaÃ§Ãµes
+          // Module 13 - Notificações
           ChangeNotifierProvider(
             create: (_) => NotificacaoProvider(),
           ),
@@ -230,17 +230,17 @@ void main() async {
             create: (_) => ProcedimentoProvider(),
           ),
 
-          // Module 18 - AnotaÃ§Ãµes
+          // Module 18 - Anotações
           ChangeNotifierProvider(
             create: (_) => NotaProvider(),
           ),
 
-          // Module 19 - FormulÃ¡rios
+          // Module 19 - Formulários
           ChangeNotifierProvider(
             create: (_) => FormularioProvider(),
           ),
 
-          // Module 8 - CafÃ© / Intervalos
+          // Module 8 - Café / Intervalos
           ChangeNotifierProvider(
             create: (_) => CafeProvider(),
           ),
@@ -253,7 +253,7 @@ void main() async {
             ),
           ),
 
-          // Pacote PlantÃ£o
+          // Pacote Plantão
           ChangeNotifierProvider(
             create: (_) => PacotePlantaoProvider(
               repository: pacotePlantaoRepository,
@@ -267,7 +267,7 @@ void main() async {
             ),
           ),
 
-          // OcorrÃªncias
+          // Ocorrências
           ChangeNotifierProvider(
             create: (_) => OcorrenciaProvider(),
           ),
@@ -282,12 +282,12 @@ void main() async {
             create: (_) => PassagemTurnoProvider(),
           ),
 
-          // Guia RÃ¡pido
+          // Guia Rápido
           ChangeNotifierProvider(
             create: (_) => GuiaRapidoProvider(),
           ),
 
-          // Eventos de Turno + RelatÃ³rios
+          // Eventos de Turno + Relatórios
           ChangeNotifierProvider(
             create: (_) => EventoTurnoProvider(),
           ),
@@ -342,7 +342,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-/// Widget que inicializa todos os providers apÃ³s autenticaÃ§Ã£o.
+/// Widget que inicializa todos os providers após autenticação.
 class _AppHome extends StatefulWidget {
   const _AppHome();
 

@@ -21,7 +21,7 @@ class RelatoriosDiaScreen extends StatelessWidget {
         return Scaffold(
           backgroundColor: AppColors.background,
           appBar: AppBar(
-            title: Text('RelatÃƒÂ³rio do Dia'),
+            title: Text('Relatório do Dia'),
             backgroundColor: AppColors.background,
             elevation: 0,
           ),
@@ -50,7 +50,7 @@ class RelatoriosDiaScreen extends StatelessWidget {
           Icon(Icons.summarize_outlined, size: 64, color: AppColors.inactive),
           SizedBox(height: 16),
           Text(
-            'Nenhum relatÃƒÂ³rio gerado ainda.\nEncerre o turno na Timeline para gerar um.',
+            'Nenhum relatório gerado ainda.\nEncerre o turno na Timeline para gerar um.',
             style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
             textAlign: TextAlign.center,
           ),
@@ -65,9 +65,9 @@ class RelatoriosDiaScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Excluir RelatÃƒÂ³rio'),
+        title: Text('Excluir Relatório'),
         content: Text(
-            'Excluir o relatÃƒÂ³rio de ${dateFmt.format(relatorio.turnoIniciadoEm)}? Esta aÃƒÂ§ÃƒÂ£o nÃƒÂ£o pode ser desfeita.'),
+            'Excluir o relatório de ${dateFmt.format(relatorio.turnoIniciadoEm)}? Esta ação não pode ser desfeita.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -88,7 +88,7 @@ class RelatoriosDiaScreen extends StatelessWidget {
   void _compartilhar(RelatorioDia relatorio) {
     Share.share(_gerarTexto(relatorio),
         subject:
-            'RelatÃƒÂ³rio do turno Ã¢â‚¬â€ ${DateFormat('dd/MM/yyyy').format(relatorio.turnoIniciadoEm)}');
+            'Relatório do turno — ${DateFormat('dd/MM/yyyy').format(relatorio.turnoIniciadoEm)}');
   }
 
   static String _gerarTexto(RelatorioDia r) {
@@ -100,30 +100,29 @@ class RelatoriosDiaScreen extends StatelessWidget {
         : '${dur.inMinutes}min';
 
     final buf = StringBuffer();
+    buf.writeln('Relatório do Turno — ${dateFmt.format(r.turnoIniciadoEm)}');
     buf.writeln(
-        'Ã°Å¸â€œÅ  RelatÃƒÂ³rio do Turno Ã¢â‚¬â€ ${dateFmt.format(r.turnoIniciadoEm)}');
-    buf.writeln(
-        'Ã¢ÂÂ° ${timeFmt.format(r.turnoIniciadoEm)} Ã¢â€ â€™ ${timeFmt.format(r.turnoEncerradoEm)} ($durStr)');
+        '⏰ ${timeFmt.format(r.turnoIniciadoEm)} → ${timeFmt.format(r.turnoEncerradoEm)} ($durStr)');
     buf.writeln();
-    buf.writeln('Ã°Å¸â€œâ€¹ Resumo:');
-    buf.writeln('Ã¢â‚¬Â¢ ${r.totalAlocacoes} alocaÃƒÂ§ÃƒÂµes');
-    buf.writeln('Ã¢â‚¬Â¢ ${r.totalColaboradores} colaboradores');
-    buf.writeln('Ã¢â‚¬Â¢ ${r.totalCafes} cafÃƒÂ©s');
-    buf.writeln('Ã¢â‚¬Â¢ ${r.totalIntervalos} intervalos');
+    buf.writeln('Resumo:');
+    buf.writeln('• ${r.totalAlocacoes} alocações');
+    buf.writeln('• ${r.totalColaboradores} colaboradores');
+    buf.writeln('• ${r.totalCafes} cafés');
+    buf.writeln('• ${r.totalIntervalos} intervalos');
     if (r.totalEmpacotadores > 0) {
-      buf.writeln('Ã¢â‚¬Â¢ ${r.totalEmpacotadores} empacotadores');
+      buf.writeln('• ${r.totalEmpacotadores} empacotadores');
     }
 
     if (r.eventos.isNotEmpty) {
       buf.writeln();
-      buf.writeln('Ã°Å¸â€œâ€¦ Eventos:');
+      buf.writeln('Eventos:');
       for (final e in r.eventos) {
         final hora = timeFmt.format(e.timestamp);
         final partes = [
           hora,
           e.tipo.label,
           if (e.colaboradorNome != null) e.colaboradorNome!,
-          if (e.caixaNome != null) 'Ã¢â€ â€™ ${e.caixaNome}',
+          if (e.caixaNome != null) '→ ${e.caixaNome}',
           if (e.detalhe != null) '(${e.detalhe})',
         ];
         buf.writeln(partes.join(' '));
@@ -134,7 +133,7 @@ class RelatoriosDiaScreen extends StatelessWidget {
   }
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Card de relatÃƒÂ³rio Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// â”€â”€â”€ Card de relatório â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _RelatorioCard extends StatelessWidget {
   final RelatorioDia relatorio;
@@ -170,7 +169,7 @@ class _RelatorioCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // CabeÃƒÂ§alho: data + duraÃƒÂ§ÃƒÂ£o + aÃƒÂ§ÃƒÂµes
+              // Cabeçalho: data + duração + ações
               Row(
                 children: [
                   Icon(Icons.calendar_today,
@@ -219,7 +218,7 @@ class _RelatorioCard extends StatelessWidget {
 
               SizedBox(height: 4),
               Text(
-                '${timeFmt.format(relatorio.turnoIniciadoEm)} Ã¢â€ â€™ ${timeFmt.format(relatorio.turnoEncerradoEm)}',
+                '${timeFmt.format(relatorio.turnoIniciadoEm)} → ${timeFmt.format(relatorio.turnoEncerradoEm)}',
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary),
               ),
@@ -233,7 +232,7 @@ class _RelatorioCard extends StatelessWidget {
                 children: [
                   _Stat(
                       icon: Icons.swap_horiz,
-                      label: 'AlocaÃƒÂ§ÃƒÂµes',
+                      label: 'Alocações',
                       value: relatorio.totalAlocacoes,
                       color: AppColors.primary),
                   _Stat(
@@ -243,7 +242,7 @@ class _RelatorioCard extends StatelessWidget {
                       color: AppColors.statusAtivo),
                   _Stat(
                       icon: Icons.coffee,
-                      label: 'CafÃƒÂ©s',
+                      label: 'Cafés',
                       value: relatorio.totalCafes,
                       color: AppColors.statusCafe),
                   _Stat(
@@ -322,7 +321,7 @@ class _Stat extends StatelessWidget {
   }
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Tela de detalhes de um relatÃƒÂ³rio Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// â”€â”€â”€ Tela de detalhes de um relatório â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _RelatorioDetalheScreen extends StatelessWidget {
   final RelatorioDia relatorio;
@@ -343,8 +342,7 @@ class _RelatorioDetalheScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(
-            'RelatÃƒÂ³rio Ã¢â‚¬â€ ${dateFmt.format(relatorio.turnoIniciadoEm)}'),
+        title: Text('Relatório — ${dateFmt.format(relatorio.turnoIniciadoEm)}'),
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
@@ -379,7 +377,7 @@ class _RelatorioDetalheScreen extends StatelessWidget {
                   SizedBox(height: 12),
                   _InfoLinha(
                     icon: Icons.play_circle,
-                    label: 'InÃƒÂ­cio',
+                    label: 'Início',
                     value: timeFmt.format(relatorio.turnoIniciadoEm),
                     color: AppColors.statusAtivo,
                   ),
@@ -393,7 +391,7 @@ class _RelatorioDetalheScreen extends StatelessWidget {
                   SizedBox(height: 6),
                   _InfoLinha(
                     icon: Icons.timer,
-                    label: 'DuraÃƒÂ§ÃƒÂ£o',
+                    label: 'Duração',
                     value: _fmtDuracao(relatorio.duracaoTurno),
                     color: AppColors.primary,
                   ),
@@ -404,7 +402,7 @@ class _RelatorioDetalheScreen extends StatelessWidget {
                     children: [
                       _Stat(
                           icon: Icons.swap_horiz,
-                          label: 'AlocaÃƒÂ§ÃƒÂµes',
+                          label: 'Alocações',
                           value: relatorio.totalAlocacoes,
                           color: AppColors.primary),
                       _Stat(
@@ -414,7 +412,7 @@ class _RelatorioDetalheScreen extends StatelessWidget {
                           color: AppColors.statusAtivo),
                       _Stat(
                           icon: Icons.coffee,
-                          label: 'CafÃƒÂ©s',
+                          label: 'Cafés',
                           value: relatorio.totalCafes,
                           color: AppColors.statusCafe),
                       _Stat(
@@ -463,7 +461,7 @@ class _RelatorioDetalheScreen extends StatelessWidget {
                             Text(
                               evento.colaboradorNome! +
                                   (evento.caixaNome != null
-                                      ? ' Ã¢â€ â€™ ${evento.caixaNome}'
+                                      ? ' → ${evento.caixaNome}'
                                       : '') +
                                   (evento.detalhe != null
                                       ? ' (${evento.detalhe})'

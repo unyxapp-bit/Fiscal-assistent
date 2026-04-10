@@ -8,7 +8,7 @@ import '../../../domain/entities/formulario.dart';
 import '../../providers/formulario_provider.dart';
 import '../../../core/utils/app_notif.dart';
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Estado interno de cada campo Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// â”€â”€ Estado interno de cada campo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _CampoState {
   final String id;
@@ -44,7 +44,7 @@ class _CampoState {
       );
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Editor Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// â”€â”€ Editor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class FormularioEditorScreen extends StatefulWidget {
   final Formulario? formulario;
@@ -108,8 +108,8 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
     if (_campos.length <= 1) {
       AppNotif.show(
         context,
-        titulo: 'Campo InvÃƒÂ¡lido',
-        mensagem: 'O formulÃƒÂ¡rio precisa ter pelo menos 1 campo',
+        titulo: 'Campo Inválido',
+        mensagem: 'O formulário precisa ter pelo menos 1 campo',
         tipo: 'alerta',
       );
       return;
@@ -139,20 +139,20 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
     if (campos.isEmpty) {
       AppNotif.show(
         context,
-        titulo: 'Campo InvÃƒÂ¡lido',
+        titulo: 'Campo Inválido',
         mensagem: 'Adicione pelo menos 1 campo',
         tipo: 'alerta',
       );
       return;
     }
 
-    // Valida campos de opcoes: pelo menos 2 opÃƒÂ§ÃƒÂµes
+    // Valida campos de opcoes: pelo menos 2 opções
     for (final c in campos) {
       if (c.tipo == TipoCampo.opcoes && c.opcoes.length < 2) {
         AppNotif.show(
           context,
-          titulo: 'Campo InvÃƒÂ¡lido',
-          mensagem: 'Campo "${c.label}": adicione pelo menos 2 opÃƒÂ§ÃƒÂµes',
+          titulo: 'Campo Inválido',
+          mensagem: 'Campo "${c.label}": adicione pelo menos 2 opções',
           tipo: 'alerta',
         );
         return;
@@ -172,8 +172,8 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
       if (!mounted) return;
       AppNotif.show(
         context,
-        titulo: 'FormulÃƒÂ¡rio Atualizado',
-        mensagem: 'FormulÃƒÂ¡rio atualizado!',
+        titulo: 'Formulário Atualizado',
+        mensagem: 'Formulário atualizado!',
         tipo: 'saida',
         cor: AppColors.success,
       );
@@ -189,8 +189,8 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
       if (!mounted) return;
       AppNotif.show(
         context,
-        titulo: 'FormulÃƒÂ¡rio Criado',
-        mensagem: 'FormulÃƒÂ¡rio criado!',
+        titulo: 'Formulário Criado',
+        mensagem: 'Formulário criado!',
         tipo: 'saida',
         cor: AppColors.success,
       );
@@ -199,7 +199,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
     Navigator.of(context).pop(true);
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Tipo seletor Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+  // â”€â”€ Tipo seletor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   void _selecionarTipo(int index) {
     showModalBottomSheet(
@@ -258,15 +258,15 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
       case TipoCampo.texto:
         return 'Campo de texto livre';
       case TipoCampo.simNao:
-        return 'Resposta Sim ou NÃƒÂ£o';
+        return 'Resposta Sim ou Não';
       case TipoCampo.numero:
-        return 'Valor numÃƒÂ©rico';
+        return 'Valor numérico';
       case TipoCampo.opcoes:
-        return 'Selecionar uma das opÃƒÂ§ÃƒÂµes';
+        return 'Selecionar uma das opções';
     }
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Build Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+  // â”€â”€ Build â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   @override
   Widget build(BuildContext context) {
@@ -276,7 +276,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
         backgroundColor: AppColors.background,
         elevation: 0,
         title: Text(
-          _isEdicao ? 'Editar FormulÃƒÂ¡rio' : 'Novo FormulÃƒÂ¡rio',
+          _isEdicao ? 'Editar Formulário' : 'Novo Formulário',
           style: AppTextStyles.h3,
         ),
         actions: [
@@ -298,27 +298,27 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
               padding: const EdgeInsets.all(Dimensions.paddingMD),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  // TÃƒÂ­tulo
+                  // Título
                   TextFormField(
                     controller: _tituloCtrl,
                     decoration: InputDecoration(
-                      labelText: 'TÃƒÂ­tulo do FormulÃƒÂ¡rio *',
+                      labelText: 'Título do Formulário *',
                       hintText: 'Ex: Checklist de Abertura',
                       prefixIcon: Icon(Icons.title),
                     ),
                     textCapitalization: TextCapitalization.sentences,
                     validator: (v) => v == null || v.trim().isEmpty
-                        ? 'TÃƒÂ­tulo obrigatÃƒÂ³rio'
+                        ? 'Título obrigatório'
                         : null,
                   ),
                   SizedBox(height: Dimensions.spacingMD),
 
-                  // DescriÃƒÂ§ÃƒÂ£o
+                  // Descrição
                   TextFormField(
                     controller: _descricaoCtrl,
                     decoration: InputDecoration(
-                      labelText: 'DescriÃƒÂ§ÃƒÂ£o',
-                      hintText: 'Para que serve este formulÃƒÂ¡rio?',
+                      labelText: 'Descrição',
+                      hintText: 'Para que serve este formulário?',
                       prefixIcon: Icon(Icons.description),
                       alignLabelWithHint: true,
                     ),
@@ -349,7 +349,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
               ),
             ),
 
-            // Lista reordenÃƒÂ¡vel
+            // Lista reordenável
             SliverPadding(
               padding:
                   const EdgeInsets.symmetric(horizontal: Dimensions.paddingMD),
@@ -380,7 +380,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                         SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Arraste Ã¢â€°Â¡ para reordenar campos. Campos Sim/NÃƒÂ£o e OpÃƒÂ§ÃƒÂµes facilitam checklists.',
+                            'Arraste ≡ para reordenar campos. Campos Sim/Não e Opções facilitam checklists.',
                             style: AppTextStyles.caption
                                 .copyWith(color: AppColors.info),
                           ),
@@ -390,7 +390,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                   ),
                   SizedBox(height: Dimensions.spacingXL),
 
-                  // BotÃƒÂµes
+                  // Botões
                   Row(
                     children: [
                       Expanded(
@@ -445,7 +445,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                   Icon(Icons.drag_handle, color: AppColors.inactive, size: 20),
                   SizedBox(width: 8),
 
-                  // NÃƒÂºmero
+                  // Número
                   Container(
                     width: 26,
                     height: 26,
@@ -510,9 +510,9 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                   ),
                   SizedBox(width: 4),
 
-                  // ObrigatÃƒÂ³rio toggle
+                  // Obrigatório toggle
                   Tooltip(
-                    message: campo.obrigatorio ? 'ObrigatÃƒÂ³rio' : 'Opcional',
+                    message: campo.obrigatorio ? 'Obrigatório' : 'Opcional',
                     child: InkWell(
                       onTap: () => setState(
                           () => campo.obrigatorio = !campo.obrigatorio),
@@ -543,7 +543,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                 ],
               ),
 
-              // Sub-lista de opÃƒÂ§ÃƒÂµes (apenas quando tipo == opcoes)
+              // Sub-lista de opções (apenas quando tipo == opcoes)
               if (campo.tipo == TipoCampo.opcoes) ...[
                 SizedBox(height: 8),
                 Divider(height: 1),
@@ -560,7 +560,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                             child: TextField(
                               controller: e.value,
                               decoration: InputDecoration(
-                                hintText: 'OpÃƒÂ§ÃƒÂ£o ${e.key + 1}',
+                                hintText: 'Opção ${e.key + 1}',
                                 isDense: true,
                                 contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 8, vertical: 8),
@@ -588,8 +588,8 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                     campo.opcoesCtrl.add(TextEditingController());
                   }),
                   icon: Icon(Icons.add, size: 14),
-                  label: Text('Adicionar opÃƒÂ§ÃƒÂ£o',
-                      style: TextStyle(fontSize: 12)),
+                  label:
+                      Text('Adicionar opção', style: TextStyle(fontSize: 12)),
                   style: TextButton.styleFrom(
                     foregroundColor: AppColors.primary,
                     padding: const EdgeInsets.only(left: 36),

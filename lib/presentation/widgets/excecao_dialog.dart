@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../domain/entities/colaborador.dart';
 import '../../domain/entities/caixa.dart';
 
-/// Dialog para justificar exceÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o (regra quebrada)
+/// Dialog para justificar exceção (regra quebrada)
 class ExcecaoDialog extends StatefulWidget {
   final Colaborador? colaborador;
   final Caixa? caixa;
@@ -49,7 +49,7 @@ class _ExcecaoDialogState extends State<ExcecaoDialog> {
         children: [
           Icon(Icons.warning, color: Colors.orange),
           SizedBox(width: 8),
-          Text('ExceÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o de AlocaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o'),
+          Text('Exceção de Alocação'),
         ],
       ),
       content: SingleChildScrollView(
@@ -57,7 +57,7 @@ class _ExcecaoDialogState extends State<ExcecaoDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Motivo da exceÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o
+            // Motivo da exceção
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(

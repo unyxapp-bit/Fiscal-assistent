@@ -70,7 +70,7 @@ class _CaixasListScreenState extends State<CaixasListScreen> {
                       ? const EmptyStateWidget(
                           icon: Icons.point_of_sale,
                           title: 'Nenhum caixa',
-                          message: 'VocÃƒÂª nÃƒÂ£o possui caixas cadastrados',
+                          message: 'Você não possui caixas cadastrados',
                         )
                       : RefreshIndicator(
                           onRefresh: _loadCaixas,
@@ -117,7 +117,7 @@ class _CaixasListScreenState extends State<CaixasListScreen> {
             color: AppColors.success,
           ),
           _buildStatItem(
-            label: 'ManutenÃƒÂ§ÃƒÂ£o',
+            label: 'Manutenção',
             value: provider.totalEmManutencao.toString(),
             color: Colors.orange,
           ),

@@ -29,7 +29,7 @@ class _FormularioPreenchimentoScreenState
   /// Controladores de texto para campos do tipo texto/numero.
   final Map<String, TextEditingController> _textCtrls = {};
 
-  /// Valores para todos os campos (simNao Ã¢â€ â€™ 'Sim'/'NÃƒÂ£o'/null, opcoes Ã¢â€ â€™ String/null).
+  /// Valores para todos os campos (simNao → 'Sim'/'Não'/null, opcoes → String/null).
   final Map<String, dynamic> _valores = {};
 
   @override
@@ -55,7 +55,7 @@ class _FormularioPreenchimentoScreenState
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Limpar formulÃƒÂ¡rio'),
+        title: Text('Limpar formulário'),
         content: Text('Deseja apagar todos os campos?'),
         actions: [
           TextButton(
@@ -114,8 +114,8 @@ class _FormularioPreenchimentoScreenState
     }
     AppNotif.show(
       context,
-      titulo: 'FormulÃƒÂ¡rio Enviado',
-      mensagem: 'FormulÃƒÂ¡rio enviado com sucesso!',
+      titulo: 'Formulário Enviado',
+      mensagem: 'Formulário enviado com sucesso!',
       tipo: 'saida',
       cor: AppColors.success,
     );
@@ -143,7 +143,7 @@ class _FormularioPreenchimentoScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Banner descriÃƒÂ§ÃƒÂ£o
+            // Banner descrição
             if (widget.formulario.descricao.isNotEmpty) ...[
               Container(
                 width: double.infinity,
@@ -165,7 +165,7 @@ class _FormularioPreenchimentoScreenState
                         Text(
                           widget.formulario.template
                               ? 'Template Oficial'
-                              : 'FormulÃƒÂ¡rio Personalizado',
+                              : 'Formulário Personalizado',
                           style: AppTextStyles.caption.copyWith(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w600,
@@ -184,7 +184,7 @@ class _FormularioPreenchimentoScreenState
             ],
 
             Text(
-              '${widget.formulario.campos.length} campos Ã¢â‚¬â€ todos opcionais',
+              '${widget.formulario.campos.length} campos — todos opcionais',
               style: AppTextStyles.caption
                   .copyWith(color: AppColors.textSecondary),
             ),
@@ -223,7 +223,7 @@ class _FormularioPreenchimentoScreenState
 
             SizedBox(height: Dimensions.spacingXL),
 
-            // BotÃƒÂµes
+            // Botões
             Row(
               children: [
                 Expanded(
@@ -357,11 +357,11 @@ class _FormularioPreenchimentoScreenState
                     SizedBox(width: 8),
                     Expanded(
                       child: _SimNaoButton(
-                        label: 'NÃƒÂ£o',
+                        label: 'Não',
                         icon: Icons.cancel_outlined,
-                        selected: valor == 'NÃƒÂ£o',
+                        selected: valor == 'Não',
                         color: AppColors.danger,
-                        onTap: () => setState(() => _valores[label] = 'NÃƒÂ£o'),
+                        onTap: () => setState(() => _valores[label] = 'Não'),
                       ),
                     ),
                   ],
@@ -432,11 +432,11 @@ class _FormularioPreenchimentoScreenState
     final mes = dt.month.toString().padLeft(2, '0');
     final hora = dt.hour.toString().padLeft(2, '0');
     final min = dt.minute.toString().padLeft(2, '0');
-    return '$dia/$mes/${dt.year} ÃƒÂ s $hora:$min';
+    return '$dia/$mes/${dt.year} às $hora:$min';
   }
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ BotÃƒÂ£o Sim/NÃƒÂ£o Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// â”€â”€ Botão Sim/Não â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _SimNaoButton extends StatelessWidget {
   final String label;

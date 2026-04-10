@@ -10,10 +10,10 @@ import '../mapa/mapa_caixas_screen.dart';
 import '../cafe/cafe_screen.dart';
 import 'visao_gargalo_screen.dart';
 
-/// Hub unificado: Alocar Â· Mapa Â· CafÃ© Â· VisÃ£o
+/// Hub unificado: Alocar · Mapa · Café · Visão
 /// Usa IndexedStack para manter os timers e estado vivos ao trocar de aba.
 class GestaoScreen extends StatefulWidget {
-  /// Ãndice inicial (0 = Alocar, 1 = Mapa, 2 = CafÃ©, 3 = VisÃ£o)
+  /// Índice inicial (0 = Alocar, 1 = Mapa, 2 = Café, 3 = Visão)
   final int initialIndex;
 
   const GestaoScreen({super.key, this.initialIndex = 0});
@@ -36,11 +36,11 @@ class _GestaoScreenState extends State<GestaoScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final fiscalId = authProvider.user?.id ?? '';
 
-    // Badge de atraso no cafÃ©
+    // Badge de atraso no café
     final cafeProvider = Provider.of<CafeProvider>(context);
     final atrasos = cafeProvider.totalEmAtraso;
 
-    // Badge de gargalo na visÃ£o
+    // Badge de gargalo na visão
     final escalaProvider = Provider.of<EscalaProvider>(context);
     final alocacaoProvider = Provider.of<AlocacaoProvider>(context);
     final gargalos = contarGargalosHoje(
@@ -87,7 +87,7 @@ class _GestaoScreenState extends State<GestaoScreen> {
               label: Text('$atrasos'),
               child: Icon(Icons.coffee),
             ),
-            label: 'CafÃ©',
+            label: 'Café',
           ),
           NavigationDestination(
             icon: Badge(
@@ -100,7 +100,7 @@ class _GestaoScreenState extends State<GestaoScreen> {
               label: Text('$gargalos'),
               child: Icon(Icons.show_chart),
             ),
-            label: 'VisÃ£o',
+            label: 'Visão',
           ),
         ],
       ),

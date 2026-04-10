@@ -751,7 +751,7 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Text(
-                  '${_itensSelecionados.length} item(ns) jÃƒÆ’Ã‚Â¡ adicionados nesta seleÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o.',
+                  '${_itensSelecionados.length} item(ns) já adicionados nesta seleção.',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),

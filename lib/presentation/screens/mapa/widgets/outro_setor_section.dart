@@ -10,9 +10,9 @@ import '../../../../domain/entities/outro_setor.dart';
 import '../../../providers/colaborador_provider.dart';
 import '../../../providers/outro_setor_provider.dart';
 
-const Color _kOutroSetorColor = Color(0xFF5C6BC0); // ÃƒÂ­ndigo
+const Color _kOutroSetorColor = Color(0xFF5C6BC0); // índigo
 
-/// SeÃƒÂ§ÃƒÂµes de colaboradores em outro setor no Mapa
+/// Seções de colaboradores em outro setor no Mapa
 class OutroSetorSection extends StatelessWidget {
   const OutroSetorSection({super.key});
 
@@ -34,7 +34,7 @@ class OutroSetorSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // CabeÃƒÂ§alho
+            // Cabeçalho
             Row(
               children: [
                 Icon(Icons.swap_horiz, color: _kOutroSetorColor, size: 20),

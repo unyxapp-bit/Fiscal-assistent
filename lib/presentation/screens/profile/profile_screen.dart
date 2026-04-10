@@ -8,7 +8,7 @@ import '../../providers/fiscal_provider.dart';
 import '../../../core/utils/app_notif.dart';
 
 /// Tela de Perfil do Fiscal
-/// Permite visualizar e editar informaÃƒÂ§ÃƒÂµes do perfil
+/// Permite visualizar e editar informações do perfil
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -31,7 +31,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _obscureNovaSenha = true;
   bool _obscureConfirmarSenha = true;
 
-  final List<String> _lojas = ['Baependi', 'Caxambu', 'CruzÃƒÂ­lia'];
+  final List<String> _lojas = ['Baependi', 'Caxambu', 'Cruzília'];
 
   @override
   void initState() {
@@ -107,8 +107,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_novaSenhaController.text != _confirmarSenhaController.text) {
       AppNotif.show(
         context,
-        titulo: 'Senha InvÃƒÂ¡lida',
-        mensagem: 'As senhas nÃƒÂ£o coincidem',
+        titulo: 'Senha Inválida',
+        mensagem: 'As senhas não coincidem',
         tipo: 'alerta',
         cor: AppColors.danger,
       );
@@ -118,7 +118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_novaSenhaController.text.length < 6) {
       AppNotif.show(
         context,
-        titulo: 'Senha InvÃƒÂ¡lida',
+        titulo: 'Senha Inválida',
         mensagem: 'A senha deve ter pelo menos 6 caracteres',
         tipo: 'alerta',
         cor: AppColors.danger,
@@ -126,7 +126,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
 
-    // TODO: Implementar alteraÃƒÂ§ÃƒÂ£o de senha via AuthProvider
+    // TODO: Implementar alteração de senha via AuthProvider
     AppNotif.show(
       context,
       titulo: 'Em Desenvolvimento',
@@ -196,15 +196,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   SizedBox(height: Dimensions.spacingXL),
 
-                  // InformaÃƒÂ§ÃƒÂµes do Perfil
+                  // Informações do Perfil
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(Dimensions.paddingMD),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('InformaÃƒÂ§ÃƒÂµes Pessoais',
-                              style: AppTextStyles.h4),
+                          Text('Informações Pessoais', style: AppTextStyles.h4),
                           SizedBox(height: Dimensions.spacingMD),
 
                           // Nome
@@ -217,7 +216,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             enabled: _isEditMode,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Nome ÃƒÂ© obrigatÃƒÂ³rio';
+                                return 'Nome é obrigatório';
                               }
                               return null;
                             },
@@ -231,7 +230,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             decoration: InputDecoration(
                               labelText: 'Email',
                               prefixIcon: Icon(Icons.email),
-                              helperText: 'O email nÃƒÂ£o pode ser alterado',
+                              helperText: 'O email não pode ser alterado',
                             ),
                             enabled: false,
                           ),
@@ -301,14 +300,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   SizedBox(height: Dimensions.spacingLG),
 
-                  // AlteraÃƒÂ§ÃƒÂ£o de Senha
+                  // Alteração de Senha
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(Dimensions.paddingMD),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('SeguranÃƒÂ§a', style: AppTextStyles.h4),
+                          Text('Segurança', style: AppTextStyles.h4),
                           SizedBox(height: Dimensions.spacingMD),
                           if (!_isChangingPassword) ...[
                             ListTile(
@@ -416,7 +415,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   SizedBox(height: Dimensions.spacingLG),
 
-                  // BotÃƒÂ£o de Logout
+                  // Botão de Logout
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(

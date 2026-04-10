@@ -10,7 +10,7 @@ import '../../../providers/colaborador_provider.dart';
 import '../../../providers/caixa_provider.dart';
 import '../caixa_form_screen.dart';
 
-/// Card compacto para exibiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o em grade (3 colunas)
+/// Card compacto para exibição em grade (3 colunas)
 class CaixaGridCard extends StatelessWidget {
   final Caixa caixa;
 
@@ -53,7 +53,7 @@ class CaixaGridCard extends StatelessWidget {
       builder: (ctx) => AlertDialog(
         title: Text('Excluir caixa'),
         content: Text(
-          'Deseja excluir ${caixa.nomeExibicao}? Essa aÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o nÃƒÆ’Ã‚Â£o pode ser desfeita.',
+          'Deseja excluir ${caixa.nomeExibicao}? Essa ação não pode ser desfeita.',
         ),
         actions: [
           TextButton(
@@ -80,9 +80,8 @@ class CaixaGridCard extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(ok
-            ? '${caixa.nomeExibicao} excluÃƒÆ’Ã‚Â­do.'
-            : (provider.errorMessage ??
-                'NÃƒÆ’Ã‚Â£o foi possÃƒÆ’Ã‚Â­vel excluir o caixa.')),
+            ? '${caixa.nomeExibicao} excluído.'
+            : (provider.errorMessage ?? 'Não foi possível excluir o caixa.')),
         backgroundColor: ok ? AppColors.success : AppColors.danger,
       ),
     );
@@ -150,7 +149,7 @@ class CaixaGridCard extends StatelessWidget {
               if (caixa.ativo && !caixa.emManutencao)
                 ListTile(
                   leading: Icon(Icons.build, color: Colors.orange),
-                  title: Text('Marcar manutenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o'),
+                  title: Text('Marcar manutenção'),
                   onTap: () {
                     Navigator.pop(context);
                     Provider.of<CaixaProvider>(context, listen: false)
@@ -160,7 +159,7 @@ class CaixaGridCard extends StatelessWidget {
               if (caixa.emManutencao)
                 ListTile(
                   leading: Icon(Icons.check, color: Colors.green),
-                  title: Text('Fim da manutenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o'),
+                  title: Text('Fim da manutenção'),
                   onTap: () {
                     Navigator.pop(context);
                     Provider.of<CaixaProvider>(context, listen: false)
@@ -277,7 +276,7 @@ class CaixaCard extends StatelessWidget {
       return 'Inativo';
     }
     if (caixa.emManutencao) {
-      return 'ManutenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o';
+      return 'Manutenção';
     }
     return 'Ativo';
   }
@@ -307,7 +306,7 @@ class CaixaCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                // ÃƒÆ’Ã‚Âcone e nÃƒÆ’Ã‚Âºmero
+                // Ícone e número
                 Container(
                   width: 60,
                   height: 60,
@@ -389,7 +388,7 @@ class CaixaCard extends StatelessWidget {
                 // Menu
                 PopupMenuButton(
                   itemBuilder: (BuildContext context) => [
-                    // Editar sempre disponÃƒÆ’Ã‚Â­vel
+                    // Editar sempre disponível
                     PopupMenuItem(
                       onTap: () => _abrirEdicao(context),
                       child: Row(
@@ -441,7 +440,7 @@ class CaixaCard extends StatelessWidget {
                           children: [
                             Icon(Icons.build, size: 20, color: Colors.orange),
                             SizedBox(width: 8),
-                            Text('Marcar manutenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o'),
+                            Text('Marcar manutenção'),
                           ],
                         ),
                         onTap: () {
@@ -458,7 +457,7 @@ class CaixaCard extends StatelessWidget {
                           children: [
                             Icon(Icons.check, size: 20, color: Colors.green),
                             SizedBox(width: 8),
-                            Text('Fim da manutenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o'),
+                            Text('Fim da manutenção'),
                           ],
                         ),
                         onTap: () {

@@ -56,7 +56,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-          title: Text('FormulÃƒÂ¡rios'),
+          title: Text('Formulários'),
           backgroundColor: AppColors.background,
           elevation: 0,
           bottom: const TabBar(
@@ -76,7 +76,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
               child: TextField(
                 controller: _searchCtrl,
                 decoration: InputDecoration(
-                  hintText: 'Buscar formulÃƒÂ¡rio...',
+                  hintText: 'Buscar formulário...',
                   prefixIcon: Icon(Icons.search),
                   suffixIcon: _query.isNotEmpty
                       ? IconButton(
@@ -116,7 +116,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
             MaterialPageRoute(builder: (_) => const FormularioEditorScreen()),
           ),
           icon: Icon(Icons.add),
-          label: Text('Criar FormulÃƒÂ¡rio'),
+          label: Text('Criar Formulário'),
           backgroundColor: AppColors.primary,
         ),
       ),
@@ -141,8 +141,8 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
               _query.isNotEmpty
                   ? 'Nenhum resultado para "$_query"'
                   : isTemplate
-                      ? 'Nenhum template disponÃƒÂ­vel'
-                      : 'Nenhum formulÃƒÂ¡rio personalizado',
+                      ? 'Nenhum template disponível'
+                      : 'Nenhum formulário personalizado',
               style:
                   AppTextStyles.body.copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
@@ -240,7 +240,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
                   Row(
                     children: [
                       Text(
-                        '${f.campos.length} campos  Ã¢â‚¬Â¢  $totalRespostas respostas',
+                        '${f.campos.length} campos  •  $totalRespostas respostas',
                         style: AppTextStyles.caption.copyWith(
                           color: AppColors.textSecondary,
                           fontSize: 12,
@@ -339,13 +339,13 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
     );
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ 3Ã‚Âª aba: todas as respostas Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+  // â”€â”€ 3ª aba: todas as respostas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildTodasRespostas(
       BuildContext context, FormularioProvider provider) {
     var todas = provider.respostas;
 
-    // Filtrar por tÃƒÂ­tulo do formulÃƒÂ¡rio se houver query ativa
+    // Filtrar por título do formulário se houver query ativa
     if (_query.isNotEmpty) {
       final ids = provider.formularios
           .where((f) => f.titulo.toLowerCase().contains(_query))
@@ -370,7 +370,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
             ),
             SizedBox(height: 8),
             Text(
-              'Preencha um formulÃƒÂ¡rio para\nver as respostas aqui',
+              'Preencha um formulário para\nver as respostas aqui',
               textAlign: TextAlign.center,
               style:
                   AppTextStyles.body.copyWith(color: AppColors.textSecondary),
@@ -392,7 +392,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
             break;
           }
         }
-        final titulo = form?.titulo ?? 'FormulÃƒÂ¡rio removido';
+        final titulo = form?.titulo ?? 'Formulário removido';
         final filled = r.valores.values
             .where((v) => v != null && v.toString().isNotEmpty)
             .length;
@@ -443,11 +443,11 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
                     final buf = StringBuffer();
                     buf.writeln(titulo);
                     buf.writeln(_fmtDt(r.preenchidoEm));
-                    buf.writeln('Ã¢â€â‚¬' * 30);
+                    buf.writeln('â”€' * 30);
                     for (final e in r.valores.entries) {
                       final v = e.value?.toString().isNotEmpty == true
                           ? e.value.toString()
-                          : '(nÃƒÂ£o preenchido)';
+                          : '(não preenchido)';
                       buf.writeln('${e.key}: $v');
                     }
                     Clipboard.setData(
@@ -455,7 +455,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
                     AppNotif.show(
                       context,
                       titulo: 'Copiado',
-                      mensagem: 'Copiado para ÃƒÂ¡rea de transferÃƒÂªncia',
+                      mensagem: 'Copiado para área de transferência',
                       tipo: 'intervalo',
                     );
                   },
@@ -481,7 +481,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
     final m = dt.month.toString().padLeft(2, '0');
     final h = dt.hour.toString().padLeft(2, '0');
     final min = dt.minute.toString().padLeft(2, '0');
-    return '$d/$m/${dt.year} ÃƒÂ s $h:$min';
+    return '$d/$m/${dt.year} às $h:$min';
   }
 
   void _confirmarDeleteResposta(
@@ -576,7 +576,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
                   final entry = r.valores.entries.elementAt(i);
                   final valStr = entry.value?.toString().isNotEmpty == true
                       ? entry.value.toString()
-                      : '(nÃƒÂ£o preenchido)';
+                      : '(não preenchido)';
                   final preenchido = entry.value?.toString().isNotEmpty == true;
 
                   TipoCampo? tipo;
@@ -644,7 +644,7 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
     );
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   void _onMenuSelected(
     String value,
@@ -665,8 +665,8 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
         provider.duplicarTemplate(f);
         AppNotif.show(
           context,
-          titulo: 'CÃƒÂ³pia Criada',
-          mensagem: 'CÃƒÂ³pia criada na aba Personalizados!',
+          titulo: 'Cópia Criada',
+          mensagem: 'Cópia criada na aba Personalizados!',
           tipo: 'saida',
           cor: AppColors.success,
         );
@@ -681,10 +681,10 @@ class _FormulariosScreenState extends State<FormulariosScreen> {
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text('Confirmar exclusÃƒÂ£o'),
+            title: Text('Confirmar exclusão'),
             content: Text(
               totalRespostas > 0
-                  ? 'Deletar "${f.titulo}"? Isso tambÃƒÂ©m excluirÃƒÂ¡ $totalRespostas resposta(s).'
+                  ? 'Deletar "${f.titulo}"? Isso também excluirá $totalRespostas resposta(s).'
                   : 'Deletar "${f.titulo}"?',
             ),
             actions: [

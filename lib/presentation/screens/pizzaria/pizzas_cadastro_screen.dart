@@ -72,7 +72,7 @@ class _PizzasCadastroScreenState extends State<PizzasCadastroScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('CardÃƒÂ¡pio de Pizzas'),
+        title: Text('Cardápio de Pizzas'),
         actions: [
           IconButton(icon: Icon(Icons.refresh), onPressed: _carregar),
         ],
@@ -87,8 +87,8 @@ class _PizzasCadastroScreenState extends State<PizzasCadastroScreen> {
           : ListView(
               padding: const EdgeInsets.only(bottom: 80),
               children: [
-                _secao('Ã°Å¸Ââ€¢ Pizzas Grandes', grandes),
-                _secao('Ã°Å¸Ââ€¢ Pizzas MÃƒÂ©dias', medias),
+                _secao('🍕 Pizzas Grandes', grandes),
+                _secao('🍕 Pizzas Médias', medias),
               ],
             ),
     );
@@ -159,7 +159,7 @@ class _PizzasCadastroScreenState extends State<PizzasCadastroScreen> {
 }
 
 // ============================================================
-// BOTTOM SHEET Ã¢â‚¬â€ FormulÃƒÂ¡rio de pizza
+// BOTTOM SHEET — Formulário de pizza
 // ============================================================
 
 class _FormPizza extends StatefulWidget {
@@ -275,7 +275,7 @@ class _FormPizzaState extends State<_FormPizza> {
                   icon: Icon(Icons.circle)),
               ButtonSegment(
                   value: 'media',
-                  label: Text('MÃƒÂ©dia'),
+                  label: Text('Média'),
                   icon: Icon(Icons.circle_outlined)),
             ],
             selected: {_tamanho},

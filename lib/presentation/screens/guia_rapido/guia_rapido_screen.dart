@@ -49,7 +49,7 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Excluir situaÃƒÂ§ÃƒÂ£o'),
+        title: Text('Excluir situação'),
         content: Text('Excluir "${s.titulo}"?'),
         actions: [
           TextButton(
@@ -90,7 +90,7 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Guia RÃƒÂ¡pido'),
+        title: Text('Guia Rápido'),
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
@@ -98,7 +98,7 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
             padding: const EdgeInsets.only(right: 8),
             child: Center(
               child: Text(
-                '${filtradas.length} situaÃƒÂ§ÃƒÂµes',
+                '${filtradas.length} situações',
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary),
               ),
@@ -108,14 +108,14 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
       ),
       body: Column(
         children: [
-          // Ã¢â€â‚¬Ã¢â€â‚¬ Busca Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+          // â”€â”€ Busca â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Padding(
             padding: const EdgeInsets.fromLTRB(
                 Dimensions.paddingMD, 8, Dimensions.paddingMD, 4),
             child: TextField(
               controller: _searchCtrl,
               decoration: InputDecoration(
-                hintText: 'O que estÃƒÂ¡ acontecendo?',
+                hintText: 'O que está acontecendo?',
                 prefixIcon: Icon(Icons.search),
                 suffixIcon: _query.isNotEmpty
                     ? IconButton(
@@ -135,7 +135,7 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
             ),
           ),
 
-          // Ã¢â€â‚¬Ã¢â€â‚¬ Chips de categoria Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+          // â”€â”€ Chips de categoria â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(
@@ -187,7 +187,7 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
             ),
           ),
 
-          // Ã¢â€â‚¬Ã¢â€â‚¬ Lista Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+          // â”€â”€ Lista â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Expanded(
             child: filtradas.isEmpty
                 ? Center(
@@ -200,7 +200,7 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
                         Text(
                           todas.isEmpty
                               ? 'Carregando guia...'
-                              : 'Nenhuma situaÃƒÂ§ÃƒÂ£o encontrada',
+                              : 'Nenhuma situação encontrada',
                           style: AppTextStyles.h4
                               .copyWith(color: AppColors.textSecondary),
                         ),
@@ -311,7 +311,7 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
           MaterialPageRoute(builder: (_) => const GuiaRapidoFormScreen()),
         ),
         icon: Icon(Icons.add),
-        label: Text('Nova SituaÃƒÂ§ÃƒÂ£o'),
+        label: Text('Nova Situação'),
         backgroundColor: AppColors.primary,
       ),
     );

@@ -26,7 +26,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
   final _lojaController = TextEditingController();
   final _observacoesController = TextEditingController();
 
-  // valor de TipoCaixa.toJson() ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â 'pdv' | 'rapido' | 'preferencial' | 'self_service' | 'balcao'
+  // valor de TipoCaixa.toJson() — 'pdv' | 'rapido' | 'preferencial' | 'self_service' | 'balcao'
   String _tipoSelecionado = 'pdv';
   String? _localizacaoSelecionada;
   bool _emManutencao = false;
@@ -70,7 +70,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
       AppNotif.show(
         context,
         titulo: 'Erro',
-        mensagem: 'Erro: UsuÃƒÆ’Ã‚Â¡rio nÃƒÆ’Ã‚Â£o autenticado',
+        mensagem: 'Erro: Usuário não autenticado',
         tipo: 'alerta',
         cor: AppColors.danger,
       );
@@ -165,22 +165,21 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // NÃƒÆ’Ã‚Âºmero
+              // Número
               TextFormField(
                 controller: _numeroController,
                 decoration: InputDecoration(
-                  labelText: 'NÃƒÆ’Ã‚Âºmero do Caixa *',
+                  labelText: 'Número do Caixa *',
                   hintText: 'Ex: 1, 2, 3...',
                   prefixIcon: Icon(Icons.numbers),
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'NÃƒÆ’Ã‚Âºmero ÃƒÆ’Ã‚Â© obrigatÃƒÆ’Ã‚Â³rio';
+                    return 'Número é obrigatório';
                   }
                   final n = int.tryParse(value);
-                  if (n == null || n < 1)
-                    return 'NÃƒÆ’Ã‚Âºmero invÃƒÆ’Ã‚Â¡lido';
+                  if (n == null || n < 1) return 'Número inválido';
                   return null;
                 },
               ),
@@ -207,8 +206,8 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                       SizedBox(width: Dimensions.spacingSM),
                       Expanded(
                         child: _TipoCard(
-                          label: 'RÃƒÆ’Ã‚Â¡pido',
-                          descricao: 'AtÃƒÆ’Ã‚Â© 15 vol.',
+                          label: 'Rápido',
+                          descricao: 'Até 15 vol.',
                           icon: Icons.flash_on,
                           color: const Color(0xFF4CAF50),
                           selected: _tipoSelecionado == 'rapido',
@@ -251,8 +250,8 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                     children: [
                       Expanded(
                         child: _TipoCard(
-                          label: 'BalcÃƒÆ’Ã‚Â£o',
-                          descricao: 'AtÃƒÆ’Ã‚Â© 3 fiscais',
+                          label: 'Balcão',
+                          descricao: 'Até 3 fiscais',
                           icon: Icons.support_agent,
                           color: const Color(0xFF009688),
                           selected: _tipoSelecionado == 'balcao',
@@ -281,11 +280,11 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
 
               SizedBox(height: Dimensions.spacingLG),
 
-              // LocalizaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o
+              // Localização
               DropdownButtonFormField<String>(
                 initialValue: _localizacaoSelecionada,
                 decoration: InputDecoration(
-                  labelText: 'LocalizaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o no mercado',
+                  labelText: 'Localização no mercado',
                   prefixIcon: Icon(Icons.location_on),
                 ),
                 items: _localizacoes
@@ -306,7 +305,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                       value: _ativo,
                       onChanged: (value) => setState(() => _ativo = value),
                       title: Text('Ativo'),
-                      subtitle: Text('Caixa disponÃƒÆ’Ã‚Â­vel para uso'),
+                      subtitle: Text('Caixa disponível para uso'),
                       secondary: Icon(
                         _ativo ? Icons.check_circle : Icons.cancel,
                         color: _ativo ? AppColors.success : AppColors.danger,
@@ -317,9 +316,8 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                       value: _emManutencao,
                       onChanged: (value) =>
                           setState(() => _emManutencao = value),
-                      title: Text('Em ManutenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o'),
-                      subtitle:
-                          Text('Caixa temporariamente indisponÃƒÆ’Ã‚Â­vel'),
+                      title: Text('Em Manutenção'),
+                      subtitle: Text('Caixa temporariamente indisponível'),
                       secondary: Icon(
                         _emManutencao
                             ? Icons.build
@@ -335,13 +333,12 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
 
               SizedBox(height: Dimensions.spacingLG),
 
-              // ObservaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes
+              // Observações
               TextFormField(
                 controller: _observacoesController,
                 decoration: InputDecoration(
-                  labelText: 'ObservaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes (opcional)',
-                  hintText:
-                      'InformaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes adicionais sobre o caixa',
+                  labelText: 'Observações (opcional)',
+                  hintText: 'Informações adicionais sobre o caixa',
                   prefixIcon: Icon(Icons.note),
                   alignLabelWithHint: true,
                 ),
@@ -350,7 +347,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
 
               SizedBox(height: Dimensions.spacingXL),
 
-              // BotÃƒÆ’Ã‚Âµes
+              // Botões
               Row(
                 children: [
                   Expanded(

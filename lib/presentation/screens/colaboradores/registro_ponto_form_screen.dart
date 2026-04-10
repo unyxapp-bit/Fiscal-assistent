@@ -13,7 +13,7 @@ class RegistroPontoFormScreen extends StatefulWidget {
   final String colaboradorId;
   final RegistroPonto? registroExistente;
 
-  /// Data prÃƒÂ©-selecionada (opcional, ex: ao abrir da tela de turno)
+  /// Data pré-selecionada (opcional, ex: ao abrir da tela de turno)
   final DateTime? dataInicial;
 
   const RegistroPontoFormScreen({
@@ -262,9 +262,9 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
 
             SizedBox(height: Dimensions.spacingLG),
 
-            // HorÃƒÂ¡rios (somente para trabalho)
+            // Horários (somente para trabalho)
             if (_tipo == 'trabalho') ...[
-              Text('HorÃƒÂ¡rios', style: AppTextStyles.subtitle),
+              Text('Horários', style: AppTextStyles.subtitle),
               SizedBox(height: Dimensions.spacingSM),
               Row(
                 children: [
@@ -279,7 +279,7 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
                   SizedBox(width: Dimensions.spacingMD),
                   Expanded(
                     child: _buildTimeTile(
-                      label: 'SaÃƒÂ­da',
+                      label: 'Saída',
                       icon: Icons.logout,
                       controller: _saidaController,
                       color: AppColors.statusSaida,
@@ -312,9 +312,8 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
 
               SizedBox(height: Dimensions.spacingLG),
 
-              // ObservaÃƒÂ§ÃƒÂ£o (trabalho)
-              Text('ObservaÃƒÂ§ÃƒÂ£o (Opcional)',
-                  style: AppTextStyles.subtitle),
+              // Observação (trabalho)
+              Text('Observação (Opcional)', style: AppTextStyles.subtitle),
               SizedBox(height: Dimensions.spacingSM),
               TextFormField(
                 controller: _observacaoController,
@@ -334,7 +333,7 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
               SizedBox(height: Dimensions.spacingLG),
             ],
 
-            // BotÃƒÂµes
+            // Botões
             Row(
               children: [
                 Expanded(
@@ -492,11 +491,11 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
   String _formatDate(DateTime date) {
     const dias = [
       'Segunda',
-      'TerÃƒÂ§a',
+      'Terça',
       'Quarta',
       'Quinta',
       'Sexta',
-      'SÃƒÂ¡bado',
+      'Sábado',
       'Domingo'
     ];
     final diaSemana = dias[date.weekday - 1];

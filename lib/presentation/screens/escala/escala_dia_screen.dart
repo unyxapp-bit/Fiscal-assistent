@@ -99,7 +99,7 @@ class EscalaDiaScreen extends StatelessWidget {
           : ListView(
               padding: const EdgeInsets.all(Dimensions.paddingMD),
               children: [
-                // CabeÃƒÂ§alho com data completa
+                // Cabeçalho com data completa
                 Text(
                   _capitalizar(dateFormat.format(data)),
                   style:
@@ -108,7 +108,7 @@ class EscalaDiaScreen extends StatelessWidget {
                 SizedBox(height: 4),
                 Text(
                   '${turnos.where((t) => t.trabalhando).length} trabalhando'
-                  ' Ã¢â‚¬Â¢ ${turnos.where((t) => t.folga || t.feriado).length} folga/feriado',
+                  ' • ${turnos.where((t) => t.folga || t.feriado).length} folga/feriado',
                   style: AppTextStyles.caption
                       .copyWith(color: AppColors.textSecondary),
                 ),
@@ -198,10 +198,10 @@ class EscalaDiaScreen extends StatelessWidget {
         title: Text(turno.colaboradorNome, style: AppTextStyles.h4),
         subtitle: turno.trabalhando
             ? Text(
-                'Entrada: ${turno.entrada ?? "Ã¢â‚¬â€œ"}  '
-                'Intervalo: ${turno.intervalo ?? "Ã¢â‚¬â€œ"}  '
-                'Retorno: ${turno.retorno ?? "Ã¢â‚¬â€œ"}  '
-                'SaÃƒÂ­da: ${turno.saida ?? "Ã¢â‚¬â€œ"}',
+                'Entrada: ${turno.entrada ?? "–"}  '
+                'Intervalo: ${turno.intervalo ?? "–"}  '
+                'Retorno: ${turno.retorno ?? "–"}  '
+                'Saída: ${turno.saida ?? "–"}',
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary),
               )

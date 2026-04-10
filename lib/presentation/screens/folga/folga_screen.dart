@@ -8,7 +8,7 @@ import '../../providers/fiscal_provider.dart';
 import '../escala/escala_screen.dart';
 import '../profile/profile_screen.dart';
 
-/// Tela exibida quando o fiscal estÃƒÂ¡ de folga
+/// Tela exibida quando o fiscal está de folga
 class FolgaScreen extends StatelessWidget {
   const FolgaScreen({super.key});
 
@@ -28,7 +28,7 @@ class FolgaScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // ÃƒÂcone de folga
+                    // Ícone de folga
                     Container(
                       width: 120,
                       height: 120,
@@ -45,7 +45,7 @@ class FolgaScreen extends StatelessWidget {
 
                     SizedBox(height: Dimensions.spacingLG),
 
-                    // RelÃƒÂ³gio atual
+                    // Relógio atual
                     Text(
                       DateFormat('HH:mm:ss').format(now),
                       style: AppTextStyles.headingLarge.copyWith(
@@ -96,7 +96,7 @@ class FolgaScreen extends StatelessWidget {
                               ),
                               SizedBox(width: Dimensions.spacingSM),
                               Text(
-                                'VOCÃƒÅ  ESTÃƒÂ DE FOLGA',
+                                'VOCÊ ESTÁ DE FOLGA',
                                 style: AppTextStyles.headingMedium.copyWith(
                                   color: AppColors.success,
                                   fontWeight: FontWeight.bold,
@@ -117,7 +117,7 @@ class FolgaScreen extends StatelessWidget {
 
                     SizedBox(height: Dimensions.spacingXL),
 
-                    // PrÃƒÂ³ximo turno
+                    // Próximo turno
                     if (proximoTurno != null) ...[
                       Container(
                         padding: const EdgeInsets.all(Dimensions.paddingLG),
@@ -138,7 +138,7 @@ class FolgaScreen extends StatelessWidget {
                                 ),
                                 SizedBox(width: Dimensions.spacingSM),
                                 Text(
-                                  'PrÃƒÂ³ximo turno',
+                                  'Próximo turno',
                                   style: AppTextStyles.bodyLarge.copyWith(
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.textPrimary,
@@ -156,7 +156,7 @@ class FolgaScreen extends StatelessWidget {
                             ),
                             SizedBox(height: Dimensions.spacingXS),
                             Text(
-                              'ÃƒÂ s ${DateFormat('HH:mm').format(proximoTurno)}',
+                              'às ${DateFormat('HH:mm').format(proximoTurno)}',
                               style: AppTextStyles.bodyLarge.copyWith(
                                 color: AppColors.textSecondary,
                               ),
@@ -168,7 +168,7 @@ class FolgaScreen extends StatelessWidget {
 
                     SizedBox(height: Dimensions.spacingXL),
 
-                    // AÃƒÂ§ÃƒÂµes rÃƒÂ¡pidas
+                    // Ações rápidas
                     Column(
                       children: [
                         SizedBox(
@@ -211,7 +211,7 @@ class FolgaScreen extends StatelessWidget {
                               );
                             },
                             icon: Icon(Icons.settings),
-                            label: Text('ConfiguraÃƒÂ§ÃƒÂµes'),
+                            label: Text('Configurações'),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.primary,
                               padding: const EdgeInsets.symmetric(
@@ -234,7 +234,7 @@ class FolgaScreen extends StatelessWidget {
 
                     SizedBox(height: Dimensions.spacingXL),
 
-                    // InformaÃƒÂ§ÃƒÂµes adicionais
+                    // Informações adicionais
                     Container(
                       padding: const EdgeInsets.all(Dimensions.paddingMD),
                       decoration: BoxDecoration(
@@ -252,7 +252,7 @@ class FolgaScreen extends StatelessWidget {
                           SizedBox(width: Dimensions.spacingSM),
                           Expanded(
                             child: Text(
-                              'NotificaÃƒÂ§ÃƒÂµes silenciadas durante a folga',
+                              'Notificações silenciadas durante a folga',
                               style: AppTextStyles.bodySmall.copyWith(
                                 color: AppColors.info,
                               ),
@@ -271,22 +271,22 @@ class FolgaScreen extends StatelessWidget {
     );
   }
 
-  /// Calcula o prÃƒÂ³ximo turno baseado na data atual
+  /// Calcula o próximo turno baseado na data atual
   /// TODO: Integrar com a escala real do colaborador
   DateTime? _calcularProximoTurno(DateTime now) {
-    // Se for sexta-feira, prÃƒÂ³ximo turno ÃƒÂ© segunda
+    // Se for sexta-feira, próximo turno é segunda
     if (now.weekday == DateTime.friday) {
       return DateTime(now.year, now.month, now.day + 3, 7, 40);
     }
-    // Se for sÃƒÂ¡bado, prÃƒÂ³ximo turno ÃƒÂ© segunda
+    // Se for sábado, próximo turno é segunda
     if (now.weekday == DateTime.saturday) {
       return DateTime(now.year, now.month, now.day + 2, 7, 40);
     }
-    // Se for domingo, prÃƒÂ³ximo turno ÃƒÂ© segunda
+    // Se for domingo, próximo turno é segunda
     if (now.weekday == DateTime.sunday) {
       return DateTime(now.year, now.month, now.day + 1, 7, 40);
     }
-    // Qualquer outro dia, prÃƒÂ³ximo turno ÃƒÂ© amanhÃƒÂ£
+    // Qualquer outro dia, próximo turno é amanhã
     return DateTime(now.year, now.month, now.day + 1, 7, 40);
   }
 }

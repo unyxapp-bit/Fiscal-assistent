@@ -755,7 +755,7 @@ class ChecklistScreen extends StatelessWidget {
                     ),
                     title: Text(nomeExec, style: AppTextStyles.body),
                     subtitle: Text(
-                      '${exec.data.day.toString().padLeft(2, '0')}/${exec.data.month.toString().padLeft(2, '0')} Ã‚Â· ${exec.marcados}/${exec.totalItens} itens',
+                      '${exec.data.day.toString().padLeft(2, '0')}/${exec.data.month.toString().padLeft(2, '0')} · ${exec.marcados}/${exec.totalItens} itens',
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.textSecondary,
                       ),

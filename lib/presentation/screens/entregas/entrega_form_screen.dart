@@ -11,11 +11,10 @@ import '../../providers/entrega_provider.dart';
 import '../../providers/evento_turno_provider.dart';
 import '../../../core/utils/app_notif.dart';
 
-/// Tela de FormulÃƒÆ’Ã‚Â¡rio de Entrega
+/// Tela de Formulário de Entrega
 /// Permite cadastrar ou editar uma entrega
 class EntregaFormScreen extends StatefulWidget {
-  final Entrega?
-      entrega; // Null para nova, preenchido para ediÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o
+  final Entrega? entrega; // Null para nova, preenchido para edição
 
   const EntregaFormScreen({
     super.key,
@@ -38,7 +37,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
   String _cidadeSelecionada = 'Baependi';
   DateTime? _horarioMarcado;
 
-  final List<String> _cidades = ['Baependi', 'Caxambu', 'CruzÃƒÆ’Ã‚Â­lia'];
+  final List<String> _cidades = ['Baependi', 'Caxambu', 'Cruzília'];
 
   @override
   void initState() {
@@ -100,7 +99,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
 
   /// Abre bottom sheet com campo de texto para colar o CSV.
   Future<void> _abrirSheetCsv() async {
-    // Tenta prÃƒÆ’Ã‚Â©-preencher com o que estÃƒÆ’Ã‚Â¡ no clipboard
+    // Tenta pré-preencher com o que está no clipboard
     final clipData = await Clipboard.getData(Clipboard.kTextPlain);
     final csvController =
         TextEditingController(text: clipData?.text?.trim() ?? '');
@@ -170,7 +169,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   icon: Icon(Icons.auto_fix_high),
-                  label: Text('Preencher FormulÃƒÆ’Ã‚Â¡rio'),
+                  label: Text('Preencher Formulário'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
@@ -192,7 +191,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                       AppNotif.show(
                         context,
                         titulo: 'CSV Aplicado',
-                        mensagem: 'FormulÃƒÆ’Ã‚Â¡rio preenchido com sucesso!',
+                        mensagem: 'Formulário preenchido com sucesso!',
                         tipo: 'saida',
                         cor: AppColors.success,
                       );
@@ -216,13 +215,13 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
 
     final linhas = const CsvToListConverter(eol: '\n').convert(texto);
     if (linhas.length < 2)
-      return 'Formato CSV invÃƒÆ’Ã‚Â¡lido (esperado cabeÃƒÆ’Ã‚Â§alho + dados).';
+      return 'Formato CSV inválido (esperado cabeçalho + dados).';
 
     final cabecalhos = linhas[0].map((e) => e.toString().trim()).toList();
     final valores = linhas[1].map((e) => e.toString().trim()).toList();
 
     if (cabecalhos.length != valores.length) {
-      return 'NÃƒÆ’Ã‚Âºmero de colunas inconsistente (${cabecalhos.length} cabeÃƒÆ’Ã‚Â§alhos, ${valores.length} valores).';
+      return 'Número de colunas inconsistente (${cabecalhos.length} cabeçalhos, ${valores.length} valores).';
     }
 
     final mapa = {
@@ -248,7 +247,6 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
       if (mapa['observacoes']?.isNotEmpty == true) {
         _observacoesController.text = mapa['observacoes']!;
       }
-      // ComparaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o case-insensitive para cidade (ex: BAEPENDI ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ Baependi)
       if (mapa['cidade']?.isNotEmpty == true) {
         final cidadeNormalizada = _cidades.firstWhere(
           (c) => c.toLowerCase() == mapa['cidade']!.toLowerCase(),
@@ -297,7 +295,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
           fiscalId: fiscalId,
           tipo: TipoEvento.entregaCadastrada,
           detalhe:
-              'NF ${_numeroNFController.text.trim()} ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ${_nomeClienteController.text.trim()}',
+              'NF ${_numeroNFController.text.trim()} — ${_nomeClienteController.text.trim()}',
         );
       }
 
@@ -343,7 +341,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
   }
 
   String _formatHorario(DateTime? horario) {
-    if (horario == null) return 'NÃƒÆ’Ã‚Â£o definido';
+    if (horario == null) return 'Não definido';
     return '${horario.hour.toString().padLeft(2, '0')}:${horario.minute.toString().padLeft(2, '0')}';
   }
 
@@ -375,18 +373,18 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // NÃƒÆ’Ã‚Âºmero da NF
+              // Número da NF
               TextFormField(
                 controller: _numeroNFController,
                 decoration: InputDecoration(
-                  labelText: 'NÃƒÆ’Ã‚Âºmero da NF *',
+                  labelText: 'Número da NF *',
                   hintText: 'Ex: 12345',
                   prefixIcon: Icon(Icons.receipt_long),
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'NÃƒÆ’Ã‚Âºmero da NF ÃƒÆ’Ã‚Â© obrigatÃƒÆ’Ã‚Â³rio';
+                    return 'Número da NF é obrigatório';
                   }
                   return null;
                 },
@@ -405,7 +403,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                 textCapitalization: TextCapitalization.words,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Nome do cliente ÃƒÆ’Ã‚Â© obrigatÃƒÆ’Ã‚Â³rio';
+                    return 'Nome do cliente é obrigatório';
                   }
                   if (value.trim().length < 3) {
                     return 'Nome deve ter pelo menos 3 caracteres';
@@ -429,18 +427,18 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
 
               SizedBox(height: Dimensions.spacingMD),
 
-              // EndereÃƒÆ’Ã‚Â§o
+              // Endereço
               TextFormField(
                 controller: _enderecoController,
                 decoration: InputDecoration(
-                  labelText: 'EndereÃƒÆ’Ã‚Â§o *',
-                  hintText: 'Rua, nÃƒÆ’Ã‚Âºmero e complemento',
+                  labelText: 'Endereço *',
+                  hintText: 'Rua, número e complemento',
                   prefixIcon: Icon(Icons.home),
                 ),
                 textCapitalization: TextCapitalization.words,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'EndereÃƒÆ’Ã‚Â§o ÃƒÆ’Ã‚Â© obrigatÃƒÆ’Ã‚Â³rio';
+                    return 'Endereço é obrigatório';
                   }
                   return null;
                 },
@@ -459,7 +457,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                 textCapitalization: TextCapitalization.words,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Bairro ÃƒÆ’Ã‚Â© obrigatÃƒÆ’Ã‚Â³rio';
+                    return 'Bairro é obrigatório';
                   }
                   return null;
                 },
@@ -489,11 +487,11 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
 
               SizedBox(height: Dimensions.spacingMD),
 
-              // HorÃƒÆ’Ã‚Â¡rio Marcado
+              // Horário Marcado
               Card(
                 child: ListTile(
                   leading: Icon(Icons.access_time, color: AppColors.primary),
-                  title: Text('HorÃƒÆ’Ã‚Â¡rio Marcado'),
+                  title: Text('Horário Marcado'),
                   subtitle: Text(_formatHorario(_horarioMarcado)),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -504,12 +502,12 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                           onPressed: () {
                             setState(() => _horarioMarcado = null);
                           },
-                          tooltip: 'Remover horÃƒÆ’Ã‚Â¡rio',
+                          tooltip: 'Remover horário',
                         ),
                       IconButton(
                         icon: Icon(Icons.edit),
                         onPressed: _selecionarHorario,
-                        tooltip: 'Definir horÃƒÆ’Ã‚Â¡rio',
+                        tooltip: 'Definir horário',
                       ),
                     ],
                   ),
@@ -518,13 +516,12 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
 
               SizedBox(height: Dimensions.spacingMD),
 
-              // ObservaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes
+              // Observações
               TextFormField(
                 controller: _observacoesController,
                 decoration: InputDecoration(
-                  labelText: 'ObservaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes',
-                  hintText:
-                      'InformaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes adicionais sobre a entrega',
+                  labelText: 'Observações',
+                  hintText: 'Informações adicionais sobre a entrega',
                   prefixIcon: Icon(Icons.note),
                   alignLabelWithHint: true,
                 ),
@@ -534,7 +531,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
 
               SizedBox(height: Dimensions.spacingXL),
 
-              // InformaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o sobre status inicial
+              // Informação sobre status inicial
               if (isNova)
                 Container(
                   padding: const EdgeInsets.all(Dimensions.paddingMD),
@@ -551,7 +548,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                       SizedBox(width: Dimensions.spacingSM),
                       Expanded(
                         child: Text(
-                          'A entrega serÃƒÆ’Ã‚Â¡ criada com status "Separada"',
+                          'A entrega será criada com status "Separada"',
                           style: AppTextStyles.body.copyWith(
                             color: AppColors.info,
                           ),
@@ -563,7 +560,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
 
               SizedBox(height: Dimensions.spacingLG),
 
-              // BotÃƒÆ’Ã‚Âµes
+              // Botões
               Row(
                 children: [
                   Expanded(

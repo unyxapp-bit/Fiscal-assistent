@@ -16,7 +16,7 @@ class NotificacoesScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('NotificaÃƒÂ§ÃƒÂµes'),
+        title: Text('Notificações'),
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
@@ -39,7 +39,7 @@ class NotificacoesScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    'Nenhuma notificaÃƒÂ§ÃƒÂ£o',
+                    'Nenhuma notificação',
                     style: AppTextStyles.body.copyWith(
                       color: AppColors.textSecondary,
                     ),

@@ -35,7 +35,7 @@ class CaixaGridItem extends StatelessWidget {
     final escalaProvider = Provider.of<EscalaProvider>(context);
     final cafeProvider = Provider.of<CafeProvider>(context);
 
-    // Buscar colaborador se hÃƒÂ¡ alocaÃƒÂ§ÃƒÂ£o
+    // Buscar colaborador se há alocação
     final colaborador = alocacao != null
         ? colaboradorProvider.colaboradores
             .where((c) => c.id == alocacao!.colaboradorId)
@@ -61,7 +61,7 @@ class CaixaGridItem extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // NÃƒÂºmero do caixa
+              // Número do caixa
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -120,7 +120,7 @@ class CaixaGridItem extends StatelessWidget {
                 ),
                 SizedBox(height: 2),
                 Text(
-                  'ManutenÃƒÂ§ÃƒÂ£o',
+                  'Manutenção',
                   style: AppTextStyles.caption.copyWith(
                     color: Colors.white,
                   ),
@@ -146,7 +146,7 @@ class CaixaGridItem extends StatelessWidget {
                 ),
                 SizedBox(height: 2),
                 Text(
-                  'DisponÃƒÂ­vel',
+                  'Disponível',
                   style: AppTextStyles.caption.copyWith(
                     color: Colors.white,
                   ),
@@ -206,12 +206,12 @@ class CaixaGridItem extends StatelessWidget {
   }
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-// Resultado do cÃƒÂ¡lculo de jornada
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Resultado do cálculo de jornada
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _JornadaResult {
   final String? entrada; // "HH:mm" da entrada no ponto
-  final Duration liquida; // tempo lÃƒÂ­quido de trabalho
+  final Duration liquida; // tempo líquido de trabalho
   final String
       status; // 'trabalhando' | 'intervalo' | 'encerrado' | 'sem_ponto'
 
@@ -228,9 +228,9 @@ class _JornadaResult {
       );
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Bottom sheet com carregamento de registro_ponto
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _DetalhesSheet extends StatefulWidget {
   final Caixa caixa;
   final Colaborador? colaborador;
@@ -294,7 +294,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
     }
   }
 
-  /// Calcula a jornada lÃƒÂ­quida com base no registro de ponto de hoje.
+  /// Calcula a jornada líquida com base no registro de ponto de hoje.
   _JornadaResult _calcJornada() {
     final r = _registroHoje;
     if (r == null || r.entrada == null || r.entrada!.isEmpty) {
@@ -318,12 +318,12 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
     final intRetorno = parse(r.intervaloRetorno);
     final saida = parse(r.saida);
 
-    // Ã¢â€â‚¬Ã¢â€â‚¬ Determinar status Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    // â”€â”€ Determinar status â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     String status;
     DateTime fimCalculo;
 
     if (saida != null && now.isAfter(saida)) {
-      // Jornada jÃƒÂ¡ encerrada: trava no horÃƒÂ¡rio de saÃƒÂ­da
+      // Jornada já encerrada: trava no horário de saída
       status = 'encerrado';
       fimCalculo = saida;
     } else if (intSaida != null &&
@@ -337,10 +337,10 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
       fimCalculo = now;
     }
 
-    // Ã¢â€â‚¬Ã¢â€â‚¬ Jornada bruta Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    // â”€â”€ Jornada bruta â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     final bruta = fimCalculo.difference(entrada);
 
-    // Ã¢â€â‚¬Ã¢â€â‚¬ Descontar intervalo COMPLETO (sÃƒÂ³ quando jÃƒÂ¡ retornou) Ã¢â€â‚¬Ã¢â€â‚¬
+    // â”€â”€ Descontar intervalo COMPLETO (só quando já retornou) â”€â”€
     Duration desconto = Duration.zero;
     if (intSaida != null &&
         intRetorno != null &&
@@ -375,7 +375,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: 16),
-        Text('OcorrÃƒÂªncias deste caixa', style: AppTextStyles.label),
+        Text('Ocorrências deste caixa', style: AppTextStyles.label),
         SizedBox(height: 6),
         Row(
           children: [
@@ -383,7 +383,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                 size: 14, color: AppColors.textSecondary),
             SizedBox(width: 4),
             Text(
-              '${ocorrencias.length} ocorrÃƒÂªncia(s)',
+              '${ocorrencias.length} ocorrência(s)',
               style: AppTextStyles.caption
                   .copyWith(color: AppColors.textSecondary),
             ),
@@ -471,7 +471,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
             ),
           ),
 
-          // CabeÃƒÂ§alho Ã¢â‚¬â€ caixa
+          // Cabeçalho — caixa
           Row(
             children: [
               Icon(widget.caixa.tipo.icone,
@@ -531,7 +531,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
 
             SizedBox(height: 16),
 
-            // Alerta de pausa de cafÃƒÂ©
+            // Alerta de pausa de café
             if (widget.pausa != null)
               Container(
                 margin: const EdgeInsets.only(bottom: 12),
@@ -546,7 +546,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                     Icon(Icons.coffee, color: Colors.orange.shade700, size: 18),
                     SizedBox(width: 8),
                     Text(
-                      'Em pausa de cafÃƒÂ© Ã¢â‚¬â€ ${widget.pausa.minutosDecorridos}min decorridos'
+                      'Em pausa de café — ${widget.pausa.minutosDecorridos}min decorridos'
                       '${widget.pausa.emAtraso ? ' (${widget.pausa.minutosExcedidos}min em atraso)' : ''}',
                       style: AppTextStyles.caption.copyWith(
                         color: Colors.orange.shade800,
@@ -557,7 +557,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                 ),
               ),
 
-            // Ã¢â€â‚¬Ã¢â€â‚¬ Jornada baseada no ponto Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+            // â”€â”€ Jornada baseada no ponto â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             if (_carregando)
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 8),
@@ -574,10 +574,10 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                 ),
               )
             else if (jornada.status == 'sem_ponto')
-              // Sem registro de ponto Ã¢â€ â€™ fallback para horÃƒÂ¡rio de alocaÃƒÂ§ÃƒÂ£o
+              // Sem registro de ponto → fallback para horário de alocação
               _InfoRow(
                 icon: Icons.access_time,
-                label: 'Alocado ÃƒÂ s',
+                label: 'Alocado às',
                 value:
                     '${widget.alocacao!.alocadoEm.hour.toString().padLeft(2, '0')}:'
                     '${widget.alocacao!.alocadoEm.minute.toString().padLeft(2, '0')} '
@@ -593,10 +593,10 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                 iconColor: AppColors.primary,
               ),
               SizedBox(height: 6),
-              // Linha: Jornada lÃƒÂ­quida
+              // Linha: Jornada líquida
               _InfoRow(
                 icon: Icons.timer_outlined,
-                label: 'Jornada lÃƒÂ­quida',
+                label: 'Jornada líquida',
                 value: _formatDuracao(jornada.liquida),
                 iconColor: _corJornada(jornada.status),
               ),
@@ -607,7 +607,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
 
             SizedBox(height: 12),
 
-            // HorÃƒÂ¡rios da escala
+            // Horários da escala
             if (widget.turno != null) ...[
               Text('Escala de hoje', style: AppTextStyles.label),
               SizedBox(height: 8),
@@ -618,7 +618,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
 
             SizedBox(height: 20),
 
-            // BotÃƒÂ£o Liberar
+            // Botão Liberar
             ElevatedButton.icon(
               onPressed: () async {
                 Navigator.of(context).pop();
@@ -646,10 +646,10 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
           ] else ...[
             Text(
               widget.caixa.emManutencao
-                  ? 'Caixa em manutenÃƒÂ§ÃƒÂ£o'
+                  ? 'Caixa em manutenção'
                   : !widget.caixa.ativo
                       ? 'Caixa inativo'
-                      : 'Caixa disponÃƒÂ­vel',
+                      : 'Caixa disponível',
               style: AppTextStyles.body,
             ),
             _buildOcorrenciasSection(ocorrencias),
@@ -696,9 +696,9 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
   }
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Badge de status da jornada
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _StatusBadge extends StatelessWidget {
   final String status;
 
@@ -742,9 +742,9 @@ class _StatusBadge extends StatelessWidget {
   }
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-// Linha de informaÃƒÂ§ÃƒÂ£o com ÃƒÂ­cone
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Linha de informação com ícone
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -776,9 +776,9 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-// Grid 2Ãƒâ€”2 com horÃƒÂ¡rios da escala de hoje
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Grid 2×2 com horários da escala de hoje
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _HorarioGrid extends StatelessWidget {
   final TurnoLocal turno;
 
@@ -801,7 +801,7 @@ class _HorarioGrid extends StatelessWidget {
             value: turno.intervalo),
         _HorarioChip(
             icon: Icons.replay, label: 'Retorno', value: turno.retorno),
-        _HorarioChip(icon: Icons.logout, label: 'SaÃƒÂ­da', value: turno.saida),
+        _HorarioChip(icon: Icons.logout, label: 'Saída', value: turno.saida),
       ],
     );
   }

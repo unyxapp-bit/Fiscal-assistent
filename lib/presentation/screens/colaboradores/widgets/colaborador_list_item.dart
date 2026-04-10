@@ -6,7 +6,7 @@ import '../../../../domain/entities/colaborador.dart';
 import '../../../../domain/entities/alocacao.dart';
 import '../../../../domain/enums/departamento_tipo.dart';
 
-/// Card compacto para exibiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o em grade (3 colunas)
+/// Card compacto para exibição em grade (3 colunas)
 class ColaboradorGridCard extends StatelessWidget {
   final Colaborador colaborador;
   final VoidCallback onTap;
@@ -168,7 +168,7 @@ class ColaboradorGridCard extends StatelessWidget {
                   ),
                 ] else
                   Text(
-                    'DisponÃƒÆ’Ã‚Â­vel',
+                    'Disponível',
                     style: TextStyle(
                       fontSize: 10,
                       color: AppColors.statusAtivo,
@@ -272,7 +272,7 @@ class ColaboradorListItem extends StatelessWidget {
             ),
           ),
         ),
-        // InformaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes principais
+        // Informações principais
         title: Text(
           colaborador.nome,
           style: AppTextStyles.subtitle,

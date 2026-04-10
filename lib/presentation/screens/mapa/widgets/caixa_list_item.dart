@@ -40,7 +40,7 @@ class CaixaListItem extends StatelessWidget {
     final isOcupado = alocacao != null;
     final isEmPausa = pausaCaixa != null && !isOcupado;
 
-    // Colaborador em pausa (para buscar turno mesmo sem alocaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ativa)
+    // Colaborador em pausa (para buscar turno mesmo sem alocação ativa)
     final colaboradorEmPausa = isEmPausa && pausaCaixa.colaboradorId.isNotEmpty
         ? colaboradorProvider.colaboradores
             .where((c) => c.id == pausaCaixa.colaboradorId)
@@ -55,7 +55,7 @@ class CaixaListItem extends StatelessWidget {
             .firstOrNull
         : null;
 
-    // SituaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o do intervalo agendado (apenas quando ocupado e nÃƒÆ’Ã‚Â£o em pausa real)
+    // Situação do intervalo agendado (apenas quando ocupado e não em pausa real)
     final bool intervaloJaFeito = colaborador != null &&
         (alocacaoProvider.isIntervaloMarcado(colaborador.id) ||
             cafeProvider.colaboradorJaFezIntervaloHoje(colaborador.id));
@@ -94,7 +94,7 @@ class CaixaListItem extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Avatar com nÃƒÆ’Ã‚Âºmero do caixa
+                    // Avatar com número do caixa
                     Container(
                       width: 44,
                       height: 44,
@@ -116,7 +116,7 @@ class CaixaListItem extends StatelessWidget {
 
                     SizedBox(width: 12),
 
-                    // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ InformaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes centrais ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+                    // â”€â”€ Informações centrais â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,14 +131,14 @@ class CaixaListItem extends StatelessWidget {
                               Text(caixa.nomeExibicao, style: AppTextStyles.h4),
                               SizedBox(width: 6),
                               Text(
-                                'Ãƒâ€šÃ‚Â· ${caixa.tipo.nome}',
+                                '· ${caixa.tipo.nome}',
                                 style: AppTextStyles.caption
                                     .copyWith(color: AppColors.textSecondary),
                               ),
                             ],
                           ),
 
-                          // LocalizaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o + loja
+                          // Localização + loja
                           if (caixa.localizacao != null ||
                               caixa.loja != null) ...[
                             SizedBox(height: 2),
@@ -151,7 +151,7 @@ class CaixaListItem extends StatelessWidget {
                                   child: Text(
                                     [caixa.loja, caixa.localizacao]
                                         .whereType<String>()
-                                        .join(' Ãƒâ€šÃ‚Â· '),
+                                        .join(' · '),
                                     style: AppTextStyles.caption.copyWith(
                                         color: AppColors.textSecondary),
                                   ),
@@ -209,7 +209,7 @@ class CaixaListItem extends StatelessWidget {
                             ),
                           ],
 
-                          // Colaborador em pausa (sem alocaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ativa)
+                          // Colaborador em pausa (sem alocação ativa)
                           if (isEmPausa && colaboradorEmPausa != null) ...[
                             SizedBox(height: 5),
                             Divider(height: 1, thickness: 0.5),
@@ -250,7 +250,7 @@ class CaixaListItem extends StatelessWidget {
 
                     SizedBox(width: 8),
 
-                    // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Trailing: badge de status ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+                    // â”€â”€ Trailing: badge de status â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     _buildTrailing(
                       isOcupado,
                       isEmPausa,
@@ -263,7 +263,7 @@ class CaixaListItem extends StatelessWidget {
                 ),
               ),
 
-              // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Faixa: situaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o do intervalo agendado ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+              // â”€â”€ Faixa: situação do intervalo agendado â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               if (minIntervalo != null && minIntervalo > -60)
                 _buildIntervaloBar(minIntervalo),
             ],
@@ -283,7 +283,7 @@ class CaixaListItem extends StatelessWidget {
   }) {
     if (caixa.emManutencao) {
       return _StatusChip(
-          label: 'ManutenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o',
+          label: 'Manutenção',
           color: AppColors.statusAtencao,
           icon: Icons.build);
     }
@@ -330,7 +330,7 @@ class CaixaListItem extends StatelessWidget {
     if (isEmPausa && pausaCaixa != null) {
       final isCafe = pausaCaixa.isCafe;
       final label = isCafe
-          ? 'CafÃƒÆ’Ã‚Â© ${pausaCaixa.minutosDecorridos}min'
+          ? 'Café ${pausaCaixa.minutosDecorridos}min'
           : 'Intervalo ${pausaCaixa.minutosDecorridos}min';
       final cor =
           pausaCaixa.emAtraso ? AppColors.danger : Colors.orange.shade700;
@@ -339,7 +339,7 @@ class CaixaListItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           _StatusChip(
-            label: isCafe ? 'Em CafÃƒÆ’Ã‚Â©' : 'Em Intervalo',
+            label: isCafe ? 'Em Café' : 'Em Intervalo',
             color: cor,
             icon: isCafe ? Icons.coffee : Icons.restaurant,
           ),
@@ -356,7 +356,7 @@ class CaixaListItem extends StatelessWidget {
       );
     }
     return _StatusChip(
-        label: 'DisponÃƒÆ’Ã‚Â­vel',
+        label: 'Disponível',
         color: AppColors.success,
         icon: Icons.check_circle_outline);
   }
@@ -372,16 +372,15 @@ class CaixaListItem extends StatelessWidget {
       icone = Icons.schedule;
       texto = 'Intervalo em ${-min}min';
     } else if (min < 15) {
-      // Atraso leve (0ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“14 min)
+      // Atraso leve (0–14 min)
       cor = Colors.orange.shade900;
       icone = Icons.warning_amber;
       texto = '${min}min em atraso para o intervalo';
     } else {
-      // Em atenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o (15+ min)
+      // Em atenção (15+ min)
       cor = AppColors.danger;
       icone = Icons.error_outline;
-      texto =
-          '${min}min sem intervalo ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Em AtenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o';
+      texto = '${min}min sem intervalo — Em Atenção';
     }
 
     final bgColor = min >= 15
@@ -410,7 +409,7 @@ class CaixaListItem extends StatelessWidget {
     );
   }
 
-  /// Positivo = minutos ATRASADO; Negativo = minutos RESTANTES; null = sem horÃƒÆ’Ã‚Â¡rio
+  /// Positivo = minutos ATRASADO; Negativo = minutos RESTANTES; null = sem horário
   int? _calcMinIntervalo(TurnoLocal? turno) {
     if (turno?.intervalo == null) return null;
     final parts = turno!.intervalo!.split(':');
@@ -467,9 +466,9 @@ class CaixaListItem extends StatelessWidget {
   }
 }
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Badge de status inline
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _StatusChip extends StatelessWidget {
   final String label;
   final Color color;

@@ -305,7 +305,7 @@ class _CardPedido extends StatelessWidget {
                         ),
                         SizedBox(height: 2),
                         Text(
-                          'Cod. cliente: ${_textoPedido(pedido.codigoEntrega)} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ${pedido.horarioPedido} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ${DateFormat('dd/MM').format(pedido.dataPedido)}',
+                          'Cod. cliente: ${_textoPedido(pedido.codigoEntrega)} • ${pedido.horarioPedido} • ${DateFormat('dd/MM').format(pedido.dataPedido)}',
                           style:
                               TextStyle(color: Colors.grey[600], fontSize: 12),
                         ),

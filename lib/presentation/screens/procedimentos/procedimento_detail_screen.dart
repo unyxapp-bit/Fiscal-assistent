@@ -22,7 +22,7 @@ class ProcedimentoDetailScreen extends StatefulWidget {
 }
 
 class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
-  // Passos marcados como concluÃƒÂ­dos (estado apenas em memÃƒÂ³ria)
+  // Passos marcados como concluídos (estado apenas em memória)
   final Set<int> _passosConcluidos = {};
 
   void _copiar(BuildContext context, Procedimento proc) {
@@ -40,7 +40,7 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
     AppNotif.show(
       context,
       titulo: 'Copiado',
-      mensagem: 'Copiado para ÃƒÂ¡rea de transferÃƒÂªncia',
+      mensagem: 'Copiado para área de transferência',
       tipo: 'intervalo',
     );
   }
@@ -71,11 +71,11 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
             tooltip: 'Copiar procedimento',
             onPressed: () => _copiar(context, proc),
           ),
-          // Reiniciar execuÃƒÂ§ÃƒÂ£o (sÃƒÂ³ se algum passo foi marcado)
+          // Reiniciar execução (só se algum passo foi marcado)
           if (_passosConcluidos.isNotEmpty)
             IconButton(
               icon: Icon(Icons.restart_alt),
-              tooltip: 'Reiniciar execuÃƒÂ§ÃƒÂ£o',
+              tooltip: 'Reiniciar execução',
               onPressed: () => setState(() => _passosConcluidos.clear()),
             ),
           // Editar
@@ -93,7 +93,7 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Ã¢â€â‚¬Ã¢â€â‚¬ CabeÃƒÂ§alho Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+            // â”€â”€ Cabeçalho â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Card(
               elevation: Dimensions.cardElevation,
               child: Padding(
@@ -179,9 +179,9 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
 
             SizedBox(height: Dimensions.spacingLG),
 
-            // Ã¢â€â‚¬Ã¢â€â‚¬ DescriÃƒÂ§ÃƒÂ£o Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+            // â”€â”€ Descrição â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             if (proc.descricao.isNotEmpty) ...[
-              Text('DescriÃƒÂ§ÃƒÂ£o', style: AppTextStyles.h4),
+              Text('Descrição', style: AppTextStyles.h4),
               SizedBox(height: Dimensions.spacingSM),
               Card(
                 elevation: Dimensions.cardElevation,
@@ -193,7 +193,7 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
               SizedBox(height: Dimensions.spacingLG),
             ],
 
-            // Ã¢â€â‚¬Ã¢â€â‚¬ Passos com progresso Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+            // â”€â”€ Passos com progresso â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Row(
               children: [
                 Text('Passos', style: AppTextStyles.h4),
@@ -289,7 +289,7 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
               ),
             ),
 
-            // Banner de conclusÃƒÂ£o
+            // Banner de conclusão
             if (tudo) ...[
               SizedBox(height: Dimensions.spacingMD),
               Container(
@@ -307,7 +307,7 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
                     Icon(Icons.check_circle, color: AppColors.success),
                     SizedBox(width: 8),
                     Text(
-                      'Procedimento concluÃƒÂ­do!',
+                      'Procedimento concluído!',
                       style:
                           AppTextStyles.h4.copyWith(color: AppColors.success),
                     ),

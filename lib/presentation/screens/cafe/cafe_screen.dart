@@ -780,9 +780,9 @@ class _CafeScreenState extends State<CafeScreen>
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Limpar HistÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³rico'),
-        content: Text(
-            'Deseja remover todas as pausas finalizadas do histÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³rico?'),
+        title: Text('Limpar Histórico'),
+        content:
+            Text('Deseja remover todas as pausas finalizadas do histórico?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -829,7 +829,7 @@ class _CafeScreenState extends State<CafeScreen>
 }
 
 // ---------------------------------------------------------------------------
-// Aba 1: DisponÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­veis para Pausa
+// Aba 1: Disponíveis para Pausa
 // ---------------------------------------------------------------------------
 class _TabDisponiveis extends StatelessWidget {
   final CafeProvider provider;
@@ -852,12 +852,12 @@ class _TabDisponiveis extends StatelessWidget {
     final emPausaAtiva =
         provider.pausasAtivas.map((p) => p.colaboradorId).toSet();
 
-    // IDs que jÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ fizeram intervalo e cafÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â© hoje
+    // IDs que já fizeram intervalo e café hoje
     final jaFizeramIntervalo = provider.pausasFinalizadas
         .where((p) => p.isIntervalo)
         .map((p) => p.colaboradorId)
         .toSet();
-    // Inclui os marcados manualmente em memÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³ria (mesmo sem alocaÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o ativa).
+    // Inclui os marcados manualmente em memória (mesmo sem alocação ativa).
     final intervalosMarcadosManualmente = colaboradorProvider.colaboradores
         .where((c) => alocacaoProvider.isIntervaloMarcado(c.id))
         .map((c) => c.id)
@@ -868,7 +868,7 @@ class _TabDisponiveis extends StatelessWidget {
         .map((p) => p.colaboradorId)
         .toSet();
 
-    // DisponÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­veis = na escala (com intervalo) + nÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o em pausa ativa + nÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o fez cafÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â© ainda
+    // Disponíveis = na escala (com intervalo) + não em pausa ativa + não fez café ainda
     final disponiveis = colaboradorProvider.colaboradores
         .where((c) =>
             idsEscalaHoje.contains(c.id) &&
@@ -903,14 +903,14 @@ class _TabDisponiveis extends StatelessWidget {
                   size: 64, color: AppColors.success.withValues(alpha: 0.55)),
               SizedBox(height: 16),
               Text(
-                'Nenhum colaborador disponÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­vel para pausa agora.',
+                'Nenhum colaborador disponível para pausa agora.',
                 style:
                     AppTextStyles.body.copyWith(color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 8),
               Text(
-                'Verifique escala, pausas ativas e cafÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©s jÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ realizados.',
+                'Verifique escala, pausas ativas e cafés já realizados.',
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
@@ -928,12 +928,12 @@ class _TabDisponiveis extends StatelessWidget {
           final c = disponiveis[i];
           final turno = turnosById[c.id];
           final paraIntervalo = !jaFizeramIntervalo.contains(c.id);
-          // Quem jÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ fez intervalo mas nÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o cafÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â© ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ sÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³ cafÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â© (10 min)
+          // Quem já fez intervalo mas não café → só café (10 min)
           final soDez = !paraIntervalo;
           final intervaloLabel = (turno?.intervalo?.isNotEmpty == true &&
                   turno?.retorno?.isNotEmpty == true)
               ? '${turno!.intervalo} - ${turno.retorno}'
-              : 'Intervalo nÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o definido';
+              : 'Intervalo não definido';
 
           return Card(
             margin: isTablet
@@ -956,7 +956,7 @@ class _TabDisponiveis extends StatelessWidget {
               title: Text(c.nome, style: AppTextStyles.body),
               subtitle: Text(
                 soDez
-                    ? 'DisponÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­vel para cafÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â© (10 min)'
+                    ? 'Disponível para café (10 min)'
                     : 'Intervalo previsto: $intervaloLabel',
                 style: AppTextStyles.caption.copyWith(
                   color: soDez ? AppColors.statusCafe : AppColors.textSecondary,
@@ -971,7 +971,7 @@ class _TabDisponiveis extends StatelessWidget {
                         : () => _abrirDetalheIntervalo(context, c),
                     icon:
                         Icon(soDez ? Icons.coffee : Icons.restaurant, size: 16),
-                    label: Text(soDez ? 'CafÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©' : 'Pausa'),
+                    label: Text(soDez ? 'Café' : 'Pausa'),
                     style: TextButton.styleFrom(
                       foregroundColor: AppColors.statusCafe,
                     ),
@@ -1222,7 +1222,7 @@ class _TabEmIntervalo extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Aba 3: HistÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³rico (jÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ fez pausa)
+// Aba 3: Histórico (já fez pausa)
 // ---------------------------------------------------------------------------
 class _TabHistorico extends StatelessWidget {
   final CafeProvider provider;
@@ -1560,12 +1560,12 @@ class _PausaAtivaCard extends StatelessWidget {
                         runSpacing: 2,
                         children: [
                           Text(
-                            'Saiu ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â s ${DateFormat("HH:mm").format(pausa.iniciadoEm)}',
+                            'Saiu às ${DateFormat("HH:mm").format(pausa.iniciadoEm)}',
                             style: AppTextStyles.caption
                                 .copyWith(color: AppColors.textSecondary),
                           ),
                           Text(
-                            'ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â·',
+                            '·',
                             style: AppTextStyles.caption
                                 .copyWith(color: AppColors.textSecondary),
                           ),
@@ -1625,7 +1625,7 @@ class _PausaAtivaCard extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Card: histÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³rico de pausa finalizada
+// Card: histórico de pausa finalizada
 // ---------------------------------------------------------------------------
 class _PausaHistoricoCard extends StatelessWidget {
   final PausaCafe pausa;
@@ -1654,7 +1654,7 @@ class _PausaHistoricoCard extends StatelessWidget {
         ),
         title: Text(pausa.colaboradorNome, style: AppTextStyles.body),
         subtitle: Text(
-          '${DateFormat("HH:mm").format(pausa.iniciadoEm)} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ ${DateFormat("HH:mm").format(pausa.finalizadoEm!)} ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· ${duracao.inMinutes} min',
+          '${DateFormat("HH:mm").format(pausa.iniciadoEm)} → ${DateFormat("HH:mm").format(pausa.finalizadoEm!)} · ${duracao.inMinutes} min',
           style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
         ),
         trailing: Row(
@@ -1686,13 +1686,13 @@ class _PausaHistoricoCard extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Seletor rÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡pido: escolhe sÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³ a duraÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o para um colaborador prÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©-definido
+// Seletor rápido: escolhe só a duração para um colaborador pré-definido
 // ---------------------------------------------------------------------------
 class _SeletorRapidoSheet extends StatelessWidget {
   final Colaborador colaborador;
   final CafeProvider cafeProvider;
 
-  /// Quando true, sÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³ exibe a opÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o de 10 min (cafÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â© pÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³s-intervalo)
+  /// Quando true, só exibe a opção de 10 min (café pós-intervalo)
   final bool forcaDuracaoDez;
 
   const _SeletorRapidoSheet({
@@ -1733,7 +1733,7 @@ class _SeletorRapidoSheet extends StatelessWidget {
             ),
           ),
           Text(
-            'Iniciar cafÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â© para',
+            'Iniciar café para',
             style:
                 AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
           ),
@@ -1753,15 +1753,14 @@ class _SeletorRapidoSheet extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'JÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ fez o intervalo ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â disponÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­vel somente para cafÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â© (10 min)',
+                'Já fez o intervalo — disponível somente para café (10 min)',
                 style:
                     AppTextStyles.caption.copyWith(color: AppColors.statusCafe),
               ),
             ),
           ],
           SizedBox(height: 24),
-          Text('DuraÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o:',
-              style: AppTextStyles.label),
+          Text('Duração:', style: AppTextStyles.label),
           SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1981,7 +1980,7 @@ class _ColaboradorIntervaloSheetState
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Intervalo jÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ realizado?'),
+        title: Text('Intervalo já realizado?'),
         content: Text(
           'Esse colaborador fez o tempo completo do intervalo?',
         ),
@@ -1992,7 +1991,7 @@ class _ColaboradorIntervaloSheetState
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('NÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o'),
+            child: Text('Não'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -2093,8 +2092,7 @@ class _ColaboradorIntervaloSheetState
           tipo: TipoEvento.ocorrenciaRegistrada,
           colaboradorNome: widget.colaborador.nome,
           caixaNome: caixa?.nomeExibicao,
-          detalhe:
-              'Intervalo incompleto ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â MÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©dia',
+          detalhe: 'Intervalo incompleto — Média',
         );
       }
     }
@@ -2120,7 +2118,7 @@ class _ColaboradorIntervaloSheetState
       titulo: 'Intervalo atualizado',
       mensagem: fezCompleto
           ? '${widget.colaborador.nome} foi marcado(a) com intervalo feito.'
-          : 'OcorrÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âªncia registrada e intervalo marcado como feito.',
+          : 'Ocorrência registrada e intervalo marcado como feito.',
       tipo: 'saida',
       cor: AppColors.success,
     );
@@ -2187,7 +2185,7 @@ class _ColaboradorIntervaloSheetState
                 child: OutlinedButton.icon(
                   onPressed: _marcarIntervaloJaFeito,
                   icon: Icon(Icons.check_circle_outline),
-                  label: Text('JÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ fez intervalo'),
+                  label: Text('Já fez intervalo'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.success,
                     side: BorderSide(color: AppColors.success),
@@ -2233,7 +2231,7 @@ class _ColaboradorIntervaloSheetState
             SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Sem horÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡rio de intervalo no registro de ponto. '
+                'Sem horário de intervalo no registro de ponto. '
                 'Sera necessario escolher 60 ou 120 min.',
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary),
@@ -2258,7 +2256,7 @@ class _ColaboradorIntervaloSheetState
           if (saida != null)
             _InfoRow(
               icon: Icons.logout,
-              label: 'SaÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­da agendada',
+              label: 'Saída agendada',
               valor: saida,
               destaque: jaSaiu,
             ),
@@ -2283,7 +2281,7 @@ class _ColaboradorIntervaloSheetState
                   SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      'O horÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡rio de saÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­da jÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ passou ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â informe quando saiu.',
+                      'O horário de saída já passou — informe quando saiu.',
                       style: AppTextStyles.caption
                           .copyWith(color: AppColors.warning),
                     ),
@@ -2337,7 +2335,7 @@ class _InfoRow extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Seletor completo (FAB): escolhe colaborador + duraÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o
+// Seletor completo (FAB): escolhe colaborador + duração
 // ---------------------------------------------------------------------------
 class _SeletorPausaSheet extends StatefulWidget {
   final CafeProvider cafeProvider;
@@ -2375,7 +2373,7 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
         .where((p) => p.isCafe)
         .map((p) => p.colaboradorId)
         .toSet();
-    // Exclui: nÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o estÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ na escala, em pausa ativa, ou jÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ fez cafÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©
+    // Exclui: não está na escala, em pausa ativa, ou já fez café
     final colaboradores = colaboradorProvider.colaboradores
         .where(
           (c) =>
@@ -2424,13 +2422,11 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
                 ),
               ),
             ),
-            Text('Novo CafÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©', style: AppTextStyles.h3),
+            Text('Novo Café', style: AppTextStyles.h3),
             SizedBox(height: 16),
 
-            // DuraÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o
-            Text(
-                'DuraÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o do cafÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©',
-                style: AppTextStyles.label),
+            // Duração
+            Text('Duração do café', style: AppTextStyles.label),
             SizedBox(height: 8),
             Wrap(
               spacing: 8,
@@ -2454,12 +2450,12 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
             Text('Colaborador', style: AppTextStyles.label),
             SizedBox(height: 8),
 
-            // Colaboradores disponÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­veis
+            // Colaboradores disponíveis
             Expanded(
               child: colaboradores.isEmpty
                   ? Center(
                       child: Text(
-                        'Todos os colaboradores jÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ fizeram ou estÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o em pausa',
+                        'Todos os colaboradores já fizeram ou estão em pausa',
                         style: AppTextStyles.caption
                             .copyWith(color: AppColors.textSecondary),
                         textAlign: TextAlign.center,
@@ -2475,7 +2471,7 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
                             (turno?.intervalo?.isNotEmpty == true &&
                                     turno?.retorno?.isNotEmpty == true)
                                 ? '${turno!.intervalo} - ${turno.retorno}'
-                                : 'Intervalo nÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o definido';
+                                : 'Intervalo não definido';
                         final selecionado = _colaboradorSelecionadoId == c.id;
                         return ListTile(
                           leading: CircleAvatar(
@@ -2553,8 +2549,7 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
                         Navigator.pop(context);
                       },
                 icon: Icon(Icons.coffee),
-                label: Text(
-                    'Iniciar $_duracaoSelecionada min de cafÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©'),
+                label: Text('Iniciar $_duracaoSelecionada min de café'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.statusCafe,
                   foregroundColor: Colors.white,

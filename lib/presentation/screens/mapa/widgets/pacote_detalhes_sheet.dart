@@ -17,7 +17,7 @@ import '../../../../core/utils/app_notif.dart';
 
 const Color _kPacoteColor = Color(0xFF795548);
 
-/// Sheet de detalhes para empacotadores do plantÃƒÂ£o do dia
+/// Sheet de detalhes para empacotadores do plantão do dia
 class PacoteDetalhesSheet extends StatefulWidget {
   final Colaborador colaborador;
   final String plantaoId;
@@ -176,7 +176,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
             ),
           ),
 
-          // CabeÃƒÂ§alho Ã¢â‚¬â€ seÃƒÂ§ÃƒÂ£o Pacotes
+          // Cabeçalho — seção Pacotes
           Row(
             children: [
               Icon(Icons.shopping_bag, color: _kPacoteColor, size: 22),
@@ -190,7 +190,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'PlantÃƒÂ£o do dia',
+                  'Plantão do dia',
                   style: AppTextStyles.caption.copyWith(color: _kPacoteColor),
                 ),
               ),
@@ -233,7 +233,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
 
           SizedBox(height: 16),
 
-          // Alerta de pausa de cafÃƒÂ©
+          // Alerta de pausa de café
           if (widget.pausa != null)
             Container(
               margin: const EdgeInsets.only(bottom: 12),
@@ -248,7 +248,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
                   Icon(Icons.coffee, color: Colors.orange.shade700, size: 18),
                   SizedBox(width: 8),
                   Text(
-                    'Em pausa de cafÃƒÂ© Ã¢â‚¬â€ ${widget.pausa.minutosDecorridos}min decorridos'
+                    'Em pausa de café — ${widget.pausa.minutosDecorridos}min decorridos'
                     '${widget.pausa.emAtraso ? ' (${widget.pausa.minutosExcedidos}min em atraso)' : ''}',
                     style: AppTextStyles.caption.copyWith(
                       color: Colors.orange.shade800,
@@ -278,7 +278,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
           else if (jornada.status == 'sem_ponto')
             InfoRow(
               icon: Icons.access_time,
-              label: 'PlantÃƒÂ£o iniciado',
+              label: 'Plantão iniciado',
               value: 'Sem registro de ponto hoje',
               iconColor: AppColors.textSecondary,
             )
@@ -292,7 +292,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
             SizedBox(height: 6),
             InfoRow(
               icon: Icons.timer_outlined,
-              label: 'Jornada lÃƒÂ­quida',
+              label: 'Jornada líquida',
               value: _formatDuracao(jornada.liquida),
               iconColor: _corJornada(jornada.status),
             ),
@@ -310,7 +310,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
 
           SizedBox(height: 20),
 
-          // Ã¢â€â‚¬Ã¢â€â‚¬ AÃƒâ€¡Ãƒâ€¢ES RÃƒÂPIDAS Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+          // â”€â”€ AÇÕES RÁPIDAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Container(
             padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
@@ -323,7 +323,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'AÃƒâ€¡Ãƒâ€¢ES RÃƒÂPIDAS',
+                  'AÇÕES RÁPIDAS',
                   style: AppTextStyles.caption.copyWith(
                     color: AppColors.textSecondary,
                     fontWeight: FontWeight.bold,
@@ -336,7 +336,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
                     Expanded(
                       child: _buildActionBtn(
                         icon: Icons.coffee,
-                        label: 'CafÃƒÂ©',
+                        label: 'Café',
                         color: const Color(0xFF8D6E63),
                         onTap: _enviarParaCafe,
                       ),
@@ -381,7 +381,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
                     child: OutlinedButton.icon(
                       onPressed: _marcarIntervaloJaFeito,
                       icon: Icon(Icons.check_circle_outline, size: 18),
-                      label: Text('Intervalo jÃƒÂ¡ feito'),
+                      label: Text('Intervalo já feito'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.green.shade700,
                         side: BorderSide(color: Colors.green.shade700),
@@ -405,7 +405,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
               await plantaoProvider.remover(widget.plantaoId);
             },
             icon: Icon(Icons.remove_circle_outline),
-            label: Text('Remover do plantÃƒÂ£o'),
+            label: Text('Remover do plantão'),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.danger,
               minimumSize: const Size(double.infinity, 48),
@@ -459,9 +459,8 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text('Enviar para CafÃƒÂ© Ã¢Ëœâ€¢'),
-        content:
-            Text('Enviar ${widget.colaborador.nome} para 10 min de cafÃƒÂ©?'),
+        title: Text('Enviar para Café ☕'),
+        content: Text('Enviar ${widget.colaborador.nome} para 10 min de café?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -489,9 +488,9 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
       navigator.pop();
       AppNotif.show(
         providerCtx,
-        titulo: 'CafÃƒÂ© Iniciado',
+        titulo: 'Café Iniciado',
         mensagem:
-            '${widget.colaborador.nome} Ã¢â‚¬â€ pausa de cafÃƒÂ© iniciada (10 min)',
+            '${widget.colaborador.nome} — pausa de café iniciada (10 min)',
         tipo: 'cafe',
         cor: const Color(0xFF8D6E63),
       );
@@ -508,9 +507,9 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
     if (cafeProvider.colaboradorJaFezIntervaloHoje(widget.colaborador.id)) {
       AppNotif.show(
         providerCtx,
-        titulo: 'Intervalo jÃƒÂ¡ realizado',
+        titulo: 'Intervalo já realizado',
         mensagem:
-            'Este colaborador jÃƒÂ¡ fez o intervalo hoje. DisponÃƒÂ­vel somente para cafÃƒÂ© (10 min).',
+            'Este colaborador já fez o intervalo hoje. Disponível somente para café (10 min).',
         tipo: 'intervalo',
         cor: Colors.orange,
       );
@@ -520,9 +519,9 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text('Enviar para Intervalo Ã°Å¸ÂÂ½Ã¯Â¸Â'),
+        title: Text('Enviar para Intervalo 🍽️'),
         content: Text(
-            'Enviar ${widget.colaborador.nome} para intervalo de $duracaoMinutos min?\nUma notificaÃƒÂ§ÃƒÂ£o de retorno serÃƒÂ¡ agendada.'),
+            'Enviar ${widget.colaborador.nome} para intervalo de $duracaoMinutos min?\nUma notificação de retorno será agendada.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -548,7 +547,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
     final retornoEm = DateTime.now().add(Duration(minutes: duracaoMinutos));
     NotificationService.instance.scheduleAlert(
       id: (widget.colaborador.id.hashCode.abs() % 100000) + 1,
-      title: 'Intervalo encerrado Ã°Å¸ÂÂ½Ã¯Â¸Â',
+      title: 'Intervalo encerrado 🍽️',
       body:
           '${widget.colaborador.nome} deve ser realocado(a) apos o intervalo.',
       scheduledAt: retornoEm,
@@ -560,7 +559,7 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
         providerCtx,
         titulo: 'Intervalo Iniciado',
         mensagem:
-            '${widget.colaborador.nome} Ã¢â‚¬â€ intervalo de $duracaoMinutos min. NotificaÃƒÂ§ÃƒÂ£o agendada.',
+            '${widget.colaborador.nome} — intervalo de $duracaoMinutos min. Notificação agendada.',
         tipo: 'intervalo',
         cor: Colors.orange,
       );
@@ -614,8 +613,8 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
     if (cafeProvider.colaboradorJaFezIntervaloHoje(widget.colaborador.id)) {
       AppNotif.show(
         providerCtx,
-        titulo: 'Intervalo jÃƒÂ¡ registrado',
-        mensagem: '${widget.colaborador.nome} jÃƒÂ¡ possui intervalo hoje.',
+        titulo: 'Intervalo já registrado',
+        mensagem: '${widget.colaborador.nome} já possui intervalo hoje.',
         tipo: 'intervalo',
         cor: Colors.orange,
       );
@@ -625,9 +624,9 @@ class _PacoteDetalhesSheetState extends State<PacoteDetalhesSheet> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text('Intervalo jÃƒÂ¡ feito?'),
+        title: Text('Intervalo já feito?'),
         content: Text(
-          'Confirmar que ${widget.colaborador.nome} jÃƒÂ¡ realizou o intervalo?',
+          'Confirmar que ${widget.colaborador.nome} já realizou o intervalo?',
         ),
         actions: [
           TextButton(

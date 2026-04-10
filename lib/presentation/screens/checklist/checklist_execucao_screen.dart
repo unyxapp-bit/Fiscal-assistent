@@ -72,13 +72,13 @@ class ChecklistExecucaoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = Provider.of<ChecklistProvider>(context);
 
-    // Recupera a execuÃƒÂ§ÃƒÂ£o atual
+    // Recupera a execução atual
     final exec = provider.todas.firstWhere(
       (e) => e.id == execucaoId,
       orElse: () => provider.todas.first,
     );
 
-    // Resolve tÃƒÂ­tulo e cor a partir do template (com fallback legado)
+    // Resolve título e cor a partir do template (com fallback legado)
     ChecklistTemplate? template;
     try {
       template = provider.templates.firstWhere((t) => t.id == exec.tipo);
@@ -123,8 +123,8 @@ class ChecklistExecucaoScreen extends StatelessWidget {
                   }
                   AppNotif.show(
                     context,
-                    titulo: 'Checklist ConcluÃƒÂ­do',
-                    mensagem: '$titulo concluÃƒÂ­do!',
+                    titulo: 'Checklist Concluído',
+                    mensagem: '$titulo concluído!',
                     tipo: 'saida',
                     cor: AppColors.success,
                   );
@@ -178,7 +178,7 @@ class ChecklistExecucaoScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // Ã¢â€â‚¬Ã¢â€â‚¬ Barra de progresso Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+          // â”€â”€ Barra de progresso â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Padding(
             padding: const EdgeInsets.fromLTRB(
                 Dimensions.paddingMD, 8, Dimensions.paddingMD, 0),
@@ -237,7 +237,7 @@ class ChecklistExecucaoScreen extends StatelessWidget {
                   Icon(Icons.check_circle, color: AppColors.success, size: 18),
                   SizedBox(width: 8),
                   Text(
-                    'Checklist concluÃƒÂ­do!',
+                    'Checklist concluído!',
                     style: AppTextStyles.body.copyWith(
                         color: AppColors.success, fontWeight: FontWeight.w600),
                   ),
@@ -248,7 +248,7 @@ class ChecklistExecucaoScreen extends StatelessWidget {
 
           SizedBox(height: Dimensions.spacingMD),
 
-          // Ã¢â€â‚¬Ã¢â€â‚¬ Lista de itens Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+          // â”€â”€ Lista de itens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Expanded(
             child: ListView.separated(
               padding:

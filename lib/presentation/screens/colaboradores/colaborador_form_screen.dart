@@ -84,7 +84,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     if (authProvider.user == null) {
-      _showError('UsuÃƒÂ¡rio nÃƒÂ£o autenticado');
+      _showError('Usuário não autenticado');
       return;
     }
 
@@ -189,7 +189,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                   prefixIcon: Icons.person,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Nome ÃƒÂ© obrigatÃƒÂ³rio';
+                      return 'Nome é obrigatório';
                     }
                     if (value.length < 3) {
                       return 'Nome deve ter pelo menos 3 caracteres';
@@ -207,9 +207,8 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
 
                 SizedBox(height: Dimensions.spacingLG),
 
-                // ObservaÃƒÂ§ÃƒÂµes
-                Text('ObservaÃƒÂ§ÃƒÂµes (Opcional)',
-                    style: AppTextStyles.subtitle),
+                // Observações
+                Text('Observações (Opcional)', style: AppTextStyles.subtitle),
                 SizedBox(height: Dimensions.spacingSM),
                 CustomTextField(
                   controller: _observacoesController,
@@ -222,14 +221,14 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
 
                 SizedBox(height: Dimensions.spacingLG),
 
-                // --- SeÃƒÂ§ÃƒÂ£o Status ---
+                // --- Seção Status ---
                 Text('Status', style: AppTextStyles.subtitle),
                 SizedBox(height: Dimensions.spacingSM),
                 _buildStatusCard(),
 
                 SizedBox(height: Dimensions.spacingXL),
 
-                // BotÃƒÂµes
+                // Botões
                 Row(
                   children: [
                     Expanded(

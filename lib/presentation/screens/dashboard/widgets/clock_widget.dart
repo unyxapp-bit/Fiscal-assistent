@@ -6,7 +6,7 @@ import '../../../../core/constants/colors.dart';
 import '../../../../core/constants/text_styles.dart';
 import '../../../../core/constants/dimensions.dart';
 
-/// Widget de relÃƒÂ³gio em tempo real com atualizaÃƒÂ§ÃƒÂ£o a cada segundo.
+/// Widget de relógio em tempo real com atualização a cada segundo.
 class ClockWidget extends StatefulWidget {
   const ClockWidget({super.key});
 
@@ -20,17 +20,17 @@ class _ClockWidgetState extends State<ClockWidget> {
 
   static const _days = [
     'Segunda',
-    'TerÃƒÂ§a',
+    'Terça',
     'Quarta',
     'Quinta',
     'Sexta',
-    'SÃƒÂ¡bado',
+    'Sábado',
     'Domingo'
   ];
   static const _months = [
     'janeiro',
     'fevereiro',
-    'marÃƒÂ§o',
+    'março',
     'abril',
     'maio',
     'junho',

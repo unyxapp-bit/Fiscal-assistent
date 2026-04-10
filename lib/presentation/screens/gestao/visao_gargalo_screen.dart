@@ -40,7 +40,7 @@ class _SetorData {
   });
 }
 
-/// Retorna o nÃƒÆ’Ã‚Âºmero de gargalos (queda >= 2 ou abaixo do mÃƒÆ’Ã‚Â­nimo) nas prÃƒÆ’Ã‚Â³ximas 4h,
+/// Retorna o número de gargalos (queda >= 2 ou abaixo do mínimo) nas próximas 4h,
 /// considerando setores separados e pausas reais.
 /// Exposto publicamente para o badge no GestaoScreen.
 int contarGargalosHoje({
@@ -167,7 +167,7 @@ class _VisaoGargaloScreenState extends State<VisaoGargaloScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('VisÃƒÆ’Ã‚Â£o de Gargalo'),
+        title: Text('Visão de Gargalo'),
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
@@ -239,7 +239,7 @@ class _VisaoGargaloScreenState extends State<VisaoGargaloScreen> {
             ],
             SizedBox(height: 20),
             _SectionHeader(
-              label: 'PrÃƒÆ’Ã‚Â³ximas MovimentaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes',
+              label: 'Próximas Movimentações',
               icon: Icons.schedule,
               color: AppColors.primary,
             ),
@@ -320,7 +320,7 @@ class _CoberturaChart extends StatelessWidget {
                 Icon(Icons.bar_chart, size: 18, color: AppColors.primary),
                 SizedBox(width: 6),
                 Text(
-                  'Cobertura nas prÃƒÆ’Ã‚Â³ximas 4h',
+                  'Cobertura nas próximas 4h',
                   style: AppTextStyles.subtitle
                       .copyWith(fontWeight: FontWeight.bold),
                 ),
@@ -328,7 +328,7 @@ class _CoberturaChart extends StatelessWidget {
             ),
             SizedBox(height: 2),
             Text(
-              'Colaboradores disponÃƒÆ’Ã‚Â­veis por slot de 30min',
+              'Colaboradores disponíveis por slot de 30min',
               style: AppTextStyles.caption,
             ),
             SizedBox(height: 16),
@@ -420,10 +420,9 @@ class _CoberturaChart extends StatelessWidget {
               children: [
                 _Legend(color: AppColors.success, label: 'Normal'),
                 SizedBox(width: 16),
-                _Legend(
-                    color: AppColors.warning, label: 'AtenÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o'),
+                _Legend(color: AppColors.warning, label: 'Atenção'),
                 SizedBox(width: 16),
-                _Legend(color: AppColors.danger, label: 'CrÃƒÆ’Ã‚Â­tico'),
+                _Legend(color: AppColors.danger, label: 'Crítico'),
               ],
             ),
           ],
@@ -472,18 +471,18 @@ class _GargaloCard extends StatelessWidget {
 
   String _sugestao() {
     if (baixaCobertura) {
-      return 'Cobertura muito baixa. Planeje reforÃƒÆ’Ã‚Â§o ou redistribua a equipe.';
+      return 'Cobertura muito baixa. Planeje reforço ou redistribua a equipe.';
     }
     if (slot.intervalosPrevistos.isNotEmpty) {
       final nomes = slot.intervalosPrevistos.join(', ');
       final antes =
           _formatTime(slot.inicio.subtract(const Duration(minutes: 30)));
-      return 'HÃƒÆ’Ã‚Â¡ intervalos previstos para $nomes. Avalie liberar antes das $antes para diluir a queda.';
+      return 'Há intervalos previstos para $nomes. Avalie liberar antes das $antes para diluir a queda.';
     }
     if (slot.saem.isNotEmpty) {
-      return 'Prepare uma substituiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o antes das ${_formatTime(slot.inicio)} para cobrir as saÃƒÆ’Ã‚Â­das.';
+      return 'Prepare uma substituição antes das ${_formatTime(slot.inicio)} para cobrir as saídas.';
     }
-    return 'Monitore a cobertura e redistribua colaboradores se necessÃƒÆ’Ã‚Â¡rio.';
+    return 'Monitore a cobertura e redistribua colaboradores se necessário.';
   }
 
   @override
@@ -519,8 +518,8 @@ class _GargaloCard extends StatelessWidget {
               SizedBox(width: 6),
               Text(
                 baixaCobertura
-                    ? '${_formatTime(slot.inicio)} ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â cobertura baixa'
-                    : '${_formatTime(slot.inicio)} ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â queda de $drop',
+                    ? '${_formatTime(slot.inicio)} — cobertura baixa'
+                    : '${_formatTime(slot.inicio)} — queda de $drop',
                 style: AppTextStyles.subtitle.copyWith(
                   color: color,
                   fontWeight: FontWeight.bold,
@@ -534,7 +533,7 @@ class _GargaloCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  '${slot.quantidade} disponÃƒÆ’Ã‚Â­veis',
+                  '${slot.quantidade} disponíveis',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
@@ -670,7 +669,7 @@ class _ProximasMovimentacoes extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.all(Dimensions.paddingMD),
           child: Text(
-            'Nenhuma movimentaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o prevista nas prÃƒÆ’Ã‚Â³ximas 4h.',
+            'Nenhuma movimentação prevista nas próximas 4h.',
             style: AppTextStyles.caption,
           ),
         ),
@@ -701,11 +700,7 @@ class _EventoItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (icon, color, label) = switch (evento.tipo) {
-      _TipoEvento.saida => (
-          Icons.exit_to_app,
-          AppColors.danger,
-          'SaÃƒÆ’Ã‚Â­da'
-        ),
+      _TipoEvento.saida => (Icons.exit_to_app, AppColors.danger, 'Saída'),
       _TipoEvento.entrada => (Icons.login, AppColors.primary, 'Entrada'),
     };
 
@@ -734,7 +729,7 @@ class _EventoItem extends StatelessWidget {
           SizedBox(width: 6),
           Expanded(
             child: Text(
-              '${evento.nome} Ãƒâ€šÃ‚Â· $label',
+              '${evento.nome} · $label',
               style: AppTextStyles.caption,
             ),
           ),

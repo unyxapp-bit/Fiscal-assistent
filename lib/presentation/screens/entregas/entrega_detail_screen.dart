@@ -12,7 +12,7 @@ import 'entrega_form_screen.dart';
 import '../../../core/utils/app_notif.dart';
 
 /// Tela de Detalhes da Entrega
-/// Mostra informaÃƒÂ§ÃƒÂµes completas, timeline e permite mudanÃƒÂ§a de status
+/// Mostra informações completas, timeline e permite mudança de status
 class EntregaDetailScreen extends StatelessWidget {
   final Entrega entrega;
 
@@ -93,7 +93,7 @@ class EntregaDetailScreen extends StatelessWidget {
                 eventoProvider.registrar(
                   fiscalId: fiscalId,
                   tipo: TipoEvento.entregaStatusAlterado,
-                  detalhe: 'NF ${entrega.numeroNota} Ã¢â€ â€™ Em Rota',
+                  detalhe: 'NF ${entrega.numeroNota} → Em Rota',
                 );
               }
               Navigator.pop(context);
@@ -143,7 +143,7 @@ class EntregaDetailScreen extends StatelessWidget {
                 eventoProvider.registrar(
                   fiscalId: fiscalId,
                   tipo: TipoEvento.entregaStatusAlterado,
-                  detalhe: 'NF ${entrega.numeroNota} Ã¢â€ â€™ Entregue',
+                  detalhe: 'NF ${entrega.numeroNota} → Entregue',
                 );
               }
               Navigator.pop(context);
@@ -174,12 +174,12 @@ class EntregaDetailScreen extends StatelessWidget {
       builder: (context) => AlertDialog(
         title: Text('Cancelar Entrega'),
         content: Text(
-          'Tem certeza que deseja cancelar esta entrega? Esta aÃƒÂ§ÃƒÂ£o nÃƒÂ£o pode ser desfeita.',
+          'Tem certeza que deseja cancelar esta entrega? Esta ação não pode ser desfeita.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('NÃƒÂ£o'),
+            child: Text('Não'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -211,7 +211,7 @@ class EntregaDetailScreen extends StatelessWidget {
       builder: (ctx) => AlertDialog(
         title: Text('Excluir Entrega'),
         content: Text(
-          'Tem certeza que deseja excluir esta entrega? Esta aÃƒÂ§ÃƒÂ£o nÃƒÂ£o pode ser desfeita.',
+          'Tem certeza que deseja excluir esta entrega? Esta ação não pode ser desfeita.',
         ),
         actions: [
           TextButton(
@@ -329,8 +329,8 @@ class EntregaDetailScreen extends StatelessWidget {
 
             SizedBox(height: Dimensions.spacingLG),
 
-            // InformaÃƒÂ§ÃƒÂµes do Cliente
-            Text('InformaÃƒÂ§ÃƒÂµes do Cliente', style: AppTextStyles.h3),
+            // Informações do Cliente
+            Text('Informações do Cliente', style: AppTextStyles.h3),
             SizedBox(height: Dimensions.spacingSM),
 
             Card(
@@ -370,7 +370,7 @@ class EntregaDetailScreen extends StatelessWidget {
                           ),
                           IconButton(
                             icon: Icon(Icons.copy_outlined, size: 18),
-                            tooltip: 'Copiar nÃƒÂºmero',
+                            tooltip: 'Copiar número',
                             color: AppColors.textSecondary,
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
@@ -380,7 +380,7 @@ class EntregaDetailScreen extends StatelessWidget {
                               AppNotif.show(
                                 context,
                                 titulo: 'Copiado',
-                                mensagem: 'NÃƒÂºmero copiado',
+                                mensagem: 'Número copiado',
                                 tipo: 'intervalo',
                               );
                             },
@@ -391,7 +391,7 @@ class EntregaDetailScreen extends StatelessWidget {
                     Divider(height: 24),
                     _buildInfoRow(
                       Icons.home,
-                      'EndereÃƒÂ§o',
+                      'Endereço',
                       entrega.endereco,
                     ),
                     Divider(height: 24),
@@ -410,7 +410,7 @@ class EntregaDetailScreen extends StatelessWidget {
                       Divider(height: 24),
                       _buildInfoRow(
                         Icons.access_time,
-                        'HorÃƒÂ¡rio Marcado',
+                        'Horário Marcado',
                         _formatTime(entrega.horarioMarcado!),
                       ),
                     ],
@@ -490,11 +490,11 @@ class EntregaDetailScreen extends StatelessWidget {
               ),
             ),
 
-            // ObservaÃƒÂ§ÃƒÂµes
+            // Observações
             if (entrega.observacoes != null &&
                 entrega.observacoes!.isNotEmpty) ...[
               SizedBox(height: Dimensions.spacingLG),
-              Text('ObservaÃƒÂ§ÃƒÂµes', style: AppTextStyles.h3),
+              Text('Observações', style: AppTextStyles.h3),
               SizedBox(height: Dimensions.spacingSM),
               Card(
                 child: Padding(
@@ -518,7 +518,7 @@ class EntregaDetailScreen extends StatelessWidget {
 
             SizedBox(height: Dimensions.spacingXL),
 
-            // BotÃƒÂµes de AÃƒÂ§ÃƒÂ£o
+            // Botões de Ação
             if (entrega.status == 'separada') ...[
               SizedBox(
                 width: double.infinity,

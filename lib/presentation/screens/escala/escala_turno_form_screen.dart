@@ -53,7 +53,7 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
         _tipoTurno = 'trabalho';
       }
 
-      // Colaborador jÃƒÂ¡ selecionado (serÃƒÂ¡ preenchido no build)
+      // Colaborador já selecionado (será preenchido no build)
     }
   }
 
@@ -122,7 +122,7 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
         .toList()
       ..sort((a, b) => a.nome.compareTo(b.nome));
 
-    // PrÃƒÂ©-selecionar colaborador na ediÃƒÂ§ÃƒÂ£o
+    // Pré-selecionar colaborador na edição
     if (_colaboradorSelecionado == null && widget.turnoExistente != null) {
       try {
         _colaboradorSelecionado = colaboradores
@@ -181,7 +181,7 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
                           BorderRadius.circular(Dimensions.borderRadius),
                     ),
                     child: Text(
-                      'Nenhum colaborador cadastrado. VÃƒÂ¡ em Colaboradores e cadastre primeiro.',
+                      'Nenhum colaborador cadastrado. Vá em Colaboradores e cadastre primeiro.',
                       style: AppTextStyles.body,
                     ),
                   )
@@ -225,10 +225,10 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
               ],
             ),
 
-            // Campos de horÃƒÂ¡rio (sÃƒÂ³ se trabalhando)
+            // Campos de horário (só se trabalhando)
             if (_tipoTurno == 'trabalho') ...[
               SizedBox(height: Dimensions.spacingLG),
-              Text('HorÃƒÂ¡rios', style: AppTextStyles.label),
+              Text('Horários', style: AppTextStyles.label),
               SizedBox(height: 8),
 
               // Grid 2x2
@@ -264,7 +264,7 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
                   SizedBox(width: Dimensions.spacingSM),
                   Expanded(
                     child: _buildHorarioField(
-                      label: 'SaÃƒÂ­da',
+                      label: 'Saída',
                       controller: _saidaController,
                       icon: Icons.logout,
                     ),
@@ -273,18 +273,18 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
               ),
 
               SizedBox(height: Dimensions.spacingSM),
-              // Atalhos de horÃƒÂ¡rios frequentes
+              // Atalhos de horários frequentes
               _buildAtalhosHorarios(),
             ],
 
             SizedBox(height: Dimensions.spacingLG),
 
-            // ObservaÃƒÂ§ÃƒÂ£o
+            // Observação
             TextFormField(
               controller: _observacaoController,
               maxLines: 2,
               decoration: InputDecoration(
-                labelText: 'ObservaÃƒÂ§ÃƒÂ£o (opcional)',
+                labelText: 'Observação (opcional)',
                 hintText: 'Ex: Cobertura, troca de folga...',
                 prefixIcon: Icon(Icons.note_alt_outlined, size: 18),
                 border: OutlineInputBorder(
@@ -295,7 +295,7 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
 
             SizedBox(height: Dimensions.spacingXL),
 
-            // BotÃƒÂ£o salvar
+            // Botão salvar
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -375,12 +375,12 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
   Widget _buildAtalhosHorarios() {
     // Atalhos de turnos comuns em supermercados
     final atalhos = [
-      ('07:40Ã¢â‚¬â€œ17:40', '07:40', '12:30', '13:30', '17:40'),
-      ('08:00Ã¢â‚¬â€œ18:00', '08:00', '12:00', '13:00', '18:00'),
-      ('09:00Ã¢â‚¬â€œ18:00', '09:00', '13:00', '14:00', '18:00'),
-      ('11:20Ã¢â‚¬â€œ21:20', '11:20', '14:20', '16:20', '21:20'),
-      ('12:00Ã¢â‚¬â€œ21:40', '12:00', '16:00', '17:00', '21:40'),
-      ('14:00Ã¢â‚¬â€œ22:00', '14:00', '18:00', '18:40', '22:00'),
+      ('07:40–17:40', '07:40', '12:30', '13:30', '17:40'),
+      ('08:00–18:00', '08:00', '12:00', '13:00', '18:00'),
+      ('09:00–18:00', '09:00', '13:00', '14:00', '18:00'),
+      ('11:20–21:20', '11:20', '14:20', '16:20', '21:20'),
+      ('12:00–21:40', '12:00', '16:00', '17:00', '21:40'),
+      ('14:00–22:00', '14:00', '18:00', '18:40', '22:00'),
     ];
 
     return Column(

@@ -16,7 +16,7 @@ class FormularioRespostasScreen extends StatelessWidget {
     required this.formulario,
   });
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Helper: campo pelo label Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+  // â”€â”€ Helper: campo pelo label â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   CampoFormulario? _findCampo(String label) {
     try {
@@ -26,33 +26,33 @@ class FormularioRespostasScreen extends StatelessWidget {
     }
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Formato de data Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+  // â”€â”€ Formato de data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   String _formatDateTime(DateTime dt) {
     final dia = dt.day.toString().padLeft(2, '0');
     final mes = dt.month.toString().padLeft(2, '0');
     final hora = dt.hour.toString().padLeft(2, '0');
     final min = dt.minute.toString().padLeft(2, '0');
-    return '$dia/$mes/${dt.year} ÃƒÂ s $hora:$min';
+    return '$dia/$mes/${dt.year} às $hora:$min';
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Texto formatado para clipboard Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+  // â”€â”€ Texto formatado para clipboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   String _respostaParaTexto(RespostaFormulario resposta) {
     final buf = StringBuffer();
     buf.writeln(formulario.titulo);
     buf.writeln(_formatDateTime(resposta.preenchidoEm));
-    buf.writeln('Ã¢â€â‚¬' * 30);
+    buf.writeln('â”€' * 30);
     for (final e in resposta.valores.entries) {
       final val = e.value?.toString().isNotEmpty == true
           ? e.value.toString()
-          : '(nÃƒÂ£o preenchido)';
+          : '(não preenchido)';
       buf.writeln('${e.key}: $val');
     }
     return buf.toString().trim();
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Delete com confirmaÃƒÂ§ÃƒÂ£o Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+  // â”€â”€ Delete com confirmação â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   void _confirmarDelete(
     BuildContext context,
@@ -119,7 +119,7 @@ class FormularioRespostasScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'Preencha o formulÃƒÂ¡rio para ver\nas respostas aqui',
+                    'Preencha o formulário para ver\nas respostas aqui',
                     textAlign: TextAlign.center,
                     style: AppTextStyles.body
                         .copyWith(color: AppColors.textSecondary),
@@ -174,7 +174,7 @@ class FormularioRespostasScreen extends StatelessWidget {
                               context,
                               titulo: 'Copiado',
                               mensagem:
-                                  'Resposta copiada para ÃƒÂ¡rea de transferÃƒÂªncia',
+                                  'Resposta copiada para área de transferência',
                               tipo: 'intervalo',
                             );
                           },
@@ -199,7 +199,7 @@ class FormularioRespostasScreen extends StatelessWidget {
     );
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Bottom sheet de detalhes Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+  // â”€â”€ Bottom sheet de detalhes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   void _mostrarDetalhes(
     BuildContext context,
@@ -231,7 +231,7 @@ class FormularioRespostasScreen extends StatelessWidget {
               ),
             ),
 
-            // CabeÃƒÂ§alho
+            // Cabeçalho
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
@@ -259,7 +259,7 @@ class FormularioRespostasScreen extends StatelessWidget {
                       AppNotif.show(
                         context,
                         titulo: 'Copiado',
-                        mensagem: 'Copiado para ÃƒÂ¡rea de transferÃƒÂªncia',
+                        mensagem: 'Copiado para área de transferência',
                         tipo: 'intervalo',
                       );
                     },
@@ -274,7 +274,7 @@ class FormularioRespostasScreen extends StatelessWidget {
 
             Divider(),
 
-            // ConteÃƒÂºdo
+            // Conteúdo
             Expanded(
               child: ListView.separated(
                 controller: scrollCtrl,
@@ -286,7 +286,7 @@ class FormularioRespostasScreen extends StatelessWidget {
                   final campo = _findCampo(entry.key);
                   final valStr = entry.value?.toString().isNotEmpty == true
                       ? entry.value.toString()
-                      : '(nÃƒÂ£o preenchido)';
+                      : '(não preenchido)';
                   final preenchido = entry.value?.toString().isNotEmpty == true;
 
                   return Column(
@@ -300,7 +300,7 @@ class FormularioRespostasScreen extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 4),
-                      // ExibiÃƒÂ§ÃƒÂ£o especial para Sim/NÃƒÂ£o
+                      // Exibição especial para Sim/Não
                       if (campo?.tipo == TipoCampo.simNao && preenchido)
                         Row(
                           children: [
