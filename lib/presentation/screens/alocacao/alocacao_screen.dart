@@ -36,6 +36,8 @@ class AlocacaoScreen extends StatefulWidget {
 class _AlocacaoScreenState extends State<AlocacaoScreen> {
   final TextEditingController _searchCtrl = TextEditingController();
   bool _mostrarFolgas = false;
+  bool _expandPainelAlocacao = true;
+  bool _expandLeituraAlocacao = true;
 
   @override
   void initState() {
@@ -68,6 +70,38 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
         Provider.of<ColaboradorProvider>(context, listen: false)
             .loadColaboradores(authProvider.user!.id),
     ]);
+  }
+
+  String _formatTempoDecorrido(DateTime? origem) {
+    if (origem == null) return 'Sem horario';
+    final d = DateTime.now().difference(origem);
+    if (d.inHours > 0) return '${d.inHours}h ${d.inMinutes.remainder(60)}min';
+    return '${d.inMinutes}min';
+  }
+
+  void _mostrarResumoAlocacaoSheet({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required List<Widget> Function(BuildContext sheetContext) itemsBuilder,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(Dimensions.radiusSheet),
+        ),
+      ),
+      builder: (sheetContext) => _ResumoAlocacaoSheet(
+        title: title,
+        subtitle: subtitle,
+        icon: icon,
+        color: color,
+        children: itemsBuilder(sheetContext),
+      ),
+    );
   }
 
   int _minutos(String hora) {
@@ -874,6 +908,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
   Widget build(BuildContext context) {
     final escalaProvider = Provider.of<EscalaProvider>(context);
     final alocacaoProvider = Provider.of<AlocacaoProvider>(context);
+    final caixaProvider = Provider.of<CaixaProvider>(context, listen: false);
     final pacoteProvider = Provider.of<PacotePlantaoProvider>(context);
     final cafeProvider = Provider.of<CafeProvider>(context);
     final outroSetorProvider = Provider.of<OutroSetorProvider>(context);
@@ -933,10 +968,12 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
             matchSearch(t) && outroSetorProvider.isNaLista(t.colaboradorId))
         .toList();
     final larguraTela = MediaQuery.sizeOf(context).width;
-    final larguraPainel = larguraTela > Dimensions.maxContentWidth
-        ? Dimensions.maxContentWidth
-        : larguraTela - (Dimensions.paddingMD * 2);
-    final larguraCardResumo = (larguraPainel - Dimensions.spacingSM) / 2;
+    final colunasResumo = larguraTela >= 920 ? 4 : 2;
+    final aspectResumo = larguraTela >= 920
+        ? 2.2
+        : larguraTela >= Dimensions.breakpointTablet
+            ? 1.9
+            : 1.7;
 
     int? calcMinIntervaloTurno(TurnoLocal turno) {
       if (turno.intervalo == null) return null;
@@ -960,6 +997,219 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
       final min = calcMinIntervaloTurno(t);
       return min != null && min >= 15;
     }).length;
+    final colaboradoresEmAtencao = jaAlocados.where((t) {
+      final min = calcMinIntervaloTurno(t);
+      return min != null && min >= 15;
+    }).toList()
+      ..sort((a, b) => (calcMinIntervaloTurno(b) ?? 0).compareTo(
+            calcMinIntervaloTurno(a) ?? 0,
+          ));
+
+    void abrirResumoDisponiveis() {
+      _mostrarResumoAlocacaoSheet(
+        title: 'Disponiveis',
+        subtitle: 'Colaboradores prontos para nova alocacao.',
+        icon: Icons.person_add_alt_1,
+        color: AppColors.statusAtivo,
+        itemsBuilder: (sheetContext) => disponiveis
+            .map(
+              (turno) => ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: CircleAvatar(
+                  backgroundColor:
+                      AppColors.statusAtivo.withValues(alpha: 0.12),
+                  child: Text(
+                    turno.colaboradorNome[0].toUpperCase(),
+                    style: const TextStyle(
+                      color: AppColors.statusAtivo,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                title: Text(turno.colaboradorNome),
+                subtitle: Text(
+                  [
+                    turno.departamento.nome,
+                    if (turno.entrada != null && turno.saida != null)
+                      '${turno.entrada}-${turno.saida}',
+                  ].join(' | '),
+                ),
+                trailing: const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 14,
+                  color: AppColors.textSecondary,
+                ),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _abrirSeletorCaixa(turno);
+                },
+              ),
+            )
+            .toList(),
+      );
+    }
+
+    void abrirResumoAlocados() {
+      _mostrarResumoAlocacaoSheet(
+        title: 'Ja alocados',
+        subtitle: 'Quem esta ocupando caixa neste momento.',
+        icon: Icons.point_of_sale,
+        color: AppColors.primary,
+        itemsBuilder: (sheetContext) => jaAlocados.map((turno) {
+          final al =
+              alocacaoProvider.getAlocacaoColaborador(turno.colaboradorId);
+          final caixa = caixaProvider.caixas
+              .where((c) => c.id == al?.caixaId)
+              .firstOrNull;
+          return ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: CircleAvatar(
+              backgroundColor: AppColors.primary.withValues(alpha: 0.12),
+              child: Text(
+                turno.colaboradorNome[0].toUpperCase(),
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            title: Text(turno.colaboradorNome),
+            subtitle: Text(
+              '${caixa?.nomeExibicao ?? 'Caixa'} | ${_formatTempoDecorrido(al?.alocadoEm)}',
+            ),
+            trailing: const Icon(
+              Icons.arrow_forward_ios,
+              size: 14,
+              color: AppColors.textSecondary,
+            ),
+            onTap: al == null
+                ? null
+                : () {
+                    Navigator.pop(sheetContext);
+                    _abrirOpcoesAlocado(turno, al);
+                  },
+          );
+        }).toList(),
+      );
+    }
+
+    void abrirResumoAtencao() {
+      _mostrarResumoAlocacaoSheet(
+        title: 'Em atencao',
+        subtitle: 'Colaboradores atrasados para intervalo.',
+        icon: Icons.warning_amber_rounded,
+        color: AppColors.danger,
+        itemsBuilder: (sheetContext) => colaboradoresEmAtencao.map((turno) {
+          final al =
+              alocacaoProvider.getAlocacaoColaborador(turno.colaboradorId);
+          final caixa = caixaProvider.caixas
+              .where((c) => c.id == al?.caixaId)
+              .firstOrNull;
+          final atraso = calcMinIntervaloTurno(turno) ?? 0;
+          return ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: CircleAvatar(
+              backgroundColor: AppColors.danger.withValues(alpha: 0.12),
+              child: Text(
+                turno.colaboradorNome[0].toUpperCase(),
+                style: const TextStyle(
+                  color: AppColors.danger,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            title: Text(turno.colaboradorNome),
+            subtitle: Text(
+              '${caixa?.nomeExibicao ?? 'Caixa'} | $atraso min em atraso',
+            ),
+            trailing: const Icon(
+              Icons.arrow_forward_ios,
+              size: 14,
+              color: AppColors.textSecondary,
+            ),
+            onTap: al == null
+                ? null
+                : () {
+                    Navigator.pop(sheetContext);
+                    _abrirOpcoesAlocado(turno, al);
+                  },
+          );
+        }).toList(),
+      );
+    }
+
+    void abrirResumoAChegar() {
+      _mostrarResumoAlocacaoSheet(
+        title: 'A caminho',
+        subtitle: 'Quem ainda entra nas proximas horas.',
+        icon: Icons.directions_walk,
+        color: AppColors.statusAtencao,
+        itemsBuilder: (_) => aChegar
+            .map(
+              (turno) => ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: CircleAvatar(
+                  backgroundColor:
+                      AppColors.statusAtencao.withValues(alpha: 0.12),
+                  child: Text(
+                    turno.colaboradorNome[0].toUpperCase(),
+                    style: const TextStyle(
+                      color: AppColors.statusAtencao,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                title: Text(turno.colaboradorNome),
+                subtitle: Text(
+                  [
+                    turno.departamento.nome,
+                    if (turno.entrada != null) 'Entrada ${turno.entrada}',
+                    'Chega em ${_minutosParaChegar(turno) ?? 0} min',
+                  ].join(' | '),
+                ),
+              ),
+            )
+            .toList(),
+      );
+    }
+
+    final resumoCards = <Widget>[
+      _PainelResumoCard(
+        icon: Icons.person_add_alt_1,
+        color: AppColors.statusAtivo,
+        label: 'Disponiveis',
+        value: '${disponiveis.length}',
+        subtitle: 'Prontos para nova alocacao',
+        onTap: abrirResumoDisponiveis,
+      ),
+      _PainelResumoCard(
+        icon: Icons.point_of_sale,
+        color: AppColors.primary,
+        label: 'Ja alocados',
+        value: '${jaAlocados.length}',
+        subtitle: 'Colaboradores no caixa',
+        onTap: abrirResumoAlocados,
+      ),
+      _PainelResumoCard(
+        icon: Icons.warning_amber_rounded,
+        color:
+            alocadosEmAtencao > 0 ? AppColors.danger : AppColors.statusAtencao,
+        label: 'Em atencao',
+        value: '$alocadosEmAtencao',
+        subtitle: alocadosEmAtencao > 0
+            ? 'Atrasados para intervalo'
+            : 'Sem urgencia agora',
+        onTap: abrirResumoAtencao,
+      ),
+      _PainelResumoCard(
+        icon: Icons.directions_walk,
+        color: AppColors.statusAtencao,
+        label: 'A caminho',
+        value: '${aChegar.length}',
+        subtitle: 'Entram nas proximas horas',
+        onTap: abrirResumoAChegar,
+      ),
+    ];
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -1008,123 +1258,116 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 46,
-                          height: 46,
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(16),
+                    InkWell(
+                      borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+                      onTap: () => setState(
+                        () => _expandPainelAlocacao = !_expandPainelAlocacao,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 46,
+                            height: 46,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: const Icon(
+                              Icons.groups_2_outlined,
+                              color: AppColors.primary,
+                            ),
                           ),
-                          child: const Icon(
-                            Icons.groups_2_outlined,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Painel de alocacao',
-                                style: AppTextStyles.h3,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${_cap(dataLabel)} ? $horaLabel',
-                                style: AppTextStyles.body.copyWith(
-                                  color: AppColors.textSecondary,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Painel de alocacao',
+                                  style: AppTextStyles.h3,
                                 ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${_cap(dataLabel)} | $horaLabel',
+                                  style: AppTextStyles.body.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            width: 38,
+                            height: 38,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.88),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Icon(
+                              _expandPainelAlocacao
+                                  ? Icons.keyboard_arrow_up
+                                  : Icons.keyboard_arrow_down,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    AnimatedCrossFade(
+                      firstChild: const SizedBox(width: double.infinity),
+                      secondChild: Column(
+                        children: [
+                          const SizedBox(height: Dimensions.spacingSM),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              _PainelInfoChip(
+                                icon: Icons.person_add_alt_1,
+                                color: AppColors.statusAtivo,
+                                label: '${disponiveis.length} disponiveis',
+                              ),
+                              _PainelInfoChip(
+                                icon: Icons.point_of_sale,
+                                color: AppColors.primary,
+                                label: '${jaAlocados.length} no caixa',
+                              ),
+                              _PainelInfoChip(
+                                icon: Icons.coffee,
+                                color: AppColors.statusCafe,
+                                label: '$emPausa em pausa',
+                              ),
+                              _PainelInfoChip(
+                                icon: Icons.storefront_outlined,
+                                color: const Color(0xFF5C6BC0),
+                                label: '${emOutroSetor.length} em outro setor',
                               ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: Dimensions.spacingSM),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _PainelInfoChip(
-                          icon: Icons.person_add_alt_1,
-                          color: AppColors.statusAtivo,
-                          label: '${disponiveis.length} disponiveis',
-                        ),
-                        _PainelInfoChip(
-                          icon: Icons.point_of_sale,
-                          color: AppColors.primary,
-                          label: '${jaAlocados.length} no caixa',
-                        ),
-                        _PainelInfoChip(
-                          icon: Icons.coffee,
-                          color: AppColors.statusCafe,
-                          label: '$emPausa em pausa',
-                        ),
-                        _PainelInfoChip(
-                          icon: Icons.storefront_outlined,
-                          color: const Color(0xFF5C6BC0),
-                          label: '${emOutroSetor.length} em outro setor',
-                        ),
-                      ],
+                        ],
+                      ),
+                      crossFadeState: _expandPainelAlocacao
+                          ? CrossFadeState.showSecond
+                          : CrossFadeState.showFirst,
+                      duration: const Duration(milliseconds: 220),
                     ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: Dimensions.spacingMD),
-            Wrap(
-              spacing: Dimensions.spacingSM,
-              runSpacing: Dimensions.spacingSM,
-              children: [
-                SizedBox(
-                  width: larguraCardResumo,
-                  child: _PainelResumoCard(
-                    icon: Icons.person_add_alt_1,
-                    color: AppColors.statusAtivo,
-                    label: 'Disponiveis',
-                    value: '${disponiveis.length}',
-                    subtitle: 'Prontos para nova alocacao',
-                  ),
-                ),
-                SizedBox(
-                  width: larguraCardResumo,
-                  child: _PainelResumoCard(
-                    icon: Icons.point_of_sale,
-                    color: AppColors.primary,
-                    label: 'Ja alocados',
-                    value: '${jaAlocados.length}',
-                    subtitle: 'Colaboradores no caixa',
-                  ),
-                ),
-                SizedBox(
-                  width: larguraCardResumo,
-                  child: _PainelResumoCard(
-                    icon: Icons.warning_amber_rounded,
-                    color: alocadosEmAtencao > 0
-                        ? AppColors.danger
-                        : AppColors.statusAtencao,
-                    label: 'Em atencao',
-                    value: '$alocadosEmAtencao',
-                    subtitle: alocadosEmAtencao > 0
-                        ? 'Atrasados para intervalo'
-                        : 'Sem urgencia agora',
-                  ),
-                ),
-                SizedBox(
-                  width: larguraCardResumo,
-                  child: _PainelResumoCard(
-                    icon: Icons.directions_walk,
-                    color: AppColors.statusAtencao,
-                    label: 'A caminho',
-                    value: '${aChegar.length}',
-                    subtitle: 'Entram nas proximas horas',
-                  ),
-                ),
-              ],
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: resumoCards.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: colunasResumo,
+                crossAxisSpacing: Dimensions.spacingSM,
+                mainAxisSpacing: Dimensions.spacingSM,
+                childAspectRatio: aspectResumo,
+              ),
+              itemBuilder: (_, index) => resumoCards[index],
             ),
             const SizedBox(height: Dimensions.spacingMD),
             Container(
@@ -1137,115 +1380,151 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 42,
-                          height: 42,
-                          decoration: BoxDecoration(
-                            color: AppColors.blueGrey.withValues(alpha: 0.10),
-                            borderRadius: BorderRadius.circular(14),
+                    InkWell(
+                      borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+                      onTap: () => setState(
+                        () => _expandLeituraAlocacao = !_expandLeituraAlocacao,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              color: AppColors.blueGrey.withValues(alpha: 0.10),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: const Icon(
+                              Icons.manage_search_rounded,
+                              color: AppColors.blueGrey,
+                            ),
                           ),
-                          child: const Icon(
-                            Icons.manage_search_rounded,
-                            color: AppColors.blueGrey,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Leitura da alocacao',
-                                style: AppTextStyles.h4,
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                q.isEmpty
-                                    ? 'Busque por nome e acompanhe o quadro de disponibilidade.'
-                                    : 'Filtro ativo para "${_searchCtrl.text.trim()}".',
-                                style: AppTextStyles.caption.copyWith(
-                                  color: AppColors.textSecondary,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Leitura da alocacao',
+                                  style: AppTextStyles.h4,
                                 ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  q.isEmpty
+                                      ? 'Busque por nome e acompanhe o quadro de disponibilidade.'
+                                      : 'Filtro ativo para "${_searchCtrl.text.trim()}".',
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (q.isNotEmpty)
+                            TextButton.icon(
+                              onPressed: () => _searchCtrl.clear(),
+                              icon: const Icon(Icons.close, size: 16),
+                              label: const Text('Limpar'),
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppColors.primary,
+                              ),
+                            ),
+                          Container(
+                            width: 38,
+                            height: 38,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Icon(
+                              _expandLeituraAlocacao
+                                  ? Icons.keyboard_arrow_up
+                                  : Icons.keyboard_arrow_down,
+                              color: AppColors.blueGrey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    AnimatedCrossFade(
+                      firstChild: const SizedBox(width: double.infinity),
+                      secondChild: Column(
+                        children: [
+                          const SizedBox(height: Dimensions.spacingSM),
+                          TextField(
+                            controller: _searchCtrl,
+                            decoration: InputDecoration(
+                              hintText: 'Buscar colaborador...',
+                              hintStyle: AppTextStyles.caption.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                              prefixIcon: const Icon(
+                                Icons.search,
+                                color: AppColors.textSecondary,
+                              ),
+                              suffixIcon: q.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(
+                                        Icons.close,
+                                        color: AppColors.textSecondary,
+                                        size: 18,
+                                      ),
+                                      onPressed: () => _searchCtrl.clear(),
+                                    )
+                                  : null,
+                              filled: true,
+                              fillColor: Colors.white,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 0,
+                                horizontal: 12,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  Dimensions.borderRadius,
+                                ),
+                                borderSide: const BorderSide(
+                                  color: AppColors.cardBorder,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  Dimensions.borderRadius,
+                                ),
+                                borderSide: const BorderSide(
+                                  color: AppColors.cardBorder,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: Dimensions.spacingSM),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              _PainelInfoChip(
+                                icon: Icons.filter_alt_outlined,
+                                color: AppColors.primary,
+                                label: q.isEmpty ? 'Sem filtro' : 'Busca ativa',
+                              ),
+                              _PainelInfoChip(
+                                icon: Icons.beach_access,
+                                color: AppColors.statusAtencao,
+                                label: '${folgas.length} folgas',
+                              ),
+                              _PainelInfoChip(
+                                icon: Icons.coffee,
+                                color: AppColors.statusCafe,
+                                label: '$emPausa pausas',
                               ),
                             ],
                           ),
-                        ),
-                        if (q.isNotEmpty)
-                          TextButton.icon(
-                            onPressed: () => _searchCtrl.clear(),
-                            icon: const Icon(Icons.close, size: 16),
-                            label: const Text('Limpar'),
-                            style: TextButton.styleFrom(
-                              foregroundColor: AppColors.primary,
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: Dimensions.spacingSM),
-                    TextField(
-                      controller: _searchCtrl,
-                      decoration: InputDecoration(
-                        hintText: 'Buscar colaborador...',
-                        hintStyle: AppTextStyles.caption
-                            .copyWith(color: AppColors.textSecondary),
-                        prefixIcon: const Icon(
-                          Icons.search,
-                          color: AppColors.textSecondary,
-                        ),
-                        suffixIcon: q.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(
-                                  Icons.close,
-                                  color: AppColors.textSecondary,
-                                  size: 18,
-                                ),
-                                onPressed: () => _searchCtrl.clear(),
-                              )
-                            : null,
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 0,
-                          horizontal: 12,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(Dimensions.borderRadius),
-                          borderSide:
-                              const BorderSide(color: AppColors.cardBorder),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(Dimensions.borderRadius),
-                          borderSide:
-                              const BorderSide(color: AppColors.cardBorder),
-                        ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: Dimensions.spacingSM),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _PainelInfoChip(
-                          icon: Icons.filter_alt_outlined,
-                          color: AppColors.primary,
-                          label: q.isEmpty ? 'Sem filtro' : 'Busca ativa',
-                        ),
-                        _PainelInfoChip(
-                          icon: Icons.beach_access,
-                          color: AppColors.statusAtencao,
-                          label: '${folgas.length} folgas',
-                        ),
-                        _PainelInfoChip(
-                          icon: Icons.coffee,
-                          color: AppColors.statusCafe,
-                          label: '$emPausa pausas',
-                        ),
-                      ],
+                      crossFadeState: _expandLeituraAlocacao
+                          ? CrossFadeState.showSecond
+                          : CrossFadeState.showFirst,
+                      duration: const Duration(milliseconds: 220),
                     ),
                   ],
                 ),
@@ -1573,6 +1852,7 @@ class _PainelResumoCard extends StatelessWidget {
   final String label;
   final String value;
   final String subtitle;
+  final VoidCallback? onTap;
 
   const _PainelResumoCard({
     required this.icon,
@@ -1580,34 +1860,46 @@ class _PainelResumoCard extends StatelessWidget {
     required this.label,
     required this.value,
     required this.subtitle,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final child = Container(
       decoration: AppStyles.softCard(
         tint: color,
         radius: Dimensions.radiusMD,
         elevated: false,
       ),
       child: Padding(
-        padding: const EdgeInsets.all(Dimensions.paddingSM),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: color, size: 18),
+            Row(
+              children: [
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icon, color: color, size: 16),
+                ),
+                const Spacer(),
+                if (onTap != null)
+                  Icon(
+                    Icons.open_in_new_rounded,
+                    size: 15,
+                    color: color.withValues(alpha: 0.70),
+                  ),
+              ],
             ),
-            const SizedBox(height: 12),
+            const Spacer(),
             Text(
               value,
-              style: AppTextStyles.h2.copyWith(
+              style: AppTextStyles.h3.copyWith(
                 color: color,
                 fontWeight: FontWeight.w800,
               ),
@@ -1615,12 +1907,12 @@ class _PainelResumoCard extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               label,
-              style: AppTextStyles.label.copyWith(
+              style: AppTextStyles.body.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 4),
             Text(
               subtitle,
               maxLines: 2,
@@ -1628,6 +1920,109 @@ class _PainelResumoCard extends StatelessWidget {
               style: AppTextStyles.caption.copyWith(
                 color: AppColors.textSecondary,
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (onTap == null) return child;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+      child: child,
+    );
+  }
+}
+
+class _ResumoAlocacaoSheet extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
+  final List<Widget> children;
+
+  const _ResumoAlocacaoSheet({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.color,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      top: false,
+      child: DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.52,
+        minChildSize: 0.34,
+        maxChildSize: 0.88,
+        builder: (context, scrollController) => Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              width: 42,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.cardBorder,
+                borderRadius: BorderRadius.circular(999),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(icon, color: color, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(title, style: AppTextStyles.h4),
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitle,
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: children.isEmpty
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Text(
+                          'Nenhuma informacao disponivel agora.',
+                          style: AppTextStyles.body.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    )
+                  : ListView(
+                      controller: scrollController,
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                      children: children,
+                    ),
             ),
           ],
         ),

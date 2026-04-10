@@ -142,6 +142,9 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
   String _buscaMapa = '';
   _MapaFiltro _filtroMapa = _MapaFiltro.todos;
   bool _mostrarLivres = false;
+  bool _expandPainelMapa = true;
+  bool _expandLeituraMapa = true;
+  bool _expandSugestoesMapa = true;
 
   Timer? _timerSaidas;
   final Set<String> _saidasProcessadas = {};
@@ -720,79 +723,110 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    color: AppColors.blueGrey.withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(14),
+            InkWell(
+              borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+              onTap: () => setState(
+                () => _expandLeituraMapa = !_expandLeituraMapa,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: AppColors.blueGrey.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.tune_rounded,
+                      color: AppColors.blueGrey,
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.tune_rounded,
-                    color: AppColors.blueGrey,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Leitura do mapa', style: AppTextStyles.h4),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Mostrando $totalVisiveis de $totalGeral caixas em $localizacoes area(s).',
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppColors.textSecondary,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Leitura do mapa', style: AppTextStyles.h4),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Mostrando $totalVisiveis de $totalGeral caixas em $localizacoes area(s).',
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
                         ),
+                      ],
+                    ),
+                  ),
+                  if (_temControlesMapaAtivos)
+                    TextButton.icon(
+                      onPressed: _limparControlesMapa,
+                      icon: const Icon(Icons.restart_alt, size: 16),
+                      label: const Text('Limpar'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        textStyle: AppTextStyles.caption.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(
+                      _expandLeituraMapa
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                      color: AppColors.blueGrey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            AnimatedCrossFade(
+              firstChild: const SizedBox(width: double.infinity),
+              secondChild: Column(
+                children: [
+                  const SizedBox(height: Dimensions.spacingSM),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _buildPainelPill(
+                        icon: Icons.filter_alt_outlined,
+                        color: corFiltro,
+                        label: 'Filtro: ${_labelFiltroMapa(_filtroMapa)}',
+                      ),
+                      _buildPainelPill(
+                        icon: Icons.grid_view_rounded,
+                        color: AppColors.primary,
+                        label: '$totalVisiveis visiveis',
+                      ),
+                      _buildPainelPill(
+                        icon: Icons.map_outlined,
+                        color: AppColors.teal,
+                        label: '$localizacoes localizacoes',
                       ),
                     ],
                   ),
-                ),
-                if (_temControlesMapaAtivos)
-                  TextButton.icon(
-                    onPressed: _limparControlesMapa,
-                    icon: const Icon(Icons.restart_alt, size: 16),
-                    label: const Text('Limpar'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.primary,
-                      textStyle: AppTextStyles.caption.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-              ],
+                  const SizedBox(height: Dimensions.spacingMD),
+                  _buildMapaBusca(),
+                  const SizedBox(height: Dimensions.spacingSM),
+                  _buildMapaFiltros(),
+                  const SizedBox(height: Dimensions.spacingSM),
+                  _buildMapaLegenda(),
+                ],
+              ),
+              crossFadeState: _expandLeituraMapa
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              duration: const Duration(milliseconds: 220),
             ),
-            const SizedBox(height: Dimensions.spacingSM),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _buildPainelPill(
-                  icon: Icons.filter_alt_outlined,
-                  color: corFiltro,
-                  label: 'Filtro: ${_labelFiltroMapa(_filtroMapa)}',
-                ),
-                _buildPainelPill(
-                  icon: Icons.grid_view_rounded,
-                  color: AppColors.primary,
-                  label: '$totalVisiveis visiveis',
-                ),
-                _buildPainelPill(
-                  icon: Icons.map_outlined,
-                  color: AppColors.teal,
-                  label: '$localizacoes localizacoes',
-                ),
-              ],
-            ),
-            const SizedBox(height: Dimensions.spacingMD),
-            _buildMapaBusca(),
-            const SizedBox(height: Dimensions.spacingSM),
-            _buildMapaFiltros(),
-            const SizedBox(height: Dimensions.spacingSM),
-            _buildMapaLegenda(),
           ],
         ),
       ),
@@ -1049,93 +1083,128 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Container(
-                  width: 34,
-                  height: 34,
-                  decoration: BoxDecoration(
-                    color: AppColors.success.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.auto_awesome_outlined,
-                    size: 18,
-                    color: AppColors.success,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                const Expanded(
-                  child: Text('Sugestoes automaticas', style: AppTextStyles.h4),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Atalhos de decisao para destravar pausa, troca e cobertura.',
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
+            InkWell(
+              borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+              onTap: () => setState(
+                () => _expandSugestoesMapa = !_expandSugestoesMapa,
               ),
-            ),
-            const SizedBox(height: 10),
-            ...sugestoes.map(
-              (sugestao) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: InkWell(
-                  onTap: sugestao.onTap,
-                  borderRadius: BorderRadius.circular(14),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: AppColors.success.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.auto_awesome_outlined,
+                      size: 18,
+                      color: AppColors.success,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child:
+                        Text('Sugestoes automaticas', style: AppTextStyles.h4),
+                  ),
+                  Container(
+                    width: 38,
+                    height: 38,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppColors.cardBorder),
                     ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 34,
-                          height: 34,
+                    child: Icon(
+                      _expandSugestoesMapa
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                      color: AppColors.success,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            AnimatedCrossFade(
+              firstChild: const SizedBox(width: double.infinity),
+              secondChild: Column(
+                children: [
+                  const SizedBox(height: 4),
+                  Text(
+                    'Atalhos de decisao para destravar pausa, troca e cobertura.',
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  ...sugestoes.map(
+                    (sugestao) => Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: InkWell(
+                        onTap: sugestao.onTap,
+                        borderRadius: BorderRadius.circular(14),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: sugestao.color.withValues(alpha: 0.10),
-                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: AppColors.cardBorder),
                           ),
-                          child: Icon(
-                            sugestao.icon,
-                            color: sugestao.color,
-                            size: 18,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(sugestao.title, style: AppTextStyles.label),
-                              const SizedBox(height: 2),
+                              Container(
+                                width: 34,
+                                height: 34,
+                                decoration: BoxDecoration(
+                                  color: sugestao.color.withValues(alpha: 0.10),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Icon(
+                                  sugestao.icon,
+                                  color: sugestao.color,
+                                  size: 18,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      sugestao.title,
+                                      style: AppTextStyles.label,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      sugestao.subtitle,
+                                      style: AppTextStyles.caption.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
                               Text(
-                                sugestao.subtitle,
+                                sugestao.actionLabel,
                                 style: AppTextStyles.caption.copyWith(
-                                  color: AppColors.textSecondary,
+                                  color: sugestao.color,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          sugestao.actionLabel,
-                          style: AppTextStyles.caption.copyWith(
-                            color: sugestao.color,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
+              crossFadeState: _expandSugestoesMapa
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              duration: const Duration(milliseconds: 220),
             ),
           ],
         ),
@@ -1304,64 +1373,98 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(16),
+                InkWell(
+                  borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+                  onTap: () => setState(
+                    () => _expandPainelMapa = !_expandPainelMapa,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const Icon(
+                          Icons.monitor_heart_outlined,
+                          color: AppColors.primary,
+                        ),
                       ),
-                      child: const Icon(
-                        Icons.monitor_heart_outlined,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Painel operacional',
-                              style: AppTextStyles.h3),
-                          const SizedBox(height: 4),
-                          Text(
-                            resumo,
-                            style: AppTextStyles.body.copyWith(
-                              color: AppColors.textSecondary,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Painel operacional',
+                              style: AppTextStyles.h3,
                             ),
+                            const SizedBox(height: 4),
+                            Text(
+                              resumo,
+                              style: AppTextStyles.body.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.88),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Icon(
+                          _expandPainelMapa
+                              ? Icons.keyboard_arrow_up
+                              : Icons.keyboard_arrow_down,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                AnimatedCrossFade(
+                  firstChild: const SizedBox(width: double.infinity),
+                  secondChild: Column(
+                    children: [
+                      const SizedBox(height: Dimensions.spacingSM),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          _buildPainelPill(
+                            icon: Icons.map_outlined,
+                            color: AppColors.primary,
+                            label: '${statuses.length} caixas no mapa',
+                          ),
+                          _buildPainelPill(
+                            icon: Icons.pin_drop_outlined,
+                            color: AppColors.teal,
+                            label: '$localizacoesVisiveis localizacoes',
+                          ),
+                          _buildPainelPill(
+                            icon: Icons.warning_amber_rounded,
+                            color: excecoes > 0
+                                ? AppColors.danger
+                                : AppColors.success,
+                            label: excecoes > 0
+                                ? '$excecoes excecoes ativas'
+                                : 'Mapa estavel',
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: Dimensions.spacingSM),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _buildPainelPill(
-                      icon: Icons.map_outlined,
-                      color: AppColors.primary,
-                      label: '${statuses.length} caixas no mapa',
-                    ),
-                    _buildPainelPill(
-                      icon: Icons.pin_drop_outlined,
-                      color: AppColors.teal,
-                      label: '$localizacoesVisiveis localizacoes',
-                    ),
-                    _buildPainelPill(
-                      icon: Icons.warning_amber_rounded,
-                      color:
-                          excecoes > 0 ? AppColors.danger : AppColors.success,
-                      label: excecoes > 0
-                          ? '$excecoes excecoes ativas'
-                          : 'Mapa estavel',
-                    ),
-                  ],
+                    ],
+                  ),
+                  crossFadeState: _expandPainelMapa
+                      ? CrossFadeState.showSecond
+                      : CrossFadeState.showFirst,
+                  duration: const Duration(milliseconds: 220),
                 ),
               ],
             ),
@@ -1376,7 +1479,11 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                 : largura >= Dimensions.breakpointTablet
                     ? 2
                     : 2;
-            final proporcao = largura >= 900 ? 1.25 : 1.05;
+            final proporcao = largura >= 900
+                ? 1.95
+                : largura >= Dimensions.breakpointTablet
+                    ? 1.75
+                    : 1.6;
 
             return GridView.builder(
               shrinkWrap: true,
@@ -2069,25 +2176,25 @@ class _DashItem extends StatelessWidget {
         elevated: false,
       ),
       child: Padding(
-        padding: const EdgeInsets.all(Dimensions.paddingSM),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  width: 34,
-                  height: 34,
+                  width: 30,
+                  height: 30,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                     color: color.withValues(alpha: 0.12),
                   ),
-                  child: Icon(icon, size: 18, color: color),
+                  child: Icon(icon, size: 16, color: color),
                 ),
                 const Spacer(),
                 Icon(
                   Icons.open_in_new_rounded,
-                  size: 16,
+                  size: 15,
                   color: color.withValues(alpha: 0.70),
                 ),
               ],
@@ -2095,20 +2202,20 @@ class _DashItem extends StatelessWidget {
             const Spacer(),
             Text(
               value,
-              style: AppTextStyles.h2.copyWith(
+              style: AppTextStyles.h3.copyWith(
                 color: color,
                 fontWeight: FontWeight.w800,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             Text(
               label,
-              style: AppTextStyles.label.copyWith(
+              style: AppTextStyles.body.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 4),
             Text(
               subtitle,
               maxLines: 2,
