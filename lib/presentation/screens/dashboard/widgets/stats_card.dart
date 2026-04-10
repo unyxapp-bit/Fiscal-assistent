@@ -3,6 +3,7 @@ import '../../../../core/constants/app_styles.dart';
 import '../../../../core/constants/colors.dart';
 import '../../../../core/constants/text_styles.dart';
 import '../../../../core/constants/dimensions.dart';
+import '../../../../core/theme/app_theme.dart';
 
 /// Card de estatistica com icone e valor.
 class StatsCard extends StatelessWidget {
@@ -21,11 +22,13 @@ class StatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = context.appTheme;
     return Container(
       padding: const EdgeInsets.all(Dimensions.paddingMD),
       decoration: AppStyles.softCard(
+        context: context,
         tint: color,
-        radius: Dimensions.borderRadius,
+        radius: tokens.cardRadius,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,7 +37,10 @@ class StatsCard extends StatelessWidget {
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(tokens.inputRadius),
+              border: Border.all(
+                color: color.withValues(alpha: 0.18),
+              ),
             ),
             child: Icon(
               icon,
@@ -42,7 +48,7 @@ class StatsCard extends StatelessWidget {
               size: 22,
             ),
           ),
-          SizedBox(height: 12),
+          SizedBox(height: Dimensions.spacingSM),
           Text(
             title,
             style: AppTextStyles.caption.copyWith(
@@ -54,6 +60,7 @@ class StatsCard extends StatelessWidget {
             value,
             style: AppTextStyles.h2.copyWith(
               color: color,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ],

@@ -4,6 +4,7 @@ import '../../../core/constants/app_styles.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../data/datasources/remote/caixa_remote_datasource.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/fiscal_provider.dart';
@@ -43,6 +44,7 @@ import '../../../data/services/seed_data_service.dart';
 import '../../../core/utils/app_notif.dart';
 import 'widgets/clock_widget.dart';
 import 'widgets/quick_action_button.dart';
+import 'widgets/stats_card.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -192,8 +194,9 @@ class _DashboardScreenState extends State<DashboardScreen>
     final turnoJaIniciado = eventoProvider.turnoIniciadoEm != null;
 
     final saudacao = _getSaudacao();
-    final nome =
-        fiscalProvider.fiscal?.nome ?? authProvider.user?.email ?? 'Usuário';
+    final nome = fiscalProvider.fiscal?.nome ??
+        authProvider.user?.email ??
+        'Usu\u00e1rio';
     final primeiroNome = nome.split(' ').first;
 
     final totalAtivos = colaboradorProvider.totalAtivos;
@@ -229,7 +232,8 @@ class _DashboardScreenState extends State<DashboardScreen>
         _BannerSaudeDestino(
           icon: Icons.report_problem,
           color: AppColors.statusAtencao,
-          label: 'Ocorrências abertas (${ocorrenciaProvider.totalAbertas})',
+          label:
+              'Ocorr\u00eancias abertas (${ocorrenciaProvider.totalAbertas})',
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const OcorrenciasScreen()),
@@ -296,7 +300,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         _AlertItem(
           icon: Icons.report_problem,
           label:
-              '${ocorrenciaProvider.totalAbertas} ocorrência${ocorrenciaProvider.totalAbertas > 1 ? 's abertas' : ' aberta'}',
+              '${ocorrenciaProvider.totalAbertas} ocorr\u00eancia${ocorrenciaProvider.totalAbertas > 1 ? 's abertas' : ' aberta'}',
           color: AppColors.statusAtencao,
           onTap: () => Navigator.push(context,
               MaterialPageRoute(builder: (_) => const OcorrenciasScreen())),
@@ -311,11 +315,11 @@ class _DashboardScreenState extends State<DashboardScreen>
         ),
     ];
 
-    // â”€â”€ Tabs compartilhadas entre phone e tablet â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Tabs compartilhadas entre phone e tablet Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     final tabBarView = TabBarView(
       controller: _tabController,
       children: [
-        // â”€â”€ ABA 1: INÍCIO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // Ã¢â€â‚¬Ã¢â€â‚¬ ABA 1: INÃCIO Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         LayoutBuilder(
             builder: (context, constraints) => RefreshIndicator(
                   onRefresh: _loadData,
@@ -328,95 +332,138 @@ class _DashboardScreenState extends State<DashboardScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        _InicioHeroCard(
+                          saudacao: saudacao,
+                          primeiroNome: primeiroNome,
+                          turnoJaIniciado: turnoJaIniciado,
+                          totalAtivos: totalAtivos,
+                          livres: livres,
+                          alertas: alertas.length,
+                          onPrimaryAction: () {
+                            if (!turnoJaIniciado) {
+                              _abrirBriefingTurno(
+                                context,
+                                authProvider.user?.id ?? '',
+                              );
+                              return;
+                            }
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const TimelineScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                        SizedBox(height: Dimensions.spacingMD),
                         const ClockWidget(),
                         SizedBox(height: Dimensions.spacingMD),
 
-                        // Botão Começar Turno — oculto após confirmar início
+                        // BotÃ£o ComeÃ§ar Turno â€” oculto apÃ³s confirmar inÃ­cio
                         if (!turnoJaIniciado) ...[
+                          _DashboardSectionHeader(
+                            icon: Icons.flag_outlined,
+                            title: 'Prepara\u00e7\u00e3o do turno',
+                            subtitle:
+                                'Revise o briefing e confirme o in\u00edcio da opera\u00e7\u00e3o.',
+                          ),
+                          SizedBox(height: Dimensions.spacingSM),
                           _ComecaTurnoButton(
                             onPressed: () => _abrirBriefingTurno(
                               context,
                               authProvider.user?.id ?? '',
                             ),
                           ),
-                          SizedBox(height: Dimensions.spacingXL),
+                          SizedBox(height: Dimensions.spacingLG),
                         ],
 
-                        // Stats
-                        Container(
-                          decoration: AppStyles.softCard(
-                            tint: AppColors.primary,
-                            radius: 18,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: Dimensions.paddingMD,
-                              vertical: Dimensions.paddingSM,
-                            ),
-                            child: Column(
+                        _DashboardSectionHeader(
+                          icon: Icons.space_dashboard_outlined,
+                          title: 'Vis\u00e3o geral',
+                          subtitle:
+                              'Indicadores r\u00e1pidos para acompanhar a opera\u00e7\u00e3o agora.',
+                        ),
+                        SizedBox(height: Dimensions.spacingSM),
+                        LayoutBuilder(
+                          builder: (context, statsConstraints) {
+                            final crossAxisCount =
+                                statsConstraints.maxWidth >= 640 ? 3 : 2;
+                            final childAspectRatio =
+                                crossAxisCount == 3 ? 1.45 : 1.28;
+                            return GridView.count(
+                              crossAxisCount: crossAxisCount,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              crossAxisSpacing: Dimensions.spacingSM,
+                              mainAxisSpacing: Dimensions.spacingSM,
+                              childAspectRatio: childAspectRatio,
                               children: [
-                                Row(
-                                  children: [
-                                    _StatItem(
-                                      icon: Icons.people,
-                                      label: 'Colaboradores',
-                                      value: totalAtivos.toString(),
-                                      color: AppColors.primary,
-                                    ),
-                                    const _StatDivider(),
-                                    _StatItem(
-                                      icon: Icons.point_of_sale,
-                                      label: 'Caixas',
-                                      value: totalCaixas.toString(),
-                                      color: AppColors.success,
-                                    ),
-                                    const _StatDivider(),
-                                    _StatItem(
-                                      icon: Icons.swap_horiz,
-                                      label: 'Alocados',
-                                      value: alocados.toString(),
-                                      color: AppColors.statusAtivo,
-                                    ),
-                                  ],
+                                StatsCard(
+                                  title: 'Colaboradores',
+                                  value: totalAtivos.toString(),
+                                  icon: Icons.people_alt_outlined,
+                                  color: AppColors.primary,
                                 ),
-                                Divider(height: 1, thickness: 1),
-                                Row(
-                                  children: [
-                                    _StatItem(
-                                      icon: Icons.check_circle,
-                                      label: 'Livres',
-                                      value: livres.toString(),
-                                      color: AppColors.statusIntervalo,
-                                    ),
-                                    const _StatDivider(),
-                                    _StatItem(
-                                      icon: Icons.coffee,
-                                      label: 'Em Pausa',
-                                      value: emPausa.toString(),
-                                      color: AppColors.coffee,
-                                    ),
-                                    const _StatDivider(),
-                                    _StatItem(
-                                      icon: Icons.local_shipping,
-                                      label: 'Em Rota',
-                                      value: emRota.toString(),
-                                      color: AppColors.statusCafe,
-                                    ),
-                                  ],
+                                StatsCard(
+                                  title: 'Caixas ativos',
+                                  value: totalCaixas.toString(),
+                                  icon: Icons.point_of_sale_outlined,
+                                  color: AppColors.success,
+                                ),
+                                StatsCard(
+                                  title: 'Alocados agora',
+                                  value: alocados.toString(),
+                                  icon: Icons.swap_horiz_rounded,
+                                  color: AppColors.statusAtivo,
+                                ),
+                                StatsCard(
+                                  title: 'Livres',
+                                  value: livres.toString(),
+                                  icon: Icons.check_circle_outline,
+                                  color: AppColors.info,
+                                ),
+                                StatsCard(
+                                  title: 'Em pausa',
+                                  value: emPausa.toString(),
+                                  icon: Icons.coffee_outlined,
+                                  color: AppColors.coffee,
+                                ),
+                                StatsCard(
+                                  title: 'Em rota',
+                                  value: emRota.toString(),
+                                  icon: Icons.local_shipping_outlined,
+                                  color: AppColors.statusCafe,
                                 ),
                               ],
-                            ),
-                          ),
+                            );
+                          },
                         ),
 
-                        // Alertas
-                        if (alertas.isNotEmpty) ...[
-                          SizedBox(height: Dimensions.spacingMD),
+                        SizedBox(height: Dimensions.spacingLG),
+                        _DashboardSectionHeader(
+                          icon: Icons.notification_important_outlined,
+                          title: 'Alertas do turno',
+                          subtitle: alertas.isEmpty
+                              ? 'Nenhum item pedindo a\u00e7\u00e3o imediata neste momento.'
+                              : 'Atalhos r\u00e1pidos para o que precisa de aten\u00e7\u00e3o agora.',
+                        ),
+                        SizedBox(height: Dimensions.spacingSM),
+                        if (alertas.isEmpty)
+                          const _DashboardEmptyState(
+                            icon: Icons.check_circle_outline,
+                            title: 'Tudo sob controle',
+                            subtitle:
+                                'Sem alertas abertos. A opera\u00e7\u00e3o est\u00e1 est\u00e1vel no momento.',
+                          )
+                        else
                           ...alertas.map((a) => _AlertCard(item: a)),
-                        ],
-
-                        // Monitor em tempo real
-                        SizedBox(height: Dimensions.spacingMD),
+                        SizedBox(height: Dimensions.spacingLG),
+                        _DashboardSectionHeader(
+                          icon: Icons.monitor_heart_outlined,
+                          title: 'Monitor operacional',
+                          subtitle:
+                              'Pausas em andamento e pr\u00f3ximos intervalos em tempo real.',
+                        ),
+                        SizedBox(height: Dimensions.spacingSM),
                         _MonitorTempoReal(
                           cafeProvider: cafeProvider,
                           colaboradorProvider: colaboradorProvider,
@@ -430,7 +477,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ),
                 )),
 
-        // â”€â”€ ABA 2: PRINCIPAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // Ã¢â€â‚¬Ã¢â€â‚¬ ABA 2: PRINCIPAL Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         SingleChildScrollView(
           padding: const EdgeInsets.all(Dimensions.paddingMD),
           child: Column(
@@ -460,7 +507,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ),
                   _BotaoAcao(
                     icon: Icons.bar_chart,
-                    label: 'Relatório',
+                    label: 'Relat\u00f3rio',
                     color: AppColors.cyan,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -481,10 +528,10 @@ class _DashboardScreenState extends State<DashboardScreen>
           ),
         ),
 
-        // â”€â”€ ABA 3: PIZZARIA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // Ã¢â€â‚¬Ã¢â€â‚¬ ABA 3: PIZZARIA Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         const PizzaModuleScreen(),
 
-        // â”€â”€ ABA 4: OPERAÇÕES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // Ã¢â€â‚¬Ã¢â€â‚¬ ABA 4: OPERAÃ‡Ã•ES Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         SingleChildScrollView(
           padding: const EdgeInsets.all(Dimensions.paddingMD),
           child: Column(
@@ -506,7 +553,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ),
                   _BotaoAcao(
                     icon: Icons.report_problem,
-                    label: 'Ocorrências',
+                    label: 'Ocorr\u00eancias',
                     color: AppColors.danger,
                     badge: ocorrenciaProvider.totalAbertas > 0
                         ? ocorrenciaProvider.totalAbertas.toString()
@@ -539,7 +586,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ),
                   _BotaoAcao(
                     icon: Icons.help_outline,
-                    label: 'Guia Rápido',
+                    label: 'Guia R\u00e1pido',
                     color: AppColors.blueGrey,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -548,7 +595,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ),
                   _BotaoAcao(
                     icon: Icons.note,
-                    label: 'Anotações',
+                    label: 'Anota\u00e7\u00f5es',
                     color: AppColors.statusSaida,
                     badge: notaProvider.totalTarefasPendentes > 0
                         ? notaProvider.totalTarefasPendentes.toString()
@@ -559,7 +606,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ),
                   _BotaoAcao(
                     icon: Icons.description,
-                    label: 'Formulários',
+                    label: 'Formul\u00e1rios',
                     color: AppColors.indigo,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -577,7 +624,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ),
                   _BotaoAcao(
                     icon: Icons.notifications,
-                    label: 'Notificações',
+                    label: 'Notifica\u00e7\u00f5es',
                     color: AppColors.primary,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -590,7 +637,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           ),
         ),
 
-        // â”€â”€ ABA 5: LOJA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // Ã¢â€â‚¬Ã¢â€â‚¬ ABA 5: LOJA Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         RefreshIndicator(
           onRefresh: _loadData,
           child: SingleChildScrollView(
@@ -601,7 +648,7 @@ class _DashboardScreenState extends State<DashboardScreen>
               children: [
                 SizedBox(height: Dimensions.spacingSM),
 
-                // Banner de saúde do turno
+                // Banner de saÃºde do turno
                 _BannerSaudeTurno(
                   critico: cafeProvider.totalEmAtraso > 0 ||
                       notaProvider.totalLembretesVencidos > 0,
@@ -613,14 +660,14 @@ class _DashboardScreenState extends State<DashboardScreen>
                 SizedBox(height: Dimensions.spacingMD),
 
                 if (fiscalProvider.fiscal != null) ...[
-                  // Card Ocupação do Turno
+                  // Card OcupaÃ§Ã£o do Turno
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(Dimensions.paddingMD),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Ocupação do Turno', style: AppTextStyles.h4),
+                          Text('OcupaÃ§Ã£o do Turno', style: AppTextStyles.h4),
                           SizedBox(height: Dimensions.spacingMD),
                           _OcupacaoBar(
                             alocados: alocados,
@@ -640,7 +687,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     ),
                   ),
 
-                // Cabeçalho da seção Ferramentas
+                // CabeÃ§alho da seÃ§Ã£o Ferramentas
                 SizedBox(height: Dimensions.spacingMD),
                 Padding(
                   padding: const EdgeInsets.only(
@@ -690,12 +737,12 @@ class _DashboardScreenState extends State<DashboardScreen>
       ],
     );
 
-    // â”€â”€ Layout adaptativo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Ã¢â€â‚¬Ã¢â€â‚¬ Layout adaptativo Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     return LayoutBuilder(
       builder: (context, constraints) {
         final isTablet = constraints.maxWidth >= Dimensions.breakpointTablet;
 
-        // â”€â”€ TABLET: NavigationRail + TabBarView â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // Ã¢â€â‚¬Ã¢â€â‚¬ TABLET: NavigationRail + TabBarView Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         if (isTablet) {
           return Scaffold(
             backgroundColor: AppColors.background,
@@ -718,7 +765,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                         SizedBox(height: 8),
                         IconButton(
                           icon: Icon(Icons.settings_outlined),
-                          tooltip: 'Configurações',
+                          tooltip: 'Configura\u00e7\u00f5es',
                           onPressed: () => Navigator.of(context).push(
                             MaterialPageRoute(
                                 builder: (_) => const ConfiguracoesScreen()),
@@ -735,7 +782,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   destinations: [
                     const NavigationRailDestination(
                       icon: Icon(Icons.home_outlined),
-                      label: Text('Início'),
+                      label: Text('In\u00edcio'),
                     ),
                     const NavigationRailDestination(
                       icon: Icon(Icons.apps_outlined),
@@ -751,7 +798,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                         backgroundColor: AppColors.danger,
                         child: Icon(Icons.build_outlined),
                       ),
-                      label: Text('Operações'),
+                      label: Text('Opera\u00e7\u00f5es'),
                     ),
                     const NavigationRailDestination(
                       icon: Icon(Icons.store_outlined),
@@ -766,7 +813,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           );
         }
 
-        // â”€â”€ PHONE: AppBar com TabBar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // Ã¢â€â‚¬Ã¢â€â‚¬ PHONE: AppBar com TabBar Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         return Scaffold(
           backgroundColor: AppColors.background,
           appBar: AppBar(
@@ -807,7 +854,8 @@ class _DashboardScreenState extends State<DashboardScreen>
               unselectedLabelStyle: TextStyle(fontSize: 11),
               tabs: [
                 const Tab(
-                    icon: Icon(Icons.home_outlined, size: 20), text: 'Início'),
+                    icon: Icon(Icons.home_outlined, size: 20),
+                    text: 'In\u00edcio'),
                 const Tab(
                     icon: Icon(Icons.apps_outlined, size: 20),
                     text: 'Principal'),
@@ -834,7 +882,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                         ),
                     ],
                   ),
-                  text: 'Operações',
+                  text: 'Opera\u00e7\u00f5es',
                 ),
                 const Tab(
                     icon: Icon(Icons.store_outlined, size: 20), text: 'Loja'),
@@ -855,7 +903,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 }
 
-// â”€â”€ Monitor em tempo real â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬ Monitor em tempo real Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 class _MonitorTempoReal extends StatelessWidget {
   final CafeProvider cafeProvider;
@@ -884,7 +932,7 @@ class _MonitorTempoReal extends StatelessWidget {
         AppNotif.show(
           context,
           titulo: 'Erro',
-          mensagem: 'Usuario nao autenticado para finalizar pausa.',
+          mensagem: 'Usu\u00e1rio n\u00e3o autenticado para finalizar pausa.',
           tipo: 'alerta',
           cor: AppColors.danger,
         );
@@ -950,7 +998,7 @@ class _MonitorTempoReal extends StatelessWidget {
       mensagem: pausa.isCafe
           ? '${pausa.colaboradorNome} voltou ao ${caixaDestino ?? 'caixa'}.'
           : '${pausa.colaboradorNome} realocado(a) para ${caixaDestino ?? 'caixa'}'
-              '${usouExcecaoMesmoCaixa ? ' (excecao registrada)' : ''}.',
+              '${usouExcecaoMesmoCaixa ? ' (exce\u00e7\u00e3o registrada)' : ''}.',
       tipo: 'saida',
       cor: AppColors.success,
     );
@@ -974,8 +1022,8 @@ class _MonitorTempoReal extends StatelessWidget {
       if (context.mounted) {
         AppNotif.show(
           context,
-          titulo: 'Sem caixa disponivel',
-          mensagem: 'Nao ha caixa livre para retorno do intervalo.',
+          titulo: 'Sem caixa dispon\u00edvel',
+          mensagem: 'N\u00e3o h\u00e1 caixa livre para retorno do intervalo.',
           tipo: 'alerta',
           cor: AppColors.warning,
         );
@@ -1045,9 +1093,10 @@ class _MonitorTempoReal extends StatelessWidget {
                           onChanged: (v) => setStateDialog(
                             () => permitirMesmoCaixa = v ?? false,
                           ),
-                          title: Text('Permitir mesmo caixa (excecao)'),
+                          title:
+                              Text('Permitir mesmo caixa (exce\u00e7\u00e3o)'),
                           subtitle: Text(
-                            'Necessario justificar para auditoria.',
+                            'Necess\u00e1rio justificar para auditoria.',
                           ),
                         ),
                         if (permitirMesmoCaixa) ...[
@@ -1057,7 +1106,7 @@ class _MonitorTempoReal extends StatelessWidget {
                             maxLines: 3,
                             textCapitalization: TextCapitalization.sentences,
                             decoration: InputDecoration(
-                              labelText: 'Justificativa da excecao *',
+                              labelText: 'Justificativa da exce\u00e7\u00e3o *',
                             ),
                             onChanged: (_) => setStateDialog(() {}),
                           ),
@@ -1103,7 +1152,7 @@ class _MonitorTempoReal extends StatelessWidget {
   Widget build(BuildContext context) {
     final pausasAtivas = cafeProvider.pausasAtivas;
 
-    // Próximos intervalos (≤15 min) — apenas colaboradores ativos no turno
+    // PrÃ³ximos intervalos (â‰¤15 min) â€” apenas colaboradores ativos no turno
     final proximos = <_ProximoIntervalo>[];
     for (final turno in escalaProvider.turnosHoje) {
       if (turno.intervalo == null) continue;
@@ -1129,9 +1178,14 @@ class _MonitorTempoReal extends StatelessWidget {
     }
 
     final semAlertas = pausasAtivas.isEmpty && proximos.isEmpty;
+    final tokens = context.appTheme;
 
-    return Card(
-      color: AppColors.cardBackground,
+    return Container(
+      decoration: AppStyles.softCard(
+        context: context,
+        tint: AppColors.primary,
+        radius: tokens.cardRadius + 2,
+      ),
       child: Padding(
         padding: const EdgeInsets.all(Dimensions.paddingMD),
         child: Column(
@@ -1142,7 +1196,25 @@ class _MonitorTempoReal extends StatelessWidget {
                 Icon(Icons.monitor_heart_outlined,
                     color: AppColors.primary, size: 18),
                 SizedBox(width: 6),
-                Text('Monitor em tempo real', style: AppTextStyles.h4),
+                Expanded(
+                  child: Text('Monitor em tempo real', style: AppTextStyles.h4),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: AppStyles.softTile(
+                    context: context,
+                    tint: semAlertas ? AppColors.success : AppColors.warning,
+                    radius: 999,
+                  ),
+                  child: Text(
+                    semAlertas ? 'Est\u00e1vel' : 'Ao vivo',
+                    style: AppTextStyles.caption.copyWith(
+                      color: semAlertas ? AppColors.success : AppColors.warning,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
               ],
             ),
             SizedBox(height: 12),
@@ -1152,7 +1224,7 @@ class _MonitorTempoReal extends StatelessWidget {
                   Icon(Icons.check_circle, color: AppColors.success, size: 16),
                   SizedBox(width: 8),
                   Text(
-                    'Tudo em ordem — nenhum alerta no momento',
+                    'Tudo em ordem, nenhum alerta no momento',
                     style: AppTextStyles.caption
                         .copyWith(color: AppColors.success),
                   ),
@@ -1177,16 +1249,17 @@ class _MonitorTempoReal extends StatelessWidget {
                           orElse: () => null)
                       : null;
                   final isCafe = p.isCafe;
-                  final cor =
-                      p.emAtraso ? AppColors.danger : Colors.orange.shade700;
+                  final cor = p.emAtraso
+                      ? AppColors.danger
+                      : (isCafe ? AppColors.coffee : AppColors.warning);
                   return Container(
                     margin: const EdgeInsets.only(bottom: 6),
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: cor.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: cor.withValues(alpha: 0.3)),
+                    decoration: AppStyles.softTile(
+                      context: context,
+                      tint: cor,
+                      radius: 14,
                     ),
                     child: Row(
                       children: [
@@ -1210,7 +1283,7 @@ class _MonitorTempoReal extends StatelessWidget {
                               ),
                               Text(
                                 caixa != null
-                                    ? '${caixa.nomeExibicao} · ${p.minutosDecorridos}/${p.duracaoMinutos} min'
+                                    ? '${caixa.nomeExibicao} Â· ${p.minutosDecorridos}/${p.duracaoMinutos} min'
                                     : '${p.minutosDecorridos}/${p.duracaoMinutos} min',
                                 style: AppTextStyles.caption
                                     .copyWith(color: AppColors.textSecondary),
@@ -1264,7 +1337,7 @@ class _MonitorTempoReal extends StatelessWidget {
                 }),
               ],
 
-              // Próximos intervalos
+              // PrÃ³ximos intervalos
               if (proximos.isNotEmpty) ...[
                 if (pausasAtivas.isNotEmpty) SizedBox(height: 10),
                 Text(
@@ -1280,31 +1353,32 @@ class _MonitorTempoReal extends StatelessWidget {
                       margin: const EdgeInsets.only(bottom: 6),
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.orange.withValues(alpha: 0.07),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                            color: Colors.orange.withValues(alpha: 0.3)),
+                      decoration: AppStyles.softTile(
+                        context: context,
+                        tint: AppColors.warning,
+                        radius: 14,
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.schedule,
-                              color: Colors.orange.shade700, size: 16),
+                          Icon(
+                            Icons.schedule,
+                            color: AppColors.warning,
+                            size: 16,
+                          ),
                           SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               p.nome,
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.orange.shade800,
+                              style: AppTextStyles.caption.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.warning,
                               ),
                             ),
                           ),
                           Text(
-                            'às ${p.horario} · em ${p.minutosRestantes} min',
+                            '\u00e0s ${p.horario} \u00b7 em ${p.minutosRestantes} min',
                             style: AppTextStyles.caption
-                                .copyWith(color: Colors.orange.shade700),
+                                .copyWith(color: AppColors.warning),
                           ),
                         ],
                       ),
@@ -1342,7 +1416,7 @@ class _ProximoIntervalo {
   });
 }
 
-// â”€â”€ Helpers de layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬ Helpers de layout Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 class _BotaoAcao {
   final IconData icon;
@@ -1406,7 +1480,349 @@ class _GridAcoes extends StatelessWidget {
   }
 }
 
-// â”€â”€ Widgets auxiliares â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬ Widgets auxiliares Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+
+class _DashboardSectionHeader extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  const _DashboardSectionHeader({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.appTheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: tokens.primary.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: tokens.primary.withValues(alpha: 0.18),
+            ),
+          ),
+          child: Icon(icon, color: tokens.primary, size: 20),
+        ),
+        SizedBox(width: Dimensions.spacingSM),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: AppTextStyles.h4),
+              SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DashboardEmptyState extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  const _DashboardEmptyState({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(Dimensions.paddingMD),
+      decoration: AppStyles.softCard(
+        context: context,
+        tint: AppColors.success,
+        radius: 18,
+        elevated: false,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: AppColors.success.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(icon, color: AppColors.success),
+          ),
+          SizedBox(width: Dimensions.spacingSM),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: AppTextStyles.body.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InicioHeroCard extends StatelessWidget {
+  final String saudacao;
+  final String primeiroNome;
+  final bool turnoJaIniciado;
+  final int totalAtivos;
+  final int livres;
+  final int alertas;
+  final VoidCallback onPrimaryAction;
+
+  const _InicioHeroCard({
+    required this.saudacao,
+    required this.primeiroNome,
+    required this.turnoJaIniciado,
+    required this.totalAtivos,
+    required this.livres,
+    required this.alertas,
+    required this.onPrimaryAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.appTheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final statusColor = turnoJaIniciado ? AppColors.success : AppColors.primary;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(Dimensions.paddingLG),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            statusColor.withValues(alpha: isDark ? 0.24 : 0.14),
+            tokens.cardBackground,
+            tokens.backgroundSection,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(tokens.cardRadius + 2),
+        border: Border.all(
+          color: statusColor.withValues(alpha: isDark ? 0.34 : 0.18),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: tokens.shadowColor.withValues(alpha: isDark ? 0.16 : 0.06),
+            blurRadius: isDark ? 22 : 14,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _InicioBadge(
+                icon: Icons.dashboard_customize_outlined,
+                label: 'Painel do dia',
+                color: AppColors.primary,
+              ),
+              _InicioBadge(
+                icon: turnoJaIniciado
+                    ? Icons.play_circle_outline
+                    : Icons.hourglass_top_rounded,
+                label: turnoJaIniciado
+                    ? 'Turno em andamento'
+                    : 'Aguardando in\u00edcio',
+                color: statusColor,
+              ),
+              if (alertas > 0)
+                _InicioBadge(
+                  icon: Icons.priority_high_rounded,
+                  label: '$alertas alerta${alertas > 1 ? 's' : ''}',
+                  color: AppColors.warning,
+                ),
+            ],
+          ),
+          SizedBox(height: Dimensions.spacingMD),
+          Text(
+            '$saudacao, $primeiroNome',
+            style: AppTextStyles.h2.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          SizedBox(height: Dimensions.spacingXS),
+          Text(
+            turnoJaIniciado
+                ? 'Acompanhe o ritmo da opera\u00e7\u00e3o, os alertas e as pausas com uma leitura r\u00e1pida do turno.'
+                : 'Comece o turno com contexto claro da opera\u00e7\u00e3o e acesso r\u00e1pido ao briefing.',
+            style: AppTextStyles.body.copyWith(
+              color: AppColors.textSecondary,
+              height: 1.35,
+            ),
+          ),
+          SizedBox(height: Dimensions.spacingMD),
+          Row(
+            children: [
+              Expanded(
+                child: _InicioMetricTile(
+                  label: 'Ativos hoje',
+                  value: totalAtivos.toString(),
+                  color: AppColors.primary,
+                ),
+              ),
+              SizedBox(width: Dimensions.spacingSM),
+              Expanded(
+                child: _InicioMetricTile(
+                  label: 'Livres agora',
+                  value: livres.toString(),
+                  color: AppColors.info,
+                ),
+              ),
+              SizedBox(width: Dimensions.spacingSM),
+              Expanded(
+                child: _InicioMetricTile(
+                  label: 'Alertas',
+                  value: alertas.toString(),
+                  color: alertas > 0 ? AppColors.warning : AppColors.success,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: Dimensions.spacingMD),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ElevatedButton.icon(
+              onPressed: onPrimaryAction,
+              icon: Icon(
+                turnoJaIniciado
+                    ? Icons.timeline_rounded
+                    : Icons.play_arrow_rounded,
+              ),
+              label: Text(
+                turnoJaIniciado
+                    ? 'Abrir timeline do turno'
+                    : 'Come\u00e7ar turno',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InicioBadge extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  const _InicioBadge({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: AppStyles.softTile(
+        context: context,
+        tint: color,
+        radius: 999,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          SizedBox(width: 6),
+          Text(
+            label,
+            style: AppTextStyles.caption.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InicioMetricTile extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+
+  const _InicioMetricTile({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: Dimensions.paddingSM,
+        vertical: Dimensions.paddingSM,
+      ),
+      decoration: AppStyles.softTile(
+        context: context,
+        tint: color,
+        radius: 18,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            value,
+            style: AppTextStyles.h3.copyWith(
+              color: color,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          SizedBox(height: 2),
+          Text(
+            label,
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class _AlertItem {
   final IconData icon;
@@ -1476,74 +1892,7 @@ class _AlertCard extends StatelessWidget {
   }
 }
 
-class _StatItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-
-  const _StatItem({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(7),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: color.withValues(alpha: 0.12),
-              ),
-              child: Icon(icon, color: color, size: 16),
-            ),
-            SizedBox(height: 6),
-            Text(
-              value,
-              style: AppTextStyles.h3.copyWith(
-                color: color,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            Text(
-              label,
-              style: AppTextStyles.caption.copyWith(
-                fontSize: 10,
-                color: AppColors.textSecondary,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _StatDivider extends StatelessWidget {
-  const _StatDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 1,
-      height: 40,
-      color: AppColors.cardBorder,
-    );
-  }
-}
-
-// â”€â”€ Banner de saúde do turno â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬ Banner de saÃºde do turno Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 class _BannerSaudeTurno extends StatelessWidget {
   final bool critico;
@@ -1566,13 +1915,13 @@ class _BannerSaudeTurno extends StatelessWidget {
     if (critico) {
       cor = AppColors.danger;
       icone = Icons.error_outline;
-      titulo = 'Turno com alertas críticos';
+      titulo = 'Turno com alertas cr\u00edticos';
       subtitulo = 'Verifique pausas em atraso ou lembretes vencidos';
     } else if (atencao) {
       cor = AppColors.warning;
       icone = Icons.warning_amber_outlined;
-      titulo = 'Turno requer atenção';
-      subtitulo = 'Há ocorrências, entregas ou checklist pendentes';
+      titulo = 'Turno requer aten\u00e7\u00e3o';
+      subtitulo = 'H\u00e1 ocorr\u00eancias, entregas ou checklist pendentes';
     } else {
       cor = AppColors.success;
       icone = Icons.check_circle_outline;
@@ -1631,7 +1980,7 @@ class _BannerSaudeTurno extends StatelessWidget {
   }
 }
 
-// â”€â”€ Barra de ocupação dos caixas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬ Barra de ocupaÃ§Ã£o dos caixas Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 class _OcupacaoBar extends StatelessWidget {
   final int alocados;
@@ -1754,7 +2103,7 @@ class _OcupacaoBar extends StatelessWidget {
   }
 }
 
-// â”€â”€ Botão Começar Turno â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬ BotÃ£o ComeÃ§ar Turno Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 class _ComecaTurnoButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -1763,18 +2112,19 @@ class _ComecaTurnoButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = context.appTheme;
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onPressed,
-        borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+        borderRadius: BorderRadius.circular(tokens.buttonRadius),
         child: Ink(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           decoration: AppStyles.softCard(
+            context: context,
             tint: AppColors.primary,
-            radius: Dimensions.borderRadius,
-            elevated: false,
+            radius: tokens.buttonRadius,
           ),
           child: Row(
             children: [
@@ -1782,6 +2132,9 @@ class _ComecaTurnoButton extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.1),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.18),
+                  ),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -1796,28 +2149,34 @@ class _ComecaTurnoButton extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Comecar turno',
-                      style: TextStyle(
+                      'Come\u00e7ar turno',
+                      style: AppTextStyles.body.copyWith(
                         color: AppColors.textPrimary,
-                        fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     SizedBox(height: 2),
                     Text(
                       'Ver briefing do turno e iniciar',
-                      style: TextStyle(
+                      style: AppTextStyles.caption.copyWith(
                         color: AppColors.textSecondary,
-                        fontSize: 12,
                       ),
                     ),
                   ],
                 ),
               ),
-              Icon(
-                Icons.arrow_forward_ios,
-                color: AppColors.textSecondary,
-                size: 14,
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: AppStyles.softTile(
+                  context: context,
+                  tint: AppColors.primary,
+                  radius: 999,
+                ),
+                child: Icon(
+                  Icons.arrow_forward_rounded,
+                  color: AppColors.primary,
+                  size: 16,
+                ),
               ),
             ],
           ),
@@ -1827,7 +2186,7 @@ class _ComecaTurnoButton extends StatelessWidget {
   }
 }
 
-// â”€â”€ Briefing de início de turno â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬ Briefing de inÃ­cio de turno Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 class _BriefingTurnoSheet extends StatelessWidget {
   final String fiscalId;
@@ -1872,7 +2231,7 @@ class _BriefingTurnoSheet extends StatelessWidget {
               ),
             ),
 
-            // Título
+            // TÃ­tulo
             Row(
               children: [
                 Container(
@@ -1890,7 +2249,7 @@ class _BriefingTurnoSheet extends StatelessWidget {
                   children: [
                     Text('Briefing do Turno', style: AppTextStyles.h3),
                     Text(
-                      'Início às $horaFormatada',
+                      'In\u00edcio \u00e0s $horaFormatada',
                       style: AppTextStyles.caption
                           .copyWith(color: AppColors.textSecondary),
                     ),
@@ -1904,7 +2263,7 @@ class _BriefingTurnoSheet extends StatelessWidget {
               child: ListView(
                 controller: controller,
                 children: [
-                  // â”€â”€ Colaboradores presentes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                  // Ã¢â€â‚¬Ã¢â€â‚¬ Colaboradores presentes Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                   _BriefingSection(
                     icon: Icons.people,
                     iconColor: AppColors.success,
@@ -1929,7 +2288,7 @@ class _BriefingTurnoSheet extends StatelessWidget {
 
                   SizedBox(height: 12),
 
-                  // â”€â”€ De folga â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                  // Ã¢â€â‚¬Ã¢â€â‚¬ De folga Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                   _BriefingSection(
                     icon: Icons.beach_access,
                     iconColor: AppColors.textSecondary,
@@ -1952,13 +2311,13 @@ class _BriefingTurnoSheet extends StatelessWidget {
 
                   SizedBox(height: 12),
 
-                  // â”€â”€ Notas importantes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                  // Ã¢â€â‚¬Ã¢â€â‚¬ Notas importantes Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                   _BriefingSection(
                     icon: Icons.warning_amber_rounded,
                     iconColor: Colors.orange,
                     title: 'Avisos importantes (${notasImportantes.length})',
                     child: notasImportantes.isEmpty
-                        ? Text('Sem anotações importantes no momento',
+                        ? Text('Sem anota\u00e7\u00f5es importantes no momento',
                             style: AppTextStyles.caption
                                 .copyWith(color: AppColors.textSecondary))
                         : Column(
@@ -2002,7 +2361,7 @@ class _BriefingTurnoSheet extends StatelessWidget {
               ),
             ),
 
-            // â”€â”€ Botões de ação â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // Ã¢â€â‚¬Ã¢â€â‚¬ BotÃµes de aÃ§Ã£o Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
             Row(
               children: [
                 Expanded(
@@ -2028,7 +2387,7 @@ class _BriefingTurnoSheet extends StatelessWidget {
                     onPressed: () => _confirmarInicio(context, presentes,
                         defolga, notasImportantes, horaFormatada),
                     icon: Icon(Icons.play_arrow_rounded, size: 18),
-                    label: Text('Confirmar Início'),
+                    label: Text('Confirmar In\u00edcio'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
@@ -2059,11 +2418,11 @@ class _BriefingTurnoSheet extends StatelessWidget {
     final fiscalId = authProvider.user?.id ?? '';
 
     final resumo =
-        'Início de turno às $horaFormatada\nPresentes: ${presentes.length} colaborador(es)';
+        'In\u00edcio de turno \u00e0s $horaFormatada\nPresentes: ${presentes.length} colaborador(es)';
 
     final pendencias = notasImportantes.isNotEmpty
-        ? notasImportantes.map((n) => '• ${n.titulo}').join('\n')
-        : 'Nenhuma pendência registrada';
+        ? notasImportantes.map((n) => 'â€¢ ${n.titulo}').join('\n')
+        : 'Nenhuma pend\u00eancia registrada';
 
     final recados = defolga.isNotEmpty
         ? 'De folga/feriado: ${defolga.map((t) => t.colaboradorNome).join(', ')}'
@@ -2087,7 +2446,8 @@ class _BriefingTurnoSheet extends StatelessWidget {
     AppNotif.show(
       context,
       titulo: 'Turno Iniciado',
-      mensagem: 'Turno iniciado às $horaFormatada — registrado na timeline',
+      mensagem:
+          'Turno iniciado \u00e0s $horaFormatada - registrado na timeline',
       tipo: 'saida',
       cor: AppColors.success,
       duracao: const Duration(seconds: 4),
