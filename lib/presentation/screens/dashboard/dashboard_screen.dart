@@ -500,7 +500,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 icon: Icons.grid_view_rounded,
                 title: 'Rotinas principais',
                 subtitle:
-                    'Acessos centrais para gestÃ£o diÃ¡ria de caixas, equipe, relatÃ³rios e escala.',
+                    'Acessos centrais para gest\u00e3o di\u00e1ria de caixas, equipe, relat\u00f3rios e escala.',
               ),
               SizedBox(height: Dimensions.spacingSM),
               _GridAcoes(
@@ -508,7 +508,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   _BotaoAcao(
                     icon: Icons.point_of_sale,
                     label: 'Caixas',
-                    subtitle: 'Mapa, alocaÃ§Ã£o e status dos caixas',
+                    subtitle: 'Mapa, aloca\u00e7\u00e3o e status dos caixas',
                     color: AppColors.primary,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -519,7 +519,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   _BotaoAcao(
                     icon: Icons.people,
                     label: 'Colaboradores',
-                    subtitle: 'Equipe ativa, cadastros e consulta rÃ¡pida',
+                    subtitle: 'Equipe ativa, cadastros e consulta r\u00e1pida',
                     color: AppColors.statusAtivo,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -550,9 +550,9 @@ class _DashboardScreenState extends State<DashboardScreen>
               SizedBox(height: Dimensions.spacingLG),
               _DashboardSectionHeader(
                 icon: Icons.insights_outlined,
-                title: 'Leitura rÃ¡pida',
+                title: 'Leitura r\u00e1pida',
                 subtitle:
-                    'Resumo imediato da frente principal antes de abrir cada mÃ³dulo.',
+                    'Resumo imediato da frente principal antes de abrir cada m\u00f3dulo.',
               ),
               SizedBox(height: Dimensions.spacingSM),
               LayoutBuilder(
@@ -635,9 +635,9 @@ class _DashboardScreenState extends State<DashboardScreen>
               SizedBox(height: Dimensions.spacingLG),
               _DashboardSectionHeader(
                 icon: Icons.priority_high_rounded,
-                title: 'AÃ§Ãµes prioritÃ¡rias',
+                title: 'A\u00e7\u00f5es priorit\u00e1rias',
                 subtitle:
-                    'Tudo que impacta o turno em andamento e pede leitura rÃ¡pida.',
+                    'Tudo que impacta o turno em andamento e pede leitura r\u00e1pida.',
               ),
               SizedBox(height: Dimensions.spacingSM),
               _GridAcoes(
@@ -645,7 +645,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   _BotaoAcao(
                     icon: Icons.local_shipping,
                     label: 'Entregas',
-                    subtitle: 'Envios em separaÃ§Ã£o, rota e acompanhamento',
+                    subtitle: 'Envios em separa\u00e7\u00e3o, rota e acompanhamento',
                     color: AppColors.statusCafe,
                     badge: entregaProvider.totalEmRota > 0
                         ? entregaProvider.totalEmRota.toString()
@@ -657,7 +657,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   _BotaoAcao(
                     icon: Icons.report_problem,
                     label: 'Ocorr\u00eancias',
-                    subtitle: 'Registros abertos, tratativas e histÃ³rico',
+                    subtitle: 'Registros abertos, tratativas e hist\u00f3rico',
                     color: AppColors.danger,
                     badge: ocorrenciaProvider.totalAbertas > 0
                         ? ocorrenciaProvider.totalAbertas.toString()
@@ -670,7 +670,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   _BotaoAcao(
                     icon: Icons.checklist,
                     label: 'Checklist',
-                    subtitle: 'Rotinas obrigatÃ³rias e pendÃªncias do turno',
+                    subtitle: 'Rotinas obrigat\u00f3rias e pend\u00eancias do turno',
                     color: AppColors.success,
                     badge: checklistProvider.templatesPendentesAgora.isNotEmpty
                         ? '!'
@@ -683,7 +683,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   _BotaoAcao(
                     icon: Icons.handshake,
                     label: 'Passagem Turno',
-                    subtitle: 'Recados e transiÃ§Ã£o entre fiscais',
+                    subtitle: 'Recados e transi\u00e7\u00e3o entre fiscais',
                     color: AppColors.primary,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -697,7 +697,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 icon: Icons.menu_book_rounded,
                 title: 'Apoio e consulta',
                 subtitle:
-                    'ConteÃºdo de apoio, anotaÃ§Ãµes e formulÃ¡rios para decisÃµes do dia.',
+                    'Conte\u00fado de apoio, anota\u00e7\u00f5es e formul\u00e1rios para decis\u00f5es do dia.',
               ),
               SizedBox(height: Dimensions.spacingSM),
               _GridAcoes(
@@ -706,7 +706,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     icon: Icons.help_outline,
                     label: 'Guia R\u00e1pido',
                     subtitle:
-                        'ReferÃªncia operacional para dÃºvidas frequentes',
+                        'Refer\u00eancia operacional para d\u00favidas frequentes',
                     color: AppColors.blueGrey,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -728,7 +728,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   _BotaoAcao(
                     icon: Icons.description,
                     label: 'Formul\u00e1rios',
-                    subtitle: 'Registros estruturados e lanÃ§amentos rÃ¡pidos',
+                    subtitle: 'Registros estruturados e lan\u00e7amentos r\u00e1pidos',
                     color: AppColors.indigo,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -738,7 +738,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   _BotaoAcao(
                     icon: Icons.menu_book,
                     label: 'Procedimentos',
-                    subtitle: 'Fluxos oficiais e orientaÃ§Ãµes internas',
+                    subtitle: 'Fluxos oficiais e orienta\u00e7\u00f5es internas',
                     color: AppColors.deepPurple,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -749,7 +749,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     icon: Icons.notifications,
                     label: 'Notifica\u00e7\u00f5es',
                     subtitle:
-                        'Comunicados e sinalizaÃ§Ãµes gerais da operaÃ§Ã£o',
+                        'Comunicados e sinaliza\u00e7\u00f5es gerais da opera\u00e7\u00e3o',
                     color: AppColors.primary,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -763,7 +763,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 icon: Icons.analytics_outlined,
                 title: 'Pulso operacional',
                 subtitle:
-                    'Leitura rÃ¡pida das pendÃªncias abertas antes de entrar em cada mÃ³dulo.',
+                    'Leitura r\u00e1pida das pend\u00eancias abertas antes de entrar em cada m\u00f3dulo.',
               ),
               SizedBox(height: Dimensions.spacingSM),
               LayoutBuilder(
@@ -786,7 +786,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                             : AppColors.success,
                       ),
                       _InicioMetricTile(
-                        label: 'OcorrÃªncias',
+                        label: 'Ocorr\u00eancias',
                         value: ocorrenciaProvider.totalAbertas.toString(),
                         color: ocorrenciaProvider.totalAbertas > 0
                             ? AppColors.danger
@@ -802,7 +802,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                 : AppColors.success,
                       ),
                       _InicioMetricTile(
-                        label: 'AnotaÃ§Ãµes',
+                        label: 'Anota\u00e7\u00f5es',
                         value: notaProvider.totalTarefasPendentes.toString(),
                         color: notaProvider.totalTarefasPendentes > 0
                             ? AppColors.statusSaida
@@ -1844,7 +1844,7 @@ class _OperacoesHubCard extends StatelessWidget {
             children: [
               _InicioBadge(
                 icon: Icons.settings_suggest_rounded,
-                label: 'OperaÃ§Ã£o assistida',
+                label: 'Opera\u00e7\u00e3o assistida',
                 color: AppColors.primary,
               ),
               _InicioBadge(
@@ -1852,15 +1852,15 @@ class _OperacoesHubCard extends StatelessWidget {
                     ? Icons.priority_high_rounded
                     : Icons.check_circle_outline,
                 label: totalPendencias > 0
-                    ? '$totalPendencias pendÃªncia${totalPendencias > 1 ? 's' : ''}'
-                    : 'Fluxo estÃ¡vel',
+                    ? '$totalPendencias pend\u00eancia${totalPendencias > 1 ? 's' : ''}'
+                    : 'Fluxo est\u00e1vel',
                 color: accentColor,
               ),
               if (ocorrenciasAbertas > 0)
                 _InicioBadge(
                   icon: Icons.report_problem_outlined,
                   label:
-                      '$ocorrenciasAbertas ocorrÃªncia${ocorrenciasAbertas > 1 ? 's' : ''}',
+                      '$ocorrenciasAbertas ocorr\u00eancia${ocorrenciasAbertas > 1 ? 's' : ''}',
                   color: AppColors.danger,
                 ),
             ],
@@ -1874,7 +1874,7 @@ class _OperacoesHubCard extends StatelessWidget {
           ),
           SizedBox(height: Dimensions.spacingXS),
           Text(
-            'Acompanhe entregas, ocorrÃªncias, checklist, passagem de turno e materiais de apoio em uma mesma visÃ£o.',
+            'Acompanhe entregas, ocorr\u00eancias, checklist, passagem de turno e materiais de apoio em uma mesma vis\u00e3o.',
             style: AppTextStyles.body.copyWith(
               color: AppColors.textSecondary,
               height: 1.35,
@@ -1895,7 +1895,7 @@ class _OperacoesHubCard extends StatelessWidget {
               SizedBox(width: Dimensions.spacingSM),
               Expanded(
                 child: _InicioMetricTile(
-                  label: 'OcorrÃªncias',
+                  label: 'Ocorr\u00eancias',
                   value: ocorrenciasAbertas.toString(),
                   color: ocorrenciasAbertas > 0
                       ? AppColors.danger
@@ -2118,7 +2118,7 @@ class _PrincipalHubCard extends StatelessWidget {
                     : Icons.hourglass_top_rounded,
                 label: turnoJaIniciado
                     ? 'Turno em andamento'
-                    : 'Aguardando inÃ­cio',
+                    : 'Aguardando in\u00edcio',
                 color: turnoJaIniciado ? AppColors.success : AppColors.warning,
               ),
               _InicioBadge(
@@ -2132,14 +2132,14 @@ class _PrincipalHubCard extends StatelessWidget {
           ),
           SizedBox(height: Dimensions.spacingMD),
           Text(
-            'GestÃ£o rÃ¡pida da operaÃ§Ã£o',
+            'Gest\u00e3o r\u00e1pida da opera\u00e7\u00e3o',
             style: AppTextStyles.h2.copyWith(
               fontWeight: FontWeight.w800,
             ),
           ),
           SizedBox(height: Dimensions.spacingXS),
           Text(
-            'Concentre as decisÃµes do turno em um Ãºnico ponto: caixas, equipe, escala e relatÃ³rios com acesso direto.',
+            'Concentre as decis\u00f5es do turno em um \u00fanico ponto: caixas, equipe, escala e relat\u00f3rios com acesso direto.',
             style: AppTextStyles.body.copyWith(
               color: AppColors.textSecondary,
               height: 1.35,
@@ -2179,7 +2179,7 @@ class _PrincipalHubCard extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: onPrimaryAction,
               icon: const Icon(Icons.point_of_sale_rounded),
-              label: const Text('Abrir gestÃ£o de caixas'),
+              label: const Text('Abrir gest\u00e3o de caixas'),
             ),
           ),
         ],
