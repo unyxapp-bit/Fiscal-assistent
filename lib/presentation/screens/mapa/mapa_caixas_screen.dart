@@ -580,121 +580,76 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
       _MapaFiltro.cobertura,
     ];
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        ...filtros.map((filtro) {
-          final cor = _corFiltroMapa(filtro);
-          return ChoiceChip(
-            label: Text(_labelFiltroMapa(filtro)),
-            selected: _filtroMapa == filtro,
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          ...filtros.asMap().entries.map((entry) {
+            final i = entry.key;
+            final filtro = entry.value;
+            final cor = _corFiltroMapa(filtro);
+            return Padding(
+              padding: EdgeInsets.only(left: i == 0 ? 0 : 6),
+              child: ChoiceChip(
+                label: Text(_labelFiltroMapa(filtro)),
+                selected: _filtroMapa == filtro,
+                showCheckmark: false,
+                labelStyle: AppTextStyles.caption.copyWith(
+                  color: _filtroMapa == filtro ? cor : AppColors.textPrimary,
+                  fontWeight:
+                      _filtroMapa == filtro ? FontWeight.w700 : FontWeight.w600,
+                ),
+                selectedColor: cor.withValues(alpha: 0.12),
+                backgroundColor: Colors.white,
+                side: BorderSide(
+                  color: _filtroMapa == filtro
+                      ? cor.withValues(alpha: 0.30)
+                      : AppColors.cardBorder,
+                ),
+                avatar: Icon(
+                  filtro == _MapaFiltro.todos
+                      ? Icons.grid_view_rounded
+                      : filtro == _MapaFiltro.ocupados
+                          ? Icons.person
+                          : filtro == _MapaFiltro.pausa
+                              ? Icons.coffee
+                              : filtro == _MapaFiltro.atencao
+                                  ? Icons.warning_amber_rounded
+                                  : filtro == _MapaFiltro.livres
+                                      ? Icons.point_of_sale_outlined
+                                      : filtro == _MapaFiltro.balcoes
+                                          ? Icons.storefront_outlined
+                                          : Icons.groups_2_outlined,
+                  size: 16,
+                  color: _filtroMapa == filtro ? cor : AppColors.textSecondary,
+                ),
+                onSelected: (_) => _aplicarFiltroMapa(filtro),
+              ),
+            );
+          }),
+          const SizedBox(width: 6),
+          FilterChip(
+            label: Text('Mostrar livres'),
+            selected: _mostrarLivres,
             showCheckmark: false,
             labelStyle: AppTextStyles.caption.copyWith(
-              color: _filtroMapa == filtro ? cor : AppColors.textPrimary,
-              fontWeight:
-                  _filtroMapa == filtro ? FontWeight.w700 : FontWeight.w600,
+              color: _mostrarLivres ? AppColors.success : AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
             ),
-            selectedColor: cor.withValues(alpha: 0.12),
+            selectedColor: AppColors.success.withValues(alpha: 0.12),
             backgroundColor: Colors.white,
             side: BorderSide(
-              color: _filtroMapa == filtro
-                  ? cor.withValues(alpha: 0.30)
+              color: _mostrarLivres
+                  ? AppColors.success.withValues(alpha: 0.28)
                   : AppColors.cardBorder,
             ),
             avatar: Icon(
-              filtro == _MapaFiltro.todos
-                  ? Icons.grid_view_rounded
-                  : filtro == _MapaFiltro.ocupados
-                      ? Icons.person
-                      : filtro == _MapaFiltro.pausa
-                          ? Icons.coffee
-                          : filtro == _MapaFiltro.atencao
-                              ? Icons.warning_amber_rounded
-                              : filtro == _MapaFiltro.livres
-                                  ? Icons.point_of_sale_outlined
-                                  : filtro == _MapaFiltro.balcoes
-                                      ? Icons.storefront_outlined
-                                      : Icons.groups_2_outlined,
+              Icons.visibility_outlined,
               size: 16,
-              color: _filtroMapa == filtro ? cor : AppColors.textSecondary,
+              color:
+                  _mostrarLivres ? AppColors.success : AppColors.textSecondary,
             ),
-            onSelected: (_) => _aplicarFiltroMapa(filtro),
-          );
-        }),
-        FilterChip(
-          label: Text('Mostrar livres'),
-          selected: _mostrarLivres,
-          showCheckmark: false,
-          labelStyle: AppTextStyles.caption.copyWith(
-            color: _mostrarLivres ? AppColors.success : AppColors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
-          selectedColor: AppColors.success.withValues(alpha: 0.12),
-          backgroundColor: Colors.white,
-          side: BorderSide(
-            color: _mostrarLivres
-                ? AppColors.success.withValues(alpha: 0.28)
-                : AppColors.cardBorder,
-          ),
-          avatar: Icon(
-            Icons.visibility_outlined,
-            size: 16,
-            color: _mostrarLivres ? AppColors.success : AppColors.textSecondary,
-          ),
-          onSelected: (value) => setState(() => _mostrarLivres = value),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMapaLegenda() {
-    return Container(
-      decoration: AppStyles.softTile(
-        tint: AppColors.blueGrey,
-        radius: 14,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(Dimensions.paddingSM),
-        child: Wrap(
-          spacing: 12,
-          runSpacing: 10,
-          children: [
-            _buildLegendItem('Ocupado', AppColors.statusAtivo),
-            _buildLegendItem('Em pausa', AppColors.statusCafe),
-            _buildLegendItem('Em atencao', AppColors.danger),
-            _buildLegendItem('Disponivel', AppColors.success),
-            _buildLegendItem('Inativo', AppColors.inactive),
-            _buildLegendItem('Manutencao', AppColors.statusAtencao),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPainelPill({
-    required IconData icon,
-    required Color color,
-    required String label,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.84),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.16)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 15, color: color),
-          SizedBox(width: 6),
-          Text(
-            label,
-            style: AppTextStyles.caption.copyWith(
-              color: color,
-              fontWeight: FontWeight.w700,
-            ),
+            onSelected: (value) => setState(() => _mostrarLivres = value),
           ),
         ],
       ),
@@ -731,15 +686,63 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                   ),
                 ),
               ),
+            IconButton(
+              icon: Icon(Icons.help_outline, size: 18),
+              color: AppColors.textSecondary,
+              tooltip: 'Legenda de status',
+              visualDensity: VisualDensity.compact,
+              onPressed: () => _mostrarLegenda(context),
+            ),
           ],
         ),
         SizedBox(height: Dimensions.spacingSM),
         _buildMapaBusca(),
         SizedBox(height: Dimensions.spacingSM),
         _buildMapaFiltros(),
-        SizedBox(height: Dimensions.spacingSM),
-        _buildMapaLegenda(),
       ],
+    );
+  }
+
+  void _mostrarLegenda(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.divider,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text('Legenda de status', style: AppTextStyles.h4),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 16,
+              runSpacing: 12,
+              children: [
+                _buildLegendItem('Ocupado', AppColors.statusAtivo),
+                _buildLegendItem('Em pausa', AppColors.statusCafe),
+                _buildLegendItem('Em atencao', AppColors.danger),
+                _buildLegendItem('Disponivel', AppColors.success),
+                _buildLegendItem('Inativo', AppColors.inactive),
+                _buildLegendItem('Manutencao', AppColors.statusAtencao),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -787,97 +790,55 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(Dimensions.paddingSM),
-              decoration: BoxDecoration(
-                color: corDestaque.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(Dimensions.radiusMD),
-                border: Border.all(
-                  color: corDestaque.withValues(alpha: 0.12),
-                ),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: corDestaque.withValues(alpha: 0.10),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Icon(
-                      Icons.location_on_outlined,
-                      color: corDestaque,
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(label, style: AppTextStyles.h4),
-                        SizedBox(height: 2),
-                        Text(
-                          '$total caixa(s) visivel(is) nesta area.',
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      '$total',
-                      style: AppTextStyles.label.copyWith(
-                        color: corDestaque,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: Dimensions.spacingSM),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
+            Row(
               children: [
-                if (ocupados > 0)
-                  _buildResumoPill(
-                    'ocupados',
-                    ocupados,
-                    AppColors.statusAtivo,
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: corDestaque,
+                    shape: BoxShape.circle,
                   ),
-                if (pausas > 0)
-                  _buildResumoPill(
-                    'em pausa',
-                    pausas,
-                    AppColors.statusCafe,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(label, style: AppTextStyles.h4),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: corDestaque.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(999),
                   ),
-                if (livres > 0)
-                  _buildResumoPill(
-                    'livres',
-                    livres,
-                    AppColors.success,
+                  child: Text(
+                    '$total',
+                    style: AppTextStyles.caption.copyWith(
+                      color: corDestaque,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                if (atencao > 0)
-                  _buildResumoPill(
-                    'em atencao',
-                    atencao,
-                    AppColors.danger,
-                  ),
+                ),
               ],
             ),
-            SizedBox(height: Dimensions.spacingMD),
+            if (ocupados > 0 || pausas > 0 || livres > 0 || atencao > 0) ...[
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  if (ocupados > 0)
+                    _buildResumoPill('ocupados', ocupados, AppColors.statusAtivo),
+                  if (pausas > 0)
+                    _buildResumoPill('em pausa', pausas, AppColors.statusCafe),
+                  if (livres > 0)
+                    _buildResumoPill('livres', livres, AppColors.success),
+                  if (atencao > 0)
+                    _buildResumoPill('em atencao', atencao, AppColors.danger),
+                ],
+              ),
+            ],
+            const SizedBox(height: Dimensions.spacingSM),
             ...itens.map(
               (item) => Padding(
                 padding: const EdgeInsets.only(bottom: Dimensions.spacingSM),
@@ -910,15 +871,15 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
             Row(
               children: [
                 Container(
-                  width: 34,
-                  height: 34,
+                  width: 28,
+                  height: 28,
                   decoration: BoxDecoration(
                     color: AppColors.warning.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
                     Icons.emergency_outlined,
-                    size: 18,
+                    size: 16,
                     color: AppColors.warning,
                   ),
                 ),
@@ -927,13 +888,6 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                   child: Text('Excecoes do mapa', style: AppTextStyles.h4),
                 ),
               ],
-            ),
-            SizedBox(height: 4),
-            Text(
-              'Pontos que pedem leitura imediata antes de trocar o quadro.',
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
-              ),
             ),
             SizedBox(height: 10),
             Wrap(
@@ -996,31 +950,23 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
             Row(
               children: [
                 Container(
-                  width: 34,
-                  height: 34,
+                  width: 28,
+                  height: 28,
                   decoration: BoxDecoration(
                     color: AppColors.success.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
                     Icons.auto_awesome_outlined,
-                    size: 18,
+                    size: 16,
                     color: AppColors.success,
                   ),
                 ),
                 SizedBox(width: 10),
                 Expanded(
-                  child:
-                      Text('Sugestoes automaticas', style: AppTextStyles.h4),
+                  child: Text('Sugestoes automaticas', style: AppTextStyles.h4),
                 ),
               ],
-            ),
-            SizedBox(height: 4),
-            Text(
-              'Atalhos de decisao para destravar pausa, troca e cobertura.',
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
-              ),
             ),
             SizedBox(height: 10),
             ...sugestoes.map(
@@ -1125,9 +1071,6 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
     final totalCobertura = alocacaoProvider.getAlocacoesAtivas().length +
         plantaoProvider.total +
         outroSetorProvider.total;
-    final excecoes = statuses
-        .where((status) => status.isEmAtencao || status.isPausaAtrasada)
-        .length;
     final cards = [
       _MapaDashboardItem(
         value: '${ocupados.length}',
@@ -1219,33 +1162,6 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              _buildPainelPill(
-                icon: Icons.map_outlined,
-                color: AppColors.primary,
-                label: '${statuses.length} caixas no mapa',
-              ),
-              SizedBox(width: 8),
-              _buildPainelPill(
-                icon: Icons.pin_drop_outlined,
-                color: AppColors.teal,
-                label: '$localizacoesVisiveis localizacoes',
-              ),
-              SizedBox(width: 8),
-              _buildPainelPill(
-                icon: Icons.warning_amber_rounded,
-                color: excecoes > 0 ? AppColors.danger : AppColors.success,
-                label: excecoes > 0
-                    ? '$excecoes excecoes ativas'
-                    : 'Mapa estavel',
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: Dimensions.spacingSM),
         Row(
           children: [
             for (int i = 0; i < cards.length; i++) ...[
