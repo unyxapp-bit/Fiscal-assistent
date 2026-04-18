@@ -11,6 +11,7 @@ class StatsCard extends StatelessWidget {
   final String value;
   final IconData icon;
   final Color color;
+  final VoidCallback? onTap;
 
   const StatsCard({
     super.key,
@@ -18,12 +19,15 @@ class StatsCard extends StatelessWidget {
     required this.value,
     required this.icon,
     required this.color,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.appTheme;
-    return Container(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       padding: const EdgeInsets.all(Dimensions.paddingMD),
       decoration: AppStyles.softCard(
         context: context,
@@ -65,6 +69,7 @@ class StatsCard extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }

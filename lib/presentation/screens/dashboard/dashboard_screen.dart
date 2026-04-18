@@ -42,7 +42,6 @@ import '../pizzaria/pizza_module_screen.dart';
 import '../configuracoes/configuracoes_screen.dart';
 import '../../../data/services/seed_data_service.dart';
 import '../../../core/utils/app_notif.dart';
-import 'widgets/clock_widget.dart';
 import 'widgets/stats_card.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -59,7 +58,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) setState(() {});
     });
@@ -354,25 +353,72 @@ class _DashboardScreenState extends State<DashboardScreen>
                           },
                         ),
                         SizedBox(height: Dimensions.spacingMD),
-                        const ClockWidget(),
-                        SizedBox(height: Dimensions.spacingMD),
 
                         // BotÃƒÂ£o ComeÃƒÂ§ar Turno Ã¢â‚¬â€ oculto apÃƒÂ³s confirmar inÃƒÂ­cio
-                        if (!turnoJaIniciado) ...[
-                          _DashboardSectionHeader(
-                            icon: Icons.flag_outlined,
-                            title: 'Prepara\u00e7\u00e3o do turno',
-                          ),
-                          SizedBox(height: Dimensions.spacingSM),
-                          _ComecaTurnoButton(
-                            onPressed: () => _abrirBriefingTurno(
-                              context,
-                              authProvider.user?.id ?? '',
+                        _DashboardSectionHeader(
+                          icon: Icons.monitor_heart_outlined,
+                          title: 'Monitor operacional',
+                        ),
+                        SizedBox(height: Dimensions.spacingSM),
+                        _MonitorTempoReal(
+                          cafeProvider: cafeProvider,
+                          colaboradorProvider: colaboradorProvider,
+                          caixaProvider: caixaProvider,
+                          escalaProvider: escalaProvider,
+                        ),
+                        SizedBox(height: Dimensions.spacingLG),
+                        _DashboardSectionHeader(
+                          icon: Icons.grid_view_rounded,
+                          title: 'Rotinas principais',
+                        ),
+                        SizedBox(height: Dimensions.spacingSM),
+                        _GridAcoes(
+                          botoes: [
+                            _BotaoAcao(
+                              icon: Icons.point_of_sale,
+                              label: 'Caixas',
+                              color: AppColors.primary,
+                              onPressed: () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const GestaoScreen(),
+                                ),
+                              ),
                             ),
-                          ),
-                          SizedBox(height: Dimensions.spacingLG),
-                        ],
-
+                            _BotaoAcao(
+                              icon: Icons.people,
+                              label: 'Colaboradores',
+                              color: AppColors.statusAtivo,
+                              onPressed: () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      const ColaboradoresListScreen(),
+                                ),
+                              ),
+                            ),
+                            _BotaoAcao(
+                              icon: Icons.bar_chart,
+                              label: 'Relat\u00f3rio',
+                              color: AppColors.cyan,
+                              onPressed: () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      const RelatorioDiarioScreen(),
+                                ),
+                              ),
+                            ),
+                            _BotaoAcao(
+                              icon: Icons.calendar_month,
+                              label: 'Escala',
+                              color: AppColors.pink,
+                              onPressed: () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const EscalaScreen(),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: Dimensions.spacingLG),
                         _DashboardSectionHeader(
                           icon: Icons.space_dashboard_outlined,
                           title: 'Vis\u00e3o geral',
@@ -397,193 +443,92 @@ class _DashboardScreenState extends State<DashboardScreen>
                                   value: totalAtivos.toString(),
                                   icon: Icons.people_alt_outlined,
                                   color: AppColors.primary,
+                                  onTap: () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const ColaboradoresListScreen(),
+                                    ),
+                                  ),
                                 ),
                                 StatsCard(
                                   title: 'Caixas ativos',
                                   value: totalCaixas.toString(),
                                   icon: Icons.point_of_sale_outlined,
                                   color: AppColors.success,
+                                  onTap: () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const GestaoScreen(initialIndex: 1),
+                                    ),
+                                  ),
                                 ),
                                 StatsCard(
                                   title: 'Alocados agora',
                                   value: alocados.toString(),
                                   icon: Icons.swap_horiz_rounded,
                                   color: AppColors.statusAtivo,
+                                  onTap: () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const GestaoScreen(initialIndex: 0),
+                                    ),
+                                  ),
                                 ),
                                 StatsCard(
                                   title: 'Livres',
                                   value: livres.toString(),
                                   icon: Icons.check_circle_outline,
                                   color: AppColors.info,
+                                  onTap: () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const GestaoScreen(initialIndex: 1),
+                                    ),
+                                  ),
                                 ),
                                 StatsCard(
                                   title: 'Em pausa',
                                   value: emPausa.toString(),
                                   icon: Icons.coffee_outlined,
                                   color: AppColors.coffee,
+                                  onTap: () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const GestaoScreen(initialIndex: 2),
+                                    ),
+                                  ),
                                 ),
                                 StatsCard(
                                   title: 'Em rota',
                                   value: emRota.toString(),
                                   icon: Icons.local_shipping_outlined,
                                   color: AppColors.statusCafe,
+                                  onTap: () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const EntregasScreen(),
+                                    ),
+                                  ),
                                 ),
                               ],
                             );
                           },
                         ),
 
-                        SizedBox(height: Dimensions.spacingLG),
-                        _DashboardSectionHeader(
-                          icon: Icons.notification_important_outlined,
-                          title: 'Alertas do turno',
-                        ),
-                        SizedBox(height: Dimensions.spacingSM),
-                        if (alertas.isEmpty)
-                          const _DashboardEmptyState(
-                            icon: Icons.check_circle_outline,
-                            title: 'Tudo sob controle',
-                            subtitle:
-                                'Sem alertas abertos. A opera\u00e7\u00e3o est\u00e1 est\u00e1vel no momento.',
-                          )
-                        else
+                        if (alertas.isNotEmpty) ...[
+                          SizedBox(height: Dimensions.spacingLG),
+                          _DashboardSectionHeader(
+                            icon: Icons.notification_important_outlined,
+                            title: 'Alertas do turno',
+                          ),
+                          SizedBox(height: Dimensions.spacingSM),
                           ...alertas.map((a) => _AlertCard(item: a)),
-                        SizedBox(height: Dimensions.spacingLG),
-                        _DashboardSectionHeader(
-                          icon: Icons.monitor_heart_outlined,
-                          title: 'Monitor operacional',
-                        ),
-                        SizedBox(height: Dimensions.spacingSM),
-                        _MonitorTempoReal(
-                          cafeProvider: cafeProvider,
-                          colaboradorProvider: colaboradorProvider,
-                          caixaProvider: caixaProvider,
-                          escalaProvider: escalaProvider,
-                        ),
-
+                        ],
                         SizedBox(height: Dimensions.spacingXL),
                       ],
                     ),
                   ),
                 )),
 
-        // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ ABA 2: PRINCIPAL ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
-        SingleChildScrollView(
-          padding: const EdgeInsets.all(Dimensions.paddingMD),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: Dimensions.spacingSM),
-              Wrap(
-                spacing: 8,
-                runSpacing: 6,
-                children: [
-                  _InicioBadge(
-                    icon: turnoJaIniciado
-                        ? Icons.play_circle_outline
-                        : Icons.hourglass_top_rounded,
-                    label: turnoJaIniciado
-                        ? 'Turno em andamento'
-                        : 'Aguardando in\u00edcio',
-                    color:
-                        turnoJaIniciado ? AppColors.success : AppColors.warning,
-                  ),
-                  _InicioBadge(
-                    icon: alertas.isEmpty
-                        ? Icons.check_circle_outline
-                        : Icons.priority_high_rounded,
-                    label: alertas.isEmpty
-                        ? 'Sem alertas'
-                        : '${alertas.length} alerta${alertas.length > 1 ? 's' : ''}',
-                    color:
-                        alertas.isEmpty ? AppColors.success : AppColors.warning,
-                  ),
-                  _InicioBadge(
-                    icon: Icons.people_outlined,
-                    label: '$totalAtivos ativo${totalAtivos == 1 ? '' : 's'}',
-                    color: AppColors.primary,
-                  ),
-                ],
-              ),
-              SizedBox(height: Dimensions.spacingMD),
-              _DashboardSectionHeader(
-                icon: Icons.grid_view_rounded,
-                title: 'Rotinas principais',
-              ),
-              SizedBox(height: Dimensions.spacingSM),
-              _GridAcoes(
-                botoes: [
-                  _BotaoAcao(
-                    icon: Icons.point_of_sale,
-                    label: 'Caixas',
-                    color: AppColors.primary,
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const GestaoScreen(),
-                      ),
-                    ),
-                  ),
-                  _BotaoAcao(
-                    icon: Icons.people,
-                    label: 'Colaboradores',
-                    color: AppColors.statusAtivo,
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (_) => const ColaboradoresListScreen()),
-                    ),
-                  ),
-                  _BotaoAcao(
-                    icon: Icons.bar_chart,
-                    label: 'Relat\u00f3rio',
-                    color: AppColors.cyan,
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (_) => const RelatorioDiarioScreen()),
-                    ),
-                  ),
-                  _BotaoAcao(
-                    icon: Icons.calendar_month,
-                    label: 'Escala',
-                    color: AppColors.pink,
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const EscalaScreen()),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: Dimensions.spacingMD),
-              Row(
-                children: [
-                  Expanded(
-                    child: _InicioMetricTile(
-                      label: 'Equipe ativa',
-                      value: totalAtivos.toString(),
-                      color: AppColors.statusAtivo,
-                    ),
-                  ),
-                  SizedBox(width: Dimensions.spacingSM),
-                  Expanded(
-                    child: _InicioMetricTile(
-                      label: 'Caixas hoje',
-                      value: totalCaixas.toString(),
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  SizedBox(width: Dimensions.spacingSM),
-                  Expanded(
-                    child: _InicioMetricTile(
-                      label: 'Alertas',
-                      value: alertas.length.toString(),
-                      color: alertas.isEmpty
-                          ? AppColors.success
-                          : AppColors.warning,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
 
         // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ ABA 3: PIZZARIA ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
         const PizzaModuleScreen(),
@@ -594,34 +539,6 @@ class _DashboardScreenState extends State<DashboardScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: Dimensions.spacingSM),
-              Wrap(
-                spacing: 8,
-                runSpacing: 6,
-                children: [
-                  _InicioBadge(
-                    icon: Icons.settings_suggest_rounded,
-                    label: 'Opera\u00e7\u00e3o assistida',
-                    color: AppColors.primary,
-                  ),
-                  Builder(builder: (context) {
-                    final total = ocorrenciaProvider.totalAbertas +
-                        entregaProvider.totalSeparadas +
-                        checklistProvider.templatesPendentesAgora.length +
-                        notaProvider.totalTarefasPendentes;
-                    return _InicioBadge(
-                      icon: total > 0
-                          ? Icons.priority_high_rounded
-                          : Icons.check_circle_outline,
-                      label: total > 0
-                          ? '$total pend\u00eancia${total > 1 ? 's' : ''}'
-                          : 'Fluxo est\u00e1vel',
-                      color: total > 0 ? AppColors.warning : AppColors.success,
-                    );
-                  }),
-                ],
-              ),
-              SizedBox(height: Dimensions.spacingMD),
               _DashboardSectionHeader(
                 icon: Icons.priority_high_rounded,
                 title: 'A\u00e7\u00f5es priorit\u00e1rias',
@@ -804,35 +721,6 @@ class _DashboardScreenState extends State<DashboardScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: Dimensions.spacingSM),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 6,
-                  children: [
-                    _InicioBadge(
-                      icon: Icons.storefront_outlined,
-                      label: 'Painel da loja',
-                      color: AppColors.primary,
-                    ),
-                    _InicioBadge(
-                      icon: livres > 0
-                          ? Icons.check_circle_outline
-                          : Icons.swap_horiz_rounded,
-                      label: livres > 0
-                          ? '$livres livre${livres > 1 ? 's' : ''} agora'
-                          : 'Equipe em opera\u00e7\u00e3o',
-                      color:
-                          livres > 0 ? AppColors.success : AppColors.primary,
-                    ),
-                    _InicioBadge(
-                      icon: Icons.people_outlined,
-                      label:
-                          '$totalAtivos ativo${totalAtivos == 1 ? '' : 's'}',
-                      color: AppColors.statusAtivo,
-                    ),
-                  ],
-                ),
-                SizedBox(height: Dimensions.spacingMD),
                 _DashboardSectionHeader(
                   icon: Icons.health_and_safety_outlined,
                   title: 'Sa\u00fade do turno',
@@ -958,10 +846,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                       label: Text('In\u00edcio'),
                     ),
                     const NavigationRailDestination(
-                      icon: Icon(Icons.apps_outlined),
-                      label: Text('Principal'),
-                    ),
-                    const NavigationRailDestination(
                       icon: Icon(Icons.local_pizza_outlined),
                       label: Text('Pizzaria'),
                     ),
@@ -1029,9 +913,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                 const Tab(
                     icon: Icon(Icons.home_outlined, size: 20),
                     text: 'In\u00edcio'),
-                const Tab(
-                    icon: Icon(Icons.apps_outlined, size: 20),
-                    text: 'Principal'),
                 const Tab(
                     icon: Icon(Icons.local_pizza_outlined, size: 20),
                     text: 'Pizzaria'),
@@ -1726,12 +1607,10 @@ class _BotaoAcaoTile extends StatelessWidget {
 class _DashboardSectionHeader extends StatelessWidget {
   final IconData icon;
   final String title;
-  final String? subtitle;
 
   const _DashboardSectionHeader({
     required this.icon,
     required this.title,
-    this.subtitle,
   });
 
   @override
@@ -1757,471 +1636,6 @@ class _DashboardSectionHeader extends StatelessWidget {
           child: Text(title, style: AppTextStyles.h4),
         ),
       ],
-    );
-  }
-}
-
-class _DashboardEmptyState extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-
-  const _DashboardEmptyState({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(Dimensions.paddingMD),
-      decoration: AppStyles.softCard(
-        context: context,
-        tint: AppColors.success,
-        radius: 18,
-        elevated: false,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: AppColors.success.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(icon, color: AppColors.success),
-          ),
-          SizedBox(width: Dimensions.spacingSM),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: AppTextStyles.body.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _OperacoesHubCard extends StatelessWidget {
-  final int entregasPendentes;
-  final int ocorrenciasAbertas;
-  final int checklistsPendentes;
-  final int tarefasPendentes;
-  final VoidCallback onPrimaryAction;
-
-  const _OperacoesHubCard({
-    required this.entregasPendentes,
-    required this.ocorrenciasAbertas,
-    required this.checklistsPendentes,
-    required this.tarefasPendentes,
-    required this.onPrimaryAction,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.appTheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final totalPendencias = entregasPendentes +
-        ocorrenciasAbertas +
-        checklistsPendentes +
-        tarefasPendentes;
-    final accentColor =
-        totalPendencias > 0 ? AppColors.warning : AppColors.success;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(Dimensions.paddingLG),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            accentColor.withValues(alpha: isDark ? 0.24 : 0.14),
-            tokens.cardBackground,
-            tokens.backgroundSection,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(tokens.cardRadius + 2),
-        border: Border.all(
-          color: accentColor.withValues(alpha: isDark ? 0.34 : 0.18),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: tokens.shadowColor.withValues(alpha: isDark ? 0.16 : 0.06),
-            blurRadius: isDark ? 22 : 14,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _InicioBadge(
-                icon: Icons.settings_suggest_rounded,
-                label: 'Opera\u00e7\u00e3o assistida',
-                color: AppColors.primary,
-              ),
-              _InicioBadge(
-                icon: totalPendencias > 0
-                    ? Icons.priority_high_rounded
-                    : Icons.check_circle_outline,
-                label: totalPendencias > 0
-                    ? '$totalPendencias pend\u00eancia${totalPendencias > 1 ? 's' : ''}'
-                    : 'Fluxo est\u00e1vel',
-                color: accentColor,
-              ),
-              if (ocorrenciasAbertas > 0)
-                _InicioBadge(
-                  icon: Icons.report_problem_outlined,
-                  label:
-                      '$ocorrenciasAbertas ocorr\u00eancia${ocorrenciasAbertas > 1 ? 's' : ''}',
-                  color: AppColors.danger,
-                ),
-            ],
-          ),
-          SizedBox(height: Dimensions.spacingMD),
-          Text(
-            'Centro operacional do turno',
-            style: AppTextStyles.h2.copyWith(
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          SizedBox(height: Dimensions.spacingXS),
-          Text(
-            'Acompanhe entregas, ocorr\u00eancias, checklist, passagem de turno e materiais de apoio em uma mesma vis\u00e3o.',
-            style: AppTextStyles.body.copyWith(
-              color: AppColors.textSecondary,
-              height: 1.35,
-            ),
-          ),
-          SizedBox(height: Dimensions.spacingMD),
-          Row(
-            children: [
-              Expanded(
-                child: _InicioMetricTile(
-                  label: 'Entregas',
-                  value: entregasPendentes.toString(),
-                  color: entregasPendentes > 0
-                      ? AppColors.statusCafe
-                      : AppColors.success,
-                ),
-              ),
-              SizedBox(width: Dimensions.spacingSM),
-              Expanded(
-                child: _InicioMetricTile(
-                  label: 'Ocorr\u00eancias',
-                  value: ocorrenciasAbertas.toString(),
-                  color: ocorrenciasAbertas > 0
-                      ? AppColors.danger
-                      : AppColors.success,
-                ),
-              ),
-              SizedBox(width: Dimensions.spacingSM),
-              Expanded(
-                child: _InicioMetricTile(
-                  label: 'Checklist',
-                  value: checklistsPendentes.toString(),
-                  color: checklistsPendentes > 0
-                      ? AppColors.warning
-                      : AppColors.success,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: Dimensions.spacingMD),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ElevatedButton.icon(
-              onPressed: onPrimaryAction,
-              icon: const Icon(Icons.flash_on_rounded),
-              label: const Text('Abrir prioridade do turno'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LojaHubCard extends StatelessWidget {
-  final int totalAtivos;
-  final int alocados;
-  final int livres;
-  final VoidCallback onPrimaryAction;
-
-  const _LojaHubCard({
-    required this.totalAtivos,
-    required this.alocados,
-    required this.livres,
-    required this.onPrimaryAction,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.appTheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final accentColor = livres > 0 ? AppColors.success : AppColors.primary;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(Dimensions.paddingLG),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            accentColor.withValues(alpha: isDark ? 0.24 : 0.14),
-            tokens.cardBackground,
-            tokens.backgroundSection,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(tokens.cardRadius + 2),
-        border: Border.all(
-          color: accentColor.withValues(alpha: isDark ? 0.34 : 0.18),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: tokens.shadowColor.withValues(alpha: isDark ? 0.16 : 0.06),
-            blurRadius: isDark ? 22 : 14,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _InicioBadge(
-                icon: Icons.storefront_outlined,
-                label: 'Painel da loja',
-                color: AppColors.primary,
-              ),
-              _InicioBadge(
-                icon: livres > 0
-                    ? Icons.check_circle_outline
-                    : Icons.swap_horiz_rounded,
-                label: livres > 0
-                    ? '$livres livre${livres > 1 ? 's' : ''} agora'
-                    : 'Equipe em operação',
-                color: accentColor,
-              ),
-            ],
-          ),
-          SizedBox(height: Dimensions.spacingMD),
-          Text(
-            'Visão operacional da loja',
-            style: AppTextStyles.h2.copyWith(
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          SizedBox(height: Dimensions.spacingXS),
-          Text(
-            'Acompanhe a saúde do turno, a ocupação dos caixas e os atalhos de gestão em uma leitura compacta.',
-            style: AppTextStyles.body.copyWith(
-              color: AppColors.textSecondary,
-              height: 1.35,
-            ),
-          ),
-          SizedBox(height: Dimensions.spacingMD),
-          Row(
-            children: [
-              Expanded(
-                child: _InicioMetricTile(
-                  label: 'Ativos',
-                  value: totalAtivos.toString(),
-                  color: AppColors.statusAtivo,
-                ),
-              ),
-              SizedBox(width: Dimensions.spacingSM),
-              Expanded(
-                child: _InicioMetricTile(
-                  label: 'Alocados',
-                  value: alocados.toString(),
-                  color: AppColors.primary,
-                ),
-              ),
-              SizedBox(width: Dimensions.spacingSM),
-              Expanded(
-                child: _InicioMetricTile(
-                  label: 'Livres',
-                  value: livres.toString(),
-                  color: accentColor,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: Dimensions.spacingMD),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ElevatedButton.icon(
-              onPressed: onPrimaryAction,
-              icon: const Icon(Icons.timeline_rounded),
-              label: const Text('Abrir timeline da loja'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PrincipalHubCard extends StatelessWidget {
-  final bool turnoJaIniciado;
-  final int totalAtivos;
-  final int totalCaixas;
-  final int alertas;
-  final VoidCallback onPrimaryAction;
-
-  const _PrincipalHubCard({
-    required this.turnoJaIniciado,
-    required this.totalAtivos,
-    required this.totalCaixas,
-    required this.alertas,
-    required this.onPrimaryAction,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.appTheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final accentColor = alertas > 0 ? AppColors.warning : AppColors.primary;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(Dimensions.paddingLG),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            accentColor.withValues(alpha: isDark ? 0.24 : 0.14),
-            tokens.cardBackground,
-            tokens.backgroundSection,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(tokens.cardRadius + 2),
-        border: Border.all(
-          color: accentColor.withValues(alpha: isDark ? 0.34 : 0.18),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: tokens.shadowColor.withValues(alpha: isDark ? 0.16 : 0.06),
-            blurRadius: isDark ? 22 : 14,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _InicioBadge(
-                icon: Icons.apps_rounded,
-                label: 'Central principal',
-                color: AppColors.primary,
-              ),
-              _InicioBadge(
-                icon: turnoJaIniciado
-                    ? Icons.play_circle_outline
-                    : Icons.hourglass_top_rounded,
-                label: turnoJaIniciado
-                    ? 'Turno em andamento'
-                    : 'Aguardando in\u00edcio',
-                color: turnoJaIniciado ? AppColors.success : AppColors.warning,
-              ),
-              _InicioBadge(
-                icon: Icons.priority_high_rounded,
-                label: alertas > 0
-                    ? '$alertas alerta${alertas > 1 ? 's' : ''}'
-                    : 'Sem alertas',
-                color: alertas > 0 ? AppColors.warning : AppColors.success,
-              ),
-            ],
-          ),
-          SizedBox(height: Dimensions.spacingMD),
-          Text(
-            'Gest\u00e3o r\u00e1pida da opera\u00e7\u00e3o',
-            style: AppTextStyles.h2.copyWith(
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          SizedBox(height: Dimensions.spacingXS),
-          Text(
-            'Concentre as decis\u00f5es do turno em um \u00fanico ponto: caixas, equipe, escala e relat\u00f3rios com acesso direto.',
-            style: AppTextStyles.body.copyWith(
-              color: AppColors.textSecondary,
-              height: 1.35,
-            ),
-          ),
-          SizedBox(height: Dimensions.spacingMD),
-          Row(
-            children: [
-              Expanded(
-                child: _InicioMetricTile(
-                  label: 'Equipe ativa',
-                  value: totalAtivos.toString(),
-                  color: AppColors.statusAtivo,
-                ),
-              ),
-              SizedBox(width: Dimensions.spacingSM),
-              Expanded(
-                child: _InicioMetricTile(
-                  label: 'Caixas hoje',
-                  value: totalCaixas.toString(),
-                  color: AppColors.primary,
-                ),
-              ),
-              SizedBox(width: Dimensions.spacingSM),
-              Expanded(
-                child: _InicioMetricTile(
-                  label: 'Prioridades',
-                  value: alertas.toString(),
-                  color: alertas > 0 ? AppColors.warning : AppColors.success,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: Dimensions.spacingMD),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ElevatedButton.icon(
-              onPressed: onPrimaryAction,
-              icon: const Icon(Icons.point_of_sale_rounded),
-              label: const Text('Abrir gest\u00e3o de caixas'),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -2338,14 +1752,6 @@ class _InicioHeroCard extends StatelessWidget {
                   label: 'Livres agora',
                   value: livres.toString(),
                   color: AppColors.info,
-                ),
-              ),
-              SizedBox(width: Dimensions.spacingSM),
-              Expanded(
-                child: _InicioMetricTile(
-                  label: 'Alertas',
-                  value: alertas.toString(),
-                  color: alertas > 0 ? AppColors.warning : AppColors.success,
                 ),
               ),
             ],
@@ -2789,88 +2195,6 @@ class _OcupacaoBar extends StatelessWidget {
   }
 }
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ BotÃƒÂ£o ComeÃƒÂ§ar Turno ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
-
-class _ComecaTurnoButton extends StatelessWidget {
-  final VoidCallback onPressed;
-
-  const _ComecaTurnoButton({required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.appTheme;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(tokens.buttonRadius),
-        child: Ink(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          decoration: AppStyles.softCard(
-            context: context,
-            tint: AppColors.primary,
-            radius: tokens.buttonRadius,
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  border: Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.18),
-                  ),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.play_arrow_rounded,
-                  color: AppColors.primary,
-                  size: 22,
-                ),
-              ),
-              SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Come\u00e7ar turno',
-                      style: AppTextStyles.body.copyWith(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Ver briefing do turno e iniciar',
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: AppStyles.softTile(
-                  context: context,
-                  tint: AppColors.primary,
-                  radius: 999,
-                ),
-                child: Icon(
-                  Icons.arrow_forward_rounded,
-                  color: AppColors.primary,
-                  size: 16,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Briefing de inÃƒÂ­cio de turno ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
 
