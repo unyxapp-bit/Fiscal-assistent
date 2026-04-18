@@ -37,7 +37,6 @@ class _GestaoScreenState extends State<GestaoScreen> {
   @override
   Widget build(BuildContext context) {
     final tokens = context.appTheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final authProvider = context.read<AuthProvider>();
     final fiscalId = authProvider.user?.id ?? '';
     final cafeProvider = context.watch<CafeProvider>();
@@ -81,74 +80,48 @@ class _GestaoScreenState extends State<GestaoScreen> {
     ];
 
     return Scaffold(
-      extendBody: false,
       backgroundColor: tokens.background,
-      body: IndexedStack(
-        index: _currentIndex,
+      body: Column(
         children: [
-          AlocacaoScreen(fiscalId: fiscalId),
-          const MapaCaixasScreen(),
-          const CafeScreen(),
-          const VisaoGargaloScreen(),
-        ],
-      ),
-      bottomNavigationBar: Theme(
-        data: Theme.of(context).copyWith(
-          navigationBarTheme: NavigationBarThemeData(
-            backgroundColor: tokens.cardBackground,
-            elevation: 4,
-            shadowColor:
-                tokens.shadowColor.withValues(alpha: isDark ? 0.28 : 0.08),
-            surfaceTintColor: Colors.transparent,
-            indicatorColor: destinos[_currentIndex]
-                .color
-                .withValues(alpha: isDark ? 0.22 : 0.14),
-            height: 68,
-            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-            labelTextStyle: WidgetStateProperty.resolveWith((states) {
-              final selected = states.contains(WidgetState.selected);
-              return AppTextStyles.caption.copyWith(
-                color: selected
-                    ? destinos[_currentIndex].color
-                    : AppColors.textSecondary,
-                fontWeight:
-                    selected ? FontWeight.w700 : FontWeight.w500,
-                fontSize: 11,
-              );
-            }),
-            iconTheme: WidgetStateProperty.resolveWith((states) {
-              final selected = states.contains(WidgetState.selected);
-              return IconThemeData(
-                color: selected
-                    ? destinos[_currentIndex].color
-                    : AppColors.textSecondary,
-                size: 22,
-              );
-            }),
+          // Faixa de chips de navegação
+          Container(
+            color: tokens.cardBackground,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+                  child: Row(
+                    children: [
+                      for (int i = 0; i < destinos.length; i++) ...[
+                        if (i > 0) const SizedBox(width: 8),
+                        _GestaoChip(
+                          item: destinos[i],
+                          selected: i == _currentIndex,
+                          onTap: () => setState(() => _currentIndex = i),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                Divider(height: 1, thickness: 1, color: AppColors.divider),
+              ],
+            ),
           ),
-        ),
-        child: NavigationBar(
-          selectedIndex: _currentIndex,
-          onDestinationSelected: (i) => setState(() => _currentIndex = i),
-          destinations: [
-            for (int i = 0; i < destinos.length; i++)
-              NavigationDestination(
-                icon: destinos[i].badgeCount > 0
-                    ? Badge(
-                        label: Text('${destinos[i].badgeCount}'),
-                        child: Icon(destinos[i].icon),
-                      )
-                    : Icon(destinos[i].icon),
-                selectedIcon: destinos[i].badgeCount > 0
-                    ? Badge(
-                        label: Text('${destinos[i].badgeCount}'),
-                        child: Icon(destinos[i].selectedIcon),
-                      )
-                    : Icon(destinos[i].selectedIcon),
-                label: destinos[i].label,
-              ),
-          ],
-        ),
+          // Conteúdo da aba ativa
+          Expanded(
+            child: IndexedStack(
+              index: _currentIndex,
+              children: [
+                AlocacaoScreen(fiscalId: fiscalId),
+                const MapaCaixasScreen(),
+                const CafeScreen(),
+                const VisaoGargaloScreen(),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -168,5 +141,89 @@ class _GestaoDestination {
     required this.color,
     this.badgeCount = 0,
   });
+}
+
+class _GestaoChip extends StatelessWidget {
+  final _GestaoDestination item;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _GestaoChip({
+    required this.item,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected
+              ? item.color.withValues(alpha: 0.12)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+            color: selected
+                ? item.color.withValues(alpha: 0.28)
+                : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(
+                  selected ? item.selectedIcon : item.icon,
+                  size: 16,
+                  color: selected ? item.color : AppColors.textSecondary,
+                ),
+                if (item.badgeCount > 0)
+                  Positioned(
+                    top: -5,
+                    right: -7,
+                    child: Container(
+                      constraints: const BoxConstraints(minWidth: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 3,
+                        vertical: 1,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.danger,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        item.badgeCount > 99 ? '99+' : '${item.badgeCount}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(width: 6),
+            Text(
+              item.label,
+              style: AppTextStyles.caption.copyWith(
+                color: selected ? item.color : AppColors.textSecondary,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
