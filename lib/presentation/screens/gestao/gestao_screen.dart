@@ -93,7 +93,7 @@ class _GestaoScreenState extends State<GestaoScreen> {
     ];
 
     return Scaffold(
-      extendBody: true,
+      extendBody: false,
       backgroundColor: tokens.background,
       body: IndexedStack(
         index: _currentIndex,
