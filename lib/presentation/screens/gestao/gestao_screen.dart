@@ -54,27 +54,18 @@ class _GestaoScreenState extends State<GestaoScreen> {
     final destinos = <_GestaoDestination>[
       _GestaoDestination(
         label: 'Aloca\u00e7\u00e3o',
-        headline: 'Painel de aloca\u00e7\u00e3o',
-        summary:
-            'Movimente equipe, cubra caixas livres e mantenha a opera\u00e7\u00e3o fluindo.',
         icon: Icons.swap_horiz_outlined,
         selectedIcon: Icons.swap_horiz_rounded,
         color: AppColors.primary,
       ),
       _GestaoDestination(
         label: 'Mapa',
-        headline: 'Mapa dos caixas',
-        summary:
-            'Leia ocupa\u00e7\u00e3o, pausas, gargalos e exce\u00e7\u00f5es em tempo real.',
         icon: Icons.map_outlined,
         selectedIcon: Icons.map_rounded,
         color: AppColors.cyan,
       ),
       _GestaoDestination(
         label: 'Caf\u00e9',
-        headline: 'Gest\u00e3o de caf\u00e9',
-        summary:
-            'Acompanhe pausas, atrasos e retornos sem perder o ritmo do turno.',
         icon: Icons.coffee_outlined,
         selectedIcon: Icons.coffee_rounded,
         color: AppColors.statusCafe,
@@ -82,9 +73,6 @@ class _GestaoScreenState extends State<GestaoScreen> {
       ),
       _GestaoDestination(
         label: 'Vis\u00e3o',
-        headline: 'Leitura de gargalos',
-        summary:
-            'Antecipe quedas operacionais e redistribua a equipe com mais rapidez.',
         icon: Icons.show_chart_outlined,
         selectedIcon: Icons.show_chart_rounded,
         color: AppColors.statusAtencao,
@@ -168,8 +156,6 @@ class _GestaoScreenState extends State<GestaoScreen> {
 
 class _GestaoDestination {
   final String label;
-  final String headline;
-  final String summary;
   final IconData icon;
   final IconData selectedIcon;
   final Color color;
@@ -177,8 +163,6 @@ class _GestaoDestination {
 
   const _GestaoDestination({
     required this.label,
-    required this.headline,
-    required this.summary,
     required this.icon,
     required this.selectedIcon,
     required this.color,
