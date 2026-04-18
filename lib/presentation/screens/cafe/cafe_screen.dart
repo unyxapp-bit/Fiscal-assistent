@@ -30,8 +30,6 @@ class CafeScreen extends StatefulWidget {
 class _CafeScreenState extends State<CafeScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  bool _expandPainelCafe = true;
-  bool _expandLeituraCafe = true;
 
   @override
   void initState() {
@@ -155,13 +153,6 @@ class _CafeScreenState extends State<CafeScreen>
             .toList(growable: false);
         final historicoHoje = provider.pausasFinalizadas.reversed.toList();
         final totalDisponiveis = disponiveis.length;
-        final larguraTela = MediaQuery.sizeOf(context).width;
-        final colunasResumo = larguraTela >= 920 ? 4 : 2;
-        final aspectResumo = larguraTela >= 920
-            ? 1.95
-            : larguraTela >= Dimensions.breakpointTablet
-                ? 1.75
-                : 1.58;
         final temAlertas = provider.totalEmAtraso > 0;
 
         void abrirSeletorRapidoResumo(Colaborador colaborador, bool soDez) {
@@ -358,41 +349,6 @@ class _CafeScreenState extends State<CafeScreen>
           );
         }
 
-        final resumoCards = <Widget>[
-          _CafeResumoCard(
-            icon: Icons.people_outline,
-            color: AppColors.primary,
-            label: 'Disponiveis',
-            value: '$totalDisponiveis',
-            subtitle: 'Prontos para pausa',
-            onTap: abrirResumoDisponiveis,
-          ),
-          _CafeResumoCard(
-            icon: Icons.coffee,
-            color: AppColors.statusCafe,
-            label: 'Em intervalo',
-            value: '${provider.pausasAtivas.length}',
-            subtitle: 'Fora do caixa agora',
-            onTap: abrirResumoEmIntervalo,
-          ),
-          _CafeResumoCard(
-            icon: Icons.warning_amber_rounded,
-            color: temAlertas ? AppColors.danger : AppColors.statusAtencao,
-            label: 'Em atencao',
-            value: '${provider.totalEmAtraso}',
-            subtitle: temAlertas ? 'Precisam retornar' : 'Operacao estavel',
-            onTap: abrirResumoAtencao,
-          ),
-          _CafeResumoCard(
-            icon: Icons.history,
-            color: AppColors.success,
-            label: 'Historico',
-            value: '${provider.pausasFinalizadas.length}',
-            subtitle: 'Pausas encerradas hoje',
-            onTap: abrirResumoHistorico,
-          ),
-        ];
-
         return Scaffold(
           backgroundColor: AppColors.background,
           appBar: AppBar(
@@ -443,272 +399,187 @@ class _CafeScreenState extends State<CafeScreen>
                   0,
                 ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius:
-                            BorderRadius.circular(Dimensions.radiusLG),
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            AppColors.alertWarning,
-                            Colors.white,
-                            AppColors.alertInfo,
-                          ],
-                        ),
-                        border: Border.all(
-                          color: AppColors.statusCafe.withValues(alpha: 0.16),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.statusCafe.withValues(alpha: 0.06),
-                            blurRadius: 18,
-                            offset: const Offset(0, 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _CafeInfoChip(
+                            icon: Icons.people_outline,
+                            color: AppColors.primary,
+                            label: '$totalDisponiveis disponiveis',
+                          ),
+                          SizedBox(width: 8),
+                          _CafeInfoChip(
+                            icon: Icons.coffee,
+                            color: AppColors.statusCafe,
+                            label: '${provider.pausasAtivas.length} em pausa',
+                          ),
+                          SizedBox(width: 8),
+                          _CafeInfoChip(
+                            icon: Icons.warning_amber_rounded,
+                            color: temAlertas ? AppColors.danger : AppColors.success,
+                            label: temAlertas
+                                ? '${provider.totalEmAtraso} em atraso'
+                                : 'Sem atraso',
+                          ),
+                          SizedBox(width: 8),
+                          _CafeInfoChip(
+                            icon: Icons.history,
+                            color: AppColors.success,
+                            label:
+                                '${provider.pausasFinalizadas.length} ja fizeram',
                           ),
                         ],
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(Dimensions.paddingMD),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            InkWell(
-                              borderRadius:
-                                  BorderRadius.circular(Dimensions.radiusMD),
-                              onTap: () => setState(
-                                () => _expandPainelCafe = !_expandPainelCafe,
+                    ),
+                    SizedBox(height: Dimensions.spacingSM),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: abrirResumoDisponiveis,
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: AppStyles.softCard(
+                                tint: AppColors.primary,
+                                radius: Dimensions.radiusMD,
                               ),
-                              child: Row(
+                              child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Container(
-                                    width: 46,
-                                    height: 46,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.statusCafe
-                                          .withValues(alpha: 0.12),
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: Icon(
-                                      Icons.free_breakfast_rounded,
-                                      color: AppColors.statusCafe,
+                                  Icon(Icons.people_outline,
+                                      color: AppColors.primary, size: 18),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    '$totalDisponiveis',
+                                    style: AppTextStyles.h3.copyWith(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.w800,
                                     ),
                                   ),
-                                  SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Painel de pausas',
-                                          style: AppTextStyles.h3,
-                                        ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          temAlertas
-                                              ? 'Existem pausas que pedem retorno imediato.'
-                                              : 'Acompanhe quem pode sair, quem esta fora e quem ja retornou.',
-                                          style: AppTextStyles.body.copyWith(
-                                            color: AppColors.textSecondary,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 38,
-                                    height: 38,
-                                    decoration: BoxDecoration(
-                                      color:
-                                          Colors.white.withValues(alpha: 0.88),
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                    child: Icon(
-                                      _expandPainelCafe
-                                          ? Icons.keyboard_arrow_up
-                                          : Icons.keyboard_arrow_down,
-                                      color: AppColors.statusCafe,
+                                  Text(
+                                    'Disponiveis',
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppColors.textSecondary,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            AnimatedCrossFade(
-                              firstChild: SizedBox(width: double.infinity),
-                              secondChild: Column(
-                                children: [
-                                  SizedBox(height: Dimensions.spacingSM),
-                                  Wrap(
-                                    spacing: 8,
-                                    runSpacing: 8,
-                                    children: [
-                                      _CafeInfoChip(
-                                        icon: Icons.people_outline,
-                                        color: AppColors.primary,
-                                        label: '$totalDisponiveis disponiveis',
-                                      ),
-                                      _CafeInfoChip(
-                                        icon: Icons.coffee,
-                                        color: AppColors.statusCafe,
-                                        label:
-                                            '${provider.pausasAtivas.length} em pausa',
-                                      ),
-                                      _CafeInfoChip(
-                                        icon: Icons.warning_amber_rounded,
-                                        color: temAlertas
-                                            ? AppColors.danger
-                                            : AppColors.success,
-                                        label: temAlertas
-                                            ? '${provider.totalEmAtraso} em atraso'
-                                            : 'Sem atraso',
-                                      ),
-                                      _CafeInfoChip(
-                                        icon: Icons.check_circle_outline,
-                                        color: AppColors.success,
-                                        label:
-                                            '${provider.pausasFinalizadas.length} ja fizeram',
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              crossFadeState: _expandPainelCafe
-                                  ? CrossFadeState.showSecond
-                                  : CrossFadeState.showFirst,
-                              duration: const Duration(milliseconds: 220),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
-                    SizedBox(height: Dimensions.spacingMD),
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: resumoCards.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: colunasResumo,
-                        crossAxisSpacing: Dimensions.spacingSM,
-                        mainAxisSpacing: Dimensions.spacingSM,
-                        childAspectRatio: aspectResumo,
-                      ),
-                      itemBuilder: (_, index) => resumoCards[index],
-                    ),
-                    SizedBox(height: Dimensions.spacingMD),
-                    Container(
-                      decoration: AppStyles.softCard(
-                        tint: AppColors.blueGrey,
-                        radius: Dimensions.radiusLG,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(Dimensions.paddingMD),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            InkWell(
-                              borderRadius:
-                                  BorderRadius.circular(Dimensions.radiusMD),
-                              onTap: () => setState(
-                                () => _expandLeituraCafe = !_expandLeituraCafe,
+                        SizedBox(width: Dimensions.spacingSM),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: abrirResumoEmIntervalo,
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: AppStyles.softCard(
+                                tint: AppColors.statusCafe,
+                                radius: Dimensions.radiusMD,
                               ),
-                              child: Row(
+                              child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Container(
-                                    width: 42,
-                                    height: 42,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.blueGrey
-                                          .withValues(alpha: 0.10),
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                    child: Icon(
-                                      Icons.monitor_outlined,
-                                      color: AppColors.blueGrey,
+                                  Icon(Icons.coffee,
+                                      color: AppColors.statusCafe, size: 18),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    '${provider.pausasAtivas.length}',
+                                    style: AppTextStyles.h3.copyWith(
+                                      color: AppColors.statusCafe,
+                                      fontWeight: FontWeight.w800,
                                     ),
                                   ),
-                                  SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Leitura das pausas',
-                                          style: AppTextStyles.h4,
-                                        ),
-                                        SizedBox(height: 2),
-                                        Text(
-                                          temAlertas
-                                              ? 'Priorize retornos atrasados e acompanhe as abas por estado.'
-                                              : 'Os cards abaixo abrem o detalhe rapido de cada situacao.',
-                                          style: AppTextStyles.caption.copyWith(
-                                            color: AppColors.textSecondary,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 38,
-                                    height: 38,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                    child: Icon(
-                                      _expandLeituraCafe
-                                          ? Icons.keyboard_arrow_up
-                                          : Icons.keyboard_arrow_down,
-                                      color: AppColors.blueGrey,
+                                  Text(
+                                    'Em pausa',
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppColors.textSecondary,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            AnimatedCrossFade(
-                              firstChild: SizedBox(width: double.infinity),
-                              secondChild: Column(
-                                children: [
-                                  SizedBox(height: Dimensions.spacingSM),
-                                  Wrap(
-                                    spacing: 8,
-                                    runSpacing: 8,
-                                    children: [
-                                      _CafeInfoChip(
-                                        icon: Icons.schedule,
-                                        color: AppColors.primary,
-                                        label:
-                                            'Disponiveis seguem a ordem do proximo horario',
-                                      ),
-                                      _CafeInfoChip(
-                                        icon: Icons.keyboard_tab,
-                                        color: AppColors.statusCafe,
-                                        label:
-                                            '${provider.pausasAtivas.length} retorno(s) abertos',
-                                      ),
-                                      _CafeInfoChip(
-                                        icon:
-                                            Icons.assignment_turned_in_outlined,
-                                        color: AppColors.success,
-                                        label:
-                                            '${historicoHoje.length} registro(s) no dia',
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              crossFadeState: _expandLeituraCafe
-                                  ? CrossFadeState.showSecond
-                                  : CrossFadeState.showFirst,
-                              duration: const Duration(milliseconds: 220),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
+                        SizedBox(width: Dimensions.spacingSM),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: abrirResumoAtencao,
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: AppStyles.softCard(
+                                tint: temAlertas
+                                    ? AppColors.danger
+                                    : AppColors.statusAtencao,
+                                radius: Dimensions.radiusMD,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(Icons.warning_amber_rounded,
+                                      color: temAlertas
+                                          ? AppColors.danger
+                                          : AppColors.statusAtencao,
+                                      size: 18),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    '${provider.totalEmAtraso}',
+                                    style: AppTextStyles.h3.copyWith(
+                                      color: temAlertas
+                                          ? AppColors.danger
+                                          : AppColors.statusAtencao,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Em atencao',
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: Dimensions.spacingSM),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: abrirResumoHistorico,
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: AppStyles.softCard(
+                                tint: AppColors.success,
+                                radius: Dimensions.radiusMD,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(Icons.history,
+                                      color: AppColors.success, size: 18),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    '${provider.pausasFinalizadas.length}',
+                                    style: AppTextStyles.h3.copyWith(
+                                      color: AppColors.success,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Historico',
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -1509,10 +1380,6 @@ class _PausaAtivaCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final emAtraso = pausa.emAtraso;
     final cor = emAtraso ? AppColors.danger : AppColors.statusCafe;
-    final progresso = emAtraso
-        ? 1.0
-        : pausa.tempoDecorrido.inSeconds /
-            Duration(minutes: pausa.duracaoMinutos).inSeconds;
 
     final retornoPrevisto =
         pausa.iniciadoEm.add(Duration(minutes: pausa.duracaoMinutos));
@@ -1597,16 +1464,6 @@ class _PausaAtivaCard extends StatelessWidget {
                   textStyle: AppTextStyles.caption,
                 ),
                 child: Text('Finalizar'),
-              ),
-            ),
-            SizedBox(height: 10),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: progresso.clamp(0.0, 1.0),
-                backgroundColor: cor.withValues(alpha: 0.10),
-                valueColor: AlwaysStoppedAnimation<Color>(cor),
-                minHeight: 6,
               ),
             ),
             SizedBox(height: 6),
