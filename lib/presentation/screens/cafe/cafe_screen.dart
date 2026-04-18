@@ -355,6 +355,7 @@ class _CafeScreenState extends State<CafeScreen>
             title: Text('Cafe / Intervalos'),
             backgroundColor: AppColors.background,
             elevation: 0,
+            toolbarHeight: 48,
             actions: [
               IconButton(
                 icon: Icon(Icons.refresh),
@@ -374,18 +375,9 @@ class _CafeScreenState extends State<CafeScreen>
               indicatorColor: AppColors.primary,
               indicatorWeight: 3,
               tabs: [
-                Tab(
-                  icon: Icon(Icons.people_outline, size: 18),
-                  text: 'Disponiveis ($totalDisponiveis)',
-                ),
-                Tab(
-                  icon: Icon(Icons.coffee, size: 18),
-                  text: 'Em Intervalo (${provider.pausasAtivas.length})',
-                ),
-                Tab(
-                  icon: Icon(Icons.check_circle_outline, size: 18),
-                  text: 'Ja fez (${provider.pausasFinalizadas.length})',
-                ),
+                Tab(text: 'Disponiveis ($totalDisponiveis)'),
+                Tab(text: 'Em Intervalo (${provider.pausasAtivas.length})'),
+                Tab(text: 'Ja fez (${provider.pausasFinalizadas.length})'),
               ],
             ),
           ),

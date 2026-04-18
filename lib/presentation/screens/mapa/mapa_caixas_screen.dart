@@ -1645,6 +1645,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         title: Text('Mapa de Caixas'),
         backgroundColor: AppColors.background,
         elevation: 0,
+        toolbarHeight: 48,
         actions: [
           if (_tabIndex == 0)
             IconButton(
@@ -1659,10 +1660,8 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
           indicatorColor: AppColors.primary,
           indicatorWeight: 3,
           tabs: const [
-            Tab(icon: Icon(Icons.map_outlined, size: 18), text: 'Mapa'),
-            Tab(
-                icon: Icon(Icons.point_of_sale_outlined, size: 18),
-                text: 'Caixas'),
+            Tab(text: 'Mapa'),
+            Tab(text: 'Caixas'),
           ],
         ),
       ),
