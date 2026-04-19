@@ -26,7 +26,7 @@ class OcorrenciaDetailScreen extends StatelessWidget {
     final m = dt.month.toString().padLeft(2, '0');
     final h = dt.hour.toString().padLeft(2, '0');
     final min = dt.minute.toString().padLeft(2, '0');
-    return '$d/$m/${dt.year} as $h:$min';
+    return '$d/$m/${dt.year} às $h:$min';
   }
 
   void _copiar(BuildContext context, String valor, String label) {
@@ -34,7 +34,7 @@ class OcorrenciaDetailScreen extends StatelessWidget {
     AppNotif.show(
       context,
       titulo: 'Copiado',
-      mensagem: '$label copiado para area de transferencia',
+      mensagem: '$label copiado para a área de transferência',
       tipo: 'saida',
       cor: AppColors.success,
     );
@@ -56,8 +56,8 @@ class OcorrenciaDetailScreen extends StatelessWidget {
 
     AppNotif.show(
       context,
-      titulo: 'Ocorrencia resolvida',
-      mensagem: 'A ocorrencia foi marcada como resolvida.',
+      titulo: 'Ocorrência resolvida',
+      mensagem: 'A ocorrência foi marcada como resolvida.',
       tipo: 'saida',
       cor: AppColors.success,
     );
@@ -70,8 +70,8 @@ class OcorrenciaDetailScreen extends StatelessWidget {
 
     if (ocorrencia == null) {
       return Scaffold(
-        appBar: AppBar(title: Text('Detalhes da Ocorrencia')),
-        body: Center(child: Text('Ocorrencia nao encontrada.')),
+        appBar: AppBar(title: const Text('Detalhes da Ocorrência')),
+        body: const Center(child: Text('Ocorrência não encontrada.')),
       );
     }
 
@@ -80,16 +80,16 @@ class OcorrenciaDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
-        title: Text('Detalhes da Ocorrencia', style: AppTextStyles.h3),
+        title: Text('Detalhes da Ocorrência', style: AppTextStyles.h3),
         actions: [
           if (!ocorrencia.resolvida)
             IconButton(
-              icon: Icon(Icons.check_circle_outline),
+              icon: const Icon(Icons.check_circle_outline),
               tooltip: 'Marcar como resolvida',
               onPressed: () => _marcarComoResolvida(context, ocorrencia),
             ),
           IconButton(
-            icon: Icon(Icons.edit_outlined),
+            icon: const Icon(Icons.edit_outlined),
             tooltip: 'Editar',
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(
@@ -104,135 +104,194 @@ class OcorrenciaDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor:
-                      ocorrencia.gravidade.cor.withValues(alpha: 0.15),
-                  child: Icon(
-                    iconForTipo(ocorrencia.tipo),
-                    color: ocorrencia.gravidade.cor,
-                  ),
-                ),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Text(ocorrencia.tipo, style: AppTextStyles.h3),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: ocorrencia.gravidade.cor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    ocorrencia.gravidade.nome,
-                    style: TextStyle(
-                      color: ocorrencia.gravidade.cor,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
+            // ── Cabeçalho em Card ───────────────────────────────────────
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(Dimensions.paddingMD),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 22,
+                          backgroundColor:
+                              ocorrencia.gravidade.cor.withValues(alpha: 0.15),
+                          child: Icon(
+                            iconForTipo(ocorrencia.tipo),
+                            color: ocorrencia.gravidade.cor,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(ocorrencia.tipo, style: AppTextStyles.h3),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: ocorrencia.gravidade.cor
+                                .withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            ocorrencia.gravidade.nome,
+                            style: TextStyle(
+                              color: ocorrencia.gravidade.cor,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                Chip(
-                  avatar: Icon(
-                    ocorrencia.resolvida
-                        ? Icons.check_circle
-                        : Icons.error_outline,
-                    size: 16,
-                    color: ocorrencia.resolvida
-                        ? AppColors.success
-                        : AppColors.danger,
-                  ),
-                  label: Text(ocorrencia.resolvida ? 'Resolvida' : 'Aberta'),
-                  backgroundColor: ocorrencia.resolvida
-                      ? AppColors.success.withValues(alpha: 0.12)
-                      : AppColors.danger.withValues(alpha: 0.12),
-                ),
-              ],
-            ),
-            SizedBox(height: 12),
-            Text(
-              'Registrada em ${_formatDateTime(ocorrencia.registradaEm)}',
-              style: AppTextStyles.caption
-                  .copyWith(color: AppColors.textSecondary),
-            ),
-            if (ocorrencia.resolvidaEm != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  'Resolvida em ${_formatDateTime(ocorrencia.resolvidaEm!)}',
-                  style:
-                      AppTextStyles.caption.copyWith(color: AppColors.success),
-                ),
-              ),
-            if (ocorrencia.caixaNome != null &&
-                ocorrencia.caixaNome!.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  'Caixa: ${ocorrencia.caixaNome!}',
-                  style: AppTextStyles.caption
-                      .copyWith(color: AppColors.textSecondary),
+                    const SizedBox(height: 12),
+                    // Status chip
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: (ocorrencia.resolvida
+                                ? AppColors.success
+                                : AppColors.danger)
+                            .withValues(alpha: 0.1),
+                        border: Border.all(
+                          color: ocorrencia.resolvida
+                              ? AppColors.success
+                              : AppColors.danger,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            ocorrencia.resolvida
+                                ? Icons.check_circle
+                                : Icons.error_outline,
+                            size: 14,
+                            color: ocorrencia.resolvida
+                                ? AppColors.success
+                                : AppColors.danger,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            ocorrencia.resolvida ? 'Resolvida' : 'Aberta',
+                            style: AppTextStyles.caption.copyWith(
+                              color: ocorrencia.resolvida
+                                  ? AppColors.success
+                                  : AppColors.danger,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            if (ocorrencia.colaboradorNome != null &&
-                ocorrencia.colaboradorNome!.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  'Colaborador: ${ocorrencia.colaboradorNome!}',
-                  style: AppTextStyles.caption
-                      .copyWith(color: AppColors.textSecondary),
+            ),
+
+            const SizedBox(height: Dimensions.spacingMD),
+
+            // ── Informações (metadados) ──────────────────────────────────
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(Dimensions.paddingMD),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Informações',
+                        style: AppTextStyles.label
+                            .copyWith(color: AppColors.textSecondary)),
+                    const SizedBox(height: 10),
+                    _InfoLinha(
+                      icon: Icons.access_time,
+                      label: 'Registrada em',
+                      value: _formatDateTime(ocorrencia.registradaEm),
+                      color: AppColors.primary,
+                    ),
+                    if (ocorrencia.resolvidaEm != null) ...[
+                      const SizedBox(height: 8),
+                      _InfoLinha(
+                        icon: Icons.check_circle,
+                        label: 'Resolvida em',
+                        value: _formatDateTime(ocorrencia.resolvidaEm!),
+                        color: AppColors.success,
+                      ),
+                    ],
+                    if (ocorrencia.caixaNome != null &&
+                        ocorrencia.caixaNome!.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      _InfoLinha(
+                        icon: Icons.point_of_sale,
+                        label: 'Caixa',
+                        value: ocorrencia.caixaNome!,
+                        color: AppColors.primary,
+                      ),
+                    ],
+                    if (ocorrencia.colaboradorNome != null &&
+                        ocorrencia.colaboradorNome!.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      _InfoLinha(
+                        icon: Icons.person,
+                        label: 'Colaborador',
+                        value: ocorrencia.colaboradorNome!,
+                        color: AppColors.primary,
+                      ),
+                    ],
+                  ],
                 ),
               ),
-            SizedBox(height: 16),
-            Text('Descricao', style: AppTextStyles.h4),
-            SizedBox(height: 8),
+            ),
+
+            const SizedBox(height: Dimensions.spacingMD),
+
+            // ── Descrição ───────────────────────────────────────────────
+            Text('Descrição', style: AppTextStyles.h4),
+            const SizedBox(height: 8),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: AppColors.backgroundSection,
-                borderRadius: BorderRadius.circular(Dimensions.borderRadius),
+                borderRadius:
+                    BorderRadius.circular(Dimensions.borderRadius),
                 border: Border.all(color: AppColors.cardBorder),
               ),
               child: Text(
                 ocorrencia.descricao.isEmpty
-                    ? 'Sem descricao.'
+                    ? 'Sem descrição.'
                     : ocorrencia.descricao,
                 style: AppTextStyles.body,
               ),
             ),
+
+            // ── Anexos ──────────────────────────────────────────────────
             if ((ocorrencia.fotoUrl != null &&
                     ocorrencia.fotoUrl!.isNotEmpty) ||
                 (ocorrencia.arquivoUrl != null &&
                     ocorrencia.arquivoUrl!.isNotEmpty)) ...[
-              SizedBox(height: 16),
+              const SizedBox(height: Dimensions.spacingMD),
               Text('Anexos', style: AppTextStyles.h4),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Card(
                 child: Column(
                   children: [
                     if (ocorrencia.fotoUrl != null &&
                         ocorrencia.fotoUrl!.isNotEmpty)
                       ListTile(
-                        leading: Icon(Icons.photo_outlined),
-                        title: Text('Foto'),
+                        leading:
+                            const Icon(Icons.photo_outlined),
+                        title: const Text('Foto'),
                         subtitle: Text(
                           ocorrencia.fotoNome ?? 'arquivo de imagem',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         trailing: IconButton(
-                          icon: Icon(Icons.copy_outlined),
+                          icon: const Icon(Icons.copy_outlined),
                           onPressed: () => _copiar(
                               context, ocorrencia.fotoUrl!, 'URL da foto'),
                         ),
@@ -241,19 +300,19 @@ class OcorrenciaDetailScreen extends StatelessWidget {
                         ocorrencia.fotoUrl!.isNotEmpty &&
                         ocorrencia.arquivoUrl != null &&
                         ocorrencia.arquivoUrl!.isNotEmpty)
-                      Divider(height: 1),
+                      const Divider(height: 1),
                     if (ocorrencia.arquivoUrl != null &&
                         ocorrencia.arquivoUrl!.isNotEmpty)
                       ListTile(
-                        leading: Icon(Icons.attach_file),
-                        title: Text('Arquivo'),
+                        leading: const Icon(Icons.attach_file),
+                        title: const Text('Arquivo'),
                         subtitle: Text(
                           ocorrencia.arquivoNome ?? 'arquivo anexado',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         trailing: IconButton(
-                          icon: Icon(Icons.copy_outlined),
+                          icon: const Icon(Icons.copy_outlined),
                           onPressed: () => _copiar(
                             context,
                             ocorrencia.arquivoUrl!,
@@ -265,9 +324,51 @@ class OcorrenciaDetailScreen extends StatelessWidget {
                 ),
               ),
             ],
+
+            const SizedBox(height: Dimensions.spacingXL),
           ],
         ),
       ),
+    );
+  }
+}
+
+// ── Widget auxiliar ──────────────────────────────────────────────────────────
+
+class _InfoLinha extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  const _InfoLinha({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 15, color: color),
+        const SizedBox(width: 8),
+        Text(
+          '$label: ',
+          style: AppTextStyles.caption
+              .copyWith(color: AppColors.textSecondary),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: AppTextStyles.caption.copyWith(
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

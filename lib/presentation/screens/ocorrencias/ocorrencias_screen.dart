@@ -116,19 +116,46 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
   ) {
     if (lista.isEmpty) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.check_circle_outline,
-                size: 64, color: AppColors.inactive),
-            SizedBox(height: 16),
-            Text(
-              showResolver
-                  ? 'Nenhuma ocorrência aberta'
-                  : 'Nenhuma ocorrência resolvida',
-              style: AppTextStyles.h4.copyWith(color: AppColors.textSecondary),
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(Dimensions.paddingLG),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: (showResolver ? AppColors.danger : AppColors.success)
+                      .withValues(alpha: 0.08),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  showResolver
+                      ? Icons.warning_amber_outlined
+                      : Icons.check_circle_outline,
+                  size: 52,
+                  color: (showResolver ? AppColors.danger : AppColors.success)
+                      .withValues(alpha: 0.5),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                showResolver
+                    ? 'Nenhuma ocorrência aberta'
+                    : 'Nenhuma ocorrência resolvida',
+                style:
+                    AppTextStyles.h4.copyWith(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                showResolver
+                    ? 'Registre uma ocorrência com o botão abaixo'
+                    : 'As ocorrências resolvidas aparecerão aqui',
+                style:
+                    AppTextStyles.caption.copyWith(color: AppColors.inactive),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -180,7 +207,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   oc.descricao,
                   maxLines: 2,
@@ -188,31 +215,65 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                   style:
                       AppTextStyles.body.copyWith(color: AppColors.textPrimary),
                 ),
-                SizedBox(height: 4),
-                Text(
-                  _formatDateTime(oc.registradaEm),
-                  style: AppTextStyles.caption
-                      .copyWith(color: AppColors.textSecondary),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Icon(Icons.access_time,
+                        size: 12, color: AppColors.textSecondary),
+                    const SizedBox(width: 4),
+                    Text(
+                      _formatDateTime(oc.registradaEm),
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.textSecondary),
+                    ),
+                  ],
                 ),
-                if (oc.caixaNome != null && oc.caixaNome!.isNotEmpty)
-                  Text(
-                    'Caixa: ${oc.caixaNome}',
-                    style: AppTextStyles.caption
-                        .copyWith(color: AppColors.textSecondary),
+                if (oc.caixaNome != null && oc.caixaNome!.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      Icon(Icons.point_of_sale,
+                          size: 12, color: AppColors.textSecondary),
+                      const SizedBox(width: 4),
+                      Text(
+                        oc.caixaNome!,
+                        style: AppTextStyles.caption
+                            .copyWith(color: AppColors.textSecondary),
+                      ),
+                    ],
                   ),
+                ],
                 if (oc.colaboradorNome != null &&
-                    oc.colaboradorNome!.isNotEmpty)
-                  Text(
-                    'Colaborador: ${oc.colaboradorNome}',
-                    style: AppTextStyles.caption
-                        .copyWith(color: AppColors.textSecondary),
+                    oc.colaboradorNome!.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      Icon(Icons.person,
+                          size: 12, color: AppColors.textSecondary),
+                      const SizedBox(width: 4),
+                      Text(
+                        oc.colaboradorNome!,
+                        style: AppTextStyles.caption
+                            .copyWith(color: AppColors.textSecondary),
+                      ),
+                    ],
                   ),
-                if (oc.resolvida && oc.resolvidaEm != null)
-                  Text(
-                    'Resolvida em ${_formatDateTime(oc.resolvidaEm!)}',
-                    style: AppTextStyles.caption
-                        .copyWith(color: AppColors.success),
+                ],
+                if (oc.resolvida && oc.resolvidaEm != null) ...[
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      Icon(Icons.check_circle,
+                          size: 12, color: AppColors.success),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Resolvida em ${_formatDateTime(oc.resolvidaEm!)}',
+                        style: AppTextStyles.caption
+                            .copyWith(color: AppColors.success),
+                      ),
+                    ],
                   ),
+                ],
               ],
             ),
             isThreeLine: true,
@@ -363,9 +424,10 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
         onPressed: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const OcorrenciaFormScreen()),
         ),
-        icon: Icon(Icons.add),
-        label: Text('Registrar'),
+        icon: const Icon(Icons.add),
+        label: const Text('Registrar'),
         backgroundColor: AppColors.danger,
+        foregroundColor: Colors.white,
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/colors.dart';
+import '../../../core/constants/dimensions.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../providers/alocacao_provider.dart';
@@ -24,6 +25,7 @@ class GestaoScreen extends StatefulWidget {
 
 class _GestaoScreenState extends State<GestaoScreen> {
   late int _currentIndex;
+  late String _fiscalId;
 
   @override
   void initState() {
@@ -32,13 +34,15 @@ class _GestaoScreenState extends State<GestaoScreen> {
     if (_currentIndex < 0 || _currentIndex > 3) {
       _currentIndex = 0;
     }
+    // Lido uma vez — AuthProvider raramente muda durante sessão
+    _fiscalId =
+        Provider.of<AuthProvider>(context, listen: false).user?.id ?? '';
   }
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.appTheme;
-    final authProvider = context.read<AuthProvider>();
-    final fiscalId = authProvider.user?.id ?? '';
+    final fiscalId = _fiscalId;
     final cafeProvider = context.watch<CafeProvider>();
     final escalaProvider = context.watch<EscalaProvider>();
     final alocacaoProvider = context.watch<AlocacaoProvider>();
@@ -91,7 +95,8 @@ class _GestaoScreenState extends State<GestaoScreen> {
               children: [
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+                  padding: const EdgeInsets.fromLTRB(Dimensions.paddingMD,
+            Dimensions.paddingSM, Dimensions.paddingMD, Dimensions.paddingSM),
                   child: Row(
                     children: [
                       for (int i = 0; i < destinos.length; i++) ...[
@@ -161,7 +166,9 @@ class _GestaoChip extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: const EdgeInsets.symmetric(
+            horizontal: Dimensions.paddingMD,
+            vertical: Dimensions.paddingSM),
         decoration: BoxDecoration(
           color: selected
               ? item.color.withValues(alpha: 0.12)
@@ -170,7 +177,7 @@ class _GestaoChip extends StatelessWidget {
           border: Border.all(
             color: selected
                 ? item.color.withValues(alpha: 0.28)
-                : Colors.transparent,
+                : AppColors.cardBorder.withValues(alpha: 0.6),
             width: 1.5,
           ),
         ),

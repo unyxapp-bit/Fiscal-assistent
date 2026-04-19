@@ -121,7 +121,7 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
     if (descricao.isEmpty) {
       AppNotif.show(
         context,
-        titulo: 'Campo invalido',
+        titulo: 'Campo inválido',
         mensagem: 'Descreva o que aconteceu',
         tipo: 'alerta',
         cor: AppColors.danger,
@@ -160,7 +160,7 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
 
       if ((_fotoSelecionada != null || _arquivoSelecionado != null) &&
           fiscalId.isEmpty) {
-        throw Exception('Usuario nao autenticado para upload de anexo');
+        throw Exception('Usuário não autenticado para upload de anexo');
       }
 
       if (_fotoSelecionada != null) {
@@ -232,9 +232,9 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
       if (!mounted) return;
       AppNotif.show(
         context,
-        titulo: _isEdicao ? 'Ocorrencia atualizada' : 'Ocorrencia registrada',
+        titulo: _isEdicao ? 'Ocorrência atualizada' : 'Ocorrência registrada',
         mensagem:
-            _isEdicao ? 'Ocorrencia atualizada!' : 'Ocorrencia registrada!',
+            _isEdicao ? 'Ocorrência atualizada!' : 'Ocorrência registrada!',
         tipo: 'saida',
         cor: AppColors.success,
       );
@@ -244,7 +244,7 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
       AppNotif.show(
         context,
         titulo: _isEdicao ? 'Erro ao atualizar' : 'Erro ao registrar',
-        mensagem: 'Nao foi possivel salvar com anexos: $e',
+        mensagem: 'Não foi possível salvar com anexos: $e',
         tipo: 'alerta',
         cor: AppColors.danger,
       );
@@ -263,7 +263,7 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
-          _isEdicao ? 'Editar Ocorrencia' : 'Registrar Ocorrencia',
+          _isEdicao ? 'Editar Ocorrência' : 'Registrar Ocorrência',
           style: AppTextStyles.h3,
         ),
         backgroundColor: AppColors.background,
@@ -278,28 +278,43 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.backgroundSection,
+                  color: AppColors.primary.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-                  border: Border.all(color: AppColors.cardBorder),
+                  border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.2)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (_caixaNome != null && _caixaNome!.isNotEmpty)
-                      Text('Caixa: ${_caixaNome!}', style: AppTextStyles.body),
-                    if (_colaboradorNome != null &&
-                        _colaboradorNome!.isNotEmpty)
-                      Text(
-                        'Colaborador: ${_colaboradorNome!}',
-                        style: AppTextStyles.body,
+                      Row(
+                        children: [
+                          Icon(Icons.point_of_sale,
+                              size: 15, color: AppColors.primary),
+                          const SizedBox(width: 8),
+                          Text(_caixaNome!, style: AppTextStyles.body),
+                        ],
                       ),
+                    if (_colaboradorNome != null &&
+                        _colaboradorNome!.isNotEmpty) ...[
+                      if (_caixaNome != null && _caixaNome!.isNotEmpty)
+                        const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Icon(Icons.person,
+                              size: 15, color: AppColors.primary),
+                          const SizedBox(width: 8),
+                          Text(_colaboradorNome!, style: AppTextStyles.body),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
-              SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingMD),
             ],
-            Text('Tipo de ocorrencia', style: AppTextStyles.h4),
-            SizedBox(height: Dimensions.spacingSM),
+            Text('Tipo de ocorrência', style: AppTextStyles.h4),
+            const SizedBox(height: Dimensions.spacingSM),
             TextField(
               controller: _tipoCtrl,
               decoration: InputDecoration(
@@ -321,7 +336,7 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
             ),
             SizedBox(height: Dimensions.spacingSM),
             Text(
-              'Sugestoes:',
+              'Sugestões:',
               style: AppTextStyles.caption
                   .copyWith(color: AppColors.textSecondary),
             ),
@@ -419,11 +434,14 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
             SizedBox(height: Dimensions.spacingSM),
             TextFormField(
               controller: _descricaoCtrl,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Descreva com detalhes: quem, o que, onde...',
                 alignLabelWithHint: true,
+                counterText: '',
               ),
-              maxLines: 5,
+              maxLength: 500,
+              minLines: 3,
+              maxLines: 8,
               textCapitalization: TextCapitalization.sentences,
             ),
             SizedBox(height: Dimensions.spacingMD),
