@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -30,6 +31,7 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabCtrl;
   final _searchController = TextEditingController();
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -43,6 +45,7 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
   void dispose() {
     _tabCtrl.dispose();
     _searchController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 
@@ -76,12 +79,12 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Colaboradores'),
+        title: const Text('Colaboradores'),
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: _loadData,
             tooltip: 'Atualizar',
           ),
@@ -103,8 +106,13 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
               controller: _tabCtrl,
               children: [
                 _buildListaTab(colaboradorProvider, alocacaoProvider),
-                _buildStatusTab(
-                    colaboradorProvider, caixaProvider, alocacaoProvider),
+                _StatusTab(
+                  colaboradorProvider: colaboradorProvider,
+                  caixaProvider: caixaProvider,
+                  alocacaoProvider: alocacaoProvider,
+                  onRefresh: _loadData,
+                  onNavigateToDetail: _navigateToDetail,
+                ),
               ],
             ),
       floatingActionButton: _tabCtrl.index == 0
@@ -112,29 +120,29 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => const ColaboradorFormScreen())),
               backgroundColor: AppColors.primary,
-              child: Icon(Icons.add),
+              child: const Icon(Icons.add),
             )
           : null,
     );
   }
 
-  // â”€â”€ Aba 1: Lista â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Aba 1: Lista ─────────────────────────────────────────────────────────
 
   Widget _buildListaTab(
       ColaboradorProvider provider, AlocacaoProvider alocacaoProvider) {
     return Column(
       children: [
-        // Busca
+        // Busca com debounce
         Padding(
           padding: const EdgeInsets.all(Dimensions.paddingMD),
           child: TextField(
             controller: _searchController,
             decoration: InputDecoration(
               hintText: 'Buscar por nome...',
-              prefixIcon: Icon(Icons.search),
+              prefixIcon: const Icon(Icons.search),
               suffixIcon: _searchController.text.isNotEmpty
                   ? IconButton(
-                      icon: Icon(Icons.clear),
+                      icon: const Icon(Icons.clear),
                       onPressed: () {
                         _searchController.clear();
                         provider.setSearchQuery('');
@@ -150,7 +158,10 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
             ),
             onChanged: (value) {
               setState(() {});
-              provider.setSearchQuery(value);
+              _debounce?.cancel();
+              _debounce = Timer(const Duration(milliseconds: 300), () {
+                provider.setSearchQuery(value);
+              });
             },
           ),
         ),
@@ -183,7 +194,8 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
                       final showDetails = crossAxisCount >= 4;
                       return GridView.builder(
                         padding: const EdgeInsets.all(Dimensions.paddingMD),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate:
+                            SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: crossAxisCount,
                           crossAxisSpacing: 8,
                           mainAxisSpacing: 8,
@@ -216,117 +228,13 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
     );
   }
 
-  // â”€â”€ Aba 2: Status â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-  Widget _buildStatusTab(
-    ColaboradorProvider colaboradorProvider,
-    CaixaProvider caixaProvider,
-    AlocacaoProvider alocacaoProvider,
-  ) {
-    final todos =
-        colaboradorProvider.todosColaboradores.where((c) => c.ativo).toList();
-
-    final disponiveis = todos
-        .where((c) => alocacaoProvider.getAlocacaoColaborador(c.id) == null)
-        .toList();
-
-    final emCaixa = todos
-        .where((c) => alocacaoProvider.getAlocacaoColaborador(c.id) != null)
-        .toList();
-
-    return DefaultTabController(
-      length: 2,
-      child: Column(
-        children: [
-          TabBar(
-            labelColor: AppColors.primary,
-            unselectedLabelColor: AppColors.textSecondary,
-            indicatorColor: AppColors.primary,
-            indicatorWeight: 3,
-            tabs: [
-              Tab(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.check_circle_outline, size: 18),
-                    SizedBox(width: 6),
-                    Text('Disponíveis (${disponiveis.length})'),
-                  ],
-                ),
-              ),
-              Tab(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.point_of_sale, size: 18),
-                    SizedBox(width: 6),
-                    Text('Em Caixa (${emCaixa.length})'),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          Expanded(
-            child: TabBarView(
-              children: [
-                // Disponíveis
-                RefreshIndicator(
-                  onRefresh: _loadData,
-                  child: disponiveis.isEmpty
-                      ? const _EmptyStatus(
-                          icon: Icons.people_outline,
-                          mensagem: 'Nenhum colaborador disponível',
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.all(Dimensions.paddingMD),
-                          itemCount: disponiveis.length,
-                          itemBuilder: (context, index) =>
-                              _CardDisponivel(colaborador: disponiveis[index]),
-                        ),
-                ),
-
-                // Em Caixa
-                RefreshIndicator(
-                  onRefresh: _loadData,
-                  child: emCaixa.isEmpty
-                      ? const _EmptyStatus(
-                          icon: Icons.point_of_sale,
-                          mensagem: 'Nenhum colaborador alocado',
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.all(Dimensions.paddingMD),
-                          itemCount: emCaixa.length,
-                          itemBuilder: (context, index) {
-                            final c = emCaixa[index];
-                            final alocacao =
-                                alocacaoProvider.getAlocacaoColaborador(c.id);
-                            final caixa = alocacao != null
-                                ? caixaProvider.caixas
-                                    .where((cx) => cx.id == alocacao.caixaId)
-                                    .firstOrNull
-                                : null;
-                            return _CardEmCaixa(
-                              colaborador: c,
-                              nomeCaixa: caixa?.nomeExibicao,
-                              localizacao: caixa?.localizacao,
-                            );
-                          },
-                        ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // â”€â”€ Chips de filtro â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Chips de filtro ───────────────────────────────────────────────────────
 
   Widget _buildFilterChips(ColaboradorProvider provider) {
     return Container(
       height: 48,
-      margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingMD),
+      margin:
+          const EdgeInsets.symmetric(horizontal: Dimensions.paddingMD),
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
@@ -335,29 +243,37 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
             isSelected: provider.filtroAtual == null,
             onTap: () => provider.setFiltro(null),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           _chip(
             label: 'Caixa (${provider.totalCaixa})',
             isSelected: provider.filtroAtual == DepartamentoTipo.caixa,
             onTap: () => provider.setFiltro(DepartamentoTipo.caixa),
+            icon: DepartamentoTipo.caixa.icone,
+            iconColor: DepartamentoTipo.caixa.cor,
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           _chip(
             label: 'Fiscal (${provider.totalFiscal})',
             isSelected: provider.filtroAtual == DepartamentoTipo.fiscal,
             onTap: () => provider.setFiltro(DepartamentoTipo.fiscal),
+            icon: DepartamentoTipo.fiscal.icone,
+            iconColor: DepartamentoTipo.fiscal.cor,
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           _chip(
             label: 'Pacote (${provider.totalPacote})',
             isSelected: provider.filtroAtual == DepartamentoTipo.pacote,
             onTap: () => provider.setFiltro(DepartamentoTipo.pacote),
+            icon: DepartamentoTipo.pacote.icone,
+            iconColor: DepartamentoTipo.pacote.cor,
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           _chip(
             label: 'Self (${provider.totalSelf})',
             isSelected: provider.filtroAtual == DepartamentoTipo.self,
             onTap: () => provider.setFiltro(DepartamentoTipo.self),
+            icon: DepartamentoTipo.self.icone,
+            iconColor: DepartamentoTipo.self.cor,
           ),
         ],
       ),
@@ -368,11 +284,13 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
     required String label,
     required bool isSelected,
     required VoidCallback onTap,
+    IconData? icon,
+    Color? iconColor,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : AppColors.cardBackground,
           borderRadius: BorderRadius.circular(24),
@@ -380,18 +298,34 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
             color: isSelected ? AppColors.primary : AppColors.cardBorder,
           ),
         ),
-        child: Text(
-          label,
-          style: AppTextStyles.label.copyWith(
-            color: isSelected ? Colors.white : AppColors.textPrimary,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 14,
+                color: isSelected
+                    ? Colors.white
+                    : (iconColor ?? AppColors.textSecondary),
+              ),
+              const SizedBox(width: 4),
+            ],
+            Text(
+              label,
+              style: AppTextStyles.label.copyWith(
+                color: isSelected ? Colors.white : AppColors.textPrimary,
+                fontWeight:
+                    isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  // â”€â”€ Delete â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Delete ────────────────────────────────────────────────────────────────
 
   Future<void> _deleteColaborador(
     BuildContext context,
@@ -401,17 +335,17 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Excluir colaborador?'),
+        title: const Text('Excluir colaborador?'),
         content: Text('Tem certeza que deseja excluir $nome?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text('Excluir'),
+            style: TextButton.styleFrom(foregroundColor: AppColors.danger),
+            child: const Text('Excluir'),
           ),
         ],
       ),
@@ -420,7 +354,8 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
     if (!mounted) return;
 
     if (confirm == true) {
-      final provider = Provider.of<ColaboradorProvider>(context, listen: false);
+      final provider =
+          Provider.of<ColaboradorProvider>(context, listen: false);
       final success = await provider.deleteColaborador(id);
       if (mounted) {
         AppNotif.show(
@@ -437,33 +372,180 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
   }
 }
 
-// â”€â”€ Widgets da aba Status â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── StatusTab — extraído para evitar o bug de reconstrução do DefaultTabController ──
+
+class _StatusTab extends StatefulWidget {
+  final ColaboradorProvider colaboradorProvider;
+  final CaixaProvider caixaProvider;
+  final AlocacaoProvider alocacaoProvider;
+  final Future<void> Function() onRefresh;
+  final void Function(Colaborador) onNavigateToDetail;
+
+  const _StatusTab({
+    required this.colaboradorProvider,
+    required this.caixaProvider,
+    required this.alocacaoProvider,
+    required this.onRefresh,
+    required this.onNavigateToDetail,
+  });
+
+  @override
+  State<_StatusTab> createState() => _StatusTabState();
+}
+
+class _StatusTabState extends State<_StatusTab>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabCtrl = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final todos = widget.colaboradorProvider.todosColaboradores
+        .where((c) => c.ativo)
+        .toList();
+    final disponiveis = todos
+        .where((c) =>
+            widget.alocacaoProvider.getAlocacaoColaborador(c.id) == null)
+        .toList();
+    final emCaixa = todos
+        .where((c) =>
+            widget.alocacaoProvider.getAlocacaoColaborador(c.id) != null)
+        .toList();
+
+    return Column(
+      children: [
+        TabBar(
+          controller: _tabCtrl,
+          labelColor: AppColors.primary,
+          unselectedLabelColor: AppColors.textSecondary,
+          indicatorColor: AppColors.primary,
+          indicatorWeight: 3,
+          tabs: [
+            Tab(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.check_circle_outline, size: 18),
+                  const SizedBox(width: 6),
+                  Text('Disponíveis (${disponiveis.length})'),
+                ],
+              ),
+            ),
+            Tab(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.point_of_sale, size: 18),
+                  const SizedBox(width: 6),
+                  Text('Em Caixa (${emCaixa.length})'),
+                ],
+              ),
+            ),
+          ],
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _tabCtrl,
+            children: [
+              // Disponíveis
+              RefreshIndicator(
+                onRefresh: widget.onRefresh,
+                child: disponiveis.isEmpty
+                    ? const _EmptyStatus(
+                        icon: Icons.people_outline,
+                        mensagem: 'Nenhum colaborador disponível',
+                      )
+                    : ListView.builder(
+                        padding:
+                            const EdgeInsets.all(Dimensions.paddingMD),
+                        itemCount: disponiveis.length,
+                        itemBuilder: (context, index) => _CardDisponivel(
+                          colaborador: disponiveis[index],
+                          onTap: () => widget
+                              .onNavigateToDetail(disponiveis[index]),
+                        ),
+                      ),
+              ),
+
+              // Em Caixa
+              RefreshIndicator(
+                onRefresh: widget.onRefresh,
+                child: emCaixa.isEmpty
+                    ? const _EmptyStatus(
+                        icon: Icons.point_of_sale,
+                        mensagem: 'Nenhum colaborador alocado',
+                      )
+                    : ListView.builder(
+                        padding:
+                            const EdgeInsets.all(Dimensions.paddingMD),
+                        itemCount: emCaixa.length,
+                        itemBuilder: (context, index) {
+                          final c = emCaixa[index];
+                          final alocacao = widget.alocacaoProvider
+                              .getAlocacaoColaborador(c.id);
+                          final caixa = alocacao != null
+                              ? widget.caixaProvider.caixas
+                                  .where(
+                                      (cx) => cx.id == alocacao.caixaId)
+                                  .firstOrNull
+                              : null;
+                          return _CardEmCaixa(
+                            colaborador: c,
+                            nomeCaixa: caixa?.nomeExibicao,
+                            localizacao: caixa?.localizacao,
+                            onTap: () => widget.onNavigateToDetail(c),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ── Widgets da aba Status ─────────────────────────────────────────────────
 
 class _CardDisponivel extends StatelessWidget {
   final Colaborador colaborador;
-  const _CardDisponivel({required this.colaborador});
+  final VoidCallback? onTap;
+
+  const _CardDisponivel({required this.colaborador, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
       child: ListTile(
+        onTap: onTap,
         leading: CircleAvatar(
-          backgroundColor: AppColors.success.withValues(alpha: 0.15),
-          child: Text(
-            colaborador.iniciais,
-            style: TextStyle(
-              color: AppColors.success,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
+          backgroundColor:
+              colaborador.departamento.cor.withValues(alpha: 0.15),
+          child: Icon(
+            colaborador.departamento.icone,
+            color: colaborador.departamento.cor,
+            size: 18,
           ),
         ),
         title: Text(colaborador.nome, style: AppTextStyles.h4),
-        subtitle:
-            Text(colaborador.departamento.nome, style: AppTextStyles.caption),
+        subtitle: Text(colaborador.departamento.nome,
+            style: AppTextStyles.caption),
         trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
             color: AppColors.success.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(16),
@@ -485,11 +567,13 @@ class _CardEmCaixa extends StatelessWidget {
   final Colaborador colaborador;
   final String? nomeCaixa;
   final String? localizacao;
+  final VoidCallback? onTap;
 
   const _CardEmCaixa({
     required this.colaborador,
     this.nomeCaixa,
     this.localizacao,
+    this.onTap,
   });
 
   @override
@@ -497,26 +581,26 @@ class _CardEmCaixa extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
       child: ListTile(
+        onTap: onTap,
         leading: CircleAvatar(
-          backgroundColor: AppColors.statusAtivo.withValues(alpha: 0.15),
-          child: Text(
-            colaborador.iniciais,
-            style: TextStyle(
-              color: AppColors.statusAtivo,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
+          backgroundColor:
+              colaborador.departamento.cor.withValues(alpha: 0.15),
+          child: Icon(
+            colaborador.departamento.icone,
+            color: colaborador.departamento.cor,
+            size: 18,
           ),
         ),
         title: Text(colaborador.nome, style: AppTextStyles.h4),
-        subtitle:
-            Text(colaborador.departamento.nome, style: AppTextStyles.caption),
+        subtitle: Text(colaborador.departamento.nome,
+            style: AppTextStyles.caption),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: AppColors.statusAtivo.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
@@ -531,7 +615,7 @@ class _CardEmCaixa extends StatelessWidget {
               ),
             ),
             if (localizacao != null) ...[
-              SizedBox(height: 3),
+              const SizedBox(height: 3),
               Text(
                 localizacao!,
                 style: AppTextStyles.caption.copyWith(
@@ -560,10 +644,11 @@ class _EmptyStatus extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 56, color: AppColors.inactive),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text(
             mensagem,
-            style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+            style:
+                AppTextStyles.body.copyWith(color: AppColors.textSecondary),
           ),
         ],
       ),

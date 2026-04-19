@@ -47,32 +47,6 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
     ]);
   }
 
-  Color _getDepartamentoColor(DepartamentoTipo tipo) {
-    switch (tipo) {
-      case DepartamentoTipo.caixa:
-        return AppColors.primary;
-      case DepartamentoTipo.acougue:
-        return Colors.red.shade700;
-      case DepartamentoTipo.padaria:
-        return Colors.orange.shade700;
-      case DepartamentoTipo.hortifruti:
-        return Colors.green.shade700;
-      case DepartamentoTipo.deposito:
-        return Colors.brown.shade600;
-      case DepartamentoTipo.limpeza:
-        return Colors.blue.shade600;
-      case DepartamentoTipo.seguranca:
-        return Colors.grey.shade700;
-      case DepartamentoTipo.gerencia:
-        return Colors.purple.shade700;
-      case DepartamentoTipo.fiscal:
-        return Colors.indigo.shade700;
-      case DepartamentoTipo.pacote:
-        return Colors.teal.shade600;
-      case DepartamentoTipo.self:
-        return Colors.cyan.shade700;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -129,8 +103,8 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                         // Avatar com iniciais
                         CircleAvatar(
                           radius: 38,
-                          backgroundColor: _getDepartamentoColor(
-                              widget.colaborador.departamento),
+                          backgroundColor:
+                              widget.colaborador.departamento.cor,
                           child: Text(
                             widget.colaborador.iniciais,
                             style:
@@ -154,8 +128,8 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: _getDepartamentoColor(
-                                      widget.colaborador.departamento),
+                                  color:
+                                      widget.colaborador.departamento.cor,
                                   borderRadius: BorderRadius.circular(
                                       Dimensions.radiusSM),
                                 ),

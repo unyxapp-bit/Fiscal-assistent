@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter/material.dart';
 
 /// Tipos de departamento disponíveis no sistema
 enum DepartamentoTipo {
@@ -65,6 +66,62 @@ enum DepartamentoTipo {
         return 'self_service';
       default:
         return name;
+    }
+  }
+}
+
+extension DepartamentoTipoExtension on DepartamentoTipo {
+  Color get cor {
+    switch (this) {
+      case DepartamentoTipo.caixa:
+        return const Color(0xFF2196F3);
+      case DepartamentoTipo.fiscal:
+        return const Color(0xFFFF9800);
+      case DepartamentoTipo.pacote:
+        return const Color(0xFF4CAF50);
+      case DepartamentoTipo.self:
+        return const Color(0xFF9C27B0);
+      case DepartamentoTipo.gerencia:
+        return const Color(0xFFF44336);
+      case DepartamentoTipo.acougue:
+        return const Color(0xFF795548);
+      case DepartamentoTipo.padaria:
+        return const Color(0xFFFFC107);
+      case DepartamentoTipo.hortifruti:
+        return const Color(0xFF69F0AE);
+      case DepartamentoTipo.deposito:
+        return const Color(0xFF9E9E9E);
+      case DepartamentoTipo.limpeza:
+        return const Color(0xFF607D8B);
+      case DepartamentoTipo.seguranca:
+        return const Color(0xFF3F51B5);
+    }
+  }
+
+  IconData get icone {
+    switch (this) {
+      case DepartamentoTipo.caixa:
+        return Icons.point_of_sale;
+      case DepartamentoTipo.fiscal:
+        return Icons.security;
+      case DepartamentoTipo.pacote:
+        return Icons.inventory_2;
+      case DepartamentoTipo.self:
+        return Icons.self_improvement;
+      case DepartamentoTipo.gerencia:
+        return Icons.manage_accounts;
+      case DepartamentoTipo.acougue:
+        return Icons.set_meal;
+      case DepartamentoTipo.padaria:
+        return Icons.bakery_dining;
+      case DepartamentoTipo.hortifruti:
+        return Icons.eco;
+      case DepartamentoTipo.deposito:
+        return Icons.warehouse;
+      case DepartamentoTipo.limpeza:
+        return Icons.cleaning_services;
+      case DepartamentoTipo.seguranca:
+        return Icons.shield;
     }
   }
 }
