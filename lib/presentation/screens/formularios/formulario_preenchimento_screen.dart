@@ -122,8 +122,24 @@ class _FormularioPreenchimentoScreenState
     Navigator.of(context).pop(true);
   }
 
+  int get _camposPreenchidos {
+    int count = 0;
+    for (final campo in widget.formulario.campos) {
+      if (campo.tipo == TipoCampo.texto || campo.tipo == TipoCampo.numero) {
+        if (_textCtrls[campo.label]?.text.trim().isNotEmpty == true) count++;
+      } else {
+        if (_valores[campo.label] != null) count++;
+      }
+    }
+    return count;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final total = widget.formulario.campos.length;
+    final filled = _camposPreenchidos;
+    final progresso = total > 0 ? filled / total : 0.0;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -132,11 +148,47 @@ class _FormularioPreenchimentoScreenState
         title: Text(widget.formulario.titulo, style: AppTextStyles.h3),
         actions: [
           IconButton(
-            icon: Icon(Icons.clear_all),
+            icon: const Icon(Icons.clear_all),
             onPressed: _limpar,
             tooltip: 'Limpar',
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(20),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: progresso,
+                      minHeight: 5,
+                      backgroundColor:
+                          AppColors.primary.withValues(alpha: 0.12),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        progresso == 1.0
+                            ? AppColors.success
+                            : AppColors.primary,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  '$filled/$total',
+                  style: AppTextStyles.caption.copyWith(
+                    color: progresso == 1.0
+                        ? AppColors.success
+                        : AppColors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(Dimensions.paddingMD),
@@ -285,6 +337,7 @@ class _FormularioPreenchimentoScreenState
             ),
           ),
           textCapitalization: TextCapitalization.sentences,
+          onChanged: (_) => setState(() {}),
         );
 
       case TipoCampo.numero:
@@ -309,6 +362,7 @@ class _FormularioPreenchimentoScreenState
             ),
           ),
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          onChanged: (_) => setState(() {}),
         );
 
       case TipoCampo.simNao:
