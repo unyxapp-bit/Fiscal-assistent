@@ -1,8 +1,10 @@
 // lib/modules/pizza/novo_pedido_screen.dart
-// ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../core/constants/colors.dart';
+import '../../../core/constants/text_styles.dart';
+import '../../../core/theme/app_theme.dart';
 import 'cupom_widget.dart';
 import 'pizza_models.dart';
 
@@ -31,6 +33,7 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
   final List<ItemPedido> _itens = [];
   bool _carregando = false;
   bool _salvando = false;
+  bool _enderecoExpandido = false;
 
   bool get _isEdicao => widget.pedidoExistente != null;
 
@@ -48,6 +51,13 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
       _obsCtrl.text = pedido.observacoes ?? '';
       _data = pedido.dataPedido;
       _horario = pedido.horarioPedido;
+      // Expande o endereço automaticamente se já tiver dados
+      _enderecoExpandido = [
+        pedido.endereco,
+        pedido.bairro,
+        pedido.telefone,
+        pedido.referencia,
+      ].any((v) => (v ?? '').trim().isNotEmpty);
       _itens.addAll(
         pedido.itens.map(
           (item) => ItemPedido(
@@ -128,7 +138,8 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (_itens.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Adicione pelo menos uma pizza ao pedido.')),
+        const SnackBar(
+            content: Text('Adicione pelo menos uma pizza ao pedido.')),
       );
       return;
     }
@@ -159,7 +170,6 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
 
       final id = await PizzaService.criarPedido(pedido);
       if (!mounted) return;
-      // Mostra cupom
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -198,161 +208,246 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = context.appTheme;
     return Scaffold(
-      appBar: AppBar(title: Text(_isEdicao ? 'Editar Pedido' : 'Novo Pedido')),
+      backgroundColor: tokens.background,
+      appBar: AppBar(
+        backgroundColor: tokens.cardBackground,
+        title: Text(
+          _isEdicao ? 'Editar Pedido' : 'Novo Pedido',
+          style: AppTextStyles.h3.copyWith(color: AppColors.textPrimary),
+        ),
+      ),
       body: _carregando
-          ? Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: AppColors.primary))
           : Form(
               key: _formKey,
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  // ---- Dados do cliente ----
-                  const _Secao('Dados do Pedido'),
+                  // ── Dados do cliente ──────────────────────────
+                  _Secao('Dados do Pedido'),
                   TextFormField(
                     controller: _nomeCtrl,
                     decoration: InputDecoration(
                       labelText: 'Nome do Cliente',
-                      prefixIcon: Icon(Icons.person_outline),
-                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.person_outline,
+                          color: AppColors.textSecondary),
+                      border: const OutlineInputBorder(),
                     ),
                     textCapitalization: TextCapitalization.words,
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   TextFormField(
                     controller: _codigoCtrl,
                     decoration: InputDecoration(
                       labelText: 'Codigo do Cliente',
-                      prefixIcon: Icon(Icons.qr_code),
-                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.qr_code,
+                          color: AppColors.textSecondary),
+                      border: const OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 12),
-                  TextFormField(
-                    controller: _enderecoCtrl,
-                    decoration: InputDecoration(
-                      labelText: 'Endereco',
-                      prefixIcon: Icon(Icons.location_on_outlined),
-                      border: OutlineInputBorder(),
-                    ),
-                    textCapitalization: TextCapitalization.words,
-                  ),
-                  SizedBox(height: 12),
-                  TextFormField(
-                    controller: _bairroCtrl,
-                    decoration: InputDecoration(
-                      labelText: 'Bairro',
-                      prefixIcon: Icon(Icons.map_outlined),
-                      border: OutlineInputBorder(),
-                    ),
-                    textCapitalization: TextCapitalization.words,
-                  ),
-                  SizedBox(height: 12),
-                  TextFormField(
-                    controller: _telefoneCtrl,
-                    decoration: InputDecoration(
-                      labelText: 'Telefone',
-                      prefixIcon: Icon(Icons.phone_outlined),
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.phone,
-                  ),
-                  SizedBox(height: 12),
-                  TextFormField(
-                    controller: _referenciaCtrl,
-                    decoration: InputDecoration(
-                      labelText: 'Referencia',
-                      prefixIcon: Icon(Icons.place_outlined),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   // Data e hora em linha
                   Row(
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          icon: Icon(Icons.calendar_today),
-                          label: Text(DateFormat('dd/MM/yyyy').format(_data)),
+                          icon: Icon(Icons.calendar_today,
+                              color: AppColors.textSecondary),
+                          label: Text(
+                            DateFormat('dd/MM/yyyy').format(_data),
+                            style: TextStyle(color: AppColors.textPrimary),
+                          ),
                           onPressed: _escolherData,
                         ),
                       ),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: OutlinedButton.icon(
-                          icon: Icon(Icons.access_time),
-                          label: Text(_horario),
+                          icon: Icon(Icons.access_time,
+                              color: AppColors.textSecondary),
+                          label: Text(
+                            _horario,
+                            style: TextStyle(color: AppColors.textPrimary),
+                          ),
                           onPressed: _escolherHora,
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   TextFormField(
                     controller: _obsCtrl,
                     decoration: InputDecoration(
                       labelText: 'Observacoes',
-                      prefixIcon: Icon(Icons.notes),
-                      border: OutlineInputBorder(),
+                      prefixIcon:
+                          Icon(Icons.notes, color: AppColors.textSecondary),
+                      border: const OutlineInputBorder(),
                     ),
                     maxLines: 2,
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
-                  // ---- Itens ----
+                  // ── Endereço de entrega (colapsível) ──────────
+                  Container(
+                    decoration: BoxDecoration(
+                      color: tokens.cardBackground,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.cardBorder),
+                    ),
+                    child: Theme(
+                      data: Theme.of(context)
+                          .copyWith(dividerColor: Colors.transparent),
+                      child: ExpansionTile(
+                        tilePadding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 2),
+                        childrenPadding: const EdgeInsets.fromLTRB(
+                            14, 0, 14, 14),
+                        initiallyExpanded: _enderecoExpandido,
+                        onExpansionChanged: (v) =>
+                            setState(() => _enderecoExpandido = v),
+                        leading: Icon(Icons.location_on_outlined,
+                            color: AppColors.info),
+                        title: Text(
+                          'Endereço de entrega',
+                          style: AppTextStyles.body.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        subtitle: Text(
+                          'Opcional — endereço, bairro, telefone',
+                          style: AppTextStyles.caption
+                              .copyWith(color: AppColors.textSecondary),
+                        ),
+                        children: [
+                          TextFormField(
+                            controller: _enderecoCtrl,
+                            decoration: InputDecoration(
+                              labelText: 'Endereco',
+                              prefixIcon: Icon(Icons.location_on_outlined,
+                                  color: AppColors.textSecondary),
+                              border: const OutlineInputBorder(),
+                            ),
+                            textCapitalization: TextCapitalization.words,
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _bairroCtrl,
+                            decoration: InputDecoration(
+                              labelText: 'Bairro',
+                              prefixIcon: Icon(Icons.map_outlined,
+                                  color: AppColors.textSecondary),
+                              border: const OutlineInputBorder(),
+                            ),
+                            textCapitalization: TextCapitalization.words,
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _telefoneCtrl,
+                            decoration: InputDecoration(
+                              labelText: 'Telefone',
+                              prefixIcon: Icon(Icons.phone_outlined,
+                                  color: AppColors.textSecondary),
+                              border: const OutlineInputBorder(),
+                            ),
+                            keyboardType: TextInputType.phone,
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _referenciaCtrl,
+                            decoration: InputDecoration(
+                              labelText: 'Referencia',
+                              prefixIcon: Icon(Icons.place_outlined,
+                                  color: AppColors.textSecondary),
+                              border: const OutlineInputBorder(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // ── Itens ─────────────────────────────────────
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const _Secao('Pizzas do Pedido'),
+                      _Secao('Pizzas do Pedido'),
                       TextButton.icon(
                         onPressed: _adicionarItem,
-                        icon: Icon(Icons.add),
-                        label: Text('Adicionar'),
+                        icon: Icon(Icons.add, color: AppColors.primary),
+                        label: Text('Adicionar',
+                            style: TextStyle(color: AppColors.primary)),
                       ),
                     ],
                   ),
                   if (_itens.isEmpty)
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Center(
-                          child: Text('Nenhuma pizza adicionada.',
-                              style: TextStyle(color: Colors.grey))),
+                        child: Text(
+                          'Nenhuma pizza adicionada.',
+                          style: AppTextStyles.body
+                              .copyWith(color: AppColors.textSecondary),
+                        ),
+                      ),
                     ),
                   ..._itens.asMap().entries.map((entry) {
                     final i = entry.key;
                     final item = entry.value;
-                    return Card(
+                    return Container(
                       margin: const EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        color: tokens.cardBackground,
+                        borderRadius: BorderRadius.circular(10),
+                        border:
+                            Border.all(color: AppColors.cardBorder),
+                      ),
                       child: ListTile(
-                        leading: Icon(Icons.local_pizza, color: Colors.orange),
-                        title: Text(item.descricao),
+                        leading: Icon(Icons.local_pizza,
+                            color: AppColors.warning),
+                        title: Text(item.descricao,
+                            style: AppTextStyles.body
+                                .copyWith(color: AppColors.textPrimary)),
                         subtitle: Text(
-                            '${item.tamanhoLabel} - Qtd: ${item.quantidade}'),
+                          '${item.tamanhoLabel} - Qtd: ${item.quantidade}',
+                          style: AppTextStyles.caption
+                              .copyWith(color: AppColors.textSecondary),
+                        ),
                         trailing: IconButton(
                           icon: Icon(Icons.remove_circle_outline,
-                              color: Colors.red),
-                          onPressed: () => setState(() => _itens.removeAt(i)),
+                              color: AppColors.danger),
+                          onPressed: () =>
+                              setState(() => _itens.removeAt(i)),
                         ),
                       ),
                     );
                   }),
 
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   SizedBox(
                     height: 52,
                     child: FilledButton.icon(
                       onPressed: _salvando ? null : _salvar,
-                      icon: Icon(
-                          _isEdicao ? Icons.save_outlined : Icons.receipt_long),
+                      style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.primary),
+                      icon: Icon(_isEdicao
+                          ? Icons.save_outlined
+                          : Icons.receipt_long),
                       label: _salvando
-                          ? SizedBox(
+                          ? const SizedBox(
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.white))
+                                  strokeWidth: 2, color: Colors.white),
+                            )
                           : Text(
-                              _isEdicao ? 'Salvar Alteracoes' : 'Gerar Cupom',
-                              style: TextStyle(fontSize: 16),
+                              _isEdicao
+                                  ? 'Salvar Alteracoes'
+                                  : 'Gerar Cupom',
+                              style: const TextStyle(fontSize: 16),
                             ),
                     ),
                   ),
@@ -390,7 +485,6 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
   List<Pizza> get _medias =>
       widget.pizzas.where((p) => p.tamanho == 'media').toList();
 
-  // Meio a meio so para grandes
   List<Pizza> get _opcoesMeio => _grandes;
 
   bool get _podeAdicionar {
@@ -441,8 +535,8 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
   }) {
     final isSelecionada = selecionada?.id == pizza.id;
     final corBorda = isSelecionada
-        ? Theme.of(context).colorScheme.primary
-        : Colors.grey.withOpacity(0.25);
+        ? AppColors.primary
+        : AppColors.cardBorder;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -450,9 +544,11 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
 
         return Card(
           margin: EdgeInsets.zero,
+          color: context.appTheme.cardBackground,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: corBorda, width: isSelecionada ? 1.6 : 1),
+            side: BorderSide(
+                color: corBorda, width: isSelecionada ? 1.6 : 1),
           ),
           elevation: isSelecionada ? 1.5 : 0,
           child: InkWell(
@@ -472,13 +568,14 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
                             Icon(
                               Icons.local_pizza_outlined,
                               color: isSelecionada
-                                  ? Theme.of(context).colorScheme.primary
-                                  : Colors.orange,
+                                  ? AppColors.primary
+                                  : AppColors.warning,
                             ),
                             const Spacer(),
                             Radio<Pizza>(
                               value: pizza,
                               groupValue: selecionada,
+                              activeColor: AppColors.primary,
                               visualDensity: VisualDensity.compact,
                               onChanged: (v) {
                                 if (v != null) {
@@ -488,12 +585,13 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           pizza.nome,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.textPrimary,
                             fontWeight: isSelecionada
                                 ? FontWeight.w700
                                 : FontWeight.w500,
@@ -506,25 +604,45 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
                         Icon(
                           Icons.local_pizza_outlined,
                           color: isSelecionada
-                              ? Theme.of(context).colorScheme.primary
-                              : Colors.orange,
+                              ? AppColors.primary
+                              : AppColors.warning,
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         Expanded(
-                          child: Text(
-                            pizza.nome,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontWeight: isSelecionada
-                                  ? FontWeight.w700
-                                  : FontWeight.w500,
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                pizza.nome,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.caption.copyWith(
+                                  color: AppColors.textPrimary,
+                                  fontWeight: isSelecionada
+                                      ? FontWeight.w700
+                                      : FontWeight.w500,
+                                ),
+                              ),
+                              if (pizza.preco != null)
+                                Text(
+                                  NumberFormat.currency(
+                                          locale: 'pt_BR',
+                                          symbol: 'R\$',
+                                          decimalDigits: 2)
+                                      .format(pizza.preco),
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: AppColors.success,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
                         Radio<Pizza>(
                           value: pizza,
                           groupValue: selecionada,
+                          activeColor: AppColors.primary,
                           onChanged: (v) {
                             if (v != null) {
                               setState(() => onSelecionar(v));
@@ -547,10 +665,10 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
   }) {
     if (pizzas.isEmpty) {
       return Padding(
-        padding: EdgeInsets.only(top: 8, bottom: 8),
+        padding: const EdgeInsets.only(top: 8, bottom: 8),
         child: Text(
           'Nenhuma pizza nessa categoria.',
-          style: TextStyle(color: Colors.grey),
+          style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
         ),
       );
     }
@@ -624,9 +742,8 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
                 Expanded(
                   child: Text(
                     titulo,
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12,
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textSecondary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -634,7 +751,7 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
                 Icon(
                   expandida ? Icons.expand_less : Icons.expand_more,
                   size: 20,
-                  color: Colors.grey.shade700,
+                  color: AppColors.textSecondary,
                 ),
               ],
             ),
@@ -656,8 +773,16 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = context.appTheme;
     return Scaffold(
-      appBar: AppBar(title: Text('Adicionar Pizza')),
+      backgroundColor: tokens.background,
+      appBar: AppBar(
+        backgroundColor: tokens.cardBackground,
+        title: Text(
+          'Adicionar Pizza',
+          style: AppTextStyles.h3.copyWith(color: AppColors.textPrimary),
+        ),
+      ),
       body: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
           16,
@@ -668,37 +793,60 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Meio a meio toggle (so para grandes)
-            SwitchListTile(
-              title: Text('Meio a Meio (apenas grande)'),
-              value: _meioAMeio,
-              onChanged: (v) => setState(() {
-                _meioAMeio = v;
-                _p1 = null;
-                _p2 = null;
-              }),
-              contentPadding: EdgeInsets.zero,
+            // Toggle meio a meio
+            Container(
+              decoration: BoxDecoration(
+                color: tokens.cardBackground,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.cardBorder),
+              ),
+              child: SwitchListTile(
+                title: Text(
+                  'Meio a Meio',
+                  style: AppTextStyles.body
+                      .copyWith(color: AppColors.textPrimary),
+                ),
+                subtitle: Text(
+                  'Apenas pizzas grandes',
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.textSecondary),
+                ),
+                value: _meioAMeio,
+                activeColor: AppColors.primary,
+                onChanged: (v) => setState(() {
+                  _meioAMeio = v;
+                  _p1 = null;
+                  _p2 = null;
+                }),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+              ),
             ),
-            Divider(),
+            const SizedBox(height: 16),
 
             if (!_meioAMeio) ...[
-              Text('Sabor', style: TextStyle(fontWeight: FontWeight.w600)),
-              SizedBox(height: 8),
+              Text('Sabor',
+                  style: AppTextStyles.body.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary)),
+              const SizedBox(height: 8),
               _categoriaExpansivel(
-                titulo: 'Grandes',
+                titulo: 'GRANDES',
                 expandida: _expandGrandes,
-                onTap: () => setState(() => _expandGrandes = !_expandGrandes),
+                onTap: () =>
+                    setState(() => _expandGrandes = !_expandGrandes),
                 child: _pizzaGrid(
                   pizzas: _grandes,
                   selecionada: _p1,
                   onSelecionar: (v) => _p1 = v,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               _categoriaExpansivel(
-                titulo: 'Medias',
+                titulo: 'MÉDIAS',
                 expandida: _expandMedias,
-                onTap: () => setState(() => _expandMedias = !_expandMedias),
+                onTap: () =>
+                    setState(() => _expandMedias = !_expandMedias),
                 child: _pizzaGrid(
                   pizzas: _medias,
                   selecionada: _p1,
@@ -706,71 +854,194 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
                 ),
               ),
             ] else ...[
-              Text('Metade 1', style: TextStyle(fontWeight: FontWeight.w600)),
-              SizedBox(height: 4),
-              SizedBox(height: 8),
-              _pizzaGrid(
-                pizzas: _opcoesMeio,
-                selecionada: _p1,
-                onSelecionar: (v) => _p1 = v,
+              // Metade 1
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.info.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                      color: AppColors.info.withValues(alpha: 0.2)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: AppColors.info,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Center(
+                            child: Text('1',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800)),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text('Metade 1',
+                            style: AppTextStyles.body.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.info)),
+                        if (_p1 != null) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.info
+                                  .withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              _p1!.nome,
+                              style: AppTextStyles.caption.copyWith(
+                                  color: AppColors.info,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    _pizzaGrid(
+                      pizzas: _opcoesMeio,
+                      selecionada: _p1,
+                      onSelecionar: (v) => _p1 = v,
+                    ),
+                  ],
+                ),
               ),
-              Divider(),
-              Text('Metade 2', style: TextStyle(fontWeight: FontWeight.w600)),
-              SizedBox(height: 4),
-              SizedBox(height: 8),
-              _pizzaGrid(
-                pizzas: _opcoesMeio,
-                selecionada: _p2,
-                onSelecionar: (v) => _p2 = v,
+              const SizedBox(height: 12),
+              // Metade 2
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.success.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                      color: AppColors.success.withValues(alpha: 0.2)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: AppColors.success,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Center(
+                            child: Text('2',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800)),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text('Metade 2',
+                            style: AppTextStyles.body.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.success)),
+                        if (_p2 != null) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.success
+                                  .withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              _p2!.nome,
+                              style: AppTextStyles.caption.copyWith(
+                                  color: AppColors.success,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    _pizzaGrid(
+                      pizzas: _opcoesMeio,
+                      selecionada: _p2,
+                      onSelecionar: (v) => _p2 = v,
+                    ),
+                  ],
+                ),
               ),
             ],
 
-            Divider(),
+            Divider(height: 24, color: AppColors.divider),
             // Quantidade
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text('Quantidade: ',
-                    style: TextStyle(fontWeight: FontWeight.w600)),
+                    style: AppTextStyles.body.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary)),
                 IconButton(
-                  icon: Icon(Icons.remove_circle_outline),
+                  icon: Icon(Icons.remove_circle_outline,
+                      color: _qtd > 1
+                          ? AppColors.danger
+                          : AppColors.textSecondary),
                   onPressed: _qtd > 1 ? () => setState(() => _qtd--) : null,
                 ),
-                Text('$_qtd',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(
+                  '$_qtd',
+                  style: AppTextStyles.h3.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.bold),
+                ),
                 IconButton(
-                  icon: Icon(Icons.add_circle_outline),
+                  icon: Icon(Icons.add_circle_outline, color: AppColors.success),
                   onPressed: () => setState(() => _qtd++),
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
 
             if (_itensSelecionados.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Text(
                   '${_itensSelecionados.length} item(ns) já adicionados nesta seleção.',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                  style: AppTextStyles.caption.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textSecondary),
                 ),
               ),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: _podeAdicionar ? _adicionarNaSessao : null,
-                icon: Icon(Icons.add),
-                label: Text('Adicionar item e continuar'),
+                icon: Icon(Icons.add, color: AppColors.primary),
+                label: Text('Adicionar item e continuar',
+                    style: TextStyle(color: AppColors.primary)),
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
                 onPressed: (_itensSelecionados.isNotEmpty || _podeAdicionar)
                     ? _concluirSelecao
                     : null,
-                icon: Icon(Icons.check),
+                style:
+                    FilledButton.styleFrom(backgroundColor: AppColors.primary),
+                icon: const Icon(Icons.check),
                 label: Text(
                   _itensSelecionados.isEmpty
                       ? 'Adicionar ao Pedido'
@@ -792,7 +1063,12 @@ class _Secao extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.only(bottom: 12),
-        child: Text(texto,
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+        child: Text(
+          texto,
+          style: AppTextStyles.body.copyWith(
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
+        ),
       );
 }

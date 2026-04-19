@@ -13,20 +13,24 @@ class Pizza {
   final String nome;
   final String tamanho; // 'grande' | 'media'
   final String? ingredientes;
+  final double? preco;
   final bool ativa;
 
-  Pizza(
-      {required this.id,
-      required this.nome,
-      required this.tamanho,
-      this.ingredientes,
-      this.ativa = true});
+  Pizza({
+    required this.id,
+    required this.nome,
+    required this.tamanho,
+    this.ingredientes,
+    this.preco,
+    this.ativa = true,
+  });
 
   factory Pizza.fromMap(Map<String, dynamic> m) => Pizza(
         id: m['id'],
         nome: m['nome'],
         tamanho: m['tamanho'],
         ingredientes: m['ingredientes'],
+        preco: (m['preco'] as num?)?.toDouble(),
         ativa: m['ativa'] ?? true,
       );
 
@@ -34,6 +38,7 @@ class Pizza {
         'nome': nome,
         'tamanho': tamanho,
         'ingredientes': ingredientes,
+        'preco': preco,
         'ativa': ativa,
       };
 
@@ -82,7 +87,7 @@ class PedidoPizza {
   final DateTime dataPedido;
   final String horarioPedido; // "HH:mm"
   final String? observacoes;
-  String status; // 'aberto' | 'pronto' | 'entregue'
+  final String status; // 'aberto' | 'pronto' | 'entregue'
   final List<ItemPedido> itens;
 
   PedidoPizza({
@@ -195,31 +200,34 @@ class PizzaService {
 
   // ---------- PEDIDOS ----------
 
+  /// Busca todos os pedidos em 3 queries (pedidos + itens + pizzas),
+  /// eliminando o N+1 anterior que fazia 2 queries por pedido.
   static Future<List<PedidoPizza>> listarPedidos() async {
     final data = await _db
         .from('pedidos_pizza')
         .select()
         .order('created_at', ascending: false);
 
-    final pedidos = <PedidoPizza>[];
-    for (final row in data as List) {
-      final itens = await _buscarItens(row['id']);
-      pedidos.add(PedidoPizza.fromMap(row, itens));
-    }
-    return pedidos;
-  }
+    final rows = data as List;
+    if (rows.isEmpty) return [];
 
-  static Future<List<ItemPedido>> _buscarItens(String pedidoId) async {
-    final data =
-        await _db.from('itens_pedido').select().eq('pedido_id', pedidoId);
+    final ids = rows.map((r) => r['id'] as String).toList();
+
+    final itensData = await _db
+        .from('itens_pedido')
+        .select()
+        .inFilter('pedido_id', ids);
 
     final pizzas = await listarPizzas(somenteAtivas: false);
-    final pizzaMap = {for (var p in pizzas) p.id: p};
+    final pizzaMap = {for (final p in pizzas) p.id: p};
 
-    return (data as List).map((row) {
-      final p1 = pizzaMap[row['pizza_id']]!;
+    final itensPorPedido = <String, List<ItemPedido>>{};
+    for (final row in itensData as List) {
+      final pedidoId = row['pedido_id'] as String;
+      final p1 = pizzaMap[row['pizza_id']];
+      if (p1 == null) continue;
       final p2 = row['pizza2_id'] != null ? pizzaMap[row['pizza2_id']] : null;
-      return ItemPedido(
+      itensPorPedido.putIfAbsent(pedidoId, () => []).add(ItemPedido(
         pizzaId: p1.id,
         pizzaNome: p1.nome,
         pizzaTamanho: p1.tamanho,
@@ -227,8 +235,12 @@ class PizzaService {
         pizza2Nome: p2?.nome,
         quantidade: row['quantidade'],
         ehMeioAMeio: row['eh_meio_a_meio'],
-      );
-    }).toList();
+      ));
+    }
+
+    return rows
+        .map((row) => PedidoPizza.fromMap(row, itensPorPedido[row['id']] ?? []))
+        .toList();
   }
 
   static Future<String> criarPedido(PedidoPizza pedido) async {
