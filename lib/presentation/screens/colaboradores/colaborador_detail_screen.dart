@@ -7,6 +7,7 @@ import '../../../domain/entities/colaborador.dart';
 import '../../../domain/entities/registro_ponto.dart';
 import '../../../domain/enums/departamento_tipo.dart';
 import '../../providers/alocacao_provider.dart';
+import '../../providers/caixa_provider.dart';
 import '../../providers/registro_ponto_provider.dart';
 import 'colaborador_form_screen.dart';
 import 'registro_ponto_form_screen.dart';
@@ -83,11 +84,13 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
           );
         },
         backgroundColor: AppColors.primary,
-        icon: Icon(Icons.add, color: Colors.white),
-        label: Text('Novo Registro', style: TextStyle(color: Colors.white)),
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add),
+        label: const Text('Novo Registro'),
       ),
-      body: Consumer2<AlocacaoProvider, RegistroPontoProvider>(
-        builder: (context, alocacaoProvider, registroPontoProvider, _) {
+      body: Consumer3<AlocacaoProvider, RegistroPontoProvider, CaixaProvider>(
+        builder: (context, alocacaoProvider, registroPontoProvider,
+            caixaProvider, _) {
           return SingleChildScrollView(
             padding: const EdgeInsets.all(Dimensions.paddingMD),
             child: Column(
@@ -169,21 +172,21 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                     _buildMenuCard(
                       icon: Icons.swap_horiz,
                       label: 'Alocações',
-                      color: const Color(0xFF00BCD4),
-                      onTap: () =>
-                          _showAlocacoesSheet(context, alocacaoProvider),
+                      color: AppColors.teal,
+                      onTap: () => _showAlocacoesSheet(
+                          context, alocacaoProvider, caixaProvider),
                     ),
                     _buildMenuCard(
                       icon: Icons.access_time,
                       label: 'Registros de Ponto',
-                      color: const Color(0xFF4CAF50),
+                      color: AppColors.success,
                       onTap: () =>
                           _showRegistrosSheet(context, registroPontoProvider),
                     ),
                     _buildMenuCard(
                       icon: Icons.bar_chart,
                       label: 'Estatísticas',
-                      color: const Color(0xFF9C27B0),
+                      color: AppColors.pink,
                       onTap: () => _showEstatisticasSheet(
                           context, alocacaoProvider, registroPontoProvider),
                     ),
@@ -296,7 +299,8 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
     );
   }
 
-  void _showAlocacoesSheet(BuildContext context, AlocacaoProvider provider) {
+  void _showAlocacoesSheet(BuildContext context, AlocacaoProvider provider,
+      CaixaProvider caixaProvider) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -322,7 +326,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
               Expanded(
                 child: SingleChildScrollView(
                   controller: controller,
-                  child: _buildHistoricoHoje(provider),
+                  child: _buildHistoricoHoje(provider, caixaProvider),
                 ),
               ),
             ],
@@ -401,7 +405,13 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
               registroPontoProvider.registros.length.toString(),
             ),
             Divider(height: 24),
-            _buildStatRow('Pontualidade', '--'),
+            _buildStatRow(
+              'Dias com Entrada',
+              registroPontoProvider.registros
+                  .where((r) => r.entrada != null)
+                  .length
+                  .toString(),
+            ),
             SizedBox(height: Dimensions.spacingMD),
           ],
         ),
@@ -608,31 +618,10 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
   }
 
   Widget _buildStatusChip() {
-    Color color;
-    String label;
-
-    if (widget.colaborador.statusAtual == null) {
-      color = Colors.grey;
-      label = 'Disponível';
-    } else {
-      switch (widget.colaborador.statusAtual!.name) {
-        case 'alocado':
-          color = AppColors.statusAtivo;
-          label = 'Alocado';
-          break;
-        case 'intervalo':
-          color = AppColors.statusIntervalo;
-          label = 'Intervalo';
-          break;
-        case 'folga':
-          color = AppColors.statusFolga;
-          label = 'Folga';
-          break;
-        default:
-          color = Colors.grey;
-          label = 'Disponível';
-      }
-    }
+    final status = widget.colaborador.statusAtual;
+    final color = status?.cor ?? AppColors.statusAtivo;
+    final label = status?.label ?? 'Disponível';
+    final icon = status?.icone ?? Icons.check_circle_outline;
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -644,12 +633,19 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
         border: Border.all(color: color),
         borderRadius: BorderRadius.circular(Dimensions.radiusMD),
       ),
-      child: Text(
-        label,
-        style: AppTextStyles.body.copyWith(
-          color: color,
-          fontWeight: FontWeight.bold,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: AppTextStyles.body.copyWith(
+              color: color,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -699,7 +695,8 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
     );
   }
 
-  Widget _buildHistoricoHoje(AlocacaoProvider provider) {
+  Widget _buildHistoricoHoje(
+      AlocacaoProvider provider, CaixaProvider caixaProvider) {
     final alocacoesHoje = provider.alocacoes
         .where((a) => a.colaboradorId == widget.colaborador.id)
         .toList();
@@ -707,7 +704,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
     if (alocacoesHoje.isEmpty) {
       return Center(
         child: Padding(
-          padding: EdgeInsets.all(Dimensions.paddingMD),
+          padding: const EdgeInsets.all(Dimensions.paddingMD),
           child: Text(
             'Nenhuma alocação hoje',
             style: AppTextStyles.body,
@@ -720,18 +717,44 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: alocacoesHoje.length,
-      separatorBuilder: (_, __) => Divider(),
+      separatorBuilder: (_, __) => const Divider(),
       itemBuilder: (context, index) {
         final alocacao = alocacoesHoje[index];
+        final caixa = caixaProvider.caixas
+            .where((cx) => cx.id == alocacao.caixaId)
+            .firstOrNull;
+        final nomeCaixa = caixa?.nomeExibicao ?? 'Caixa ${alocacao.caixaId.substring(0, 6)}';
+        final emOperacao = alocacao.liberadoEm == null;
         return ListTile(
-          leading: Icon(Icons.point_of_sale, color: AppColors.primary),
-          title: Text('Caixa ${alocacao.caixaId.substring(0, 8)}'),
-          subtitle: Text(
-            'Início: ${_formatTime(alocacao.alocadoEm)}\n'
-            '${alocacao.liberadoEm != null ? 'Fim: ${_formatTime(alocacao.liberadoEm!)}' : 'Em operação'}',
+          leading: CircleAvatar(
+            radius: 18,
+            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+            child: Icon(Icons.point_of_sale,
+                color: AppColors.primary, size: 18),
           ),
-          trailing: alocacao.liberadoEm == null
-              ? Icon(Icons.circle, color: AppColors.success, size: 12)
+          title: Text(nomeCaixa, style: AppTextStyles.h4),
+          subtitle: Text(
+            'Início: ${_formatTime(alocacao.alocadoEm)}'
+            '${alocacao.liberadoEm != null ? '  •  Fim: ${_formatTime(alocacao.liberadoEm!)}' : ''}',
+            style: AppTextStyles.caption,
+          ),
+          trailing: emOperacao
+              ? Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.success),
+                  ),
+                  child: Text(
+                    'Em operação',
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.success,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                )
               : null,
         );
       },

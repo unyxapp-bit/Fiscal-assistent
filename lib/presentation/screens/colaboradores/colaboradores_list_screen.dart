@@ -94,9 +94,18 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
           labelColor: AppColors.primary,
           unselectedLabelColor: AppColors.textSecondary,
           indicatorColor: AppColors.primary,
-          tabs: const [
-            Tab(text: 'Lista', icon: Icon(Icons.people)),
-            Tab(text: 'Status', icon: Icon(Icons.info_outline)),
+          tabs: [
+            Tab(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.people, size: 18),
+                  const SizedBox(width: 6),
+                  Text('Lista (${colaboradorProvider.totalAtivos})'),
+                ],
+              ),
+            ),
+            const Tab(text: 'Status', icon: Icon(Icons.info_outline)),
           ],
         ),
       ),
@@ -231,6 +240,8 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
   // ── Chips de filtro ───────────────────────────────────────────────────────
 
   Widget _buildFilterChips(ColaboradorProvider provider) {
+    final todos = provider.todosColaboradores.where((c) => c.ativo).toList();
+
     return Container(
       height: 48,
       margin:
@@ -243,38 +254,21 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
             isSelected: provider.filtroAtual == null,
             onTap: () => provider.setFiltro(null),
           ),
-          const SizedBox(width: 8),
-          _chip(
-            label: 'Caixa (${provider.totalCaixa})',
-            isSelected: provider.filtroAtual == DepartamentoTipo.caixa,
-            onTap: () => provider.setFiltro(DepartamentoTipo.caixa),
-            icon: DepartamentoTipo.caixa.icone,
-            iconColor: DepartamentoTipo.caixa.cor,
-          ),
-          const SizedBox(width: 8),
-          _chip(
-            label: 'Fiscal (${provider.totalFiscal})',
-            isSelected: provider.filtroAtual == DepartamentoTipo.fiscal,
-            onTap: () => provider.setFiltro(DepartamentoTipo.fiscal),
-            icon: DepartamentoTipo.fiscal.icone,
-            iconColor: DepartamentoTipo.fiscal.cor,
-          ),
-          const SizedBox(width: 8),
-          _chip(
-            label: 'Pacote (${provider.totalPacote})',
-            isSelected: provider.filtroAtual == DepartamentoTipo.pacote,
-            onTap: () => provider.setFiltro(DepartamentoTipo.pacote),
-            icon: DepartamentoTipo.pacote.icone,
-            iconColor: DepartamentoTipo.pacote.cor,
-          ),
-          const SizedBox(width: 8),
-          _chip(
-            label: 'Self (${provider.totalSelf})',
-            isSelected: provider.filtroAtual == DepartamentoTipo.self,
-            onTap: () => provider.setFiltro(DepartamentoTipo.self),
-            icon: DepartamentoTipo.self.icone,
-            iconColor: DepartamentoTipo.self.cor,
-          ),
+          ...DepartamentoTipo.values.map((tipo) {
+            final count =
+                todos.where((c) => c.departamento == tipo).length;
+            if (count == 0) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: _chip(
+                label: '${tipo.nome} ($count)',
+                isSelected: provider.filtroAtual == tipo,
+                onTap: () => provider.setFiltro(tipo),
+                icon: tipo.icone,
+                iconColor: tipo.cor,
+              ),
+            );
+          }),
         ],
       ),
     );

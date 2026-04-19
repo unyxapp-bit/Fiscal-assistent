@@ -212,7 +212,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                 SizedBox(height: Dimensions.spacingSM),
                 CustomTextField(
                   controller: _observacoesController,
-                  label: 'Observacoes',
+                  label: 'Observações',
                   hintText: 'Ex: Self, Vipp, etc',
                   prefixIcon: Icons.note,
                   maxLines: 3,
@@ -282,34 +282,48 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
 
   Widget _buildDepartamentoSelector() {
     return Wrap(
-      spacing: Dimensions.spacingMD,
-      runSpacing: Dimensions.spacingMD,
+      spacing: Dimensions.spacingSM,
+      runSpacing: Dimensions.spacingSM,
       children: DepartamentoTipo.values.map((tipo) {
         final isSelected = _departamentoSelecionado == tipo;
-        final label = tipo.toString().split('.').last.toUpperCase();
+        final color = tipo.cor;
 
         return GestureDetector(
-          onTap: () {
-            setState(() => _departamentoSelecionado = tipo);
-          },
-          child: Container(
+          onTap: () => setState(() => _departamentoSelecionado = tipo),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
             padding: const EdgeInsets.symmetric(
               horizontal: Dimensions.paddingMD,
               vertical: Dimensions.paddingSM,
             ),
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.primary : AppColors.cardBackground,
+              color: isSelected
+                  ? color.withValues(alpha: 0.12)
+                  : AppColors.cardBackground,
               borderRadius: BorderRadius.circular(Dimensions.borderRadius),
               border: Border.all(
-                color: isSelected ? AppColors.primary : AppColors.cardBorder,
+                color: isSelected ? color : AppColors.cardBorder,
+                width: isSelected ? 2 : 1,
               ),
             ),
-            child: Text(
-              label,
-              style: AppTextStyles.label.copyWith(
-                color: isSelected ? Colors.white : AppColors.textPrimary,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  tipo.icone,
+                  size: 15,
+                  color: isSelected ? color : AppColors.textSecondary,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  tipo.nome,
+                  style: AppTextStyles.label.copyWith(
+                    color: isSelected ? color : AppColors.textPrimary,
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+              ],
             ),
           ),
         );
