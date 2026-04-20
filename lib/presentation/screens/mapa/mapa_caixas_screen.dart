@@ -551,7 +551,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                 },
               ),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppColors.cardBackground,
         contentPadding: const EdgeInsets.symmetric(vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -600,7 +600,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                       _filtroMapa == filtro ? FontWeight.w700 : FontWeight.w600,
                 ),
                 selectedColor: cor.withValues(alpha: 0.12),
-                backgroundColor: Colors.white,
+                backgroundColor: AppColors.cardBackground,
                 side: BorderSide(
                   color: _filtroMapa == filtro
                       ? cor.withValues(alpha: 0.30)
@@ -637,7 +637,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
               fontWeight: FontWeight.w600,
             ),
             selectedColor: AppColors.success.withValues(alpha: 0.12),
-            backgroundColor: Colors.white,
+            backgroundColor: AppColors.cardBackground,
             side: BorderSide(
               color: _mostrarLivres
                   ? AppColors.success.withValues(alpha: 0.28)
@@ -978,7 +978,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.cardBackground,
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(color: AppColors.cardBorder),
                     ),
@@ -1708,7 +1708,7 @@ class _StatsBar extends StatelessWidget {
           _StatItem(
               label: 'Manutenção',
               value: provider.totalEmManutencao.toString(),
-              color: Colors.orange),
+              color: AppColors.warning),
           _StatItem(
               label: 'Inativos',
               value: provider.totalInativos.toString(),

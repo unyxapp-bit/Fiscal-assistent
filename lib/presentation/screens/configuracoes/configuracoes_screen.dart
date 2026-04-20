@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../providers/fiscal_provider.dart';
 import '../profile/profile_screen.dart';
 import 'cupom_config_screen.dart';
@@ -99,7 +100,33 @@ class ConfiguracoesScreen extends StatelessWidget {
 
                       SizedBox(height: Dimensions.spacingMD),
 
-                      // â”€â”€ Atalhos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                      // ── Aparência ─────────────────────────────────────────
+                      Card(
+                        child: Consumer<AppThemeController>(
+                          builder: (context, themeCtrl, _) => SwitchListTile(
+                            secondary: Icon(
+                              themeCtrl.isGamer
+                                  ? Icons.dark_mode_outlined
+                                  : Icons.light_mode_outlined,
+                              color: AppColors.primary,
+                            ),
+                            title: Text('Tema', style: AppTextStyles.body),
+                            subtitle: Text(
+                              themeCtrl.isGamer
+                                  ? 'Escuro (Gamer)'
+                                  : 'Claro (Padrão)',
+                              style: AppTextStyles.caption,
+                            ),
+                            value: themeCtrl.isGamer,
+                            activeColor: AppColors.primary,
+                            onChanged: (_) => themeCtrl.toggle(),
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: Dimensions.spacingMD),
+
+                      // ── Atalhos ───────────────────────────────────────────
                       Card(
                         child: Column(
                           children: [

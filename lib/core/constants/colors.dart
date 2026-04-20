@@ -67,6 +67,10 @@ class AppColors {
       _isGamer ? const Color(0xFF7DD3FC) : const Color(0xFF1D4ED8);
   static Color get deepPurple =>
       _isGamer ? const Color(0xFF38BDF8) : const Color(0xFF0B3B8A);
+  static Color get brown =>
+      _isGamer ? const Color(0xFFA1887F) : const Color(0xFF795548);
+  static Color get outro =>
+      _isGamer ? const Color(0xFF9FA8DA) : const Color(0xFF5C6BC0);
 
   // Aliases
   static Color get info => statusInfo;

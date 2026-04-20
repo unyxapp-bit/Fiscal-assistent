@@ -229,9 +229,9 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     ListTile(
                       leading: CircleAvatar(
                         backgroundColor:
-                            const Color(0xFF795548).withValues(alpha: 0.10),
+                            AppColors.brown.withValues(alpha: 0.10),
                         child:
-                            Icon(Icons.inventory_2, color: Color(0xFF795548)),
+                            Icon(Icons.inventory_2, color: AppColors.brown),
                       ),
                       title: Text('Empacotador',
                           style: TextStyle(fontWeight: FontWeight.w600)),
@@ -240,7 +240,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                               .copyWith(color: AppColors.textSecondary)),
                       trailing: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF795548),
+                          backgroundColor: AppColors.brown,
                           foregroundColor: Colors.white,
                           minimumSize: const Size(0, 36),
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -294,7 +294,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                           trailing: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: alocacaoIdParaLiberar != null
-                                  ? Colors.blue
+                                  ? AppColors.indigo
                                   : AppColors.primary,
                               foregroundColor: Colors.white,
                               minimumSize: const Size(0, 36),
@@ -357,7 +357,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
         mensagem:
             '${turno.colaboradorNome} adicionado ao plantão de empacotadores!',
         tipo: 'saida',
-        cor: const Color(0xFF795548),
+        cor: AppColors.brown,
       );
     }
   }
@@ -514,7 +514,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
       tituloSucesso: 'Caixa Trocado',
       mensagemSucesso:
           '${turno.colaboradorNome} transferido para ${novoCaixa.nomeExibicao}!',
-      corSucesso: Colors.blue,
+      corSucesso: AppColors.indigo,
     );
   }
 
@@ -598,8 +598,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 Expanded(
                   child: OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.blue,
-                      side: BorderSide(color: Colors.blue),
+                      foregroundColor: AppColors.indigo,
+                      side: BorderSide(color: AppColors.indigo),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     icon: Icon(Icons.swap_horiz, size: 18),
@@ -616,8 +616,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 Expanded(
                   child: OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF5C6BC0),
-                      side: BorderSide(color: Color(0xFF5C6BC0)),
+                      foregroundColor: AppColors.outro,
+                      side: BorderSide(color: AppColors.outro),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     icon: Icon(Icons.store, size: 18),
@@ -728,7 +728,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
           titulo: 'Removido do Setor',
           mensagem: '${turno.colaboradorNome} retornou à disponibilidade.',
           tipo: 'saida',
-          cor: const Color(0xFF5C6BC0),
+          cor: AppColors.outro,
         );
       }
       return;
@@ -767,11 +767,11 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 CircleAvatar(
                   radius: 18,
                   backgroundColor:
-                      const Color(0xFF5C6BC0).withValues(alpha: 0.12),
+                      AppColors.outro.withValues(alpha: 0.12),
                   child: Text(
                     turno.colaboradorNome[0].toUpperCase(),
                     style: TextStyle(
-                        color: Color(0xFF5C6BC0), fontWeight: FontWeight.bold),
+                        color: AppColors.outro, fontWeight: FontWeight.bold),
                   ),
                 ),
                 SizedBox(width: 10),
@@ -803,10 +803,10 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                               turno, setor, alocacaoAtual);
                         },
                         backgroundColor:
-                            const Color(0xFF5C6BC0).withValues(alpha: 0.08),
-                        side: BorderSide(color: Color(0xFF5C6BC0), width: 0.8),
+                            AppColors.outro.withValues(alpha: 0.08),
+                        side: BorderSide(color: AppColors.outro, width: 0.8),
                         labelStyle: TextStyle(
-                            color: Color(0xFF5C6BC0),
+                            color: AppColors.outro,
                             fontWeight: FontWeight.w600,
                             fontSize: 12),
                       ))
@@ -828,7 +828,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                   borderSide: BorderSide.none,
                 ),
                 suffixIcon: IconButton(
-                  icon: Icon(Icons.check, color: Color(0xFF5C6BC0)),
+                  icon: Icon(Icons.check, color: AppColors.outro),
                   onPressed: () async {
                     final texto = customCtrl.text.trim();
                     if (texto.isEmpty) return;
@@ -895,7 +895,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
         titulo: 'Em Outro Setor',
         mensagem: '${turno.colaboradorNome} registrado em $setor!',
         tipo: 'saida',
-        cor: const Color(0xFF5C6BC0),
+        cor: AppColors.outro,
       );
     }
   }
@@ -1201,7 +1201,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                   SizedBox(width: 8),
                   _PainelInfoChip(
                     icon: Icons.storefront_outlined,
-                    color: const Color(0xFF5C6BC0),
+                    color: AppColors.outro,
                     label: '${emOutroSetor.length} em outro setor',
                   ),
                 ],
@@ -1377,7 +1377,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       )
                     : null,
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: AppColors.cardBackground,
                 contentPadding: const EdgeInsets.symmetric(
                   vertical: 0,
                   horizontal: 12,
@@ -1477,7 +1477,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     icon: Icons.store,
                     label: 'Em outro setor',
                     count: emOutroSetor.length,
-                    color: const Color(0xFF5C6BC0)),
+                    color: AppColors.outro),
                 SizedBox(height: 8),
                 ...emOutroSetor.map((t) {
                   final item =
@@ -1494,7 +1494,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                               mensagem:
                                   '${t.colaboradorNome} saiu de ${item.setor}.',
                               tipo: 'saida',
-                              cor: const Color(0xFF5C6BC0),
+                              cor: AppColors.outro,
                             );
                           }
                         : null,
@@ -1636,11 +1636,11 @@ class _IntervaloBanner extends StatelessWidget {
       icone = Icons.schedule;
       texto = 'Intervalo em ${-min}min (${turno.intervalo})';
     } else if (min < 0) {
-      cor = Colors.orange.shade800;
+      cor = AppColors.statusIntervalo;
       icone = Icons.schedule;
       texto = 'Intervalo em ${-min}min — aproximando';
     } else if (min < 15) {
-      cor = Colors.orange.shade900;
+      cor = AppColors.warning;
       icone = Icons.warning_amber;
       texto = '${min}min em atraso para o intervalo';
     } else {
@@ -2278,11 +2278,11 @@ class _CardAlocadoState extends State<_CardAlocado> {
     final String texto;
 
     if (min < 0) {
-      cor = Colors.orange.shade800;
+      cor = AppColors.statusIntervalo;
       icone = Icons.schedule;
       texto = 'Intervalo em ${-min}min';
     } else if (min < 15) {
-      cor = Colors.orange.shade900;
+      cor = AppColors.warning;
       icone = Icons.warning_amber;
       texto = '${min}min em atraso para o intervalo';
     } else {
@@ -2293,7 +2293,7 @@ class _CardAlocadoState extends State<_CardAlocado> {
 
     final bgColor = min >= 15
         ? AppColors.danger.withValues(alpha: 0.08)
-        : Colors.orange.shade50;
+        : AppColors.statusIntervalo.withValues(alpha: 0.08);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
@@ -2460,7 +2460,7 @@ class _CardOutroSetor extends StatelessWidget {
   });
 
   Widget _buildBotao() {
-    const kColor = Color(0xFF5C6BC0);
+    final kColor = AppColors.outro;
     return OutlinedButton.icon(
       style: OutlinedButton.styleFrom(
         foregroundColor: kColor,
@@ -2476,7 +2476,7 @@ class _CardOutroSetor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const kColor = Color(0xFF5C6BC0);
+    final kColor = AppColors.outro;
     return Card(
       color: AppColors.cardBackground,
       margin: const EdgeInsets.only(bottom: 8),
