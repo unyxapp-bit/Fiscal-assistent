@@ -89,7 +89,7 @@ class AuthProvider with ChangeNotifier {
       return false;
     } catch (e) {
       _status = AuthStatus.error;
-      _errorMessage = 'Erro inesperado: $e';
+      _errorMessage = _mensagemErro(e);
       notifyListeners();
       return false;
     }
@@ -121,7 +121,7 @@ class AuthProvider with ChangeNotifier {
       return false;
     } catch (e) {
       _status = AuthStatus.error;
-      _errorMessage = 'Erro inesperado: $e';
+      _errorMessage = _mensagemErro(e);
       notifyListeners();
       return false;
     }
@@ -168,6 +168,17 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  String _mensagemErro(Object e) {
+    final s = e.toString();
+    if (s.contains('SocketException') ||
+        s.contains('Failed host lookup') ||
+        s.contains('NetworkException') ||
+        s.contains('Connection refused')) {
+      return 'Servidor indisponível. Verifique sua conexão e tente novamente.';
+    }
+    return 'Erro inesperado. Tente novamente.';
   }
 
   void clearError() {
