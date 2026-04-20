@@ -5,6 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 
 // Services
 import 'data/services/notification_service.dart';
+import 'data/services/whatsapp_notification_service.dart';
 
 // Data Sources
 import 'data/datasources/remote/supabase_client.dart';
@@ -68,6 +69,7 @@ import 'presentation/providers/checklist_provider.dart';
 import 'presentation/providers/passagem_turno_provider.dart';
 import 'presentation/providers/guia_rapido_provider.dart';
 import 'presentation/providers/evento_turno_provider.dart';
+import 'presentation/providers/fiscal_events_provider.dart';
 
 // App Config
 import 'core/theme/app_theme.dart';
@@ -90,6 +92,9 @@ void main() async {
 
     // Inicializar notificações locais
     await NotificationService.instance.initialize();
+
+    // Inicializar captura de notificações do WhatsApp (Balcão Fiscal)
+    await WhatsAppNotificationService.init();
 
     // ==================== FISCAL ====================
     final fiscalRemoteDataSource = FiscalRemoteDataSource();
@@ -290,6 +295,11 @@ void main() async {
           // Eventos de Turno + Relatórios
           ChangeNotifierProvider(
             create: (_) => EventoTurnoProvider(),
+          ),
+
+          // Balcão Fiscal — eventos do WhatsApp
+          ChangeNotifierProvider(
+            create: (_) => FiscalEventsProvider(),
           ),
         ],
         child: const MyApp(),
