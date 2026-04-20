@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../../core/constants/text_styles.dart';
+import '../../../core/utils/app_notif.dart';
 import '../../../data/services/cupom_config_service.dart';
 
 class CupomConfigScreen extends StatefulWidget {
@@ -89,9 +90,9 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
   int get _larguraPreviewChars => _previewLarguraMm == 58 ? 32 : 42;
 
   String get _nivelConfiguracao {
-    if (_camposPreenchidos >= 11) return 'Configuracao completa';
-    if (_camposPreenchidos >= 7) return 'Configuracao avancada';
-    return 'Configuracao basica';
+    if (_camposPreenchidos >= 11) return 'Configuração completa';
+    if (_camposPreenchidos >= 7) return 'Configuração avançada';
+    return 'Configuração básica';
   }
 
   Future<void> _carregar() async {
@@ -106,9 +107,11 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _loading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao carregar configuracao: $e')),
-      );
+      AppNotif.show(context,
+          titulo: 'Erro',
+          mensagem: 'Erro ao carregar configuração: $e',
+          tipo: 'alerta',
+          cor: AppColors.danger);
     }
   }
 
@@ -163,16 +166,18 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
     try {
       await CupomConfigService.salvar(_fromForm());
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Configuracao do cupom salva com sucesso.'),
-        ),
-      );
+      AppNotif.show(context,
+          titulo: 'Configuração salva',
+          mensagem: 'Configuração do cupom salva com sucesso.',
+          tipo: 'saida',
+          cor: AppColors.success);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao salvar: $e')),
-      );
+      AppNotif.show(context,
+          titulo: 'Erro',
+          mensagem: 'Erro ao salvar: $e',
+          tipo: 'alerta',
+          cor: AppColors.danger);
     } finally {
       if (mounted) {
         setState(() => _saving = false);
@@ -190,14 +195,18 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
         _aplicarConfig(padrao);
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Configuracao padrao restaurada.')),
-      );
+      AppNotif.show(context,
+          titulo: 'Padrão restaurado',
+          mensagem: 'Configuração padrão restaurada.',
+          tipo: 'saida',
+          cor: AppColors.success);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao restaurar padrao: $e')),
-      );
+      AppNotif.show(context,
+          titulo: 'Erro',
+          mensagem: 'Erro ao restaurar padrão: $e',
+          tipo: 'alerta',
+          cor: AppColors.danger);
     } finally {
       if (mounted) {
         setState(() => _saving = false);
@@ -430,9 +439,9 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Configuracao do Cupom', style: AppTextStyles.h4),
+                      Text('Configuração do Cupom', style: AppTextStyles.h4),
                       Text(
-                        'Campos vazios ficam ocultos automaticamente na impressao.',
+                        'Campos vazios ficam ocultos automaticamente na impressão.',
                         style: AppTextStyles.caption,
                       ),
                     ],
@@ -452,7 +461,7 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
                 ),
                 _statusChip(
                   icon: Icons.stars_outlined,
-                  label: 'Nivel',
+                  label: 'Nível',
                   value: _nivelConfiguracao,
                 ),
                 _statusChip(
@@ -471,8 +480,8 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
   Widget _configuracaoVisual() {
     return _secao(
       icon: Icons.tune_outlined,
-      titulo: 'Visual e Impressao',
-      descricao: 'Ajuste tipografia, alinhamento e simulacao de bobina.',
+      titulo: 'Visual e Impressão',
+      descricao: 'Ajuste tipografia, alinhamento e simulação de bobina.',
       children: [
         Text(
           'Tamanho da fonte: ${_tamanhoFonte.toStringAsFixed(0)}',
@@ -488,7 +497,7 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
         ),
         SizedBox(height: 4),
         Text(
-          'Simulacao de largura da bobina',
+          'Simulação de largura da bobina',
           style: AppTextStyles.label,
         ),
         SizedBox(height: 8),
@@ -509,19 +518,19 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
         ),
         SizedBox(height: 8),
         Text(
-          'A impressao web usa ajuste automatico para reduzir corte lateral.',
+          'A impressão web usa ajuste automático para reduzir corte lateral.',
           style: AppTextStyles.caption,
         ),
         Divider(height: 24),
         _switchTile(
           value: _centralizarCabecalho,
-          title: 'Centralizar cabecalho',
-          subtitle: 'Centraliza titulo, subtitulo e dados de contato.',
+          title: 'Centralizar cabeçalho',
+          subtitle: 'Centraliza título, subtítulo e dados de contato.',
           onChanged: (v) => _centralizarCabecalho = v,
         ),
         _switchTile(
           value: _centralizarRodape,
-          title: 'Centralizar rodape',
+          title: 'Centralizar rodapé',
           subtitle: 'Centraliza a mensagem final de encerramento.',
           onChanged: (v) => _centralizarRodape = v,
         ),
@@ -555,7 +564,7 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
         ),
         _campo(
           controller: _obsPadraoCtrl,
-          label: 'Observacao padrao (opcional)',
+          label: 'Observação padrão (opcional)',
           icon: Icons.notes_outlined,
           maxLines: 2,
         ),
@@ -570,8 +579,8 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
         ),
         _switchTile(
           value: _exibirDataHoraEmissao,
-          title: 'Exibir data/hora de emissao',
-          subtitle: 'Ajuda no controle de pedidos e conferencias.',
+          title: 'Exibir data/hora de emissão',
+          subtitle: 'Ajuda no controle de pedidos e conferências.',
           onChanged: (v) => _exibirDataHoraEmissao = v,
         ),
       ],
@@ -611,7 +620,7 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
             ),
             SizedBox(height: 8),
             Text(
-              'Simulacao visual do texto final que sera usado na impressao.',
+              'Simulação visual do texto final que será usado na impressão.',
               style: AppTextStyles.caption,
             ),
             SizedBox(height: 10),
@@ -619,7 +628,7 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: AppColors.backgroundSection,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: AppColors.cardBorder),
               ),
@@ -673,21 +682,21 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
     return [
       _secao(
         icon: Icons.store_outlined,
-        titulo: 'Identificacao da Loja',
-        descricao: 'Dados exibidos no cabecalho do cupom.',
+        titulo: 'Identificação da Loja',
+        descricao: 'Dados exibidos no cabeçalho do cupom.',
         children: [
           _campo(
             controller: _tituloCtrl,
-            label: 'Titulo do cabecalho',
+            label: 'Título do cabeçalho',
             icon: Icons.storefront_outlined,
             textCapitalization: TextCapitalization.characters,
             validator: (v) => (v == null || v.trim().isEmpty)
-                ? 'Informe o titulo da loja.'
+                ? 'Informe o título da loja.'
                 : null,
           ),
           _campo(
             controller: _subtituloCtrl,
-            label: 'Subtitulo (opcional)',
+            label: 'Subtítulo (opcional)',
             icon: Icons.short_text,
           ),
           _campo(
@@ -700,17 +709,17 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
       SizedBox(height: Dimensions.spacingMD),
       _secao(
         icon: Icons.location_on_outlined,
-        titulo: 'Endereco e Contato',
-        descricao: 'Informacoes para cliente e canais de atendimento.',
+        titulo: 'Endereço e Contato',
+        descricao: 'Informações para cliente e canais de atendimento.',
         children: [
           _campo(
             controller: _end1Ctrl,
-            label: 'Endereco linha 1 (opcional)',
+            label: 'Endereço linha 1 (opcional)',
             icon: Icons.home_outlined,
           ),
           _campo(
             controller: _end2Ctrl,
-            label: 'Endereco linha 2 (opcional)',
+            label: 'Endereço linha 2 (opcional)',
             icon: Icons.pin_drop_outlined,
           ),
           _campo(
@@ -747,7 +756,7 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Dados do Cupom'),
+        title: Text('Dados do Cupom', style: AppTextStyles.h3),
         backgroundColor: AppColors.background,
         elevation: 0,
       ),

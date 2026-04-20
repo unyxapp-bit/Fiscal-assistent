@@ -72,7 +72,7 @@ class _MapaCaixaStatus {
         .map((e) => e.trim())
         .where((e) => e.isNotEmpty)
         .toList();
-    return partes.isEmpty ? 'Sem localizacao' : partes.join(' - ');
+    return partes.isEmpty ? 'Sem localização' : partes.join(' - ');
   }
 }
 
@@ -490,11 +490,11 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
       case _MapaFiltro.pausa:
         return 'Em pausa';
       case _MapaFiltro.atencao:
-        return 'Em atencao';
+        return 'Em atenção';
       case _MapaFiltro.livres:
         return 'Livres';
       case _MapaFiltro.balcoes:
-        return 'Balcoes';
+        return 'Balcões';
       case _MapaFiltro.cobertura:
         return 'Cobertura';
     }
@@ -539,7 +539,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
       controller: _buscaMapaCtrl,
       onChanged: (value) => setState(() => _buscaMapa = value),
       decoration: InputDecoration(
-        hintText: 'Buscar por caixa, colaborador ou localizacao',
+        hintText: 'Buscar por caixa, colaborador ou localização',
         prefixIcon: Icon(Icons.search),
         suffixIcon: _buscaMapa.trim().isEmpty
             ? null
@@ -668,7 +668,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
           children: [
             Expanded(
               child: Text(
-                'Mostrando $totalVisiveis de $totalGeral caixas em $localizacoes area(s).',
+                'Mostrando $totalVisiveis de $totalGeral caixas em $localizacoes área(s).',
                 style: AppTextStyles.caption.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -734,10 +734,10 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
               children: [
                 _buildLegendItem('Ocupado', AppColors.statusAtivo),
                 _buildLegendItem('Em pausa', AppColors.statusCafe),
-                _buildLegendItem('Em atencao', AppColors.danger),
-                _buildLegendItem('Disponivel', AppColors.success),
+                _buildLegendItem('Em atenção', AppColors.danger),
+                _buildLegendItem('Disponível', AppColors.success),
                 _buildLegendItem('Inativo', AppColors.inactive),
-                _buildLegendItem('Manutencao', AppColors.statusAtencao),
+                _buildLegendItem('Manutenção', AppColors.statusAtencao),
               ],
             ),
           ],
@@ -834,7 +834,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                   if (livres > 0)
                     _buildResumoPill('livres', livres, AppColors.success),
                   if (atencao > 0)
-                    _buildResumoPill('em atencao', atencao, AppColors.danger),
+                    _buildResumoPill('em atenção', atencao, AppColors.danger),
                 ],
               ),
             ],
@@ -885,7 +885,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                 ),
                 SizedBox(width: 10),
                 Expanded(
-                  child: Text('Excecoes do mapa', style: AppTextStyles.h4),
+                  child: Text('Exceções do mapa', style: AppTextStyles.h4),
                 ),
               ],
             ),
@@ -1076,7 +1076,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         value: '${ocupados.length}',
         label: 'Alocados',
         subtitle:
-            ocupados.isEmpty ? 'Sem caixas ocupados' : 'Caixas em operacao',
+            ocupados.isEmpty ? 'Sem caixas ocupados' : 'Caixas em operação',
         color: AppColors.statusAtivo,
         icon: Icons.person,
         onTap: () => showModalBottomSheet(
@@ -1137,7 +1137,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
       _MapaDashboardItem(
         value: '$totalCobertura',
         label: 'Cobertura',
-        subtitle: 'Mapa + plantao + outro setor',
+        subtitle: 'Mapa + plantão + outro setor',
         color: AppColors.primary,
         icon: Icons.groups_2_outlined,
         onTap: () => showModalBottomSheet(
@@ -1287,7 +1287,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         _MapaExcecaoItem(
           icon: Icons.build_outlined,
           color: AppColors.statusAtencao,
-          label: '$manutencao em manutencao',
+          label: '$manutencao em manutenção',
         ),
     ];
 
@@ -1312,10 +1312,10 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         _MapaSugestaoItem(
           icon: Icons.restaurant_outlined,
           color: AppColors.danger,
-          title: 'Priorize o proximo intervalo',
+          title: 'Priorize o próximo intervalo',
           subtitle:
-              '${item.colaboradorAtual?.nome ?? item.caixa.nomeExibicao} esta no ${item.caixa.nomeExibicao} com ${item.minIntervalo ?? 0} min de atraso.',
-          actionLabel: 'Ver atencao',
+              '${item.colaboradorAtual?.nome ?? item.caixa.nomeExibicao} está no ${item.caixa.nomeExibicao} com ${item.minIntervalo ?? 0} min de atraso.',
+          actionLabel: 'Ver atenção',
           onTap: () => _aplicarFiltroMapa(_MapaFiltro.atencao),
         ),
       );
@@ -1328,7 +1328,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
           color: AppColors.statusCafe,
           title: 'Finalize pausas vencidas primeiro',
           subtitle:
-              'Ha $pausasEstouradas pausa(s) estourada(s) ocupando cobertura do mapa.',
+              'Há $pausasEstouradas pausa(s) estourada(s) ocupando cobertura do mapa.',
           actionLabel: 'Ver pausas',
           onTap: () => _aplicarFiltroMapa(_MapaFiltro.pausa),
         ),
@@ -1341,7 +1341,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         _MapaSugestaoItem(
           icon: Icons.swap_horiz,
           color: AppColors.primary,
-          title: 'Sugestao de cobertura imediata',
+          title: 'Sugestão de cobertura imediata',
           subtitle:
               'Use $nomes para cobrir o caixa e liberar ${atrasoPrincipal.first.colaboradorAtual?.nome ?? 'o colaborador'} para intervalo.',
           actionLabel: 'Ver cobertura',
@@ -1356,9 +1356,9 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         _MapaSugestaoItem(
           icon: Icons.point_of_sale_outlined,
           color: AppColors.success,
-          title: 'Ha caixas livres para redistribuir',
+          title: 'Há caixas livres para redistribuir',
           subtitle:
-              'Ative a visualizacao de livres para antecipar trocas e retornos de pausa.',
+              'Ative a visualização de livres para antecipar trocas e retornos de pausa.',
           actionLabel: 'Ver livres',
           onTap: () => _aplicarFiltroMapa(
             _MapaFiltro.livres,
@@ -1461,12 +1461,12 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                     ),
                   if (mostrarLocalizacoes && secoesLocalizacao.isNotEmpty) ...[
                     _SectionHeader(
-                      label: 'Mapa por localizacao',
+                      label: 'Mapa por localização',
                       count: secoesLocalizacao.length,
                     ),
                     SizedBox(height: Dimensions.spacingXS),
                     Text(
-                      'As areas abaixo ja aparecem priorizadas por atencao, pausa e ocupacao.',
+                      'As áreas abaixo já aparecem priorizadas por atenção, pausa e ocupação.',
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -1497,7 +1497,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
                   ],
                   if (mostrarBalcoes) ...[
                     _SectionHeader(
-                      label: 'Balcoes',
+                      label: 'Balcões',
                       count: balcoesFiltrados.length,
                     ),
                     SizedBox(height: Dimensions.spacingXS),
@@ -1558,7 +1558,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Mapa de Caixas'),
+        title: Text('Mapa de Caixas', style: AppTextStyles.h3),
         backgroundColor: AppColors.background,
         elevation: 0,
         toolbarHeight: 48,
@@ -2324,7 +2324,7 @@ class _OcupadosSheet extends StatelessWidget {
                           value: caixa.id,
                           title: Text(caixa.nomeExibicao),
                           subtitle:
-                              Text(ocupado ? 'Ocupado agora' : 'Disponivel'),
+                              Text(ocupado ? 'Ocupado agora' : 'Disponível'),
                           dense: true,
                         );
                         if (ocupado) {
@@ -2627,7 +2627,7 @@ class _CoberturaSheet extends StatelessWidget {
                   color: AppColors.primary,
                 ),
                 SizedBox(width: 6),
-                Text('Cobertura da operacao', style: AppTextStyles.h3),
+                Text('Cobertura da operação', style: AppTextStyles.h3),
               ],
             ),
             SizedBox(height: 12),
