@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/datasources/remote/supabase_client.dart';
 
@@ -167,9 +170,9 @@ extension ModoExecucaoChecklistX on ModoExecucaoChecklist {
   String get label {
     switch (this) {
       case ModoExecucaoChecklist.continuo:
-        return 'Uso continuo';
+        return 'Uso contínuo';
       case ModoExecucaoChecklist.usoUnico:
-        return 'Uso unico';
+        return 'Uso único';
     }
   }
 
@@ -178,7 +181,7 @@ extension ModoExecucaoChecklistX on ModoExecucaoChecklist {
       case ModoExecucaoChecklist.continuo:
         return 'Pode ser respondido novamente sempre que precisar.';
       case ModoExecucaoChecklist.usoUnico:
-        return 'Depois da primeira conclusao, sai da lista de resposta.';
+        return 'Depois da primeira conclusão, sai da lista de resposta.';
     }
   }
 
@@ -350,19 +353,41 @@ class ChecklistProvider with ChangeNotifier {
   final List<ChecklistExecucao> _execucoes = [];
   final List<ChecklistTemplate> _templates = [];
 
+  /// Cache de títulos: preserva títulos mesmo após templates deletados.
+  final Map<String, String> _titulosCache = {};
+
+  /// IDs de templates deletados localmente mas ainda não removidos do Supabase.
+  final Set<String> _deletedTemplateIds = {};
+
   String get _fiscalId => SupabaseClientManager.currentUserId!;
+
+  // Chaves SharedPreferences com escopo por fiscal (multi-conta seguro)
+  String get _keyTemplatesCache => 'ck_templates_$_fiscalId';
+  String get _keyExecucoesCache => 'ck_execucoes_$_fiscalId';
+  String get _keyTitulosCache => 'ck_titulos_$_fiscalId';
+  String get _keyDeletedIds => 'ck_deleted_$_fiscalId';
 
   // ── Getters ────────────────────────────────────────────────────────────────
 
   List<ChecklistExecucao> get todas => _execucoes;
   List<ChecklistTemplate> get templates => _templates;
+
   ChecklistTemplate? templateById(String templateId) =>
       _templates.where((t) => t.id == templateId).firstOrNull;
+
+  /// Título de um template — busca em memória, depois no cache (cobre deletados).
+  String tituloParaTemplate(String templateId) =>
+      templateById(templateId)?.titulo ??
+      _titulosCache[templateId] ??
+      (templateId == 'abertura'
+          ? 'Abertura da Loja'
+          : templateId == 'fechamento'
+              ? 'Fechamento da Loja'
+              : 'Checklist');
 
   /// Última execução do template no dia de hoje.
   ChecklistExecucao? execucaoHoje(String templateId) {
     final hoje = DateTime.now();
-    // Busca por templateId direto
     try {
       return _execucoes.lastWhere((e) =>
           e.tipo == templateId &&
@@ -370,7 +395,6 @@ class ChecklistProvider with ChangeNotifier {
           e.data.month == hoje.month &&
           e.data.day == hoje.day);
     } catch (_) {}
-    // Fallback legado: default templates mapeados por título
     try {
       final template = _templates.firstWhere((t) => t.id == templateId);
       final legado = template.titulo.toLowerCase().contains('abertura')
@@ -441,8 +465,6 @@ class ChecklistProvider with ChangeNotifier {
   int get totalConcluidosHoje =>
       _templates.where((t) => foiConcluidoHoje(t.id)).length;
 
-  /// Retorna true se a janela de notificação do template está ativa agora.
-  /// Independe de o checklist já ter sido concluído.
   bool estaNoJanela(String templateId) {
     final t = _templates.where((t) => t.id == templateId).firstOrNull;
     if (t == null) return true;
@@ -466,20 +488,21 @@ class ChecklistProvider with ChangeNotifier {
     }
   }
 
-  /// Retorna true se o template deve mostrar alerta agora:
-  /// não concluído hoje E dentro da janela de notificação.
   bool deveNotificarAgora(String templateId) =>
       estaDisponivelNoTurno(templateId) &&
       !foiConcluidoHoje(templateId) &&
       estaNoJanela(templateId);
 
-  /// Templates com checklist pendente cuja janela de notificação está ativa.
   List<ChecklistTemplate> get templatesPendentesAgora =>
       _templates.where((t) => deveNotificarAgora(t.id)).toList();
 
-  // ── Load ───────────────────────────────────────────────────────────────────
+  // ── Load (cache-first) ─────────────────────────────────────────────────────
 
   Future<void> load() async {
+    // 1. Cache local (rápido — UI responde imediatamente)
+    await _loadFromLocalCache();
+    notifyListeners();
+    // 2. Sincroniza com Supabase (atualiza UI se houver novidade)
     await _loadTemplates();
     await _loadExecucoes();
   }
@@ -491,17 +514,49 @@ class ChecklistProvider with ChangeNotifier {
           .select()
           .eq('fiscal_id', _fiscalId)
           .order('created_at');
-      _templates.clear();
-      if (rows.isEmpty) {
+
+      if (rows.isNotEmpty) {
+        _templates.clear();
+        _templates.addAll(rows.map(ChecklistTemplate.fromMap));
+
+        // Aplica deleções pendentes (templates excluídos offline)
+        if (_deletedTemplateIds.isNotEmpty) {
+          _templates.removeWhere((t) => _deletedTemplateIds.contains(t.id));
+          for (final id in _deletedTemplateIds.toList()) {
+            try {
+              await SupabaseClientManager.client
+                  .from(_tableT)
+                  .delete()
+                  .eq('id', id);
+              _deletedTemplateIds.remove(id);
+            } catch (_) {}
+          }
+          await _saveDeletedIds();
+        }
+
+        _refreshTitulosCache();
+        await _saveTemplatesToCache();
+        await _saveTitulosCache();
+        notifyListeners();
+      } else if (_templates.isEmpty) {
+        // Nenhum dado local nem remoto → semear defaults
         await _seedTemplates();
       } else {
-        _templates.addAll(rows.map(ChecklistTemplate.fromMap));
+        // Cache local presente mas Supabase vazio → tentar re-upload
+        for (final t in _templates) {
+          try {
+            await _upsertTemplate(t);
+          } catch (_) {}
+        }
       }
     } catch (e) {
       if (kDebugMode) {
         debugPrint('[ChecklistProvider] Erro ao carregar templates: $e');
       }
-      if (_templates.isEmpty) _templates.addAll(_buildDefaults());
+      if (_templates.isEmpty) {
+        _templates.addAll(_buildDefaults());
+        notifyListeners();
+      }
     }
   }
 
@@ -515,11 +570,14 @@ class ChecklistProvider with ChangeNotifier {
           .limit(100);
       _execucoes.clear();
       _execucoes.addAll(rows.map(_fromMap));
+      await _saveExecucoesToCache();
       notifyListeners();
     } catch (e) {
       if (kDebugMode) {
         debugPrint('[ChecklistProvider] Erro ao carregar execuções: $e');
       }
+      // Mantém o que veio do cache local
+      if (_execucoes.isEmpty) notifyListeners();
     }
   }
 
@@ -527,12 +585,15 @@ class ChecklistProvider with ChangeNotifier {
 
   Future<void> adicionarTemplate(ChecklistTemplate t) async {
     _templates.add(t);
+    _titulosCache[t.id] = t.titulo;
     notifyListeners();
+    // Salva localmente antes de tentar o Supabase
+    await _saveTemplatesToCache();
+    await _saveTitulosCache();
     try {
       await _upsertTemplate(t);
     } catch (_) {
-      _templates.removeWhere((x) => x.id == t.id);
-      notifyListeners();
+      // Salvo localmente — não reverte. Re-lança para UI mostrar aviso.
       rethrow;
     }
   }
@@ -540,32 +601,32 @@ class ChecklistProvider with ChangeNotifier {
   Future<void> atualizarTemplate(ChecklistTemplate t) async {
     final i = _templates.indexWhere((x) => x.id == t.id);
     if (i != -1) {
-      final anterior = _templates[i];
       _templates[i] = t;
+      _titulosCache[t.id] = t.titulo;
       notifyListeners();
+      await _saveTemplatesToCache();
+      await _saveTitulosCache();
       try {
         await _upsertTemplate(t);
       } catch (_) {
-        _templates[i] = anterior;
-        notifyListeners();
         rethrow;
       }
     }
   }
 
   Future<void> deletarTemplate(String id) async {
-    final removido = _templates.where((t) => t.id == id).toList();
     _templates.removeWhere((t) => t.id == id);
+    _deletedTemplateIds.add(id);
     notifyListeners();
+    await _saveTemplatesToCache();
+    await _saveDeletedIds();
     try {
       await SupabaseClientManager.client.from(_tableT).delete().eq('id', id);
+      _deletedTemplateIds.remove(id);
+      await _saveDeletedIds();
     } catch (e) {
-      if (removido.isNotEmpty) {
-        _templates.addAll(removido);
-        notifyListeners();
-      }
       if (kDebugMode) {
-        debugPrint('[ChecklistProvider] Erro ao deletar template: $e');
+        debugPrint('[ChecklistProvider] Erro ao deletar template no Supabase: $e');
       }
       rethrow;
     }
@@ -586,7 +647,6 @@ class ChecklistProvider with ChangeNotifier {
 
   // ── Execuções ──────────────────────────────────────────────────────────────
 
-  /// Inicia nova execução a partir de um template.
   Future<ChecklistExecucao> iniciar(String templateId) async {
     ChecklistTemplate? template;
     try {
@@ -597,7 +657,7 @@ class ChecklistProvider with ChangeNotifier {
     if (template != null &&
         template.modoExecucao == ModoExecucaoChecklist.usoUnico &&
         jaFoiConcluidoAlgumaVez(templateId)) {
-      throw StateError('Checklist de uso unico ja foi concluido.');
+      throw StateError('Checklist de uso único já foi concluído.');
     }
     final exec = ChecklistExecucao(
       id: const Uuid().v4(),
@@ -607,10 +667,12 @@ class ChecklistProvider with ChangeNotifier {
     );
     _execucoes.insert(0, exec);
     notifyListeners();
+    await _saveExecucoesToCache();
     try {
       await _upsert(exec);
     } catch (_) {
       _execucoes.removeWhere((e) => e.id == exec.id);
+      await _saveExecucoesToCache();
       notifyListeners();
       rethrow;
     }
@@ -632,12 +694,14 @@ class ChecklistProvider with ChangeNotifier {
       exec.concluidoEm = null;
     }
     notifyListeners();
+    await _saveExecucoesToCache();
     try {
       await _upsert(exec);
     } catch (_) {
       exec.itensMarcados[index] = marcadoAnterior;
       exec.concluido = concluidoAnterior;
       exec.concluidoEm = concluidoEmAnterior;
+      await _saveExecucoesToCache();
       notifyListeners();
       rethrow;
     }
@@ -651,14 +715,34 @@ class ChecklistProvider with ChangeNotifier {
       exec.concluido = true;
       exec.concluidoEm = DateTime.now();
       notifyListeners();
+      await _saveExecucoesToCache();
       try {
         await _upsert(exec);
       } catch (_) {
         exec.concluido = concluidoAnterior;
         exec.concluidoEm = concluidoEmAnterior;
+        await _saveExecucoesToCache();
         notifyListeners();
         rethrow;
       }
+    }
+  }
+
+  /// Remove uma execução do histórico (local + Supabase).
+  Future<void> deletarExecucao(String execucaoId) async {
+    _execucoes.removeWhere((e) => e.id == execucaoId);
+    notifyListeners();
+    await _saveExecucoesToCache();
+    try {
+      await SupabaseClientManager.client
+          .from(_table)
+          .delete()
+          .eq('id', execucaoId);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[ChecklistProvider] Erro ao deletar execução no Supabase: $e');
+      }
+      // Mantém deletado localmente mesmo se Supabase falhar
     }
   }
 
@@ -704,6 +788,20 @@ class ChecklistProvider with ChangeNotifier {
     );
   }
 
+  Map<String, dynamic> _execToMap(ChecklistExecucao exec) => {
+        'id': exec.id,
+        'fiscal_id': _fiscalId,
+        'tipo': exec.tipo,
+        'data': exec.data.toIso8601String(),
+        'itens_marcados': {
+          for (final e in exec.itensMarcados.entries)
+            e.key.toString(): e.value,
+        },
+        'itens_snapshot': exec.itensSnapshot,
+        'concluido': exec.concluido,
+        'concluido_em': exec.concluidoEm?.toIso8601String(),
+      };
+
   Future<void> _seedTemplates() async {
     final defaults = _buildDefaults();
     try {
@@ -715,11 +813,14 @@ class ChecklistProvider with ChangeNotifier {
       if (kDebugMode) debugPrint('[ChecklistProvider] Erro ao seed: $e');
       _templates.addAll(defaults);
     }
+    _refreshTitulosCache();
+    await _saveTemplatesToCache();
+    await _saveTitulosCache();
   }
 
   List<ChecklistTemplate> _buildDefaults() {
     final now = DateTime.now();
-    const ns = '6ba7b810-9dad-11d1-80b4-00c04fd430c8'; // UUID namespace URL
+    const ns = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
     return [
       ChecklistTemplate(
         id: const Uuid().v5(ns, 'checklist:abertura'),
@@ -746,5 +847,88 @@ class ChecklistProvider with ChangeNotifier {
         modoExecucao: ModoExecucaoChecklist.continuo,
       ),
     ];
+  }
+
+  // ── Cache local (SharedPreferences) ───────────────────────────────────────
+
+  void _refreshTitulosCache() {
+    for (final t in _templates) {
+      _titulosCache[t.id] = t.titulo;
+    }
+  }
+
+  Future<void> _loadFromLocalCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      // IDs deletados localmente
+      final deletedJson = prefs.getString(_keyDeletedIds);
+      if (deletedJson != null) {
+        final list = jsonDecode(deletedJson) as List;
+        _deletedTemplateIds.addAll(list.cast<String>());
+      }
+
+      // Cache de títulos
+      final titulosJson = prefs.getString(_keyTitulosCache);
+      if (titulosJson != null) {
+        final map = jsonDecode(titulosJson) as Map<String, dynamic>;
+        _titulosCache.addAll(map.cast<String, String>());
+      }
+
+      // Templates
+      final templatesJson = prefs.getString(_keyTemplatesCache);
+      if (templatesJson != null) {
+        final list = jsonDecode(templatesJson) as List;
+        final loaded = list
+            .map((m) => ChecklistTemplate.fromMap(m as Map<String, dynamic>))
+            .where((t) => !_deletedTemplateIds.contains(t.id))
+            .toList();
+        _templates.addAll(loaded);
+      }
+
+      // Execuções
+      final execJson = prefs.getString(_keyExecucoesCache);
+      if (execJson != null) {
+        final list = jsonDecode(execJson) as List;
+        _execucoes.addAll(
+          list.map((m) => _fromMap(m as Map<String, dynamic>)),
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[ChecklistProvider] Erro ao carregar cache local: $e');
+      }
+    }
+  }
+
+  Future<void> _saveTemplatesToCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final list = _templates.map((t) => t.toMap(_fiscalId)).toList();
+      await prefs.setString(_keyTemplatesCache, jsonEncode(list));
+    } catch (_) {}
+  }
+
+  Future<void> _saveExecucoesToCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final list = _execucoes.take(50).map(_execToMap).toList();
+      await prefs.setString(_keyExecucoesCache, jsonEncode(list));
+    } catch (_) {}
+  }
+
+  Future<void> _saveTitulosCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_keyTitulosCache, jsonEncode(_titulosCache));
+    } catch (_) {}
+  }
+
+  Future<void> _saveDeletedIds() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+          _keyDeletedIds, jsonEncode(_deletedTemplateIds.toList()));
+    } catch (_) {}
   }
 }

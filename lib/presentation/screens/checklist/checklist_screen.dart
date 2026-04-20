@@ -17,15 +17,15 @@ class ChecklistScreen extends StatelessWidget {
   String _formatTime(DateTime dt) {
     final h = dt.hour.toString().padLeft(2, '0');
     final m = dt.minute.toString().padLeft(2, '0');
-    return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')} as $h:$m';
+    return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')} às $h:$m';
   }
 
   String _periodizacaoTexto(ChecklistTemplate template) {
     if (template.periodizacao == PeriodizacaoChecklist.qualquerHorario) {
-      return 'Qualquer horario';
+      return 'Qualquer horário';
     }
     if (template.periodizacao == PeriodizacaoChecklist.horarioEspecifico) {
-      return 'Horario: ${template.horarioNotificacao ?? '--:--'} (+/-30 min)';
+      return 'Horário: ${template.horarioNotificacao ?? '--:--'} (+/-30 min)';
     }
     return template.periodizacao.label;
   }
@@ -37,27 +37,27 @@ class ChecklistScreen extends StatelessWidget {
     required ChecklistExecucao? ultimaExecucao,
   }) {
     if (execucaoAberta != null) {
-      return 'Em andamento - ${execucaoAberta.marcados}/${execucaoAberta.totalItens} itens';
+      return 'Em andamento — ${execucaoAberta.marcados}/${execucaoAberta.totalItens} itens';
     }
 
     if (ultimaExecucao == null) {
       return template.modoExecucao == ModoExecucaoChecklist.continuo
           ? 'Pronto para responder'
-          : 'Disponivel para a primeira resposta';
+          : 'Disponível para a primeira resposta';
     }
 
     if (template.modoExecucao == ModoExecucaoChecklist.usoUnico &&
         provider.jaFoiConcluidoAlgumaVez(template.id) &&
         ultimaExecucao.concluido &&
         ultimaExecucao.concluidoEm != null) {
-      return 'Uso unico concluido em ${_formatTime(ultimaExecucao.concluidoEm!)}';
+      return 'Uso único concluído em ${_formatTime(ultimaExecucao.concluidoEm!)}';
     }
 
     if (ultimaExecucao.concluido && ultimaExecucao.concluidoEm != null) {
-      return 'Ultima execucao concluida em ${_formatTime(ultimaExecucao.concluidoEm!)}';
+      return 'Última execução concluída em ${_formatTime(ultimaExecucao.concluidoEm!)}';
     }
 
-    return 'Execucao pendente para revisar';
+    return 'Execução pendente para revisar';
   }
 
   String _textoChecklist(
@@ -74,9 +74,9 @@ class ChecklistScreen extends StatelessWidget {
     buf.writeln('Modo: ${template.modoExecucao.label}');
     buf.writeln('Agendamento: ${_periodizacaoTexto(template)}');
     final status = execucao == null
-        ? 'Sem execucao iniciada'
+        ? 'Sem execução iniciada'
         : execucao.concluido
-            ? 'Concluido'
+            ? 'Concluído'
             : 'Em andamento';
     buf.writeln('Status: $status');
     buf.writeln();
@@ -104,7 +104,7 @@ class ChecklistScreen extends StatelessWidget {
     AppNotif.show(
       context,
       titulo: 'Copiado',
-      mensagem: 'Checklist copiado para a area de transferencia',
+      mensagem: 'Checklist copiado para a área de transferência',
       tipo: 'intervalo',
     );
   }
@@ -149,7 +149,7 @@ class ChecklistScreen extends StatelessWidget {
         context,
         titulo: 'Checklist bloqueado',
         mensagem:
-            'Esse checklist eh de uso unico e ja foi concluido anteriormente.',
+            'Esse checklist é de uso único e já foi concluído anteriormente.',
         tipo: 'alerta',
         cor: AppColors.warning,
       );
@@ -158,7 +158,7 @@ class ChecklistScreen extends StatelessWidget {
       AppNotif.show(
         context,
         titulo: 'Erro ao iniciar checklist',
-        mensagem: 'Nao foi possivel salvar no Supabase.',
+        mensagem: 'Não foi possível salvar no servidor.',
         tipo: 'erro',
         cor: AppColors.danger,
       );
@@ -225,7 +225,7 @@ class ChecklistScreen extends StatelessWidget {
                     : Icons.check_circle)
                 : Icons.play_circle_outline;
     final labelAcao = bloqueadoUsoUnico
-        ? 'Ver ultima execucao'
+        ? 'Ver última execução'
         : emAndamento
             ? 'Continuar'
             : concluido &&
@@ -335,7 +335,7 @@ class ChecklistScreen extends StatelessWidget {
                               ),
                               SizedBox(width: 8),
                               Text(
-                                'Deletar',
+                                'Excluir',
                                 style: TextStyle(color: AppColors.danger),
                               ),
                             ],
@@ -463,9 +463,9 @@ class ChecklistScreen extends StatelessWidget {
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text('Deletar checklist'),
+            title: Text('Excluir checklist'),
             content: Text(
-              'Deletar "${template.titulo}"? As execucoes ja registradas nao serao afetadas.',
+              'Excluir "${template.titulo}"? As execuções já registradas não serão afetadas.',
             ),
             actions: [
               TextButton(
@@ -480,17 +480,20 @@ class ChecklistScreen extends StatelessWidget {
                     Navigator.pop(ctx);
                   } catch (_) {
                     if (!ctx.mounted) return;
+                    // Deletado localmente; avisa que sync falhou
                     AppNotif.show(
                       ctx,
-                      titulo: 'Erro ao deletar',
-                      mensagem: 'Nao foi possivel remover no Supabase.',
-                      tipo: 'erro',
-                      cor: AppColors.danger,
+                      titulo: 'Excluído localmente',
+                      mensagem:
+                          'Removido do dispositivo. Falha ao sincronizar com o servidor.',
+                      tipo: 'alerta',
+                      cor: AppColors.warning,
                     );
+                    Navigator.pop(ctx);
                   }
                 },
                 child: Text(
-                  'Deletar',
+                  'Excluir',
                   style: TextStyle(color: AppColors.danger),
                 ),
               ),
@@ -506,6 +509,117 @@ class ChecklistScreen extends StatelessWidget {
     if (provider.execucaoAberta(template.id) != null) return 0;
     if (!provider.foiConcluidoHoje(template.id)) return 1;
     return 2;
+  }
+
+  Widget _buildHistoricoItem(
+    BuildContext context,
+    ChecklistProvider provider,
+    ChecklistExecucao exec,
+  ) {
+    final nomeExec = provider.tituloParaTemplate(exec.tipo);
+    final template = provider.templateById(exec.tipo);
+    final corExec = template?.cor ??
+        (exec.tipo == 'abertura' ? AppColors.success : AppColors.danger);
+    final iconeExec = template?.icone ??
+        (exec.tipo == 'abertura' ? Icons.lock_open : Icons.lock);
+
+    final dataStr =
+        '${exec.data.day.toString().padLeft(2, '0')}/${exec.data.month.toString().padLeft(2, '0')} · ${exec.marcados}/${exec.totalItens} itens';
+
+    return Dismissible(
+      key: Key(exec.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: Dimensions.paddingMD),
+        decoration: BoxDecoration(
+          color: AppColors.danger.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+        ),
+        child: Icon(Icons.delete_outline, color: AppColors.danger),
+      ),
+      confirmDismiss: (_) async {
+        try {
+          await provider.deletarExecucao(exec.id);
+          return true;
+        } catch (_) {
+          return false;
+        }
+      },
+      child: Card(
+        margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => ChecklistExecucaoScreen(execucaoId: exec.id),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: Dimensions.paddingMD,
+              vertical: Dimensions.paddingSM,
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor: corExec.withValues(alpha: 0.12),
+                  child: Icon(
+                    iconeExec,
+                    size: 18,
+                    color: exec.concluido ? corExec : AppColors.inactive,
+                  ),
+                ),
+                SizedBox(width: Dimensions.spacingMD),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(nomeExec, style: AppTextStyles.body),
+                      SizedBox(height: 2),
+                      Text(
+                        dataStr,
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Icon(
+                      exec.concluido
+                          ? Icons.check_circle
+                          : Icons.cancel_outlined,
+                      color: exec.concluido
+                          ? AppColors.success
+                          : AppColors.inactive,
+                      size: 20,
+                    ),
+                    SizedBox(height: 2),
+                    if (exec.totalItens > 0)
+                      Text(
+                        '${(exec.progresso * 100).round()}%',
+                        style: AppTextStyles.caption.copyWith(
+                          color: exec.concluido
+                              ? AppColors.success
+                              : AppColors.textSecondary,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 11,
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -534,7 +648,7 @@ class ChecklistScreen extends StatelessWidget {
       ..sort((a, b) => a.titulo.compareTo(b.titulo));
 
     final execucoesAbertasIds = {
-      for (final t in ativos)
+      for (final t in templates)
         if (provider.execucaoAberta(t.id) != null)
           provider.execucaoAberta(t.id)!.id,
     };
@@ -547,7 +661,7 @@ class ChecklistScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Checklist de Turno'),
+        title: Text('Checklist de Turno', style: AppTextStyles.h3),
         backgroundColor: AppColors.background,
         elevation: 0,
       ),
@@ -560,6 +674,7 @@ class ChecklistScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // ── Resumo do dia ────────────────────────────────────────────
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(Dimensions.paddingMD),
@@ -594,7 +709,7 @@ class ChecklistScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        '$concluidosHoje / $total concluidos',
+                        '$concluidosHoje / $total concluídos',
                         style: AppTextStyles.caption.copyWith(
                           color: concluidosHoje == total && total > 0
                               ? AppColors.success
@@ -607,6 +722,8 @@ class ChecklistScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: Dimensions.spacingMD),
+
+              // ── Dica de uso ──────────────────────────────────────────────
               Container(
                 width: double.infinity,
                 decoration: AppStyles.softCard(
@@ -636,7 +753,7 @@ class ChecklistScreen extends StatelessWidget {
                       SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'Uso continuo fica sempre liberado para novas respostas. Uso unico sai da lista apos a primeira conclusao.',
+                          'Uso contínuo fica sempre liberado para novas respostas. Uso único sai da lista após a primeira conclusão.',
                           style: AppTextStyles.caption.copyWith(
                             color: AppColors.textPrimary,
                           ),
@@ -647,6 +764,8 @@ class ChecklistScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: Dimensions.spacingLG),
+
+              // ── Turno de hoje ────────────────────────────────────────────
               Text('Turno de Hoje', style: AppTextStyles.h3),
               SizedBox(height: Dimensions.spacingMD),
               if (templates.isEmpty)
@@ -669,7 +788,7 @@ class ChecklistScreen extends StatelessWidget {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'Use o botao + para criar o primeiro',
+                          'Use o botão + para criar o primeiro',
                           style: AppTextStyles.body.copyWith(
                             color: AppColors.textSecondary,
                           ),
@@ -706,6 +825,8 @@ class ChecklistScreen extends StatelessWidget {
                 )
               else
                 ...ativos.map((t) => _buildCard(context, provider, t)),
+
+              // ── Uso único concluído ──────────────────────────────────────
               if (arquivadosUsoUnico.isNotEmpty) ...[
                 SizedBox(height: Dimensions.spacingMD),
                 ExpansionTile(
@@ -715,7 +836,7 @@ class ChecklistScreen extends StatelessWidget {
                     size: 20,
                   ),
                   title: Text(
-                    'Uso unico concluido (${arquivadosUsoUnico.length})',
+                    'Uso único concluído (${arquivadosUsoUnico.length})',
                     style: AppTextStyles.body.copyWith(
                       color: AppColors.statusAtencao,
                       fontWeight: FontWeight.w600,
@@ -728,55 +849,27 @@ class ChecklistScreen extends StatelessWidget {
                       .toList(),
                 ),
               ],
+
+              // ── Histórico Recente ────────────────────────────────────────
               if (historicoRecente.isNotEmpty) ...[
                 SizedBox(height: Dimensions.spacingMD),
-                Text('Historico Recente', style: AppTextStyles.h3),
-                SizedBox(height: Dimensions.spacingSM),
-                ...historicoRecente.map((exec) {
-                  final template = provider.templateById(exec.tipo);
-                  final nomeExec = template?.titulo ??
-                      (exec.tipo == 'abertura'
-                          ? 'Abertura da Loja'
-                          : exec.tipo == 'fechamento'
-                              ? 'Fechamento da Loja'
-                              : exec.tipo);
-                  final corExec = template?.cor ??
-                      (exec.tipo == 'abertura'
-                          ? AppColors.success
-                          : AppColors.danger);
-                  final iconeExec = template?.icone ??
-                      (exec.tipo == 'abertura' ? Icons.lock_open : Icons.lock);
-
-                  return ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Icon(
-                      iconeExec,
-                      color: exec.concluido ? corExec : AppColors.inactive,
-                    ),
-                    title: Text(nomeExec, style: AppTextStyles.body),
-                    subtitle: Text(
-                      '${exec.data.day.toString().padLeft(2, '0')}/${exec.data.month.toString().padLeft(2, '0')} · ${exec.marcados}/${exec.totalItens} itens',
+                Row(
+                  children: [
+                    Expanded(
+                        child:
+                            Text('Histórico Recente', style: AppTextStyles.h3)),
+                    Text(
+                      'Deslize para excluir',
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.textSecondary,
                       ),
                     ),
-                    trailing: Icon(
-                      exec.concluido
-                          ? Icons.check_circle
-                          : Icons.cancel_outlined,
-                      color: exec.concluido
-                          ? AppColors.success
-                          : AppColors.inactive,
-                      size: 20,
-                    ),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            ChecklistExecucaoScreen(execucaoId: exec.id),
-                      ),
-                    ),
-                  );
-                }),
+                  ],
+                ),
+                SizedBox(height: Dimensions.spacingSM),
+                ...historicoRecente.map(
+                  (exec) => _buildHistoricoItem(context, provider, exec),
+                ),
               ],
             ],
           ),
@@ -789,6 +882,7 @@ class ChecklistScreen extends StatelessWidget {
           ),
         ),
         backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
         icon: Icon(Icons.add),
         label: Text('Novo Checklist'),
       ),

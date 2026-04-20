@@ -33,7 +33,10 @@ dependencies:
   intl: ^0.18.1
   file_picker: ^8.1.2
   web: ^1.1.1
-  # NotificaÃ§Ãµes Locais
+  # Armazenamento local
+  shared_preferences: ^2.5.4
+
+  # Notificações Locais
   flutter_local_notifications: ^17.0.0
   timezone: ^0.9.4
 

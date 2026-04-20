@@ -116,6 +116,7 @@ class _ChecklistTemplateFormScreenState
         ? _horarioNotificacao
         : null;
 
+    bool supabaseFalhou = false;
     try {
       if (_editando) {
         final atualizado = widget.template!.copyWith(
@@ -146,18 +147,23 @@ class _ChecklistTemplateFormScreenState
         await provider.adicionarTemplate(novo);
       }
     } catch (_) {
-      if (!mounted) return;
-      AppNotif.show(
-        context,
-        titulo: 'Erro ao salvar',
-        mensagem: 'Nao foi possivel salvar no Supabase.',
-        tipo: 'erro',
-        cor: AppColors.danger,
-      );
-      return;
+      supabaseFalhou = true;
     }
 
     if (!mounted) return;
+
+    if (supabaseFalhou) {
+      // Salvo localmente — mostra aviso mas ainda navega de volta
+      AppNotif.show(
+        context,
+        titulo: 'Salvo localmente',
+        mensagem:
+            'Checklist salvo no dispositivo. Falha ao sincronizar com o servidor.',
+        tipo: 'alerta',
+        cor: AppColors.warning,
+      );
+    }
+
     Navigator.of(context).pop();
   }
 
@@ -220,7 +226,7 @@ class _ChecklistTemplateFormScreenState
                     ),
                     SizedBox(height: 4),
                     Text(
-                      'Uso continuo pode ser respondido novamente. Uso unico some da lista depois da primeira conclusao.',
+                      'Uso contínuo pode ser respondido novamente. Uso único some da lista depois da primeira conclusão.',
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.textSecondary,
                       ),
