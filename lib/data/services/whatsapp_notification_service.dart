@@ -25,6 +25,8 @@ class WhatsAppNotificationService {
 
   /// Inicializa o listener. Chame em main() antes do runApp.
   /// Solicita permissão automaticamente se não concedida.
+  /// Inicializa o listener. Só escuta se a permissão já foi concedida.
+  /// A solicitação de permissão é feita pela UI (BalcaoPermissaoScreen).
   static Future<void> init() async {
     if (_iniciado) return;
     _iniciado = true;
@@ -32,15 +34,17 @@ class WhatsAppNotificationService {
     try {
       final hasPermission =
           await NotificationListenerService.isPermissionGranted();
-      if (!hasPermission) {
-        await NotificationListenerService.requestPermission();
+
+      if (kDebugMode) {
+        debugPrint('[WhatsApp] Permissão: $hasPermission');
       }
+
+      if (!hasPermission) return; // UI solicita quando necessário
+
       NotificationListenerService.notificationsStream
           .listen(_handleNotification, onError: _onError);
 
-      if (kDebugMode) {
-        debugPrint('[WhatsApp] Listener iniciado. Permissão: $hasPermission');
-      }
+      if (kDebugMode) debugPrint('[WhatsApp] Listener ativo.');
     } catch (e) {
       if (kDebugMode) debugPrint('[WhatsApp] Erro ao iniciar listener: $e');
     }

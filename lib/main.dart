@@ -93,9 +93,6 @@ void main() async {
     // Inicializar notificações locais
     await NotificationService.instance.initialize();
 
-    // Inicializar captura de notificações do WhatsApp (Balcão Fiscal)
-    await WhatsAppNotificationService.init();
-
     // ==================== FISCAL ====================
     final fiscalRemoteDataSource = FiscalRemoteDataSource();
     final fiscalRepository = FiscalRepository(
@@ -375,6 +372,9 @@ class _AppHomeState extends State<_AppHome> {
   Future<void> _initProviders() async {
     final ctx = context;
     final userId = ctx.read<AuthProvider>().user?.id ?? '';
+
+    // Inicia o listener do WhatsApp após login, com app já visível
+    WhatsAppNotificationService.init();
     // Fire-and-forget: load all Supabase-backed providers in parallel
     await Future.wait([
       ctx.read<EntregaProvider>().load(),
