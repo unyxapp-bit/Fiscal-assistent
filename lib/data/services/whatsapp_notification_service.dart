@@ -29,6 +29,9 @@ class WhatsAppNotificationService {
   // Null = não está ouvindo; non-null = stream ativo.
   static StreamSubscription<ServiceNotificationEvent>? _subscription;
 
+  /// True se o listener está ativo (stream subscrito e permissão concedida).
+  static bool get isListening => _subscription != null;
+
   /// Inicializa o listener. Seguro chamar várias vezes (idempotente).
   /// Se a permissão ainda não foi concedida, retorna sem fazer nada.
   /// Chame novamente após o usuário conceder a permissão.

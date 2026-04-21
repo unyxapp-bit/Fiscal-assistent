@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:notification_listener_service/notification_listener_service.dart';
 
@@ -64,6 +65,7 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
   String _selectedStatus = 'pending';
   bool _permissaoVerificada = false;
   bool _temPermissao = false;
+  bool _listenerAtivo = false;
 
   @override
   bool get wantKeepAlive => true;
@@ -87,14 +89,13 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
     try {
       final granted = await _checkPermission();
       if (granted) {
-        // Inicia (ou confirma que está ativo) o listener ao retornar da
-        // tela de configurações com permissão já concedida.
-        WhatsAppNotificationService.init();
+        await WhatsAppNotificationService.init();
       }
       if (mounted) {
         setState(() {
           _temPermissao = granted;
           _permissaoVerificada = true;
+          _listenerAtivo = WhatsAppNotificationService.isListening;
         });
       }
     } catch (_) {
@@ -164,6 +165,20 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
           ],
         ),
         actions: [
+          // Indicador de status do listener
+          if (_permissaoVerificada)
+            Tooltip(
+              message: _listenerAtivo ? 'Listener ativo' : 'Listener inativo',
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _listenerAtivo ? AppColors.success : AppColors.danger,
+                ),
+              ),
+            ),
           if (!_temPermissao && _permissaoVerificada)
             IconButton(
               icon: Icon(Icons.notifications_off_outlined,
@@ -175,6 +190,12 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
                     builder: (_) => const BalcaoPermissaoScreen()),
               ),
             ),
+          // Botão de teste manual
+          IconButton(
+            icon: Icon(Icons.science_outlined, color: AppColors.textSecondary),
+            tooltip: 'Enviar mensagem de teste',
+            onPressed: () => _enviarTeste(context),
+          ),
           IconButton(
             icon: Icon(Icons.refresh_rounded, color: AppColors.textSecondary),
             tooltip: 'Atualizar',
@@ -375,6 +396,35 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
         },
       ),
     );
+  }
+
+  Future<void> _enviarTeste(BuildContext ctx) async {
+    final provider = ctx.read<FiscalEventsProvider>();
+    try {
+      await Supabase.instance.client.functions.invoke(
+        'analyze-fiscal-message',
+        body: {
+          'sender': 'Teste Manual',
+          'message': 'caixa de teste faltou 5 reais — disparo manual do app',
+          'timestamp': DateTime.now().toIso8601String(),
+        },
+      );
+      if (!mounted) return;
+      await provider.load();
+      if (!mounted) return;
+      AppNotif.show(context,
+          titulo: 'Teste enviado',
+          mensagem: 'Evento de teste criado. Veja a lista abaixo.',
+          tipo: 'saida',
+          cor: AppColors.success);
+    } catch (e) {
+      if (!mounted) return;
+      AppNotif.show(context,
+          titulo: 'Erro no teste',
+          mensagem: '$e',
+          tipo: 'alerta',
+          cor: AppColors.danger);
+    }
   }
 
   Future<void> _updateStatus(FiscalEvent event, String novoStatus) async {
