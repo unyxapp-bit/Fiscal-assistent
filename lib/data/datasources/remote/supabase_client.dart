@@ -10,7 +10,7 @@ class SupabaseClientManager {
     final url = dotenv.env['SUPABASE_URL'] ??
         'https://rpbqquxnnpsiyredhkvv.supabase.co';
     final anonKey = dotenv.env['SUPABASE_ANON_KEY'] ??
-        'sb_publishable_ysgHVMVFL_9LA1kEGa1FGQ_HlHIn3dV';
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwYnFxdXhubnBzaXlyZWRoa3Z2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3MTg4MDUsImV4cCI6MjA4NjI5NDgwNX0.0Ncc96n5mHY_DmsvTrjKveHPL4DB34m1GqKTwl6-VO8';
 
     if (url.isEmpty) {
       throw Exception('SUPABASE_URL não configurada');
