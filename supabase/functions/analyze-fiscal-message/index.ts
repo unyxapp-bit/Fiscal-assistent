@@ -19,8 +19,10 @@ interface RuleResult {
 }
 
 function extrairValor(msg: string): number | null {
+  // Prioridade: R$ 10,50 → R$10 → 10,50 reais → 10 reais
   const match = msg.match(/R\$\s*([\d.,]+)/i) ??
-                msg.match(/([\d]+[.,][\d]{2})\s*(?:reais?)?/i);
+                msg.match(/([\d]+[.,][\d]{2})\s*(?:reais?)?/i) ??
+                msg.match(/(\d+)\s*(?:real|reais)/i);
   if (!match) return null;
   const raw = match[1].replace(',', '.');
   const val = parseFloat(raw);
@@ -47,7 +49,8 @@ function categorizarPorRegra(msg: string, sender: string): RuleResult | null {
   const m = msg.toLowerCase();
 
   // CAIXA — falta/sobra de dinheiro
-  if (/falt(?:ou|a)\s*r\$|sobr(?:ou|a)\s*r\$|diferen.a\s*(?:no\s*)?caixa|falta\s*(?:de\s*)?dinheiro|caixa\s*falt/i.test(msg)) {
+  // Exemplos: "caixa da Ana faltou 10 reais", "faltou R$ 5", "sobrou 2,50 reais no caixa"
+  if (/falt(?:ou|a)\s*r\$|sobr(?:ou|a)\s*r\$|diferen.a\s*(?:no\s*)?caixa|falta\s*(?:de\s*)?dinheiro|caixa\s*falt|(?:caixa|cx)\b.{0,50}\b(?:falt|sobr)|(?:falt|sobr)(?:ou|a)\s+\d+.{0,20}reais?/i.test(msg)) {
     return {
       category: 'caixa',
       description: msg.trim(),
