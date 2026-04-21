@@ -6,8 +6,49 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 // ─────────────────────────────────────────────────────────────
+//  FILTRO SOCIAL — descarta mensagens sem conteúdo fiscal
+//  Exemplos reais do grupo: "Bom dia pessoal", "Ok", "Já veio",
+//  "Não me lembro", "Blz", "Obrigada"
+// ─────────────────────────────────────────────────────────────
+
+const SOCIAL_EXACT = new Set([
+  'ok', 'blz', 'beleza', 'obrigada', 'obrigado', 'obg', 'de nada',
+  'sim', 'nao', 'não', 'tmj', 'vlw', 'valeu', 'combinado', 'entendido',
+  'perfeito', 'certo', 'ta joia', 'tá joia', 'tá bom', 'ta bom',
+  'já veio', 'ja veio', 'deu certo', 'deu certinho', 'ja deu certo',
+  'já deu certo', 'ainda não', 'ainda nao', 'não me lembro', 'nao me lembro',
+  'não lembro', 'nao lembro', 'bom dia', 'boa tarde', 'boa noite',
+  'bom dia!', 'boa tarde!', 'boa noite!', 'bom dia pessoal',
+  'boa tarde pessoal', 'boa noite pessoal', 'bom dia pessoal!',
+  'boa noite!', 'já', 'nao sei', 'não sei', 'não troquei',
+  'nao troquei', 'não troquei não', 'nao troquei nao',
+]);
+
+function isNaoRelevante(msg: string): boolean {
+  const t = msg.trim();
+  if (t.length <= 3) return true; // "ok", "blz", "já"
+
+  const lower = t.toLowerCase();
+  if (SOCIAL_EXACT.has(lower)) return true;
+
+  // Mensagens curtas sem palavras-chave fiscais
+  if (t.length <= 30) {
+    const hasFiscal = /falt|sobr|atestado|ausente|caixa|vale|desconto|pos\b|tef\b|f[eé]rias|afastamento|atraso|entrar|horário|impressora|cooper/i.test(t);
+    if (!hasFiscal) {
+      if (/^(?:bom\s+dia|boa\s+(?:tarde|noite))\s*[!.,]?\s*(?:pessoal|gente|todos?)?\s*[!.]?\s*$/i.test(lower)) return true;
+      if (/^n[aã]o\s+(?:me\s+)?(?:lembro|sei|acho)\s*(?:n[aã]o)?\s*[!.,]?\s*$/i.test(lower)) return true;
+      if (/^n[aã]o\s+(?:troquei|dei|fiz|tenho|foi)\s*(?:n[aã]o)?\s*[!.,]?\s*$/i.test(lower)) return true;
+      if (/^j[aá]\s+(?:veio|deu\s+certo|entrei|avisei|foi|vou)\s*[!.,]?\s*$/i.test(lower)) return true;
+      if (/^(?:deu\s+(?:certo|certinho)|já\s+deu\s+certo|ja\s+deu\s+certo)\s*[!.]?\s*$/i.test(lower)) return true;
+    }
+  }
+
+  return false;
+}
+
+// ─────────────────────────────────────────────────────────────
 //  CATEGORIZAÇÃO POR REGRAS (custo zero)
-//  Cobre ~80% das mensagens típicas de um balcão fiscal.
+//  Cobre ~80% das mensagens típicas do Balcão Fiscal.
 // ─────────────────────────────────────────────────────────────
 
 interface RuleResult {
@@ -19,9 +60,9 @@ interface RuleResult {
 }
 
 function extrairValor(msg: string): number | null {
-  // Prioridade: R$ 10,50 → R$10 → 10,50 reais → 10 reais
+  // Prioridade: R$ 10,50 → R$10 → 10,50 reais → 10 reais → número decimal solto
   const match = msg.match(/R\$\s*([\d.,]+)/i) ??
-                msg.match(/([\d]+[.,][\d]{2})\s*(?:reais?)?/i) ??
+                msg.match(/([\d]+[.,][\d]{2})\s*(?:reais?|centavos?)?/i) ??
                 msg.match(/(\d+)\s*(?:real|reais)/i);
   if (!match) return null;
   const raw = match[1].replace(',', '.');
@@ -30,17 +71,17 @@ function extrairValor(msg: string): number | null {
 }
 
 function extrairNome(msg: string, sender: string): string | null {
-  // Padrões: "de João", "da Maria", "o João faltou", "funcionário: Ana"
   const patterns = [
     /(?:de|da|do)\s+([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ][a-záéíóúâêîôûãõç]+(?:\s+[A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ][a-záéíóúâêîôûãõç]+)?)/,
-    /^([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ][a-záéíóúâêîôûãõç]+)\s+(?:faltou|não veio|ausente|atestado|férias|saiu|chegou)/,
+    /^([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ][a-záéíóúâêîôûãõç]+)\s+(?:faltou|n[aã]o\s+veio|ausente|atestado|f[eé]rias|saiu|chegou|vai\s+entrar|vai\s+sair)/,
     /funcionário[:\s]+([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ][a-záéíóúâêîôûãõç]+)/i,
+    /op(?:erador)?\s+([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ][a-záéíóúâêîôûãõç]+)/i,
+    /caixa\s+(?:da?o?\s+)?([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ][a-záéíóúâêîôûãõç]+)/i,
   ];
   for (const p of patterns) {
     const m = msg.match(p);
     if (m) return m[1];
   }
-  // Se o sender parece um nome (não é número de telefone), usa sender
   if (sender && !/^\d/.test(sender) && sender.length > 3) return sender;
   return null;
 }
@@ -48,9 +89,15 @@ function extrairNome(msg: string, sender: string): string | null {
 function categorizarPorRegra(msg: string, sender: string): RuleResult | null {
   const m = msg.toLowerCase();
 
-  // CAIXA — falta/sobra de dinheiro
-  // Exemplos: "caixa da Ana faltou 10 reais", "faltou R$ 5", "sobrou 2,50 reais no caixa"
-  if (/falt(?:ou|a)\s*r\$|sobr(?:ou|a)\s*r\$|diferen.a\s*(?:no\s*)?caixa|falta\s*(?:de\s*)?dinheiro|caixa\s*falt|(?:caixa|cx)\b.{0,50}\b(?:falt|sobr)|(?:falt|sobr)(?:ou|a)\s+\d+.{0,20}reais?/i.test(msg)) {
+  // CAIXA — falta/sobra de dinheiro no caixa
+  // Padrões reais: "O caixa da Talita faltou 9,90", "sobrou 10,76",
+  // "Ta faltando um desconto de 0,60 centavos no caixa 106", "Segunda faltou 74,27"
+  if (/falt(?:ou|a|ando)\s*r\$|sobr(?:ou|a)\s*r\$|diferen.a\s*(?:no\s*)?caixa|falta\s*(?:de\s*)?dinheiro/i.test(msg) ||
+      /(?:caixa|cx)\b.{0,60}\b(?:falt|sobr)/i.test(msg) ||
+      /(?:falt|sobr)(?:ou|a)\b.{0,60}\b(?:caixa|cx)\b/i.test(msg) ||
+      /(?:falt|sobr)(?:ou|a|ando)\s+\d+[.,]\d{2}/i.test(msg) ||
+      /(?:falt|sobr)(?:ou|a|ando)\s+\d+\s*(?:real|reais)/i.test(msg) ||
+      /(?:ta|tá|está|esta)\s+faltando.{0,40}(?:caixa|desconto|r\$|\d)/i.test(msg)) {
     return {
       category: 'caixa',
       description: msg.trim(),
@@ -61,7 +108,7 @@ function categorizarPorRegra(msg: string, sender: string): RuleResult | null {
   }
 
   // ATESTADO — afastamento médico
-  if (/atestado|afastamento|afastad[oa]|licen.a\s*m.dica/i.test(msg)) {
+  if (/atestado|afastamento|afastad[oa]|licen.a\s*m.dica|postinho|conjuntivite|m[eé]dico\s+receitou/i.test(msg)) {
     return {
       category: 'atestado',
       description: msg.trim(),
@@ -71,8 +118,8 @@ function categorizarPorRegra(msg: string, sender: string): RuleResult | null {
     };
   }
 
-  // AUSÊNCIA — não veio trabalhar (sem mencionar atestado)
-  if (/faltou|n.o\s*veio|ausente|n.o\s*apareceu|faltando hoje/i.test(msg)) {
+  // AUSÊNCIA — não veio trabalhar (sem atestado)
+  if (/\bn[aã]o\s+veio\b|ausente|n[aã]o\s+apareceu|faltando\s+hoje|\bfaltou\b(?!.{0,30}r\$)(?!.{0,30}\d+[,.])/i.test(msg)) {
     return {
       category: 'ausencia',
       description: msg.trim(),
@@ -83,7 +130,7 @@ function categorizarPorRegra(msg: string, sender: string): RuleResult | null {
   }
 
   // FÉRIAS
-  if (/f.rias|inicio\s*de\s*f.rias|volta\s*de\s*f.rias|entrou\s*de\s*f.rias|saiu\s*de\s*f.rias/i.test(msg)) {
+  if (/f[eé]rias|inicio\s*de\s*f[eé]rias|volta\s*de\s*f[eé]rias|entrou\s*de\s*f[eé]rias|saiu\s*de\s*f[eé]rias|sobre\s+as\s+f[eé]rias/i.test(msg)) {
     return {
       category: 'ferias',
       description: msg.trim(),
@@ -105,7 +152,9 @@ function categorizarPorRegra(msg: string, sender: string): RuleResult | null {
   }
 
   // HORÁRIO ESPECIAL — entrada/saída fora do horário
-  if (/vai\s*chegar|chegando\s*(?:mais\s*)?tarde|vai\s*sair\s*(?:mais\s*)?cedo|saindo\s*antes|atraso(?:ada)?|hora\s*extra|ficando\s*depois/i.test(msg)) {
+  // Padrões reais: "Giulia vai entrar 8:00h", "Vou atrasar um pouquinho",
+  // "A Fran vai entrar 07:00", "Yara vai entrar 07:50 segunda"
+  if (/vai\s*(?:chegar|entrar|sair)|vou\s*(?:entrar|sair|chegar)|chegando\s*(?:mais\s*)?tarde|vai\s*sair\s*(?:mais\s*)?cedo|saindo\s*antes|atraso(?:ada)?|atrasar|hora\s*extra|ficando\s*depois|entrar?\s*\d{1,2}[h:]\d{0,2}|entrar?\s*(?:às|as)\s*\d|sair?\s*(?:às|as)\s*\d|\d{1,2}[h:]\d{2}\s*(?:segunda|terça|quarta|quinta|sexta|sábado|domingo|amanhã|hoje)/i.test(msg)) {
     return {
       category: 'horario_especial',
       description: msg.trim(),
@@ -115,8 +164,10 @@ function categorizarPorRegra(msg: string, sender: string): RuleResult | null {
     };
   }
 
-  // PROBLEMA OPERACIONAL — erros técnicos
-  if (/pos\s*duplicad|c.digo\s*n.o\s*encontrad|sistema\s*(?:fora|caiu|erro)|erro\s*no\s*(?:sistema|terminal|pos|caixa)|n.o\s*est.\s*funcionando|terminal\s*travad/i.test(msg)) {
+  // PROBLEMA OPERACIONAL — erros técnicos, TEF, impressora, POS
+  // Padrões reais: "2 cartões no Tef", "fechando pos errado", "impressora com problema",
+  // "cartão cobrado duas vezes", "pos duplicado"
+  if (/pos\s*duplicad|c[oó]digo\s*n[aã]o\s*encontrad|sistema\s*(?:fora|caiu|erro)|erro\s*no\s*(?:sistema|terminal|pos|caixa)|n[aã]o\s*est[aá]\s*funcionando|terminal\s*travad|impressora.*problem|problem.*impressora|tef.*cart[aã]o|cart[aã]o.*tef|(?:dois|2)\s*cart[oã]es?.*tef|tef.*(?:dois|2)\s*cart[oã]es?|cart[aã]o\s*cobrado.*(?:duas?|2)\s*vez|pos\s*errado|fechando.*pos.*errado|vis[ae]\s*electron.*débito|pré.?pago.*errado/i.test(msg)) {
     return {
       category: 'problema_operacional',
       description: msg.trim(),
@@ -137,14 +188,15 @@ function categorizarPorRegra(msg: string, sender: string): RuleResult | null {
 const SYSTEM_PROMPT = `Você analisa mensagens de um grupo de fiscais de supermercado chamado "Balcão Fiscal".
 
 Categorias disponíveis:
-- caixa: falta ou sobra de dinheiro no caixa (sempre tem valor em R$)
-- ausencia: funcionário que não veio trabalhar
+- caixa: falta ou sobra de dinheiro no caixa (ex: "caixa da Talita faltou 9,90", "sobrou 10,76")
+- ausencia: funcionário que não veio trabalhar (ex: "Ingrid não veio")
 - atestado: afastamento médico com atestado
-- horario_especial: funcionário entrando ou saindo fora do horário padrão
+- horario_especial: funcionário entrando ou saindo fora do horário (ex: "vai entrar 8:00h", "vou atrasar")
 - ferias: aviso de início ou fim de férias
 - vale: vale troca ou desconto emitido para cliente
-- problema_operacional: erro técnico, POS duplicado, código não encontrado, sistema
-- aviso_geral: demais informes, recados, perguntas
+- problema_operacional: erro técnico, POS errado, TEF com problemas, impressora, sistema
+- aviso_geral: informes operacionais relevantes que não se enquadram acima (ex: instruções ao time, avisos sobre clientes, procedimentos)
+- nao_relevante: mensagem puramente social ou conversacional sem informação fiscal (ex: "bom dia", "ok", "já veio", "não me lembro", "obrigada")
 
 Retorne APENAS um JSON válido, sem texto antes ou depois, sem markdown.`;
 
@@ -160,13 +212,13 @@ async function categorizarComIA(
       "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
-      model: "claude-haiku-4-5-20251001",  // Haiku: ~20x mais barato que Sonnet
+      model: "claude-haiku-4-5-20251001",
       max_tokens: 300,
       system: SYSTEM_PROMPT,
       messages: [
         {
           role: "user",
-          content: `Remetente: ${sender || "Desconhecido"}\nMensagem: ${message}\n\nRetorne JSON com:\n{\n  "category": "uma das categorias acima",\n  "description": "resumo claro e curto em português",\n  "employee_name": "nome do funcionário ou null",\n  "amount": valor numérico (ex: 9.90) ou null,\n  "confidence": número entre 0.0 e 1.0\n}`,
+          content: `Remetente: ${sender || "Desconhecido"}\nMensagem: ${message}\n\nRetorne JSON com:\n{\n  "category": "uma das categorias acima",\n  "description": "resumo claro e curto em português (vazio se nao_relevante)",\n  "employee_name": "nome do funcionário ou null",\n  "amount": valor numérico (ex: 9.90) ou null,\n  "confidence": número entre 0.0 e 1.0\n}`,
         },
       ],
     }),
@@ -214,16 +266,32 @@ serve(async (req) => {
       });
     }
 
-    // 1. Tenta regra local (custo zero)
+    // 1. Filtra mensagens puramente sociais (sem custo de IA)
+    if (isNaoRelevante(message)) {
+      return new Response(
+        JSON.stringify({ success: true, skipped: true, reason: "nao_relevante" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // 2. Tenta regra local (custo zero)
     let parsed = categorizarPorRegra(message, sender ?? "");
     const usouIA = parsed === null;
 
-    // 2. Fallback para Claude Haiku apenas se necessário
+    // 3. Fallback para Claude Haiku apenas se necessário
     if (!parsed) {
       parsed = await categorizarComIA(message, sender ?? "");
     }
 
-    // 3. Salva no banco
+    // 4. IA também pode devolver nao_relevante — descarta sem salvar
+    if (parsed.category === "nao_relevante") {
+      return new Response(
+        JSON.stringify({ success: true, skipped: true, reason: "nao_relevante_ia" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // 5. Salva no banco
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
     const { data, error } = await supabase
       .from("fiscal_events")
