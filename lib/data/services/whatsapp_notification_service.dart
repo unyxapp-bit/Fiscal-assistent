@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:notification_listener_service/notification_listener_service.dart';
 import 'package:notification_listener_service/notification_event.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../datasources/remote/supabase_client.dart';
@@ -21,10 +22,46 @@ class WhatsAppNotificationService {
     'com.whatsapp.w4b',
   ];
 
-  static const List<String> _fontesAceitas = [
-    'balcão fiscal', // grupo principal
-    'pyetro filho',  // contato de teste
+  /// Fontes padrão — substituídas pelas salvas em SharedPreferences se existirem.
+  static const List<String> _fontesDefault = [
+    'balcão fiscal',
+    'pyetro filho',
   ];
+
+  static const String _prefKey = 'whatsapp_fontes_aceitas';
+
+  /// Fontes em memória, carregadas no init() ou editadas via UI.
+  static List<String> _fontesAceitas = List.of(_fontesDefault);
+
+  // ── Gerenciamento de fontes ────────────────────────────────────────────────
+
+  static List<String> get fontesAceitas => List.unmodifiable(_fontesAceitas);
+
+  static Future<void> _carregarFontes() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final salvas = prefs.getStringList(_prefKey);
+      if (salvas != null && salvas.isNotEmpty) {
+        _fontesAceitas = salvas;
+      }
+    } catch (_) {}
+  }
+
+  static Future<void> salvarFontes(List<String> fontes) async {
+    _fontesAceitas = fontes.map((f) => f.toLowerCase().trim()).toList();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(_prefKey, _fontesAceitas);
+    } catch (_) {}
+  }
+
+  static Future<void> resetarFontes() async {
+    _fontesAceitas = List.of(_fontesDefault);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_prefKey);
+    } catch (_) {}
+  }
 
   // ── Estado interno ─────────────────────────────────────────────────────────
 
@@ -64,6 +101,8 @@ class WhatsAppNotificationService {
     _initializing = true;
 
     try {
+      await _carregarFontes();
+
       final hasPermission =
           await NotificationListenerService.isPermissionGranted();
       if (kDebugMode) debugPrint('[WhatsApp] Permissão: $hasPermission');
@@ -73,7 +112,7 @@ class WhatsAppNotificationService {
       _subscription = NotificationListenerService.notificationsStream
           .listen(_handleNotification, onError: _onError);
 
-      if (kDebugMode) debugPrint('[WhatsApp] Listener ativo.');
+      if (kDebugMode) debugPrint('[WhatsApp] Listener ativo. Fontes: $_fontesAceitas');
     } catch (e) {
       if (kDebugMode) debugPrint('[WhatsApp] Erro ao iniciar listener: $e');
     } finally {

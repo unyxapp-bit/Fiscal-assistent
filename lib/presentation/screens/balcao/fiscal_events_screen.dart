@@ -15,6 +15,7 @@ import '../../../core/constants/dimensions.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/utils/app_notif.dart';
 import '../../providers/fiscal_events_provider.dart';
+import 'balcao_fontes_screen.dart';
 import 'balcao_permissao_screen.dart';
 
 // ─────────────────────────────────────────────
@@ -72,6 +73,14 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
   bool _debugMode = false;
   Timer? _diagTimer;
 
+  // Busca
+  bool _mostrarBusca = false;
+  final _buscaCtrl = TextEditingController();
+  String _queryBusca = '';
+
+  // Stats
+  bool _mostrarStats = false;
+
   @override
   bool get wantKeepAlive => true;
 
@@ -85,6 +94,7 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
   @override
   void dispose() {
     _diagTimer?.cancel();
+    _buscaCtrl.dispose();
     super.dispose();
   }
 
@@ -148,10 +158,16 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
   }
 
   List<FiscalEvent> _filtrar(List<FiscalEvent> events) {
+    final q = _queryBusca.trim().toLowerCase();
     return events.where((e) {
       final catOk = _selectedCategory == null || e.category == _selectedCategory;
       final statusOk = _selectedStatus == 'all' || e.status == _selectedStatus;
-      return catOk && statusOk;
+      final buscaOk = q.isEmpty ||
+          e.description.toLowerCase().contains(q) ||
+          (e.employeeName?.toLowerCase().contains(q) ?? false) ||
+          (e.sender?.toLowerCase().contains(q) ?? false) ||
+          e.rawMessage.toLowerCase().contains(q);
+      return catOk && statusOk && buscaOk;
     }).toList();
   }
 
@@ -216,27 +232,80 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
                     builder: (_) => const BalcaoPermissaoScreen()),
               ),
             ),
-          // Toggle modo diagnóstico
+          // Busca
           IconButton(
             icon: Icon(
-              Icons.bug_report_outlined,
-              color: _debugMode ? AppColors.warning : AppColors.textSecondary,
+              _mostrarBusca ? Icons.search_off_rounded : Icons.search_rounded,
+              color: _mostrarBusca ? AppColors.primary : AppColors.textSecondary,
             ),
-            tooltip: _debugMode
-                ? 'Diagnóstico ATIVO — toque para desativar'
-                : 'Ativar modo diagnóstico',
-            onPressed: _toggleDebugMode,
+            tooltip: _mostrarBusca ? 'Fechar busca' : 'Buscar eventos',
+            onPressed: () => setState(() {
+              _mostrarBusca = !_mostrarBusca;
+              if (!_mostrarBusca) {
+                _buscaCtrl.clear();
+                _queryBusca = '';
+              }
+            }),
           ),
-          // Botão de teste manual
+          // Estatísticas
           IconButton(
-            icon: Icon(Icons.science_outlined, color: AppColors.textSecondary),
-            tooltip: 'Enviar mensagem de teste',
-            onPressed: () => _enviarTeste(context),
+            icon: Icon(
+              Icons.bar_chart_rounded,
+              color: _mostrarStats ? AppColors.primary : AppColors.textSecondary,
+            ),
+            tooltip: _mostrarStats ? 'Ocultar resumo' : 'Ver resumo',
+            onPressed: () => setState(() => _mostrarStats = !_mostrarStats),
           ),
-          IconButton(
-            icon: Icon(Icons.refresh_rounded, color: AppColors.textSecondary),
-            tooltip: 'Atualizar',
-            onPressed: provider.loading ? null : provider.load,
+          // Menu extras
+          PopupMenuButton<_BalcaoAction>(
+            icon: Icon(Icons.more_vert_rounded, color: AppColors.textSecondary),
+            onSelected: (action) {
+              if (action == _BalcaoAction.debug) _toggleDebugMode();
+              if (action == _BalcaoAction.teste) _enviarTeste(context);
+              if (action == _BalcaoAction.atualizar) provider.load();
+              if (action == _BalcaoAction.configurarFontes) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const BalcaoFontesScreen()),
+                );
+              }
+            },
+            itemBuilder: (_) => [
+              PopupMenuItem(
+                value: _BalcaoAction.atualizar,
+                child: Row(children: [
+                  Icon(Icons.refresh_rounded, size: 18, color: AppColors.textSecondary),
+                  const SizedBox(width: 10),
+                  const Text('Atualizar'),
+                ]),
+              ),
+              PopupMenuItem(
+                value: _BalcaoAction.teste,
+                child: Row(children: [
+                  Icon(Icons.science_outlined, size: 18, color: AppColors.textSecondary),
+                  const SizedBox(width: 10),
+                  const Text('Enviar teste'),
+                ]),
+              ),
+              PopupMenuItem(
+                value: _BalcaoAction.debug,
+                child: Row(children: [
+                  Icon(Icons.bug_report_outlined, size: 18,
+                      color: _debugMode ? AppColors.warning : AppColors.textSecondary),
+                  const SizedBox(width: 10),
+                  Text(_debugMode ? 'Diagnóstico ATIVO' : 'Diagnóstico'),
+                ]),
+              ),
+              const PopupMenuDivider(),
+              PopupMenuItem(
+                value: _BalcaoAction.configurarFontes,
+                child: Row(children: [
+                  Icon(Icons.manage_search_rounded, size: 18, color: AppColors.textSecondary),
+                  const SizedBox(width: 10),
+                  const Text('Fontes monitoradas'),
+                ]),
+              ),
+            ],
           ),
         ],
       ),
@@ -252,6 +321,8 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
               ).then((_) => _verificarPermissao()),
             ),
           if (_debugMode) _buildDiagPanel(),
+          if (_mostrarStats) _buildStatsPanel(provider),
+          if (_mostrarBusca) _buildSearchBar(),
           _buildCategoryFilters(provider.events),
           _buildStatusTabs(),
           Expanded(child: _buildList(provider)),
@@ -429,6 +500,7 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
               onResolve: () => _updateStatus(event, 'resolved'),
               onIgnore: () => _updateStatus(event, 'ignored'),
               onReopen: () => _updateStatus(event, 'pending'),
+              onEdit: () => _abrirRecategorizacao(event),
             ),
           );
         },
@@ -503,6 +575,145 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
                   color: AppColors.danger, fontStyle: FontStyle.italic),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+          Dimensions.paddingMD, 0, Dimensions.paddingMD, 8),
+      child: TextField(
+        controller: _buscaCtrl,
+        autofocus: true,
+        style: AppTextStyles.body,
+        decoration: InputDecoration(
+          hintText: 'Buscar por descrição, nome, remetente…',
+          hintStyle: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+          prefixIcon: Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 18),
+          suffixIcon: _queryBusca.isNotEmpty
+              ? IconButton(
+                  icon: Icon(Icons.clear_rounded, size: 16),
+                  onPressed: () => setState(() {
+                    _buscaCtrl.clear();
+                    _queryBusca = '';
+                  }),
+                )
+              : null,
+          filled: true,
+          fillColor: AppColors.backgroundSection,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(Dimensions.radiusSM),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+              horizontal: Dimensions.paddingSM, vertical: 10),
+          isDense: true,
+        ),
+        onChanged: (v) => setState(() => _queryBusca = v),
+      ),
+    );
+  }
+
+  Widget _buildStatsPanel(FiscalEventsProvider provider) {
+    final contagem = provider.contagemPorCategoria;
+    final totalCaixa = provider.totalCaixaValores;
+    final pendentes = provider.totalPendentes;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(
+          Dimensions.paddingMD, 0, Dimensions.paddingMD, 8),
+      padding: const EdgeInsets.all(Dimensions.paddingSM),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(Dimensions.radiusSM),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Icon(Icons.bar_chart_rounded, color: AppColors.primary, size: 14),
+            const SizedBox(width: 6),
+            Text('RESUMO — PENDENTES',
+                style: AppTextStyles.caption.copyWith(
+                    color: AppColors.primary, fontWeight: FontWeight.w700)),
+          ]),
+          const SizedBox(height: 10),
+          Wrap(spacing: 8, runSpacing: 8, children: [
+            _StatChip(
+              icon: Icons.list_rounded,
+              label: 'Total',
+              value: '$pendentes',
+              color: AppColors.primary,
+            ),
+            if ((contagem['caixa'] ?? 0) > 0)
+              _StatChip(
+                icon: Icons.account_balance_wallet,
+                label: 'Caixa',
+                value: '${contagem['caixa']}',
+                sub: totalCaixa > 0
+                    ? 'R\$ ${totalCaixa.toStringAsFixed(2).replaceAll('.', ',')}'
+                    : null,
+                color: AppColors.warning,
+              ),
+            if ((contagem['ausencia'] ?? 0) > 0)
+              _StatChip(
+                icon: Icons.person_off,
+                label: 'Ausência',
+                value: '${contagem['ausencia']}',
+                color: AppColors.danger,
+              ),
+            if ((contagem['atestado'] ?? 0) > 0)
+              _StatChip(
+                icon: Icons.medical_services,
+                label: 'Atestado',
+                value: '${contagem['atestado']}',
+                color: AppColors.info,
+              ),
+            if ((contagem['horario_especial'] ?? 0) > 0)
+              _StatChip(
+                icon: Icons.schedule,
+                label: 'Horário',
+                value: '${contagem['horario_especial']}',
+                color: AppColors.outro,
+              ),
+            if ((contagem['midia_pendente'] ?? 0) > 0)
+              _StatChip(
+                icon: Icons.perm_media,
+                label: 'Mídia',
+                value: '${contagem['midia_pendente']}',
+                color: AppColors.deepPurple,
+              ),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  void _abrirRecategorizacao(FiscalEvent event) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _RecategorizacaoSheet(
+        event: event,
+        onSave: (category, description, employeeName, amount) async {
+          await context.read<FiscalEventsProvider>().recategorizar(
+                event: event,
+                category: category,
+                description: description,
+                employeeName: employeeName,
+                amount: amount,
+              );
+          if (mounted) {
+            AppNotif.show(context,
+                titulo: 'Evento atualizado',
+                mensagem: 'Categoria e informações salvas.',
+                tipo: 'saida',
+                cor: AppColors.success);
+          }
+        },
       ),
     );
   }
@@ -699,6 +910,7 @@ class _EventCard extends StatelessWidget {
   final VoidCallback onResolve;
   final VoidCallback onIgnore;
   final VoidCallback onReopen;
+  final VoidCallback onEdit;
 
   const _EventCard({
     required this.event,
@@ -706,6 +918,7 @@ class _EventCard extends StatelessWidget {
     required this.onResolve,
     required this.onIgnore,
     required this.onReopen,
+    required this.onEdit,
   });
 
   @override
@@ -794,6 +1007,17 @@ class _EventCard extends StatelessWidget {
                       color: AppColors.textSecondary,
                       decoration: TextDecoration.underline,
                       decorationColor: AppColors.textSecondary)),
+            ),
+            Text('  ·  ',
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary)),
+            GestureDetector(
+              onTap: onEdit,
+              child: Text('editar',
+                  style: AppTextStyles.caption.copyWith(
+                      color: AppColors.primary,
+                      decoration: TextDecoration.underline,
+                      decorationColor: AppColors.primary)),
             ),
             const Spacer(),
             if (isPending) ...[
@@ -1285,3 +1509,211 @@ class _CatDropdown extends StatelessWidget {
     );
   }
 }
+
+// ─────────────────────────────────────────────
+//  STAT CHIP
+// ─────────────────────────────────────────────
+
+class _StatChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final String? sub;
+  final Color color;
+
+  const _StatChip({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+    this.sub,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(Dimensions.radiusSM),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
+      ),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(icon, size: 13, color: color),
+        const SizedBox(width: 5),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '$label: $value',
+              style: AppTextStyles.caption.copyWith(
+                  color: color, fontWeight: FontWeight.w700),
+            ),
+            if (sub != null)
+              Text(sub!,
+                  style: AppTextStyles.caption.copyWith(
+                      color: color.withValues(alpha: 0.8), fontSize: 10)),
+          ],
+        ),
+      ]),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+//  SHEET: RECATEGORIZAR EVENTO
+// ─────────────────────────────────────────────
+
+class _RecategorizacaoSheet extends StatefulWidget {
+  final FiscalEvent event;
+  final Future<void> Function(
+      String category, String description, String? employeeName, double? amount) onSave;
+
+  const _RecategorizacaoSheet({required this.event, required this.onSave});
+
+  @override
+  State<_RecategorizacaoSheet> createState() => _RecategorizacaoSheetState();
+}
+
+class _RecategorizacaoSheetState extends State<_RecategorizacaoSheet> {
+  late String _category;
+  late final TextEditingController _descCtrl;
+  late final TextEditingController _empCtrl;
+  late final TextEditingController _amountCtrl;
+  bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _category = widget.event.category == 'midia_pendente'
+        ? 'aviso_geral'
+        : widget.event.category;
+    _descCtrl = TextEditingController(text: widget.event.description);
+    _empCtrl = TextEditingController(text: widget.event.employeeName ?? '');
+    _amountCtrl = TextEditingController(
+        text: widget.event.amount != null
+            ? widget.event.amount!.toStringAsFixed(2).replaceAll('.', ',')
+            : '');
+  }
+
+  @override
+  void dispose() {
+    _descCtrl.dispose();
+    _empCtrl.dispose();
+    _amountCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (_descCtrl.text.trim().isEmpty) return;
+    setState(() => _saving = true);
+    final amount = double.tryParse(_amountCtrl.text
+        .replaceAll(',', '.')
+        .replaceAll(RegExp(r'[^0-9.]'), ''));
+    try {
+      await widget.onSave(
+          _category, _descCtrl.text.trim(), _empCtrl.text.trim(), amount);
+      if (mounted) Navigator.pop(context);
+    } catch (_) {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottom = MediaQuery.of(context).viewInsets.bottom;
+    return Container(
+      margin: const EdgeInsets.all(Dimensions.paddingSM),
+      padding: EdgeInsets.fromLTRB(
+          Dimensions.paddingLG, Dimensions.paddingLG,
+          Dimensions.paddingLG, Dimensions.paddingLG + bottom),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(Dimensions.radiusSheet),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Editar evento', style: AppTextStyles.h4),
+          const SizedBox(height: 4),
+          Text('Mensagem original: "${widget.event.rawMessage}"',
+              style: AppTextStyles.caption
+                  .copyWith(color: AppColors.textSecondary),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis),
+          const SizedBox(height: 16),
+          Text('Categoria',
+              style: AppTextStyles.caption
+                  .copyWith(color: AppColors.textSecondary)),
+          const SizedBox(height: 6),
+          _CatDropdown(
+            value: _category,
+            onChanged: (v) => setState(() => _category = v),
+          ),
+          const SizedBox(height: 14),
+          Text('Descrição *',
+              style: AppTextStyles.caption
+                  .copyWith(color: AppColors.textSecondary)),
+          const SizedBox(height: 6),
+          _Field(controller: _descCtrl, hint: 'Descrição do evento', maxLines: 3),
+          const SizedBox(height: 14),
+          Row(children: [
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('Funcionário',
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textSecondary)),
+                const SizedBox(height: 6),
+                _Field(controller: _empCtrl, hint: 'Nome'),
+              ]),
+            ),
+            const SizedBox(width: 12),
+            SizedBox(
+              width: 110,
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('Valor (R\$)',
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textSecondary)),
+                const SizedBox(height: 6),
+                _Field(
+                    controller: _amountCtrl,
+                    hint: '0,00',
+                    keyboardType: TextInputType.number),
+              ]),
+            ),
+          ]),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              onPressed: _saving ? null : _save,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(Dimensions.radiusSM)),
+              ),
+              child: _saving
+                  ? const SizedBox(
+                      width: 20, height: 20,
+                      child: CircularProgressIndicator(
+                          color: Colors.white, strokeWidth: 2))
+                  : const Text('Salvar',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w700, fontSize: 15)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+//  ENUM DE AÇÕES DO MENU
+// ─────────────────────────────────────────────
+
+enum _BalcaoAction { atualizar, teste, debug, configurarFontes }

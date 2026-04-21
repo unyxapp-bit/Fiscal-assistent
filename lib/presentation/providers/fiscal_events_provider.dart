@@ -72,6 +72,51 @@ class FiscalEventsProvider with ChangeNotifier {
   int get totalMidiasPendentes =>
       _events.where((e) => e.needsReview && e.status == 'pending').length;
 
+  // ── Estatísticas ──────────────────────────────────────────────────────────
+
+  /// Eventos dos últimos N dias (independente do status).
+  List<FiscalEvent> eventosDosUltimosDias(int dias) {
+    final limite = DateTime.now().subtract(Duration(days: dias));
+    return _events.where((e) => e.eventDate.isAfter(limite)).toList();
+  }
+
+  /// Contagem de pendentes por categoria.
+  Map<String, int> get contagemPorCategoria {
+    final m = <String, int>{};
+    for (final e in _events.where((e) => e.status == 'pending')) {
+      m[e.category] = (m[e.category] ?? 0) + 1;
+    }
+    return m;
+  }
+
+  /// Total em valores absolutos de eventos de caixa com valor definido.
+  double get totalCaixaValores {
+    return _events
+        .where((e) => e.category == 'caixa' && e.amount != null)
+        .fold(0.0, (sum, e) => sum + e.amount!.abs());
+  }
+
+  /// Eventos de caixa dos últimos 7 dias, com valor, ordenados por data.
+  List<FiscalEvent> get caixaEventosRecentes => _events
+      .where((e) =>
+          e.category == 'caixa' &&
+          e.amount != null &&
+          e.eventDate.isAfter(DateTime.now().subtract(const Duration(days: 7))))
+      .toList();
+
+  // ── Busca ─────────────────────────────────────────────────────────────────
+
+  List<FiscalEvent> buscar(String query) {
+    if (query.trim().isEmpty) return _events;
+    final q = query.toLowerCase().trim();
+    return _events.where((e) {
+      return e.description.toLowerCase().contains(q) ||
+          (e.employeeName?.toLowerCase().contains(q) ?? false) ||
+          (e.sender?.toLowerCase().contains(q) ?? false) ||
+          e.rawMessage.toLowerCase().contains(q);
+    }).toList();
+  }
+
   // ── Carregamento ──────────────────────────────────────────────────────────
 
   Future<void> load() async {
@@ -135,6 +180,42 @@ class FiscalEventsProvider with ChangeNotifier {
           .update({'status': novoStatus}).eq('id', event.id);
     } catch (e) {
       event.status = statusAnterior;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> recategorizar({
+    required FiscalEvent event,
+    required String category,
+    required String description,
+    String? employeeName,
+    double? amount,
+  }) async {
+    final oldCategory = event.category;
+    final oldDescription = event.description;
+    final oldEmployee = event.employeeName;
+    final oldAmount = event.amount;
+
+    event.category = category;
+    event.description = description;
+    event.employeeName = employeeName?.isNotEmpty == true ? employeeName : null;
+    event.amount = amount;
+    notifyListeners();
+
+    try {
+      await _client.from(_table).update({
+        'category': category,
+        'description': description,
+        'employee_name':
+            employeeName?.isNotEmpty == true ? employeeName : null,
+        'amount': amount,
+      }).eq('id', event.id);
+    } catch (e) {
+      event.category = oldCategory;
+      event.description = oldDescription;
+      event.employeeName = oldEmployee;
+      event.amount = oldAmount;
       notifyListeners();
       rethrow;
     }
