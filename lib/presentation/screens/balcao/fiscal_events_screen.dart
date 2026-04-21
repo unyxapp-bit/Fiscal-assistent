@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:notification_listener_service/notification_listener_service.dart';
 
 import '../../../core/constants/colors.dart';
+import '../../../data/services/whatsapp_notification_service.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/utils/app_notif.dart';
@@ -83,9 +84,13 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
   }
 
   Future<void> _verificarPermissao() async {
-    // Importação lazy para evitar crash no web/iOS (package é Android-only)
     try {
       final granted = await _checkPermission();
+      if (granted) {
+        // Inicia (ou confirma que está ativo) o listener ao retornar da
+        // tela de configurações com permissão já concedida.
+        WhatsAppNotificationService.init();
+      }
       if (mounted) {
         setState(() {
           _temPermissao = granted;

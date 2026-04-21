@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:notification_listener_service/notification_listener_service.dart';
 import 'package:notification_listener_service/notification_event.dart';
@@ -24,15 +26,14 @@ class WhatsAppNotificationService {
     'pyetro filho',    // contato de teste
   ];
 
-  static bool _iniciado = false;
+  // Null = não está ouvindo; non-null = stream ativo.
+  static StreamSubscription<ServiceNotificationEvent>? _subscription;
 
-  /// Inicializa o listener. Chame em main() antes do runApp.
-  /// Solicita permissão automaticamente se não concedida.
-  /// Inicializa o listener. Só escuta se a permissão já foi concedida.
-  /// A solicitação de permissão é feita pela UI (BalcaoPermissaoScreen).
+  /// Inicializa o listener. Seguro chamar várias vezes (idempotente).
+  /// Se a permissão ainda não foi concedida, retorna sem fazer nada.
+  /// Chame novamente após o usuário conceder a permissão.
   static Future<void> init() async {
-    if (_iniciado) return;
-    _iniciado = true;
+    if (_subscription != null) return; // já está ouvindo
 
     try {
       final hasPermission =
@@ -44,7 +45,7 @@ class WhatsAppNotificationService {
 
       if (!hasPermission) return; // UI solicita quando necessário
 
-      NotificationListenerService.notificationsStream
+      _subscription = NotificationListenerService.notificationsStream
           .listen(_handleNotification, onError: _onError);
 
       if (kDebugMode) debugPrint('[WhatsApp] Listener ativo.');
@@ -64,7 +65,11 @@ class WhatsAppNotificationService {
 
   /// Abre a tela de configurações para o usuário conceder a permissão.
   static Future<void> requestPermission() async {
-    await NotificationListenerService.requestPermission();
+    try {
+      await NotificationListenerService.requestPermission();
+    } catch (e) {
+      if (kDebugMode) debugPrint('[WhatsApp] Erro ao abrir configurações: $e');
+    }
   }
 
   // ── Handler principal ──────────────────────────────────────────────────────

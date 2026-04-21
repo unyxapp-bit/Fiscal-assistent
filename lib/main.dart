@@ -357,8 +357,30 @@ class _AppHome extends StatefulWidget {
   State<_AppHome> createState() => _AppHomeState();
 }
 
-class _AppHomeState extends State<_AppHome> {
+class _AppHomeState extends State<_AppHome> with WidgetsBindingObserver {
   bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Chamado sempre que o app volta ao primeiro plano.
+  /// Reinicia o listener se a permissão foi concedida enquanto o app
+  /// estava em segundo plano (ex.: usuário veio das configurações).
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      WhatsAppNotificationService.init();
+    }
+  }
 
   @override
   void didChangeDependencies() {
