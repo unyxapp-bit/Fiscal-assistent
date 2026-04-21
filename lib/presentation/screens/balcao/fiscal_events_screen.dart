@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:intl/intl.dart';
@@ -66,6 +68,8 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
   bool _permissaoVerificada = false;
   bool _temPermissao = false;
   bool _listenerAtivo = false;
+  bool _debugMode = false;
+  Timer? _diagTimer;
 
   @override
   bool get wantKeepAlive => true;
@@ -73,7 +77,26 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
   @override
   void initState() {
     super.initState();
+    _debugMode = WhatsAppNotificationService.debugMode;
     WidgetsBinding.instance.addPostFrameCallback((_) => _init());
+  }
+
+  @override
+  void dispose() {
+    _diagTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startDiagTimer() {
+    _diagTimer?.cancel();
+    _diagTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  void _stopDiagTimer() {
+    _diagTimer?.cancel();
+    _diagTimer = null;
   }
 
   Future<void> _init() async {
@@ -165,10 +188,12 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
           ],
         ),
         actions: [
-          // Indicador de status do listener
+          // Indicador de status do listener (ponto verde/vermelho)
           if (_permissaoVerificada)
             Tooltip(
-              message: _listenerAtivo ? 'Listener ativo' : 'Listener inativo',
+              message: _listenerAtivo
+                  ? 'Listener ativo (${WhatsAppNotificationService.receivedTotal} recebidas)'
+                  : 'Listener inativo',
               child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
                 width: 10,
@@ -190,6 +215,17 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
                     builder: (_) => const BalcaoPermissaoScreen()),
               ),
             ),
+          // Toggle modo diagnóstico
+          IconButton(
+            icon: Icon(
+              Icons.bug_report_outlined,
+              color: _debugMode ? AppColors.warning : AppColors.textSecondary,
+            ),
+            tooltip: _debugMode
+                ? 'Diagnóstico ATIVO — toque para desativar'
+                : 'Ativar modo diagnóstico',
+            onPressed: _toggleDebugMode,
+          ),
           // Botão de teste manual
           IconButton(
             icon: Icon(Icons.science_outlined, color: AppColors.textSecondary),
@@ -214,6 +250,7 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
                     builder: (_) => const BalcaoPermissaoScreen()),
               ).then((_) => _verificarPermissao()),
             ),
+          if (_debugMode) _buildDiagPanel(),
           _buildCategoryFilters(provider.events),
           _buildStatusTabs(),
           Expanded(child: _buildList(provider)),
@@ -394,6 +431,77 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _toggleDebugMode() {
+    setState(() {
+      _debugMode = !_debugMode;
+      WhatsAppNotificationService.debugMode = _debugMode;
+    });
+    if (_debugMode) {
+      _startDiagTimer();
+      AppNotif.show(context,
+          titulo: 'Diagnóstico ativado',
+          mensagem:
+              'Todas as notificações serão salvas no banco. Envie uma mensagem de qualquer app para testar.',
+          tipo: 'saida',
+          cor: AppColors.warning);
+    } else {
+      _stopDiagTimer();
+      AppNotif.show(context,
+          titulo: 'Diagnóstico desativado',
+          mensagem: 'Voltando ao modo normal (apenas WhatsApp/Balcão Fiscal).',
+          tipo: 'saida',
+          cor: AppColors.info);
+    }
+  }
+
+  Widget _buildDiagPanel() {
+    final count = WhatsAppNotificationService.receivedTotal;
+    final last = WhatsAppNotificationService.lastReceived;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(
+          Dimensions.paddingMD, 0, Dimensions.paddingMD, 8),
+      padding: const EdgeInsets.all(Dimensions.paddingSM),
+      decoration: BoxDecoration(
+        color: AppColors.warning.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(Dimensions.radiusSM),
+        border: Border.all(color: AppColors.warning.withValues(alpha: 0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Icon(Icons.bug_report_outlined,
+                color: AppColors.warning, size: 14),
+            const SizedBox(width: 6),
+            Text('MODO DIAGNÓSTICO',
+                style: AppTextStyles.caption.copyWith(
+                    color: AppColors.warning, fontWeight: FontWeight.w700)),
+          ]),
+          const SizedBox(height: 4),
+          Text(
+            'Notificações recebidas (qualquer app): $count',
+            style: AppTextStyles.caption
+                .copyWith(color: AppColors.textSecondary),
+          ),
+          if (last.isNotEmpty)
+            Text(
+              'Última: $last',
+              style: AppTextStyles.caption
+                  .copyWith(color: AppColors.textSecondary),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          if (count == 0)
+            Text(
+              '→ Se ficar em 0 após notificações chegarem, o stream não está funcionando.',
+              style: AppTextStyles.caption.copyWith(
+                  color: AppColors.danger, fontStyle: FontStyle.italic),
+            ),
+        ],
       ),
     );
   }

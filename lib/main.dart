@@ -373,12 +373,12 @@ class _AppHomeState extends State<_AppHome> with WidgetsBindingObserver {
   }
 
   /// Chamado sempre que o app volta ao primeiro plano.
-  /// Reinicia o listener se a permissão foi concedida enquanto o app
-  /// estava em segundo plano (ex.: usuário veio das configurações).
+  /// Usa reset() em vez de init() para garantir que o stream não
+  /// morreu enquanto o app estava pausado (doze mode, memória baixa, etc).
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      WhatsAppNotificationService.init();
+      WhatsAppNotificationService.reset();
     }
   }
 

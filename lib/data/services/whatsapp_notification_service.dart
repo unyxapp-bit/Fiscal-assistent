@@ -14,39 +14,54 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class WhatsAppNotificationService {
   WhatsAppNotificationService._();
 
-  // Aceita WhatsApp e WhatsApp Business
   static const List<String> _whatsappPackages = [
     'com.whatsapp',
     'com.whatsapp.w4b',
   ];
 
-  // Fontes aceitas (case-insensitive) — grupo real + contatos de teste
   static const List<String> _fontesAceitas = [
-    'balcão fiscal',   // grupo principal
-    'pyetro filho',    // contato de teste
+    'balcão fiscal', // grupo principal
+    'pyetro filho',  // contato de teste
   ];
 
-  // Null = não está ouvindo; non-null = stream ativo.
+  // ── Estado interno ─────────────────────────────────────────────────────────
+
   static StreamSubscription<ServiceNotificationEvent>? _subscription;
 
-  /// True se o listener está ativo (stream subscrito e permissão concedida).
+  /// Impede que duas chamadas simultâneas de init() criem subscriptions duplas.
+  static bool _initializing = false;
+
+  // ── Diagnóstico (visível mesmo em release) ─────────────────────────────────
+
+  /// Quando true: aceita QUALQUER notificação (qualquer app) e salva no banco.
+  /// Permite confirmar se o stream está funcionando independente de filtros.
+  static bool debugMode = false;
+
+  /// Total de notificações que chegaram ao handler ANTES de qualquer filtro.
+  /// Se ficar em 0 após várias notificações, o stream não está funcionando.
+  static int receivedTotal = 0;
+
+  /// Última notificação recebida no formato "packageName | title".
+  static String lastReceived = '';
+
+  // ── Getters ────────────────────────────────────────────────────────────────
+
   static bool get isListening => _subscription != null;
 
-  /// Inicializa o listener. Seguro chamar várias vezes (idempotente).
-  /// Se a permissão ainda não foi concedida, retorna sem fazer nada.
-  /// Chame novamente após o usuário conceder a permissão.
+  // ── Inicialização ──────────────────────────────────────────────────────────
+
+  /// Inicializa o listener. Seguro chamar várias vezes — idempotente com
+  /// proteção contra race condition via flag _initializing.
   static Future<void> init() async {
-    if (_subscription != null) return; // já está ouvindo
+    if (_subscription != null || _initializing) return;
+    _initializing = true;
 
     try {
       final hasPermission =
           await NotificationListenerService.isPermissionGranted();
+      if (kDebugMode) debugPrint('[WhatsApp] Permissão: $hasPermission');
 
-      if (kDebugMode) {
-        debugPrint('[WhatsApp] Permissão: $hasPermission');
-      }
-
-      if (!hasPermission) return; // UI solicita quando necessário
+      if (!hasPermission) return;
 
       _subscription = NotificationListenerService.notificationsStream
           .listen(_handleNotification, onError: _onError);
@@ -54,10 +69,20 @@ class WhatsAppNotificationService {
       if (kDebugMode) debugPrint('[WhatsApp] Listener ativo.');
     } catch (e) {
       if (kDebugMode) debugPrint('[WhatsApp] Erro ao iniciar listener: $e');
+    } finally {
+      _initializing = false;
     }
   }
 
-  /// Verifica se a permissão de leitura de notificações foi concedida.
+  /// Cancela o listener atual e reinicia. Use quando o app volta do background
+  /// para garantir que o stream não morreu enquanto o app estava em pausa.
+  static Future<void> reset() async {
+    await _subscription?.cancel();
+    _subscription = null;
+    _initializing = false;
+    await init();
+  }
+
   static Future<bool> isPermissionGranted() async {
     try {
       return await NotificationListenerService.isPermissionGranted();
@@ -66,7 +91,6 @@ class WhatsAppNotificationService {
     }
   }
 
-  /// Abre a tela de configurações para o usuário conceder a permissão.
   static Future<void> requestPermission() async {
     try {
       await NotificationListenerService.requestPermission();
@@ -79,20 +103,31 @@ class WhatsAppNotificationService {
 
   static Future<void> _handleNotification(
       ServiceNotificationEvent event) async {
-    // Filtra apenas WhatsApp e WhatsApp Business
+    // Contadores de diagnóstico — atualizados ANTES de qualquer filtro
+    receivedTotal++;
+    lastReceived = '${event.packageName} | ${event.title ?? ""}';
+
+    // ── Modo diagnóstico: salva TUDO no banco sem filtrar ──────────────────
+    if (debugMode) {
+      await _salvarDebug(event);
+      return;
+    }
+
+    // ── Filtro 1: apenas WhatsApp ──────────────────────────────────────────
     if (!_whatsappPackages.contains(event.packageName)) return;
 
-    // Filtra pela fonte (grupo ou contato) — case-insensitive
+    // ── Filtro 2: apenas fontes aceitas (grupo/contato) ───────────────────
     final titulo = (event.title ?? '').toLowerCase();
     if (!_fontesAceitas.any((f) => titulo.contains(f))) return;
 
+    // ── Filtro 3: conteúdo não vazio ──────────────────────────────────────
     final body = event.content ?? '';
     if (body.isEmpty) return;
 
-    // Ignora mensagens do sistema
+    // ── Filtro 4: ignora mensagens do sistema ─────────────────────────────
     if (_isMensagemSistema(body)) return;
 
-    // Extrai remetente e conteúdo
+    // ── Extrai remetente e conteúdo ───────────────────────────────────────
     String sender = '';
     String content = body;
     if (body.contains(': ')) {
@@ -102,20 +137,27 @@ class WhatsAppNotificationService {
     }
 
     final timestamp = DateTime.now().toIso8601String();
-
     if (kDebugMode) {
       debugPrint('[WhatsApp] Capturado — de: "$sender" | conteúdo: "$content"');
     }
 
-    if (_isAudio(content)) {
-      await _salvarMidia(
-          sender: sender, mediaType: 'audio', timestamp: timestamp);
-    } else if (_isFoto(content)) {
-      await _salvarMidia(
-          sender: sender, mediaType: 'foto', timestamp: timestamp);
-    } else {
-      await _enviarParaEdgeFunction(
-          sender: sender, message: content, timestamp: timestamp);
+    // ── Roteamento ─────────────────────────────────────────────────────────
+    try {
+      if (_isAudio(content)) {
+        await _salvarMidia(
+            sender: sender, mediaType: 'audio', timestamp: timestamp);
+      } else if (_isFoto(content)) {
+        await _salvarMidia(
+            sender: sender, mediaType: 'foto', timestamp: timestamp);
+      } else {
+        await _enviarParaEdgeFunction(
+            sender: sender, message: content, timestamp: timestamp);
+      }
+    } catch (e) {
+      if (kDebugMode) debugPrint('[WhatsApp] Erro ao processar: $e');
+      // Falhas de rede são salvas no banco para visibilidade (não ficam silenciosas)
+      await _salvarErro(
+          content: content, sender: sender, error: e.toString());
     }
   }
 
@@ -143,25 +185,21 @@ class WhatsAppNotificationService {
        'STK-', '.webp', 'criou o grupo', 'saiu', 'Figurinha',
        '🔴', 'reagiu com'].any((p) => b.contains(p));
 
-  // ── Envios ────────────────────────────────────────────────────────────────
+  // ── Envios ─────────────────────────────────────────────────────────────────
 
   static Future<void> _enviarParaEdgeFunction({
     required String sender,
     required String message,
     required String timestamp,
   }) async {
-    try {
-      await Supabase.instance.client.functions.invoke(
-        'analyze-fiscal-message',
-        body: {
-          'sender': sender,
-          'message': message,
-          'timestamp': timestamp,
-        },
-      );
-    } catch (e) {
-      if (kDebugMode) debugPrint('[WhatsApp] Erro ao enviar texto: $e');
-    }
+    await Supabase.instance.client.functions.invoke(
+      'analyze-fiscal-message',
+      body: {
+        'sender': sender,
+        'message': message,
+        'timestamp': timestamp,
+      },
+    );
   }
 
   static Future<void> _salvarMidia({
@@ -169,27 +207,74 @@ class WhatsAppNotificationService {
     required String mediaType,
     required String timestamp,
   }) async {
+    final emoji = mediaType == 'audio' ? '🎤' : '📷';
+    final nome = sender.isNotEmpty ? sender : 'Alguém';
+    await Supabase.instance.client.from('fiscal_events').insert({
+      'category': 'midia_pendente',
+      'description':
+          '$emoji $mediaType recebido de $nome — preencher após ouvir/ver',
+      'sender': sender.isNotEmpty ? sender : null,
+      'raw_message': '$emoji $mediaType',
+      'event_date': timestamp,
+      'status': 'pending',
+      'confidence': 1.0,
+      'media_type': mediaType,
+      'needs_review': true,
+    });
+    if (kDebugMode) debugPrint('[WhatsApp] Mídia salva: $mediaType de $nome');
+  }
+
+  /// Salva QUALQUER notificação no banco. Usado no modo diagnóstico.
+  static Future<void> _salvarDebug(ServiceNotificationEvent event) async {
     try {
-      final emoji = mediaType == 'audio' ? '🎤' : '📷';
-      final nome = sender.isNotEmpty ? sender : 'Alguém';
       await Supabase.instance.client.from('fiscal_events').insert({
-        'category': 'midia_pendente',
-        'description': '$emoji $mediaType recebido de $nome — preencher após ouvir/ver',
-        'sender': sender.isNotEmpty ? sender : null,
-        'raw_message': '$emoji $mediaType',
-        'event_date': timestamp,
+        'category': 'aviso_geral',
+        'description': '[DIAGNÓSTICO]\n'
+            'App: ${event.packageName}\n'
+            'Título: ${event.title}\n'
+            'Conteúdo: ${event.content}',
+        'raw_message': '${event.title}: ${event.content}',
+        'sender': event.packageName,
+        'event_date': DateTime.now().toIso8601String(),
         'status': 'pending',
-        'confidence': 1.0,
-        'media_type': mediaType,
+        'confidence': 0.1,
         'needs_review': true,
       });
-      if (kDebugMode) debugPrint('[WhatsApp] Mídia salva: $mediaType de $nome');
     } catch (e) {
-      if (kDebugMode) debugPrint('[WhatsApp] Erro ao salvar mídia: $e');
+      if (kDebugMode) debugPrint('[WhatsApp] Erro ao salvar debug: $e');
     }
   }
 
+  /// Salva erros de processamento no banco — falhas silenciosas viram visíveis.
+  static Future<void> _salvarErro({
+    required String content,
+    required String sender,
+    required String error,
+  }) async {
+    try {
+      await Supabase.instance.client.from('fiscal_events').insert({
+        'category': 'aviso_geral',
+        'description':
+            '[ERRO ao processar]\nRemetente: "$sender"\nErro: $error',
+        'raw_message': content,
+        'sender': sender.isNotEmpty ? sender : null,
+        'event_date': DateTime.now().toIso8601String(),
+        'status': 'pending',
+        'confidence': 0.1,
+        'needs_review': true,
+      });
+    } catch (_) {
+      // Se nem o log de erro funcionar, não há mais o que fazer aqui
+    }
+  }
+
+  // ── Tratamento de erro do stream ──────────────────────────────────────────
+
   static void _onError(Object e) {
     if (kDebugMode) debugPrint('[WhatsApp] Erro no stream: $e');
+    // Se o stream morrer, descarta a subscription e agenda reinicialização
+    _subscription = null;
+    _initializing = false;
+    Future.delayed(const Duration(seconds: 5), init);
   }
 }
