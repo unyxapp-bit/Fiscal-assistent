@@ -33,6 +33,11 @@ class WhatsAppNotificationService {
   /// Impede que duas chamadas simultâneas de init() criem subscriptions duplas.
   static bool _initializing = false;
 
+  /// Cache de deduplicação: "sender|content" → último processamento.
+  /// WhatsApp às vezes dispara duas notificações para a mesma mensagem
+  /// (chegada + atualização de contador). Ignoramos repetições em 15s.
+  static final Map<String, DateTime> _recentMessages = {};
+
   // ── Diagnóstico (visível mesmo em release) ─────────────────────────────────
 
   /// Quando true: aceita QUALQUER notificação (qualquer app) e salva no banco.
@@ -138,6 +143,9 @@ class WhatsAppNotificationService {
       content = body.substring(idx + 2).trim();
     }
 
+    // ── Filtro 5: deduplicação (mesmo conteúdo em 15 s) ──────────────────
+    if (_isDuplicate(sender, content)) return;
+
     final timestamp = DateTime.now().toIso8601String();
     if (kDebugMode) {
       debugPrint('[WhatsApp] Capturado — de: "$sender" | conteúdo: "$content"');
@@ -182,10 +190,46 @@ class WhatsAppNotificationService {
       b.contains('Imagem') ||
       b.contains('📷');
 
-  static bool _isMensagemSistema(String b) =>
-      ['Mensagem apagada', 'Mensagem editada', 'adicionou você',
-       'STK-', '.webp', 'criou o grupo', 'saiu', 'Figurinha',
-       '🔴', 'reagiu com'].any((p) => b.contains(p));
+  static bool _isMensagemSistema(String b) {
+    // Padrões de sistema e notificações de resumo do WhatsApp
+    const frases = [
+      'Mensagem apagada', 'Mensagem editada', 'adicionou você',
+      'STK-', '.webp', 'criou o grupo', 'saiu', 'Figurinha',
+      '🔴', 'reagiu com',
+      // Resumos de grupo: "3 novas mensagens", "1 nova mensagem",
+      // "5 mensagens não lidas" — sem remetente real, sem conteúdo útil
+      'nova mensagem', 'novas mensagens',
+      'mensagem não lida', 'mensagens não lidas',
+      'mensagem não vista', 'mensagens não vistas',
+      // Ligações perdidas
+      'Chamada perdida', 'Chamada de vídeo perdida',
+    ];
+    if (frases.any((p) => b.contains(p))) return true;
+    // "N mensagens" no início (ex: "12 mensagens")
+    if (RegExp(r'^\d+\s+mensagens?', caseSensitive: false).hasMatch(b)) {
+      return true;
+    }
+    return false;
+  }
+
+  /// Retorna true se a mesma mensagem (sender+content) chegou há menos de 15 s.
+  /// Evita duplicatas causadas por WhatsApp atualizar o contador do grupo.
+  static bool _isDuplicate(String sender, String content) {
+    final key = '${sender.toLowerCase()}|${content.toLowerCase()}';
+    final now = DateTime.now();
+    // Limpa entradas antigas (> 30 s) para não crescer indefinidamente
+    _recentMessages.removeWhere(
+        (_, v) => now.difference(v).inSeconds > 30);
+    final last = _recentMessages[key];
+    if (last != null && now.difference(last).inSeconds < 15) {
+      if (kDebugMode) {
+        debugPrint('[WhatsApp] Duplicata ignorada — "$sender": "$content"');
+      }
+      return true;
+    }
+    _recentMessages[key] = now;
+    return false;
+  }
 
   // ── Envios ─────────────────────────────────────────────────────────────────
 
