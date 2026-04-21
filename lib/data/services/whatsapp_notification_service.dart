@@ -5,6 +5,8 @@ import 'package:notification_listener_service/notification_listener_service.dart
 import 'package:notification_listener_service/notification_event.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../datasources/remote/supabase_client.dart';
+
 /// Captura notificações do WhatsApp do grupo "Balcão Fiscal" e envia
 /// ao Supabase para categorização e registro.
 ///
@@ -194,6 +196,7 @@ class WhatsAppNotificationService {
   }) async {
     await Supabase.instance.client.functions.invoke(
       'analyze-fiscal-message',
+      headers: SupabaseClientManager.edgeFunctionHeaders,
       body: {
         'sender': sender,
         'message': message,

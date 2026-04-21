@@ -9,6 +9,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:notification_listener_service/notification_listener_service.dart';
 
 import '../../../core/constants/colors.dart';
+import '../../../data/datasources/remote/supabase_client.dart';
 import '../../../data/services/whatsapp_notification_service.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../../core/constants/text_styles.dart';
@@ -511,6 +512,7 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
     try {
       await Supabase.instance.client.functions.invoke(
         'analyze-fiscal-message',
+        headers: SupabaseClientManager.edgeFunctionHeaders,
         body: {
           'sender': 'Teste Manual',
           'message': 'caixa de teste faltou 5 reais — disparo manual do app',

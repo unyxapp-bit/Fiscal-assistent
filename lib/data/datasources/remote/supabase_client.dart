@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SupabaseClientManager {
   static SupabaseClient? _instance;
+  static String? _anonKey;
 
   static Future<void> initialize() async {
     // Tenta carregar do .env, com fallback para valores hardcoded
@@ -33,6 +34,7 @@ class SupabaseClientManager {
       debug: dotenv.env['ENVIRONMENT'] == 'development',
     );
 
+    _anonKey = anonKey;
     _instance = Supabase.instance.client;
     if (kDebugMode) {
       debugPrint('[Supabase] Cliente inicializado com sucesso!');
@@ -49,6 +51,23 @@ class SupabaseClientManager {
   }
 
   static SupabaseClient get client => instance;
+
+  static String get anonKey {
+    final value = _anonKey;
+    if (value == null || value.isEmpty) {
+      throw Exception(
+        'Anon key do Supabase n\u00e3o foi inicializada. Chame SupabaseClientManager.initialize() primeiro.',
+      );
+    }
+    return value;
+  }
+
+  /// For\u00e7a Edge Functions a usarem o JWT anon compat\u00edvel, sem reaproveitar
+  /// o token da sess\u00e3o do usu\u00e1rio quando ele estiver em um algoritmo n\u00e3o suportado.
+  static Map<String, String> get edgeFunctionHeaders => {
+        'apikey': anonKey,
+        'Authorization': 'Bearer $anonKey',
+      };
 
   static bool get hasSession => instance.auth.currentSession != null;
 
