@@ -1,7 +1,10 @@
 name: Build & Release APK
 
 on:
-  workflow_dispatch: # desativado: disparar manualmente se necessário
+  push:
+    branches:
+      - main
+  workflow_dispatch: # permite disparar manualmente também
 
 # Permissão para criar Releases
 permissions:
