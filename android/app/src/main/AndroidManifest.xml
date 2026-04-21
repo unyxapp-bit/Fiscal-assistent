@@ -45,7 +45,7 @@
 
         <!-- Balcão Fiscal: NotificationListenerService para capturar WhatsApp -->
         <service
-            android:name="com.pravera.notification_listener_service.NotificationListenerPlugin"
+            android:name="notification.listener.service.NotificationListener"
             android:label="Fiscal Assistant"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
             android:exported="true">
