@@ -35,11 +35,12 @@ jobs:
           cache: true
 
       # 4. Criar o .env a partir dos Secrets do repositório
-      #    (Settings → Secrets and variables → Actions → New repository secret)
+      #    SUPABASE_URL e SUPABASE_ANON_KEY têm fallback hardcoded no código
+      #    (a anon key é pública; o fallback usa o formato JWT correto).
+      #    Apenas as chaves sensíveis (IA) precisam vir dos secrets.
       - name: Criar arquivo .env
         run: |
           echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
-          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
           echo "CLAUDE_API_KEY=${{ secrets.CLAUDE_API_KEY }}" >> .env
           echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
 
