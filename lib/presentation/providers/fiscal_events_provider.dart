@@ -10,6 +10,7 @@ class FiscalEvent {
   String category;
   String description;
   String? employeeName;
+  String? colaboradorId; // FK para colaboradores.id
   double? amount;
   final String? sender;
   final String rawMessage;
@@ -24,6 +25,7 @@ class FiscalEvent {
     required this.category,
     required this.description,
     this.employeeName,
+    this.colaboradorId,
     this.amount,
     this.sender,
     required this.rawMessage,
@@ -39,6 +41,7 @@ class FiscalEvent {
         category: m['category'] as String? ?? 'aviso_geral',
         description: m['description'] as String? ?? '',
         employeeName: m['employee_name'] as String?,
+        colaboradorId: m['colaborador_id'] as String?,
         amount: m['amount'] != null ? (m['amount'] as num).toDouble() : null,
         sender: m['sender'] as String?,
         rawMessage: m['raw_message'] as String? ?? '',
@@ -71,6 +74,16 @@ class FiscalEventsProvider with ChangeNotifier {
   int get totalPendentes => _events.where((e) => e.status == 'pending').length;
   int get totalMidiasPendentes =>
       _events.where((e) => e.needsReview && e.status == 'pending').length;
+
+  /// Callback disparado quando um colaborador acumula ≥2 eventos pendentes no mesmo dia.
+  /// Parâmetros: (colaboradorId, contagem)
+  void Function(String colaboradorId, int count)? onAcumuloDetectado;
+
+  // ── Filtro por colaborador ────────────────────────────────────────────────
+
+  /// Todos os eventos vinculados a um colaborador específico.
+  List<FiscalEvent> eventosDoColaborador(String colaboradorId) =>
+      _events.where((e) => e.colaboradorId == colaboradorId).toList();
 
   // ── Estatísticas ──────────────────────────────────────────────────────────
 
@@ -157,6 +170,19 @@ class FiscalEventsProvider with ChangeNotifier {
             final e = FiscalEvent.fromMap(payload.newRecord);
             _events.insert(0, e);
             notifyListeners();
+
+            // Detecta acúmulo de eventos para o mesmo colaborador no mesmo dia
+            if (e.colaboradorId != null && onAcumuloDetectado != null) {
+              final hoje = DateTime.now();
+              final count = _events.where((ev) =>
+                ev.colaboradorId == e.colaboradorId &&
+                ev.status == 'pending' &&
+                ev.eventDate.year == hoje.year &&
+                ev.eventDate.month == hoje.month &&
+                ev.eventDate.day == hoje.day,
+              ).length;
+              if (count >= 2) onAcumuloDetectado!(e.colaboradorId!, count);
+            }
           },
         )
         .subscribe();
@@ -191,16 +217,19 @@ class FiscalEventsProvider with ChangeNotifier {
     required String description,
     String? employeeName,
     double? amount,
+    String? colaboradorId,
   }) async {
     final oldCategory = event.category;
     final oldDescription = event.description;
     final oldEmployee = event.employeeName;
     final oldAmount = event.amount;
+    final oldColaboradorId = event.colaboradorId;
 
     event.category = category;
     event.description = description;
     event.employeeName = employeeName?.isNotEmpty == true ? employeeName : null;
     event.amount = amount;
+    event.colaboradorId = colaboradorId;
     notifyListeners();
 
     try {
@@ -210,12 +239,14 @@ class FiscalEventsProvider with ChangeNotifier {
         'employee_name':
             employeeName?.isNotEmpty == true ? employeeName : null,
         'amount': amount,
+        'colaborador_id': colaboradorId,
       }).eq('id', event.id);
     } catch (e) {
       event.category = oldCategory;
       event.description = oldDescription;
       event.employeeName = oldEmployee;
       event.amount = oldAmount;
+      event.colaboradorId = oldColaboradorId;
       notifyListeners();
       rethrow;
     }
@@ -227,6 +258,7 @@ class FiscalEventsProvider with ChangeNotifier {
     required String description,
     String? employeeName,
     double? amount,
+    String? colaboradorId,
   }) async {
     try {
       await _client.from(_table).update({
@@ -235,6 +267,7 @@ class FiscalEventsProvider with ChangeNotifier {
         'employee_name':
             employeeName?.isNotEmpty == true ? employeeName : null,
         'amount': amount,
+        'colaborador_id': colaboradorId,
         'needs_review': false,
         'status': 'pending',
       }).eq('id', event.id);
@@ -244,6 +277,7 @@ class FiscalEventsProvider with ChangeNotifier {
       event.employeeName =
           employeeName?.isNotEmpty == true ? employeeName : null;
       event.amount = amount;
+      event.colaboradorId = colaboradorId;
       event.needsReview = false;
       notifyListeners();
     } catch (e) {

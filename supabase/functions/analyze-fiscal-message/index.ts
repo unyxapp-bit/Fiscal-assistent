@@ -242,6 +242,42 @@ async function categorizarComIA(
 }
 
 // ─────────────────────────────────────────────────────────────
+//  MATCH DE COLABORADOR — fuzzy por nome
+// ─────────────────────────────────────────────────────────────
+
+interface ColaboradorRow { id: string; nome: string; }
+
+/**
+ * Tenta casar o nome extraído com a lista de colaboradores ativos.
+ * Estratégias (em ordem de precisão):
+ *   1. Exact match (normalizado)
+ *   2. Nome extraído é prefixo do primeiro nome do colaborador ("Franci" → "Francielle")
+ *   3. Primeiro nome do colaborador é prefixo do nome extraído
+ *   4. Nome extraído contém o primeiro nome (≥4 letras)
+ * Retorna o id do colaborador ou null se sem confiança suficiente.
+ */
+function matchColaborador(
+  employeeName: string,
+  colaboradores: ColaboradorRow[]
+): string | null {
+  if (!employeeName || employeeName.trim().length < 2) return null;
+
+  const target = employeeName.toLowerCase().trim();
+
+  for (const c of colaboradores) {
+    const nome = c.nome.toLowerCase().trim();
+    const firstName = nome.split(/\s+/)[0];
+
+    if (nome === target) return c.id;
+    if (firstName.startsWith(target) && target.length >= 3) return c.id;
+    if (target.startsWith(firstName) && firstName.length >= 3) return c.id;
+    if (nome.includes(target) && target.length >= 4) return c.id;
+  }
+
+  return null;
+}
+
+// ─────────────────────────────────────────────────────────────
 //  HANDLER PRINCIPAL
 // ─────────────────────────────────────────────────────────────
 
@@ -291,14 +327,30 @@ serve(async (req) => {
       );
     }
 
-    // 5. Salva no banco
+    // 5. Match automático de colaborador_id pelo employee_name extraído
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+    let colaboradorId: string | null = null;
+    if (parsed.employee_name) {
+      const { data: colaboradores } = await supabase
+        .from("colaboradores")
+        .select("id, nome")
+        .eq("ativo", true);
+      if (colaboradores && colaboradores.length > 0) {
+        colaboradorId = matchColaborador(
+          parsed.employee_name,
+          colaboradores as ColaboradorRow[]
+        );
+      }
+    }
+
+    // 6. Salva no banco
     const { data, error } = await supabase
       .from("fiscal_events")
       .insert({
         category: parsed.category,
         description: parsed.description,
         employee_name: parsed.employee_name,
+        colaborador_id: colaboradorId,
         amount: parsed.amount,
         sender: sender || null,
         raw_message: message,
@@ -312,7 +364,12 @@ serve(async (req) => {
     if (error) throw error;
 
     return new Response(
-      JSON.stringify({ success: true, event: data, ia_used: usouIA }),
+      JSON.stringify({
+        success: true,
+        event: data,
+        ia_used: usouIA,
+        colaborador_matched: colaboradorId !== null,
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {

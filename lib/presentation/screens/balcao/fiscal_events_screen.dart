@@ -14,7 +14,11 @@ import '../../../data/services/whatsapp_notification_service.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/utils/app_notif.dart';
+import '../../../domain/entities/colaborador.dart';
+import '../../providers/colaborador_provider.dart';
 import '../../providers/fiscal_events_provider.dart';
+import '../../providers/notificacao_provider.dart';
+import '../../widgets/selecao_colaborador_sheet.dart';
 import 'balcao_fontes_screen.dart';
 import 'balcao_permissao_screen.dart';
 
@@ -81,6 +85,9 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
   // Stats
   bool _mostrarStats = false;
 
+  // Filtro por colaborador
+  Colaborador? _colaboradorFiltro;
+
   @override
   bool get wantKeepAlive => true;
 
@@ -114,6 +121,23 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
     await _verificarPermissao();
     if (!mounted) return;
     final provider = context.read<FiscalEventsProvider>();
+    final notifProvider = context.read<NotificacaoProvider>();
+    final colaboradorProvider = context.read<ColaboradorProvider>();
+
+    // Alerta automático por acúmulo de eventos do mesmo colaborador
+    provider.onAcumuloDetectado = (colaboradorId, count) {
+      if (!mounted) return;
+      final colab = colaboradorProvider.todosColaboradores
+          .where((c) => c.id == colaboradorId)
+          .firstOrNull;
+      final nome = colab?.nome ?? 'Colaborador';
+      notifProvider.adicionarNotificacao(
+        titulo: 'Atenção: $nome',
+        mensagem: '$count eventos pendentes hoje — verifique o Balcão.',
+        tipo: 'alerta',
+      );
+    };
+
     await provider.load();
     if (!mounted) return;
     provider.subscribeRealtime();
@@ -162,12 +186,14 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
     return events.where((e) {
       final catOk = _selectedCategory == null || e.category == _selectedCategory;
       final statusOk = _selectedStatus == 'all' || e.status == _selectedStatus;
+      final colabOk = _colaboradorFiltro == null ||
+          e.colaboradorId == _colaboradorFiltro!.id;
       final buscaOk = q.isEmpty ||
           e.description.toLowerCase().contains(q) ||
           (e.employeeName?.toLowerCase().contains(q) ?? false) ||
           (e.sender?.toLowerCase().contains(q) ?? false) ||
           e.rawMessage.toLowerCase().contains(q);
-      return catOk && statusOk && buscaOk;
+      return catOk && statusOk && colabOk && buscaOk;
     }).toList();
   }
 
@@ -360,6 +386,50 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
                   _selectedCategory == e.key ? null : e.key),
             );
           }),
+          // Filtro por colaborador
+          _CatChip(
+            label: _colaboradorFiltro?.nome.split(' ').first ?? 'Colaborador',
+            icon: Icons.person_rounded,
+            color: AppColors.teal,
+            selected: _colaboradorFiltro != null,
+            onTap: () => _selecionarColaboradorFiltro(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _selecionarColaboradorFiltro() {
+    final colaboradores =
+        context.read<ColaboradorProvider>().todosColaboradores;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (_colaboradorFiltro != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: TextButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  setState(() => _colaboradorFiltro = null);
+                },
+                icon: Icon(Icons.close_rounded, size: 16),
+                label: const Text('Limpar filtro'),
+                style: TextButton.styleFrom(
+                    foregroundColor: AppColors.danger),
+              ),
+            ),
+          Flexible(
+            child: SelecaoColaboradorSheet(
+              colaboradores: colaboradores,
+              onSelected: (c) {
+                setState(() => _colaboradorFiltro = c);
+              },
+            ),
+          ),
         ],
       ),
     );
@@ -692,19 +762,24 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
   }
 
   void _abrirRecategorizacao(FiscalEvent event) {
+    final colaboradores =
+        context.read<ColaboradorProvider>().todosColaboradores;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _RecategorizacaoSheet(
         event: event,
-        onSave: (category, description, employeeName, amount) async {
+        colaboradores: colaboradores,
+        onSave: (category, description, employeeName, amount,
+            colaboradorId) async {
           await context.read<FiscalEventsProvider>().recategorizar(
                 event: event,
                 category: category,
                 description: description,
                 employeeName: employeeName,
                 amount: amount,
+                colaboradorId: colaboradorId,
               );
           if (mounted) {
             AppNotif.show(context,
@@ -1567,10 +1642,15 @@ class _StatChip extends StatelessWidget {
 
 class _RecategorizacaoSheet extends StatefulWidget {
   final FiscalEvent event;
-  final Future<void> Function(
-      String category, String description, String? employeeName, double? amount) onSave;
+  final List<Colaborador> colaboradores;
+  final Future<void> Function(String category, String description,
+      String? employeeName, double? amount, String? colaboradorId) onSave;
 
-  const _RecategorizacaoSheet({required this.event, required this.onSave});
+  const _RecategorizacaoSheet({
+    required this.event,
+    required this.colaboradores,
+    required this.onSave,
+  });
 
   @override
   State<_RecategorizacaoSheet> createState() => _RecategorizacaoSheetState();
@@ -1581,6 +1661,7 @@ class _RecategorizacaoSheetState extends State<_RecategorizacaoSheet> {
   late final TextEditingController _descCtrl;
   late final TextEditingController _empCtrl;
   late final TextEditingController _amountCtrl;
+  Colaborador? _colaborador;
   bool _saving = false;
 
   @override
@@ -1595,6 +1676,12 @@ class _RecategorizacaoSheetState extends State<_RecategorizacaoSheet> {
         text: widget.event.amount != null
             ? widget.event.amount!.toStringAsFixed(2).replaceAll('.', ',')
             : '');
+    // Pré-seleciona colaborador se já vinculado
+    if (widget.event.colaboradorId != null) {
+      _colaborador = widget.colaboradores
+          .where((c) => c.id == widget.event.colaboradorId)
+          .firstOrNull;
+    }
   }
 
   @override
@@ -1605,6 +1692,25 @@ class _RecategorizacaoSheetState extends State<_RecategorizacaoSheet> {
     super.dispose();
   }
 
+  void _abrirSeletorColaborador() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => SelecaoColaboradorSheet(
+        colaboradores: widget.colaboradores,
+        onSelected: (c) {
+          setState(() {
+            _colaborador = c;
+            // Preenche o campo de nome automaticamente se estiver vazio
+            if (_empCtrl.text.trim().isEmpty) {
+              _empCtrl.text = c.nome.split(' ').first;
+            }
+          });
+        },
+      ),
+    );
+  }
+
   Future<void> _save() async {
     if (_descCtrl.text.trim().isEmpty) return;
     setState(() => _saving = true);
@@ -1612,8 +1718,8 @@ class _RecategorizacaoSheetState extends State<_RecategorizacaoSheet> {
         .replaceAll(',', '.')
         .replaceAll(RegExp(r'[^0-9.]'), ''));
     try {
-      await widget.onSave(
-          _category, _descCtrl.text.trim(), _empCtrl.text.trim(), amount);
+      await widget.onSave(_category, _descCtrl.text.trim(),
+          _empCtrl.text.trim(), amount, _colaborador?.id);
       if (mounted) Navigator.pop(context);
     } catch (_) {
       if (mounted) setState(() => _saving = false);
@@ -1658,6 +1764,59 @@ class _RecategorizacaoSheetState extends State<_RecategorizacaoSheet> {
                   .copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: 6),
           _Field(controller: _descCtrl, hint: 'Descrição do evento', maxLines: 3),
+          const SizedBox(height: 14),
+          // Vínculo com colaborador
+          Text('Colaborador vinculado',
+              style: AppTextStyles.caption
+                  .copyWith(color: AppColors.textSecondary)),
+          const SizedBox(height: 6),
+          GestureDetector(
+            onTap: _abrirSeletorColaborador,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.backgroundSection,
+                borderRadius: BorderRadius.circular(Dimensions.radiusSM),
+                border: Border.all(
+                    color: _colaborador != null
+                        ? AppColors.teal.withValues(alpha: 0.5)
+                        : AppColors.cardBorder),
+              ),
+              child: Row(children: [
+                CircleAvatar(
+                  radius: 14,
+                  backgroundColor: _colaborador != null
+                      ? AppColors.teal.withValues(alpha: 0.15)
+                      : AppColors.cardBorder,
+                  child: Icon(Icons.person_rounded,
+                      size: 16,
+                      color: _colaborador != null
+                          ? AppColors.teal
+                          : AppColors.textSecondary),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    _colaborador?.nome ?? 'Toque para selecionar',
+                    style: AppTextStyles.body.copyWith(
+                      color: _colaborador != null
+                          ? AppColors.textPrimary
+                          : AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+                if (_colaborador != null)
+                  GestureDetector(
+                    onTap: () => setState(() => _colaborador = null),
+                    child: Icon(Icons.close_rounded,
+                        size: 16, color: AppColors.textSecondary),
+                  )
+                else
+                  Icon(Icons.arrow_forward_ios_rounded,
+                      size: 12, color: AppColors.textSecondary),
+              ]),
+            ),
+          ),
           const SizedBox(height: 14),
           Row(children: [
             Expanded(

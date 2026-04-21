@@ -8,6 +8,7 @@ import '../../../domain/entities/registro_ponto.dart';
 import '../../../domain/enums/departamento_tipo.dart';
 import '../../providers/alocacao_provider.dart';
 import '../../providers/caixa_provider.dart';
+import '../../providers/fiscal_events_provider.dart';
 import '../../providers/registro_ponto_provider.dart';
 import 'colaborador_form_screen.dart';
 import 'registro_ponto_form_screen.dart';
@@ -189,6 +190,12 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                       color: AppColors.pink,
                       onTap: () => _showEstatisticasSheet(
                           context, alocacaoProvider, registroPontoProvider),
+                    ),
+                    _buildMenuCard(
+                      icon: Icons.receipt_long_rounded,
+                      label: 'Eventos Fiscais',
+                      color: AppColors.warning,
+                      onTap: () => _showEventosFiscaisSheet(context),
                     ),
                   ],
                 ),
@@ -413,6 +420,152 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                   .toString(),
             ),
             SizedBox(height: Dimensions.spacingMD),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Eventos Fiscais ───────────────────────────────────────────────────────
+
+  void _showEventosFiscaisSheet(BuildContext context) {
+    final fiscalProvider = context.read<FiscalEventsProvider>();
+    final eventos =
+        fiscalProvider.eventosDoColaborador(widget.colaborador.id);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+            top: Radius.circular(Dimensions.radiusSheet)),
+      ),
+      builder: (_) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.6,
+        maxChildSize: 0.95,
+        builder: (_, controller) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  Dimensions.paddingMD, Dimensions.paddingMD,
+                  Dimensions.paddingMD, 0),
+              child: _buildSheetHandle(
+                  'Eventos Fiscais (${eventos.length})'),
+            ),
+            Expanded(
+              child: eventos.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.receipt_long_rounded,
+                              size: 48,
+                              color: AppColors.textSecondary
+                                  .withValues(alpha: 0.4)),
+                          const SizedBox(height: 12),
+                          Text('Nenhum evento vinculado.',
+                              style: AppTextStyles.body.copyWith(
+                                  color: AppColors.textSecondary)),
+                        ],
+                      ),
+                    )
+                  : ListView.separated(
+                      controller: controller,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: Dimensions.paddingMD),
+                      itemCount: eventos.length,
+                      separatorBuilder: (_, __) =>
+                          const SizedBox(height: 6),
+                      itemBuilder: (_, i) {
+                        final e = eventos[i];
+                        final catColors = <String, Color>{
+                          'caixa': AppColors.statusCafe,
+                          'ausencia': AppColors.danger,
+                          'atestado': AppColors.statusAtencao,
+                          'horario_especial': AppColors.info,
+                          'ferias': AppColors.teal,
+                          'vale': AppColors.indigo,
+                          'problema_operacional': AppColors.warning,
+                          'aviso_geral': AppColors.blueGrey,
+                        };
+                        final cor =
+                            catColors[e.category] ?? AppColors.blueGrey;
+                        return Card(
+                          margin: EdgeInsets.zero,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                Dimensions.radiusSM),
+                            side: BorderSide(
+                                color: cor.withValues(alpha: 0.35)),
+                          ),
+                          child: ListTile(
+                            contentPadding:
+                                const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 4),
+                            leading: CircleAvatar(
+                              radius: 18,
+                              backgroundColor:
+                                  cor.withValues(alpha: 0.12),
+                              child: Icon(Icons.receipt_long_rounded,
+                                  color: cor, size: 16),
+                            ),
+                            title: Text(
+                              e.description,
+                              style: AppTextStyles.body,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            subtitle: Row(children: [
+                              Container(
+                                margin: const EdgeInsets.only(
+                                    right: 6, top: 4),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: cor.withValues(alpha: 0.1),
+                                  borderRadius:
+                                      BorderRadius.circular(4),
+                                ),
+                                child: Text(e.category,
+                                    style: AppTextStyles.caption
+                                        .copyWith(color: cor)),
+                              ),
+                              Text(
+                                '${e.eventDate.day.toString().padLeft(2, '0')}/${e.eventDate.month.toString().padLeft(2, '0')}',
+                                style: AppTextStyles.caption.copyWith(
+                                    color: AppColors.textSecondary),
+                              ),
+                            ]),
+                            trailing: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: e.status == 'pending'
+                                    ? AppColors.warning
+                                        .withValues(alpha: 0.12)
+                                    : AppColors.success
+                                        .withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                e.status == 'pending'
+                                    ? 'Pendente'
+                                    : 'Resolvido',
+                                style: AppTextStyles.caption.copyWith(
+                                  color: e.status == 'pending'
+                                      ? AppColors.warning
+                                      : AppColors.success,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
           ],
         ),
       ),
