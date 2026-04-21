@@ -12,13 +12,16 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class WhatsAppNotificationService {
   WhatsAppNotificationService._();
 
-  // Nome exato do grupo (case-sensitive) — ajuste se necessário
-  static const String nomeGrupo = 'Balcão Fiscal';
-
   // Aceita WhatsApp e WhatsApp Business
   static const List<String> _whatsappPackages = [
     'com.whatsapp',
     'com.whatsapp.w4b',
+  ];
+
+  // Fontes aceitas (case-insensitive) — grupo real + contatos de teste
+  static const List<String> _fontesAceitas = [
+    'balcão fiscal',   // grupo principal
+    'pyetro filho',    // contato de teste
   ];
 
   static bool _iniciado = false;
@@ -71,9 +74,9 @@ class WhatsAppNotificationService {
     // Filtra apenas WhatsApp e WhatsApp Business
     if (!_whatsappPackages.contains(event.packageName)) return;
 
-    // Filtra pelo grupo
-    final titulo = event.title ?? '';
-    if (!titulo.contains(nomeGrupo)) return;
+    // Filtra pela fonte (grupo ou contato) — case-insensitive
+    final titulo = (event.title ?? '').toLowerCase();
+    if (!_fontesAceitas.any((f) => titulo.contains(f))) return;
 
     final body = event.content ?? '';
     if (body.isEmpty) return;
