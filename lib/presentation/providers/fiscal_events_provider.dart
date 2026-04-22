@@ -10,15 +10,24 @@ class FiscalEvent {
   String category;
   String description;
   String? employeeName;
-  String? colaboradorId; // FK para colaboradores.id
+  String? colaboradorId;
   double? amount;
   final String? sender;
   final String rawMessage;
   final DateTime eventDate;
   String status;
   final double confidence;
-  final String? mediaType; // 'audio' | 'foto' | null
+  final String? mediaType;
   bool needsReview;
+  // Fase 2 — novos campos (todos nullable para compatibilidade)
+  DateTime? resolvedAt;
+  String? resolvedBy;
+  String? notes;
+  int? caixaNumero;
+  String? scheduledTime; // "HH:MM"
+  String? turno;         // "manha" | "tarde" | "noite"
+  String source;         // "whatsapp" | "manual" | "sistema"
+  String priority;       // "baixa" | "normal" | "alta" | "critica"
 
   FiscalEvent({
     required this.id,
@@ -34,6 +43,14 @@ class FiscalEvent {
     required this.confidence,
     this.mediaType,
     required this.needsReview,
+    this.resolvedAt,
+    this.resolvedBy,
+    this.notes,
+    this.caixaNumero,
+    this.scheduledTime,
+    this.turno,
+    this.source = 'whatsapp',
+    this.priority = 'normal',
   });
 
   factory FiscalEvent.fromMap(Map<String, dynamic> m) => FiscalEvent(
@@ -51,7 +68,20 @@ class FiscalEvent {
         confidence: (m['confidence'] as num?)?.toDouble() ?? 0.5,
         mediaType: m['media_type'] as String?,
         needsReview: m['needs_review'] as bool? ?? false,
+        resolvedAt: m['resolved_at'] != null
+            ? DateTime.parse(m['resolved_at'] as String)
+            : null,
+        resolvedBy: m['resolved_by'] as String?,
+        notes: m['notes'] as String?,
+        caixaNumero: m['caixa_numero'] as int?,
+        scheduledTime: m['scheduled_time'] as String?,
+        turno: m['turno'] as String?,
+        source: m['source'] as String? ?? 'whatsapp',
+        priority: m['priority'] as String? ?? 'normal',
       );
+
+  bool get isAlta => priority == 'alta' || priority == 'critica';
+  bool get isCritica => priority == 'critica';
 }
 
 // ─────────────────────────────────────────────
@@ -76,8 +106,13 @@ class FiscalEventsProvider with ChangeNotifier {
       _events.where((e) => e.needsReview && e.status == 'pending').length;
 
   /// Callback disparado quando um colaborador acumula ≥2 eventos pendentes no mesmo dia.
-  /// Parâmetros: (colaboradorId, contagem)
   void Function(String colaboradorId, int count)? onAcumuloDetectado;
+
+  /// Callback disparado quando chega evento de caixa com valor ≥ R$ 50.
+  void Function(FiscalEvent event)? onValorAltoCaixa;
+
+  /// Callback disparado quando colaborador tem ≥3 eventos em 7 dias (reincidência).
+  void Function(String colaboradorId, int count)? onReincidencia;
 
   // ── Filtro por colaborador ────────────────────────────────────────────────
 
@@ -171,6 +206,13 @@ class FiscalEventsProvider with ChangeNotifier {
             _events.insert(0, e);
             notifyListeners();
 
+            // Alerta: valor alto de caixa (≥ R$ 50)
+            if (e.category == 'caixa' &&
+                (e.amount ?? 0) >= 50 &&
+                onValorAltoCaixa != null) {
+              onValorAltoCaixa!(e);
+            }
+
             // Detecta acúmulo de eventos para o mesmo colaborador no mesmo dia
             if (e.colaboradorId != null && onAcumuloDetectado != null) {
               final hoje = DateTime.now();
@@ -182,6 +224,16 @@ class FiscalEventsProvider with ChangeNotifier {
                 ev.eventDate.day == hoje.day,
               ).length;
               if (count >= 2) onAcumuloDetectado!(e.colaboradorId!, count);
+            }
+
+            // Detecta reincidência: ≥3 eventos do mesmo colaborador nos últimos 7 dias
+            if (e.colaboradorId != null && onReincidencia != null) {
+              final limite = DateTime.now().subtract(const Duration(days: 7));
+              final count = _events.where((ev) =>
+                ev.colaboradorId == e.colaboradorId &&
+                ev.eventDate.isAfter(limite),
+              ).length;
+              if (count >= 3) onReincidencia!(e.colaboradorId!, count);
             }
           },
         )
@@ -282,6 +334,81 @@ class FiscalEventsProvider with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       rethrow;
+    }
+  }
+
+  /// Resolve um evento gravando resolved_at e resolved_by.
+  Future<void> resolver(FiscalEvent event, {String? resolvedBy}) async {
+    final now = DateTime.now();
+    final anterior = event.status;
+    event.status = 'resolved';
+    event.resolvedAt = now;
+    event.resolvedBy = resolvedBy;
+    notifyListeners();
+    try {
+      await _client.from(_table).update({
+        'status': 'resolved',
+        'resolved_at': now.toIso8601String(),
+        'resolved_by': resolvedBy,
+      }).eq('id', event.id);
+    } catch (e) {
+      event.status = anterior;
+      event.resolvedAt = null;
+      event.resolvedBy = null;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  /// Adiciona ou atualiza a nota manual de um evento.
+  Future<void> adicionarNota(FiscalEvent event, String nota) async {
+    final anterior = event.notes;
+    event.notes = nota.trim().isEmpty ? null : nota.trim();
+    notifyListeners();
+    try {
+      await _client.from(_table).update({
+        'notes': event.notes,
+      }).eq('id', event.id);
+    } catch (e) {
+      event.notes = anterior;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  /// Cria um evento manualmente (sem WhatsApp).
+  Future<FiscalEvent?> criarManual({
+    required String category,
+    required String description,
+    String? employeeName,
+    String? colaboradorId,
+    double? amount,
+    String priority = 'normal',
+    String? notes,
+  }) async {
+    try {
+      final data = await _client.from(_table).insert({
+        'category': category,
+        'description': description,
+        'employee_name': employeeName?.isNotEmpty == true ? employeeName : null,
+        'colaborador_id': colaboradorId,
+        'amount': amount,
+        'raw_message': description,
+        'event_date': DateTime.now().toIso8601String(),
+        'status': 'pending',
+        'confidence': 1.0,
+        'needs_review': false,
+        'source': 'manual',
+        'priority': priority,
+        'notes': notes?.isNotEmpty == true ? notes : null,
+      }).select().single();
+      final evento = FiscalEvent.fromMap(data);
+      _events.insert(0, evento);
+      notifyListeners();
+      return evento;
+    } catch (e) {
+      if (kDebugMode) debugPrint('[FiscalEventsProvider] criarManual: $e');
+      return null;
     }
   }
 

@@ -19,8 +19,10 @@ import '../../providers/colaborador_provider.dart';
 import '../../providers/fiscal_events_provider.dart';
 import '../../providers/notificacao_provider.dart';
 import '../../widgets/selecao_colaborador_sheet.dart';
+import '../ocorrencias/ocorrencia_form_screen.dart';
 import 'balcao_fontes_screen.dart';
 import 'balcao_permissao_screen.dart';
+import 'relatorio_balcao_screen.dart';
 
 // ─────────────────────────────────────────────
 //  CONFIGURAÇÃO DE CATEGORIAS
@@ -52,6 +54,12 @@ final Map<String, _CatConfig> _cats = {
       _CatConfig('Aviso', Icons.campaign, () => AppColors.blueGrey),
   'midia_pendente':
       _CatConfig('Mídia', Icons.perm_media, () => AppColors.deepPurple),
+  'troco':
+      _CatConfig('Troco', Icons.currency_exchange_rounded, () => AppColors.statusAtencao),
+  'escala':
+      _CatConfig('Escala', Icons.calendar_month_rounded, () => AppColors.indigo),
+  'cooperativa':
+      _CatConfig('Cooperativa', Icons.groups_rounded, () => AppColors.cyan),
 };
 
 _CatConfig _catOf(String cat) => _cats[cat] ?? _cats['aviso_geral']!;
@@ -87,6 +95,9 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
 
   // Filtro por colaborador
   Colaborador? _colaboradorFiltro;
+
+  // Filtro por data: 'hoje' | 'ontem' | 'semana' | 'todos'
+  String _filtroPeriodo = 'todos';
 
   @override
   bool get wantKeepAlive => true;
@@ -124,7 +135,7 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
     final notifProvider = context.read<NotificacaoProvider>();
     final colaboradorProvider = context.read<ColaboradorProvider>();
 
-    // Alerta automático por acúmulo de eventos do mesmo colaborador
+    // Alerta: acúmulo no mesmo dia
     provider.onAcumuloDetectado = (colaboradorId, count) {
       if (!mounted) return;
       final colab = colaboradorProvider.todosColaboradores
@@ -134,6 +145,31 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
       notifProvider.adicionarNotificacao(
         titulo: 'Atenção: $nome',
         mensagem: '$count eventos pendentes hoje — verifique o Balcão.',
+        tipo: 'alerta',
+      );
+    };
+
+    // Alerta: valor alto de caixa
+    provider.onValorAltoCaixa = (event) {
+      if (!mounted) return;
+      final fmt = event.amount?.toStringAsFixed(2).replaceAll('.', ',') ?? '';
+      notifProvider.adicionarNotificacao(
+        titulo: 'Diferença alta de caixa',
+        mensagem: 'R\$ $fmt${event.employeeName != null ? ' — ${event.employeeName}' : ''}. Revisar urgente.',
+        tipo: 'alerta',
+      );
+    };
+
+    // Alerta: reincidência em 7 dias
+    provider.onReincidencia = (colaboradorId, count) {
+      if (!mounted) return;
+      final colab = colaboradorProvider.todosColaboradores
+          .where((c) => c.id == colaboradorId)
+          .firstOrNull;
+      final nome = colab?.nome ?? 'Colaborador';
+      notifProvider.adicionarNotificacao(
+        titulo: 'Reincidência: $nome',
+        mensagem: '$count eventos nos últimos 7 dias. Atenção redobrada.',
         tipo: 'alerta',
       );
     };
@@ -183,17 +219,28 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
 
   List<FiscalEvent> _filtrar(List<FiscalEvent> events) {
     final q = _queryBusca.trim().toLowerCase();
+    final agora = DateTime.now();
+    final hoje = DateTime(agora.year, agora.month, agora.day);
+    final ontem = hoje.subtract(const Duration(days: 1));
+    final semana = hoje.subtract(const Duration(days: 7));
+
     return events.where((e) {
       final catOk = _selectedCategory == null || e.category == _selectedCategory;
       final statusOk = _selectedStatus == 'all' || e.status == _selectedStatus;
       final colabOk = _colaboradorFiltro == null ||
           e.colaboradorId == _colaboradorFiltro!.id;
+      final periodoOk = switch (_filtroPeriodo) {
+        'hoje' => !e.eventDate.isBefore(hoje),
+        'ontem' => !e.eventDate.isBefore(ontem) && e.eventDate.isBefore(hoje),
+        'semana' => !e.eventDate.isBefore(semana),
+        _ => true,
+      };
       final buscaOk = q.isEmpty ||
           e.description.toLowerCase().contains(q) ||
           (e.employeeName?.toLowerCase().contains(q) ?? false) ||
           (e.sender?.toLowerCase().contains(q) ?? false) ||
           e.rawMessage.toLowerCase().contains(q);
-      return catOk && statusOk && colabOk && buscaOk;
+      return catOk && statusOk && colabOk && periodoOk && buscaOk;
     }).toList();
   }
 
@@ -295,6 +342,13 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
                   MaterialPageRoute(builder: (_) => const BalcaoFontesScreen()),
                 );
               }
+              if (action == _BalcaoAction.relatorio) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const RelatorioBalcaoScreen()),
+                );
+              }
             },
             itemBuilder: (_) => [
               PopupMenuItem(
@@ -331,9 +385,26 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
                   const Text('Fontes monitoradas'),
                 ]),
               ),
+              const PopupMenuDivider(),
+              PopupMenuItem(
+                value: _BalcaoAction.relatorio,
+                child: Row(children: [
+                  Icon(Icons.summarize_outlined, size: 18, color: AppColors.textSecondary),
+                  const SizedBox(width: 10),
+                  const Text('Relatório do dia'),
+                ]),
+              ),
             ],
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _abrirCriarEvento,
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add_rounded, size: 20),
+        label: const Text('Novo evento',
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -349,6 +420,7 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
           if (_debugMode) _buildDiagPanel(),
           if (_mostrarStats) _buildStatsPanel(provider),
           if (_mostrarBusca) _buildSearchBar(),
+          _buildPeriodoFilter(),
           _buildCategoryFilters(provider.events),
           _buildStatusTabs(),
           Expanded(child: _buildList(provider)),
@@ -571,6 +643,7 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
               onIgnore: () => _updateStatus(event, 'ignored'),
               onReopen: () => _updateStatus(event, 'pending'),
               onEdit: () => _abrirRecategorizacao(event),
+              onNota: () => _abrirNotaSheet(event),
             ),
           );
         },
@@ -826,7 +899,16 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
   Future<void> _updateStatus(FiscalEvent event, String novoStatus) async {
     HapticFeedback.lightImpact();
     try {
-      await context.read<FiscalEventsProvider>().atualizarStatus(event, novoStatus);
+      final provider = context.read<FiscalEventsProvider>();
+      if (novoStatus == 'resolved') {
+        await provider.resolver(event);
+        if (mounted &&
+            (event.category == 'ausencia' || event.category == 'caixa')) {
+          _sugerirOcorrencia(event);
+        }
+      } else {
+        await provider.atualizarStatus(event, novoStatus);
+      }
     } catch (_) {
       if (mounted) {
         AppNotif.show(context,
@@ -836,6 +918,57 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
             cor: AppColors.danger);
       }
     }
+  }
+
+  void _sugerirOcorrencia(FiscalEvent event) {
+    final isAusencia = event.category == 'ausencia';
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.cardBackground,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(Dimensions.radiusMD)),
+        title: Text(
+          isAusencia
+              ? 'Registrar ocorrência?'
+              : 'Registrar diferença de caixa?',
+          style: AppTextStyles.h4,
+        ),
+        content: Text(
+          isAusencia
+              ? 'Deseja abrir uma ocorrência de falta para este colaborador?'
+              : 'Deseja registrar uma ocorrência de diferença no caixa?',
+          style: AppTextStyles.body
+              .copyWith(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('Não agora',
+                style: TextStyle(color: AppColors.textSecondary)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => OcorrenciaFormScreen(
+                    colaboradorId: event.colaboradorId,
+                    colaboradorNome: event.employeeName,
+                    caixaId: event.caixaNumero?.toString(),
+                  ),
+                ),
+              );
+            },
+            child: Text('Sim, abrir',
+                style: TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
   }
 
   void _abrirPreenchimentoMidia(FiscalEvent event) {
@@ -859,6 +992,167 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
                 mensagem: 'Informações registradas.',
                 tipo: 'saida',
                 cor: AppColors.success);
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildPeriodoFilter() {
+    const periodos = [
+      ('todos', 'Todos'),
+      ('hoje', 'Hoje'),
+      ('ontem', 'Ontem'),
+      ('semana', '7 dias'),
+    ];
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+          Dimensions.paddingMD, 4, Dimensions.paddingMD, 0),
+      child: Row(
+        children: periodos.map((p) {
+          final sel = _filtroPeriodo == p.$1;
+          return GestureDetector(
+            onTap: () => setState(() => _filtroPeriodo = p.$1),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              margin: const EdgeInsets.only(right: 6),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+              decoration: BoxDecoration(
+                color: sel
+                    ? AppColors.primary.withValues(alpha: 0.12)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: sel
+                      ? AppColors.primary.withValues(alpha: 0.4)
+                      : AppColors.cardBorder.withValues(alpha: 0.6),
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                p.$2,
+                style: AppTextStyles.caption.copyWith(
+                  color:
+                      sel ? AppColors.primary : AppColors.textSecondary,
+                  fontWeight:
+                      sel ? FontWeight.w700 : FontWeight.w500,
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  void _abrirNotaSheet(FiscalEvent event) {
+    final ctrl = TextEditingController(text: event.notes ?? '');
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        final bottom = MediaQuery.of(ctx).viewInsets.bottom;
+        return Container(
+          margin: const EdgeInsets.all(Dimensions.paddingSM),
+          padding: EdgeInsets.fromLTRB(
+              Dimensions.paddingLG,
+              Dimensions.paddingLG,
+              Dimensions.paddingLG,
+              Dimensions.paddingLG + bottom),
+          decoration: BoxDecoration(
+            color: AppColors.cardBackground,
+            borderRadius: BorderRadius.circular(Dimensions.radiusSheet),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [
+                Icon(Icons.sticky_note_2_outlined,
+                    color: AppColors.primary, size: 18),
+                const SizedBox(width: 8),
+                Text('Nota do evento', style: AppTextStyles.h4),
+              ]),
+              const SizedBox(height: 6),
+              Text(
+                event.description,
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 16),
+              _Field(
+                controller: ctrl,
+                hint: 'Adicione uma observação…',
+                maxLines: 4,
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(Dimensions.radiusSM)),
+                  ),
+                  onPressed: () async {
+                    await context
+                        .read<FiscalEventsProvider>()
+                        .adicionarNota(event, ctrl.text);
+                    if (ctx.mounted) Navigator.pop(ctx);
+                  },
+                  child: const Text('Salvar nota',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w700, fontSize: 15)),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _abrirCriarEvento() {
+    final colaboradores =
+        context.read<ColaboradorProvider>().todosColaboradores;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _CriarEventoSheet(
+        colaboradores: colaboradores,
+        onCreate: (category, description, employeeName, colaboradorId,
+            amount, priority, notes) async {
+          final evento =
+              await context.read<FiscalEventsProvider>().criarManual(
+                    category: category,
+                    description: description,
+                    employeeName: employeeName,
+                    colaboradorId: colaboradorId,
+                    amount: amount,
+                    priority: priority,
+                    notes: notes,
+                  );
+          if (!mounted) return;
+          if (evento != null) {
+            AppNotif.show(context,
+                titulo: 'Evento criado',
+                mensagem: 'Novo evento registrado com sucesso.',
+                tipo: 'saida',
+                cor: AppColors.success);
+          } else {
+            AppNotif.show(context,
+                titulo: 'Erro',
+                mensagem: 'Não foi possível criar o evento.',
+                tipo: 'alerta',
+                cor: AppColors.danger);
           }
         },
       ),
@@ -986,6 +1280,7 @@ class _EventCard extends StatelessWidget {
   final VoidCallback onIgnore;
   final VoidCallback onReopen;
   final VoidCallback onEdit;
+  final VoidCallback onNota;
 
   const _EventCard({
     required this.event,
@@ -994,6 +1289,7 @@ class _EventCard extends StatelessWidget {
     required this.onIgnore,
     required this.onReopen,
     required this.onEdit,
+    required this.onNota,
   });
 
   @override
@@ -1019,7 +1315,7 @@ class _EventCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Dimensions.paddingMD),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          // Linha 1: categoria + timestamp
+          // Linha 1: categoria + prioridade + timestamp
           Row(children: [
             Icon(cfg.icon, color: color, size: 13),
             const SizedBox(width: 5),
@@ -1029,6 +1325,31 @@ class _EventCard extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.8,
                     fontSize: 10)),
+            if (event.isAlta) ...[
+              const SizedBox(width: 6),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                decoration: BoxDecoration(
+                  color: (event.isCritica
+                          ? AppColors.danger
+                          : AppColors.warning)
+                      .withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  event.isCritica ? 'CRÍTICA' : 'ALTA',
+                  style: AppTextStyles.caption.copyWith(
+                    color: event.isCritica
+                        ? AppColors.danger
+                        : AppColors.warning,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            ],
             const Spacer(),
             Text(timestamp,
                 style: AppTextStyles.caption
@@ -1047,7 +1368,8 @@ class _EventCard extends StatelessWidget {
           // Tags
           if (event.employeeName != null ||
               event.amount != null ||
-              event.sender != null)
+              event.sender != null ||
+              event.notes != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Wrap(spacing: 6, runSpacing: 4, children: [
@@ -1068,6 +1390,11 @@ class _EventCard extends StatelessWidget {
                       icon: Icons.send_rounded,
                       label: event.sender!,
                       color: AppColors.info),
+                if (event.notes != null)
+                  _Tag(
+                      icon: Icons.sticky_note_2_outlined,
+                      label: event.notes!,
+                      color: AppColors.textSecondary),
               ]),
             ),
 
@@ -1093,6 +1420,17 @@ class _EventCard extends StatelessWidget {
                       color: AppColors.primary,
                       decoration: TextDecoration.underline,
                       decorationColor: AppColors.primary)),
+            ),
+            Text('  ·  ',
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary)),
+            GestureDetector(
+              onTap: onNota,
+              child: Text('nota',
+                  style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textSecondary,
+                      decoration: TextDecoration.underline,
+                      decorationColor: AppColors.textSecondary)),
             ),
             const Spacer(),
             if (isPending) ...[
@@ -1875,4 +2213,320 @@ class _RecategorizacaoSheetState extends State<_RecategorizacaoSheet> {
 //  ENUM DE AÇÕES DO MENU
 // ─────────────────────────────────────────────
 
-enum _BalcaoAction { atualizar, teste, debug, configurarFontes }
+enum _BalcaoAction { atualizar, teste, debug, configurarFontes, relatorio }
+
+// ─────────────────────────────────────────────
+//  SHEET: CRIAR EVENTO MANUAL
+// ─────────────────────────────────────────────
+
+class _CriarEventoSheet extends StatefulWidget {
+  final List<Colaborador> colaboradores;
+  final Future<void> Function(
+    String category,
+    String description,
+    String? employeeName,
+    String? colaboradorId,
+    double? amount,
+    String priority,
+    String? notes,
+  ) onCreate;
+
+  const _CriarEventoSheet({
+    required this.colaboradores,
+    required this.onCreate,
+  });
+
+  @override
+  State<_CriarEventoSheet> createState() => _CriarEventoSheetState();
+}
+
+class _CriarEventoSheetState extends State<_CriarEventoSheet> {
+  String _category = 'aviso_geral';
+  String _priority = 'normal';
+  final _descCtrl = TextEditingController();
+  final _empCtrl = TextEditingController();
+  final _amountCtrl = TextEditingController();
+  final _notesCtrl = TextEditingController();
+  Colaborador? _colaborador;
+  bool _saving = false;
+
+  @override
+  void dispose() {
+    _descCtrl.dispose();
+    _empCtrl.dispose();
+    _amountCtrl.dispose();
+    _notesCtrl.dispose();
+    super.dispose();
+  }
+
+  void _abrirSeletorColaborador() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => SelecaoColaboradorSheet(
+        colaboradores: widget.colaboradores,
+        onSelected: (c) => setState(() {
+          _colaborador = c;
+          if (_empCtrl.text.trim().isEmpty) {
+            _empCtrl.text = c.nome.split(' ').first;
+          }
+        }),
+      ),
+    );
+  }
+
+  Future<void> _save() async {
+    if (_descCtrl.text.trim().isEmpty) return;
+    setState(() => _saving = true);
+    final amount = double.tryParse(_amountCtrl.text
+        .replaceAll(',', '.')
+        .replaceAll(RegExp(r'[^0-9.]'), ''));
+    try {
+      await widget.onCreate(
+        _category,
+        _descCtrl.text.trim(),
+        _empCtrl.text.trim().isEmpty ? null : _empCtrl.text.trim(),
+        _colaborador?.id,
+        amount,
+        _priority,
+        _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
+      );
+      if (mounted) Navigator.pop(context);
+    } catch (_) {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottom = MediaQuery.of(context).viewInsets.bottom;
+    const prioridades = [
+      ('normal', 'Normal'),
+      ('baixa', 'Baixa'),
+      ('alta', 'Alta'),
+      ('critica', 'Crítica'),
+    ];
+
+    return Container(
+      margin: const EdgeInsets.all(Dimensions.paddingSM),
+      padding: EdgeInsets.fromLTRB(
+          Dimensions.paddingLG,
+          Dimensions.paddingLG,
+          Dimensions.paddingLG,
+          Dimensions.paddingLG + bottom),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(Dimensions.radiusSheet),
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              Icon(Icons.add_circle_outline_rounded,
+                  color: AppColors.primary, size: 20),
+              const SizedBox(width: 8),
+              Text('Novo evento manual', style: AppTextStyles.h4),
+            ]),
+            const SizedBox(height: 16),
+
+            Text('Categoria',
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary)),
+            const SizedBox(height: 6),
+            _CatDropdown(
+              value: _category,
+              onChanged: (v) => setState(() => _category = v),
+            ),
+
+            const SizedBox(height: 14),
+
+            Text('Descrição *',
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary)),
+            const SizedBox(height: 6),
+            _Field(
+                controller: _descCtrl,
+                hint: 'Descreva o evento…',
+                maxLines: 3),
+
+            const SizedBox(height: 14),
+
+            Text('Colaborador vinculado',
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary)),
+            const SizedBox(height: 6),
+            GestureDetector(
+              onTap: _abrirSeletorColaborador,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: AppColors.backgroundSection,
+                  borderRadius:
+                      BorderRadius.circular(Dimensions.radiusSM),
+                  border: Border.all(
+                      color: _colaborador != null
+                          ? AppColors.teal.withValues(alpha: 0.5)
+                          : AppColors.cardBorder),
+                ),
+                child: Row(children: [
+                  CircleAvatar(
+                    radius: 14,
+                    backgroundColor: _colaborador != null
+                        ? AppColors.teal.withValues(alpha: 0.15)
+                        : AppColors.cardBorder,
+                    child: Icon(Icons.person_rounded,
+                        size: 16,
+                        color: _colaborador != null
+                            ? AppColors.teal
+                            : AppColors.textSecondary),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      _colaborador?.nome ?? 'Toque para selecionar',
+                      style: AppTextStyles.body.copyWith(
+                        color: _colaborador != null
+                            ? AppColors.textPrimary
+                            : AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                  if (_colaborador != null)
+                    GestureDetector(
+                      onTap: () => setState(() => _colaborador = null),
+                      child: Icon(Icons.close_rounded,
+                          size: 16, color: AppColors.textSecondary),
+                    )
+                  else
+                    Icon(Icons.arrow_forward_ios_rounded,
+                        size: 12, color: AppColors.textSecondary),
+                ]),
+              ),
+            ),
+
+            const SizedBox(height: 14),
+
+            Row(children: [
+              Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Funcionário',
+                          style: AppTextStyles.caption
+                              .copyWith(color: AppColors.textSecondary)),
+                      const SizedBox(height: 6),
+                      _Field(controller: _empCtrl, hint: 'Nome'),
+                    ]),
+              ),
+              const SizedBox(width: 12),
+              SizedBox(
+                width: 110,
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Valor (R\$)',
+                          style: AppTextStyles.caption
+                              .copyWith(color: AppColors.textSecondary)),
+                      const SizedBox(height: 6),
+                      _Field(
+                          controller: _amountCtrl,
+                          hint: '0,00',
+                          keyboardType: TextInputType.number),
+                    ]),
+              ),
+            ]),
+
+            const SizedBox(height: 14),
+
+            Text('Prioridade',
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary)),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: prioridades.map((p) {
+                final sel = _priority == p.$1;
+                Color c;
+                switch (p.$1) {
+                  case 'critica':
+                    c = AppColors.danger;
+                  case 'alta':
+                    c = AppColors.warning;
+                  case 'baixa':
+                    c = AppColors.textSecondary;
+                  default:
+                    c = AppColors.primary;
+                }
+                return GestureDetector(
+                  onTap: () => setState(() => _priority = p.$1),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: sel
+                          ? c.withValues(alpha: 0.12)
+                          : AppColors.backgroundSection,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                          color: sel
+                              ? c.withValues(alpha: 0.5)
+                              : AppColors.cardBorder,
+                          width: 1.5),
+                    ),
+                    child: Text(p.$2,
+                        style: AppTextStyles.caption.copyWith(
+                            color: sel ? c : AppColors.textSecondary,
+                            fontWeight: sel
+                                ? FontWeight.w700
+                                : FontWeight.w500)),
+                  ),
+                );
+              }).toList(),
+            ),
+
+            const SizedBox(height: 14),
+
+            Text('Observação (opcional)',
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary)),
+            const SizedBox(height: 6),
+            _Field(
+                controller: _notesCtrl,
+                hint: 'Alguma observação adicional…',
+                maxLines: 2),
+
+            const SizedBox(height: 20),
+
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: _saving ? null : _save,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(Dimensions.radiusSM)),
+                ),
+                child: _saving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                            color: Colors.white, strokeWidth: 2))
+                    : const Text('Criar evento',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w700, fontSize: 15)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

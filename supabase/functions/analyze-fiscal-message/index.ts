@@ -57,6 +57,41 @@ interface RuleResult {
   employee_name: string | null;
   amount: number | null;
   confidence: number;
+  caixa_numero?: number | null;
+  scheduled_time?: string | null; // "HH:MM"
+  turno?: string | null;          // "manha" | "tarde" | "noite"
+  priority?: string;              // "normal" | "alta" | "critica"
+}
+
+function extrairCaixaNumero(msg: string): number | null {
+  const m = msg.match(/\b(?:caixa|cx)\s*(\d{1,3})\b/i);
+  if (!m) return null;
+  const n = parseInt(m[1], 10);
+  return isNaN(n) ? null : n;
+}
+
+function extrairHorario(msg: string): string | null {
+  const m = msg.match(/\b(\d{1,2})[h:](\d{2})\b/) ??
+            msg.match(/\b(\d{1,2})h\b/i);
+  if (!m) return null;
+  const h = m[1].padStart(2, '0');
+  const min = (m[2] ?? '00').padStart(2, '0');
+  if (parseInt(h) > 23 || parseInt(min) > 59) return null;
+  return `${h}:${min}`;
+}
+
+function inferirTurno(timestamp: string): string {
+  const hour = new Date(timestamp).getHours();
+  if (hour < 12) return 'manha';
+  if (hour < 18) return 'tarde';
+  return 'noite';
+}
+
+function inferirPrioridade(category: string, amount: number | null): string {
+  if (category === 'caixa' && amount !== null && amount >= 50) return 'alta';
+  if (category === 'caixa' && amount !== null && amount >= 100) return 'critica';
+  if (category === 'problema_operacional') return 'alta';
+  return 'normal';
 }
 
 function extrairValor(msg: string): number | null {
@@ -86,24 +121,40 @@ function extrairNome(msg: string, sender: string): string | null {
   return null;
 }
 
-function categorizarPorRegra(msg: string, sender: string): RuleResult | null {
-  const m = msg.toLowerCase();
+function categorizarPorRegra(msg: string, sender: string, timestamp: string): RuleResult | null {
+  const turno = inferirTurno(timestamp);
 
   // CAIXA — falta/sobra de dinheiro no caixa
-  // Padrões reais: "O caixa da Talita faltou 9,90", "sobrou 10,76",
-  // "Ta faltando um desconto de 0,60 centavos no caixa 106", "Segunda faltou 74,27"
   if (/falt(?:ou|a|ando)\s*r\$|sobr(?:ou|a)\s*r\$|diferen.a\s*(?:no\s*)?caixa|falta\s*(?:de\s*)?dinheiro/i.test(msg) ||
       /(?:caixa|cx)\b.{0,60}\b(?:falt|sobr)/i.test(msg) ||
       /(?:falt|sobr)(?:ou|a)\b.{0,60}\b(?:caixa|cx)\b/i.test(msg) ||
       /(?:falt|sobr)(?:ou|a|ando)\s+\d+[.,]\d{2}/i.test(msg) ||
       /(?:falt|sobr)(?:ou|a|ando)\s+\d+\s*(?:real|reais)/i.test(msg) ||
       /(?:ta|tá|está|esta)\s+faltando.{0,40}(?:caixa|desconto|r\$|\d)/i.test(msg)) {
+    const amount = extrairValor(msg);
     return {
       category: 'caixa',
       description: msg.trim(),
       employee_name: extrairNome(msg, sender),
-      amount: extrairValor(msg),
+      amount,
+      caixa_numero: extrairCaixaNumero(msg),
+      turno,
+      priority: inferirPrioridade('caixa', amount),
       confidence: 0.92,
+    };
+  }
+
+  // TROCO — falta de troco no caixa (diferente de diferença de valor)
+  if (/sem\s+troco|falt[ao]?\s+troco|troco\s+(?:insuficiente|acabou|esgotado)|n[aã]o\s+tem\s+troco|precisa\s+de\s+troco/i.test(msg)) {
+    return {
+      category: 'troco',
+      description: msg.trim(),
+      employee_name: null,
+      amount: null,
+      caixa_numero: extrairCaixaNumero(msg),
+      turno,
+      priority: 'alta',
+      confidence: 0.90,
     };
   }
 
@@ -152,28 +203,56 @@ function categorizarPorRegra(msg: string, sender: string): RuleResult | null {
   }
 
   // HORÁRIO ESPECIAL — entrada/saída fora do horário
-  // Padrões reais: "Giulia vai entrar 8:00h", "Vou atrasar um pouquinho",
-  // "A Fran vai entrar 07:00", "Yara vai entrar 07:50 segunda"
   if (/vai\s*(?:chegar|entrar|sair)|vou\s*(?:entrar|sair|chegar)|chegando\s*(?:mais\s*)?tarde|vai\s*sair\s*(?:mais\s*)?cedo|saindo\s*antes|atraso(?:ada)?|atrasar|hora\s*extra|ficando\s*depois|entrar?\s*\d{1,2}[h:]\d{0,2}|entrar?\s*(?:às|as)\s*\d|sair?\s*(?:às|as)\s*\d|\d{1,2}[h:]\d{2}\s*(?:segunda|terça|quarta|quinta|sexta|sábado|domingo|amanhã|hoje)/i.test(msg)) {
     return {
       category: 'horario_especial',
       description: msg.trim(),
       employee_name: extrairNome(msg, sender),
       amount: null,
+      scheduled_time: extrairHorario(msg),
+      turno,
+      priority: 'normal',
       confidence: 0.85,
     };
   }
 
   // PROBLEMA OPERACIONAL — erros técnicos, TEF, impressora, POS
-  // Padrões reais: "2 cartões no Tef", "fechando pos errado", "impressora com problema",
-  // "cartão cobrado duas vezes", "pos duplicado"
   if (/pos\s*duplicad|c[oó]digo\s*n[aã]o\s*encontrad|sistema\s*(?:fora|caiu|erro)|erro\s*no\s*(?:sistema|terminal|pos|caixa)|n[aã]o\s*est[aá]\s*funcionando|terminal\s*travad|impressora.*problem|problem.*impressora|tef.*cart[aã]o|cart[aã]o.*tef|(?:dois|2)\s*cart[oã]es?.*tef|tef.*(?:dois|2)\s*cart[oã]es?|cart[aã]o\s*cobrado.*(?:duas?|2)\s*vez|pos\s*errado|fechando.*pos.*errado|vis[ae]\s*electron.*débito|pré.?pago.*errado/i.test(msg)) {
     return {
       category: 'problema_operacional',
       description: msg.trim(),
       employee_name: null,
       amount: null,
+      caixa_numero: extrairCaixaNumero(msg),
+      turno,
+      priority: 'alta',
       confidence: 0.87,
+    };
+  }
+
+  // ESCALA — troca de turno, pedido de folga, mudança de dia
+  if (/trocar?\s+(?:turno|dia|folga|sábado|domingo|plantão)|preciso\s+(?:de\s+)?folga|posso\s+(?:trocar|mudar)|muda[rn]\s+(?:meu\s+)?(?:dia|turno|escala)|algué[mn]\s+(?:pode|quer)\s+trocar/i.test(msg)) {
+    return {
+      category: 'escala',
+      description: msg.trim(),
+      employee_name: extrairNome(msg, sender),
+      amount: null,
+      turno,
+      priority: 'normal',
+      confidence: 0.85,
+    };
+  }
+
+  // COOPERATIVA — desconto de cooperativa
+  if (/cooper(?:ativa)?|desconto\s+coop|coop\s+desconto/i.test(msg)) {
+    return {
+      category: 'cooperativa',
+      description: msg.trim(),
+      employee_name: extrairNome(msg, sender),
+      amount: extrairValor(msg),
+      turno,
+      priority: 'normal',
+      confidence: 0.88,
     };
   }
 
@@ -189,14 +268,17 @@ const SYSTEM_PROMPT = `Você analisa mensagens de um grupo de fiscais de superme
 
 Categorias disponíveis:
 - caixa: falta ou sobra de dinheiro no caixa (ex: "caixa da Talita faltou 9,90", "sobrou 10,76")
-- ausencia: funcionário que não veio trabalhar (ex: "Ingrid não veio")
+- troco: falta de troco no caixa (ex: "sem troco no caixa 3", "precisa de troco")
+- ausencia: funcionário que não veio trabalhar sem atestado (ex: "Ingrid não veio")
 - atestado: afastamento médico com atestado
 - horario_especial: funcionário entrando ou saindo fora do horário (ex: "vai entrar 8:00h", "vou atrasar")
 - ferias: aviso de início ou fim de férias
 - vale: vale troca ou desconto emitido para cliente
 - problema_operacional: erro técnico, POS errado, TEF com problemas, impressora, sistema
-- aviso_geral: informes operacionais relevantes que não se enquadram acima (ex: instruções ao time, avisos sobre clientes, procedimentos)
-- nao_relevante: mensagem puramente social ou conversacional sem informação fiscal (ex: "bom dia", "ok", "já veio", "não me lembro", "obrigada")
+- escala: pedido de troca de turno, folga, mudança de dia de trabalho
+- cooperativa: desconto de cooperativa para funcionário
+- aviso_geral: informes operacionais relevantes que não se enquadram acima
+- nao_relevante: mensagem puramente social ou conversacional sem informação fiscal
 
 Retorne APENAS um JSON válido, sem texto antes ou depois, sem markdown.`;
 
@@ -311,7 +393,8 @@ serve(async (req) => {
     }
 
     // 2. Tenta regra local (custo zero)
-    let parsed = categorizarPorRegra(message, sender ?? "");
+    const ts = timestamp ?? new Date().toISOString();
+    let parsed = categorizarPorRegra(message, sender ?? "", ts);
     const usouIA = parsed === null;
 
     // 3. Fallback para Claude Haiku apenas se necessário
@@ -351,10 +434,15 @@ serve(async (req) => {
         description: parsed.description,
         employee_name: parsed.employee_name,
         colaborador_id: colaboradorId,
-        amount: parsed.amount,
+        amount: parsed.amount ?? null,
+        caixa_numero: parsed.caixa_numero ?? null,
+        scheduled_time: parsed.scheduled_time ?? null,
+        turno: parsed.turno ?? null,
+        priority: parsed.priority ?? "normal",
+        source: "whatsapp",
         sender: sender || null,
         raw_message: message,
-        event_date: timestamp ?? new Date().toISOString(),
+        event_date: ts,
         status: "pending",
         confidence: parsed.confidence,
       })
