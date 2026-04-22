@@ -88,30 +88,34 @@ class _GestaoScreenState extends State<GestaoScreen> {
       body: Column(
         children: [
           // Faixa de chips de navegação
-          Container(
-            color: tokens.cardBackground,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.fromLTRB(Dimensions.paddingMD,
-            Dimensions.paddingSM, Dimensions.paddingMD, Dimensions.paddingSM),
-                  child: Row(
-                    children: [
-                      for (int i = 0; i < destinos.length; i++) ...[
-                        if (i > 0) const SizedBox(width: 8),
-                        _GestaoChip(
-                          item: destinos[i],
-                          selected: i == _currentIndex,
-                          onTap: () => setState(() => _currentIndex = i),
-                        ),
+          SafeArea(
+            bottom: false,
+            child: Container(
+              color: tokens.cardBackground,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.fromLTRB(
+                        Dimensions.paddingMD, Dimensions.paddingMD,
+                        Dimensions.paddingMD, Dimensions.paddingSM),
+                    child: Row(
+                      children: [
+                        for (int i = 0; i < destinos.length; i++) ...[
+                          if (i > 0) const SizedBox(width: 8),
+                          _GestaoChip(
+                            item: destinos[i],
+                            selected: i == _currentIndex,
+                            onTap: () => setState(() => _currentIndex = i),
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
-                Divider(height: 1, thickness: 1, color: AppColors.divider),
-              ],
+                  Divider(height: 1, thickness: 1, color: AppColors.divider),
+                ],
+              ),
             ),
           ),
           // Conteúdo da aba ativa
