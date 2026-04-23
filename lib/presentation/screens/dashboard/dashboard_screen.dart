@@ -42,6 +42,7 @@ import '../pizzaria/pizza_module_screen.dart';
 import '../configuracoes/configuracoes_screen.dart';
 import '../balcao/fiscal_events_screen.dart';
 import '../../providers/fiscal_events_provider.dart';
+import '../cartazes/cartazes_home_page.dart';
 import '../../../data/services/seed_data_service.dart';
 import '../../../core/utils/app_notif.dart';
 import 'widgets/stats_card.dart';
@@ -416,6 +417,16 @@ class _DashboardScreenState extends State<DashboardScreen>
                               onPressed: () => Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (_) => const EscalaScreen(),
+                                ),
+                              ),
+                            ),
+                            _BotaoAcao(
+                              icon: Icons.local_offer_rounded,
+                              label: 'Cartazes',
+                              color: const Color(0xFFD6166A),
+                              onPressed: () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const CartazesHomePage(),
                                 ),
                               ),
                             ),
