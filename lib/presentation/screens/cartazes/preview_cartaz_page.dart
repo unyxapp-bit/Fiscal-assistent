@@ -1,7 +1,5 @@
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -66,10 +64,13 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
     setState(() => _exporting = true);
     try {
       final pngBytes = await _capturarPNG();
-      final dir = await getTemporaryDirectory();
-      final file = File('${dir.path}/$_nomeArquivo.png');
-      await file.writeAsBytes(pngBytes);
-      await Share.shareXFiles([XFile(file.path, mimeType: 'image/png')]);
+      await Share.shareXFiles([
+        XFile.fromData(
+          Uint8List.fromList(pngBytes),
+          mimeType: 'image/png',
+          name: '$_nomeArquivo.png',
+        ),
+      ]);
     } catch (e) {
       _mostrarErro(e);
     } finally {
