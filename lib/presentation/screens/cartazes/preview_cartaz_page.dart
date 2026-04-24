@@ -1,14 +1,16 @@
+import 'dart:math' as math;
 import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
+
 import '../../../data/models/cartaz_form_data.dart';
-import '../../widgets/cartazes/cartaz_aproveite_agora_widget.dart';
-import '../../widgets/cartazes/cartaz_proximo_vencimento_widget.dart';
-import '../../widgets/cartazes/cartaz_oferta_widget.dart';
+import '../../widgets/cartazes/poster_canvas.dart';
+import '../../widgets/cartazes/poster_factory.dart';
 
 class PreviewCartazPage extends StatefulWidget {
   final CartazFormData data;
@@ -23,16 +25,24 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
   final _screenshotController = ScreenshotController();
   bool _exporting = false;
 
+  Size get _posterSize => PosterCanvas.canvasSizeFor(widget.data.tamanho);
+
   PdfPageFormat get _pdfFormat {
     switch (widget.data.tamanho) {
       case CartazTamanho.a6:
-        return const PdfPageFormat(105 * PdfPageFormat.mm, 148 * PdfPageFormat.mm);
+        return const PdfPageFormat(
+          105 * PdfPageFormat.mm,
+          148 * PdfPageFormat.mm,
+        );
       case CartazTamanho.a4:
         return PdfPageFormat.a4;
       case CartazTamanho.a3:
         return PdfPageFormat.a3;
       case CartazTamanho.a2:
-        return const PdfPageFormat(420 * PdfPageFormat.mm, 594 * PdfPageFormat.mm);
+        return const PdfPageFormat(
+          420 * PdfPageFormat.mm,
+          594 * PdfPageFormat.mm,
+        );
     }
   }
 
@@ -43,21 +53,51 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
     return 'cartaz_${prod}_${widget.data.tamanho.label.toLowerCase()}';
   }
 
-  Future<List<int>> _capturarPNG() async {
-    final image = await _screenshotController.capture(pixelRatio: 3.0);
-    return image!.toList();
+  double get _capturePixelRatio {
+    final longestSide = _posterSize.longestSide;
+    if (longestSide <= 900) return 2.0;
+    if (longestSide <= 1400) return 1.6;
+    return 1.0;
   }
 
-  Future<List<int>> _gerarPDF(List<int> pngBytes) async {
+  Widget _buildTemplate() {
+    return buildPosterWidget(widget.data);
+  }
+
+  Widget _buildCaptureWidget() {
+    return Material(
+      type: MaterialType.transparency,
+      child: _buildTemplate(),
+    );
+  }
+
+  Future<Uint8List> _capturarPNG() async {
+    return _screenshotController.captureFromWidget(
+      _buildCaptureWidget(),
+      context: context,
+      delay: const Duration(milliseconds: 50),
+      pixelRatio: _capturePixelRatio,
+      targetSize: _posterSize,
+    );
+  }
+
+  Future<Uint8List> _gerarPDF(Uint8List pngBytes) async {
     final doc = pw.Document();
-    final img = pw.MemoryImage(Uint8List.fromList(pngBytes));
+    final img = pw.MemoryImage(pngBytes);
     doc.addPage(
       pw.Page(
-        pageFormat: _pdfFormat.copyWith(marginBottom: 0, marginLeft: 0, marginRight: 0, marginTop: 0),
-        build: (pw.Context ctx) => pw.Image(img, fit: pw.BoxFit.contain),
+        pageFormat: _pdfFormat.copyWith(
+          marginBottom: 0,
+          marginLeft: 0,
+          marginRight: 0,
+          marginTop: 0,
+        ),
+        build: (_) => pw.SizedBox.expand(
+          child: pw.Image(img, fit: pw.BoxFit.contain),
+        ),
       ),
     );
-    return doc.save();
+    return Uint8List.fromList(await doc.save());
   }
 
   Future<void> _compartilharPNG() async {
@@ -66,7 +106,7 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
       final pngBytes = await _capturarPNG();
       await Share.shareXFiles([
         XFile.fromData(
-          Uint8List.fromList(pngBytes),
+          pngBytes,
           mimeType: 'image/png',
           name: '$_nomeArquivo.png',
         ),
@@ -83,7 +123,7 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
     try {
       final pngBytes = await _capturarPNG();
       final pdfBytes = await _gerarPDF(pngBytes);
-      await Printing.sharePdf(bytes: Uint8List.fromList(pdfBytes), filename: '$_nomeArquivo.pdf');
+      await Printing.sharePdf(bytes: pdfBytes, filename: '$_nomeArquivo.pdf');
     } catch (e) {
       _mostrarErro(e);
     } finally {
@@ -97,7 +137,7 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
       final pngBytes = await _capturarPNG();
       final pdfBytes = await _gerarPDF(pngBytes);
       await Printing.layoutPdf(
-        onLayout: (_) async => Uint8List.fromList(pdfBytes),
+        onLayout: (_) async => pdfBytes,
         name: 'Cartaz ${widget.data.tituloLinha1}',
       );
     } catch (e) {
@@ -108,29 +148,22 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
   }
 
   void _mostrarErro(Object e) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro: $e')),
-      );
-    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Erro: $e')),
+    );
   }
 
-  Widget _buildTemplate() {
-    switch (widget.data.tipo) {
-      case CartazTemplateTipo.aproveiteAgora:
-        return CartazAproveiteAgoraWidget(data: widget.data);
-      case CartazTemplateTipo.proximoVencimento:
-        return CartazProximoVencimentoWidget(data: widget.data);
-      case CartazTemplateTipo.oferta:
-        return CartazOfertaWidget(data: widget.data);
-    }
+  double _previewScale(BoxConstraints constraints) {
+    final usableWidth = math.max(1, constraints.maxWidth - 24);
+    final usableHeight = math.max(1, constraints.maxHeight - 48);
+    final scaleByWidth = usableWidth / _posterSize.width;
+    final scaleByHeight = usableHeight / _posterSize.height;
+    return math.min(scaleByWidth, scaleByHeight).clamp(0.08, 1.0);
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenW = MediaQuery.of(context).size.width;
-    final scale = ((screenW - 40) / CartazAproveiteAgoraWidget.baseW).clamp(0.4, 1.2);
-
     return Scaffold(
       backgroundColor: Colors.grey.shade200,
       appBar: AppBar(
@@ -142,18 +175,27 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
       body: Column(
         children: [
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Center(
-                child: Screenshot(
-                  controller: _screenshotController,
-                  child: Transform.scale(
-                    scale: scale,
-                    alignment: Alignment.topCenter,
-                    child: _buildTemplate(),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final scale = _previewScale(constraints);
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Center(
+                    child: SizedBox(
+                      width: _posterSize.width * scale,
+                      height: _posterSize.height * scale,
+                      child: Transform.scale(
+                        scale: scale,
+                        alignment: Alignment.topLeft,
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: _buildTemplate(),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
           _buildBottomBar(),
@@ -172,13 +214,16 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: _exporting ? null : () => Navigator.of(context).pop(),
+                  onPressed:
+                      _exporting ? null : () => Navigator.of(context).pop(),
                   icon: const Icon(Icons.edit_rounded, size: 18),
                   label: const Text('Editar'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.black87,
                     padding: const EdgeInsets.symmetric(vertical: 13),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                 ),
               ),
@@ -192,7 +237,9 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
                     backgroundColor: const Color(0xFF1565C0),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 13),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     textStyle: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                 ),
@@ -207,7 +254,9 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
                     backgroundColor: const Color(0xFFCC0000),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 13),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     textStyle: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                 ),
@@ -220,15 +269,27 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
             child: ElevatedButton.icon(
               onPressed: _exporting ? null : _imprimir,
               icon: _exporting
-                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
                   : const Icon(Icons.print_rounded),
               label: Text(_exporting ? 'Gerando...' : 'Imprimir'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFD6166A),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),

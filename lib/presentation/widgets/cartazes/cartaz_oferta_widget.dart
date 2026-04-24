@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../../data/models/cartaz_form_data.dart';
+import 'brush_stroke_painter.dart';
+import 'poster_canvas.dart';
 
 const _ofRed = Color(0xFFD61E1E);
 const _ofDarkRed = Color(0xFF8E1515);
 const _ofYellow = Color(0xFFF5CC1C);
-const _ofYellowDeep = Color(0xFFEAB400);
 const _ofBorder = Color(0xFFD8D8D8);
 
 class CartazOfertaWidget extends StatelessWidget {
@@ -13,188 +14,182 @@ class CartazOfertaWidget extends StatelessWidget {
 
   const CartazOfertaWidget({super.key, required this.data});
 
-  static const double baseW = 397;
-  static const double baseH = 560;
+  static const double baseW = 420;
+  static const double baseH = 592;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: baseW,
-      height: baseH,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: _ofBorder, width: 2),
-      ),
-      child: ClipRect(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final w = constraints.maxWidth;
-            final h = constraints.maxHeight;
-            final detalhe = (data.detalhe ?? '').trim();
-            final validade = (data.validade ?? '').trim();
+    return PosterCanvas(
+      tamanho: data.tamanho,
+      backgroundColor: Colors.white,
+      borderColor: _ofBorder,
+      borderWidth: 2,
+      builder: (context, safeSize) {
+        final w = safeSize.width;
+        final h = safeSize.height;
+        final detalhe = (data.detalhe ?? '').trim();
+        final validade = (data.validade ?? '').trim();
 
-            return Stack(
-              children: [
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  top: 0,
-                  height: h * 0.16,
-                  child: const _OfertaHeader(),
-                ),
-                Positioned(
-                  left: w * 0.05,
-                  right: w * 0.05,
-                  top: h * 0.18,
-                  height: h * 0.13,
-                  child: _CenteredFitLine(
-                    text: data.tituloLinha1.toUpperCase(),
-                    color: Colors.black,
-                    fontSize: 130,
-                    letterSpacing: -4,
-                  ),
-                ),
-                Positioned(
-                  left: w * 0.07,
-                  right: w * 0.07,
-                  top: h * 0.31,
-                  height: h * 0.13,
-                  child: _CenteredFitLine(
-                    text: data.tituloLinha2.toUpperCase(),
-                    color: Colors.black,
-                    fontSize: 122,
-                    letterSpacing: -4,
-                  ),
-                ),
-                Positioned(
-                  left: w * 0.28,
-                  right: w * 0.28,
-                  top: h * 0.45,
-                  height: h * 0.06,
-                  child: _CenteredFitLine(
-                    text: data.subtitulo.toUpperCase(),
-                    color: Colors.black,
-                    fontSize: 72,
-                    letterSpacing: -2.2,
-                  ),
-                ),
-                Positioned(
-                  left: w * 0.03,
-                  right: w * 0.03,
-                  top: h * 0.55,
-                  height: h * 0.30,
-                  child: const CustomPaint(painter: _OfertaPriceBandPainter()),
-                ),
-                Positioned(
-                  left: w * 0.11,
-                  right: w * 0.11,
-                  top: h * 0.60,
-                  height: h * 0.26,
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Stack(
-                        children: [
-                          Transform.translate(
-                            offset: const Offset(6, 7),
-                            child: Text(
-                              data.preco,
-                              style: TextStyle(
-                                fontSize: 188,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.grey.shade500.withAlpha(70),
-                                height: 0.82,
-                                letterSpacing: -8,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            data.preco,
-                            style: TextStyle(
-                              fontSize: 188,
-                              fontWeight: FontWeight.w900,
-                              height: 0.82,
-                              letterSpacing: -8,
-                              foreground: Paint()
-                                ..style = PaintingStyle.stroke
-                                ..strokeWidth = 8
-                                ..color = Colors.white,
-                            ),
-                          ),
-                          const Text(
-                            '',
-                          ),
-                          Text(
-                            data.preco,
-                            style: const TextStyle(
-                              fontSize: 188,
-                              fontWeight: FontWeight.w900,
-                              color: _ofRed,
-                              height: 0.82,
-                              letterSpacing: -8,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                if (detalhe.isNotEmpty)
-                  Positioned(
-                    left: w * 0.15,
-                    right: w * 0.15,
-                    top: h * 0.84,
-                    height: h * 0.04,
-                    child: _CenteredFitLine(
-                      text: detalhe.toUpperCase(),
-                      color: Colors.black,
-                      fontSize: 48,
-                      letterSpacing: -1.4,
-                    ),
-                  ),
-                if (data.unidade.trim().isNotEmpty)
-                  Positioned(
-                    left: w * 0.30,
-                    right: w * 0.30,
-                    bottom: h * 0.055,
-                    height: h * 0.065,
-                    child: _CenteredFitLine(
-                      text: data.unidade.toUpperCase(),
-                      color: Colors.black,
-                      fontSize: 56,
-                      letterSpacing: -1.4,
-                    ),
-                  ),
-                if (validade.isNotEmpty)
-                  Positioned(
-                    left: w * 0.03,
-                    right: w * 0.38,
-                    bottom: h * 0.012,
-                    height: h * 0.05,
-                    child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: Alignment.bottomLeft,
+        return Stack(
+          children: [
+            Positioned(
+              left: 0,
+              right: 0,
+              top: 0,
+              height: h * 0.16,
+              child: const _OfertaHeader(),
+            ),
+            Positioned(
+              left: w * 0.05,
+              right: w * 0.05,
+              top: h * 0.18,
+              height: h * 0.13,
+              child: _CenteredFitLine(
+                text: data.tituloLinha1.toUpperCase(),
+                color: Colors.black,
+                fontSize: 130,
+                letterSpacing: -4,
+              ),
+            ),
+            Positioned(
+              left: w * 0.07,
+              right: w * 0.07,
+              top: h * 0.31,
+              height: h * 0.13,
+              child: _CenteredFitLine(
+                text: data.tituloLinha2.toUpperCase(),
+                color: Colors.black,
+                fontSize: 122,
+                letterSpacing: -4,
+              ),
+            ),
+            Positioned(
+              left: w * 0.28,
+              right: w * 0.28,
+              top: h * 0.45,
+              height: h * 0.06,
+              child: _CenteredFitLine(
+                text: data.subtitulo.toUpperCase(),
+                color: Colors.black,
+                fontSize: 72,
+                letterSpacing: -2.2,
+              ),
+            ),
+            Positioned(
+              left: w * 0.03,
+              right: w * 0.03,
+              top: h * 0.55,
+              height: h * 0.30,
+              child: const CustomPaint(
+                painter: BrushStrokePainter(color: _ofYellow),
+              ),
+            ),
+            Positioned(
+              left: w * 0.11,
+              right: w * 0.11,
+              top: h * 0.60,
+              height: h * 0.26,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Stack(
+                    children: [
+                      Transform.translate(
+                        offset: const Offset(6, 7),
                         child: Text(
-                          validade.toUpperCase(),
-                          style: const TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black,
-                            height: 1,
-                            letterSpacing: -0.8,
+                          data.preco,
+                          style: TextStyle(
+                            fontSize: 188,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.grey.shade500.withAlpha(70),
+                            height: 0.82,
+                            letterSpacing: -8,
                           ),
                         ),
                       ),
+                      Text(
+                        data.preco,
+                        style: TextStyle(
+                          fontSize: 188,
+                          fontWeight: FontWeight.w900,
+                          height: 0.82,
+                          letterSpacing: -8,
+                          foreground: Paint()
+                            ..style = PaintingStyle.stroke
+                            ..strokeWidth = 8
+                            ..color = Colors.white,
+                        ),
+                      ),
+                      const Text(''),
+                      Text(
+                        data.preco,
+                        style: const TextStyle(
+                          fontSize: 188,
+                          fontWeight: FontWeight.w900,
+                          color: _ofRed,
+                          height: 0.82,
+                          letterSpacing: -8,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            if (detalhe.isNotEmpty)
+              Positioned(
+                left: w * 0.15,
+                right: w * 0.15,
+                top: h * 0.84,
+                height: h * 0.04,
+                child: _CenteredFitLine(
+                  text: detalhe.toUpperCase(),
+                  color: Colors.black,
+                  fontSize: 48,
+                  letterSpacing: -1.4,
+                ),
+              ),
+            if (data.unidade.trim().isNotEmpty)
+              Positioned(
+                left: w * 0.30,
+                right: w * 0.30,
+                bottom: h * 0.055,
+                height: h * 0.065,
+                child: _CenteredFitLine(
+                  text: data.unidade.toUpperCase(),
+                  color: Colors.black,
+                  fontSize: 56,
+                  letterSpacing: -1.4,
+                ),
+              ),
+            if (validade.isNotEmpty)
+              Positioned(
+                left: w * 0.03,
+                right: w * 0.38,
+                bottom: h * 0.012,
+                height: h * 0.05,
+                child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.bottomLeft,
+                    child: Text(
+                      validade.toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black,
+                        height: 1,
+                        letterSpacing: -0.8,
+                      ),
                     ),
                   ),
-              ],
-            );
-          },
-        ),
-      ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }
@@ -313,94 +308,4 @@ class _CenteredFitLine extends StatelessWidget {
       ),
     );
   }
-}
-
-class _OfertaPriceBandPainter extends CustomPainter {
-  const _OfertaPriceBandPainter();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final path = Path()
-      ..moveTo(size.width * 0.10, size.height * 0.30)
-      ..quadraticBezierTo(
-        size.width * 0.40,
-        size.height * 0.18,
-        size.width * 0.88,
-        size.height * 0.07,
-      )
-      ..quadraticBezierTo(
-        size.width * 0.98,
-        size.height * 0.08,
-        size.width * 0.96,
-        size.height * 0.42,
-      )
-      ..quadraticBezierTo(
-        size.width * 0.97,
-        size.height * 0.76,
-        size.width * 0.80,
-        size.height * 0.76,
-      )
-      ..lineTo(size.width * 0.16, size.height * 0.94)
-      ..quadraticBezierTo(
-        size.width * 0.05,
-        size.height * 0.98,
-        size.width * 0.05,
-        size.height * 0.76,
-      )
-      ..lineTo(size.width * 0.05, size.height * 0.45)
-      ..close();
-
-    final paint = Paint()
-      ..shader = const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [_ofYellow, _ofYellowDeep],
-      ).createShader(Offset.zero & size);
-
-    canvas.drawShadow(path, Colors.black.withAlpha(35), 8, false);
-    canvas.drawPath(path, paint);
-
-    final splashPaint = Paint()..color = _ofYellow;
-    canvas.drawCircle(
-      Offset(size.width * 0.06, size.height * 0.68),
-      size.width * 0.025,
-      splashPaint,
-    );
-    canvas.drawCircle(
-      Offset(size.width * 0.20, size.height * 0.14),
-      size.width * 0.020,
-      splashPaint,
-    );
-    canvas.drawCircle(
-      Offset(size.width * 0.90, size.height * 0.20),
-      size.width * 0.018,
-      splashPaint,
-    );
-    canvas.drawCircle(
-      Offset(size.width * 0.94, size.height * 0.56),
-      size.width * 0.026,
-      splashPaint,
-    );
-
-    final shard = Path()
-      ..moveTo(size.width * 0.01, size.height * 0.82)
-      ..lineTo(size.width * 0.04, size.height * 0.76)
-      ..lineTo(size.width * 0.05, size.height * 0.80)
-      ..lineTo(size.width * 0.08, size.height * 0.74)
-      ..lineTo(size.width * 0.07, size.height * 0.89)
-      ..close();
-    canvas.drawPath(shard, splashPaint);
-
-    final shardRight = Path()
-      ..moveTo(size.width * 0.87, size.height * 0.08)
-      ..lineTo(size.width * 0.91, size.height * 0.02)
-      ..lineTo(size.width * 0.90, size.height * 0.11)
-      ..lineTo(size.width * 0.94, size.height * 0.05)
-      ..lineTo(size.width * 0.93, size.height * 0.18)
-      ..close();
-    canvas.drawPath(shardRight, splashPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../../data/models/cartaz_form_data.dart';
+import 'brush_stroke_painter.dart';
+import 'poster_canvas.dart';
 
 const _aaPink = Color(0xFFE91B72);
 const _aaDarkPink = Color(0xFFA20D51);
 const _aaGreen = Color(0xFF1F9A1B);
 const _aaDarkGreen = Color(0xFF146812);
 const _aaYellow = Color(0xFFF9C400);
-const _aaYellowDeep = Color(0xFFF1AE00);
 const _aaGrey = Color(0xFFB7B7B7);
 const _aaBorder = Color(0xFFD8D8D8);
 
@@ -16,131 +17,126 @@ class CartazAproveiteAgoraWidget extends StatelessWidget {
 
   const CartazAproveiteAgoraWidget({super.key, required this.data});
 
-  static const double baseW = 397;
-  static const double baseH = 560;
+  static const double baseW = 420;
+  static const double baseH = 592;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: baseW,
-      height: baseH,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: _aaBorder, width: 2),
-      ),
-      child: ClipRect(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final w = constraints.maxWidth;
-            final h = constraints.maxHeight;
+    return PosterCanvas(
+      tamanho: data.tamanho,
+      backgroundColor: Colors.white,
+      borderColor: _aaBorder,
+      borderWidth: 2,
+      builder: (context, safeSize) {
+        final w = safeSize.width;
+        final h = safeSize.height;
 
-            return Stack(
-              children: [
-                Positioned(
-                  left: w * 0.05,
-                  right: w * 0.05,
-                  top: h * 0.015,
-                  height: h * 0.22,
-                  child: const _AproveiteHeader(),
+        return Stack(
+          children: [
+            Positioned(
+              left: w * 0.05,
+              right: w * 0.05,
+              top: h * 0.015,
+              height: h * 0.22,
+              child: const _AproveiteHeader(),
+            ),
+            Positioned(
+              left: w * 0.06,
+              right: w * 0.06,
+              top: h * 0.25,
+              height: h * 0.35,
+              child: _AproveiteProductBlock(data: data),
+            ),
+            Positioned(
+              left: w * 0.04,
+              right: w * 0.03,
+              bottom: h * 0.03,
+              height: h * 0.40,
+              child: const CustomPaint(
+                painter: BrushStrokePainter(color: _aaYellow),
+              ),
+            ),
+            Positioned(
+              left: w * 0.045,
+              right: w * 0.815,
+              top: h * 0.67,
+              height: h * 0.10,
+              child: const FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'R\$',
+                  style: TextStyle(
+                    fontSize: 58,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black,
+                    height: 1,
+                    letterSpacing: -2.2,
+                  ),
                 ),
-                Positioned(
-                  left: w * 0.06,
-                  top: h * 0.25,
-                  width: w * 0.88,
-                  height: h * 0.35,
-                  child: _AproveiteProductBlock(data: data),
+              ),
+            ),
+            Positioned(
+              left: w * 0.18,
+              right: w * 0.06,
+              bottom: h * 0.05,
+              height: h * 0.33,
+              child: Align(
+                alignment: Alignment.bottomLeft,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.bottomLeft,
+                  child: Text(
+                    data.preco,
+                    style: const TextStyle(
+                      fontSize: 238,
+                      fontWeight: FontWeight.w900,
+                      color: _aaPink,
+                      height: 0.82,
+                      letterSpacing: -9,
+                    ),
+                  ),
                 ),
-                Positioned(
-                  left: w * 0.04,
-                  right: w * 0.03,
-                  bottom: h * 0.03,
-                  height: h * 0.40,
-                  child:
-                      const CustomPaint(painter: _AproveitePriceBandPainter()),
-                ),
-                Positioned(
-                  left: w * 0.045,
-                  top: h * 0.67,
-                  width: w * 0.14,
-                  height: h * 0.10,
-                  child: const FittedBox(
+              ),
+            ),
+            if (data.unidade.trim().isNotEmpty)
+              Positioned(
+                left: w * 0.74,
+                right: w * 0.04,
+                bottom: h * 0.04,
+                height: h * 0.065,
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: FittedBox(
                     fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
                     child: Text(
-                      'R\$',
-                      style: TextStyle(
-                        fontSize: 58,
+                      data.unidade.toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 30,
                         fontWeight: FontWeight.w900,
                         color: Colors.black,
                         height: 1,
-                        letterSpacing: -2.2,
+                        letterSpacing: -1,
                       ),
                     ),
                   ),
                 ),
-                Positioned(
-                  left: w * 0.18,
-                  right: w * 0.06,
-                  bottom: h * 0.05,
-                  height: h * 0.33,
-                  child: Align(
-                    alignment: Alignment.bottomLeft,
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.bottomLeft,
-                      child: Text(
-                        data.preco,
-                        style: const TextStyle(
-                          fontSize: 238,
-                          fontWeight: FontWeight.w900,
-                          color: _aaPink,
-                          height: 0.82,
-                          letterSpacing: -9,
-                        ),
-                      ),
-                    ),
-                  ),
+              ),
+            Positioned(
+              left: w * 0.012,
+              right: w * 0.012,
+              bottom: h * 0.012,
+              height: h * 0.025,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD7D7D7),
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                if (data.unidade.trim().isNotEmpty)
-                  Positioned(
-                    right: w * 0.04,
-                    bottom: h * 0.04,
-                    width: w * 0.22,
-                    height: h * 0.065,
-                    child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          data.unidade.toUpperCase(),
-                          style: const TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.black,
-                            height: 1,
-                            letterSpacing: -1,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                Positioned(
-                  left: w * 0.012,
-                  right: w * 0.012,
-                  bottom: h * 0.012,
-                  height: h * 0.025,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD7D7D7),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -162,22 +158,22 @@ class _AproveiteHeader extends StatelessWidget {
             ),
             Positioned(
               left: 0,
+              right: w * 0.88,
               top: h * 0.18,
-              width: w * 0.12,
               height: h * 0.44,
               child: const _DollarColumn(),
             ),
             Positioned(
+              left: w * 0.88,
               right: 0,
               top: h * 0.18,
-              width: w * 0.12,
               height: h * 0.44,
               child: const _DollarColumn(),
             ),
             Positioned(
               left: w * 0.16,
+              right: w * 0.70,
               top: h * 0.22,
-              width: w * 0.14,
               height: h * 0.32,
               child: DecoratedBox(
                 decoration: BoxDecoration(
@@ -194,50 +190,50 @@ class _AproveiteHeader extends StatelessWidget {
             ),
             Positioned(
               left: w * 0.13,
+              right: w * 0.79,
               top: h * 0.44,
-              width: w * 0.08,
               height: h * 0.06,
               child: const _AccentBar(color: _aaGreen),
             ),
             Positioned(
               left: w * 0.17,
+              right: w * 0.71,
               top: h * 0.46,
-              width: w * 0.12,
               height: h * 0.08,
               child: const _AccentBar(color: _aaYellow),
             ),
             Positioned(
+              left: w * 0.79,
               right: w * 0.09,
               top: h * 0.12,
-              width: w * 0.12,
               height: h * 0.09,
               child: const _AccentBar(color: _aaYellow),
             ),
             Positioned(
+              left: w * 0.90,
               right: w * 0.02,
               top: h * 0.15,
-              width: w * 0.08,
               height: h * 0.05,
               child: const _AccentBar(color: _aaGreen),
             ),
             Positioned(
+              left: w * 0.82,
               right: w * 0.10,
               top: h * 0.54,
-              width: w * 0.08,
               height: h * 0.05,
               child: const _AccentBar(color: _aaYellow),
             ),
             Positioned(
+              left: w * 0.86,
               right: w * 0.03,
               top: h * 0.56,
-              width: w * 0.11,
               height: h * 0.07,
               child: const _AccentBar(color: _aaPink),
             ),
             Positioned(
+              left: w * 0.935,
               right: w * 0.005,
               top: h * 0.565,
-              width: w * 0.06,
               height: h * 0.07,
               child: const _DoubleAccent(),
             ),
@@ -660,62 +656,4 @@ class _FitProductLine extends StatelessWidget {
       ),
     );
   }
-}
-
-class _AproveitePriceBandPainter extends CustomPainter {
-  const _AproveitePriceBandPainter();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final path = Path()
-      ..moveTo(size.width * 0.02, size.height * 0.48)
-      ..lineTo(size.width * 0.06, size.height * 0.44)
-      ..lineTo(size.width * 0.24, size.height * 0.36)
-      ..lineTo(size.width * 0.54, size.height * 0.25)
-      ..lineTo(size.width * 0.80, size.height * 0.14)
-      ..lineTo(size.width * 0.95, size.height * 0.07)
-      ..lineTo(size.width * 0.90, size.height * 0.12)
-      ..lineTo(size.width * 0.97, size.height * 0.09)
-      ..lineTo(size.width, size.height * 0.14)
-      ..lineTo(size.width * 0.98, size.height * 0.20)
-      ..lineTo(size.width, size.height * 0.24)
-      ..lineTo(size.width * 0.98, size.height * 0.31)
-      ..lineTo(size.width, size.height * 0.36)
-      ..lineTo(size.width * 0.96, size.height * 0.43)
-      ..lineTo(size.width * 0.98, size.height * 0.50)
-      ..lineTo(size.width * 0.95, size.height * 0.57)
-      ..lineTo(size.width * 0.97, size.height * 0.64)
-      ..lineTo(size.width * 0.91, size.height * 0.73)
-      ..lineTo(size.width * 0.80, size.height * 0.82)
-      ..lineTo(size.width * 0.65, size.height * 0.90)
-      ..lineTo(size.width * 0.47, size.height * 0.97)
-      ..lineTo(size.width * 0.14, size.height * 0.97)
-      ..lineTo(size.width * 0.11, size.height)
-      ..lineTo(size.width * 0.09, size.height * 0.94)
-      ..lineTo(size.width * 0.06, size.height * 0.98)
-      ..lineTo(size.width * 0.05, size.height * 0.91)
-      ..lineTo(size.width * 0.02, size.height * 0.93)
-      ..lineTo(size.width * 0.03, size.height * 0.85)
-      ..lineTo(0, size.height * 0.83)
-      ..lineTo(size.width * 0.02, size.height * 0.77)
-      ..lineTo(0, size.height * 0.72)
-      ..lineTo(size.width * 0.02, size.height * 0.68)
-      ..lineTo(0, size.height * 0.64)
-      ..lineTo(size.width * 0.02, size.height * 0.60)
-      ..lineTo(0, size.height * 0.56)
-      ..close();
-
-    final fill = Paint()
-      ..shader = const LinearGradient(
-        begin: Alignment.topRight,
-        end: Alignment.bottomLeft,
-        colors: [_aaYellow, _aaYellowDeep],
-      ).createShader(Offset.zero & size);
-
-    canvas.drawShadow(path, Colors.black.withAlpha(42), 7, false);
-    canvas.drawPath(path, fill);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
