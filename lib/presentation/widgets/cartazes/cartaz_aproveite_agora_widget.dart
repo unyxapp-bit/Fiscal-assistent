@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../../data/models/cartaz_form_data.dart';
 
-const _kPink = Color(0xFFD6166A);
-const _kYellow = Color(0xFFF4C430);
+const _kPink = Color(0xFFD41870);
+const _kYellow = Color(0xFFEFB90A);
 const _kGreen = Color(0xFF1D7A2F);
 const _kGrey = Color(0xFFBBBBBB);
+const _kDarkPink = Color(0xFF8E0A46);
 
 class CartazAproveiteAgoraWidget extends StatelessWidget {
   final CartazFormData data;
-
   const CartazAproveiteAgoraWidget({super.key, required this.data});
 
   static const double baseW = 397;
@@ -24,71 +24,85 @@ class CartazAproveiteAgoraWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _Header(),
-          Padding(
-            padding: const EdgeInsets.only(left: 12, right: 12, top: 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (data.tituloLinha1.isNotEmpty)
-                  Text(
-                    data.tituloLinha1.toUpperCase(),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 64,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.black,
-                      height: 0.92,
-                      letterSpacing: -1,
-                    ),
-                  ),
-                if (data.tituloLinha2.isNotEmpty)
-                  Text(
-                    data.tituloLinha2.toUpperCase(),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 64,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.black,
-                      height: 0.92,
-                      letterSpacing: -1,
-                    ),
-                  ),
-              ],
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 2, 10, 0),
+              child: _ProductArea(data: data),
             ),
           ),
-          if (data.subtitulo.isNotEmpty || (data.detalhe ?? '').isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(left: 12, right: 12, top: 6),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (data.subtitulo.isNotEmpty)
-                    Text(
-                      data.subtitulo.toUpperCase(),
-                      style: const TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.black,
-                      ),
-                    ),
-                  if ((data.detalhe ?? '').isNotEmpty)
-                    Text(
-                      data.detalhe!.toUpperCase(),
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w800,
-                        color: _kPink,
-                      ),
-                    ),
-                ],
+          _PriceBand(preco: data.preco, unidade: data.unidade),
+          Container(height: 10, color: const Color(0xFFD0D0D0)),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Product Area ─────────────────────────────────────────────────────────────
+
+class _ProductArea extends StatelessWidget {
+  final CartazFormData data;
+  const _ProductArea({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (data.tituloLinha1.isNotEmpty) _ProductLine(data.tituloLinha1.toUpperCase()),
+        if (data.tituloLinha2.isNotEmpty) _ProductLine(data.tituloLinha2.toUpperCase()),
+        if (data.subtitulo.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              data.subtitulo.toUpperCase(),
+              style: const TextStyle(
+                fontSize: 42,
+                fontWeight: FontWeight.w900,
+                color: Colors.black,
+                height: 1.0,
+                letterSpacing: -0.5,
               ),
             ),
-          const Spacer(),
-          _PriceBand(preco: data.preco, unidade: data.unidade),
-          Container(height: 10, color: const Color(0xFFCCCCCC)),
-        ],
+          ),
+        if ((data.detalhe ?? '').isNotEmpty)
+          Text(
+            data.detalhe!.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 40,
+              fontWeight: FontWeight.w900,
+              color: _kPink,
+              height: 1.05,
+              letterSpacing: 0.5,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _ProductLine extends StatelessWidget {
+  final String text;
+  const _ProductLine(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 84,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerLeft,
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontSize: 92,
+            fontWeight: FontWeight.w900,
+            color: Colors.black,
+            height: 0.88,
+            letterSpacing: -2.0,
+          ),
+        ),
       ),
     );
   }
@@ -100,14 +114,18 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 130,
+      height: 150,
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
-          const Positioned(left: 8, top: 18, child: _DollarSigns()),
-          const Positioned(right: 8, top: 18, child: _DollarSigns()),
+          // Left dollar column
+          const Positioned(left: 5, top: 14, child: _DollarColumn()),
+          // Right dollar column
+          const Positioned(right: 5, top: 14, child: _DollarColumn()),
+          // Badge
           Positioned(
-            top: 6, left: 48, right: 48, bottom: 6,
-            child: _AproveiteAgoraLogo(),
+            top: 6, left: 42, right: 42, bottom: 4,
+            child: _BadgeLogo(),
           ),
         ],
       ),
@@ -115,84 +133,126 @@ class _Header extends StatelessWidget {
   }
 }
 
-class _DollarSigns extends StatelessWidget {
-  const _DollarSigns();
+class _DollarColumn extends StatelessWidget {
+  const _DollarColumn();
 
   @override
   Widget build(BuildContext context) {
-    const style = TextStyle(fontSize: 24, fontWeight: FontWeight.w300, color: _kGrey, height: 1.2);
-    return const Column(children: [Text('\$', style: style), Text('\$', style: style)]);
+    return Column(
+      children: const [
+        Text('\$',
+            style: TextStyle(
+                fontSize: 30, fontWeight: FontWeight.w300, color: _kGrey, height: 1.1)),
+        SizedBox(height: 6),
+        Text('\$',
+            style: TextStyle(
+                fontSize: 23, fontWeight: FontWeight.w300, color: _kGrey, height: 1.1)),
+      ],
+    );
   }
 }
 
-class _AproveiteAgoraLogo extends StatelessWidget {
+class _BadgeLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: _LogoBgPainter(),
+      painter: _BadgePainter(),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          const SizedBox(height: 8),
           const Text(
             'APROVEITE',
             style: TextStyle(
-              fontSize: 30,
+              fontSize: 43,
               fontWeight: FontWeight.w900,
               color: Colors.white,
-              height: 1,
-              shadows: [Shadow(color: Color(0x55000000), offset: Offset(1, 2), blurRadius: 2)],
+              height: 1.0,
+              letterSpacing: 1.5,
+              shadows: [
+                Shadow(color: Color(0x88000000), offset: Offset(1, 2), blurRadius: 4),
+              ],
             ),
           ),
+          const SizedBox(height: 3),
           Container(
-            margin: const EdgeInsets.only(top: 2),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 3),
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             color: _kGreen,
-            child: const Text(
-              'AGORA',
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
-                letterSpacing: 3,
-                height: 1,
+            child: const Center(
+              child: Text(
+                'AGORA',
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                  letterSpacing: 5,
+                  height: 1.0,
+                ),
               ),
             ),
           ),
+          const SizedBox(height: 8),
         ],
       ),
     );
   }
 }
 
-class _LogoBgPainter extends CustomPainter {
+class _BadgePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final pink = Paint()..color = _kPink;
-    final yellow = Paint()..color = _kYellow;
+    final W = size.width;
+    final H = size.height;
 
+    // Yellow accents behind the pink — painted first
+    final yellow = Paint()..color = _kYellow;
+    canvas.drawRect(Rect.fromLTWH(-5, H * 0.07, W * 0.16, H * 0.22), yellow);
+    canvas.drawRect(Rect.fromLTWH(-5, H * 0.34, W * 0.11, H * 0.15), yellow);
+    canvas.drawRect(Rect.fromLTWH(W * 0.86, H * 0.05, W * 0.18, H * 0.22), yellow);
+    canvas.drawRect(Rect.fromLTWH(W * 0.91, H * 0.33, W * 0.13, H * 0.15), yellow);
+
+    // Green accent strips
+    final green = Paint()..color = _kGreen;
+    canvas.drawRect(Rect.fromLTWH(-5, H * 0.62, W * 0.08, H * 0.12), green);
+    canvas.drawRect(Rect.fromLTWH(W * 0.88, H * 0.60, W * 0.16, H * 0.12), green);
+
+    // Main pink polygon
+    final pink = Paint()..color = _kPink;
     final main = Path()
-      ..moveTo(size.width * 0.08, 0)
-      ..lineTo(size.width * 0.92, size.height * 0.03)
-      ..lineTo(size.width * 0.97, size.height * 0.52)
-      ..lineTo(size.width * 0.89, size.height * 0.95)
-      ..lineTo(size.width * 0.11, size.height * 0.92)
-      ..lineTo(0, size.height * 0.48)
+      ..moveTo(W * 0.09, 0)
+      ..lineTo(W * 0.91, H * 0.02)
+      ..lineTo(W, H * 0.50)
+      ..lineTo(W * 0.91, H * 0.97)
+      ..lineTo(W * 0.09, H * 0.95)
+      ..lineTo(0, H * 0.48)
       ..close();
     canvas.drawPath(main, pink);
 
-    canvas.drawRect(Rect.fromLTWH(-3, size.height * 0.10, size.width * 0.13, size.height * 0.17), yellow);
-    canvas.drawRect(Rect.fromLTWH(-3, size.height * 0.35, size.width * 0.09, size.height * 0.12), yellow);
-    canvas.drawRect(Rect.fromLTWH(size.width * 0.88, size.height * 0.07, size.width * 0.14, size.height * 0.18), yellow);
-    canvas.drawRect(Rect.fromLTWH(size.width * 0.92, size.height * 0.36, size.width * 0.10, size.height * 0.12), yellow);
-
-    final darkBorder = Paint()..color = const Color(0xFF9C0E4D);
-    final borderPath = Path()
-      ..moveTo(size.width * 0.08, 0)
-      ..lineTo(size.width * 0.92, size.height * 0.03)
-      ..lineTo(size.width * 0.91, size.height * 0.03 + 5)
-      ..lineTo(size.width * 0.09, 5)
+    // Dark pink bevel top edge
+    final bevel = Paint()..color = _kDarkPink;
+    final bevelPath = Path()
+      ..moveTo(W * 0.09, 0)
+      ..lineTo(W * 0.91, H * 0.02)
+      ..lineTo(W * 0.90, H * 0.02 + 7)
+      ..lineTo(W * 0.10, 7)
       ..close();
-    canvas.drawPath(borderPath, darkBorder);
+    canvas.drawPath(bevelPath, bevel);
+
+    // Thin white frame inside the pink shape
+    final frame = Paint()
+      ..color = Colors.white.withValues(alpha: 0.30)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    final framePath = Path()
+      ..moveTo(W * 0.12, 8)
+      ..lineTo(W * 0.88, H * 0.05)
+      ..lineTo(W * 0.96, H * 0.50)
+      ..lineTo(W * 0.88, H * 0.92)
+      ..lineTo(W * 0.12, H * 0.90)
+      ..lineTo(W * 0.04, H * 0.48)
+      ..close();
+    canvas.drawPath(framePath, frame);
   }
 
   @override
@@ -204,35 +264,64 @@ class _LogoBgPainter extends CustomPainter {
 class _PriceBand extends StatelessWidget {
   final String preco;
   final String unidade;
-
   const _PriceBand({required this.preco, required this.unidade});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 130,
+      height: 162,
       child: CustomPaint(
         painter: _YellowBandPainter(),
         child: Stack(
+          clipBehavior: Clip.none,
           children: [
+            // R$
             const Positioned(
-              left: 16, top: 20,
-              child: Text('R\$', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.black, height: 1)),
-            ),
-            Positioned(
-              left: 16, top: 0, right: 12, bottom: 0,
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerRight,
-                  child: Text(preco, style: const TextStyle(fontSize: 108, fontWeight: FontWeight.w900, color: _kPink, height: 1)),
+              left: 14,
+              top: 26,
+              child: Text(
+                'R\$',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.black,
+                  height: 1,
                 ),
               ),
             ),
+            // Price number — dominant element
             Positioned(
-              right: 12, bottom: 12,
-              child: Text(unidade.toUpperCase(), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.black)),
+              left: 54,
+              top: 0,
+              right: 10,
+              bottom: 20,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  preco,
+                  style: const TextStyle(
+                    fontSize: 148,
+                    fontWeight: FontWeight.w900,
+                    color: _kPink,
+                    height: 1.0,
+                  ),
+                ),
+              ),
+            ),
+            // UNID.
+            Positioned(
+              right: 14,
+              bottom: 12,
+              child: Text(
+                unidade.toUpperCase(),
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.black,
+                  letterSpacing: 0.5,
+                ),
+              ),
             ),
           ],
         ),
@@ -244,12 +333,14 @@ class _PriceBand extends StatelessWidget {
 class _YellowBandPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
+    final W = size.width;
+    final H = size.height;
     final path = Path()
-      ..moveTo(0, size.height * 0.32)
-      ..lineTo(size.width * 0.07, 0)
-      ..lineTo(size.width, 0)
-      ..lineTo(size.width, size.height)
-      ..lineTo(0, size.height)
+      ..moveTo(0, H * 0.30)
+      ..lineTo(W * 0.10, 0)
+      ..lineTo(W, 0)
+      ..lineTo(W, H)
+      ..lineTo(0, H)
       ..close();
     canvas.drawPath(path, Paint()..color = _kYellow);
   }
