@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+
 import '../../../data/models/cartaz_form_data.dart';
 
-const _ofRed = Color(0xFFCC0000);
-const _ofYellow = Color(0xFFF4C430);
+const _ofRed = Color(0xFFD61E1E);
+const _ofDarkRed = Color(0xFF8E1515);
+const _ofYellow = Color(0xFFF5CC1C);
+const _ofYellowDeep = Color(0xFFEAB400);
+const _ofBorder = Color(0xFFD8D8D8);
 
 class CartazOfertaWidget extends StatelessWidget {
   final CartazFormData data;
@@ -19,172 +23,382 @@ class CartazOfertaWidget extends StatelessWidget {
       height: baseH,
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(color: const Color(0xFFDDDDDD), width: 3),
+        border: Border.all(color: _ofBorder, width: 2),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _buildTopBanner(),
-          Padding(
-            padding: const EdgeInsets.only(left: 14, right: 14, top: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+      child: ClipRect(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final w = constraints.maxWidth;
+            final h = constraints.maxHeight;
+            final detalhe = (data.detalhe ?? '').trim();
+            final validade = (data.validade ?? '').trim();
+
+            return Stack(
               children: [
-                if (data.tituloLinha1.isNotEmpty)
-                  Text(
-                    data.tituloLinha1.toUpperCase(),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 58,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.black,
-                      height: 0.92,
-                      letterSpacing: -1,
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  top: 0,
+                  height: h * 0.16,
+                  child: const _OfertaHeader(),
+                ),
+                Positioned(
+                  left: w * 0.05,
+                  right: w * 0.05,
+                  top: h * 0.18,
+                  height: h * 0.13,
+                  child: _CenteredFitLine(
+                    text: data.tituloLinha1.toUpperCase(),
+                    color: Colors.black,
+                    fontSize: 130,
+                    letterSpacing: -4,
+                  ),
+                ),
+                Positioned(
+                  left: w * 0.07,
+                  right: w * 0.07,
+                  top: h * 0.31,
+                  height: h * 0.13,
+                  child: _CenteredFitLine(
+                    text: data.tituloLinha2.toUpperCase(),
+                    color: Colors.black,
+                    fontSize: 122,
+                    letterSpacing: -4,
+                  ),
+                ),
+                Positioned(
+                  left: w * 0.28,
+                  right: w * 0.28,
+                  top: h * 0.45,
+                  height: h * 0.06,
+                  child: _CenteredFitLine(
+                    text: data.subtitulo.toUpperCase(),
+                    color: Colors.black,
+                    fontSize: 72,
+                    letterSpacing: -2.2,
+                  ),
+                ),
+                Positioned(
+                  left: w * 0.03,
+                  right: w * 0.03,
+                  top: h * 0.55,
+                  height: h * 0.30,
+                  child: const CustomPaint(painter: _OfertaPriceBandPainter()),
+                ),
+                Positioned(
+                  left: w * 0.11,
+                  right: w * 0.11,
+                  top: h * 0.60,
+                  height: h * 0.26,
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Stack(
+                        children: [
+                          Transform.translate(
+                            offset: const Offset(6, 7),
+                            child: Text(
+                              data.preco,
+                              style: TextStyle(
+                                fontSize: 188,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.grey.shade500.withAlpha(70),
+                                height: 0.82,
+                                letterSpacing: -8,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            data.preco,
+                            style: TextStyle(
+                              fontSize: 188,
+                              fontWeight: FontWeight.w900,
+                              height: 0.82,
+                              letterSpacing: -8,
+                              foreground: Paint()
+                                ..style = PaintingStyle.stroke
+                                ..strokeWidth = 8
+                                ..color = Colors.white,
+                            ),
+                          ),
+                          const Text(
+                            '',
+                          ),
+                          Text(
+                            data.preco,
+                            style: const TextStyle(
+                              fontSize: 188,
+                              fontWeight: FontWeight.w900,
+                              color: _ofRed,
+                              height: 0.82,
+                              letterSpacing: -8,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                if (data.tituloLinha2.isNotEmpty)
-                  Text(
-                    data.tituloLinha2.toUpperCase(),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 42,
-                      fontWeight: FontWeight.w800,
+                ),
+                if (detalhe.isNotEmpty)
+                  Positioned(
+                    left: w * 0.15,
+                    right: w * 0.15,
+                    top: h * 0.84,
+                    height: h * 0.04,
+                    child: _CenteredFitLine(
+                      text: detalhe.toUpperCase(),
                       color: Colors.black,
-                      height: 1,
+                      fontSize: 48,
+                      letterSpacing: -1.4,
                     ),
                   ),
-                if (data.subtitulo.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: Text(
-                      data.subtitulo.toUpperCase(),
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black54,
+                if (data.unidade.trim().isNotEmpty)
+                  Positioned(
+                    left: w * 0.30,
+                    right: w * 0.30,
+                    bottom: h * 0.055,
+                    height: h * 0.065,
+                    child: _CenteredFitLine(
+                      text: data.unidade.toUpperCase(),
+                      color: Colors.black,
+                      fontSize: 56,
+                      letterSpacing: -1.4,
+                    ),
+                  ),
+                if (validade.isNotEmpty)
+                  Positioned(
+                    left: w * 0.03,
+                    right: w * 0.38,
+                    bottom: h * 0.012,
+                    height: h * 0.05,
+                    child: Align(
+                      alignment: Alignment.bottomLeft,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.bottomLeft,
+                        child: Text(
+                          validade.toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black,
+                            height: 1,
+                            letterSpacing: -0.8,
+                          ),
+                        ),
                       ),
                     ),
                   ),
               ],
-            ),
-          ),
-          const Spacer(),
-          _PriceBandOferta(preco: data.preco),
-          if ((data.detalhe ?? '').isNotEmpty)
-            Container(
-              color: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-              child: Text(
-                data.detalhe!.toUpperCase(),
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black87,
-                ),
-              ),
-            ),
-          _buildRodape(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTopBanner() {
-    return Container(
-      height: 72,
-      color: _ofRed,
-      alignment: Alignment.center,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
-        decoration: BoxDecoration(
-          color: _ofYellow,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: const Text(
-          'OFERTA',
-          style: TextStyle(
-            fontSize: 40,
-            fontWeight: FontWeight.w900,
-            color: _ofRed,
-            letterSpacing: 4,
-            height: 1,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRodape() {
-    final validade = (data.validade ?? '').trim();
-    return Container(
-      color: _ofYellow,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      child: Text(
-        validade.isNotEmpty ? validade.toUpperCase() : '',
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-          color: Colors.black,
+            );
+          },
         ),
       ),
     );
   }
 }
 
-// ─── Price Band ───────────────────────────────────────────────────────────────
-
-class _PriceBandOferta extends StatelessWidget {
-  final String preco;
-
-  const _PriceBandOferta({required this.preco});
+class _OfertaHeader extends StatelessWidget {
+  const _OfertaHeader();
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 130,
-      child: CustomPaint(
-        painter: _YellowBandOfertaPainter(),
-        child: Stack(
-          children: [
-            const Positioned(
-              left: 16, top: 20,
-              child: Text('R\$', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.black, height: 1)),
-            ),
-            Positioned(
-              left: 16, top: 0, right: 12, bottom: 0,
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerRight,
-                  child: Text(preco, style: const TextStyle(fontSize: 108, fontWeight: FontWeight.w900, color: _ofRed, height: 1)),
+    return const CustomPaint(
+      painter: _OfertaHeaderPainter(),
+      child: Center(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(28, 10, 28, 14),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Stack(
+              children: [
+                Positioned(
+                  left: 7,
+                  top: 8,
+                  child: Text(
+                    'OFERTA',
+                    style: TextStyle(
+                      fontSize: 92,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black54,
+                      height: 0.88,
+                      letterSpacing: -4.5,
+                    ),
+                  ),
                 ),
-              ),
+                Text(
+                  'OFERTA',
+                  style: TextStyle(
+                    fontSize: 92,
+                    fontWeight: FontWeight.w900,
+                    color: _ofYellow,
+                    height: 0.88,
+                    letterSpacing: -4.5,
+                    shadows: [
+                      Shadow(
+                        color: Color(0x66000000),
+                        offset: Offset(0, 3),
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _YellowBandOfertaPainter extends CustomPainter {
+class _OfertaHeaderPainter extends CustomPainter {
+  const _OfertaHeaderPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final fill = Paint()
+      ..shader = const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [_ofRed, Color(0xFFB51717)],
+      ).createShader(rect);
+    canvas.drawRect(rect, fill);
+
+    canvas.drawRect(
+      Rect.fromLTWH(0, size.height * 0.90, size.width, size.height * 0.06),
+      Paint()..color = _ofDarkRed,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _CenteredFitLine extends StatelessWidget {
+  final String text;
+  final Color color;
+  final double fontSize;
+  final double letterSpacing;
+
+  const _CenteredFitLine({
+    required this.text,
+    required this.color,
+    required this.fontSize,
+    required this.letterSpacing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (text.trim().isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.center,
+      child: Text(
+        text,
+        maxLines: 1,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: fontSize,
+          fontWeight: FontWeight.w900,
+          color: color,
+          height: 0.84,
+          letterSpacing: letterSpacing,
+        ),
+      ),
+    );
+  }
+}
+
+class _OfertaPriceBandPainter extends CustomPainter {
+  const _OfertaPriceBandPainter();
+
   @override
   void paint(Canvas canvas, Size size) {
     final path = Path()
-      ..moveTo(0, size.height * 0.32)
-      ..lineTo(size.width * 0.07, 0)
-      ..lineTo(size.width, 0)
-      ..lineTo(size.width, size.height)
-      ..lineTo(0, size.height)
+      ..moveTo(size.width * 0.10, size.height * 0.30)
+      ..quadraticBezierTo(
+        size.width * 0.40,
+        size.height * 0.18,
+        size.width * 0.88,
+        size.height * 0.07,
+      )
+      ..quadraticBezierTo(
+        size.width * 0.98,
+        size.height * 0.08,
+        size.width * 0.96,
+        size.height * 0.42,
+      )
+      ..quadraticBezierTo(
+        size.width * 0.97,
+        size.height * 0.76,
+        size.width * 0.80,
+        size.height * 0.76,
+      )
+      ..lineTo(size.width * 0.16, size.height * 0.94)
+      ..quadraticBezierTo(
+        size.width * 0.05,
+        size.height * 0.98,
+        size.width * 0.05,
+        size.height * 0.76,
+      )
+      ..lineTo(size.width * 0.05, size.height * 0.45)
       ..close();
-    canvas.drawPath(path, Paint()..color = _ofYellow);
+
+    final paint = Paint()
+      ..shader = const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [_ofYellow, _ofYellowDeep],
+      ).createShader(Offset.zero & size);
+
+    canvas.drawShadow(path, Colors.black.withAlpha(35), 8, false);
+    canvas.drawPath(path, paint);
+
+    final splashPaint = Paint()..color = _ofYellow;
+    canvas.drawCircle(
+      Offset(size.width * 0.06, size.height * 0.68),
+      size.width * 0.025,
+      splashPaint,
+    );
+    canvas.drawCircle(
+      Offset(size.width * 0.20, size.height * 0.14),
+      size.width * 0.020,
+      splashPaint,
+    );
+    canvas.drawCircle(
+      Offset(size.width * 0.90, size.height * 0.20),
+      size.width * 0.018,
+      splashPaint,
+    );
+    canvas.drawCircle(
+      Offset(size.width * 0.94, size.height * 0.56),
+      size.width * 0.026,
+      splashPaint,
+    );
+
+    final shard = Path()
+      ..moveTo(size.width * 0.01, size.height * 0.82)
+      ..lineTo(size.width * 0.04, size.height * 0.76)
+      ..lineTo(size.width * 0.05, size.height * 0.80)
+      ..lineTo(size.width * 0.08, size.height * 0.74)
+      ..lineTo(size.width * 0.07, size.height * 0.89)
+      ..close();
+    canvas.drawPath(shard, splashPaint);
+
+    final shardRight = Path()
+      ..moveTo(size.width * 0.87, size.height * 0.08)
+      ..lineTo(size.width * 0.91, size.height * 0.02)
+      ..lineTo(size.width * 0.90, size.height * 0.11)
+      ..lineTo(size.width * 0.94, size.height * 0.05)
+      ..lineTo(size.width * 0.93, size.height * 0.18)
+      ..close();
+    canvas.drawPath(shardRight, splashPaint);
   }
 
   @override
