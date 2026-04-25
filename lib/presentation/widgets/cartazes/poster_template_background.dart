@@ -1,15 +1,40 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../data/models/cartaz_form_data.dart';
 
-String posterTemplateAssetPath(CartazTemplateTipo tipo) {
+enum PosterTemplateAssetType {
+  raster,
+  svg,
+}
+
+class PosterTemplateAsset {
+  final String path;
+  final PosterTemplateAssetType type;
+
+  const PosterTemplateAsset({
+    required this.path,
+    required this.type,
+  });
+}
+
+PosterTemplateAsset posterTemplateAsset(CartazTemplateTipo tipo) {
   switch (tipo) {
     case CartazTemplateTipo.proximoVencimento:
-      return 'templates/ChatGPT Image 25 de abr. de 2026, 16_22_07.png';
+      return const PosterTemplateAsset(
+        path: 'templates/proximo vencimento.svg',
+        type: PosterTemplateAssetType.svg,
+      );
     case CartazTemplateTipo.aproveiteAgora:
-      return 'templates/ChatGPT Image 25 de abr. de 2026, 16_25_37.png';
+      return const PosterTemplateAsset(
+        path: 'templates/aproveite agora.svg',
+        type: PosterTemplateAssetType.svg,
+      );
     case CartazTemplateTipo.oferta:
-      return 'templates/ChatGPT Image 25 de abr. de 2026, 16_34_21.png';
+      return const PosterTemplateAsset(
+        path: 'templates/oferta.svg',
+        type: PosterTemplateAssetType.svg,
+      );
   }
 }
 
@@ -23,13 +48,26 @@ class PosterTemplateBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset(
-      posterTemplateAssetPath(tipo),
-      fit: BoxFit.fill,
-      width: double.infinity,
-      height: double.infinity,
-      filterQuality: FilterQuality.high,
-      alignment: Alignment.center,
-    );
+    final asset = posterTemplateAsset(tipo);
+
+    switch (asset.type) {
+      case PosterTemplateAssetType.raster:
+        return Image.asset(
+          asset.path,
+          fit: BoxFit.fill,
+          width: double.infinity,
+          height: double.infinity,
+          filterQuality: FilterQuality.high,
+          alignment: Alignment.center,
+        );
+      case PosterTemplateAssetType.svg:
+        return SvgPicture.asset(
+          asset.path,
+          fit: BoxFit.fill,
+          width: double.infinity,
+          height: double.infinity,
+          alignment: Alignment.center,
+        );
+    }
   }
 }
