@@ -71,4 +71,5 @@ flutter:
   assets:
     - .env
     - assets/icon/
+    - templates/
 
