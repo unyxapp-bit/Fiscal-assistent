@@ -29,17 +29,17 @@ class CartazProximoVencimentoWidget extends StatelessWidget {
               ),
             ),
             Positioned(
-              left: w * 0.05,
-              right: w * 0.05,
-              top: h * 0.24,
-              height: h * 0.32,
+              left: w * 0.07,
+              right: w * 0.07,
+              top: h * 0.225,
+              height: h * 0.295,
               child: _ProximoTextBlock(data: data),
             ),
             Positioned(
               left: w * 0.05,
               right: w * 0.80,
-              top: h * 0.63,
-              height: h * 0.10,
+              top: h * 0.615,
+              height: h * 0.085,
               child: const _FitTextBox(
                 text: 'R\$',
                 alignment: Alignment.centerLeft,
@@ -55,8 +55,8 @@ class CartazProximoVencimentoWidget extends StatelessWidget {
             Positioned(
               left: w * 0.17,
               right: w * 0.06,
-              bottom: h * 0.07,
-              height: h * 0.30,
+              top: h * 0.61,
+              height: h * 0.305,
               child: _PriceLayer(
                 text: data.preco,
                 color: _pvRed,
@@ -68,8 +68,8 @@ class CartazProximoVencimentoWidget extends StatelessWidget {
               Positioned(
                 left: w * 0.72,
                 right: w * 0.05,
-                bottom: h * 0.07,
-                height: h * 0.055,
+                bottom: h * 0.125,
+                height: h * 0.05,
                 child: _FitTextBox(
                   text: data.unidade.toUpperCase(),
                   alignment: Alignment.bottomRight,

@@ -21,6 +21,7 @@ class CartazOfertaWidget extends StatelessWidget {
         final h = safeSize.height;
         final detalhe = (data.detalhe ?? '').trim();
         final validade = (data.validade ?? '').trim();
+        final hasDetalhe = detalhe.isNotEmpty;
 
         return Stack(
           children: [
@@ -30,18 +31,18 @@ class CartazOfertaWidget extends StatelessWidget {
               ),
             ),
             Positioned(
-              left: w * 0.06,
-              right: w * 0.06,
-              top: h * 0.18,
-              height: h * 0.34,
+              left: w * 0.08,
+              right: w * 0.08,
+              top: h * 0.205,
+              height: hasDetalhe ? h * 0.28 : h * 0.32,
               child: _OfertaTextBlock(data: data),
             ),
             if (detalhe.isNotEmpty)
               Positioned(
-                left: w * 0.16,
-                right: w * 0.16,
-                top: h * 0.52,
-                height: h * 0.05,
+                left: w * 0.14,
+                right: w * 0.14,
+                top: h * 0.505,
+                height: h * 0.048,
                 child: _FitTextBox(
                   text: detalhe.toUpperCase(),
                   alignment: Alignment.center,
@@ -57,16 +58,16 @@ class CartazOfertaWidget extends StatelessWidget {
             Positioned(
               left: w * 0.19,
               right: w * 0.08,
-              top: h * 0.57,
-              height: h * 0.30,
+              top: h * 0.605,
+              height: h * 0.285,
               child: _OfferPriceLayer(text: data.preco),
             ),
             if (data.unidade.trim().isNotEmpty)
               Positioned(
                 left: w * 0.32,
                 right: w * 0.32,
-                bottom: h * 0.05,
-                height: h * 0.06,
+                bottom: h * 0.105,
+                height: h * 0.052,
                 child: _FitTextBox(
                   text: data.unidade.toUpperCase(),
                   alignment: Alignment.center,
@@ -81,13 +82,13 @@ class CartazOfertaWidget extends StatelessWidget {
               ),
             if (validade.isNotEmpty)
               Positioned(
-                left: w * 0.04,
-                right: w * 0.42,
-                bottom: h * 0.018,
-                height: h * 0.04,
+                left: w * 0.06,
+                right: w * 0.06,
+                bottom: h * 0.012,
+                height: h * 0.032,
                 child: _FitTextBox(
                   text: validade.toUpperCase(),
-                  alignment: Alignment.bottomLeft,
+                  alignment: Alignment.bottomCenter,
                   style: const TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w700,
@@ -236,8 +237,6 @@ class _OfferPriceLayer extends StatelessWidget {
                   ..color = Colors.white,
               ),
             ),
-            const Text(''),
-            const Text(''),
             Text(
               text,
               style: const TextStyle(
