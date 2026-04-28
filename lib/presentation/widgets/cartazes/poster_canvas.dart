@@ -1,9 +1,27 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../../data/models/cartaz_form_data.dart';
 
 typedef PosterSafeBuilder = Widget Function(
     BuildContext context, Size safeSize);
+
+double posterPreviewScaleFor({
+  required Size posterSize,
+  required BoxConstraints constraints,
+  double horizontalPadding = 0,
+  double verticalPadding = 0,
+  double minScale = 0.08,
+  double maxScale = 1.0,
+}) {
+  final usableWidth = math.max(1, constraints.maxWidth - horizontalPadding);
+  final usableHeight = math.max(1, constraints.maxHeight - verticalPadding);
+  final scaleByWidth = usableWidth / posterSize.width;
+  final scaleByHeight = usableHeight / posterSize.height;
+
+  return math.min(scaleByWidth, scaleByHeight).clamp(minScale, maxScale);
+}
 
 class PosterCanvas extends StatelessWidget {
   final CartazTamanho tamanho;

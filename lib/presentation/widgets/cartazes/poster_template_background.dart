@@ -2,40 +2,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../data/models/cartaz_form_data.dart';
-
-enum PosterTemplateAssetType {
-  raster,
-  svg,
-}
-
-class PosterTemplateAsset {
-  final String path;
-  final PosterTemplateAssetType type;
-
-  const PosterTemplateAsset({
-    required this.path,
-    required this.type,
-  });
-}
+import 'cartaz_template_specs.dart';
 
 PosterTemplateAsset posterTemplateAsset(CartazTemplateTipo tipo) {
-  switch (tipo) {
-    case CartazTemplateTipo.proximoVencimento:
-      return const PosterTemplateAsset(
-        path: 'templates/proximo vencimento.svg',
-        type: PosterTemplateAssetType.svg,
-      );
-    case CartazTemplateTipo.aproveiteAgora:
-      return const PosterTemplateAsset(
-        path: 'templates/aproveite agora.svg',
-        type: PosterTemplateAssetType.svg,
-      );
-    case CartazTemplateTipo.oferta:
-      return const PosterTemplateAsset(
-        path: 'templates/oferta.svg',
-        type: PosterTemplateAssetType.svg,
-      );
-  }
+  return cartazTemplateSpec(tipo).asset;
 }
 
 class PosterTemplateBackground extends StatelessWidget {

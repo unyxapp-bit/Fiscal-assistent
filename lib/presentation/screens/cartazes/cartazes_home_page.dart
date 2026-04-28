@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../../../data/models/cartaz_form_data.dart';
+import '../../widgets/cartazes/cartaz_template_specs.dart';
 import 'criar_cartaz_page.dart';
 
 class CartazesHomePage extends StatefulWidget {
@@ -20,6 +22,7 @@ class _CartazesHomePageState extends State<CartazesHomePage> {
       );
       return;
     }
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => CriarCartazPage(
@@ -35,7 +38,7 @@ class _CartazesHomePageState extends State<CartazesHomePage> {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
-        title: const Text('Cartazes Promocionais'),
+        title: const Text('Cartazes promocionais'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
@@ -50,34 +53,15 @@ class _CartazesHomePageState extends State<CartazesHomePage> {
                 children: [
                   _sectionLabel('1. Escolha o modelo'),
                   const SizedBox(height: 12),
-                  _TemplateCard(
-                    tipo: CartazTemplateTipo.aproveiteAgora,
-                    selecionado: _tipoSelecionado == CartazTemplateTipo.aproveiteAgora,
-                    cor: const Color(0xFFD6166A),
-                    icone: Icons.local_offer_rounded,
-                    descricao: 'Promoções gerais e ofertas',
-                    onTap: () => setState(() => _tipoSelecionado = CartazTemplateTipo.aproveiteAgora),
-                  ),
-                  const SizedBox(height: 10),
-                  _TemplateCard(
-                    tipo: CartazTemplateTipo.proximoVencimento,
-                    selecionado: _tipoSelecionado == CartazTemplateTipo.proximoVencimento,
-                    cor: const Color(0xFFF4C430),
-                    icone: Icons.schedule_rounded,
-                    descricao: 'Produtos com vencimento próximo',
-                    textColor: Colors.black,
-                    onTap: () => setState(() => _tipoSelecionado = CartazTemplateTipo.proximoVencimento),
-                  ),
-                  const SizedBox(height: 10),
-                  _TemplateCard(
-                    tipo: CartazTemplateTipo.oferta,
-                    selecionado: _tipoSelecionado == CartazTemplateTipo.oferta,
-                    cor: const Color(0xFFCC0000),
-                    icone: Icons.sell_rounded,
-                    descricao: 'Oferta simples com validade',
-                    onTap: () => setState(() => _tipoSelecionado = CartazTemplateTipo.oferta),
-                  ),
-                  const SizedBox(height: 28),
+                  for (final spec in cartazTemplateSpecs) ...[
+                    _TemplateCard(
+                      spec: spec,
+                      selecionado: _tipoSelecionado == spec.tipo,
+                      onTap: () => setState(() => _tipoSelecionado = spec.tipo),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                  const SizedBox(height: 18),
                   _sectionLabel('2. Escolha o tamanho'),
                   const SizedBox(height: 12),
                   _TamanhoSelector(
@@ -124,7 +108,9 @@ class _CartazesHomePageState extends State<CartazesHomePage> {
             backgroundColor: const Color(0xFFD6166A),
             foregroundColor: Colors.white,
             disabledBackgroundColor: Colors.grey.shade300,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         ),
       ),
@@ -132,41 +118,32 @@ class _CartazesHomePageState extends State<CartazesHomePage> {
   }
 }
 
-// ─── Template Card ────────────────────────────────────────────────────────────
-
 class _TemplateCard extends StatelessWidget {
-  final CartazTemplateTipo tipo;
+  final CartazTemplateSpec spec;
   final bool selecionado;
-  final Color cor;
-  final IconData icone;
-  final String descricao;
-  final Color textColor;
   final VoidCallback onTap;
 
   const _TemplateCard({
-    required this.tipo,
+    required this.spec,
     required this.selecionado,
-    required this.cor,
-    required this.icone,
-    required this.descricao,
     required this.onTap,
-    this.textColor = Colors.white,
   });
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selecionado ? cor.withAlpha(18) : Colors.white,
-      borderRadius: BorderRadius.circular(14),
+      color: selecionado ? spec.color.withAlpha(18) : Colors.white,
+      borderRadius: BorderRadius.circular(8),
       elevation: selecionado ? 0 : 2,
       shadowColor: Colors.black12,
       child: InkWell(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(8),
         onTap: onTap,
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            border: selecionado ? Border.all(color: cor, width: 2) : null,
+            borderRadius: BorderRadius.circular(8),
+            border:
+                selecionado ? Border.all(color: spec.color, width: 2) : null,
           ),
           child: Row(
             children: [
@@ -174,13 +151,13 @@ class _TemplateCard extends StatelessWidget {
                 width: 72,
                 height: 72,
                 decoration: BoxDecoration(
-                  color: cor,
+                  color: spec.color,
                   borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    bottomLeft: Radius.circular(12),
+                    topLeft: Radius.circular(8),
+                    bottomLeft: Radius.circular(8),
                   ),
                 ),
-                child: Icon(icone, color: textColor, size: 32),
+                child: Icon(spec.icon, color: spec.iconColor, size: 32),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -188,17 +165,20 @@ class _TemplateCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      tipo.label,
+                      spec.title,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: selecionado ? cor : Colors.black87,
+                        color: selecionado ? spec.color : Colors.black87,
                       ),
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      descricao,
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                      spec.description,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
                     ),
                   ],
                 ),
@@ -206,8 +186,10 @@ class _TemplateCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 14),
                 child: Icon(
-                  selecionado ? Icons.check_circle_rounded : Icons.circle_outlined,
-                  color: selecionado ? cor : Colors.grey.shade300,
+                  selecionado
+                      ? Icons.check_circle_rounded
+                      : Icons.circle_outlined,
+                  color: selecionado ? spec.color : Colors.grey.shade300,
                   size: 22,
                 ),
               ),
@@ -219,13 +201,14 @@ class _TemplateCard extends StatelessWidget {
   }
 }
 
-// ─── Tamanho Selector ─────────────────────────────────────────────────────────
-
 class _TamanhoSelector extends StatelessWidget {
   final CartazTamanho selecionado;
   final ValueChanged<CartazTamanho> onChanged;
 
-  const _TamanhoSelector({required this.selecionado, required this.onChanged});
+  const _TamanhoSelector({
+    required this.selecionado,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -240,7 +223,7 @@ class _TamanhoSelector extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
                 color: sel ? const Color(0xFFD6166A) : Colors.white,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: sel ? const Color(0xFFD6166A) : Colors.grey.shade300,
                 ),

@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -47,10 +46,48 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
   }
 
   String get _nomeArquivo {
-    final prod = widget.data.tituloLinha1
-        .replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')
-        .toLowerCase();
+    final prod = _slug(widget.data.tituloLinha1);
     return 'cartaz_${prod}_${widget.data.tamanho.label.toLowerCase()}';
+  }
+
+  String _slug(String value) {
+    var text = value.trim().toLowerCase();
+    const replacements = <String, String>{
+      'á': 'a',
+      'à': 'a',
+      'ã': 'a',
+      'â': 'a',
+      'ä': 'a',
+      'é': 'e',
+      'è': 'e',
+      'ê': 'e',
+      'ë': 'e',
+      'í': 'i',
+      'ì': 'i',
+      'î': 'i',
+      'ï': 'i',
+      'ó': 'o',
+      'ò': 'o',
+      'õ': 'o',
+      'ô': 'o',
+      'ö': 'o',
+      'ú': 'u',
+      'ù': 'u',
+      'û': 'u',
+      'ü': 'u',
+      'ç': 'c',
+    };
+
+    for (final entry in replacements.entries) {
+      text = text.replaceAll(entry.key, entry.value);
+    }
+
+    final slug = text
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
+        .replaceAll(RegExp(r'_+'), '_')
+        .replaceAll(RegExp(r'^_|_$'), '');
+
+    return slug.isEmpty ? 'produto' : slug;
   }
 
   double get _capturePixelRatio {
@@ -101,8 +138,7 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
   }
 
   Future<void> _compartilharPNG() async {
-    setState(() => _exporting = true);
-    try {
+    await _runExport(() async {
       final pngBytes = await _capturarPNG();
       await Share.shareXFiles([
         XFile.fromData(
@@ -111,35 +147,34 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
           name: '$_nomeArquivo.png',
         ),
       ]);
-    } catch (e) {
-      _mostrarErro(e);
-    } finally {
-      if (mounted) setState(() => _exporting = false);
-    }
+    });
   }
 
   Future<void> _compartilharPDF() async {
-    setState(() => _exporting = true);
-    try {
+    await _runExport(() async {
       final pngBytes = await _capturarPNG();
       final pdfBytes = await _gerarPDF(pngBytes);
       await Printing.sharePdf(bytes: pdfBytes, filename: '$_nomeArquivo.pdf');
-    } catch (e) {
-      _mostrarErro(e);
-    } finally {
-      if (mounted) setState(() => _exporting = false);
-    }
+    });
   }
 
   Future<void> _imprimir() async {
-    setState(() => _exporting = true);
-    try {
+    await _runExport(() async {
       final pngBytes = await _capturarPNG();
       final pdfBytes = await _gerarPDF(pngBytes);
       await Printing.layoutPdf(
         onLayout: (_) async => pdfBytes,
         name: 'Cartaz ${widget.data.tituloLinha1}',
       );
+    });
+  }
+
+  Future<void> _runExport(Future<void> Function() action) async {
+    if (_exporting) return;
+
+    setState(() => _exporting = true);
+    try {
+      await action();
     } catch (e) {
       _mostrarErro(e);
     } finally {
@@ -150,16 +185,17 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
   void _mostrarErro(Object e) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Erro: $e')),
+      SnackBar(content: Text('Erro ao gerar cartaz: $e')),
     );
   }
 
   double _previewScale(BoxConstraints constraints) {
-    final usableWidth = math.max(1, constraints.maxWidth - 24);
-    final usableHeight = math.max(1, constraints.maxHeight - 48);
-    final scaleByWidth = usableWidth / _posterSize.width;
-    final scaleByHeight = usableHeight / _posterSize.height;
-    return math.min(scaleByWidth, scaleByHeight).clamp(0.08, 1.0);
+    return posterPreviewScaleFor(
+      posterSize: _posterSize,
+      constraints: constraints,
+      horizontalPadding: 24,
+      verticalPadding: 48,
+    );
   }
 
   @override
@@ -167,7 +203,7 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
     return Scaffold(
       backgroundColor: Colors.grey.shade200,
       appBar: AppBar(
-        title: Text('${widget.data.tipo.label} · ${widget.data.tamanho.label}'),
+        title: Text('${widget.data.tipo.label} - ${widget.data.tamanho.label}'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,

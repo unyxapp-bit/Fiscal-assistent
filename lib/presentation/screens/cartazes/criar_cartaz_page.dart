@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../data/models/cartaz_form_data.dart';
+import '../../widgets/cartazes/cartaz_template_specs.dart';
 import '../../widgets/cartazes/poster_canvas.dart';
 import '../../widgets/cartazes/poster_factory.dart';
 import 'preview_cartaz_page.dart';
@@ -28,9 +29,8 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
   final _unidadeCtrl = TextEditingController();
   final _validadeCtrl = TextEditingController();
 
-  bool get _isAproveite => widget.tipo == CartazTemplateTipo.aproveiteAgora;
-  bool get _isProximo => widget.tipo == CartazTemplateTipo.proximoVencimento;
-  bool get _isOferta => widget.tipo == CartazTemplateTipo.oferta;
+  CartazTemplateSpec get _spec => cartazTemplateSpec(widget.tipo);
+  CartazTemplateFieldHints get _fields => _spec.fields;
 
   @override
   void dispose() {
@@ -51,17 +51,37 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
       tituloLinha1: _linha1Ctrl.text.trim(),
       tituloLinha2: _linha2Ctrl.text.trim(),
       subtitulo: _subtituloCtrl.text.trim(),
-      detalhe: _detalheCtrl.text.trim(),
-      preco: _precoCtrl.text.trim(),
-      unidade: _unidadeCtrl.text.trim(),
-      validade: _validadeCtrl.text.trim(),
+      detalhe: _fields.showDetalhe ? _detalheCtrl.text.trim() : '',
+      preco: _normalizarPreco(_precoCtrl.text),
+      unidade: _fields.showUnidade ? _unidadeCtrl.text.trim() : '',
+      validade: _fields.showValidade ? _validadeCtrl.text.trim() : '',
     );
   }
 
+  String _normalizarPreco(String raw) {
+    var text = raw
+        .trim()
+        .replaceAll('R\$', '')
+        .replaceAll(' ', '')
+        .replaceAll('.', ',');
+
+    text = text.replaceAll(RegExp(r'[^0-9,]'), '');
+
+    final firstComma = text.indexOf(',');
+    if (firstComma >= 0) {
+      final before = text.substring(0, firstComma + 1);
+      final after = text.substring(firstComma + 1).replaceAll(',', '');
+      text = '$before$after';
+    }
+
+    return text;
+  }
+
   void _visualizar() {
-    if (_linha1Ctrl.text.trim().isEmpty || _precoCtrl.text.trim().isEmpty) {
+    if (_linha1Ctrl.text.trim().isEmpty ||
+        _normalizarPreco(_precoCtrl.text).isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Preencha o produto e o preco')),
+        const SnackBar(content: Text('Preencha o produto e o preço')),
       );
       return;
     }
@@ -76,7 +96,7 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
-        title: Text(widget.tipo.label),
+        title: Text(_spec.title),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
@@ -110,53 +130,37 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
                   _campo(
                     controller: _linha1Ctrl,
                     label: 'Linha 1 - nome / marca *',
-                    hint: _isAproveite
-                        ? 'Ex: LAVA ROUPAS'
-                        : _isProximo
-                            ? 'Ex: TERERE LEAO'
-                            : 'Ex: BISCOITO RECHEADO',
+                    hint: _fields.linha1Hint,
                   ),
                   const SizedBox(height: 10),
                   _campo(
                     controller: _linha2Ctrl,
                     label: 'Linha 2 - complemento',
-                    hint: _isAproveite
-                        ? 'Ex: LIQ. CLASSE A'
-                        : _isProximo
-                            ? 'Ex: 500G'
-                            : 'Ex: DANY SABORES',
+                    hint: _fields.linha2Hint,
                   ),
                   const SizedBox(height: 10),
                   _campo(
                     controller: _subtituloCtrl,
-                    label: _isProximo ? 'Sabor / tipo' : 'Peso / volume',
-                    hint: _isAproveite
-                        ? 'Ex: REFIL 900ML'
-                        : _isProximo
-                            ? 'Ex: ABACAXI'
-                            : 'Ex: 130G',
+                    label: _fields.subtituloLabel,
+                    hint: _fields.subtituloHint,
                   ),
-                  if (_isAproveite || _isOferta) ...[
+                  if (_fields.showDetalhe) ...[
                     const SizedBox(height: 10),
                     _campo(
                       controller: _detalheCtrl,
-                      label: _isAproveite
-                          ? 'Fragrancia / sabor'
-                          : 'Detalhe / observacao',
-                      hint: _isAproveite
-                          ? 'Ex: FRAGRANCIAS'
-                          : 'Ex: CADA 130 GRAMAS',
+                      label: _fields.detalheLabel,
+                      hint: _fields.detalheHint,
                     ),
                   ],
                   const SizedBox(height: 20),
-                  _sectionLabel('Preco'),
+                  _sectionLabel('Preço'),
                   Row(
                     children: [
                       Expanded(
                         flex: 3,
                         child: _campo(
                           controller: _precoCtrl,
-                          label: 'Preco *',
+                          label: 'Preço *',
                           hint: 'Ex: 9,99',
                           keyboard: const TextInputType.numberWithOptions(
                             decimal: true,
@@ -164,25 +168,25 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
                           caps: false,
                         ),
                       ),
-                      if (!_isOferta) ...[
+                      if (_fields.showUnidade) ...[
                         const SizedBox(width: 10),
                         Expanded(
                           flex: 2,
                           child: _campo(
                             controller: _unidadeCtrl,
                             label: 'Unidade',
-                            hint: 'Ex: UNID.',
+                            hint: _fields.unidadeHint,
                           ),
                         ),
                       ],
                     ],
                   ),
-                  if (_isOferta) ...[
+                  if (_fields.showValidade) ...[
                     const SizedBox(height: 10),
                     _campo(
                       controller: _validadeCtrl,
-                      label: 'Validade / rodape',
-                      hint: 'Ex: VALIDO ATE 26/04/2026',
+                      label: 'Validade / rodapé',
+                      hint: _fields.validadeHint,
                     ),
                   ],
                   const SizedBox(height: 28),
@@ -217,7 +221,6 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
             Expanded(
               flex: 4,
               child: _LivePreview(
-                tipo: widget.tipo,
                 ctrls: [
                   _linha1Ctrl,
                   _linha2Ctrl,
@@ -291,12 +294,10 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
 }
 
 class _LivePreview extends StatefulWidget {
-  final CartazTemplateTipo tipo;
   final List<TextEditingController> ctrls;
   final CartazFormData Function() buildData;
 
   const _LivePreview({
-    required this.tipo,
     required this.ctrls,
     required this.buildData,
   });
@@ -332,22 +333,20 @@ class _LivePreviewState extends State<_LivePreview> {
     return Center(
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final usableWidth =
-              (constraints.maxWidth - 40).clamp(1.0, double.infinity);
-          final usableHeight =
-              (constraints.maxHeight - 72).clamp(1.0, double.infinity);
-          final scaleByWidth = usableWidth / posterSize.width;
-          final scaleByHeight = usableHeight / posterSize.height;
-          final scale =
-              (scaleByWidth < scaleByHeight ? scaleByWidth : scaleByHeight)
-                  .clamp(0.08, 0.6);
+          final scale = posterPreviewScaleFor(
+            posterSize: posterSize,
+            constraints: constraints,
+            horizontalPadding: 40,
+            verticalPadding: 72,
+            maxScale: 0.6,
+          );
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
                 Text(
-                  'PREVIA',
+                  'PRÉVIA',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,

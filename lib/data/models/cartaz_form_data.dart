@@ -14,19 +14,27 @@ enum CartazTamanho {
 extension CartazTamanhoExt on CartazTamanho {
   String get label {
     switch (this) {
-      case CartazTamanho.a6: return 'A6';
-      case CartazTamanho.a4: return 'A4';
-      case CartazTamanho.a3: return 'A3';
-      case CartazTamanho.a2: return 'A2';
+      case CartazTamanho.a6:
+        return 'A6';
+      case CartazTamanho.a4:
+        return 'A4';
+      case CartazTamanho.a3:
+        return 'A3';
+      case CartazTamanho.a2:
+        return 'A2';
     }
   }
 
   String get descricao {
     switch (this) {
-      case CartazTamanho.a6: return 'Gôndola / prateleira';
-      case CartazTamanho.a4: return 'Cartaz padrão da loja';
-      case CartazTamanho.a3: return 'Ilha / ponta de gôndola';
-      case CartazTamanho.a2: return 'Entrada / corredor';
+      case CartazTamanho.a6:
+        return 'Gôndola / prateleira';
+      case CartazTamanho.a4:
+        return 'Cartaz padrão da loja';
+      case CartazTamanho.a3:
+        return 'Ilha / ponta de gôndola';
+      case CartazTamanho.a2:
+        return 'Entrada / corredor';
     }
   }
 }
@@ -34,9 +42,12 @@ extension CartazTamanhoExt on CartazTamanho {
 extension CartazTemplateTipoExt on CartazTemplateTipo {
   String get label {
     switch (this) {
-      case CartazTemplateTipo.proximoVencimento: return 'Próximo do vencimento';
-      case CartazTemplateTipo.aproveiteAgora: return 'Aproveite agora';
-      case CartazTemplateTipo.oferta: return 'Oferta';
+      case CartazTemplateTipo.proximoVencimento:
+        return 'Próximo do vencimento';
+      case CartazTemplateTipo.aproveiteAgora:
+        return 'Aproveite agora';
+      case CartazTemplateTipo.oferta:
+        return 'Oferta';
     }
   }
 }
