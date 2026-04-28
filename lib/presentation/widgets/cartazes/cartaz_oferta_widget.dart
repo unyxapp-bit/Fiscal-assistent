@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../data/models/cartaz_form_data.dart';
+import 'cartaz_text_adjustments.dart';
 import 'poster_canvas.dart';
 import 'poster_template_background.dart';
 
@@ -8,8 +9,21 @@ const _ofRed = Color(0xFFD61E1E);
 
 class CartazOfertaWidget extends StatelessWidget {
   final CartazFormData data;
+  final CartazTextAdjustments? textAdjustments;
+  final CartazTextElement? selectedElement;
+  final bool showSelection;
 
-  const CartazOfertaWidget({super.key, required this.data});
+  const CartazOfertaWidget({
+    super.key,
+    required this.data,
+    this.textAdjustments,
+    this.selectedElement,
+    this.showSelection = false,
+  });
+
+  bool _isSelected(CartazTextElement element) {
+    return showSelection && selectedElement == element;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,26 +37,26 @@ class CartazOfertaWidget extends StatelessWidget {
         final validade = (data.validade ?? '').trim();
         final hasDetalhe = detalhe.isNotEmpty;
         final preco = _priceWithoutCurrency(data.preco);
+        final canvasSize = Size(w, h);
 
         return Stack(
+          clipBehavior: Clip.none,
           children: [
             const Positioned.fill(
               child: PosterTemplateBackground(
                 tipo: CartazTemplateTipo.oferta,
               ),
             ),
-            Positioned(
-              left: w * 0.10,
-              right: w * 0.10,
-              top: h * 0.245,
-              height: hasDetalhe ? h * 0.25 : h * 0.30,
-              child: _OfertaTextBlock(data: data),
-            ),
+            ..._buildProductSlots(canvasSize, hasDetalhe),
             if (detalhe.isNotEmpty)
-              Positioned(
+              CartazTextSlot(
+                canvasSize: canvasSize,
+                element: CartazTextElement.detalhe,
+                adjustments: textAdjustments,
+                selected: _isSelected(CartazTextElement.detalhe),
                 left: w * 0.14,
-                right: w * 0.14,
                 top: h * 0.525,
+                width: w * 0.72,
                 height: h * 0.044,
                 child: _FitTextBox(
                   text: detalhe.toUpperCase(),
@@ -56,18 +70,27 @@ class CartazOfertaWidget extends StatelessWidget {
                   ),
                 ),
               ),
-            Positioned(
+            CartazTextSlot(
+              canvasSize: canvasSize,
+              element: CartazTextElement.preco,
+              adjustments: textAdjustments,
+              selected: _isSelected(CartazTextElement.preco),
               left: w * 0.21,
-              right: w * 0.08,
               top: h * 0.625,
+              width: w * 0.71,
               height: h * 0.27,
+              scaleAlignment: Alignment.topCenter,
               child: _OfferPriceLayer(text: preco),
             ),
             if (data.unidade.trim().isNotEmpty)
-              Positioned(
+              CartazTextSlot(
+                canvasSize: canvasSize,
+                element: CartazTextElement.unidade,
+                adjustments: textAdjustments,
+                selected: _isSelected(CartazTextElement.unidade),
                 left: w * 0.32,
-                right: w * 0.32,
-                bottom: h * 0.105,
+                top: h * 0.843,
+                width: w * 0.36,
                 height: h * 0.052,
                 child: _FitTextBox(
                   text: data.unidade.toUpperCase(),
@@ -82,11 +105,16 @@ class CartazOfertaWidget extends StatelessWidget {
                 ),
               ),
             if (validade.isNotEmpty)
-              Positioned(
+              CartazTextSlot(
+                canvasSize: canvasSize,
+                element: CartazTextElement.validade,
+                adjustments: textAdjustments,
+                selected: _isSelected(CartazTextElement.validade),
                 left: w * 0.06,
-                right: w * 0.06,
-                bottom: h * 0.012,
+                top: h * 0.956,
+                width: w * 0.88,
                 height: h * 0.032,
+                scaleAlignment: Alignment.bottomCenter,
                 child: _FitTextBox(
                   text: validade.toUpperCase(),
                   alignment: Alignment.bottomCenter,
@@ -104,64 +132,100 @@ class CartazOfertaWidget extends StatelessWidget {
       },
     );
   }
+
+  List<Widget> _buildProductSlots(Size canvasSize, bool hasDetalhe) {
+    final w = canvasSize.width;
+    final h = canvasSize.height;
+    final lines = <_OfertaLineSpec>[
+      _OfertaLineSpec(
+        element: CartazTextElement.tituloLinha1,
+        text: data.tituloLinha1.toUpperCase(),
+        alignment: Alignment.center,
+        style: const TextStyle(
+          fontSize: 124,
+          fontWeight: FontWeight.w900,
+          color: Colors.black,
+          height: 0.86,
+          letterSpacing: -3.2,
+        ),
+        flex: 32,
+      ),
+      _OfertaLineSpec(
+        element: CartazTextElement.tituloLinha2,
+        text: data.tituloLinha2.toUpperCase(),
+        alignment: Alignment.center,
+        style: const TextStyle(
+          fontSize: 122,
+          fontWeight: FontWeight.w900,
+          color: Colors.black,
+          height: 0.86,
+          letterSpacing: -3.0,
+        ),
+        flex: 32,
+      ),
+      _OfertaLineSpec(
+        element: CartazTextElement.subtitulo,
+        text: data.subtitulo.toUpperCase(),
+        alignment: Alignment.center,
+        style: const TextStyle(
+          fontSize: 74,
+          fontWeight: FontWeight.w900,
+          color: Colors.black,
+          height: 0.9,
+          letterSpacing: -2.2,
+        ),
+        flex: 18,
+      ),
+    ];
+
+    final top = h * 0.245;
+    final height = hasDetalhe ? h * 0.25 : h * 0.30;
+    final left = w * 0.10;
+    final width = w * 0.80;
+    const totalFlex = 100;
+    var lineTop = top;
+    final slots = <Widget>[];
+
+    for (final line in lines) {
+      final lineHeight = height * line.flex / totalFlex;
+      slots.add(
+        CartazTextSlot(
+          canvasSize: canvasSize,
+          element: line.element,
+          adjustments: textAdjustments,
+          selected: _isSelected(line.element),
+          left: left,
+          top: lineTop,
+          width: width,
+          height: lineHeight,
+          child: _FitTextBox(
+            text: line.text,
+            alignment: line.alignment,
+            style: line.style,
+          ),
+        ),
+      );
+      lineTop += lineHeight;
+    }
+
+    return slots;
+  }
 }
 
-class _OfertaTextBlock extends StatelessWidget {
-  final CartazFormData data;
+class _OfertaLineSpec {
+  final CartazTextElement element;
+  final String text;
+  final Alignment alignment;
+  final TextStyle style;
+  final int flex;
 
-  const _OfertaTextBlock({required this.data});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          flex: 32,
-          child: _FitTextBox(
-            text: data.tituloLinha1.toUpperCase(),
-            alignment: Alignment.center,
-            style: const TextStyle(
-              fontSize: 124,
-              fontWeight: FontWeight.w900,
-              color: Colors.black,
-              height: 0.86,
-              letterSpacing: -3.2,
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 32,
-          child: _FitTextBox(
-            text: data.tituloLinha2.toUpperCase(),
-            alignment: Alignment.center,
-            style: const TextStyle(
-              fontSize: 122,
-              fontWeight: FontWeight.w900,
-              color: Colors.black,
-              height: 0.86,
-              letterSpacing: -3.0,
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 18,
-          child: _FitTextBox(
-            text: data.subtitulo.toUpperCase(),
-            alignment: Alignment.center,
-            style: const TextStyle(
-              fontSize: 74,
-              fontWeight: FontWeight.w900,
-              color: Colors.black,
-              height: 0.9,
-              letterSpacing: -2.2,
-            ),
-          ),
-        ),
-        const Spacer(flex: 18),
-      ],
-    );
-  }
+  const _OfertaLineSpec({
+    required this.element,
+    required this.text,
+    required this.alignment,
+    required this.style,
+    required this.flex,
+  });
 }
 
 class _FitTextBox extends StatelessWidget {

@@ -8,6 +8,7 @@ import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../data/models/cartaz_form_data.dart';
+import '../../widgets/cartazes/cartaz_text_adjustments.dart';
 import '../../widgets/cartazes/poster_canvas.dart';
 import '../../widgets/cartazes/poster_factory.dart';
 
@@ -22,9 +23,46 @@ class PreviewCartazPage extends StatefulWidget {
 
 class _PreviewCartazPageState extends State<PreviewCartazPage> {
   final _screenshotController = ScreenshotController();
+  final CartazTextAdjustments _textAdjustments = {};
   bool _exporting = false;
+  bool _adjusting = false;
+  CartazTextElement _selectedElement = CartazTextElement.tituloLinha1;
+
+  static const _minOffset = -0.18;
+  static const _maxOffset = 0.18;
+  static const _minScale = 0.65;
+  static const _maxScale = 1.45;
 
   Size get _posterSize => PosterCanvas.canvasSizeFor(widget.data.tamanho);
+
+  List<CartazTextElement> get _availableElements {
+    final data = widget.data;
+    final elements = <CartazTextElement>[];
+
+    void addIf(bool condition, CartazTextElement element) {
+      if (condition) elements.add(element);
+    }
+
+    addIf(data.tituloLinha1.trim().isNotEmpty, CartazTextElement.tituloLinha1);
+    addIf(data.tituloLinha2.trim().isNotEmpty, CartazTextElement.tituloLinha2);
+    addIf(data.subtitulo.trim().isNotEmpty, CartazTextElement.subtitulo);
+    addIf((data.detalhe ?? '').trim().isNotEmpty, CartazTextElement.detalhe);
+    addIf(data.preco.trim().isNotEmpty, CartazTextElement.preco);
+    addIf(data.unidade.trim().isNotEmpty, CartazTextElement.unidade);
+    addIf((data.validade ?? '').trim().isNotEmpty, CartazTextElement.validade);
+
+    return elements.isEmpty ? [CartazTextElement.tituloLinha1] : elements;
+  }
+
+  CartazTextElement get _effectiveSelectedElement {
+    final elements = _availableElements;
+    if (elements.contains(_selectedElement)) return _selectedElement;
+    return elements.first;
+  }
+
+  CartazTextAdjustment get _selectedAdjustment {
+    return cartazTextAdjustmentFor(_textAdjustments, _effectiveSelectedElement);
+  }
 
   PdfPageFormat get _pdfFormat {
     switch (widget.data.tamanho) {
@@ -97,8 +135,13 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
     return 1.0;
   }
 
-  Widget _buildTemplate() {
-    return buildPosterWidget(widget.data);
+  Widget _buildTemplate({bool showSelection = false}) {
+    return buildPosterWidget(
+      widget.data,
+      textAdjustments: _textAdjustments,
+      selectedElement: _effectiveSelectedElement,
+      showSelection: showSelection,
+    );
   }
 
   Widget _buildCaptureWidget() {
@@ -198,6 +241,57 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
     );
   }
 
+  double _clampDouble(double value, double min, double max) {
+    return value.clamp(min, max).toDouble();
+  }
+
+  void _selectElement(CartazTextElement element) {
+    setState(() => _selectedElement = element);
+  }
+
+  void _updateSelected({
+    Offset? offset,
+    double? scale,
+  }) {
+    final element = _effectiveSelectedElement;
+    final current = cartazTextAdjustmentFor(_textAdjustments, element);
+
+    setState(() {
+      _textAdjustments[element] = current.copyWith(
+        offset: offset,
+        scale: scale,
+      );
+    });
+  }
+
+  void _moveSelected(Offset delta, double previewScale) {
+    if (!_adjusting || previewScale <= 0) return;
+
+    final current = _selectedAdjustment;
+    final nextOffset = Offset(
+      _clampDouble(
+        current.offset.dx + (delta.dx / previewScale / _posterSize.width),
+        _minOffset,
+        _maxOffset,
+      ),
+      _clampDouble(
+        current.offset.dy + (delta.dy / previewScale / _posterSize.height),
+        _minOffset,
+        _maxOffset,
+      ),
+    );
+
+    _updateSelected(offset: nextOffset);
+  }
+
+  void _resetSelected() {
+    setState(() => _textAdjustments.remove(_effectiveSelectedElement));
+  }
+
+  void _resetAllAdjustments() {
+    setState(_textAdjustments.clear);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -220,12 +314,20 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
                     child: SizedBox(
                       width: _posterSize.width * scale,
                       height: _posterSize.height * scale,
-                      child: Transform.scale(
-                        scale: scale,
-                        alignment: Alignment.topLeft,
-                        child: Align(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onPanUpdate: _adjusting
+                            ? (details) => _moveSelected(details.delta, scale)
+                            : null,
+                        child: Transform.scale(
+                          scale: scale,
                           alignment: Alignment.topLeft,
-                          child: _buildTemplate(),
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: _buildTemplate(
+                              showSelection: _adjusting,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -245,6 +347,7 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
       color: Colors.white,
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
@@ -265,19 +368,40 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: _exporting ? null : _compartilharPNG,
-                  icon: const Icon(Icons.image_rounded, size: 18),
-                  label: const Text('PNG'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1565C0),
-                    foregroundColor: Colors.white,
+                child: OutlinedButton.icon(
+                  onPressed: _exporting
+                      ? null
+                      : () => setState(() => _adjusting = !_adjusting),
+                  icon: Icon(
+                    _adjusting ? Icons.check_rounded : Icons.tune_rounded,
+                    size: 18,
+                  ),
+                  label: Text(_adjusting ? 'Concluir' : 'Ajustar'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF1565C0),
                     padding: const EdgeInsets.symmetric(vertical: 13),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    textStyle: const TextStyle(fontWeight: FontWeight.w700),
+                    textStyle: const TextStyle(fontWeight: FontWeight.w800),
                   ),
+                ),
+              ),
+            ],
+          ),
+          if (_adjusting) ...[
+            const SizedBox(height: 12),
+            _buildAdjustmentPanel(),
+          ],
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _exporting ? null : _compartilharPNG,
+                  icon: const Icon(Icons.image_rounded, size: 18),
+                  label: const Text('PNG'),
+                  style: _exportButtonStyle(const Color(0xFF1565C0)),
                 ),
               ),
               const SizedBox(width: 10),
@@ -286,51 +410,201 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
                   onPressed: _exporting ? null : _compartilharPDF,
                   icon: const Icon(Icons.picture_as_pdf_rounded, size: 18),
                   label: const Text('PDF'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFCC0000),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 13),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    textStyle: const TextStyle(fontWeight: FontWeight.w700),
-                  ),
+                  style: _exportButtonStyle(const Color(0xFFCC0000)),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _exporting ? null : _imprimir,
+                  icon: _exporting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.print_rounded, size: 18),
+                  label: Text(_exporting ? 'Gerando' : 'Imprimir'),
+                  style: _exportButtonStyle(const Color(0xFFD6166A)),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _exporting ? null : _imprimir,
-              icon: _exporting
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.print_rounded),
-              label: Text(_exporting ? 'Gerando...' : 'Imprimir'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD6166A),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                textStyle: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ),
         ],
       ),
+    );
+  }
+
+  ButtonStyle _exportButtonStyle(Color color) {
+    return ElevatedButton.styleFrom(
+      backgroundColor: color,
+      foregroundColor: Colors.white,
+      padding: const EdgeInsets.symmetric(vertical: 13),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      textStyle: const TextStyle(fontWeight: FontWeight.w700),
+    );
+  }
+
+  Widget _buildAdjustmentPanel() {
+    final elements = _availableElements;
+    final selected = _effectiveSelectedElement;
+    final adjustment = _selectedAdjustment;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 38,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: elements.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final element = elements[index];
+                  return ChoiceChip(
+                    label: Text(element.label),
+                    selected: element == selected,
+                    onSelected: (_) => _selectElement(element),
+                    selectedColor: const Color(0xFF1565C0),
+                    labelStyle: TextStyle(
+                      color: element == selected ? Colors.white : Colors.black,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    side: BorderSide(color: Colors.grey.shade300),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 8),
+            _AdjustmentSlider(
+              label: 'X',
+              value: adjustment.offset.dx,
+              min: _minOffset,
+              max: _maxOffset,
+              divisions: 72,
+              valueText: '${(adjustment.offset.dx * 100).round()}%',
+              onChanged: (value) => _updateSelected(
+                offset: Offset(value, adjustment.offset.dy),
+              ),
+            ),
+            _AdjustmentSlider(
+              label: 'Y',
+              value: adjustment.offset.dy,
+              min: _minOffset,
+              max: _maxOffset,
+              divisions: 72,
+              valueText: '${(adjustment.offset.dy * 100).round()}%',
+              onChanged: (value) => _updateSelected(
+                offset: Offset(adjustment.offset.dx, value),
+              ),
+            ),
+            _AdjustmentSlider(
+              label: 'Tamanho',
+              value: adjustment.scale,
+              min: _minScale,
+              max: _maxScale,
+              divisions: 80,
+              valueText: '${(adjustment.scale * 100).round()}%',
+              onChanged: (value) => _updateSelected(scale: value),
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _resetSelected,
+                    icon: const Icon(Icons.restart_alt_rounded, size: 18),
+                    label: const Text('Resetar item'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _resetAllAdjustments,
+                    icon: const Icon(Icons.refresh_rounded, size: 18),
+                    label: const Text('Resetar tudo'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AdjustmentSlider extends StatelessWidget {
+  final String label;
+  final double value;
+  final double min;
+  final double max;
+  final int divisions;
+  final String valueText;
+  final ValueChanged<double> onChanged;
+
+  const _AdjustmentSlider({
+    required this.label,
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.divisions,
+    required this.valueText,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 72,
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Slider(
+            value: value,
+            min: min,
+            max: max,
+            divisions: divisions,
+            label: valueText,
+            onChanged: onChanged,
+          ),
+        ),
+        SizedBox(
+          width: 44,
+          child: Text(
+            valueText,
+            textAlign: TextAlign.right,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

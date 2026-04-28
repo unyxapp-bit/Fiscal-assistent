@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../data/models/cartaz_form_data.dart';
+import 'cartaz_text_adjustments.dart';
 import 'poster_canvas.dart';
 import 'poster_template_background.dart';
 
@@ -8,8 +9,21 @@ const _aaPink = Color(0xFFE91B72);
 
 class CartazAproveiteAgoraWidget extends StatelessWidget {
   final CartazFormData data;
+  final CartazTextAdjustments? textAdjustments;
+  final CartazTextElement? selectedElement;
+  final bool showSelection;
 
-  const CartazAproveiteAgoraWidget({super.key, required this.data});
+  const CartazAproveiteAgoraWidget({
+    super.key,
+    required this.data,
+    this.textAdjustments,
+    this.selectedElement,
+    this.showSelection = false,
+  });
+
+  bool _isSelected(CartazTextElement element) {
+    return showSelection && selectedElement == element;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,28 +34,30 @@ class CartazAproveiteAgoraWidget extends StatelessWidget {
         final w = safeSize.width;
         final h = safeSize.height;
         final hasDetalhe = (data.detalhe ?? '').trim().isNotEmpty;
+        final canvasSize = Size(w, h);
+        final priceText = _priceWithoutCurrency(data.preco);
 
         return Stack(
+          clipBehavior: Clip.none,
           children: [
             const Positioned.fill(
               child: PosterTemplateBackground(
                 tipo: CartazTemplateTipo.aproveiteAgora,
               ),
             ),
-            Positioned(
-              left: w * 0.08,
-              right: w * 0.08,
-              top: h * 0.215,
-              height: hasDetalhe ? h * 0.30 : h * 0.255,
-              child: _AproveiteTextBlock(data: data),
-            ),
-            Positioned(
+            ..._buildProductSlots(canvasSize, hasDetalhe),
+            CartazTextSlot(
+              canvasSize: canvasSize,
+              element: CartazTextElement.preco,
+              adjustments: textAdjustments,
+              selected: _isSelected(CartazTextElement.preco),
               left: w * 0.18,
-              right: w * 0.08,
               top: h * 0.64,
+              width: w * 0.74,
               height: h * 0.23,
+              scaleAlignment: Alignment.topLeft,
               child: _PriceLayer(
-                text: data.preco,
+                text: priceText,
                 color: _aaPink,
                 shadowColor: Colors.black.withAlpha(42),
                 alignment: Alignment.topLeft,
@@ -50,11 +66,16 @@ class CartazAproveiteAgoraWidget extends StatelessWidget {
               ),
             ),
             if (data.unidade.trim().isNotEmpty)
-              Positioned(
+              CartazTextSlot(
+                canvasSize: canvasSize,
+                element: CartazTextElement.unidade,
+                adjustments: textAdjustments,
+                selected: _isSelected(CartazTextElement.unidade),
                 left: w * 0.74,
-                right: w * 0.07,
-                bottom: h * 0.13,
+                top: h * 0.82,
+                width: w * 0.19,
                 height: h * 0.05,
+                scaleAlignment: Alignment.bottomRight,
                 child: _FitTextBox(
                   text: data.unidade.toUpperCase(),
                   alignment: Alignment.bottomRight,
@@ -72,18 +93,14 @@ class CartazAproveiteAgoraWidget extends StatelessWidget {
       },
     );
   }
-}
 
-class _AproveiteTextBlock extends StatelessWidget {
-  final CartazFormData data;
-
-  const _AproveiteTextBlock({required this.data});
-
-  @override
-  Widget build(BuildContext context) {
+  List<Widget> _buildProductSlots(Size canvasSize, bool hasDetalhe) {
+    final w = canvasSize.width;
+    final h = canvasSize.height;
     final detalhe = (data.detalhe ?? '').trim();
     final lines = <_AproveiteLineSpec>[
       _AproveiteLineSpec(
+        element: CartazTextElement.tituloLinha1,
         text: data.tituloLinha1.toUpperCase(),
         alignment: Alignment.center,
         style: const TextStyle(
@@ -96,6 +113,7 @@ class _AproveiteTextBlock extends StatelessWidget {
         flex: detalhe.isEmpty ? 38 : 31,
       ),
       _AproveiteLineSpec(
+        element: CartazTextElement.tituloLinha2,
         text: data.tituloLinha2.toUpperCase(),
         alignment: Alignment.center,
         style: const TextStyle(
@@ -108,6 +126,7 @@ class _AproveiteTextBlock extends StatelessWidget {
         flex: detalhe.isEmpty ? 34 : 28,
       ),
       _AproveiteLineSpec(
+        element: CartazTextElement.subtitulo,
         text: data.subtitulo.toUpperCase(),
         alignment: Alignment.center,
         style: const TextStyle(
@@ -121,6 +140,7 @@ class _AproveiteTextBlock extends StatelessWidget {
       ),
       if (detalhe.isNotEmpty)
         _AproveiteLineSpec(
+          element: CartazTextElement.detalhe,
           text: detalhe.toUpperCase(),
           alignment: Alignment.center,
           style: const TextStyle(
@@ -134,30 +154,49 @@ class _AproveiteTextBlock extends StatelessWidget {
         ),
     ];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (final line in lines)
-          Expanded(
-            flex: line.flex,
-            child: _FitTextBox(
-              text: line.text,
-              alignment: line.alignment,
-              style: line.style,
-            ),
+    final top = h * 0.215;
+    final height = hasDetalhe ? h * 0.30 : h * 0.255;
+    final left = w * 0.08;
+    final width = w * 0.84;
+    final totalFlex = lines.fold<int>(0, (sum, line) => sum + line.flex);
+    var lineTop = top;
+    final slots = <Widget>[];
+
+    for (final line in lines) {
+      final lineHeight = height * line.flex / totalFlex;
+      slots.add(
+        CartazTextSlot(
+          canvasSize: canvasSize,
+          element: line.element,
+          adjustments: textAdjustments,
+          selected: _isSelected(line.element),
+          left: left,
+          top: lineTop,
+          width: width,
+          height: lineHeight,
+          child: _FitTextBox(
+            text: line.text,
+            alignment: line.alignment,
+            style: line.style,
           ),
-      ],
-    );
+        ),
+      );
+      lineTop += lineHeight;
+    }
+
+    return slots;
   }
 }
 
 class _AproveiteLineSpec {
+  final CartazTextElement element;
   final String text;
   final Alignment alignment;
   final TextStyle style;
   final int flex;
 
   const _AproveiteLineSpec({
+    required this.element,
     required this.text,
     required this.alignment,
     required this.style,
@@ -193,6 +232,13 @@ class _FitTextBox extends StatelessWidget {
       ),
     );
   }
+}
+
+String _priceWithoutCurrency(String value) {
+  return value
+      .replaceAll(RegExp(r'R\$', caseSensitive: false), '')
+      .replaceAll(RegExp(r'\s+'), '')
+      .trim();
 }
 
 class _PriceLayer extends StatelessWidget {

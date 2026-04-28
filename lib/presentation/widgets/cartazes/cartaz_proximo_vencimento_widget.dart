@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../data/models/cartaz_form_data.dart';
+import 'cartaz_text_adjustments.dart';
 import 'poster_canvas.dart';
 import 'poster_template_background.dart';
 
@@ -9,8 +10,21 @@ const _pvRed = Color(0xFFE11A1A);
 
 class CartazProximoVencimentoWidget extends StatelessWidget {
   final CartazFormData data;
+  final CartazTextAdjustments? textAdjustments;
+  final CartazTextElement? selectedElement;
+  final bool showSelection;
 
-  const CartazProximoVencimentoWidget({super.key, required this.data});
+  const CartazProximoVencimentoWidget({
+    super.key,
+    required this.data,
+    this.textAdjustments,
+    this.selectedElement,
+    this.showSelection = false,
+  });
+
+  bool _isSelected(CartazTextElement element) {
+    return showSelection && selectedElement == element;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,57 +35,46 @@ class CartazProximoVencimentoWidget extends StatelessWidget {
         final w = safeSize.width;
         final h = safeSize.height;
         final priceText = _priceWithoutCurrency(data.preco);
+        final canvasSize = Size(w, h);
 
         return Stack(
+          clipBehavior: Clip.none,
           children: [
             const Positioned.fill(
               child: PosterTemplateBackground(
                 tipo: CartazTemplateTipo.proximoVencimento,
               ),
             ),
-            Positioned(
-              left: w * 0.07,
-              right: w * 0.07,
-              top: h * 0.225,
-              height: h * 0.295,
-              child: _ProximoTextBlock(data: data),
-            ),
+            ..._buildProductSlots(canvasSize),
             if (priceText.isNotEmpty)
-              Positioned(
-                left: w * 0.05,
-                right: w * 0.80,
-                top: h * 0.615,
-                height: h * 0.085,
-                child: const _FitTextBox(
-                  text: 'R\$',
-                  alignment: Alignment.centerLeft,
-                  style: TextStyle(
-                    fontSize: 58,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.black,
-                    height: 1,
-                    letterSpacing: -2.2,
-                  ),
+              CartazTextSlot(
+                canvasSize: canvasSize,
+                element: CartazTextElement.preco,
+                adjustments: textAdjustments,
+                selected: _isSelected(CartazTextElement.preco),
+                left: w * 0.17,
+                top: h * 0.61,
+                width: w * 0.77,
+                height: h * 0.305,
+                scaleAlignment: Alignment.bottomLeft,
+                child: _PriceLayer(
+                  text: priceText,
+                  color: _pvRed,
+                  shadowColor: Colors.black.withAlpha(45),
+                  outlineColor: Colors.white,
                 ),
               ),
-            Positioned(
-              left: w * 0.17,
-              right: w * 0.06,
-              top: h * 0.61,
-              height: h * 0.305,
-              child: _PriceLayer(
-                text: priceText,
-                color: _pvRed,
-                shadowColor: Colors.black.withAlpha(45),
-                outlineColor: Colors.white,
-              ),
-            ),
             if (data.unidade.trim().isNotEmpty)
-              Positioned(
+              CartazTextSlot(
+                canvasSize: canvasSize,
+                element: CartazTextElement.unidade,
+                adjustments: textAdjustments,
+                selected: _isSelected(CartazTextElement.unidade),
                 left: w * 0.72,
-                right: w * 0.05,
-                bottom: h * 0.125,
+                top: h * 0.825,
+                width: w * 0.23,
                 height: h * 0.05,
+                scaleAlignment: Alignment.bottomRight,
                 child: _FitTextBox(
                   text: data.unidade.toUpperCase(),
                   alignment: Alignment.bottomRight,
@@ -89,6 +92,84 @@ class CartazProximoVencimentoWidget extends StatelessWidget {
       },
     );
   }
+
+  List<Widget> _buildProductSlots(Size canvasSize) {
+    final w = canvasSize.width;
+    final h = canvasSize.height;
+    final lines = <_ProximoLineSpec>[
+      _ProximoLineSpec(
+        element: CartazTextElement.tituloLinha1,
+        text: data.tituloLinha1.toUpperCase(),
+        alignment: Alignment.center,
+        style: const TextStyle(
+          fontSize: 146,
+          fontWeight: FontWeight.w900,
+          color: Colors.black,
+          height: 0.84,
+          letterSpacing: -4.8,
+        ),
+        flex: 42,
+      ),
+      _ProximoLineSpec(
+        element: CartazTextElement.tituloLinha2,
+        text: data.tituloLinha2.toUpperCase(),
+        alignment: Alignment.center,
+        style: const TextStyle(
+          fontSize: 130,
+          fontWeight: FontWeight.w900,
+          color: Colors.black,
+          height: 0.84,
+          letterSpacing: -4.2,
+        ),
+        flex: 34,
+      ),
+      _ProximoLineSpec(
+        element: CartazTextElement.subtitulo,
+        text: data.subtitulo.toUpperCase(),
+        alignment: Alignment.center,
+        style: const TextStyle(
+          fontSize: 92,
+          fontWeight: FontWeight.w900,
+          color: _pvOrange,
+          height: 0.9,
+          letterSpacing: -2.2,
+        ),
+        flex: 24,
+      ),
+    ];
+
+    final top = h * 0.225;
+    final height = h * 0.295;
+    final left = w * 0.07;
+    final width = w * 0.86;
+    final totalFlex = lines.fold<int>(0, (sum, line) => sum + line.flex);
+    var lineTop = top;
+    final slots = <Widget>[];
+
+    for (final line in lines) {
+      final lineHeight = height * line.flex / totalFlex;
+      slots.add(
+        CartazTextSlot(
+          canvasSize: canvasSize,
+          element: line.element,
+          adjustments: textAdjustments,
+          selected: _isSelected(line.element),
+          left: left,
+          top: lineTop,
+          width: width,
+          height: lineHeight,
+          child: _FitTextBox(
+            text: line.text,
+            alignment: line.alignment,
+            style: line.style,
+          ),
+        ),
+      );
+      lineTop += lineHeight;
+    }
+
+    return slots;
+  }
 }
 
 String _priceWithoutCurrency(String value) {
@@ -98,61 +179,20 @@ String _priceWithoutCurrency(String value) {
       .trim();
 }
 
-class _ProximoTextBlock extends StatelessWidget {
-  final CartazFormData data;
+class _ProximoLineSpec {
+  final CartazTextElement element;
+  final String text;
+  final Alignment alignment;
+  final TextStyle style;
+  final int flex;
 
-  const _ProximoTextBlock({required this.data});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          flex: 42,
-          child: _FitTextBox(
-            text: data.tituloLinha1.toUpperCase(),
-            alignment: Alignment.center,
-            style: const TextStyle(
-              fontSize: 146,
-              fontWeight: FontWeight.w900,
-              color: Colors.black,
-              height: 0.84,
-              letterSpacing: -4.8,
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 34,
-          child: _FitTextBox(
-            text: data.tituloLinha2.toUpperCase(),
-            alignment: Alignment.center,
-            style: const TextStyle(
-              fontSize: 130,
-              fontWeight: FontWeight.w900,
-              color: Colors.black,
-              height: 0.84,
-              letterSpacing: -4.2,
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 24,
-          child: _FitTextBox(
-            text: data.subtitulo.toUpperCase(),
-            alignment: Alignment.center,
-            style: const TextStyle(
-              fontSize: 92,
-              fontWeight: FontWeight.w900,
-              color: _pvOrange,
-              height: 0.9,
-              letterSpacing: -2.2,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  const _ProximoLineSpec({
+    required this.element,
+    required this.text,
+    required this.alignment,
+    required this.style,
+    required this.flex,
+  });
 }
 
 class _FitTextBox extends StatelessWidget {
