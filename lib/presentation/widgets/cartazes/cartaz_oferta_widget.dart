@@ -22,6 +22,7 @@ class CartazOfertaWidget extends StatelessWidget {
         final detalhe = (data.detalhe ?? '').trim();
         final validade = (data.validade ?? '').trim();
         final hasDetalhe = detalhe.isNotEmpty;
+        final preco = _priceWithoutCurrency(data.preco);
 
         return Stack(
           children: [
@@ -31,36 +32,36 @@ class CartazOfertaWidget extends StatelessWidget {
               ),
             ),
             Positioned(
-              left: w * 0.08,
-              right: w * 0.08,
-              top: h * 0.205,
-              height: hasDetalhe ? h * 0.28 : h * 0.32,
+              left: w * 0.10,
+              right: w * 0.10,
+              top: h * 0.245,
+              height: hasDetalhe ? h * 0.25 : h * 0.30,
               child: _OfertaTextBlock(data: data),
             ),
             if (detalhe.isNotEmpty)
               Positioned(
                 left: w * 0.14,
                 right: w * 0.14,
-                top: h * 0.505,
-                height: h * 0.048,
+                top: h * 0.525,
+                height: h * 0.044,
                 child: _FitTextBox(
                   text: detalhe.toUpperCase(),
                   alignment: Alignment.center,
                   style: const TextStyle(
-                    fontSize: 50,
+                    fontSize: 46,
                     fontWeight: FontWeight.w900,
                     color: Colors.black,
                     height: 0.9,
-                    letterSpacing: -1.4,
+                    letterSpacing: -0.8,
                   ),
                 ),
               ),
             Positioned(
-              left: w * 0.19,
+              left: w * 0.21,
               right: w * 0.08,
-              top: h * 0.605,
-              height: h * 0.285,
-              child: _OfferPriceLayer(text: data.preco),
+              top: h * 0.625,
+              height: h * 0.27,
+              child: _OfferPriceLayer(text: preco),
             ),
             if (data.unidade.trim().isNotEmpty)
               Positioned(
@@ -116,30 +117,30 @@ class _OfertaTextBlock extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
-          flex: 34,
+          flex: 32,
           child: _FitTextBox(
             text: data.tituloLinha1.toUpperCase(),
             alignment: Alignment.center,
             style: const TextStyle(
-              fontSize: 136,
+              fontSize: 124,
               fontWeight: FontWeight.w900,
               color: Colors.black,
-              height: 0.84,
-              letterSpacing: -4.4,
+              height: 0.86,
+              letterSpacing: -3.2,
             ),
           ),
         ),
         Expanded(
-          flex: 34,
+          flex: 32,
           child: _FitTextBox(
             text: data.tituloLinha2.toUpperCase(),
             alignment: Alignment.center,
             style: const TextStyle(
-              fontSize: 132,
+              fontSize: 122,
               fontWeight: FontWeight.w900,
               color: Colors.black,
-              height: 0.84,
-              letterSpacing: -4.2,
+              height: 0.86,
+              letterSpacing: -3.0,
             ),
           ),
         ),
@@ -157,7 +158,7 @@ class _OfertaTextBlock extends StatelessWidget {
             ),
           ),
         ),
-        const Spacer(flex: 14),
+        const Spacer(flex: 18),
       ],
     );
   }
@@ -200,7 +201,9 @@ class _OfferPriceLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (text.trim().isEmpty) {
+    final displayText = text.trim();
+
+    if (displayText.isEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -214,37 +217,37 @@ class _OfferPriceLayer extends StatelessWidget {
             Transform.translate(
               offset: const Offset(6, 8),
               child: Text(
-                text,
+                displayText,
                 style: TextStyle(
-                  fontSize: 196,
+                  fontSize: 188,
                   fontWeight: FontWeight.w900,
                   color: Colors.black.withAlpha(35),
                   height: 0.82,
-                  letterSpacing: -8,
+                  letterSpacing: -6.5,
                 ),
               ),
             ),
             Text(
-              text,
+              displayText,
               style: TextStyle(
-                fontSize: 196,
+                fontSize: 188,
                 fontWeight: FontWeight.w900,
                 height: 0.82,
-                letterSpacing: -8,
+                letterSpacing: -6.5,
                 foreground: Paint()
                   ..style = PaintingStyle.stroke
-                  ..strokeWidth = 10
+                  ..strokeWidth = 9
                   ..color = Colors.white,
               ),
             ),
             Text(
-              text,
+              displayText,
               style: const TextStyle(
-                fontSize: 196,
+                fontSize: 188,
                 fontWeight: FontWeight.w900,
                 color: _ofRed,
                 height: 0.82,
-                letterSpacing: -8,
+                letterSpacing: -6.5,
               ),
             ),
           ],
@@ -252,4 +255,11 @@ class _OfferPriceLayer extends StatelessWidget {
       ),
     );
   }
+}
+
+String _priceWithoutCurrency(String value) {
+  return value
+      .replaceAll(RegExp(r'R\$', caseSensitive: false), '')
+      .replaceAll(RegExp(r'\s+'), '')
+      .trim();
 }

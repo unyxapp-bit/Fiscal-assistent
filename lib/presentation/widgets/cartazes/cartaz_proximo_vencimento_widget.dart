@@ -20,6 +20,7 @@ class CartazProximoVencimentoWidget extends StatelessWidget {
       builder: (context, safeSize) {
         final w = safeSize.width;
         final h = safeSize.height;
+        final priceText = _priceWithoutCurrency(data.preco);
 
         return Stack(
           children: [
@@ -35,30 +36,31 @@ class CartazProximoVencimentoWidget extends StatelessWidget {
               height: h * 0.295,
               child: _ProximoTextBlock(data: data),
             ),
-            Positioned(
-              left: w * 0.05,
-              right: w * 0.80,
-              top: h * 0.615,
-              height: h * 0.085,
-              child: const _FitTextBox(
-                text: 'R\$',
-                alignment: Alignment.centerLeft,
-                style: TextStyle(
-                  fontSize: 58,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.black,
-                  height: 1,
-                  letterSpacing: -2.2,
+            if (priceText.isNotEmpty)
+              Positioned(
+                left: w * 0.05,
+                right: w * 0.80,
+                top: h * 0.615,
+                height: h * 0.085,
+                child: const _FitTextBox(
+                  text: 'R\$',
+                  alignment: Alignment.centerLeft,
+                  style: TextStyle(
+                    fontSize: 58,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black,
+                    height: 1,
+                    letterSpacing: -2.2,
+                  ),
                 ),
               ),
-            ),
             Positioned(
               left: w * 0.17,
               right: w * 0.06,
               top: h * 0.61,
               height: h * 0.305,
               child: _PriceLayer(
-                text: data.preco,
+                text: priceText,
                 color: _pvRed,
                 shadowColor: Colors.black.withAlpha(45),
                 outlineColor: Colors.white,
@@ -87,6 +89,13 @@ class CartazProximoVencimentoWidget extends StatelessWidget {
       },
     );
   }
+}
+
+String _priceWithoutCurrency(String value) {
+  return value
+      .replaceAll(RegExp(r'R\$', caseSensitive: false), '')
+      .replaceAll(RegExp(r'\s+'), '')
+      .trim();
 }
 
 class _ProximoTextBlock extends StatelessWidget {
