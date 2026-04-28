@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../data/models/cartaz_form_data.dart';
 import '../../widgets/cartazes/cartaz_template_specs.dart';
+import 'cartazes_salvos_page.dart';
 import 'criar_cartaz_page.dart';
 
 class CartazesHomePage extends StatefulWidget {
@@ -14,6 +15,12 @@ class CartazesHomePage extends StatefulWidget {
 class _CartazesHomePageState extends State<CartazesHomePage> {
   CartazTemplateTipo? _tipoSelecionado;
   CartazTamanho _tamanhoSelecionado = CartazTamanho.a6;
+
+  void _abrirCartazesFeitos() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const CartazesSalvosPage()),
+    );
+  }
 
   void _iniciar() {
     if (_tipoSelecionado == null) {
@@ -42,6 +49,13 @@ class _CartazesHomePageState extends State<CartazesHomePage> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
+        actions: [
+          IconButton(
+            tooltip: 'Cartazes feitos',
+            onPressed: _abrirCartazesFeitos,
+            icon: const Icon(Icons.collections_bookmark_rounded),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -67,6 +81,26 @@ class _CartazesHomePageState extends State<CartazesHomePage> {
                   _TamanhoSelector(
                     selecionado: _tamanhoSelecionado,
                     onChanged: (t) => setState(() => _tamanhoSelecionado = t),
+                  ),
+                  const SizedBox(height: 18),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _abrirCartazesFeitos,
+                      icon: const Icon(Icons.collections_bookmark_rounded),
+                      label: const Text('Ver cartazes feitos'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFFD6166A),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: const BorderSide(color: Color(0xFFD6166A)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),

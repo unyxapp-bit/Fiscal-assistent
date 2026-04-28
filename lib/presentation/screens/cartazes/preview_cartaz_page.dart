@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -11,11 +12,19 @@ import '../../../data/models/cartaz_form_data.dart';
 import '../../widgets/cartazes/cartaz_text_adjustments.dart';
 import '../../widgets/cartazes/poster_canvas.dart';
 import '../../widgets/cartazes/poster_factory.dart';
+import 'cartaz_history_store.dart';
 
 class PreviewCartazPage extends StatefulWidget {
   final CartazFormData data;
+  final String? savedCartazId;
+  final CartazTextAdjustments? initialTextAdjustments;
 
-  const PreviewCartazPage({super.key, required this.data});
+  const PreviewCartazPage({
+    super.key,
+    required this.data,
+    this.savedCartazId,
+    this.initialTextAdjustments,
+  });
 
   @override
   State<PreviewCartazPage> createState() => _PreviewCartazPageState();
@@ -23,7 +32,9 @@ class PreviewCartazPage extends StatefulWidget {
 
 class _PreviewCartazPageState extends State<PreviewCartazPage> {
   final _screenshotController = ScreenshotController();
-  final CartazTextAdjustments _textAdjustments = {};
+  late final String _savedCartazId;
+  late final CartazTextAdjustments _textAdjustments;
+  Timer? _persistDebounce;
   bool _exporting = false;
   bool _adjusting = false;
   CartazTextElement _selectedElement = CartazTextElement.tituloLinha1;
@@ -32,6 +43,22 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
   static const _maxOffset = 0.18;
   static const _minScale = 0.65;
   static const _maxScale = 1.45;
+
+  @override
+  void initState() {
+    super.initState();
+    _savedCartazId = widget.savedCartazId ?? CartazHistoryStore.newId();
+    _textAdjustments = Map<CartazTextElement, CartazTextAdjustment>.from(
+      widget.initialTextAdjustments ?? const {},
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) => _persistCartaz());
+  }
+
+  @override
+  void dispose() {
+    _persistDebounce?.cancel();
+    super.dispose();
+  }
 
   Size get _posterSize => PosterCanvas.canvasSizeFor(widget.data.tamanho);
 
@@ -262,6 +289,7 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
         scale: scale,
       );
     });
+    _schedulePersistCartaz();
   }
 
   void _moveSelected(Offset delta, double previewScale) {
@@ -286,10 +314,28 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
 
   void _resetSelected() {
     setState(() => _textAdjustments.remove(_effectiveSelectedElement));
+    _schedulePersistCartaz();
   }
 
   void _resetAllAdjustments() {
     setState(_textAdjustments.clear);
+    _schedulePersistCartaz();
+  }
+
+  void _schedulePersistCartaz() {
+    _persistDebounce?.cancel();
+    _persistDebounce = Timer(
+      const Duration(milliseconds: 250),
+      _persistCartaz,
+    );
+  }
+
+  Future<void> _persistCartaz() async {
+    await CartazHistoryStore.upsert(
+      id: _savedCartazId,
+      data: widget.data,
+      textAdjustments: _textAdjustments,
+    );
   }
 
   @override

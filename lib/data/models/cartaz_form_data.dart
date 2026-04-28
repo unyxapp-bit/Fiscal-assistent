@@ -74,4 +74,58 @@ class CartazFormData {
     required this.unidade,
     this.validade,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'tipo': tipo.name,
+      'tamanho': tamanho.name,
+      'tituloLinha1': tituloLinha1,
+      'tituloLinha2': tituloLinha2,
+      'subtitulo': subtitulo,
+      'detalhe': detalhe,
+      'preco': preco,
+      'unidade': unidade,
+      'validade': validade,
+    };
+  }
+
+  factory CartazFormData.fromJson(Map<String, dynamic> json) {
+    return CartazFormData(
+      tipo: _cartazTemplateTipoFromName(
+        json['tipo'] as String?,
+        CartazTemplateTipo.aproveiteAgora,
+      ),
+      tamanho: _cartazTamanhoFromName(
+        json['tamanho'] as String?,
+        CartazTamanho.a6,
+      ),
+      tituloLinha1: json['tituloLinha1'] as String? ?? '',
+      tituloLinha2: json['tituloLinha2'] as String? ?? '',
+      subtitulo: json['subtitulo'] as String? ?? '',
+      detalhe: json['detalhe'] as String? ?? '',
+      preco: json['preco'] as String? ?? '',
+      unidade: json['unidade'] as String? ?? '',
+      validade: json['validade'] as String? ?? '',
+    );
+  }
+}
+
+CartazTemplateTipo _cartazTemplateTipoFromName(
+  String? name,
+  CartazTemplateTipo fallback,
+) {
+  for (final value in CartazTemplateTipo.values) {
+    if (value.name == name) return value;
+  }
+  return fallback;
+}
+
+CartazTamanho _cartazTamanhoFromName(
+  String? name,
+  CartazTamanho fallback,
+) {
+  for (final value in CartazTamanho.values) {
+    if (value.name == name) return value;
+  }
+  return fallback;
 }

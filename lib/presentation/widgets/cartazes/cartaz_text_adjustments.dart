@@ -10,6 +10,13 @@ enum CartazTextElement {
   validade,
 }
 
+CartazTextElement? cartazTextElementFromName(String? name) {
+  for (final value in CartazTextElement.values) {
+    if (value.name == name) return value;
+  }
+  return null;
+}
+
 extension CartazTextElementLabel on CartazTextElement {
   String get label {
     switch (this) {
@@ -49,9 +56,59 @@ class CartazTextAdjustment {
       scale: scale ?? this.scale,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'dx': offset.dx,
+      'dy': offset.dy,
+      'scale': scale,
+    };
+  }
+
+  factory CartazTextAdjustment.fromJson(Map<String, dynamic> json) {
+    return CartazTextAdjustment(
+      offset: Offset(
+        _doubleFromJson(json['dx'], 0),
+        _doubleFromJson(json['dy'], 0),
+      ),
+      scale: _doubleFromJson(json['scale'], 1),
+    );
+  }
 }
 
 typedef CartazTextAdjustments = Map<CartazTextElement, CartazTextAdjustment>;
+
+Map<String, dynamic> cartazTextAdjustmentsToJson(
+  CartazTextAdjustments adjustments,
+) {
+  return {
+    for (final entry in adjustments.entries)
+      entry.key.name: entry.value.toJson(),
+  };
+}
+
+CartazTextAdjustments cartazTextAdjustmentsFromJson(dynamic value) {
+  if (value is! Map) return {};
+
+  final adjustments = <CartazTextElement, CartazTextAdjustment>{};
+  for (final entry in value.entries) {
+    final element = cartazTextElementFromName(entry.key as String?);
+    final rawAdjustment = entry.value;
+    if (element == null || rawAdjustment is! Map) continue;
+
+    adjustments[element] = CartazTextAdjustment.fromJson(
+      Map<String, dynamic>.from(rawAdjustment),
+    );
+  }
+
+  return adjustments;
+}
+
+double _doubleFromJson(dynamic value, double fallback) {
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value) ?? fallback;
+  return fallback;
+}
 
 CartazTextAdjustment cartazTextAdjustmentFor(
   CartazTextAdjustments? adjustments,
