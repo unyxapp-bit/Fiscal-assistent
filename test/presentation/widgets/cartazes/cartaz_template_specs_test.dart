@@ -51,5 +51,9 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('ARROZ TIO JOAO'), findsOneWidget);
     expect(find.text('19,99'), findsWidgets);
+
+    final currencyRect = tester.getRect(find.text('R\$').first);
+    final priceRect = tester.getRect(find.text('19,99').first);
+    expect(currencyRect.right, lessThan(priceRect.left));
   });
 }

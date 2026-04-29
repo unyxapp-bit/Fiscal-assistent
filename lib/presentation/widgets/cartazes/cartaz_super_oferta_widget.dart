@@ -245,20 +245,20 @@ class _SuperOfertaPriceGroup extends StatelessWidget {
           children: [
             Positioned(
               left: 0,
-              top: h * 0.15,
-              width: w * 0.20,
-              height: h * 0.25,
+              top: h * 0.10,
+              width: w * 0.19,
+              height: h * 0.30,
               child: const _OutlinedTextBox(
                 text: 'R\$',
-                fontSize: 82,
+                fontSize: 78,
                 strokeWidth: 4,
-                alignment: Alignment.bottomLeft,
+                alignment: Alignment.bottomRight,
               ),
             ),
             Positioned(
-              left: w * 0.15,
+              left: w * 0.24,
               top: 0,
-              width: w * 0.85,
+              width: w * 0.76,
               height: h * 0.88,
               child: _OutlinedTextBox(
                 text: displayText,
