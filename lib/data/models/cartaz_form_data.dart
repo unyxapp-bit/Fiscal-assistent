@@ -2,6 +2,7 @@ enum CartazTemplateTipo {
   proximoVencimento,
   aproveiteAgora,
   oferta,
+  superOferta,
 }
 
 enum CartazTamanho {
@@ -48,6 +49,8 @@ extension CartazTemplateTipoExt on CartazTemplateTipo {
         return 'Aproveite agora';
       case CartazTemplateTipo.oferta:
         return 'Oferta';
+      case CartazTemplateTipo.superOferta:
+        return 'Super oferta';
     }
   }
 }

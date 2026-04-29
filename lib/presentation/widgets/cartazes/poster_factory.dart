@@ -4,6 +4,7 @@ import '../../../data/models/cartaz_form_data.dart';
 import 'cartaz_aproveite_agora_widget.dart';
 import 'cartaz_oferta_widget.dart';
 import 'cartaz_proximo_vencimento_widget.dart';
+import 'cartaz_super_oferta_widget.dart';
 import 'cartaz_text_adjustments.dart';
 
 Widget buildPosterWidget(
@@ -29,6 +30,13 @@ Widget buildPosterWidget(
       );
     case CartazTemplateTipo.oferta:
       return CartazOfertaWidget(
+        data: data,
+        textAdjustments: textAdjustments,
+        selectedElement: selectedElement,
+        showSelection: showSelection,
+      );
+    case CartazTemplateTipo.superOferta:
+      return CartazSuperOfertaWidget(
         data: data,
         textAdjustments: textAdjustments,
         selectedElement: selectedElement,

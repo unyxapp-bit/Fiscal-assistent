@@ -131,6 +131,27 @@ const cartazTemplateSpecs = <CartazTemplateSpec>[
       validadeHint: 'Ex: VALIDO ATE 26/04/2026',
     ),
   ),
+  CartazTemplateSpec(
+    tipo: CartazTemplateTipo.superOferta,
+    title: 'Super oferta',
+    description: 'Oferta destacada com faixa amarela',
+    color: Color(0xFFE52420),
+    icon: Icons.local_fire_department_rounded,
+    asset: PosterTemplateAsset(
+      path: 'templates/super oferta.svg',
+      type: PosterTemplateAssetType.svg,
+    ),
+    fields: CartazTemplateFieldHints(
+      linha1Hint: 'Ex: ARROZ TIO JOAO',
+      linha2Hint: 'Ex: TIPO 1',
+      subtituloLabel: 'Peso / volume',
+      subtituloHint: 'Ex: 5KG',
+      showDetalhe: true,
+      detalheLabel: 'Detalhe / observacao',
+      detalheHint: 'Ex: CADA UNIDADE',
+      unidadeHint: 'Ex: UNID',
+    ),
+  ),
 ];
 
 CartazTemplateSpec cartazTemplateSpec(CartazTemplateTipo tipo) {
@@ -141,5 +162,7 @@ CartazTemplateSpec cartazTemplateSpec(CartazTemplateTipo tipo) {
       return cartazTemplateSpecs[1];
     case CartazTemplateTipo.oferta:
       return cartazTemplateSpecs[2];
+    case CartazTemplateTipo.superOferta:
+      return cartazTemplateSpecs[3];
   }
 }
