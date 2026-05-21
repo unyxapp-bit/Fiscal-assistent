@@ -204,7 +204,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
   void _selecionarTipo(int index) {
     showModalBottomSheet(
       context: context,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -224,9 +224,9 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text('Tipo do campo', style: AppTextStyles.h4),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             ...TipoCampo.values.map((tipo) => ListTile(
                   leading: Icon(tipo.icone, color: AppColors.primary),
                   title: Text(tipo.nome),
@@ -301,7 +301,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                   // Título
                   TextFormField(
                     controller: _tituloCtrl,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Título do Formulário *',
                       hintText: 'Ex: Checklist de Abertura',
                       prefixIcon: Icon(Icons.title),
@@ -311,12 +311,12 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                         ? 'Título obrigatório'
                         : null,
                   ),
-                  SizedBox(height: Dimensions.spacingMD),
+                  const SizedBox(height: Dimensions.spacingMD),
 
                   // Descrição
                   TextFormField(
                     controller: _descricaoCtrl,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Descrição',
                       hintText: 'Para que serve este formulário?',
                       prefixIcon: Icon(Icons.description),
@@ -325,7 +325,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                     maxLines: 2,
                     textCapitalization: TextCapitalization.sentences,
                   ),
-                  SizedBox(height: Dimensions.spacingLG),
+                  const SizedBox(height: Dimensions.spacingLG),
 
                   // Header campos
                   Row(
@@ -337,14 +337,14 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                       ),
                       TextButton.icon(
                         onPressed: _adicionarCampo,
-                        icon: Icon(Icons.add, size: 18),
-                        label: Text('Adicionar'),
+                        icon: const Icon(Icons.add, size: 18),
+                        label: const Text('Adicionar'),
                         style: TextButton.styleFrom(
                             foregroundColor: AppColors.primary),
                       ),
                     ],
                   ),
-                  SizedBox(height: Dimensions.spacingSM),
+                  const SizedBox(height: Dimensions.spacingSM),
                 ]),
               ),
             ),
@@ -364,7 +364,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
               padding: const EdgeInsets.all(Dimensions.paddingMD),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  SizedBox(height: Dimensions.spacingSM),
+                  const SizedBox(height: Dimensions.spacingSM),
 
                   // Dica
                   Container(
@@ -377,7 +377,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                       children: [
                         Icon(Icons.info_outline,
                             color: AppColors.info, size: 18),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             'Arraste ≡ para reordenar campos. Campos Sim/Não e Opções facilitam checklists.',
@@ -388,7 +388,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                       ],
                     ),
                   ),
-                  SizedBox(height: Dimensions.spacingXL),
+                  const SizedBox(height: Dimensions.spacingXL),
 
                   // Botões
                   Row(
@@ -400,10 +400,10 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                             minimumSize:
                                 const Size.fromHeight(Dimensions.buttonHeight),
                           ),
-                          child: Text('Cancelar'),
+                          child: const Text('Cancelar'),
                         ),
                       ),
-                      SizedBox(width: Dimensions.spacingSM),
+                      const SizedBox(width: Dimensions.spacingSM),
                       Expanded(
                         child: ElevatedButton(
                           onPressed: _salvar,
@@ -418,7 +418,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(height: Dimensions.spacingLG),
+                  const SizedBox(height: Dimensions.spacingLG),
                 ]),
               ),
             ),
@@ -443,7 +443,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                 children: [
                   // Drag handle
                   Icon(Icons.drag_handle, color: AppColors.inactive, size: 20),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
 
                   // Número
                   Container(
@@ -463,7 +463,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
 
                   // Label
                   Expanded(
@@ -478,7 +478,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                       textCapitalization: TextCapitalization.sentences,
                     ),
                   ),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
 
                   // Tipo
                   InkWell(
@@ -496,7 +496,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                         children: [
                           Icon(campo.tipo.icone,
                               color: AppColors.primary, size: 14),
-                          SizedBox(width: 3),
+                          const SizedBox(width: 3),
                           Text(
                             campo.tipo.nome,
                             style: AppTextStyles.caption.copyWith(
@@ -508,7 +508,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
 
                   // Obrigatório toggle
                   Tooltip(
@@ -535,7 +535,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                     onTap: () => _removerCampo(index),
                     borderRadius: BorderRadius.circular(4),
                     child: Padding(
-                      padding: EdgeInsets.all(4),
+                      padding: const EdgeInsets.all(4),
                       child:
                           Icon(Icons.close, size: 16, color: AppColors.danger),
                     ),
@@ -545,17 +545,17 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
 
               // Sub-lista de opções (apenas quando tipo == opcoes)
               if (campo.tipo == TipoCampo.opcoes) ...[
-                SizedBox(height: 8),
-                Divider(height: 1),
-                SizedBox(height: 6),
+                const SizedBox(height: 8),
+                const Divider(height: 1),
+                const SizedBox(height: 6),
                 ...campo.opcoesCtrl.asMap().entries.map((e) => Padding(
                       padding: const EdgeInsets.only(bottom: 6),
                       child: Row(
                         children: [
-                          SizedBox(width: 36),
+                          const SizedBox(width: 36),
                           Icon(Icons.radio_button_unchecked,
                               size: 14, color: AppColors.inactive),
-                          SizedBox(width: 6),
+                          const SizedBox(width: 6),
                           Expanded(
                             child: TextField(
                               controller: e.value,
@@ -587,9 +587,9 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                   onPressed: () => setState(() {
                     campo.opcoesCtrl.add(TextEditingController());
                   }),
-                  icon: Icon(Icons.add, size: 14),
+                  icon: const Icon(Icons.add, size: 14),
                   label:
-                      Text('Adicionar opção', style: TextStyle(fontSize: 12)),
+                      const Text('Adicionar opção', style: TextStyle(fontSize: 12)),
                   style: TextButton.styleFrom(
                     foregroundColor: AppColors.primary,
                     padding: const EdgeInsets.only(left: 36),

@@ -41,7 +41,7 @@ class CaixaGridCard extends StatelessWidget {
     if (emUso) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Libere o caixa antes de excluir.'),
+          content: const Text('Libere o caixa antes de excluir.'),
           backgroundColor: AppColors.warning,
         ),
       );
@@ -51,14 +51,14 @@ class CaixaGridCard extends StatelessWidget {
     final confirmar = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Excluir caixa'),
+        title: const Text('Excluir caixa'),
         content: Text(
           'Deseja excluir ${caixa.nomeExibicao}? Essa ação não pode ser desfeita.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -119,8 +119,8 @@ class CaixaGridCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: Icon(Icons.edit),
-                title: Text('Editar'),
+                leading: const Icon(Icons.edit),
+                title: const Text('Editar'),
                 onTap: () {
                   Navigator.pop(context);
                   _abrirEdicao(context);
@@ -128,8 +128,8 @@ class CaixaGridCard extends StatelessWidget {
               ),
               if (caixa.ativo && !caixa.emManutencao)
                 ListTile(
-                  leading: Icon(Icons.close, color: Colors.red),
-                  title: Text('Desativar', style: TextStyle(color: Colors.red)),
+                  leading: const Icon(Icons.close, color: Colors.red),
+                  title: const Text('Desativar', style: TextStyle(color: Colors.red)),
                   onTap: () {
                     Navigator.pop(context);
                     Provider.of<CaixaProvider>(context, listen: false)
@@ -138,8 +138,8 @@ class CaixaGridCard extends StatelessWidget {
                 ),
               if (!caixa.ativo)
                 ListTile(
-                  leading: Icon(Icons.check_circle, color: Colors.green),
-                  title: Text('Ativar'),
+                  leading: const Icon(Icons.check_circle, color: Colors.green),
+                  title: const Text('Ativar'),
                   onTap: () {
                     Navigator.pop(context);
                     Provider.of<CaixaProvider>(context, listen: false)
@@ -148,8 +148,8 @@ class CaixaGridCard extends StatelessWidget {
                 ),
               if (caixa.ativo && !caixa.emManutencao)
                 ListTile(
-                  leading: Icon(Icons.build, color: Colors.orange),
-                  title: Text('Marcar manutenção'),
+                  leading: const Icon(Icons.build, color: Colors.orange),
+                  title: const Text('Marcar manutenção'),
                   onTap: () {
                     Navigator.pop(context);
                     Provider.of<CaixaProvider>(context, listen: false)
@@ -158,8 +158,8 @@ class CaixaGridCard extends StatelessWidget {
                 ),
               if (caixa.emManutencao)
                 ListTile(
-                  leading: Icon(Icons.check, color: Colors.green),
-                  title: Text('Fim da manutenção'),
+                  leading: const Icon(Icons.check, color: Colors.green),
+                  title: const Text('Fim da manutenção'),
                   onTap: () {
                     Navigator.pop(context);
                     Provider.of<CaixaProvider>(context, listen: false)
@@ -201,10 +201,10 @@ class CaixaGridCard extends StatelessWidget {
                 ),
                 child: Icon(caixa.tipo.icone, color: color, size: 24),
               ),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               Text(
                 'Cx ${caixa.numero}',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
@@ -212,7 +212,7 @@ class CaixaGridCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
@@ -231,7 +231,7 @@ class CaixaGridCard extends StatelessWidget {
                 ),
               ),
               if (colaboradorNome != null) ...[
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   colaboradorNome,
                   style: TextStyle(
@@ -334,7 +334,7 @@ class CaixaCard extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(width: Dimensions.spacingMD),
+                const SizedBox(width: Dimensions.spacingMD),
 
                 // Info
                 Expanded(
@@ -345,7 +345,7 @@ class CaixaCard extends StatelessWidget {
                         caixa.tipo.nome,
                         style: AppTextStyles.subtitle,
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Row(
                         children: [
                           // Badge de status
@@ -367,7 +367,7 @@ class CaixaCard extends StatelessWidget {
                             ),
                           ),
                           if (caixa.colaboradorAlocadoNome != null) ...[
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 caixa.colaboradorAlocadoNome!,
@@ -394,14 +394,14 @@ class CaixaCard extends StatelessWidget {
                       child: Row(
                         children: [
                           Icon(Icons.edit, size: 20, color: AppColors.primary),
-                          SizedBox(width: 8),
-                          Text('Editar'),
+                          const SizedBox(width: 8),
+                          const Text('Editar'),
                         ],
                       ),
                     ),
                     if (caixa.ativo && !caixa.emManutencao)
                       PopupMenuItem(
-                        child: Row(
+                        child: const Row(
                           children: [
                             Icon(Icons.close, size: 20, color: Colors.red),
                             SizedBox(width: 8),
@@ -418,7 +418,7 @@ class CaixaCard extends StatelessWidget {
                       ),
                     if (!caixa.ativo)
                       PopupMenuItem(
-                        child: Row(
+                        child: const Row(
                           children: [
                             Icon(Icons.check_circle,
                                 size: 20, color: Colors.green),
@@ -436,7 +436,7 @@ class CaixaCard extends StatelessWidget {
                       ),
                     if (caixa.ativo && !caixa.emManutencao)
                       PopupMenuItem(
-                        child: Row(
+                        child: const Row(
                           children: [
                             Icon(Icons.build, size: 20, color: Colors.orange),
                             SizedBox(width: 8),
@@ -453,7 +453,7 @@ class CaixaCard extends StatelessWidget {
                       ),
                     if (caixa.emManutencao)
                       PopupMenuItem(
-                        child: Row(
+                        child: const Row(
                           children: [
                             Icon(Icons.check, size: 20, color: Colors.green),
                             SizedBox(width: 8),
@@ -473,7 +473,7 @@ class CaixaCard extends StatelessWidget {
               ],
             ),
             if (caixa.observacoes != null) ...[
-              SizedBox(height: Dimensions.spacingSM),
+              const SizedBox(height: Dimensions.spacingSM),
               Text(
                 caixa.observacoes!,
                 style: AppTextStyles.caption.copyWith(

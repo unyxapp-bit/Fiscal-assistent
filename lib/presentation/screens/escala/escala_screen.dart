@@ -209,7 +209,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) => DraggableScrollableSheet(
@@ -239,12 +239,12 @@ class _EscalaScreenState extends State<EscalaScreen> {
                     color: criticos > 0 ? AppColors.danger : AppColors.warning,
                     size: 24,
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Alertas de Cobertura',
+                        const Text('Alertas de Cobertura',
                             style: TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.w500)),
                         Text(
@@ -258,7 +258,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
                 ],
               ),
             ),
-            Divider(height: 16),
+            const Divider(height: 16),
             Expanded(
               child: ListView.builder(
                 controller: scroll,
@@ -290,7 +290,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
                           color: color,
                           size: 16,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -302,7 +302,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              SizedBox(height: 2),
+                              const SizedBox(height: 2),
                               Text(p.descricao, style: AppTextStyles.caption),
                             ],
                           ),
@@ -317,7 +317,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
                               ),
                             );
                           },
-                          child: Text('Ver dia'),
+                          child: const Text('Ver dia'),
                         ),
                       ],
                     ),
@@ -332,7 +332,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
                   width: double.infinity,
                   child: OutlinedButton(
                     onPressed: () => Navigator.pop(ctx),
-                    child: Text('Fechar'),
+                    child: const Text('Fechar'),
                   ),
                 ),
               ),
@@ -396,7 +396,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
       final resposta = await showDialog<String>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: Text('Gerar Escala Automatica'),
+          title: const Text('Gerar Escala Automatica'),
           content: Text(
             'A data $dataFormatada ja possui turnos cadastrados.\n'
             'Deseja substituir os existentes ou apenas preencher os faltantes desse dia?',
@@ -404,11 +404,11 @@ class _EscalaScreenState extends State<EscalaScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, 'cancelar'),
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx, 'preencher'),
-              child: Text('So faltantes'),
+              child: const Text('So faltantes'),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(ctx, 'substituir'),
@@ -416,7 +416,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
-              child: Text('Substituir tudo'),
+              child: const Text('Substituir tudo'),
             ),
           ],
         ),
@@ -428,7 +428,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
       final confirmar = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: Text('Gerar Escala Automatica'),
+          title: const Text('Gerar Escala Automatica'),
           content: Text(
             'Gerar a escala automatica apenas para $dataFormatada '
             'com base nos registros importados?\n\n'
@@ -437,7 +437,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(ctx, true),
@@ -445,7 +445,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
-              child: Text('Gerar'),
+              child: const Text('Gerar'),
             ),
           ],
         ),
@@ -520,17 +520,17 @@ class _EscalaScreenState extends State<EscalaScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Escala Semanal'),
+        title: const Text('Escala Semanal'),
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
           if (!_ehSemanaAtual)
             TextButton(
               onPressed: _semanaAtual,
-              child: Text('Hoje'),
+              child: const Text('Hoje'),
             ),
           IconButton(
-            icon: Icon(Icons.upload_file_outlined),
+            icon: const Icon(Icons.upload_file_outlined),
             tooltip: 'Importar registros por texto',
             onPressed: () async {
               final dataImportada = await Navigator.of(context).push<DateTime>(
@@ -555,7 +555,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
                     height: 20,
                     child: CircularProgressIndicator(
                         strokeWidth: 2, color: AppColors.primary))
-                : Icon(Icons.auto_awesome),
+                : const Icon(Icons.auto_awesome),
             tooltip: 'Gerar escala automática',
             onPressed: provider.gerando ? null : () => _gerarEscala(context),
           ),
@@ -571,7 +571,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                  icon: Icon(Icons.chevron_left),
+                  icon: const Icon(Icons.chevron_left),
                   onPressed: _semanaAnterior,
                 ),
                 Column(
@@ -590,7 +590,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
                   ],
                 ),
                 IconButton(
-                  icon: Icon(Icons.chevron_right),
+                  icon: const Icon(Icons.chevron_right),
                   onPressed: _semanaSeguinte,
                 ),
               ],
@@ -609,13 +609,13 @@ class _EscalaScreenState extends State<EscalaScreen> {
                     label: '$totalSemana trabalhando',
                     color: AppColors.success,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   _StatChip(
                     icon: Icons.beach_access,
                     label: '$folgasSemana folga(s)',
                     color: AppColors.inactive,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   _StatChip(
                     icon: Icons.calendar_month,
                     label: '$diasComEscala/7 dias',
@@ -647,7 +647,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
                     children: [
                       Icon(Icons.auto_awesome,
                           color: AppColors.primary, size: 18),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
                         'Toque para gerar a escala automaticamente',
                         style: AppTextStyles.body
@@ -661,7 +661,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
 
           // â”€â”€ Loading overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           if (provider.gerando)
-            Padding(
+            const Padding(
               padding: EdgeInsets.all(8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -682,7 +682,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
               padding: const EdgeInsets.all(Dimensions.paddingMD),
               itemCount: 7,
               separatorBuilder: (_, __) =>
-                  SizedBox(height: Dimensions.spacingSM),
+                  const SizedBox(height: Dimensions.spacingSM),
               itemBuilder: (context, index) {
                 final dia = diasSemana[index];
                 final turnos = provider.getTurnosByData(dia);
@@ -775,7 +775,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
                                     .copyWith(color: AppColors.textSecondary),
                               ),
                               if (trabalhando.isNotEmpty) ...[
-                                SizedBox(height: 4),
+                                const SizedBox(height: 4),
                                 Wrap(
                                   spacing: 6,
                                   children: [
@@ -819,7 +819,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
                               ),
                             ),
                           ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Icon(Icons.chevron_right,
                             color: AppColors.textSecondary),
                       ],
@@ -872,7 +872,7 @@ class _StatChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 13, color: color),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Text(
             label,
             style: AppTextStyles.caption.copyWith(

@@ -27,7 +27,7 @@ class OutroSetorSection extends StatelessWidget {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-        side: BorderSide(color: _kOutroSetorColor, width: 2),
+        side: const BorderSide(color: _kOutroSetorColor, width: 2),
       ),
       child: Padding(
         padding: const EdgeInsets.all(Dimensions.paddingMD),
@@ -37,8 +37,8 @@ class OutroSetorSection extends StatelessWidget {
             // Cabeçalho
             Row(
               children: [
-                Icon(Icons.swap_horiz, color: _kOutroSetorColor, size: 20),
-                SizedBox(width: 8),
+                const Icon(Icons.swap_horiz, color: _kOutroSetorColor, size: 20),
+                const SizedBox(width: 8),
                 Text(
                   'Em Outro Setor',
                   style: AppTextStyles.subtitle.copyWith(
@@ -65,7 +65,7 @@ class OutroSetorSection extends StatelessWidget {
               ],
             ),
 
-            SizedBox(height: Dimensions.spacingMD),
+            const SizedBox(height: Dimensions.spacingMD),
 
             // Lista de colaboradores
             ...provider.lista.map((item) {
@@ -148,14 +148,14 @@ class _OutroSetorItemState extends State<_OutroSetorItem> {
             backgroundColor: _kOutroSetorColor.withValues(alpha: 0.10),
             child: Text(
               iniciais,
-              style: TextStyle(
+              style: const TextStyle(
                 color: _kOutroSetorColor,
                 fontWeight: FontWeight.bold,
                 fontSize: 13,
               ),
             ),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,8 +166,8 @@ class _OutroSetorItemState extends State<_OutroSetorItem> {
                 ),
                 Row(
                   children: [
-                    Icon(Icons.location_on, size: 11, color: _kOutroSetorColor),
-                    SizedBox(width: 3),
+                    const Icon(Icons.location_on, size: 11, color: _kOutroSetorColor),
+                    const SizedBox(width: 3),
                     Text(
                       widget.item.setor,
                       style: AppTextStyles.caption.copyWith(
@@ -185,7 +185,7 @@ class _OutroSetorItemState extends State<_OutroSetorItem> {
             children: [
               Text(
                 _tempo(),
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
                   color: _kOutroSetorColor,
@@ -200,9 +200,9 @@ class _OutroSetorItemState extends State<_OutroSetorItem> {
               ),
             ],
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           IconButton(
-            icon: Icon(Icons.close, size: 18, color: Colors.red),
+            icon: const Icon(Icons.close, size: 18, color: Colors.red),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
             onPressed: widget.onRemover,

@@ -237,10 +237,14 @@ class _RelatorioCard extends StatelessWidget {
     final ontem = hoje.subtract(const Duration(days: 1));
     if (dt.year == hoje.year &&
         dt.month == hoje.month &&
-        dt.day == hoje.day) return 'Hoje';
+        dt.day == hoje.day) {
+      return 'Hoje';
+    }
     if (dt.year == ontem.year &&
         dt.month == ontem.month &&
-        dt.day == ontem.day) return 'Ontem';
+        dt.day == ontem.day) {
+      return 'Ontem';
+    }
     return '';
   }
 
@@ -530,7 +534,7 @@ class _RelatorioDetalheScreen extends StatelessWidget {
         padding: const EdgeInsets.all(Dimensions.paddingMD),
         children: [
           // ── Resumo ──────────────────────────────────────────────────────
-          _SectionHeader(
+          const _SectionHeader(
               icon: Icons.summarize, label: 'Resumo do Turno'),
           const SizedBox(height: 8),
           Card(

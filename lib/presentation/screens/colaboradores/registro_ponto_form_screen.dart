@@ -223,7 +223,7 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
           children: [
             // Data
             Text('Data', style: AppTextStyles.subtitle),
-            SizedBox(height: Dimensions.spacingSM),
+            const SizedBox(height: Dimensions.spacingSM),
             InkWell(
               onTap: _pickDate,
               borderRadius: BorderRadius.circular(Dimensions.radiusMD),
@@ -241,7 +241,7 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
                   children: [
                     Icon(Icons.calendar_today,
                         color: AppColors.primary, size: 20),
-                    SizedBox(width: Dimensions.spacingSM),
+                    const SizedBox(width: Dimensions.spacingSM),
                     Text(
                       _formatDate(_data),
                       style: AppTextStyles.body,
@@ -253,19 +253,19 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
               ),
             ),
 
-            SizedBox(height: Dimensions.spacingLG),
+            const SizedBox(height: Dimensions.spacingLG),
 
             // Tipo
             Text('Tipo', style: AppTextStyles.subtitle),
-            SizedBox(height: Dimensions.spacingSM),
+            const SizedBox(height: Dimensions.spacingSM),
             _buildTipoSelector(),
 
-            SizedBox(height: Dimensions.spacingLG),
+            const SizedBox(height: Dimensions.spacingLG),
 
             // Horários (somente para trabalho)
             if (_tipo == 'trabalho') ...[
               Text('Horários', style: AppTextStyles.subtitle),
-              SizedBox(height: Dimensions.spacingSM),
+              const SizedBox(height: Dimensions.spacingSM),
               Row(
                 children: [
                   Expanded(
@@ -276,7 +276,7 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
                       color: AppColors.primary,
                     ),
                   ),
-                  SizedBox(width: Dimensions.spacingMD),
+                  const SizedBox(width: Dimensions.spacingMD),
                   Expanded(
                     child: _buildTimeTile(
                       label: 'Saída',
@@ -287,7 +287,7 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingMD),
               Row(
                 children: [
                   Expanded(
@@ -298,7 +298,7 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
                       color: AppColors.statusCafe,
                     ),
                   ),
-                  SizedBox(width: Dimensions.spacingMD),
+                  const SizedBox(width: Dimensions.spacingMD),
                   Expanded(
                     child: _buildTimeTile(
                       label: 'Retorno',
@@ -310,16 +310,16 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
                 ],
               ),
 
-              SizedBox(height: Dimensions.spacingLG),
+              const SizedBox(height: Dimensions.spacingLG),
 
               // Observação (trabalho)
               Text('Observação (Opcional)', style: AppTextStyles.subtitle),
-              SizedBox(height: Dimensions.spacingSM),
+              const SizedBox(height: Dimensions.spacingSM),
               TextFormField(
                 controller: _observacaoController,
                 decoration: InputDecoration(
                   hintText: 'Ex: Self, Vipp, etc',
-                  prefixIcon: Icon(Icons.note),
+                  prefixIcon: const Icon(Icons.note),
                   filled: true,
                   fillColor: AppColors.cardBackground,
                   border: OutlineInputBorder(
@@ -330,7 +330,7 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
                 maxLines: 2,
               ),
 
-              SizedBox(height: Dimensions.spacingLG),
+              const SizedBox(height: Dimensions.spacingLG),
             ],
 
             // Botões
@@ -345,10 +345,10 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
                         vertical: Dimensions.paddingSM,
                       ),
                     ),
-                    child: Text('Cancelar'),
+                    child: const Text('Cancelar'),
                   ),
                 ),
-                SizedBox(width: Dimensions.spacingMD),
+                const SizedBox(width: Dimensions.spacingMD),
                 Expanded(
                   child: PrimaryButton(
                     onPressed: _isLoading ? () {} : _handleSave,
@@ -415,7 +415,7 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
                   Icon(t.icon,
                       color: isSelected ? t.color : AppColors.textSecondary,
                       size: 22),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     t.label,
                     style: AppTextStyles.caption.copyWith(
@@ -455,7 +455,7 @@ class _RegistroPontoFormScreenState extends State<RegistroPontoFormScreen> {
         child: Row(
           children: [
             Icon(icon, color: color, size: 18),
-            SizedBox(width: 6),
+            const SizedBox(width: 6),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

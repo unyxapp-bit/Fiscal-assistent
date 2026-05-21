@@ -167,7 +167,7 @@ class _VisaoGargaloScreenState extends State<VisaoGargaloScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Visão de Gargalo'),
+        title: const Text('Visão de Gargalo'),
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
@@ -193,7 +193,7 @@ class _VisaoGargaloScreenState extends State<VisaoGargaloScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.show_chart, size: 64, color: AppColors.inactive),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Nenhuma escala cadastrada para hoje.',
               style: TextStyle(color: AppColors.textSecondary),
@@ -215,20 +215,20 @@ class _VisaoGargaloScreenState extends State<VisaoGargaloScreen> {
               icon: Icons.apartment_outlined,
               color: AppColors.primary,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             _CoberturaChart(
               slots: s.slots,
               peak: s.peak,
               agora: agora,
             ),
             if (gargalos.isNotEmpty) ...[
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               _SectionHeader(
                 label: 'Alertas de Gargalo',
                 icon: Icons.warning_amber_rounded,
                 color: AppColors.warning,
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               ...gargalos.map(
                 (slot) => _GargaloCard(
                   slot: slot,
@@ -237,15 +237,15 @@ class _VisaoGargaloScreenState extends State<VisaoGargaloScreen> {
                 ),
               ),
             ],
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _SectionHeader(
               label: 'Próximas Movimentações',
               icon: Icons.schedule,
               color: AppColors.primary,
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             _ProximasMovimentacoes(slots: s.slots),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
           ];
         }),
       ],
@@ -258,7 +258,7 @@ class _SectionHeader extends StatelessWidget {
   final IconData icon;
   final Color color;
 
-  _SectionHeader({
+  const _SectionHeader({
     required this.label,
     required this.icon,
     required this.color,
@@ -269,7 +269,7 @@ class _SectionHeader extends StatelessWidget {
     return Row(
       children: [
         Icon(icon, size: 16, color: color),
-        SizedBox(width: 6),
+        const SizedBox(width: 6),
         Text(
           label,
           style: AppTextStyles.subtitle.copyWith(
@@ -318,7 +318,7 @@ class _CoberturaChart extends StatelessWidget {
             Row(
               children: [
                 Icon(Icons.bar_chart, size: 18, color: AppColors.primary),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Text(
                   'Cobertura nas próximas 4h',
                   style: AppTextStyles.subtitle
@@ -326,12 +326,12 @@ class _CoberturaChart extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 2),
+            const SizedBox(height: 2),
             Text(
               'Colaboradores disponíveis por slot de 30min',
               style: AppTextStyles.caption,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -356,7 +356,7 @@ class _CoberturaChart extends StatelessWidget {
                             color: color,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Stack(
                           alignment: Alignment.bottomCenter,
                           children: [
@@ -385,7 +385,7 @@ class _CoberturaChart extends StatelessWidget {
                             ),
                           ],
                         ),
-                        SizedBox(height: 6),
+                        const SizedBox(height: 6),
                         Text(
                           _formatTime(slot.inicio),
                           style: TextStyle(
@@ -408,20 +408,20 @@ class _CoberturaChart extends StatelessWidget {
                             ),
                           )
                         else
-                          SizedBox(height: 7),
+                          const SizedBox(height: 7),
                       ],
                     ),
                   );
                 }).toList(),
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Row(
               children: [
                 _Legend(color: AppColors.success, label: 'Normal'),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 _Legend(color: AppColors.warning, label: 'Atenção'),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 _Legend(color: AppColors.danger, label: 'Crítico'),
               ],
             ),
@@ -451,7 +451,7 @@ class _Legend extends StatelessWidget {
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         Text(label, style: AppTextStyles.caption),
       ],
     );
@@ -515,7 +515,7 @@ class _GargaloCard extends StatelessWidget {
                 color: color,
                 size: 18,
               ),
-              SizedBox(width: 6),
+              const SizedBox(width: 6),
               Text(
                 baixaCobertura
                     ? '${_formatTime(slot.inicio)} — cobertura baixa'
@@ -543,7 +543,7 @@ class _GargaloCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           if (saindoNomes.isNotEmpty)
             _EventRow(
               icon: Icons.arrow_circle_up,
@@ -552,7 +552,7 @@ class _GargaloCard extends StatelessWidget {
               nomes: saindoNomes,
             ),
           if (voltandoNomes.isNotEmpty) ...[
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             _EventRow(
               icon: Icons.arrow_circle_down,
               color: AppColors.success,
@@ -560,13 +560,13 @@ class _GargaloCard extends StatelessWidget {
               nomes: voltandoNomes,
             ),
           ],
-          Divider(height: 16),
+          const Divider(height: 16),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(Icons.lightbulb_outline,
                   size: 14, color: AppColors.textSecondary),
-              SizedBox(width: 6),
+              const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   _sugestao(),
@@ -601,7 +601,7 @@ class _EventRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, size: 13, color: color),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         Text(
           '$label: ',
           style: AppTextStyles.caption.copyWith(
@@ -667,7 +667,7 @@ class _ProximasMovimentacoes extends StatelessWidget {
           side: BorderSide(color: AppColors.cardBorder),
         ),
         child: Padding(
-          padding: EdgeInsets.all(Dimensions.paddingMD),
+          padding: const EdgeInsets.all(Dimensions.paddingMD),
           child: Text(
             'Nenhuma movimentação prevista nas próximas 4h.',
             style: AppTextStyles.caption,
@@ -726,7 +726,7 @@ class _EventoItem extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 10),
           ),
           Icon(icon, size: 14, color: color),
-          SizedBox(width: 6),
+          const SizedBox(width: 6),
           Expanded(
             child: Text(
               '${evento.nome} · $label',

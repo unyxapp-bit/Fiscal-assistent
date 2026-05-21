@@ -33,7 +33,7 @@ class BalcaoListItem extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -47,16 +47,16 @@ class BalcaoListItem extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Liberar fiscal'),
-        content: Text('Deseja liberar este fiscal do balcão?'),
+        title: const Text('Liberar fiscal'),
+        content: const Text('Deseja liberar este fiscal do balcão?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text('Liberar', style: TextStyle(color: Colors.red)),
+            child: const Text('Liberar', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -88,7 +88,7 @@ class BalcaoListItem extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -114,7 +114,7 @@ class BalcaoListItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Dimensions.borderRadius),
-        side: BorderSide(color: _kBalcaoColor, width: 2),
+        side: const BorderSide(color: _kBalcaoColor, width: 2),
       ),
       child: Padding(
         padding: const EdgeInsets.all(Dimensions.paddingMD),
@@ -124,8 +124,8 @@ class BalcaoListItem extends StatelessWidget {
             // Cabeçalho
             Row(
               children: [
-                Icon(Icons.support_agent, color: _kBalcaoColor, size: 20),
-                SizedBox(width: 8),
+                const Icon(Icons.support_agent, color: _kBalcaoColor, size: 20),
+                const SizedBox(width: 8),
                 Text(
                   balcao.nomeExibicao,
                   style: AppTextStyles.subtitle.copyWith(
@@ -156,7 +156,7 @@ class BalcaoListItem extends StatelessWidget {
               ],
             ),
 
-            SizedBox(height: Dimensions.spacingMD),
+            const SizedBox(height: Dimensions.spacingMD),
 
             // Slots: um por alocação ativa + botão de adicionar
             Wrap(
@@ -236,14 +236,14 @@ class _OcupadoSlot extends StatelessWidget {
               backgroundColor: _kBalcaoColor,
               child: Text(
                 colaborador?.iniciais ?? nome.substring(0, 1).toUpperCase(),
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               nome.split(' ').first,
               style:
@@ -252,10 +252,10 @@ class _OcupadoSlot extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             GestureDetector(
               onTap: onLiberar,
-              child: Icon(Icons.logout, size: 16, color: Colors.red),
+              child: const Icon(Icons.logout, size: 16, color: Colors.red),
             ),
           ],
         ),
@@ -291,7 +291,7 @@ class _VazioSlot extends StatelessWidget {
               size: 28,
               color: _kBalcaoColor.withValues(alpha: 0.6),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               '+ Fiscal',
               style: AppTextStyles.caption.copyWith(
@@ -353,13 +353,13 @@ class _ColaboradorPickerSheet extends StatelessWidget {
               const Spacer(),
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: Icon(Icons.close),
+                icon: const Icon(Icons.close),
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           if (disponiveis.isEmpty)
-            Padding(
+            const Padding(
               padding: EdgeInsets.symmetric(vertical: 24),
               child: Center(
                 child: Text('Nenhum fiscal disponível no momento'),
@@ -380,7 +380,7 @@ class _ColaboradorPickerSheet extends StatelessWidget {
                       backgroundColor: _kBalcaoColor,
                       child: Text(
                         colaborador.iniciais,
-                        style: TextStyle(
+                        style: const TextStyle(
                             color: Colors.white,
                             fontSize: 13,
                             fontWeight: FontWeight.bold),

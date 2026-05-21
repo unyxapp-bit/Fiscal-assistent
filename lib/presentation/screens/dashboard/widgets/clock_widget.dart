@@ -116,7 +116,7 @@ class _ClockWidgetState extends State<ClockWidget> {
               ),
             ],
           ),
-          SizedBox(height: Dimensions.spacingMD),
+          const SizedBox(height: Dimensions.spacingMD),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
@@ -129,7 +129,7 @@ class _ClockWidgetState extends State<ClockWidget> {
               ),
             ),
           ),
-          SizedBox(height: Dimensions.spacingXS),
+          const SizedBox(height: Dimensions.spacingXS),
           Text(
             dateString,
             style: AppTextStyles.body.copyWith(
@@ -137,7 +137,7 @@ class _ClockWidgetState extends State<ClockWidget> {
               height: 1.35,
             ),
           ),
-          SizedBox(height: Dimensions.spacingMD),
+          const SizedBox(height: Dimensions.spacingMD),
           Row(
             children: [
               Expanded(
@@ -147,7 +147,7 @@ class _ClockWidgetState extends State<ClockWidget> {
                   color: AppColors.primary,
                 ),
               ),
-              SizedBox(width: Dimensions.spacingSM),
+              const SizedBox(width: Dimensions.spacingSM),
               Expanded(
                 child: _ClockMetricTile(
                   label: 'Dia',
@@ -187,7 +187,7 @@ class _ClockPill extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: color),
-          SizedBox(width: 6),
+          const SizedBox(width: 6),
           Text(
             label,
             style: AppTextStyles.caption.copyWith(
@@ -236,7 +236,7 @@ class _ClockMetricTile extends StatelessWidget {
               fontWeight: FontWeight.w800,
             ),
           ),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Text(
             label,
             style: AppTextStyles.caption.copyWith(

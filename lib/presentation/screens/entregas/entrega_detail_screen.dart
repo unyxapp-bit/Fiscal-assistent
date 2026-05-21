@@ -72,12 +72,12 @@ class EntregaDetailScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Confirmar'),
-        content: Text('Marcar esta entrega como "Em Rota"?'),
+        title: const Text('Confirmar'),
+        content: const Text('Marcar esta entrega como "Em Rota"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -109,7 +109,7 @@ class EntregaDetailScreen extends StatelessWidget {
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
             ),
-            child: Text('Confirmar'),
+            child: const Text('Confirmar'),
           ),
         ],
       ),
@@ -122,12 +122,12 @@ class EntregaDetailScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Confirmar'),
-        content: Text('Marcar esta entrega como "Entregue"?'),
+        title: const Text('Confirmar'),
+        content: const Text('Marcar esta entrega como "Entregue"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -159,7 +159,7 @@ class EntregaDetailScreen extends StatelessWidget {
               backgroundColor: AppColors.success,
               foregroundColor: Colors.white,
             ),
-            child: Text('Confirmar'),
+            child: const Text('Confirmar'),
           ),
         ],
       ),
@@ -172,14 +172,14 @@ class EntregaDetailScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Cancelar Entrega'),
-        content: Text(
+        title: const Text('Cancelar Entrega'),
+        content: const Text(
           'Tem certeza que deseja cancelar esta entrega? Esta ação não pode ser desfeita.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Não'),
+            child: const Text('Não'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -197,7 +197,7 @@ class EntregaDetailScreen extends StatelessWidget {
               backgroundColor: AppColors.danger,
               foregroundColor: Colors.white,
             ),
-            child: Text('Sim, Cancelar'),
+            child: const Text('Sim, Cancelar'),
           ),
         ],
       ),
@@ -209,14 +209,14 @@ class EntregaDetailScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Excluir Entrega'),
-        content: Text(
+        title: const Text('Excluir Entrega'),
+        content: const Text(
           'Tem certeza que deseja excluir esta entrega? Esta ação não pode ser desfeita.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -228,7 +228,7 @@ class EntregaDetailScreen extends StatelessWidget {
               backgroundColor: AppColors.danger,
               foregroundColor: Colors.white,
             ),
-            child: Text('Excluir'),
+            child: const Text('Excluir'),
           ),
         ],
       ),
@@ -264,12 +264,12 @@ class EntregaDetailScreen extends StatelessWidget {
         actions: [
           if (entrega.status != 'entregue' && entrega.status != 'cancelada')
             IconButton(
-              icon: Icon(Icons.edit),
+              icon: const Icon(Icons.edit),
               onPressed: () => _editarEntrega(context),
               tooltip: 'Editar',
             ),
           IconButton(
-            icon: Icon(Icons.delete_outline),
+            icon: const Icon(Icons.delete_outline),
             onPressed: () => _excluirEntrega(context),
             tooltip: 'Excluir',
             color: AppColors.danger,
@@ -301,7 +301,7 @@ class EntregaDetailScreen extends StatelessWidget {
                         size: Dimensions.iconXL,
                       ),
                     ),
-                    SizedBox(width: Dimensions.spacingMD),
+                    const SizedBox(width: Dimensions.spacingMD),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -312,7 +312,7 @@ class EntregaDetailScreen extends StatelessWidget {
                               color: _getStatusColor(entrega.status),
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
                             'NF: ${entrega.numeroNota}',
                             style: AppTextStyles.body.copyWith(
@@ -327,11 +327,11 @@ class EntregaDetailScreen extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: Dimensions.spacingLG),
+            const SizedBox(height: Dimensions.spacingLG),
 
             // Informações do Cliente
             Text('Informações do Cliente', style: AppTextStyles.h3),
-            SizedBox(height: Dimensions.spacingSM),
+            const SizedBox(height: Dimensions.spacingSM),
 
             Card(
               child: Padding(
@@ -345,14 +345,14 @@ class EntregaDetailScreen extends StatelessWidget {
                     ),
                     if (entrega.telefone != null &&
                         entrega.telefone!.isNotEmpty) ...[
-                      Divider(height: 24),
+                      const Divider(height: 24),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Icon(Icons.phone,
                               color: AppColors.primary,
                               size: Dimensions.iconMD),
-                          SizedBox(width: Dimensions.spacingSM),
+                          const SizedBox(width: Dimensions.spacingSM),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -362,14 +362,14 @@ class EntregaDetailScreen extends StatelessWidget {
                                   style: AppTextStyles.caption
                                       .copyWith(color: AppColors.textSecondary),
                                 ),
-                                SizedBox(height: 4),
+                                const SizedBox(height: 4),
                                 Text(entrega.telefone!,
                                     style: AppTextStyles.body),
                               ],
                             ),
                           ),
                           IconButton(
-                            icon: Icon(Icons.copy_outlined, size: 18),
+                            icon: const Icon(Icons.copy_outlined, size: 18),
                             tooltip: 'Copiar número',
                             color: AppColors.textSecondary,
                             padding: EdgeInsets.zero,
@@ -388,26 +388,26 @@ class EntregaDetailScreen extends StatelessWidget {
                         ],
                       ),
                     ],
-                    Divider(height: 24),
+                    const Divider(height: 24),
                     _buildInfoRow(
                       Icons.home,
                       'Endereço',
                       entrega.endereco,
                     ),
-                    Divider(height: 24),
+                    const Divider(height: 24),
                     _buildInfoRow(
                       Icons.location_city,
                       'Bairro',
                       entrega.bairro,
                     ),
-                    Divider(height: 24),
+                    const Divider(height: 24),
                     _buildInfoRow(
                       Icons.location_on,
                       'Cidade',
                       entrega.cidade,
                     ),
                     if (entrega.horarioMarcado != null) ...[
-                      Divider(height: 24),
+                      const Divider(height: 24),
                       _buildInfoRow(
                         Icons.access_time,
                         'Horário Marcado',
@@ -419,11 +419,11 @@ class EntregaDetailScreen extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: Dimensions.spacingLG),
+            const SizedBox(height: Dimensions.spacingLG),
 
             // Timeline da Entrega
             Text('Timeline', style: AppTextStyles.h3),
-            SizedBox(height: Dimensions.spacingSM),
+            const SizedBox(height: Dimensions.spacingSM),
 
             Card(
               child: Padding(
@@ -493,9 +493,9 @@ class EntregaDetailScreen extends StatelessWidget {
             // Observações
             if (entrega.observacoes != null &&
                 entrega.observacoes!.isNotEmpty) ...[
-              SizedBox(height: Dimensions.spacingLG),
+              const SizedBox(height: Dimensions.spacingLG),
               Text('Observações', style: AppTextStyles.h3),
-              SizedBox(height: Dimensions.spacingSM),
+              const SizedBox(height: Dimensions.spacingSM),
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(Dimensions.paddingMD),
@@ -503,7 +503,7 @@ class EntregaDetailScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Icon(Icons.note, color: AppColors.textSecondary),
-                      SizedBox(width: Dimensions.spacingSM),
+                      const SizedBox(width: Dimensions.spacingSM),
                       Expanded(
                         child: Text(
                           entrega.observacoes!,
@@ -516,7 +516,7 @@ class EntregaDetailScreen extends StatelessWidget {
               ),
             ],
 
-            SizedBox(height: Dimensions.spacingXL),
+            const SizedBox(height: Dimensions.spacingXL),
 
             // Botões de Ação
             if (entrega.status == 'separada') ...[
@@ -524,8 +524,8 @@ class EntregaDetailScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () => _marcarEmRota(context),
-                  icon: Icon(Icons.directions_car),
-                  label: Text('Marcar em Rota'),
+                  icon: const Icon(Icons.directions_car),
+                  label: const Text('Marcar em Rota'),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size.fromHeight(Dimensions.buttonHeight),
                     backgroundColor: AppColors.primary,
@@ -533,7 +533,7 @@ class EntregaDetailScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: Dimensions.spacingSM),
+              const SizedBox(height: Dimensions.spacingSM),
             ],
 
             if (entrega.status == 'em_rota') ...[
@@ -541,8 +541,8 @@ class EntregaDetailScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () => _marcarEntregue(context),
-                  icon: Icon(Icons.check_circle),
-                  label: Text('Marcar Entregue'),
+                  icon: const Icon(Icons.check_circle),
+                  label: const Text('Marcar Entregue'),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size.fromHeight(Dimensions.buttonHeight),
                     backgroundColor: AppColors.success,
@@ -550,7 +550,7 @@ class EntregaDetailScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: Dimensions.spacingSM),
+              const SizedBox(height: Dimensions.spacingSM),
             ],
 
             if (entrega.status != 'entregue' && entrega.status != 'cancelada')
@@ -558,8 +558,8 @@ class EntregaDetailScreen extends StatelessWidget {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () => _cancelarEntrega(context),
-                  icon: Icon(Icons.cancel),
-                  label: Text('Cancelar Entrega'),
+                  icon: const Icon(Icons.cancel),
+                  label: const Text('Cancelar Entrega'),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size.fromHeight(Dimensions.buttonHeight),
                     foregroundColor: AppColors.danger,
@@ -578,7 +578,7 @@ class EntregaDetailScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, color: AppColors.primary, size: Dimensions.iconMD),
-        SizedBox(width: Dimensions.spacingSM),
+        const SizedBox(width: Dimensions.spacingSM),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -589,7 +589,7 @@ class EntregaDetailScreen extends StatelessWidget {
                   color: AppColors.textSecondary,
                 ),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
                 value,
                 style: AppTextStyles.body,
@@ -627,7 +627,7 @@ class EntregaDetailScreen extends StatelessWidget {
             size: 20,
           ),
         ),
-        SizedBox(width: Dimensions.spacingMD),
+        const SizedBox(width: Dimensions.spacingMD),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -639,7 +639,7 @@ class EntregaDetailScreen extends StatelessWidget {
                   color: completed ? color : AppColors.textSecondary,
                 ),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
                 subtitle,
                 style: AppTextStyles.caption.copyWith(

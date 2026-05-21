@@ -198,40 +198,40 @@ class _ChecklistTemplateFormScreenState
                     // â”€â”€ Título â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     TextField(
                       controller: _tituloCtrl,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Título *',
                         hintText: 'Ex: Checklist de Limpeza',
                         prefixIcon: Icon(Icons.title),
                       ),
                       textCapitalization: TextCapitalization.sentences,
                     ),
-                    SizedBox(height: Dimensions.spacingMD),
+                    const SizedBox(height: Dimensions.spacingMD),
 
                     // â”€â”€ Descrição â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     TextField(
                       controller: _descCtrl,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Descrição (opcional)',
                         hintText: 'Breve descrição do checklist',
                         prefixIcon: Icon(Icons.notes),
                       ),
                       textCapitalization: TextCapitalization.sentences,
                     ),
-                    SizedBox(height: Dimensions.spacingLG),
+                    const SizedBox(height: Dimensions.spacingLG),
 
                     // â”€â”€ Cor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     Text(
                       'Como esse checklist funciona?',
                       style: AppTextStyles.h4,
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       'Uso contínuo pode ser respondido novamente. Uso único some da lista depois da primeira conclusão.',
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.textSecondary,
                       ),
                     ),
-                    SizedBox(height: Dimensions.spacingSM),
+                    const SizedBox(height: Dimensions.spacingSM),
                     ...ModoExecucaoChecklist.values.map((modo) {
                       final selecionado = _modoExecucao == modo;
                       final cor = modo == ModoExecucaoChecklist.continuo
@@ -282,7 +282,7 @@ class _ChecklistTemplateFormScreenState
                                           : AppColors.textSecondary,
                                     ),
                                   ),
-                                  SizedBox(width: 12),
+                                  const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -297,7 +297,7 @@ class _ChecklistTemplateFormScreenState
                                                 : AppColors.textPrimary,
                                           ),
                                         ),
-                                        SizedBox(height: 4),
+                                        const SizedBox(height: 4),
                                         Text(
                                           modo.descricaoCurta,
                                           style: AppTextStyles.caption.copyWith(
@@ -314,10 +314,10 @@ class _ChecklistTemplateFormScreenState
                         ),
                       );
                     }),
-                    SizedBox(height: Dimensions.spacingSM),
+                    const SizedBox(height: Dimensions.spacingSM),
 
                     Text('Cor', style: AppTextStyles.h4),
-                    SizedBox(height: Dimensions.spacingSM),
+                    const SizedBox(height: Dimensions.spacingSM),
                     Wrap(
                       spacing: 10,
                       runSpacing: 10,
@@ -349,18 +349,18 @@ class _ChecklistTemplateFormScreenState
                                   : null,
                             ),
                             child: sel
-                                ? Icon(Icons.check,
+                                ? const Icon(Icons.check,
                                     color: Colors.white, size: 18)
                                 : null,
                           ),
                         );
                       }).toList(),
                     ),
-                    SizedBox(height: Dimensions.spacingLG),
+                    const SizedBox(height: Dimensions.spacingLG),
 
                     // â”€â”€ Ícone â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     Text('Ícone', style: AppTextStyles.h4),
-                    SizedBox(height: Dimensions.spacingSM),
+                    const SizedBox(height: Dimensions.spacingSM),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
@@ -390,7 +390,7 @@ class _ChecklistTemplateFormScreenState
                                 Icon(entry.$2,
                                     color: sel ? cor : AppColors.textSecondary,
                                     size: 20),
-                                SizedBox(height: 2),
+                                const SizedBox(height: 2),
                                 Text(
                                   entry.$3,
                                   style: TextStyle(
@@ -405,17 +405,17 @@ class _ChecklistTemplateFormScreenState
                         );
                       }).toList(),
                     ),
-                    SizedBox(height: Dimensions.spacingLG),
+                    const SizedBox(height: Dimensions.spacingLG),
 
                     // â”€â”€ Periodização â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     Text('Quando notificar?', style: AppTextStyles.h4),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       'O alerta aparece somente durante o horário escolhido.',
                       style: AppTextStyles.caption
                           .copyWith(color: AppColors.textSecondary),
                     ),
-                    SizedBox(height: Dimensions.spacingSM),
+                    const SizedBox(height: Dimensions.spacingSM),
                     RadioGroup<PeriodizacaoChecklist>(
                       groupValue: _periodizacao,
                       onChanged: (v) {
@@ -441,7 +441,7 @@ class _ChecklistTemplateFormScreenState
                     ),
                     if (_periodizacao ==
                         PeriodizacaoChecklist.horarioEspecifico) ...[
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       OutlinedButton.icon(
                         onPressed: () async {
                           final parts = _horarioNotificacao?.split(':');
@@ -462,7 +462,7 @@ class _ChecklistTemplateFormScreenState
                             });
                           }
                         },
-                        icon: Icon(Icons.access_time, size: 18),
+                        icon: const Icon(Icons.access_time, size: 18),
                         label: Text(
                           _horarioNotificacao != null
                               ? 'Horário: $_horarioNotificacao  (±30 min)'
@@ -474,7 +474,7 @@ class _ChecklistTemplateFormScreenState
                       ),
                     ],
 
-                    SizedBox(height: Dimensions.spacingLG),
+                    const SizedBox(height: Dimensions.spacingLG),
 
                     // â”€â”€ Itens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     Row(
@@ -483,14 +483,14 @@ class _ChecklistTemplateFormScreenState
                         Text('Itens do checklist', style: AppTextStyles.h4),
                         TextButton.icon(
                           onPressed: _addItem,
-                          icon: Icon(Icons.add, size: 18),
-                          label: Text('Adicionar'),
+                          icon: const Icon(Icons.add, size: 18),
+                          label: const Text('Adicionar'),
                           style: TextButton.styleFrom(
                               foregroundColor: AppColors.primary),
                         ),
                       ],
                     ),
-                    SizedBox(height: Dimensions.spacingSM),
+                    const SizedBox(height: Dimensions.spacingSM),
 
                     ...List.generate(_itemCtrls.length, (i) {
                       return Padding(
@@ -518,7 +518,7 @@ class _ChecklistTemplateFormScreenState
                                 ),
                               ),
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             // Campo
                             Expanded(
                               child: TextField(
@@ -547,14 +547,14 @@ class _ChecklistTemplateFormScreenState
                       );
                     }),
 
-                    SizedBox(height: Dimensions.spacingXL),
+                    const SizedBox(height: Dimensions.spacingXL),
 
                     // â”€â”€ Botão salvar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: _salvar,
-                        icon: Icon(Icons.save),
+                        icon: const Icon(Icons.save),
                         label: Text(_editando
                             ? 'Salvar alterações'
                             : 'Criar checklist'),
@@ -566,7 +566,7 @@ class _ChecklistTemplateFormScreenState
                         ),
                       ),
                     ),
-                    SizedBox(height: Dimensions.spacingMD),
+                    const SizedBox(height: Dimensions.spacingMD),
                   ],
                 ),
               )),

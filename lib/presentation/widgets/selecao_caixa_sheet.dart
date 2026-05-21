@@ -78,7 +78,7 @@ class _SelecaoCaixaSheetState extends State<SelecaoCaixaSheet> {
       case 'manutencao':
         return Icon(Icons.construction, color: AppColors.statusAtencao);
       default:
-        return Icon(Icons.help);
+        return const Icon(Icons.help);
     }
   }
 
@@ -101,11 +101,11 @@ class _SelecaoCaixaSheetState extends State<SelecaoCaixaSheet> {
               const Spacer(),
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: Icon(Icons.close),
+                icon: const Icon(Icons.close),
               ),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -113,7 +113,7 @@ class _SelecaoCaixaSheetState extends State<SelecaoCaixaSheet> {
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: FilterChip(
-                    label: Text('Tipo'),
+                    label: const Text('Tipo'),
                     onSelected: (_) {
                       setState(() => _filtroTipo = null);
                       _atualizar();
@@ -144,11 +144,11 @@ class _SelecaoCaixaSheetState extends State<SelecaoCaixaSheet> {
                       ),
                     ),
                   ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: FilterChip(
-                    label: Text('Status'),
+                    label: const Text('Status'),
                     onSelected: (_) {
                       setState(() => _filtroStatus = null);
                       _atualizar();
@@ -173,7 +173,7 @@ class _SelecaoCaixaSheetState extends State<SelecaoCaixaSheet> {
               ],
             ),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Expanded(
             child: _filtered.isEmpty
                 ? const _VazioCaixa()
@@ -209,14 +209,14 @@ class _SelecaoCaixaSheetState extends State<SelecaoCaixaSheet> {
                                   style:
                                       AppTextStyles.h3.copyWith(color: corTipo),
                                 ),
-                                SizedBox(height: 4),
+                                const SizedBox(height: 4),
                                 Text(
                                   _getNomeTipo(caixa.tipo),
                                   style: AppTextStyles.caption.copyWith(
                                     color: AppColors.textSecondary,
                                   ),
                                 ),
-                                SizedBox(height: 8),
+                                const SizedBox(height: 8),
                                 _getIconStatus(caixa),
                               ],
                             ),
@@ -246,7 +246,7 @@ class _VazioCaixa extends StatelessWidget {
           children: [
             Icon(Icons.inbox,
                 size: 44, color: AppColors.inactive.withValues(alpha: 0.9)),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text('Nenhuma caixa encontrada', style: AppTextStyles.body),
           ],
         ),

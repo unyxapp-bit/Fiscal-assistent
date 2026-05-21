@@ -17,7 +17,7 @@ class ConfiguracoesScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Configurações'),
+        title: const Text('Configurações'),
         backgroundColor: AppColors.background,
         elevation: 0,
       ),
@@ -43,7 +43,7 @@ class ConfiguracoesScreen extends StatelessWidget {
                                 children: [
                                   Icon(Icons.store_outlined,
                                       color: AppColors.primary, size: 20),
-                                  SizedBox(width: 8),
+                                  const SizedBox(width: 8),
                                   Expanded(
                                     child: Text('Informações da Loja',
                                         style: AppTextStyles.h4),
@@ -54,8 +54,8 @@ class ConfiguracoesScreen extends StatelessWidget {
                                           builder: (_) =>
                                               const ProfileScreen()),
                                     ),
-                                    icon: Icon(Icons.edit_outlined, size: 16),
-                                    label: Text('Editar',
+                                    icon: const Icon(Icons.edit_outlined, size: 16),
+                                    label: const Text('Editar',
                                         style: TextStyle(fontSize: 13)),
                                     style: TextButton.styleFrom(
                                       foregroundColor: AppColors.primary,
@@ -65,18 +65,18 @@ class ConfiguracoesScreen extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              SizedBox(height: Dimensions.spacingMD),
+                              const SizedBox(height: Dimensions.spacingMD),
                               if (fiscal == null)
-                                Center(child: CircularProgressIndicator())
+                                const Center(child: CircularProgressIndicator())
                               else ...[
                                 _InfoRow(
                                     label: 'Loja',
                                     value: fiscal.loja ?? 'Não informado'),
-                                Divider(height: 24),
+                                const Divider(height: 24),
                                 _InfoRow(label: 'Fiscal', value: fiscal.nome),
-                                Divider(height: 24),
+                                const Divider(height: 24),
                                 _InfoRow(label: 'E-mail', value: fiscal.email),
-                                Divider(height: 24),
+                                const Divider(height: 24),
                                 _InfoRow(
                                   label: 'Telefone',
                                   value: fiscal.telefone ?? 'Não informado',
@@ -84,7 +84,7 @@ class ConfiguracoesScreen extends StatelessWidget {
                                       ? AppColors.textSecondary
                                       : null,
                                 ),
-                                Divider(height: 24),
+                                const Divider(height: 24),
                                 _InfoRow(
                                   label: 'Status',
                                   value: fiscal.ativo ? 'Ativo' : 'Inativo',
@@ -98,7 +98,7 @@ class ConfiguracoesScreen extends StatelessWidget {
                         ),
                       ),
 
-                      SizedBox(height: Dimensions.spacingMD),
+                      const SizedBox(height: Dimensions.spacingMD),
 
                       // ── Aparência ─────────────────────────────────────────
                       Card(
@@ -118,13 +118,13 @@ class ConfiguracoesScreen extends StatelessWidget {
                               style: AppTextStyles.caption,
                             ),
                             value: themeCtrl.isGamer,
-                            activeColor: AppColors.primary,
+                            activeThumbColor: AppColors.primary,
                             onChanged: (_) => themeCtrl.toggle(),
                           ),
                         ),
                       ),
 
-                      SizedBox(height: Dimensions.spacingMD),
+                      const SizedBox(height: Dimensions.spacingMD),
 
                       // ── Atalhos ───────────────────────────────────────────
                       Card(
@@ -144,7 +144,7 @@ class ConfiguracoesScreen extends StatelessWidget {
                                     builder: (_) => const ProfileScreen()),
                               ),
                             ),
-                            Divider(height: 1, indent: 56),
+                            const Divider(height: 1, indent: 56),
                             ListTile(
                               leading: Icon(Icons.receipt_long_outlined,
                                   color: AppColors.primary),
@@ -159,7 +159,7 @@ class ConfiguracoesScreen extends StatelessWidget {
                                     builder: (_) => const CupomConfigScreen()),
                               ),
                             ),
-                            Divider(height: 1, indent: 56),
+                            const Divider(height: 1, indent: 56),
                             ListTile(
                               leading: Icon(Icons.lock_outline,
                                   color: AppColors.textSecondary),

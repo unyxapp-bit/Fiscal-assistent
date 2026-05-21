@@ -488,7 +488,7 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
                   Navigator.pop(context);
                   setState(() => _colaboradorFiltro = null);
                 },
-                icon: Icon(Icons.close_rounded, size: 16),
+                icon: const Icon(Icons.close_rounded, size: 16),
                 label: const Text('Limpar filtro'),
                 style: TextButton.styleFrom(
                     foregroundColor: AppColors.danger),
@@ -736,7 +736,7 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
           prefixIcon: Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 18),
           suffixIcon: _queryBusca.isNotEmpty
               ? IconButton(
-                  icon: Icon(Icons.clear_rounded, size: 16),
+                  icon: const Icon(Icons.clear_rounded, size: 16),
                   onPressed: () => setState(() {
                     _buscaCtrl.clear();
                     _queryBusca = '';

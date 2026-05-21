@@ -226,7 +226,7 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
                 padding: const EdgeInsets.all(16),
                 children: [
                   // ── Dados do cliente ──────────────────────────
-                  _Secao('Dados do Pedido'),
+                  const _Secao('Dados do Pedido'),
                   TextFormField(
                     controller: _nomeCtrl,
                     decoration: InputDecoration(
@@ -242,8 +242,8 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
                     controller: _codigoCtrl,
                     decoration: InputDecoration(
                       labelText: 'Codigo do Cliente',
-                      prefixIcon: Icon(Icons.qr_code,
-                          color: AppColors.textSecondary),
+                      prefixIcon:
+                          Icon(Icons.qr_code, color: AppColors.textSecondary),
                       border: const OutlineInputBorder(),
                     ),
                   ),
@@ -302,8 +302,8 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
                       child: ExpansionTile(
                         tilePadding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 2),
-                        childrenPadding: const EdgeInsets.fromLTRB(
-                            14, 0, 14, 14),
+                        childrenPadding:
+                            const EdgeInsets.fromLTRB(14, 0, 14, 14),
                         initiallyExpanded: _enderecoExpandido,
                         onExpansionChanged: (v) =>
                             setState(() => _enderecoExpandido = v),
@@ -374,7 +374,7 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _Secao('Pizzas do Pedido'),
+                      const _Secao('Pizzas do Pedido'),
                       TextButton.icon(
                         onPressed: _adicionarItem,
                         icon: Icon(Icons.add, color: AppColors.primary),
@@ -402,12 +402,11 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
                       decoration: BoxDecoration(
                         color: tokens.cardBackground,
                         borderRadius: BorderRadius.circular(10),
-                        border:
-                            Border.all(color: AppColors.cardBorder),
+                        border: Border.all(color: AppColors.cardBorder),
                       ),
                       child: ListTile(
-                        leading: Icon(Icons.local_pizza,
-                            color: AppColors.warning),
+                        leading:
+                            Icon(Icons.local_pizza, color: AppColors.warning),
                         title: Text(item.descricao,
                             style: AppTextStyles.body
                                 .copyWith(color: AppColors.textPrimary)),
@@ -419,8 +418,7 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
                         trailing: IconButton(
                           icon: Icon(Icons.remove_circle_outline,
                               color: AppColors.danger),
-                          onPressed: () =>
-                              setState(() => _itens.removeAt(i)),
+                          onPressed: () => setState(() => _itens.removeAt(i)),
                         ),
                       ),
                     );
@@ -433,9 +431,8 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
                       onPressed: _salvando ? null : _salvar,
                       style: FilledButton.styleFrom(
                           backgroundColor: AppColors.primary),
-                      icon: Icon(_isEdicao
-                          ? Icons.save_outlined
-                          : Icons.receipt_long),
+                      icon: Icon(
+                          _isEdicao ? Icons.save_outlined : Icons.receipt_long),
                       label: _salvando
                           ? const SizedBox(
                               height: 20,
@@ -444,9 +441,7 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
                                   strokeWidth: 2, color: Colors.white),
                             )
                           : Text(
-                              _isEdicao
-                                  ? 'Salvar Alteracoes'
-                                  : 'Gerar Cupom',
+                              _isEdicao ? 'Salvar Alteracoes' : 'Gerar Cupom',
                               style: const TextStyle(fontSize: 16),
                             ),
                     ),
@@ -534,123 +529,116 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
     required ValueChanged<Pizza> onSelecionar,
   }) {
     final isSelecionada = selecionada?.id == pizza.id;
-    final corBorda = isSelecionada
-        ? AppColors.primary
-        : AppColors.cardBorder;
+    final corBorda = isSelecionada ? AppColors.primary : AppColors.cardBorder;
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final layoutCompacto = constraints.maxWidth < 210;
 
-        return Card(
-          margin: EdgeInsets.zero,
-          color: context.appTheme.cardBackground,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-                color: corBorda, width: isSelecionada ? 1.6 : 1),
-          ),
-          elevation: isSelecionada ? 1.5 : 0,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () => setState(() => onSelecionar(pizza)),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: layoutCompacto ? 10 : 12,
-                vertical: layoutCompacto ? 12 : 10,
-              ),
-              child: layoutCompacto
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.local_pizza_outlined,
-                              color: isSelecionada
-                                  ? AppColors.primary
-                                  : AppColors.warning,
-                            ),
-                            const Spacer(),
-                            Radio<Pizza>(
-                              value: pizza,
-                              groupValue: selecionada,
-                              activeColor: AppColors.primary,
-                              visualDensity: VisualDensity.compact,
-                              onChanged: (v) {
-                                if (v != null) {
-                                  setState(() => onSelecionar(v));
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          pizza.nome,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: isSelecionada
-                                ? FontWeight.w700
-                                : FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    )
-                  : Row(
-                      children: [
-                        Icon(
-                          Icons.local_pizza_outlined,
-                          color: isSelecionada
-                              ? AppColors.primary
-                              : AppColors.warning,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
+        return RadioGroup<Pizza>(
+          groupValue: selecionada,
+          onChanged: (v) {
+            if (v != null) {
+              setState(() => onSelecionar(v));
+            }
+          },
+          child: Card(
+            margin: EdgeInsets.zero,
+            color: context.appTheme.cardBackground,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: corBorda, width: isSelecionada ? 1.6 : 1),
+            ),
+            elevation: isSelecionada ? 1.5 : 0,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () => setState(() => onSelecionar(pizza)),
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: layoutCompacto ? 10 : 12,
+                  vertical: layoutCompacto ? 12 : 10,
+                ),
+                child: layoutCompacto
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              Text(
-                                pizza.nome,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: AppTextStyles.caption.copyWith(
-                                  color: AppColors.textPrimary,
-                                  fontWeight: isSelecionada
-                                      ? FontWeight.w700
-                                      : FontWeight.w500,
-                                ),
+                              Icon(
+                                Icons.local_pizza_outlined,
+                                color: isSelecionada
+                                    ? AppColors.primary
+                                    : AppColors.warning,
                               ),
-                              if (pizza.preco != null)
-                                Text(
-                                  NumberFormat.currency(
-                                          locale: 'pt_BR',
-                                          symbol: 'R\$',
-                                          decimalDigits: 2)
-                                      .format(pizza.preco),
-                                  style: AppTextStyles.caption.copyWith(
-                                    color: AppColors.success,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
+                              const Spacer(),
+                              Radio<Pizza>(
+                                value: pizza,
+                                activeColor: AppColors.primary,
+                                visualDensity: VisualDensity.compact,
+                              ),
                             ],
                           ),
-                        ),
-                        Radio<Pizza>(
-                          value: pizza,
-                          groupValue: selecionada,
-                          activeColor: AppColors.primary,
-                          onChanged: (v) {
-                            if (v != null) {
-                              setState(() => onSelecionar(v));
-                            }
-                          },
-                        ),
-                      ],
-                    ),
+                          const SizedBox(height: 8),
+                          Text(
+                            pizza.nome,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.textPrimary,
+                              fontWeight: isSelecionada
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          Icon(
+                            Icons.local_pizza_outlined,
+                            color: isSelecionada
+                                ? AppColors.primary
+                                : AppColors.warning,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  pizza.nome,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: AppColors.textPrimary,
+                                    fontWeight: isSelecionada
+                                        ? FontWeight.w700
+                                        : FontWeight.w500,
+                                  ),
+                                ),
+                                if (pizza.preco != null)
+                                  Text(
+                                    NumberFormat.currency(
+                                            locale: 'pt_BR',
+                                            symbol: 'R\$',
+                                            decimalDigits: 2)
+                                        .format(pizza.preco),
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppColors.success,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          Radio<Pizza>(
+                            value: pizza,
+                            activeColor: AppColors.primary,
+                          ),
+                        ],
+                      ),
+              ),
             ),
           ),
         );
@@ -803,8 +791,8 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
               child: SwitchListTile(
                 title: Text(
                   'Meio a Meio',
-                  style: AppTextStyles.body
-                      .copyWith(color: AppColors.textPrimary),
+                  style:
+                      AppTextStyles.body.copyWith(color: AppColors.textPrimary),
                 ),
                 subtitle: Text(
                   'Apenas pizzas grandes',
@@ -812,7 +800,7 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
                       .copyWith(color: AppColors.textSecondary),
                 ),
                 value: _meioAMeio,
-                activeColor: AppColors.primary,
+                activeThumbColor: AppColors.primary,
                 onChanged: (v) => setState(() {
                   _meioAMeio = v;
                   _p1 = null;
@@ -833,8 +821,7 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
               _categoriaExpansivel(
                 titulo: 'GRANDES',
                 expandida: _expandGrandes,
-                onTap: () =>
-                    setState(() => _expandGrandes = !_expandGrandes),
+                onTap: () => setState(() => _expandGrandes = !_expandGrandes),
                 child: _pizzaGrid(
                   pizzas: _grandes,
                   selecionada: _p1,
@@ -845,8 +832,7 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
               _categoriaExpansivel(
                 titulo: 'MÉDIAS',
                 expandida: _expandMedias,
-                onTap: () =>
-                    setState(() => _expandMedias = !_expandMedias),
+                onTap: () => setState(() => _expandMedias = !_expandMedias),
                 child: _pizzaGrid(
                   pizzas: _medias,
                   selecionada: _p1,
@@ -860,8 +846,8 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.info.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                      color: AppColors.info.withValues(alpha: 0.2)),
+                  border:
+                      Border.all(color: AppColors.info.withValues(alpha: 0.2)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -894,8 +880,7 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: AppColors.info
-                                  .withValues(alpha: 0.15),
+                              color: AppColors.info.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: Text(
@@ -958,8 +943,7 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: AppColors.success
-                                  .withValues(alpha: 0.15),
+                              color: AppColors.success.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: Text(
@@ -1006,7 +990,8 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
                       fontWeight: FontWeight.bold),
                 ),
                 IconButton(
-                  icon: Icon(Icons.add_circle_outline, color: AppColors.success),
+                  icon:
+                      Icon(Icons.add_circle_outline, color: AppColors.success),
                   onPressed: () => setState(() => _qtd++),
                 ),
               ],

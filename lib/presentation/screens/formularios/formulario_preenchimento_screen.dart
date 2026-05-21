@@ -55,12 +55,12 @@ class _FormularioPreenchimentoScreenState
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Limpar formulário'),
-        content: Text('Deseja apagar todos os campos?'),
+        title: const Text('Limpar formulário'),
+        content: const Text('Deseja apagar todos os campos?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
@@ -74,7 +74,7 @@ class _FormularioPreenchimentoScreenState
               });
               Navigator.pop(ctx);
             },
-            child: Text('Limpar'),
+            child: const Text('Limpar'),
           ),
         ],
       ),
@@ -213,7 +213,7 @@ class _FormularioPreenchimentoScreenState
                       children: [
                         Icon(Icons.description,
                             color: AppColors.primary, size: 18),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Text(
                           widget.formulario.template
                               ? 'Template Oficial'
@@ -225,14 +225,14 @@ class _FormularioPreenchimentoScreenState
                         ),
                       ],
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(widget.formulario.descricao,
                         style: AppTextStyles.body
                             .copyWith(color: AppColors.textSecondary)),
                   ],
                 ),
               ),
-              SizedBox(height: Dimensions.spacingLG),
+              const SizedBox(height: Dimensions.spacingLG),
             ],
 
             Text(
@@ -240,7 +240,7 @@ class _FormularioPreenchimentoScreenState
               style: AppTextStyles.caption
                   .copyWith(color: AppColors.textSecondary),
             ),
-            SizedBox(height: Dimensions.spacingMD),
+            const SizedBox(height: Dimensions.spacingMD),
 
             // Campos
             ...widget.formulario.campos.asMap().entries.map(
@@ -252,7 +252,7 @@ class _FormularioPreenchimentoScreenState
                 ),
 
             // Carimbo de data
-            SizedBox(height: Dimensions.spacingSM),
+            const SizedBox(height: Dimensions.spacingSM),
             Container(
               padding: const EdgeInsets.all(Dimensions.paddingSM),
               decoration: BoxDecoration(
@@ -263,7 +263,7 @@ class _FormularioPreenchimentoScreenState
                 children: [
                   Icon(Icons.access_time,
                       size: 16, color: AppColors.textSecondary),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
                     'Preenchido em: ${_formatDateTime(DateTime.now())}',
                     style: AppTextStyles.caption
@@ -273,7 +273,7 @@ class _FormularioPreenchimentoScreenState
               ),
             ),
 
-            SizedBox(height: Dimensions.spacingXL),
+            const SizedBox(height: Dimensions.spacingXL),
 
             // Botões
             Row(
@@ -285,15 +285,15 @@ class _FormularioPreenchimentoScreenState
                       minimumSize:
                           const Size.fromHeight(Dimensions.buttonHeight),
                     ),
-                    child: Text('Cancelar'),
+                    child: const Text('Cancelar'),
                   ),
                 ),
-                SizedBox(width: Dimensions.spacingSM),
+                const SizedBox(width: Dimensions.spacingSM),
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: _enviar,
-                    icon: Icon(Icons.send),
-                    label: Text('Enviar'),
+                    icon: const Icon(Icons.send),
+                    label: const Text('Enviar'),
                     style: ElevatedButton.styleFrom(
                       minimumSize:
                           const Size.fromHeight(Dimensions.buttonHeight),
@@ -387,7 +387,7 @@ class _FormularioPreenchimentoScreenState
                         ),
                       ),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         '$label$obrigLabel',
@@ -396,7 +396,7 @@ class _FormularioPreenchimentoScreenState
                     ),
                   ],
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     Expanded(
@@ -408,7 +408,7 @@ class _FormularioPreenchimentoScreenState
                         onTap: () => setState(() => _valores[label] = 'Sim'),
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: _SimNaoButton(
                         label: 'Não',
@@ -447,7 +447,7 @@ class _FormularioPreenchimentoScreenState
                         ),
                       ),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         '$label$obrigLabel',
@@ -456,7 +456,7 @@ class _FormularioPreenchimentoScreenState
                     ),
                   ],
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 RadioGroup<String>(
                   groupValue: valor,
                   onChanged: (v) => setState(() => _valores[label] = v),
@@ -527,7 +527,7 @@ class _SimNaoButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, color: selected ? color : AppColors.inactive, size: 18),
-            SizedBox(width: 6),
+            const SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(

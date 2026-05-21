@@ -19,7 +19,7 @@ class LoadingWidget extends StatelessWidget {
             valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
           ),
           if (message != null) ...[
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               message!,
               style: TextStyle(

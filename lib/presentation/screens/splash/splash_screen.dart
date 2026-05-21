@@ -50,19 +50,19 @@ class _SplashScreenState extends State<SplashScreen> {
                   color: AppColors.primary,
                 ),
               ),
-              SizedBox(height: 22),
+              const SizedBox(height: 22),
               Text(
                 'Fiscal',
                 style: AppTextStyles.h2.copyWith(color: AppColors.primary),
               ),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               Text(
                 'Assistente de Gestao de Caixa',
                 style: AppTextStyles.label,
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 22),
-              SizedBox(
+              const SizedBox(height: 22),
+              const SizedBox(
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(strokeWidth: 2.4),

@@ -40,7 +40,7 @@ class CustomTextField extends StatelessWidget {
       children: [
         Text(label,
             style: AppTextStyles.label.copyWith(color: AppColors.textPrimary)),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         TextFormField(
           controller: controller,
           obscureText: obscureText,

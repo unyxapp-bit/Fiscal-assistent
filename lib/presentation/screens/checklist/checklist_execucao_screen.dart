@@ -205,7 +205,7 @@ class ChecklistExecucaoScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 LinearProgressIndicator(
                   value: progresso,
                   backgroundColor: AppColors.inactive.withValues(alpha: 0.2),
@@ -220,7 +220,7 @@ class ChecklistExecucaoScreen extends StatelessWidget {
           ),
 
           if (concluido) ...[
-            SizedBox(height: Dimensions.spacingSM),
+            const SizedBox(height: Dimensions.spacingSM),
             Container(
               margin:
                   const EdgeInsets.symmetric(horizontal: Dimensions.paddingMD),
@@ -235,7 +235,7 @@ class ChecklistExecucaoScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.check_circle, color: AppColors.success, size: 18),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
                     'Checklist concluído!',
                     style: AppTextStyles.body.copyWith(
@@ -246,7 +246,7 @@ class ChecklistExecucaoScreen extends StatelessWidget {
             ),
           ],
 
-          SizedBox(height: Dimensions.spacingMD),
+          const SizedBox(height: Dimensions.spacingMD),
 
           // â”€â”€ Lista de itens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Expanded(
@@ -255,7 +255,7 @@ class ChecklistExecucaoScreen extends StatelessWidget {
                   const EdgeInsets.symmetric(horizontal: Dimensions.paddingMD),
               itemCount: exec.itens.length,
               separatorBuilder: (_, __) =>
-                  Divider(height: 1, indent: 16, endIndent: 16),
+                  const Divider(height: 1, indent: 16, endIndent: 16),
               itemBuilder: (ctx, i) {
                 final marcado = exec.itensMarcados[i] == true;
                 return CheckboxListTile(

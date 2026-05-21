@@ -88,7 +88,7 @@ class PacoteSection extends StatelessWidget {
                   color: hayAtencao ? AppColors.danger : _kPacoteColor,
                   size: 20,
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
                   'Pacotes',
                   style: AppTextStyles.subtitle.copyWith(
@@ -119,7 +119,7 @@ class PacoteSection extends StatelessWidget {
               ],
             ),
 
-            SizedBox(height: Dimensions.spacingMD),
+            const SizedBox(height: Dimensions.spacingMD),
 
             // Chips de empacotadores + botão adicionar
             Wrap(
@@ -207,7 +207,7 @@ class PacoteSection extends StatelessWidget {
                             backgroundColor: chipColor,
                             child: Text(
                               iniciais,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
@@ -221,7 +221,7 @@ class PacoteSection extends StatelessWidget {
                         color: chipColor,
                       ),
                     ),
-                    deleteIcon: Icon(Icons.close, size: 16),
+                    deleteIcon: const Icon(Icons.close, size: 16),
                     deleteIconColor: Colors.red,
                     onDeleted: () {
                       eventoProvider.registrar(
@@ -243,7 +243,7 @@ class PacoteSection extends StatelessWidget {
 
                 // Botão adicionar
                 ActionChip(
-                  avatar: Icon(Icons.add, size: 16, color: _kPacoteColor),
+                  avatar: const Icon(Icons.add, size: 16, color: _kPacoteColor),
                   label: Text(
                     '+ Empacotador',
                     style: AppTextStyles.caption.copyWith(color: _kPacoteColor),
@@ -264,7 +264,7 @@ class PacoteSection extends StatelessWidget {
 
             // Banner de atenção — aparece quando há atraso ≥ 15 min
             if (hayAtencao) ...[
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -276,7 +276,7 @@ class PacoteSection extends StatelessWidget {
                   children: [
                     Icon(Icons.warning_amber_rounded,
                         size: 14, color: AppColors.danger),
-                    SizedBox(width: 6),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: Text(
                         'Empacotador(es) em atraso para o intervalo',
@@ -328,7 +328,7 @@ class PacoteSection extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -352,7 +352,7 @@ class PacoteSection extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -430,13 +430,13 @@ class _EmpacotadorPickerSheet extends StatelessWidget {
               const Spacer(),
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: Icon(Icons.close),
+                icon: const Icon(Icons.close),
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           if (disponiveis.isEmpty)
-            Padding(
+            const Padding(
               padding: EdgeInsets.symmetric(vertical: 24),
               child: Center(
                 child: Text('Todos os empacotadores já estão na lista'),
@@ -460,7 +460,7 @@ class _EmpacotadorPickerSheet extends StatelessWidget {
                       backgroundColor: _kPacoteColor,
                       child: Text(
                         colaborador.iniciais,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 13,
                           fontWeight: FontWeight.bold,

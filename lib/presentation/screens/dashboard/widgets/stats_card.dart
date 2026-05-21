@@ -52,14 +52,14 @@ class StatsCard extends StatelessWidget {
               size: 22,
             ),
           ),
-          SizedBox(height: Dimensions.spacingSM),
+          const SizedBox(height: Dimensions.spacingSM),
           Text(
             title,
             style: AppTextStyles.caption.copyWith(
               color: AppColors.textSecondary,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             value,
             style: AppTextStyles.h2.copyWith(

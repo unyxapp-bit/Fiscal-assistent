@@ -114,7 +114,7 @@ class CaixaListItem extends StatelessWidget {
                       ),
                     ),
 
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
 
                     // â”€â”€ Informações centrais â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     Expanded(
@@ -127,9 +127,9 @@ class CaixaListItem extends StatelessWidget {
                             children: [
                               Icon(caixa.tipo.icone,
                                   size: 14, color: AppColors.textSecondary),
-                              SizedBox(width: 4),
+                              const SizedBox(width: 4),
                               Text(caixa.nomeExibicao, style: AppTextStyles.h4),
-                              SizedBox(width: 6),
+                              const SizedBox(width: 6),
                               Text(
                                 '· ${caixa.tipo.nome}',
                                 style: AppTextStyles.caption
@@ -141,12 +141,12 @@ class CaixaListItem extends StatelessWidget {
                           // Localização + loja
                           if (caixa.localizacao != null ||
                               caixa.loja != null) ...[
-                            SizedBox(height: 2),
+                            const SizedBox(height: 2),
                             Row(
                               children: [
                                 Icon(Icons.location_on,
                                     size: 11, color: AppColors.textSecondary),
-                                SizedBox(width: 2),
+                                const SizedBox(width: 2),
                                 Expanded(
                                   child: Text(
                                     [caixa.loja, caixa.localizacao]
@@ -162,9 +162,9 @@ class CaixaListItem extends StatelessWidget {
 
                           // Colaborador alocado
                           if (colaborador != null) ...[
-                            SizedBox(height: 5),
-                            Divider(height: 1, thickness: 0.5),
-                            SizedBox(height: 5),
+                            const SizedBox(height: 5),
+                            const Divider(height: 1, thickness: 0.5),
+                            const SizedBox(height: 5),
                             Row(
                               children: [
                                 CircleAvatar(
@@ -182,7 +182,7 @@ class CaixaListItem extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                SizedBox(width: 6),
+                                const SizedBox(width: 6),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
@@ -211,9 +211,9 @@ class CaixaListItem extends StatelessWidget {
 
                           // Colaborador em pausa (sem alocação ativa)
                           if (isEmPausa && colaboradorEmPausa != null) ...[
-                            SizedBox(height: 5),
-                            Divider(height: 1, thickness: 0.5),
-                            SizedBox(height: 5),
+                            const SizedBox(height: 5),
+                            const Divider(height: 1, thickness: 0.5),
+                            const SizedBox(height: 5),
                             Row(
                               children: [
                                 CircleAvatar(
@@ -224,14 +224,14 @@ class CaixaListItem extends StatelessWidget {
                                     colaboradorEmPausa.iniciais.length > 1
                                         ? colaboradorEmPausa.iniciais[0]
                                         : colaboradorEmPausa.iniciais,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 9,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.orange,
                                     ),
                                   ),
                                 ),
-                                SizedBox(width: 6),
+                                const SizedBox(width: 6),
                                 Expanded(
                                   child: Text(
                                     colaboradorEmPausa.nome,
@@ -248,7 +248,7 @@ class CaixaListItem extends StatelessWidget {
                       ),
                     ),
 
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
 
                     // â”€â”€ Trailing: badge de status â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     _buildTrailing(
@@ -314,7 +314,7 @@ class CaixaListItem extends StatelessWidget {
                   label: 'Ocupado',
                   color: AppColors.statusAtivo,
                   icon: Icons.person),
-          SizedBox(height: 3),
+          const SizedBox(height: 3),
           Text(
             entradaEscala != null
                 ? 'entrada $horarioLabel'
@@ -343,7 +343,7 @@ class CaixaListItem extends StatelessWidget {
             color: cor,
             icon: isCafe ? Icons.coffee : Icons.restaurant,
           ),
-          SizedBox(height: 3),
+          const SizedBox(height: 3),
           Text(
             label,
             style: TextStyle(
@@ -395,7 +395,7 @@ class CaixaListItem extends StatelessWidget {
       child: Row(
         children: [
           Icon(icone, size: 13, color: cor),
-          SizedBox(width: 5),
+          const SizedBox(width: 5),
           Text(
             texto,
             style: TextStyle(
@@ -449,7 +449,7 @@ class CaixaListItem extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -474,7 +474,7 @@ class _StatusChip extends StatelessWidget {
   final Color color;
   final IconData icon;
 
-  _StatusChip({required this.label, required this.color, required this.icon});
+  const _StatusChip({required this.label, required this.color, required this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -489,7 +489,7 @@ class _StatusChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 12, color: color),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Text(
             label,
             style: TextStyle(

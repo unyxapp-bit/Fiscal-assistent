@@ -78,7 +78,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -99,7 +99,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
     final destinoSelecionado = await showModalBottomSheet<_BannerSaudeDestino>(
       context: context,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -107,9 +107,9 @@ class _DashboardScreenState extends State<DashboardScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: Dimensions.paddingMD),
+              padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingMD),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -118,16 +118,16 @@ class _DashboardScreenState extends State<DashboardScreen>
                 ),
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             ...destinos.map(
               (d) => ListTile(
                 leading: Icon(d.icon, color: d.color),
                 title: Text(d.label),
-                trailing: Icon(Icons.arrow_forward_ios, size: 14),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 14),
                 onTap: () => Navigator.pop(ctx, d),
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
           ],
         ),
       ),
@@ -356,26 +356,26 @@ class _DashboardScreenState extends State<DashboardScreen>
                             );
                           },
                         ),
-                        SizedBox(height: Dimensions.spacingMD),
+                        const SizedBox(height: Dimensions.spacingMD),
 
                         // BotÃƒÂ£o ComeÃƒÂ§ar Turno Ã¢â‚¬â€ oculto apÃƒÂ³s confirmar inÃƒÂ­cio
-                        _DashboardSectionHeader(
+                        const _DashboardSectionHeader(
                           icon: Icons.monitor_heart_outlined,
                           title: 'Monitor operacional',
                         ),
-                        SizedBox(height: Dimensions.spacingSM),
+                        const SizedBox(height: Dimensions.spacingSM),
                         _MonitorTempoReal(
                           cafeProvider: cafeProvider,
                           colaboradorProvider: colaboradorProvider,
                           caixaProvider: caixaProvider,
                           escalaProvider: escalaProvider,
                         ),
-                        SizedBox(height: Dimensions.spacingLG),
-                        _DashboardSectionHeader(
+                        const SizedBox(height: Dimensions.spacingLG),
+                        const _DashboardSectionHeader(
                           icon: Icons.grid_view_rounded,
                           title: 'Rotinas principais',
                         ),
-                        SizedBox(height: Dimensions.spacingSM),
+                        const SizedBox(height: Dimensions.spacingSM),
                         _GridAcoes(
                           botoes: [
                             _BotaoAcao(
@@ -432,12 +432,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                             ),
                           ],
                         ),
-                        SizedBox(height: Dimensions.spacingLG),
-                        _DashboardSectionHeader(
+                        const SizedBox(height: Dimensions.spacingLG),
+                        const _DashboardSectionHeader(
                           icon: Icons.space_dashboard_outlined,
                           title: 'Vis\u00e3o geral',
                         ),
-                        SizedBox(height: Dimensions.spacingSM),
+                        const SizedBox(height: Dimensions.spacingSM),
                         LayoutBuilder(
                           builder: (context, statsConstraints) {
                             final crossAxisCount =
@@ -529,15 +529,15 @@ class _DashboardScreenState extends State<DashboardScreen>
                         ),
 
                         if (alertas.isNotEmpty) ...[
-                          SizedBox(height: Dimensions.spacingLG),
-                          _DashboardSectionHeader(
+                          const SizedBox(height: Dimensions.spacingLG),
+                          const _DashboardSectionHeader(
                             icon: Icons.notification_important_outlined,
                             title: 'Alertas do turno',
                           ),
-                          SizedBox(height: Dimensions.spacingSM),
+                          const SizedBox(height: Dimensions.spacingSM),
                           ...alertas.map((a) => _AlertCard(item: a)),
                         ],
-                        SizedBox(height: Dimensions.spacingXL),
+                        const SizedBox(height: Dimensions.spacingXL),
                       ],
                     ),
                   ),
@@ -553,11 +553,11 @@ class _DashboardScreenState extends State<DashboardScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _DashboardSectionHeader(
+              const _DashboardSectionHeader(
                 icon: Icons.priority_high_rounded,
                 title: 'A\u00e7\u00f5es priorit\u00e1rias',
               ),
-              SizedBox(height: Dimensions.spacingSM),
+              const SizedBox(height: Dimensions.spacingSM),
               _GridAcoes(
                 botoes: [
                   _BotaoAcao(
@@ -606,7 +606,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ),
                 ],
               ),
-              SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingMD),
               Theme(
                 data: Theme.of(context).copyWith(
                   dividerColor: Colors.transparent,
@@ -614,12 +614,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                 child: ExpansionTile(
                   tilePadding: EdgeInsets.zero,
                   childrenPadding: EdgeInsets.zero,
-                  title: _DashboardSectionHeader(
+                  title: const _DashboardSectionHeader(
                     icon: Icons.menu_book_rounded,
                     title: 'Apoio e consulta',
                   ),
                   children: [
-                    SizedBox(height: Dimensions.spacingSM),
+                    const SizedBox(height: Dimensions.spacingSM),
                     _GridAcoes(
                       botoes: [
                         _BotaoAcao(
@@ -672,11 +672,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                         ),
                       ],
                     ),
-                    SizedBox(height: Dimensions.spacingSM),
+                    const SizedBox(height: Dimensions.spacingSM),
                   ],
                 ),
               ),
-              SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingMD),
               Row(
                 children: [
                   Expanded(
@@ -688,7 +688,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           : AppColors.success,
                     ),
                   ),
-                  SizedBox(width: Dimensions.spacingSM),
+                  const SizedBox(width: Dimensions.spacingSM),
                   Expanded(
                     child: _InicioMetricTile(
                       label: 'Ocorr\u00eancias',
@@ -698,7 +698,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           : AppColors.success,
                     ),
                   ),
-                  SizedBox(width: Dimensions.spacingSM),
+                  const SizedBox(width: Dimensions.spacingSM),
                   Expanded(
                     child: _InicioMetricTile(
                       label: 'Checklists',
@@ -710,7 +710,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                               : AppColors.success,
                     ),
                   ),
-                  SizedBox(width: Dimensions.spacingSM),
+                  const SizedBox(width: Dimensions.spacingSM),
                   Expanded(
                     child: _InicioMetricTile(
                       label: 'Notas',
@@ -735,11 +735,11 @@ class _DashboardScreenState extends State<DashboardScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _DashboardSectionHeader(
+                const _DashboardSectionHeader(
                   icon: Icons.health_and_safety_outlined,
                   title: 'Sa\u00fade do turno',
                 ),
-                SizedBox(height: Dimensions.spacingSM),
+                const SizedBox(height: Dimensions.spacingSM),
                 _BannerSaudeTurno(
                   critico: cafeProvider.totalEmAtraso > 0 ||
                       notaProvider.totalLembretesVencidos > 0,
@@ -748,13 +748,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                       checklistProvider.templatesPendentesAgora.isNotEmpty,
                   onTap: onTapBannerSaude,
                 ),
-                SizedBox(height: Dimensions.spacingMD),
+                const SizedBox(height: Dimensions.spacingMD),
                 if (fiscalProvider.fiscal != null) ...[
-                  _DashboardSectionHeader(
+                  const _DashboardSectionHeader(
                     icon: Icons.query_stats_rounded,
                     title: 'Ocupa\u00e7\u00e3o do turno',
                   ),
-                  SizedBox(height: Dimensions.spacingSM),
+                  const SizedBox(height: Dimensions.spacingSM),
                   Container(
                     decoration: AppStyles.softCard(
                       context: context,
@@ -771,18 +771,18 @@ class _DashboardScreenState extends State<DashboardScreen>
                     ),
                   ),
                 ] else
-                  Center(
+                  const Center(
                     child: Padding(
                       padding: EdgeInsets.only(top: 60),
                       child: CircularProgressIndicator(),
                     ),
                   ),
-                SizedBox(height: Dimensions.spacingLG),
-                _DashboardSectionHeader(
+                const SizedBox(height: Dimensions.spacingLG),
+                const _DashboardSectionHeader(
                   icon: Icons.build_outlined,
                   title: 'Ferramentas r\u00e1pidas',
                 ),
-                SizedBox(height: Dimensions.spacingSM),
+                const SizedBox(height: Dimensions.spacingSM),
                 _GridAcoes(
                   botoes: [
                     _BotaoAcao(
@@ -804,7 +804,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     ),
                   ],
                 ),
-                SizedBox(height: Dimensions.spacingXL),
+                const SizedBox(height: Dimensions.spacingXL),
               ],
             ),
           ),
@@ -840,9 +840,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                             style: AppTextStyles.caption
                                 .copyWith(color: AppColors.textSecondary)),
                         Text(primeiroNome, style: AppTextStyles.h4),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         IconButton(
-                          icon: Icon(Icons.settings_outlined),
+                          icon: const Icon(Icons.settings_outlined),
                           tooltip: 'Configura\u00e7\u00f5es',
                           onPressed: () => Navigator.of(context).push(
                             MaterialPageRoute(
@@ -850,7 +850,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           ),
                         ),
                         IconButton(
-                          icon: Icon(Icons.logout),
+                          icon: const Icon(Icons.logout),
                           tooltip: 'Sair',
                           onPressed: () => authProvider.signOut(),
                         ),
@@ -870,9 +870,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                       icon: Badge(
                         isLabelVisible: cafeProvider.totalEmAtraso > 0,
                         backgroundColor: AppColors.danger,
-                        child: Icon(Icons.build_outlined),
+                        child: const Icon(Icons.build_outlined),
                       ),
-                      label: Text('Opera\u00e7\u00f5es'),
+                      label: const Text('Opera\u00e7\u00f5es'),
                     ),
                     const NavigationRailDestination(
                       icon: Icon(Icons.store_outlined),
@@ -892,7 +892,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     ),
                   ],
                 ),
-                VerticalDivider(width: 1, thickness: 1),
+                const VerticalDivider(width: 1, thickness: 1),
                 Expanded(child: tabBarView),
               ],
             ),
@@ -916,14 +916,14 @@ class _DashboardScreenState extends State<DashboardScreen>
             ),
             actions: [
               IconButton(
-                icon: Icon(Icons.settings_outlined),
+                icon: const Icon(Icons.settings_outlined),
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(
                       builder: (_) => const ConfiguracoesScreen()),
                 ),
               ),
               IconButton(
-                icon: Icon(Icons.logout),
+                icon: const Icon(Icons.logout),
                 onPressed: () => authProvider.signOut(),
               ),
             ],
@@ -933,11 +933,11 @@ class _DashboardScreenState extends State<DashboardScreen>
               unselectedLabelColor: AppColors.textSecondary,
               indicatorColor: AppColors.primary,
               indicatorWeight: 3,
-              labelStyle: TextStyle(
+              labelStyle: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
               ),
-              unselectedLabelStyle: TextStyle(fontSize: 11),
+              unselectedLabelStyle: const TextStyle(fontSize: 11),
               tabs: [
                 const Tab(
                     icon: Icon(Icons.home_outlined, size: 20),
@@ -949,7 +949,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   icon: Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      Icon(Icons.build_outlined, size: 20),
+                      const Icon(Icons.build_outlined, size: 20),
                       if (cafeProvider.totalEmAtraso > 0)
                         Positioned(
                           top: -4,
@@ -1158,7 +1158,7 @@ class _MonitorTempoReal extends StatelessWidget {
                   justificativaCtrl.text.trim().isNotEmpty);
 
           return AlertDialog(
-            title: Text('Retorno do intervalo'),
+            title: const Text('Retorno do intervalo'),
             content: SizedBox(
               width: 420,
               child: SingleChildScrollView(
@@ -1170,8 +1170,8 @@ class _MonitorTempoReal extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Regra padrao: retornar em caixa diferente.'),
-                      SizedBox(height: 12),
+                      const Text('Regra padrao: retornar em caixa diferente.'),
+                      const SizedBox(height: 12),
                       ...caixasAtivos.map((caixa) {
                         final ocupado =
                             alocacaoProvider.getAlocacaoCaixa(caixa.id) != null;
@@ -1191,7 +1191,7 @@ class _MonitorTempoReal extends StatelessWidget {
                         return tile;
                       }),
                       if (mesmoCaixaSelecionado) ...[
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         CheckboxListTile(
                           contentPadding: EdgeInsets.zero,
                           value: permitirMesmoCaixa,
@@ -1199,18 +1199,18 @@ class _MonitorTempoReal extends StatelessWidget {
                             () => permitirMesmoCaixa = v ?? false,
                           ),
                           title:
-                              Text('Permitir mesmo caixa (exce\u00e7\u00e3o)'),
-                          subtitle: Text(
+                              const Text('Permitir mesmo caixa (exce\u00e7\u00e3o)'),
+                          subtitle: const Text(
                             'Necess\u00e1rio justificar para auditoria.',
                           ),
                         ),
                         if (permitirMesmoCaixa) ...[
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           TextField(
                             controller: justificativaCtrl,
                             maxLines: 3,
                             textCapitalization: TextCapitalization.sentences,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Justificativa da exce\u00e7\u00e3o *',
                             ),
                             onChanged: (_) => setStateDialog(() {}),
@@ -1225,7 +1225,7 @@ class _MonitorTempoReal extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: Text('Cancelar'),
+                child: const Text('Cancelar'),
               ),
               ElevatedButton(
                 onPressed: !podeConfirmar
@@ -1241,7 +1241,7 @@ class _MonitorTempoReal extends StatelessWidget {
                                     : justificativaCtrl.text.trim(),
                           ),
                         ),
-                child: Text('Confirmar retorno'),
+                child: const Text('Confirmar retorno'),
               ),
             ],
           );
@@ -1300,7 +1300,7 @@ class _MonitorTempoReal extends StatelessWidget {
               children: [
                 Icon(Icons.monitor_heart_outlined,
                     color: AppColors.primary, size: 18),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Expanded(
                   child: Text('Monitor em tempo real', style: AppTextStyles.h4),
                 ),
@@ -1322,12 +1322,12 @@ class _MonitorTempoReal extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             if (semAlertas)
               Row(
                 children: [
                   Icon(Icons.check_circle, color: AppColors.success, size: 16),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
                     'Tudo em ordem, nenhum alerta no momento',
                     style: AppTextStyles.caption
@@ -1346,7 +1346,7 @@ class _MonitorTempoReal extends StatelessWidget {
                     letterSpacing: 0.8,
                   ),
                 ),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 ...pausasAtivas.map((p) {
                   final caixa = p.caixaId != null
                       ? caixaProvider.caixas.cast<dynamic>().firstWhere(
@@ -1373,7 +1373,7 @@ class _MonitorTempoReal extends StatelessWidget {
                           color: cor,
                           size: 16,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1406,14 +1406,14 @@ class _MonitorTempoReal extends StatelessWidget {
                             ),
                             child: Text(
                               '+${p.minutosExcedidos}min',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 10,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         GestureDetector(
                           onTap: () => _finalizarPausaDoMonitor(context, p),
                           child: Container(
@@ -1444,7 +1444,7 @@ class _MonitorTempoReal extends StatelessWidget {
 
               // PrÃƒÂ³ximos intervalos
               if (proximos.isNotEmpty) ...[
-                if (pausasAtivas.isNotEmpty) SizedBox(height: 10),
+                if (pausasAtivas.isNotEmpty) const SizedBox(height: 10),
                 Text(
                   'INTERVALO EM BREVE',
                   style: AppTextStyles.caption.copyWith(
@@ -1453,7 +1453,7 @@ class _MonitorTempoReal extends StatelessWidget {
                     letterSpacing: 0.8,
                   ),
                 ),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 ...proximos.map((p) => Container(
                       margin: const EdgeInsets.only(bottom: 6),
                       padding: const EdgeInsets.symmetric(
@@ -1470,7 +1470,7 @@ class _MonitorTempoReal extends StatelessWidget {
                             color: AppColors.warning,
                             size: 16,
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               p.nome,
@@ -1631,7 +1631,7 @@ class _BotaoAcaoTile extends StatelessWidget {
                     ),
                 ],
               ),
-              SizedBox(width: Dimensions.spacingSM),
+              const SizedBox(width: Dimensions.spacingSM),
               Expanded(
                 child: Text(
                   botao.label,
@@ -1682,7 +1682,7 @@ class _DashboardSectionHeader extends StatelessWidget {
           ),
           child: Icon(icon, color: tokens.primary, size: 16),
         ),
-        SizedBox(width: Dimensions.spacingSM),
+        const SizedBox(width: Dimensions.spacingSM),
         Expanded(
           child: Text(title, style: AppTextStyles.h4),
         ),
@@ -1770,14 +1770,14 @@ class _InicioHeroCard extends StatelessWidget {
                 ),
             ],
           ),
-          SizedBox(height: Dimensions.spacingMD),
+          const SizedBox(height: Dimensions.spacingMD),
           Text(
             '$saudacao, $primeiroNome',
             style: AppTextStyles.h2.copyWith(
               fontWeight: FontWeight.w800,
             ),
           ),
-          SizedBox(height: Dimensions.spacingXS),
+          const SizedBox(height: Dimensions.spacingXS),
           Text(
             turnoJaIniciado
                 ? 'Acompanhe o ritmo da opera\u00e7\u00e3o, os alertas e as pausas com uma leitura r\u00e1pida do turno.'
@@ -1787,7 +1787,7 @@ class _InicioHeroCard extends StatelessWidget {
               height: 1.35,
             ),
           ),
-          SizedBox(height: Dimensions.spacingMD),
+          const SizedBox(height: Dimensions.spacingMD),
           Row(
             children: [
               Expanded(
@@ -1797,7 +1797,7 @@ class _InicioHeroCard extends StatelessWidget {
                   color: AppColors.primary,
                 ),
               ),
-              SizedBox(width: Dimensions.spacingSM),
+              const SizedBox(width: Dimensions.spacingSM),
               Expanded(
                 child: _InicioMetricTile(
                   label: 'Livres agora',
@@ -1807,7 +1807,7 @@ class _InicioHeroCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: Dimensions.spacingMD),
+          const SizedBox(height: Dimensions.spacingMD),
           Align(
             alignment: Alignment.centerLeft,
             child: ElevatedButton.icon(
@@ -1854,7 +1854,7 @@ class _InicioBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: color),
-          SizedBox(width: 6),
+          const SizedBox(width: 6),
           Text(
             label,
             style: AppTextStyles.caption.copyWith(
@@ -1901,7 +1901,7 @@ class _InicioMetricTile extends StatelessWidget {
               fontWeight: FontWeight.w800,
             ),
           ),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Text(
             label,
             style: AppTextStyles.caption.copyWith(
@@ -1962,7 +1962,7 @@ class _AlertCard extends StatelessWidget {
             child: Row(
               children: [
                 Icon(item.icon, color: item.color, size: 18),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     item.label,
@@ -2047,7 +2047,7 @@ class _BannerSaudeTurno extends StatelessWidget {
                 ),
                 child: Icon(icone, color: cor, size: 24),
               ),
-              SizedBox(width: Dimensions.spacingMD),
+              const SizedBox(width: Dimensions.spacingMD),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -2060,7 +2060,7 @@ class _BannerSaudeTurno extends StatelessWidget {
                         color: cor,
                       ),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
                       subtitulo,
                       style: AppTextStyles.caption.copyWith(
@@ -2091,7 +2091,7 @@ class _BannerSaudeTurno extends StatelessWidget {
                 ),
               ),
               if (onTap != null) ...[
-                SizedBox(width: Dimensions.spacingSM),
+                const SizedBox(width: Dimensions.spacingSM),
                 Icon(
                   Icons.arrow_forward_rounded,
                   color: isDark ? cor : AppColors.textSecondary,
@@ -2162,7 +2162,7 @@ class _OcupacaoBar extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: Dimensions.spacingSM),
+        const SizedBox(height: Dimensions.spacingSM),
         ClipRRect(
           borderRadius: BorderRadius.circular(Dimensions.radiusSM),
           child: LinearProgressIndicator(
@@ -2172,9 +2172,9 @@ class _OcupacaoBar extends StatelessWidget {
             valueColor: AlwaysStoppedAnimation<Color>(corBarra),
           ),
         ),
-        SizedBox(height: Dimensions.spacingMD),
+        const SizedBox(height: Dimensions.spacingMD),
         Divider(height: 1, color: AppColors.cardBorder),
-        SizedBox(height: Dimensions.spacingMD),
+        const SizedBox(height: Dimensions.spacingMD),
         Row(
           children: [
             Expanded(
@@ -2186,7 +2186,7 @@ class _OcupacaoBar extends StatelessWidget {
                 AppColors.coffee,
               ),
             ),
-            SizedBox(width: Dimensions.spacingMD),
+            const SizedBox(width: Dimensions.spacingMD),
             Expanded(
               child: _buildStatRow(
                 context,
@@ -2222,7 +2222,7 @@ class _OcupacaoBar extends StatelessWidget {
         child: Row(
           children: [
             Icon(icon, size: 18, color: color),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -2304,7 +2304,7 @@ class _BriefingTurnoSheet extends StatelessWidget {
                   child: Icon(Icons.play_arrow_rounded,
                       color: AppColors.primary, size: 22),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -2318,7 +2318,7 @@ class _BriefingTurnoSheet extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             Expanded(
               child: ListView(
@@ -2347,7 +2347,7 @@ class _BriefingTurnoSheet extends StatelessWidget {
                           ),
                   ),
 
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
 
                   // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ De folga ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
                   _BriefingSection(
@@ -2370,7 +2370,7 @@ class _BriefingTurnoSheet extends StatelessWidget {
                           ),
                   ),
 
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
 
                   // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Notas importantes ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
                   _BriefingSection(
@@ -2397,13 +2397,13 @@ class _BriefingTurnoSheet extends StatelessWidget {
                                       ),
                                       child: Row(
                                         children: [
-                                          Icon(Icons.priority_high,
+                                          const Icon(Icons.priority_high,
                                               size: 14, color: Colors.orange),
-                                          SizedBox(width: 8),
+                                          const SizedBox(width: 8),
                                           Expanded(
                                             child: Text(
                                               n.titulo,
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 fontSize: 13,
                                                 fontWeight: FontWeight.w600,
                                                 color: Colors.orange,
@@ -2417,7 +2417,7 @@ class _BriefingTurnoSheet extends StatelessWidget {
                           ),
                   ),
 
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -2433,8 +2433,8 @@ class _BriefingTurnoSheet extends StatelessWidget {
                         builder: (_) => const GestaoScreen(initialIndex: 0),
                       ));
                     },
-                    icon: Icon(Icons.swap_horiz, size: 18),
-                    label: Text('Ir para Alocar'),
+                    icon: const Icon(Icons.swap_horiz, size: 18),
+                    label: const Text('Ir para Alocar'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.primary,
                       side: BorderSide(color: AppColors.primary),
@@ -2442,13 +2442,13 @@ class _BriefingTurnoSheet extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () => _confirmarInicio(context, presentes,
                         defolga, notasImportantes, horaFormatada),
-                    icon: Icon(Icons.play_arrow_rounded, size: 18),
-                    label: Text('Confirmar In\u00edcio'),
+                    icon: const Icon(Icons.play_arrow_rounded, size: 18),
+                    label: const Text('Confirmar In\u00edcio'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
@@ -2562,7 +2562,7 @@ class _BriefingSectionState extends State<_BriefingSection> {
               Row(
                 children: [
                   Icon(widget.icon, color: widget.iconColor, size: 16),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(widget.title,
                         style: AppTextStyles.label.copyWith(
@@ -2578,7 +2578,7 @@ class _BriefingSectionState extends State<_BriefingSection> {
                 ],
               ),
               if (showChild) ...[
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 widget.child,
               ],
             ],
@@ -2615,14 +2615,14 @@ class _BriefingColabTile extends StatelessWidget {
                   fontSize: 12, fontWeight: FontWeight.bold, color: cor),
             ),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(nome,
                     style:
-                        TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                        const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                 Text(detalhe,
                     style: AppTextStyles.caption
                         .copyWith(color: AppColors.textSecondary)),

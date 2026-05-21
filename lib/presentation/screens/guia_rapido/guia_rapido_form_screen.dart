@@ -135,8 +135,8 @@ class _GuiaRapidoFormScreenState extends State<GuiaRapidoFormScreen> {
         actions: [
           TextButton.icon(
             onPressed: _salvar,
-            icon: Icon(Icons.save),
-            label: Text('Salvar'),
+            icon: const Icon(Icons.save),
+            label: const Text('Salvar'),
           ),
         ],
       ),
@@ -148,7 +148,7 @@ class _GuiaRapidoFormScreenState extends State<GuiaRapidoFormScreen> {
             // â”€â”€ Título â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             TextField(
               controller: _tituloCtrl,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Título da situação *',
                 hintText: 'Ex: Caixa ficou sem troco',
                 prefixIcon: Icon(Icons.title),
@@ -156,12 +156,12 @@ class _GuiaRapidoFormScreenState extends State<GuiaRapidoFormScreen> {
               textCapitalization: TextCapitalization.sentences,
             ),
 
-            SizedBox(height: Dimensions.spacingMD),
+            const SizedBox(height: Dimensions.spacingMD),
 
             // â”€â”€ Categoria â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             TextField(
               controller: _categoriaCtrl,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Categoria *',
                 hintText: 'Ex: Caixa, Clientes, Equipamentos...',
                 prefixIcon: Icon(Icons.category),
@@ -169,12 +169,12 @@ class _GuiaRapidoFormScreenState extends State<GuiaRapidoFormScreen> {
               textCapitalization: TextCapitalization.words,
             ),
             if (categorias.isNotEmpty) ...[
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               Wrap(
                 spacing: 6,
                 children: categorias
                     .map((cat) => ActionChip(
-                          label: Text(cat, style: TextStyle(fontSize: 12)),
+                          label: Text(cat, style: const TextStyle(fontSize: 12)),
                           onPressed: () =>
                               setState(() => _categoriaCtrl.text = cat),
                           backgroundColor:
@@ -184,11 +184,11 @@ class _GuiaRapidoFormScreenState extends State<GuiaRapidoFormScreen> {
               ),
             ],
 
-            SizedBox(height: Dimensions.spacingLG),
+            const SizedBox(height: Dimensions.spacingLG),
 
             // â”€â”€ Cor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Text('Cor', style: AppTextStyles.h4),
-            SizedBox(height: Dimensions.spacingSM),
+            const SizedBox(height: Dimensions.spacingSM),
             Wrap(
               spacing: 10,
               runSpacing: 10,
@@ -211,18 +211,18 @@ class _GuiaRapidoFormScreenState extends State<GuiaRapidoFormScreen> {
                       ),
                     ),
                     child: sel
-                        ? Icon(Icons.check, color: Colors.white, size: 18)
+                        ? const Icon(Icons.check, color: Colors.white, size: 18)
                         : null,
                   ),
                 );
               }).toList(),
             ),
 
-            SizedBox(height: Dimensions.spacingLG),
+            const SizedBox(height: Dimensions.spacingLG),
 
             // â”€â”€ Ícone â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Text('Ícone', style: AppTextStyles.h4),
-            SizedBox(height: Dimensions.spacingSM),
+            const SizedBox(height: Dimensions.spacingSM),
             Wrap(
               spacing: 10,
               runSpacing: 10,
@@ -254,7 +254,7 @@ class _GuiaRapidoFormScreenState extends State<GuiaRapidoFormScreen> {
               }).toList(),
             ),
 
-            SizedBox(height: Dimensions.spacingLG),
+            const SizedBox(height: Dimensions.spacingLG),
 
             // â”€â”€ Passos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Row(
@@ -262,12 +262,12 @@ class _GuiaRapidoFormScreenState extends State<GuiaRapidoFormScreen> {
                 Expanded(child: Text('Passos', style: AppTextStyles.h4)),
                 TextButton.icon(
                   onPressed: _adicionarPasso,
-                  icon: Icon(Icons.add, size: 18),
-                  label: Text('Adicionar'),
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Adicionar'),
                 ),
               ],
             ),
-            SizedBox(height: Dimensions.spacingSM),
+            const SizedBox(height: Dimensions.spacingSM),
             ...List.generate(
                 _passosCtrl.length,
                 (i) => Padding(
@@ -316,13 +316,13 @@ class _GuiaRapidoFormScreenState extends State<GuiaRapidoFormScreen> {
                       ),
                     )),
 
-            SizedBox(height: Dimensions.spacingLG),
+            const SizedBox(height: Dimensions.spacingLG),
 
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: _salvar,
-                icon: Icon(Icons.save),
+                icon: const Icon(Icons.save),
                 label: Text(_editando ? 'Salvar alterações' : 'Criar situação'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(Dimensions.buttonHeight),

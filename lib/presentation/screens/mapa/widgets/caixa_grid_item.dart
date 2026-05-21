@@ -70,7 +70,7 @@ class CaixaGridItem extends StatelessWidget {
                     color: _getIconColor(isOcupado, isDisponivel),
                     size: 20,
                   ),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   Text(
                     caixa.nomeExibicao,
                     style: AppTextStyles.h4.copyWith(
@@ -81,7 +81,7 @@ class CaixaGridItem extends StatelessWidget {
                 ],
               ),
 
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
 
               // Status
               if (colaborador != null) ...[
@@ -102,7 +102,7 @@ class CaixaGridItem extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   colaborador.nome.split(' ').first,
                   style: AppTextStyles.caption.copyWith(
@@ -113,12 +113,12 @@ class CaixaGridItem extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               ] else if (caixa.emManutencao) ...[
-                Icon(
+                const Icon(
                   Icons.build,
                   color: Colors.white,
                   size: 20,
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   'Manutenção',
                   style: AppTextStyles.caption.copyWith(
@@ -126,12 +126,12 @@ class CaixaGridItem extends StatelessWidget {
                   ),
                 ),
               ] else if (!caixa.ativo) ...[
-                Icon(
+                const Icon(
                   Icons.power_off,
                   color: Colors.white,
                   size: 20,
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   'Inativo',
                   style: AppTextStyles.caption.copyWith(
@@ -139,12 +139,12 @@ class CaixaGridItem extends StatelessWidget {
                   ),
                 ),
               ] else ...[
-                Icon(
+                const Icon(
                   Icons.check_circle,
                   color: Colors.white,
                   size: 20,
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   'Disponível',
                   style: AppTextStyles.caption.copyWith(
@@ -189,7 +189,7 @@ class CaixaGridItem extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -374,21 +374,21 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         Text('Ocorrências deste caixa', style: AppTextStyles.label),
-        SizedBox(height: 6),
+        const SizedBox(height: 6),
         Row(
           children: [
             Icon(Icons.report_outlined,
                 size: 14, color: AppColors.textSecondary),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             Text(
               '${ocorrencias.length} ocorrência(s)',
               style: AppTextStyles.caption
                   .copyWith(color: AppColors.textSecondary),
             ),
             if (ocorrenciasAbertas.isNotEmpty) ...[
-              SizedBox(width: 6),
+              const SizedBox(width: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
@@ -404,7 +404,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
             ],
           ],
         ),
-        SizedBox(height: 6),
+        const SizedBox(height: 6),
         ...ocorrenciasVisiveis.map(
           (o) => _OcorrenciaRow(ocorrencia: o),
         ),
@@ -435,7 +435,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
               ),
             ),
           ),
-        Divider(height: 20),
+        const Divider(height: 20),
       ],
     );
   }
@@ -476,9 +476,9 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
             children: [
               Icon(widget.caixa.tipo.icone,
                   color: widget.caixa.tipo.cor, size: 22),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(widget.caixa.nomeExibicao, style: AppTextStyles.h2),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
@@ -494,7 +494,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
             ],
           ),
 
-          Divider(height: 24),
+          const Divider(height: 24),
 
           if (widget.colaborador != null && widget.alocacao != null) ...[
             // Avatar + nome + departamento
@@ -505,14 +505,14 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                   backgroundColor: AppColors.primary,
                   child: Text(
                     widget.colaborador!.iniciais,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -529,7 +529,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
               ],
             ),
 
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Alerta de pausa de café
             if (widget.pausa != null)
@@ -544,7 +544,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                 child: Row(
                   children: [
                     Icon(Icons.coffee, color: Colors.orange.shade700, size: 18),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
                       'Em pausa de café — ${widget.pausa.minutosDecorridos}min decorridos'
                       '${widget.pausa.emAtraso ? ' (${widget.pausa.minutosExcedidos}min em atraso)' : ''}',
@@ -559,7 +559,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
 
             // â”€â”€ Jornada baseada no ponto â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             if (_carregando)
-              Padding(
+              const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8),
                 child: Row(
                   children: [
@@ -592,7 +592,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                 value: '${jornada.entrada} (ponto)',
                 iconColor: AppColors.primary,
               ),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               // Linha: Jornada líquida
               _InfoRow(
                 icon: Icons.timer_outlined,
@@ -600,23 +600,23 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                 value: _formatDuracao(jornada.liquida),
                 iconColor: _corJornada(jornada.status),
               ),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               // Badge de status
               _StatusBadge(status: jornada.status),
             ],
 
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
 
             // Horários da escala
             if (widget.turno != null) ...[
               Text('Escala de hoje', style: AppTextStyles.label),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               _HorarioGrid(turno: widget.turno!),
             ],
 
             _buildOcorrenciasSection(ocorrencias),
 
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // Botão Liberar
             ElevatedButton.icon(
@@ -636,8 +636,8 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                   );
                 }
               },
-              icon: Icon(Icons.exit_to_app),
-              label: Text('Liberar Caixa'),
+              icon: const Icon(Icons.exit_to_app),
+              label: const Text('Liberar Caixa'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.danger,
                 minimumSize: const Size(double.infinity, 48),
@@ -654,7 +654,7 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
             ),
             _buildOcorrenciasSection(ocorrencias),
             if (widget.caixa.ativo && !widget.caixa.emManutencao) ...[
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               ElevatedButton.icon(
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -670,8 +670,8 @@ class _DetalhesSheetState extends State<_DetalhesSheet> {
                     ),
                   );
                 },
-                icon: Icon(Icons.swap_horiz),
-                label: Text('Alocar Colaborador'),
+                icon: const Icon(Icons.swap_horiz),
+                label: const Text('Alocar Colaborador'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   minimumSize: const Size(double.infinity, 48),
@@ -728,7 +728,7 @@ class _StatusBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: color),
-          SizedBox(width: 5),
+          const SizedBox(width: 5),
           Text(
             label,
             style: AppTextStyles.caption.copyWith(
@@ -763,7 +763,7 @@ class _InfoRow extends StatelessWidget {
     return Row(
       children: [
         Icon(icon, size: 16, color: iconColor ?? AppColors.textSecondary),
-        SizedBox(width: 6),
+        const SizedBox(width: 6),
         Text(
           '$label: ',
           style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
@@ -830,7 +830,7 @@ class _HorarioChip extends StatelessWidget {
       child: Row(
         children: [
           Icon(icon, size: 13, color: AppColors.textSecondary),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -892,7 +892,7 @@ class _OcorrenciaRow extends StatelessWidget {
               shape: BoxShape.circle,
             ),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -916,7 +916,7 @@ class _OcorrenciaRow extends StatelessWidget {
                   ],
                 ),
                 if (ocorrencia.descricao.isNotEmpty) ...[
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     ocorrencia.descricao,
                     style: AppTextStyles.caption
@@ -928,7 +928,7 @@ class _OcorrenciaRow extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(width: 6),
+          const SizedBox(width: 6),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
             decoration: BoxDecoration(

@@ -91,7 +91,7 @@ class QuickActionButton extends StatelessWidget {
                         ),
                     ],
                   ),
-                  Spacer(),
+                  const Spacer(),
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: AppStyles.softTile(
@@ -107,7 +107,7 @@ class QuickActionButton extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: Dimensions.spacingSM),
+              const SizedBox(height: Dimensions.spacingSM),
               Text(
                 label,
                 style: AppTextStyles.body.copyWith(
@@ -116,7 +116,7 @@ class QuickActionButton extends StatelessWidget {
                 ),
               ),
               if (subtitle != null) ...[
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   subtitle!,
                   maxLines: 2,

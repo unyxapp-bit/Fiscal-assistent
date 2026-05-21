@@ -294,38 +294,38 @@ class _FormulariosScreenState extends State<FormulariosScreen>
                                     value, f, provider, isTemplate),
                                 itemBuilder: (_) => [
                                   if (!inativo)
-                                    PopupMenuItem(
+                                    const PopupMenuItem(
                                       value: 'preencher',
                                       child: Row(children: [
-                                        const Icon(Icons.edit_note, size: 18),
-                                        const SizedBox(width: 8),
-                                        const Text('Preencher'),
+                                        Icon(Icons.edit_note, size: 18),
+                                        SizedBox(width: 8),
+                                        Text('Preencher'),
                                       ]),
                                     ),
-                                  PopupMenuItem(
+                                  const PopupMenuItem(
                                     value: 'respostas',
                                     child: Row(children: [
-                                      const Icon(Icons.history, size: 18),
-                                      const SizedBox(width: 8),
-                                      const Text('Ver Respostas'),
+                                      Icon(Icons.history, size: 18),
+                                      SizedBox(width: 8),
+                                      Text('Ver Respostas'),
                                     ]),
                                   ),
-                                  PopupMenuItem(
+                                  const PopupMenuItem(
                                     value: 'editar',
                                     child: Row(children: [
-                                      const Icon(Icons.edit, size: 18),
-                                      const SizedBox(width: 8),
-                                      const Text('Editar'),
+                                      Icon(Icons.edit, size: 18),
+                                      SizedBox(width: 8),
+                                      Text('Editar'),
                                     ]),
                                   ),
                                   if (isTemplate)
-                                    PopupMenuItem(
+                                    const PopupMenuItem(
                                       value: 'duplicar',
                                       child: Row(children: [
-                                        const Icon(Icons.content_copy,
+                                        Icon(Icons.content_copy,
                                             size: 18),
-                                        const SizedBox(width: 8),
-                                        const Text('Usar como base'),
+                                        SizedBox(width: 8),
+                                        Text('Usar como base'),
                                       ]),
                                     ),
                                   if (!isTemplate)
@@ -663,7 +663,7 @@ class _FormulariosScreenState extends State<FormulariosScreen>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
             top: Radius.circular(Dimensions.radiusSheet)),
       ),

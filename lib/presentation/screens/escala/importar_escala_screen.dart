@@ -270,7 +270,7 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Importar Registros'),
+        title: const Text('Importar Registros'),
         backgroundColor: AppColors.background,
         elevation: 0,
       ),
@@ -283,7 +283,7 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Data dos registros', style: AppTextStyles.subtitle),
-                  SizedBox(height: Dimensions.spacingSM),
+                  const SizedBox(height: Dimensions.spacingSM),
                   InkWell(
                     onTap: _pickDate,
                     borderRadius: BorderRadius.circular(Dimensions.radiusMD),
@@ -302,7 +302,7 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
                         children: [
                           Icon(Icons.calendar_today,
                               color: AppColors.primary, size: 20),
-                          SizedBox(width: Dimensions.spacingSM),
+                          const SizedBox(width: Dimensions.spacingSM),
                           Text(_formatDate(_data), style: AppTextStyles.body),
                           const Spacer(),
                           Icon(Icons.arrow_drop_down,
@@ -312,11 +312,11 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
                     ),
                   ),
 
-                  SizedBox(height: Dimensions.spacingLG),
+                  const SizedBox(height: Dimensions.spacingLG),
 
                   Text('Cole o texto da escala abaixo',
                       style: AppTextStyles.subtitle),
-                  SizedBox(height: Dimensions.spacingSM),
+                  const SizedBox(height: Dimensions.spacingSM),
                   Container(
                     decoration: BoxDecoration(
                       color: AppColors.cardBackground,
@@ -326,8 +326,8 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
                     child: TextField(
                       controller: _textController,
                       maxLines: 10,
-                      style: TextStyle(fontFamily: 'monospace', fontSize: 13),
-                      decoration: InputDecoration(
+                      style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
+                      decoration: const InputDecoration(
                         hintText:
                             'Ex:\nANA VITORIA 08:00 12:00 13:00 17:00\nMARCO AURELIO 09:00 13:00 14:00 18:00\nJOAO FOLGA',
                         contentPadding: EdgeInsets.all(12),
@@ -339,7 +339,7 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
                     ),
                   ),
 
-                  SizedBox(height: Dimensions.spacingMD),
+                  const SizedBox(height: Dimensions.spacingMD),
 
                   SizedBox(
                     width: double.infinity,
@@ -347,13 +347,13 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
                       onPressed: _textController.text.trim().isEmpty
                           ? null
                           : _analisar,
-                      icon: Icon(Icons.search),
-                      label: Text('Analisar Texto'),
+                      icon: const Icon(Icons.search),
+                      label: const Text('Analisar Texto'),
                     ),
                   ),
 
                   if (linhas != null) ...[
-                    SizedBox(height: Dimensions.spacingLG),
+                    const SizedBox(height: Dimensions.spacingLG),
                     Row(
                       children: [
                         Text('Prévia', style: AppTextStyles.subtitle),
@@ -365,11 +365,11 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: Dimensions.spacingSM),
+                    const SizedBox(height: Dimensions.spacingSM),
                     ...linhas.map((l) => _LinhaCard(linha: l)),
                   ],
 
-                  SizedBox(height: 80), // space for FAB
+                  const SizedBox(height: 80), // space for FAB
                 ],
               ),
             ),
@@ -384,13 +384,13 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
                 child: ElevatedButton.icon(
                   onPressed: _importando ? null : _importar,
                   icon: _importando
-                      ? SizedBox(
+                      ? const SizedBox(
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(
                               strokeWidth: 2, color: Colors.white),
                         )
-                      : Icon(Icons.upload),
+                      : const Icon(Icons.upload),
                   label: Text(_importando
                       ? 'Importando...'
                       : 'Importar $importaveis registro(s)'),
@@ -461,7 +461,7 @@ class _LinhaCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: iconColor, size: 20),
-          SizedBox(width: Dimensions.spacingSM),
+          const SizedBox(width: Dimensions.spacingSM),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -490,7 +490,7 @@ class _LinhaCard extends StatelessWidget {
                         AppTextStyles.caption.copyWith(color: AppColors.danger),
                   ),
 
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
 
                 // Times / observacao
                 if (linha.observacao != null)

@@ -451,9 +451,9 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
             children: [
               Icon(widget.caixa.tipo.icone,
                   color: widget.caixa.tipo.cor, size: 22),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(widget.caixa.nomeExibicao, style: AppTextStyles.h2),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
@@ -467,7 +467,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                 ),
               ),
               if (widget.caixa.localizacao != null) ...[
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -480,7 +480,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                     children: [
                       Icon(Icons.location_on,
                           size: 12, color: AppColors.textSecondary),
-                      SizedBox(width: 3),
+                      const SizedBox(width: 3),
                       Text(
                         widget.caixa.localizacao!,
                         style: AppTextStyles.caption
@@ -493,7 +493,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
             ],
           ),
 
-          Divider(height: 24),
+          const Divider(height: 24),
 
           // â”€â”€ INFO DO CAIXA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           _SobreCaixaSection(
@@ -511,14 +511,14 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                   backgroundColor: AppColors.primary,
                   child: Text(
                     widget.colaborador!.iniciais,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -535,7 +535,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
               ],
             ),
 
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Alerta de pausa de café
             if (widget.pausa != null)
@@ -550,7 +550,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                 child: Row(
                   children: [
                     Icon(Icons.coffee, color: Colors.orange.shade700, size: 18),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
                       'Em pausa de café — ${widget.pausa.minutosDecorridos}min decorridos'
                       '${widget.pausa.emAtraso ? ' (${widget.pausa.minutosExcedidos}min em atraso)' : ''}',
@@ -565,7 +565,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
 
             _buildOperacaoDashboard(jornada),
 
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             if (widget.turno != null) ...[
               InkWell(
                 onTap: () => setState(() => _mostrarEscala = !_mostrarEscala),
@@ -576,7 +576,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                     children: [
                       Icon(Icons.schedule,
                           size: 16, color: AppColors.textSecondary),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Text(
                         'Escala de hoje',
                         style: AppTextStyles.label,
@@ -593,13 +593,13 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                 ),
               ),
               if (_mostrarEscala) ...[
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 HorarioGrid(turno: widget.turno!),
               ],
             ],
 
             if (widget.alocacao != null) ...[
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               // â”€â”€ AÇÕES RÁPIDAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               Container(
@@ -621,7 +621,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                         letterSpacing: 0.8,
                       ),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Row(
                       children: [
                         Expanded(
@@ -632,7 +632,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                             onTap: _trocarColaborador,
                           ),
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: _buildActionBtn(
                             icon: Icons.coffee,
@@ -641,7 +641,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                             onTap: _enviarParaCafe,
                           ),
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: _buildActionBtn(
                             icon: Icons.restaurant,
@@ -652,7 +652,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Row(
                       children: [
                         Expanded(
@@ -805,7 +805,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                 ),
               ),
 
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               ElevatedButton.icon(
                 onPressed: () async {
@@ -839,7 +839,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                     cor: AppColors.success,
                   );
                 },
-                icon: Icon(Icons.exit_to_app),
+                icon: const Icon(Icons.exit_to_app),
                 label: Text(widget.liberarLabel),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.danger,
@@ -847,7 +847,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                 ),
               ),
             ] else if (widget.pausa != null) ...[
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -865,7 +865,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                       color: AppColors.statusCafe,
                       size: 18,
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Esta pessoa esta em pausa no momento. As acoes de troca e liberacao voltam a aparecer quando houver nova alocacao ativa.',
@@ -888,7 +888,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
               style: AppTextStyles.body,
             ),
             if (widget.caixa.ativo && !widget.caixa.emManutencao) ...[
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               ElevatedButton.icon(
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -904,8 +904,8 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                     ),
                   );
                 },
-                icon: Icon(Icons.swap_horiz),
-                label: Text('Alocar Colaborador'),
+                icon: const Icon(Icons.swap_horiz),
+                label: const Text('Alocar Colaborador'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   minimumSize: const Size(double.infinity, 48),
@@ -940,7 +940,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, color: color, size: 20),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
@@ -994,7 +994,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -1022,7 +1022,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                     ),
                   ),
                   Text('Trocar Colaborador', style: AppTextStyles.h3),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     'Substituto para ${widget.caixa.nomeExibicao}',
                     style: AppTextStyles.caption
@@ -1031,10 +1031,10 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                 ],
               ),
             ),
-            Divider(height: 1),
+            const Divider(height: 1),
             Expanded(
               child: disponiveis.isEmpty
-                  ? Center(
+                  ? const Center(
                       child: Padding(
                         padding: EdgeInsets.all(24),
                         child: Text('Nenhum colaborador disponível'),
@@ -1051,7 +1051,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                                 Colors.blue.withValues(alpha: 0.10),
                             child: Text(
                               c.iniciais,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.blue,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
@@ -1061,7 +1061,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                           title: Text(c.nome, style: AppTextStyles.body),
                           subtitle: Text(c.departamento.nome,
                               style: AppTextStyles.caption),
-                          trailing: Icon(Icons.arrow_forward_ios, size: 14),
+                          trailing: const Icon(Icons.arrow_forward_ios, size: 14),
                           onTap: () => _confirmarTroca(sheetCtx, c),
                         );
                       },
@@ -1085,18 +1085,18 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text('Confirmar Troca'),
+        title: const Text('Confirmar Troca'),
         content: Text(
             'Substituir ${widget.colaborador!.nome} por ${novo.nome} no ${widget.caixa.nomeExibicao}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-            child: Text('Confirmar', style: TextStyle(color: Colors.white)),
+            child: const Text('Confirmar', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -1155,19 +1155,19 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text('Enviar para Café ☕'),
+        title: const Text('Enviar para Café ☕'),
         content: Text(
             'Enviar ${widget.colaborador!.nome} para 10 min de café?\nO caixa será liberado automaticamente.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF8D6E63)),
-            child: Text('Confirmar', style: TextStyle(color: Colors.white)),
+            child: const Text('Confirmar', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -1257,18 +1257,18 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text('Enviar para Intervalo 🍽️'),
+        title: const Text('Enviar para Intervalo 🍽️'),
         content: Text(
             'Enviar ${widget.colaborador!.nome} para intervalo de $duracaoMinutos min?\nO caixa será liberado e uma notificação de retorno será agendada.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-            child: Text('Confirmar', style: TextStyle(color: Colors.white)),
+            child: const Text('Confirmar', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -1320,22 +1320,22 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Intervalo já realizado?'),
-        content: Text(
+        title: const Text('Intervalo já realizado?'),
+        content: const Text(
           'Esse colaborador fez o tempo completo do intervalo?',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Não'),
+            child: const Text('Não'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text('Sim'),
+            child: const Text('Sim'),
           ),
         ],
       ),
@@ -1352,13 +1352,13 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
         builder: (_, setStateDialog) {
           final podeSalvar = controller.text.trim().isNotEmpty;
           return AlertDialog(
-            title: Text('Motivo do intervalo incompleto'),
+            title: const Text('Motivo do intervalo incompleto'),
             content: TextField(
               controller: controller,
               maxLines: 4,
               autofocus: true,
               textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Descreva o motivo...',
               ),
               onChanged: (_) => setStateDialog(() {}),
@@ -1366,7 +1366,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: Text('Cancelar'),
+                child: const Text('Cancelar'),
               ),
               ElevatedButton(
                 onPressed: !podeSalvar
@@ -1375,7 +1375,7 @@ class ColaboradorDetalhesSheetState extends State<ColaboradorDetalhesSheet> {
                         motivo = controller.text.trim();
                         Navigator.pop(ctx);
                       },
-                child: Text('Salvar'),
+                child: const Text('Salvar'),
               ),
             ],
           );
@@ -1554,7 +1554,7 @@ class _SobreCaixaSectionState extends State<_SobreCaixaSection> {
               children: [
                 Icon(Icons.sticky_note_2_outlined,
                     size: 15, color: AppColors.textSecondary),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     widget.caixa.observacoes!,
@@ -1572,14 +1572,14 @@ class _SobreCaixaSectionState extends State<_SobreCaixaSection> {
             children: [
               Icon(Icons.report_outlined,
                   size: 14, color: AppColors.textSecondary),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Text(
                 '${widget.ocorrencias.length} ocorrência(s)',
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary),
               ),
               if (ocorrenciasAbertas.isNotEmpty) ...[
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -1596,7 +1596,7 @@ class _SobreCaixaSectionState extends State<_SobreCaixaSection> {
               ],
               if (ocorrenciasResolvidas.isNotEmpty &&
                   ocorrenciasAbertas.isEmpty) ...[
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -1613,7 +1613,7 @@ class _SobreCaixaSectionState extends State<_SobreCaixaSection> {
               ],
             ],
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
 
           // Lista compacta de ocorrências
           ...ocorrenciasVisiveis.map((o) => _OcorrenciaRow(ocorrencia: o)),
@@ -1648,7 +1648,7 @@ class _SobreCaixaSectionState extends State<_SobreCaixaSection> {
             ),
         ],
 
-        Divider(height: 20),
+        const Divider(height: 20),
       ],
     );
   }
@@ -1691,7 +1691,7 @@ class _OcorrenciaRow extends StatelessWidget {
               shape: BoxShape.circle,
             ),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1715,7 +1715,7 @@ class _OcorrenciaRow extends StatelessWidget {
                   ],
                 ),
                 if (ocorrencia.descricao.isNotEmpty) ...[
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     ocorrencia.descricao,
                     style: AppTextStyles.caption
@@ -1727,7 +1727,7 @@ class _OcorrenciaRow extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(width: 6),
+          const SizedBox(width: 6),
           // Badge resolvida/aberta
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
@@ -1806,7 +1806,7 @@ class _DashboardInfoCard extends StatelessWidget {
                 ),
                 child: Icon(icone, size: 18, color: cor),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   titulo.toUpperCase(),
@@ -1818,12 +1818,12 @@ class _DashboardInfoCard extends StatelessWidget {
                 ),
               ),
               if (trailing != null) ...[
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Flexible(child: trailing!),
               ],
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text(
             valor,
             style: AppTextStyles.h4.copyWith(
@@ -1831,7 +1831,7 @@ class _DashboardInfoCard extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             detalhe,
             style: AppTextStyles.caption.copyWith(
@@ -1874,7 +1874,7 @@ class StatusBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: color),
-          SizedBox(width: 5),
+          const SizedBox(width: 5),
           Text(
             label,
             style: AppTextStyles.caption.copyWith(
@@ -1897,7 +1897,7 @@ class InfoRow extends StatelessWidget {
   final String value;
   final Color? iconColor;
 
-  InfoRow({
+  const InfoRow({
     super.key,
     required this.icon,
     required this.label,
@@ -1910,7 +1910,7 @@ class InfoRow extends StatelessWidget {
     return Row(
       children: [
         Icon(icon, size: 16, color: iconColor ?? AppColors.textSecondary),
-        SizedBox(width: 6),
+        const SizedBox(width: 6),
         Text(
           '$label: ',
           style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
@@ -1977,7 +1977,7 @@ class HorarioChip extends StatelessWidget {
       child: Row(
         children: [
           Icon(icon, size: 13, color: AppColors.textSecondary),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

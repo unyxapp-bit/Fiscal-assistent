@@ -67,20 +67,20 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
         actions: [
           // Copiar
           IconButton(
-            icon: Icon(Icons.copy),
+            icon: const Icon(Icons.copy),
             tooltip: 'Copiar procedimento',
             onPressed: () => _copiar(context, proc),
           ),
           // Reiniciar execução (só se algum passo foi marcado)
           if (_passosConcluidos.isNotEmpty)
             IconButton(
-              icon: Icon(Icons.restart_alt),
+              icon: const Icon(Icons.restart_alt),
               tooltip: 'Reiniciar execução',
               onPressed: () => setState(() => _passosConcluidos.clear()),
             ),
           // Editar
           IconButton(
-            icon: Icon(Icons.edit),
+            icon: const Icon(Icons.edit),
             tooltip: 'Editar procedimento',
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => ProcedimentoFormScreen(procedimento: proc),
@@ -122,7 +122,7 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: Dimensions.spacingSM),
+                    const SizedBox(height: Dimensions.spacingSM),
 
                     // Badge categoria
                     Container(
@@ -143,7 +143,7 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
                             color: Colors.white,
                             size: Dimensions.iconSM,
                           ),
-                          SizedBox(width: Dimensions.spacingXXS),
+                          const SizedBox(width: Dimensions.spacingXXS),
                           Text(
                             proc.categoria.categoriaNome,
                             style: AppTextStyles.label.copyWith(
@@ -157,13 +157,13 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
 
                     // Tempo estimado
                     if (proc.tempoEstimado != null) ...[
-                      SizedBox(height: Dimensions.spacingSM),
+                      const SizedBox(height: Dimensions.spacingSM),
                       Row(
                         children: [
                           Icon(Icons.timer,
                               size: Dimensions.iconMD,
                               color: AppColors.textSecondary),
-                          SizedBox(width: Dimensions.spacingXS),
+                          const SizedBox(width: Dimensions.spacingXS),
                           Text(
                             'Tempo estimado: ${proc.tempoEstimado} minutos',
                             style: AppTextStyles.body
@@ -177,12 +177,12 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
               ),
             ),
 
-            SizedBox(height: Dimensions.spacingLG),
+            const SizedBox(height: Dimensions.spacingLG),
 
             // â”€â”€ Descrição â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             if (proc.descricao.isNotEmpty) ...[
               Text('Descrição', style: AppTextStyles.h4),
-              SizedBox(height: Dimensions.spacingSM),
+              const SizedBox(height: Dimensions.spacingSM),
               Card(
                 elevation: Dimensions.cardElevation,
                 child: Padding(
@@ -190,7 +190,7 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
                   child: Text(proc.descricao, style: AppTextStyles.body),
                 ),
               ),
-              SizedBox(height: Dimensions.spacingLG),
+              const SizedBox(height: Dimensions.spacingLG),
             ],
 
             // â”€â”€ Passos com progresso â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -208,7 +208,7 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
                   ),
               ],
             ),
-            SizedBox(height: Dimensions.spacingSM),
+            const SizedBox(height: Dimensions.spacingSM),
 
             // Barra de progresso
             if (total > 0) ...[
@@ -221,7 +221,7 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
                 borderRadius: BorderRadius.circular(4),
                 minHeight: 6,
               ),
-              SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingMD),
             ],
 
             // Lista de passos com checkboxes
@@ -282,7 +282,7 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
                         ),
                       ),
                       if (i < proc.passos.length - 1)
-                        Divider(height: 1, indent: 16, endIndent: 16),
+                        const Divider(height: 1, indent: 16, endIndent: 16),
                     ],
                   );
                 }).toList(),
@@ -291,7 +291,7 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
 
             // Banner de conclusão
             if (tudo) ...[
-              SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingMD),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(Dimensions.paddingMD),
@@ -305,7 +305,7 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.check_circle, color: AppColors.success),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
                       'Procedimento concluído!',
                       style:
@@ -316,7 +316,7 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
               ),
             ],
 
-            SizedBox(height: Dimensions.spacingXL),
+            const SizedBox(height: Dimensions.spacingXL),
           ],
         ),
       ),

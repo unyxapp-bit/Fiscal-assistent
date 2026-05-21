@@ -53,7 +53,7 @@ class _EntregasScreenState extends State<EntregasScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Entregas'),
+        title: const Text('Entregas'),
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
@@ -68,7 +68,7 @@ class _EntregasScreenState extends State<EntregasScreen> {
                 setState(() => _ordenacaoDescendente = !_ordenacaoDescendente),
           ),
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
             onPressed: () {
               Navigator.push(
                 context,
@@ -100,7 +100,7 @@ class _EntregasScreenState extends State<EntregasScreen> {
                       AppColors.statusAtencao,
                     ),
                   ),
-                  SizedBox(width: Dimensions.spacingSM),
+                  const SizedBox(width: Dimensions.spacingSM),
                   Expanded(
                     child: _buildStatsCard(
                       'Em Rota',
@@ -108,7 +108,7 @@ class _EntregasScreenState extends State<EntregasScreen> {
                       AppColors.primary,
                     ),
                   ),
-                  SizedBox(width: Dimensions.spacingSM),
+                  const SizedBox(width: Dimensions.spacingSM),
                   Expanded(
                     child: _buildStatsCard(
                       'Entregues',
@@ -119,11 +119,11 @@ class _EntregasScreenState extends State<EntregasScreen> {
                 ],
               ),
 
-              SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingMD),
 
               // ---- Filtro por Status ----
               Text('Filtrar por Status', style: AppTextStyles.label),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
@@ -153,9 +153,9 @@ class _EntregasScreenState extends State<EntregasScreen> {
 
               // ---- Filtro por Cidade ----
               if (cidades.isNotEmpty) ...[
-                SizedBox(height: Dimensions.spacingSM),
+                const SizedBox(height: Dimensions.spacingSM),
                 Text('Filtrar por Cidade', style: AppTextStyles.label),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -163,7 +163,7 @@ class _EntregasScreenState extends State<EntregasScreen> {
                       Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: FilterChip(
-                          label: Text('Todas'),
+                          label: const Text('Todas'),
                           selected: _filtroCidade == 'todas',
                           selectedColor: AppColors.statusIntervalo,
                           labelStyle: TextStyle(
@@ -206,7 +206,7 @@ class _EntregasScreenState extends State<EntregasScreen> {
                 ),
               ],
 
-              SizedBox(height: Dimensions.spacingLG),
+              const SizedBox(height: Dimensions.spacingLG),
 
               // Lista de entregas
               Row(
@@ -220,7 +220,7 @@ class _EntregasScreenState extends State<EntregasScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: Dimensions.spacingSM),
+              const SizedBox(height: Dimensions.spacingSM),
 
               if (entregasFiltradas.isEmpty)
                 Center(
@@ -233,7 +233,7 @@ class _EntregasScreenState extends State<EntregasScreen> {
                           size: 64,
                           color: AppColors.inactive,
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Text(
                           provider.entregas.isEmpty
                               ? 'Nenhuma entrega cadastrada'
@@ -244,7 +244,7 @@ class _EntregasScreenState extends State<EntregasScreen> {
                           textAlign: TextAlign.center,
                         ),
                         if (provider.entregas.isEmpty) ...[
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           ElevatedButton.icon(
                             onPressed: () => Navigator.push(
                               context,
@@ -252,8 +252,8 @@ class _EntregasScreenState extends State<EntregasScreen> {
                                 builder: (_) => const EntregaFormScreen(),
                               ),
                             ),
-                            icon: Icon(Icons.add),
-                            label: Text('Cadastrar Entrega'),
+                            icon: const Icon(Icons.add),
+                            label: const Text('Cadastrar Entrega'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
@@ -278,13 +278,13 @@ class _EntregasScreenState extends State<EntregasScreen> {
                         return await showDialog<bool>(
                               context: context,
                               builder: (ctx) => AlertDialog(
-                                title: Text('Excluir Entrega'),
+                                title: const Text('Excluir Entrega'),
                                 content: Text(
                                     'Deseja excluir a entrega de "${entrega.clienteNome}"?'),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(ctx, false),
-                                    child: Text('Cancelar'),
+                                    child: const Text('Cancelar'),
                                   ),
                                   ElevatedButton(
                                     onPressed: () => Navigator.pop(ctx, true),
@@ -292,7 +292,7 @@ class _EntregasScreenState extends State<EntregasScreen> {
                                       backgroundColor: AppColors.danger,
                                       foregroundColor: Colors.white,
                                     ),
-                                    child: Text('Excluir'),
+                                    child: const Text('Excluir'),
                                   ),
                                 ],
                               ),
@@ -310,7 +310,7 @@ class _EntregasScreenState extends State<EntregasScreen> {
                           borderRadius:
                               BorderRadius.circular(Dimensions.borderRadius),
                         ),
-                        child: Icon(Icons.delete_outline,
+                        child: const Icon(Icons.delete_outline,
                             color: Colors.white, size: 28),
                       ),
                       child: Card(
@@ -328,7 +328,7 @@ class _EntregasScreenState extends State<EntregasScreen> {
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Text('NF: ${entrega.numeroNota}'),
                               Text('${entrega.bairro} - ${entrega.cidade}'),
                             ],
@@ -390,13 +390,13 @@ class _EntregasScreenState extends State<EntregasScreen> {
               ),
               child: Icon(Icons.local_shipping, color: color, size: 24),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               label,
               style: AppTextStyles.caption
                   .copyWith(color: AppColors.textSecondary),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(value, style: AppTextStyles.h2.copyWith(color: color)),
           ],
         ),

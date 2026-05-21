@@ -89,12 +89,12 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Excluir ocorrência'),
-        content: Text('Deseja excluir esta ocorrência?'),
+        title: const Text('Excluir ocorrência'),
+        content: const Text('Deseja excluir esta ocorrência?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
@@ -307,11 +307,11 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                     child: Row(children: [
                       Icon(Icons.check_circle,
                           size: 18, color: AppColors.success),
-                      SizedBox(width: 8),
-                      Text('Marcar como resolvida'),
+                      const SizedBox(width: 8),
+                      const Text('Marcar como resolvida'),
                     ]),
                   ),
-                PopupMenuItem(
+                const PopupMenuItem(
                   value: 'copiar',
                   child: Row(children: [
                     Icon(Icons.copy_outlined, size: 18),
@@ -319,7 +319,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                     Text('Copiar'),
                   ]),
                 ),
-                PopupMenuItem(
+                const PopupMenuItem(
                   value: 'compartilhar',
                   child: Row(children: [
                     Icon(Icons.share, size: 18),
@@ -331,7 +331,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                   value: 'deletar',
                   child: Row(children: [
                     Icon(Icons.delete, size: 18, color: AppColors.danger),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text('Excluir', style: TextStyle(color: AppColors.danger)),
                   ]),
                 ),
@@ -352,7 +352,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Ocorrências'),
+        title: const Text('Ocorrências'),
         backgroundColor: AppColors.background,
         elevation: 0,
         bottom: TabBar(
@@ -362,9 +362,9 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Abertas'),
+                  const Text('Abertas'),
                   if (abertas.isNotEmpty) ...[
-                    SizedBox(width: 6),
+                    const SizedBox(width: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 1),
@@ -374,7 +374,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                       ),
                       child: Text(
                         '${abertas.length}',
-                        style: TextStyle(
+                        style: const TextStyle(
                             color: Colors.white,
                             fontSize: 11,
                             fontWeight: FontWeight.bold),
@@ -388,9 +388,9 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Resolvidas'),
+                  const Text('Resolvidas'),
                   if (resolvidas.isNotEmpty) ...[
-                    SizedBox(width: 6),
+                    const SizedBox(width: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 1),
@@ -400,7 +400,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                       ),
                       child: Text(
                         '${resolvidas.length}',
-                        style: TextStyle(
+                        style: const TextStyle(
                             color: Colors.white,
                             fontSize: 11,
                             fontWeight: FontWeight.bold),

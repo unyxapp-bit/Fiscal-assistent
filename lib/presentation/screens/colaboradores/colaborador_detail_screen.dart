@@ -60,7 +60,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
         title: Text('Detalhes do Colaborador', style: AppTextStyles.h3),
         actions: [
           IconButton(
-            icon: Icon(Icons.edit),
+            icon: const Icon(Icons.edit),
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -115,7 +115,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                                 AppTextStyles.h2.copyWith(color: Colors.white),
                           ),
                         ),
-                        SizedBox(width: Dimensions.spacingMD),
+                        const SizedBox(width: Dimensions.spacingMD),
                         // Nome e informações
                         Expanded(
                           child: Column(
@@ -125,7 +125,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                                 widget.colaborador.nome,
                                 style: AppTextStyles.h3,
                               ),
-                              SizedBox(height: 6),
+                              const SizedBox(height: 6),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 10,
@@ -143,7 +143,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                                       .copyWith(color: Colors.white),
                                 ),
                               ),
-                              SizedBox(height: 10),
+                              const SizedBox(height: 10),
                               _buildStatusChip(),
                             ],
                           ),
@@ -153,7 +153,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                   ),
                 ),
 
-                SizedBox(height: Dimensions.spacingLG),
+                const SizedBox(height: Dimensions.spacingLG),
 
                 // Menu de seções
                 GridView.count(
@@ -200,7 +200,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                   ],
                 ),
 
-                SizedBox(height: Dimensions.spacingXL),
+                const SizedBox(height: Dimensions.spacingXL),
               ],
             ),
           );
@@ -231,7 +231,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
           child: Row(
             children: [
               Icon(icon, color: color, size: 22),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   label,
@@ -265,7 +265,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
           ),
         ),
         Text(title, style: AppTextStyles.h3),
-        SizedBox(height: Dimensions.spacingMD),
+        const SizedBox(height: Dimensions.spacingMD),
       ],
     );
   }
@@ -276,7 +276,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -288,18 +288,18 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
           children: [
             _buildSheetHandle('Informações'),
             _buildInfoRow('ID', widget.colaborador.id.substring(0, 8)),
-            Divider(height: 24),
+            const Divider(height: 24),
             _buildInfoRow(
                 'Status', widget.colaborador.ativo ? 'Ativo' : 'Inativo'),
-            Divider(height: 24),
+            const Divider(height: 24),
             _buildInfoRow(
                 'Criado em', _formatDate(widget.colaborador.createdAt)),
             if (widget.colaborador.observacoes != null &&
                 widget.colaborador.observacoes!.isNotEmpty) ...[
-              Divider(height: 24),
+              const Divider(height: 24),
               _buildInfoRow('Observações', widget.colaborador.observacoes!),
             ],
-            SizedBox(height: Dimensions.spacingMD),
+            const SizedBox(height: Dimensions.spacingMD),
           ],
         ),
       ),
@@ -311,7 +311,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -348,7 +348,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -388,7 +388,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -406,12 +406,12 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                   .length
                   .toString(),
             ),
-            Divider(height: 24),
+            const Divider(height: 24),
             _buildStatRow(
               'Registros de Ponto',
               registroPontoProvider.registros.length.toString(),
             ),
-            Divider(height: 24),
+            const Divider(height: 24),
             _buildStatRow(
               'Dias com Entrada',
               registroPontoProvider.registros
@@ -419,7 +419,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                   .length
                   .toString(),
             ),
-            SizedBox(height: Dimensions.spacingMD),
+            const SizedBox(height: Dimensions.spacingMD),
           ],
         ),
       ),
@@ -436,7 +436,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
             top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -590,7 +590,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
             children: [
               Text('Nenhum registro de ponto cadastrado.',
                   style: AppTextStyles.body),
-              SizedBox(height: Dimensions.spacingSM),
+              const SizedBox(height: Dimensions.spacingSM),
               TextButton.icon(
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(
@@ -599,8 +599,8 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                     ),
                   ),
                 ),
-                icon: Icon(Icons.add),
-                label: Text('Adicionar registro'),
+                icon: const Icon(Icons.add),
+                label: const Text('Adicionar registro'),
               ),
             ],
           ),
@@ -646,7 +646,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
               ),
             ),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           // Conteúdo
           Expanded(
             child: isSpecial
@@ -689,7 +689,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                icon: Icon(Icons.edit, size: 16),
+                icon: const Icon(Icons.edit, size: 16),
                 color: AppColors.primary,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
@@ -704,7 +704,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                 ),
               ),
               IconButton(
-                icon: Icon(Icons.delete_outline, size: 16),
+                icon: const Icon(Icons.delete_outline, size: 16),
                 color: AppColors.danger,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
@@ -723,17 +723,17 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Excluir registro?'),
+        title: const Text('Excluir registro?'),
         content: Text('Remover o registro de ${_formatDate(r.data)}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: TextButton.styleFrom(foregroundColor: AppColors.danger),
-            child: Text('Excluir'),
+            child: const Text('Excluir'),
           ),
         ],
       ),
@@ -817,7 +817,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
             ),
           ),
         ),
-        SizedBox(width: Dimensions.spacingSM),
+        const SizedBox(width: Dimensions.spacingSM),
         Expanded(
           child: Text(
             value,

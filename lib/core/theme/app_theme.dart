@@ -404,8 +404,8 @@ class AppThemes {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(isDark ? 10 : 14),
         ),
-        labelStyle: textTheme.bodySmall ?? TextStyle(),
-        secondaryLabelStyle: (textTheme.bodySmall ?? TextStyle()).copyWith(
+        labelStyle: textTheme.bodySmall ?? const TextStyle(),
+        secondaryLabelStyle: (textTheme.bodySmall ?? const TextStyle()).copyWith(
           color: tokens.primary,
         ),
         brightness: brightness,
@@ -458,7 +458,7 @@ class AppThemes {
           IconThemeData(color: tokens.textSecondary),
         ),
         labelTextStyle: WidgetStatePropertyAll(
-          (textTheme.bodySmall ?? TextStyle()).copyWith(
+          (textTheme.bodySmall ?? const TextStyle()).copyWith(
             color: tokens.textPrimary,
             fontWeight: FontWeight.w700,
           ),

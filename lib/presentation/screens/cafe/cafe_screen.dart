@@ -72,7 +72,7 @@ class _CafeScreenState extends State<CafeScreen>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(Dimensions.radiusSheet),
         ),
@@ -159,7 +159,7 @@ class _CafeScreenState extends State<CafeScreen>
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
-            shape: RoundedRectangleBorder(
+            shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(
                 top: Radius.circular(Dimensions.radiusSheet),
               ),
@@ -176,7 +176,7 @@ class _CafeScreenState extends State<CafeScreen>
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
-            shape: RoundedRectangleBorder(
+            shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(
                 top: Radius.circular(Dimensions.radiusSheet),
               ),
@@ -352,20 +352,20 @@ class _CafeScreenState extends State<CafeScreen>
         return Scaffold(
           backgroundColor: AppColors.background,
           appBar: AppBar(
-            title: Text('Cafe / Intervalos'),
+            title: const Text('Cafe / Intervalos'),
             backgroundColor: AppColors.background,
             elevation: 0,
             toolbarHeight: 48,
             actions: [
               IconButton(
-                icon: Icon(Icons.refresh),
+                icon: const Icon(Icons.refresh),
                 onPressed: _reloadData,
               ),
               if (provider.pausasFinalizadas.isNotEmpty)
                 TextButton.icon(
                   onPressed: () => _confirmarLimpar(context, provider),
-                  icon: Icon(Icons.cleaning_services, size: 16),
-                  label: Text('Limpar'),
+                  icon: const Icon(Icons.cleaning_services, size: 16),
+                  label: const Text('Limpar'),
                 ),
             ],
             bottom: TabBar(
@@ -402,21 +402,23 @@ class _CafeScreenState extends State<CafeScreen>
                             color: AppColors.primary,
                             label: '$totalDisponiveis disponiveis',
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           _CafeInfoChip(
                             icon: Icons.coffee,
                             color: AppColors.statusCafe,
                             label: '${provider.pausasAtivas.length} em pausa',
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           _CafeInfoChip(
                             icon: Icons.warning_amber_rounded,
-                            color: temAlertas ? AppColors.danger : AppColors.success,
+                            color: temAlertas
+                                ? AppColors.danger
+                                : AppColors.success,
                             label: temAlertas
                                 ? '${provider.totalEmAtraso} em atraso'
                                 : 'Sem atraso',
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           _CafeInfoChip(
                             icon: Icons.history,
                             color: AppColors.success,
@@ -426,7 +428,7 @@ class _CafeScreenState extends State<CafeScreen>
                         ],
                       ),
                     ),
-                    SizedBox(height: Dimensions.spacingSM),
+                    const SizedBox(height: Dimensions.spacingSM),
                     Row(
                       children: [
                         Expanded(
@@ -443,7 +445,7 @@ class _CafeScreenState extends State<CafeScreen>
                                 children: [
                                   Icon(Icons.people_outline,
                                       color: AppColors.primary, size: 18),
-                                  SizedBox(height: 4),
+                                  const SizedBox(height: 4),
                                   Text(
                                     '$totalDisponiveis',
                                     style: AppTextStyles.h3.copyWith(
@@ -462,7 +464,7 @@ class _CafeScreenState extends State<CafeScreen>
                             ),
                           ),
                         ),
-                        SizedBox(width: Dimensions.spacingSM),
+                        const SizedBox(width: Dimensions.spacingSM),
                         Expanded(
                           child: GestureDetector(
                             onTap: abrirResumoEmIntervalo,
@@ -477,7 +479,7 @@ class _CafeScreenState extends State<CafeScreen>
                                 children: [
                                   Icon(Icons.coffee,
                                       color: AppColors.statusCafe, size: 18),
-                                  SizedBox(height: 4),
+                                  const SizedBox(height: 4),
                                   Text(
                                     '${provider.pausasAtivas.length}',
                                     style: AppTextStyles.h3.copyWith(
@@ -496,7 +498,7 @@ class _CafeScreenState extends State<CafeScreen>
                             ),
                           ),
                         ),
-                        SizedBox(width: Dimensions.spacingSM),
+                        const SizedBox(width: Dimensions.spacingSM),
                         Expanded(
                           child: GestureDetector(
                             onTap: abrirResumoAtencao,
@@ -516,7 +518,7 @@ class _CafeScreenState extends State<CafeScreen>
                                           ? AppColors.danger
                                           : AppColors.statusAtencao,
                                       size: 18),
-                                  SizedBox(height: 4),
+                                  const SizedBox(height: 4),
                                   Text(
                                     '${provider.totalEmAtraso}',
                                     style: AppTextStyles.h3.copyWith(
@@ -537,7 +539,7 @@ class _CafeScreenState extends State<CafeScreen>
                             ),
                           ),
                         ),
-                        SizedBox(width: Dimensions.spacingSM),
+                        const SizedBox(width: Dimensions.spacingSM),
                         Expanded(
                           child: GestureDetector(
                             onTap: abrirResumoHistorico,
@@ -552,7 +554,7 @@ class _CafeScreenState extends State<CafeScreen>
                                 children: [
                                   Icon(Icons.history,
                                       color: AppColors.success, size: 18),
-                                  SizedBox(height: 4),
+                                  const SizedBox(height: 4),
                                   Text(
                                     '${provider.pausasFinalizadas.length}',
                                     style: AppTextStyles.h3.copyWith(
@@ -594,7 +596,7 @@ class _CafeScreenState extends State<CafeScreen>
                     child: Row(
                       children: [
                         Icon(Icons.warning_amber, color: AppColors.danger),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             '${provider.totalEmAtraso} colaborador(es) excederam o tempo de intervalo!',
@@ -629,8 +631,8 @@ class _CafeScreenState extends State<CafeScreen>
           ),
           floatingActionButton: FloatingActionButton.extended(
             onPressed: () => _mostrarSeletorPausa(context, provider),
-            icon: Icon(Icons.add),
-            label: Text('Iniciar Cafe'),
+            icon: const Icon(Icons.add),
+            label: const Text('Iniciar Cafe'),
             backgroundColor: AppColors.statusCafe,
             foregroundColor: Colors.white,
           ),
@@ -643,13 +645,13 @@ class _CafeScreenState extends State<CafeScreen>
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Limpar Histórico'),
-        content:
-            Text('Deseja remover todas as pausas finalizadas do histórico?'),
+        title: const Text('Limpar Histórico'),
+        content: const Text(
+            'Deseja remover todas as pausas finalizadas do histórico?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
@@ -679,7 +681,7 @@ class _CafeScreenState extends State<CafeScreen>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -764,14 +766,14 @@ class _TabDisponiveis extends StatelessWidget {
             children: [
               Icon(Icons.check_circle_outline,
                   size: 64, color: AppColors.success.withValues(alpha: 0.55)),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 'Nenhum colaborador disponível para pausa agora.',
                 style:
                     AppTextStyles.body.copyWith(color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 'Verifique escala, pausas ativas e cafés já realizados.',
                 style: AppTextStyles.caption
@@ -879,7 +881,7 @@ class _TabDisponiveis extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -895,7 +897,7 @@ class _TabDisponiveis extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -1007,7 +1009,7 @@ class _TabEmIntervalo extends StatelessWidget {
             children: [
               Icon(Icons.coffee_outlined,
                   size: 64, color: AppColors.inactive.withValues(alpha: 0.55)),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 'Nenhum colaborador em intervalo no momento',
                 style:
@@ -1103,7 +1105,7 @@ class _TabHistorico extends StatelessWidget {
             children: [
               Icon(Icons.history,
                   size: 64, color: AppColors.inactive.withValues(alpha: 0.55)),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 'Nenhuma pausa finalizada hoje',
                 style:
@@ -1145,7 +1147,7 @@ class _CafeInfoChip extends StatelessWidget {
   final Color color;
   final String label;
 
-  _CafeInfoChip({
+  const _CafeInfoChip({
     required this.icon,
     required this.color,
     required this.label,
@@ -1163,7 +1165,7 @@ class _CafeInfoChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: color),
-          SizedBox(width: 6),
+          const SizedBox(width: 6),
           Text(
             label,
             style: AppTextStyles.caption.copyWith(
@@ -1173,95 +1175,6 @@ class _CafeInfoChip extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _CafeResumoCard extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String label;
-  final String value;
-  final String subtitle;
-  final VoidCallback? onTap;
-
-  const _CafeResumoCard({
-    required this.icon,
-    required this.color,
-    required this.label,
-    required this.value,
-    required this.subtitle,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final child = Container(
-      decoration: AppStyles.softCard(
-        tint: color,
-        radius: Dimensions.radiusMD,
-        elevated: false,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(icon, color: color, size: 16),
-                ),
-                const Spacer(),
-                if (onTap != null)
-                  Icon(
-                    Icons.open_in_new_rounded,
-                    size: 15,
-                    color: color.withValues(alpha: 0.70),
-                  ),
-              ],
-            ),
-            const Spacer(),
-            Text(
-              value,
-              style: AppTextStyles.h3.copyWith(
-                color: color,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            SizedBox(height: 2),
-            Text(
-              label,
-              style: AppTextStyles.body.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            SizedBox(height: 4),
-            Text(
-              subtitle,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-
-    if (onTap == null) return child;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(Dimensions.radiusMD),
-      child: child,
     );
   }
 }
@@ -1315,13 +1228,13 @@ class _ResumoCafeSheet extends StatelessWidget {
                     ),
                     child: Icon(icon, color: color, size: 20),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(title, style: AppTextStyles.h4),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
                           subtitle,
                           style: AppTextStyles.caption.copyWith(
@@ -1334,7 +1247,7 @@ class _ResumoCafeSheet extends StatelessWidget {
                 ],
               ),
             ),
-            Divider(height: 1),
+            const Divider(height: 1),
             Expanded(
               child: children.isEmpty
                   ? Center(
@@ -1401,7 +1314,7 @@ class _PausaAtivaCard extends StatelessWidget {
                     color: cor,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1412,7 +1325,7 @@ class _PausaAtivaCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.h4,
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Wrap(
                         crossAxisAlignment: WrapCrossAlignment.center,
                         spacing: 6,
@@ -1443,7 +1356,7 @@ class _PausaAtivaCard extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerRight,
               child: ElevatedButton(
@@ -1455,10 +1368,10 @@ class _PausaAtivaCard extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   textStyle: AppTextStyles.caption,
                 ),
-                child: Text('Finalizar'),
+                child: const Text('Finalizar'),
               ),
             ),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Text(
               label,
               style: AppTextStyles.caption.copyWith(
@@ -1523,7 +1436,7 @@ class _PausaHistoricoCard extends StatelessWidget {
                 ),
               ),
             IconButton(
-              icon: Icon(Icons.close, size: 18),
+              icon: const Icon(Icons.close, size: 18),
               onPressed: onRemover,
               color: AppColors.textSecondary,
             ),
@@ -1586,7 +1499,7 @@ class _SeletorRapidoSheet extends StatelessWidget {
             style:
                 AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
           ),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Text(colaborador.nome, style: AppTextStyles.h3),
           Text(
             colaborador.departamento.nome,
@@ -1594,7 +1507,7 @@ class _SeletorRapidoSheet extends StatelessWidget {
                 AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
           ),
           if (forcaDuracaoDez) ...[
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
@@ -1608,9 +1521,9 @@ class _SeletorRapidoSheet extends StatelessWidget {
               ),
             ),
           ],
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           Text('Duração:', style: AppTextStyles.label),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: duracoes.map((d) {
@@ -1663,7 +1576,7 @@ class _SeletorRapidoSheet extends StatelessWidget {
               );
             }).toList(),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
         ],
       ),
     );
@@ -1739,22 +1652,22 @@ class _ColaboradorIntervaloSheetState
     return showDialog<int>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Duracao do intervalo'),
-        content: Text(
+        title: const Text('Duracao do intervalo'),
+        content: const Text(
           'Sem horario cadastrado no ponto de hoje. Qual duracao do intervalo?',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           OutlinedButton(
             onPressed: () => Navigator.pop(ctx, 60),
-            child: Text('60 min'),
+            child: const Text('60 min'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, 120),
-            child: Text('120 min'),
+            child: const Text('120 min'),
           ),
         ],
       ),
@@ -1829,22 +1742,22 @@ class _ColaboradorIntervaloSheetState
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Intervalo já realizado?'),
-        content: Text(
+        title: const Text('Intervalo já realizado?'),
+        content: const Text(
           'Esse colaborador fez o tempo completo do intervalo?',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Não'),
+            child: const Text('Não'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text('Sim'),
+            child: const Text('Sim'),
           ),
         ],
       ),
@@ -1862,13 +1775,13 @@ class _ColaboradorIntervaloSheetState
           builder: (context, setStateDialog) {
             final podeSalvar = controller.text.trim().isNotEmpty;
             return AlertDialog(
-              title: Text('Motivo do intervalo incompleto'),
+              title: const Text('Motivo do intervalo incompleto'),
               content: TextField(
                 controller: controller,
                 maxLines: 4,
                 autofocus: true,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Descreva o motivo...',
                 ),
                 onChanged: (_) => setStateDialog(() {}),
@@ -1876,7 +1789,7 @@ class _ColaboradorIntervaloSheetState
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: Text('Cancelar'),
+                  child: const Text('Cancelar'),
                 ),
                 ElevatedButton(
                   onPressed: !podeSalvar
@@ -1885,7 +1798,7 @@ class _ColaboradorIntervaloSheetState
                           resultado = controller.text.trim();
                           Navigator.pop(ctx);
                         },
-                  child: Text('Salvar'),
+                  child: const Text('Salvar'),
                 ),
               ],
             );
@@ -2010,16 +1923,16 @@ class _ColaboradorIntervaloSheetState
             style:
                 AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
           ),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Text(widget.colaborador.nome, style: AppTextStyles.h3),
           Text(
             widget.colaborador.departamento.nome,
             style:
                 AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           if (_carregando)
-            Center(
+            const Center(
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 24),
                 child: CircularProgressIndicator(),
@@ -2027,14 +1940,14 @@ class _ColaboradorIntervaloSheetState
             )
           else ...[
             _buildPontoInfo(),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             if (!intervaloJaFeito) ...[
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: _marcarIntervaloJaFeito,
-                  icon: Icon(Icons.check_circle_outline),
-                  label: Text('Já fez intervalo'),
+                  icon: const Icon(Icons.check_circle_outline),
+                  label: const Text('Já fez intervalo'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.success,
                     side: BorderSide(color: AppColors.success),
@@ -2042,14 +1955,14 @@ class _ColaboradorIntervaloSheetState
                   ),
                 ),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
             ],
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: _enviarParaIntervalo,
-                icon: Icon(Icons.restaurant),
-                label: Text('Enviar para Intervalo'),
+                icon: const Icon(Icons.restaurant),
+                label: const Text('Enviar para Intervalo'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.statusCafe,
                   foregroundColor: Colors.white,
@@ -2077,7 +1990,7 @@ class _ColaboradorIntervaloSheetState
         child: Row(
           children: [
             Icon(Icons.info_outline, size: 16, color: AppColors.textSecondary),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Expanded(
               child: Text(
                 'Sem horário de intervalo no registro de ponto. '
@@ -2109,7 +2022,7 @@ class _ColaboradorIntervaloSheetState
               valor: saida,
               destaque: jaSaiu,
             ),
-          if (saida != null && retorno != null) Divider(height: 16),
+          if (saida != null && retorno != null) const Divider(height: 16),
           if (retorno != null)
             _InfoRow(
               icon: Icons.login,
@@ -2117,7 +2030,7 @@ class _ColaboradorIntervaloSheetState
               valor: retorno,
             ),
           if (jaSaiu) ...[
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
@@ -2127,7 +2040,7 @@ class _ColaboradorIntervaloSheetState
               child: Row(
                 children: [
                   Icon(Icons.schedule, size: 14, color: AppColors.warning),
-                  SizedBox(width: 6),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       'O horário de saída já passou — informe quando saiu.',
@@ -2165,7 +2078,7 @@ class _InfoRow extends StatelessWidget {
         Icon(icon,
             size: 16,
             color: destaque ? AppColors.warning : AppColors.textSecondary),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Text(
           label,
           style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
@@ -2272,11 +2185,11 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
               ),
             ),
             Text('Novo Café', style: AppTextStyles.h3),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Duração
             Text('Duração do café', style: AppTextStyles.label),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               children: duracoes.map((d) {
@@ -2295,9 +2208,9 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
               }).toList(),
             ),
 
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text('Colaborador', style: AppTextStyles.label),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
 
             // Colaboradores disponíveis
             Expanded(
@@ -2356,7 +2269,7 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
                     ),
             ),
 
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -2397,7 +2310,7 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
                         if (!context.mounted) return;
                         Navigator.pop(context);
                       },
-                icon: Icon(Icons.coffee),
+                icon: const Icon(Icons.coffee),
                 label: Text('Iniciar $_duracaoSelecionada min de café'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.statusCafe,

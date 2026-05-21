@@ -43,13 +43,13 @@ class _CaixasListScreenState extends State<CaixasListScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Caixas'),
+        title: const Text('Caixas'),
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
           if (caixaProvider.caixas.isNotEmpty)
             IconButton(
-              icon: Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh),
               onPressed: _loadCaixas,
             ),
         ],
@@ -96,8 +96,8 @@ class _CaixasListScreenState extends State<CaixasListScreen> {
             ),
           );
         },
-        icon: Icon(Icons.add),
-        label: Text('Novo Caixa'),
+        icon: const Icon(Icons.add),
+        label: const Text('Novo Caixa'),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -150,7 +150,7 @@ class _CaixasListScreenState extends State<CaixasListScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(
           label,
           style: AppTextStyles.caption.copyWith(
@@ -195,7 +195,7 @@ class _CaixasListScreenState extends State<CaixasListScreen> {
                           : AppColors.textPrimary,
                       size: 20,
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
                       provider.mostrarApenasAtivos
                           ? 'Apenas Ativos'

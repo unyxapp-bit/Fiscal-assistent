@@ -210,7 +210,7 @@ class _PizzasCadastroScreenState extends State<PizzasCadastroScreen> {
                 children: [
                   Switch(
                     value: p.ativa,
-                    activeColor: AppColors.success,
+                    activeThumbColor: AppColors.success,
                     onChanged: (v) async {
                       await PizzaService.toggleAtivaPizza(p.id, v);
                       _carregar();

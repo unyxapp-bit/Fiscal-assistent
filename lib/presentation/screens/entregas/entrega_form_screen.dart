@@ -109,7 +109,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (sheetCtx) {
@@ -137,13 +137,13 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                 ),
               ),
               Text('Preencher via CSV', style: AppTextStyles.h3),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
                 'Cole abaixo o texto copiado do sistema de pedidos.',
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextField(
                 controller: csvController,
                 maxLines: 6,
@@ -157,19 +157,19 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                   ),
                   contentPadding: const EdgeInsets.all(12),
                   suffixIcon: IconButton(
-                    icon: Icon(Icons.clear, size: 18),
+                    icon: const Icon(Icons.clear, size: 18),
                     onPressed: () => csvController.clear(),
                     tooltip: 'Limpar',
                   ),
                 ),
-                style: TextStyle(fontSize: 12, fontFamily: 'monospace'),
+                style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  icon: Icon(Icons.auto_fix_high),
-                  label: Text('Preencher Formulário'),
+                  icon: const Icon(Icons.auto_fix_high),
+                  label: const Text('Preencher Formulário'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
@@ -214,8 +214,9 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
     if (texto.isEmpty) return 'Nenhum texto para processar.';
 
     final linhas = const CsvToListConverter(eol: '\n').convert(texto);
-    if (linhas.length < 2)
+    if (linhas.length < 2) {
       return 'Formato CSV inválido (esperado cabeçalho + dados).';
+    }
 
     final cabecalhos = linhas[0].map((e) => e.toString().trim()).toList();
     final valores = linhas[1].map((e) => e.toString().trim()).toList();
@@ -360,7 +361,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.content_paste_rounded),
+            icon: const Icon(Icons.content_paste_rounded),
             tooltip: 'Preencher via CSV',
             onPressed: _abrirSheetCsv,
           ),
@@ -376,7 +377,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
               // Número da NF
               TextFormField(
                 controller: _numeroNFController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Número da NF *',
                   hintText: 'Ex: 12345',
                   prefixIcon: Icon(Icons.receipt_long),
@@ -390,12 +391,12 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                 },
               ),
 
-              SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingMD),
 
               // Nome do Cliente
               TextFormField(
                 controller: _nomeClienteController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Nome do Cliente *',
                   hintText: 'Digite o nome completo',
                   prefixIcon: Icon(Icons.person),
@@ -412,12 +413,12 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                 },
               ),
 
-              SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingMD),
 
               // Telefone
               TextFormField(
                 controller: _telefoneController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Telefone',
                   hintText: '(35) 99999-9999',
                   prefixIcon: Icon(Icons.phone),
@@ -425,12 +426,12 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                 keyboardType: TextInputType.phone,
               ),
 
-              SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingMD),
 
               // Endereço
               TextFormField(
                 controller: _enderecoController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Endereço *',
                   hintText: 'Rua, número e complemento',
                   prefixIcon: Icon(Icons.home),
@@ -444,12 +445,12 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                 },
               ),
 
-              SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingMD),
 
               // Bairro
               TextFormField(
                 controller: _bairroController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Bairro *',
                   hintText: 'Digite o bairro',
                   prefixIcon: Icon(Icons.location_city),
@@ -463,12 +464,12 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                 },
               ),
 
-              SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingMD),
 
               // Cidade (Dropdown)
               DropdownButtonFormField<String>(
                 initialValue: _cidadeSelecionada,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Cidade *',
                   prefixIcon: Icon(Icons.location_on),
                 ),
@@ -485,27 +486,27 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                 },
               ),
 
-              SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingMD),
 
               // Horário Marcado
               Card(
                 child: ListTile(
                   leading: Icon(Icons.access_time, color: AppColors.primary),
-                  title: Text('Horário Marcado'),
+                  title: const Text('Horário Marcado'),
                   subtitle: Text(_formatHorario(_horarioMarcado)),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (_horarioMarcado != null)
                         IconButton(
-                          icon: Icon(Icons.clear, size: 20),
+                          icon: const Icon(Icons.clear, size: 20),
                           onPressed: () {
                             setState(() => _horarioMarcado = null);
                           },
                           tooltip: 'Remover horário',
                         ),
                       IconButton(
-                        icon: Icon(Icons.edit),
+                        icon: const Icon(Icons.edit),
                         onPressed: _selecionarHorario,
                         tooltip: 'Definir horário',
                       ),
@@ -514,12 +515,12 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                 ),
               ),
 
-              SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingMD),
 
               // Observações
               TextFormField(
                 controller: _observacoesController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Observações',
                   hintText: 'Informações adicionais sobre a entrega',
                   prefixIcon: Icon(Icons.note),
@@ -529,7 +530,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                 textCapitalization: TextCapitalization.sentences,
               ),
 
-              SizedBox(height: Dimensions.spacingXL),
+              const SizedBox(height: Dimensions.spacingXL),
 
               // Informação sobre status inicial
               if (isNova)
@@ -545,7 +546,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                         Icons.info_outline,
                         color: AppColors.info,
                       ),
-                      SizedBox(width: Dimensions.spacingSM),
+                      const SizedBox(width: Dimensions.spacingSM),
                       Expanded(
                         child: Text(
                           'A entrega será criada com status "Separada"',
@@ -558,7 +559,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                   ),
                 ),
 
-              SizedBox(height: Dimensions.spacingLG),
+              const SizedBox(height: Dimensions.spacingLG),
 
               // Botões
               Row(
@@ -570,10 +571,10 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                         minimumSize:
                             const Size.fromHeight(Dimensions.buttonHeight),
                       ),
-                      child: Text('Cancelar'),
+                      child: const Text('Cancelar'),
                     ),
                   ),
-                  SizedBox(width: Dimensions.spacingSM),
+                  const SizedBox(width: Dimensions.spacingSM),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _salvar,

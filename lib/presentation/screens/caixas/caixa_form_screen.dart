@@ -168,7 +168,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
               // Número
               TextFormField(
                 controller: _numeroController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Número do Caixa *',
                   hintText: 'Ex: 1, 2, 3...',
                   prefixIcon: Icon(Icons.numbers),
@@ -184,11 +184,11 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                 },
               ),
 
-              SizedBox(height: Dimensions.spacingLG),
+              const SizedBox(height: Dimensions.spacingLG),
 
               // Tipo
               Text('Tipo de Caixa *', style: AppTextStyles.body),
-              SizedBox(height: Dimensions.spacingSM),
+              const SizedBox(height: Dimensions.spacingSM),
               Column(
                 children: [
                   Row(
@@ -203,7 +203,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                           onTap: () => setState(() => _tipoSelecionado = 'pdv'),
                         ),
                       ),
-                      SizedBox(width: Dimensions.spacingSM),
+                      const SizedBox(width: Dimensions.spacingSM),
                       Expanded(
                         child: _TipoCard(
                           label: 'Rápido',
@@ -217,7 +217,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(height: Dimensions.spacingSM),
+                  const SizedBox(height: Dimensions.spacingSM),
                   Row(
                     children: [
                       Expanded(
@@ -231,7 +231,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                               setState(() => _tipoSelecionado = 'preferencial'),
                         ),
                       ),
-                      SizedBox(width: Dimensions.spacingSM),
+                      const SizedBox(width: Dimensions.spacingSM),
                       Expanded(
                         child: _TipoCard(
                           label: 'Self Checkout',
@@ -245,7 +245,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(height: Dimensions.spacingSM),
+                  const SizedBox(height: Dimensions.spacingSM),
                   Row(
                     children: [
                       Expanded(
@@ -259,31 +259,31 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                               setState(() => _tipoSelecionado = 'balcao'),
                         ),
                       ),
-                      SizedBox(width: Dimensions.spacingSM),
-                      Expanded(child: SizedBox()),
+                      const SizedBox(width: Dimensions.spacingSM),
+                      const Expanded(child: SizedBox()),
                     ],
                   ),
                 ],
               ),
 
-              SizedBox(height: Dimensions.spacingLG),
+              const SizedBox(height: Dimensions.spacingLG),
 
               // Loja
               TextFormField(
                 controller: _lojaController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Loja',
                   hintText: 'Ex: Baependi, Matriz...',
                   prefixIcon: Icon(Icons.store),
                 ),
               ),
 
-              SizedBox(height: Dimensions.spacingLG),
+              const SizedBox(height: Dimensions.spacingLG),
 
               // Localização
               DropdownButtonFormField<String>(
                 initialValue: _localizacaoSelecionada,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Localização no mercado',
                   prefixIcon: Icon(Icons.location_on),
                 ),
@@ -295,7 +295,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                     setState(() => _localizacaoSelecionada = value),
               ),
 
-              SizedBox(height: Dimensions.spacingLG),
+              const SizedBox(height: Dimensions.spacingLG),
 
               // Switches
               Card(
@@ -304,20 +304,20 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                     SwitchListTile(
                       value: _ativo,
                       onChanged: (value) => setState(() => _ativo = value),
-                      title: Text('Ativo'),
-                      subtitle: Text('Caixa disponível para uso'),
+                      title: const Text('Ativo'),
+                      subtitle: const Text('Caixa disponível para uso'),
                       secondary: Icon(
                         _ativo ? Icons.check_circle : Icons.cancel,
                         color: _ativo ? AppColors.success : AppColors.danger,
                       ),
                     ),
-                    Divider(height: 1),
+                    const Divider(height: 1),
                     SwitchListTile(
                       value: _emManutencao,
                       onChanged: (value) =>
                           setState(() => _emManutencao = value),
-                      title: Text('Em Manutenção'),
-                      subtitle: Text('Caixa temporariamente indisponível'),
+                      title: const Text('Em Manutenção'),
+                      subtitle: const Text('Caixa temporariamente indisponível'),
                       secondary: Icon(
                         _emManutencao
                             ? Icons.build
@@ -331,12 +331,12 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                 ),
               ),
 
-              SizedBox(height: Dimensions.spacingLG),
+              const SizedBox(height: Dimensions.spacingLG),
 
               // Observações
               TextFormField(
                 controller: _observacoesController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Observações (opcional)',
                   hintText: 'Informações adicionais sobre o caixa',
                   prefixIcon: Icon(Icons.note),
@@ -345,7 +345,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                 maxLines: 3,
               ),
 
-              SizedBox(height: Dimensions.spacingXL),
+              const SizedBox(height: Dimensions.spacingXL),
 
               // Botões
               Row(
@@ -353,10 +353,10 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: Text('Cancelar'),
+                      child: const Text('Cancelar'),
                     ),
                   ),
-                  SizedBox(width: Dimensions.spacingSM),
+                  const SizedBox(width: Dimensions.spacingSM),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _salvar,
@@ -424,7 +424,7 @@ class _TipoCard extends StatelessWidget {
                 size: 18,
               ),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

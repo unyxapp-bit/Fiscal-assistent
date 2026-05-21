@@ -334,13 +334,13 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
             Row(
               children: [
                 Icon(icon, color: AppColors.primary),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(child: Text(titulo, style: AppTextStyles.h4)),
               ],
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(descricao, style: AppTextStyles.caption),
-            SizedBox(height: Dimensions.spacingMD),
+            const SizedBox(height: Dimensions.spacingMD),
             ...children,
           ],
         ),
@@ -408,7 +408,7 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 16, color: AppColors.primary),
-          SizedBox(width: 6),
+          const SizedBox(width: 6),
           Text('$label: ', style: AppTextStyles.caption),
           Text(value, style: AppTextStyles.label),
         ],
@@ -434,7 +434,7 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
                   child: Icon(Icons.receipt_long_outlined,
                       color: AppColors.primary),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -449,7 +449,7 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
                 ),
               ],
             ),
-            SizedBox(height: Dimensions.spacingMD),
+            const SizedBox(height: Dimensions.spacingMD),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -495,33 +495,33 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
           label: _tamanhoFonte.toStringAsFixed(0),
           onChanged: (v) => setState(() => _tamanhoFonte = v),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(
           'Simulação de largura da bobina',
           style: AppTextStyles.label,
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Wrap(
           spacing: 8,
           children: [
             ChoiceChip(
-              label: Text('58mm (mais comum)'),
+              label: const Text('58mm (mais comum)'),
               selected: _previewLarguraMm == 58,
               onSelected: (_) => setState(() => _previewLarguraMm = 58),
             ),
             ChoiceChip(
-              label: Text('80mm'),
+              label: const Text('80mm'),
               selected: _previewLarguraMm == 80,
               onSelected: (_) => setState(() => _previewLarguraMm = 80),
             ),
           ],
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Text(
           'A impressão web usa ajuste automático para reduzir corte lateral.',
           style: AppTextStyles.caption,
         ),
-        Divider(height: 24),
+        const Divider(height: 24),
         _switchTile(
           value: _centralizarCabecalho,
           title: 'Centralizar cabeçalho',
@@ -597,7 +597,7 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
             Row(
               children: [
                 Icon(Icons.visibility_outlined, color: AppColors.primary),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                     child: Text('Preview do Cupom', style: AppTextStyles.h4)),
                 Container(
@@ -618,12 +618,12 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Simulação visual do texto final que será usado na impressão.',
               style: AppTextStyles.caption,
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
@@ -653,16 +653,16 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
         Expanded(
           child: OutlinedButton.icon(
             onPressed: _saving ? null : _restaurarPadrao,
-            icon: Icon(Icons.refresh),
-            label: Text('Restaurar'),
+            icon: const Icon(Icons.refresh),
+            label: const Text('Restaurar'),
           ),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Expanded(
           child: FilledButton.icon(
             onPressed: _saving ? null : _salvar,
             icon: _saving
-                ? SizedBox(
+                ? const SizedBox(
                     width: 16,
                     height: 16,
                     child: CircularProgressIndicator(
@@ -670,8 +670,8 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
                       color: Colors.white,
                     ),
                   )
-                : Icon(Icons.save_outlined),
-            label: Text('Salvar'),
+                : const Icon(Icons.save_outlined),
+            label: const Text('Salvar'),
           ),
         ),
       ],
@@ -706,7 +706,7 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
           ),
         ],
       ),
-      SizedBox(height: Dimensions.spacingMD),
+      const SizedBox(height: Dimensions.spacingMD),
       _secao(
         icon: Icons.location_on_outlined,
         titulo: 'Endereço e Contato',
@@ -744,9 +744,9 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
           ),
         ],
       ),
-      SizedBox(height: Dimensions.spacingMD),
+      const SizedBox(height: Dimensions.spacingMD),
       _configuracaoVisual(),
-      SizedBox(height: Dimensions.spacingMD),
+      const SizedBox(height: Dimensions.spacingMD),
       _mensagensRegras(),
     ];
   }
@@ -761,7 +761,7 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
         elevation: 0,
       ),
       body: _loading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Form(
               key: _formKey,
               child: LayoutBuilder(
@@ -787,14 +787,14 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 _resumoConfig(),
-                                SizedBox(height: Dimensions.spacingMD),
+                                const SizedBox(height: Dimensions.spacingMD),
                                 ...secoes,
-                                SizedBox(height: Dimensions.spacingMD),
+                                const SizedBox(height: Dimensions.spacingMD),
                                 _acoesRodape(),
                               ],
                             ),
                           ),
-                          SizedBox(width: Dimensions.spacingMD),
+                          const SizedBox(width: Dimensions.spacingMD),
                           Expanded(
                             flex: 2,
                             child: Column(
@@ -818,11 +818,11 @@ class _CupomConfigScreenState extends State<CupomConfigScreen> {
                     ),
                     children: [
                       _resumoConfig(),
-                      SizedBox(height: Dimensions.spacingMD),
+                      const SizedBox(height: Dimensions.spacingMD),
                       ...secoes,
-                      SizedBox(height: Dimensions.spacingMD),
+                      const SizedBox(height: Dimensions.spacingMD),
                       _previewCard(),
-                      SizedBox(height: Dimensions.spacingMD),
+                      const SizedBox(height: Dimensions.spacingMD),
                       _acoesRodape(),
                     ],
                   );

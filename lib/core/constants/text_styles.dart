@@ -7,18 +7,18 @@ class AppTextStyles {
       AppThemes.themeFor(AppThemes.activeVariant).textTheme;
 
   // Headers
-  static TextStyle get h1 => _textTheme.displayLarge ?? TextStyle();
-  static TextStyle get h2 => _textTheme.displayMedium ?? TextStyle();
-  static TextStyle get h3 => _textTheme.titleLarge ?? TextStyle();
-  static TextStyle get h4 => _textTheme.titleMedium ?? TextStyle();
+  static TextStyle get h1 => _textTheme.displayLarge ?? const TextStyle();
+  static TextStyle get h2 => _textTheme.displayMedium ?? const TextStyle();
+  static TextStyle get h3 => _textTheme.titleLarge ?? const TextStyle();
+  static TextStyle get h4 => _textTheme.titleMedium ?? const TextStyle();
 
   // Body
-  static TextStyle get body => _textTheme.bodyMedium ?? TextStyle();
-  static TextStyle get label => _textTheme.labelMedium ?? TextStyle();
-  static TextStyle get caption => _textTheme.bodySmall ?? TextStyle();
+  static TextStyle get body => _textTheme.bodyMedium ?? const TextStyle();
+  static TextStyle get label => _textTheme.labelMedium ?? const TextStyle();
+  static TextStyle get caption => _textTheme.bodySmall ?? const TextStyle();
 
   // Button
-  static TextStyle get button => _textTheme.labelLarge ?? TextStyle();
+  static TextStyle get button => _textTheme.labelLarge ?? const TextStyle();
 
   // Aliases for compatibility
   static TextStyle get title => h2;

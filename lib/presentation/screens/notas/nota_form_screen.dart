@@ -315,7 +315,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
             children: [
               // â”€â”€ Seletor de Tipo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               Text('Tipo', style: AppTextStyles.h4),
-              SizedBox(height: Dimensions.spacingSM),
+              const SizedBox(height: Dimensions.spacingSM),
               Row(
                 children: TipoLembrete.values.map((tipo) {
                   final sel = _tipo == tipo;
@@ -345,7 +345,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                               Icon(tipo.icone,
                                   color: sel ? tipo.cor : AppColors.inactive,
                                   size: 20),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Text(
                                 tipo.nome,
                                 style: AppTextStyles.caption.copyWith(
@@ -365,7 +365,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                 }).toList(),
               ),
 
-              SizedBox(height: Dimensions.spacingLG),
+              const SizedBox(height: Dimensions.spacingLG),
 
               // â”€â”€ Título â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               TextFormField(
@@ -377,7 +377,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                       : _tipo == TipoLembrete.lembrete
                           ? 'Do que quer ser lembrado?'
                           : 'Assunto da anotação',
-                  prefixIcon: Icon(Icons.title),
+                  prefixIcon: const Icon(Icons.title),
                 ),
                 textCapitalization: TextCapitalization.sentences,
                 validator: (v) => (v == null || v.trim().isEmpty)
@@ -385,7 +385,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                     : null,
               ),
 
-              SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingMD),
 
               // â”€â”€ Conteúdo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               TextFormField(
@@ -399,7 +399,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                       : _tipo == TipoLembrete.tarefa
                           ? 'Mais informações sobre a tarefa...'
                           : 'Detalhes do lembrete...',
-                  prefixIcon: Icon(Icons.notes),
+                  prefixIcon: const Icon(Icons.notes),
                   alignLabelWithHint: true,
                 ),
                 maxLines: 4,
@@ -413,15 +413,15 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
 
               // â”€â”€ Data / Prazo (Lembrete e Tarefa) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-              SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingMD),
               Text('Anexos (opcional)', style: AppTextStyles.h4),
-              SizedBox(height: Dimensions.spacingSM),
+              const SizedBox(height: Dimensions.spacingSM),
               Card(
                 child: Column(
                   children: [
                     ListTile(
-                      leading: Icon(Icons.photo_camera_outlined),
-                      title: Text('Foto'),
+                      leading: const Icon(Icons.photo_camera_outlined),
+                      title: const Text('Foto'),
                       subtitle: Text(
                         _fotoSelecionada?.nomeArquivo ??
                             _fotoNomeAtual ??
@@ -435,21 +435,21 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                           if (_fotoSelecionada != null || _fotoUrlAtual != null)
                             IconButton(
                               onPressed: _salvando ? null : _removerFoto,
-                              icon: Icon(Icons.delete_outline),
+                              icon: const Icon(Icons.delete_outline),
                               tooltip: 'Remover foto',
                             ),
                           IconButton(
                             onPressed: _salvando ? null : _selecionarFoto,
-                            icon: Icon(Icons.add_a_photo_outlined),
+                            icon: const Icon(Icons.add_a_photo_outlined),
                             tooltip: 'Selecionar foto',
                           ),
                         ],
                       ),
                     ),
-                    Divider(height: 1),
+                    const Divider(height: 1),
                     ListTile(
-                      leading: Icon(Icons.attach_file),
-                      title: Text('Arquivo'),
+                      leading: const Icon(Icons.attach_file),
+                      title: const Text('Arquivo'),
                       subtitle: Text(
                         _arquivoSelecionado?.nomeArquivo ??
                             _arquivoNomeAtual ??
@@ -464,12 +464,12 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                               _arquivoUrlAtual != null)
                             IconButton(
                               onPressed: _salvando ? null : _removerArquivo,
-                              icon: Icon(Icons.delete_outline),
+                              icon: const Icon(Icons.delete_outline),
                               tooltip: 'Remover arquivo',
                             ),
                           IconButton(
                             onPressed: _salvando ? null : _selecionarArquivo,
-                            icon: Icon(Icons.upload_file_outlined),
+                            icon: const Icon(Icons.upload_file_outlined),
                             tooltip: 'Selecionar arquivo',
                           ),
                         ],
@@ -480,7 +480,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
               ),
 
               if (showDate) ...[
-                SizedBox(height: Dimensions.spacingMD),
+                const SizedBox(height: Dimensions.spacingMD),
                 Card(
                   child: ListTile(
                     leading: Icon(Icons.alarm, color: AppColors.primary),
@@ -504,12 +504,12 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                       children: [
                         if (_dataLembrete != null)
                           IconButton(
-                            icon: Icon(Icons.clear, size: 18),
+                            icon: const Icon(Icons.clear, size: 18),
                             onPressed: () =>
                                 setState(() => _dataLembrete = null),
                           ),
                         IconButton(
-                          icon: Icon(Icons.edit_calendar),
+                          icon: const Icon(Icons.edit_calendar),
                           onPressed: _selecionarDataHora,
                         ),
                       ],
@@ -521,8 +521,8 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
               // â”€â”€ Toggle notificação (só Lembrete) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               if (_tipo == TipoLembrete.lembrete) ...[
                 SwitchListTile(
-                  title: Text('Notificação ativa'),
-                  subtitle: Text('Desative se não quiser ser notificado'),
+                  title: const Text('Notificação ativa'),
+                  subtitle: const Text('Desative se não quiser ser notificado'),
                   value: _lembreteAtivo,
                   onChanged: (v) => setState(() => _lembreteAtivo = v),
                   activeThumbColor: AppColors.primary,
@@ -530,7 +530,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                 ),
               ],
 
-              SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingMD),
 
               // â”€â”€ Banner de importante â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               if (_importante)
@@ -544,8 +544,8 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.star, color: Colors.orange, size: 18),
-                      SizedBox(width: 8),
+                      const Icon(Icons.star, color: Colors.orange, size: 18),
+                      const SizedBox(width: 8),
                       Text(
                         'Marcado como importante',
                         style: AppTextStyles.caption.copyWith(
@@ -557,7 +557,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                   ),
                 ),
 
-              SizedBox(height: Dimensions.spacingXL),
+              const SizedBox(height: Dimensions.spacingXL),
 
               // â”€â”€ Botões â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               Row(
@@ -570,10 +570,10 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                         minimumSize:
                             const Size.fromHeight(Dimensions.buttonHeight),
                       ),
-                      child: Text('Cancelar'),
+                      child: const Text('Cancelar'),
                     ),
                   ),
-                  SizedBox(width: Dimensions.spacingSM),
+                  const SizedBox(width: Dimensions.spacingSM),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _salvando ? null : _salvar,
@@ -584,7 +584,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                         foregroundColor: Colors.white,
                       ),
                       child: _salvando
-                          ? SizedBox(
+                          ? const SizedBox(
                               width: 18,
                               height: 18,
                               child: CircularProgressIndicator(

@@ -53,7 +53,7 @@ class _NotasScreenState extends State<NotasScreen> {
   void _mostrarMenuCriar(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
             top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -110,7 +110,7 @@ class _NotasScreenState extends State<NotasScreen> {
   void _abrirMenuFiltro(BuildContext context, NotaProvider provider) {
     showModalBottomSheet(
       context: context,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
             top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -486,10 +486,10 @@ class _NotasScreenState extends State<NotasScreen> {
                 onSelected: (value) =>
                     _onMenuSelected(value, nota, provider),
                 itemBuilder: (ctx) => [
-                  PopupMenuItem(
+                  const PopupMenuItem(
                     value: 'editar',
                     child: Row(
-                      children: const [
+                      children: [
                         Icon(Icons.edit, size: 18),
                         SizedBox(width: 8),
                         Text('Editar'),
@@ -549,20 +549,20 @@ class _NotasScreenState extends State<NotasScreen> {
                         ],
                       ),
                     ),
-                  PopupMenuItem(
+                  const PopupMenuItem(
                     value: 'copiar',
                     child: Row(
-                      children: const [
+                      children: [
                         Icon(Icons.copy_outlined, size: 18),
                         SizedBox(width: 8),
                         Text('Copiar'),
                       ],
                     ),
                   ),
-                  PopupMenuItem(
+                  const PopupMenuItem(
                     value: 'compartilhar',
                     child: Row(
-                      children: const [
+                      children: [
                         Icon(Icons.share, size: 18),
                         SizedBox(width: 8),
                         Text('Compartilhar'),

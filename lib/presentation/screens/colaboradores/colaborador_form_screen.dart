@@ -181,7 +181,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
               children: [
                 // Nome
                 Text('Nome do Colaborador', style: AppTextStyles.subtitle),
-                SizedBox(height: Dimensions.spacingSM),
+                const SizedBox(height: Dimensions.spacingSM),
                 CustomTextField(
                   controller: _nomeController,
                   label: 'Nome',
@@ -198,18 +198,18 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                   },
                 ),
 
-                SizedBox(height: Dimensions.spacingLG),
+                const SizedBox(height: Dimensions.spacingLG),
 
                 // Departamento
                 Text('Departamento', style: AppTextStyles.subtitle),
-                SizedBox(height: Dimensions.spacingSM),
+                const SizedBox(height: Dimensions.spacingSM),
                 _buildDepartamentoSelector(),
 
-                SizedBox(height: Dimensions.spacingLG),
+                const SizedBox(height: Dimensions.spacingLG),
 
                 // Observações
                 Text('Observações (Opcional)', style: AppTextStyles.subtitle),
-                SizedBox(height: Dimensions.spacingSM),
+                const SizedBox(height: Dimensions.spacingSM),
                 CustomTextField(
                   controller: _observacoesController,
                   label: 'Observações',
@@ -219,14 +219,14 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                   validator: null,
                 ),
 
-                SizedBox(height: Dimensions.spacingLG),
+                const SizedBox(height: Dimensions.spacingLG),
 
                 // --- Seção Status ---
                 Text('Status', style: AppTextStyles.subtitle),
-                SizedBox(height: Dimensions.spacingSM),
+                const SizedBox(height: Dimensions.spacingSM),
                 _buildStatusCard(),
 
-                SizedBox(height: Dimensions.spacingXL),
+                const SizedBox(height: Dimensions.spacingXL),
 
                 // Botões
                 Row(
@@ -241,10 +241,10 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
                             vertical: Dimensions.paddingSM,
                           ),
                         ),
-                        child: Text('Cancelar'),
+                        child: const Text('Cancelar'),
                       ),
                     ),
-                    SizedBox(width: Dimensions.spacingMD),
+                    const SizedBox(width: Dimensions.spacingMD),
                     Expanded(
                       child: PrimaryButton(
                         onPressed: _isLoading ? () {} : _handleSave,
@@ -266,7 +266,7 @@ class _ColaboradorFormScreenState extends State<ColaboradorFormScreen> {
     return Card(
       color: AppColors.cardBackground,
       child: SwitchListTile(
-        title: Text('Colaborador Ativo'),
+        title: const Text('Colaborador Ativo'),
         subtitle: Text(
           _ativo
               ? 'Aparece nas listas e escalas'

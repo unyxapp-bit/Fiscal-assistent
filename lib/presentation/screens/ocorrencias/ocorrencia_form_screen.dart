@@ -323,7 +323,7 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
                     Icon(iconForTipo(tipoAtual), color: AppColors.danger),
                 suffixIcon: tipoAtual.isNotEmpty
                     ? IconButton(
-                        icon: Icon(Icons.clear, size: 18),
+                        icon: const Icon(Icons.clear, size: 18),
                         onPressed: () {
                           _tipoCtrl.clear();
                           setState(() {});
@@ -334,13 +334,13 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
               textCapitalization: TextCapitalization.sentences,
               onChanged: (_) => setState(() {}),
             ),
-            SizedBox(height: Dimensions.spacingSM),
+            const SizedBox(height: Dimensions.spacingSM),
             Text(
               'Sugestões:',
               style: AppTextStyles.caption
                   .copyWith(color: AppColors.textSecondary),
             ),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Wrap(
               spacing: 6,
               runSpacing: 6,
@@ -377,9 +377,9 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
                 );
               }).toList(),
             ),
-            SizedBox(height: Dimensions.spacingLG),
+            const SizedBox(height: Dimensions.spacingLG),
             Text('Gravidade', style: AppTextStyles.h4),
-            SizedBox(height: Dimensions.spacingSM),
+            const SizedBox(height: Dimensions.spacingSM),
             Row(
               children: GravidadeOcorrencia.values.map((g) {
                 final sel = _gravidade == g;
@@ -411,7 +411,7 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
                               color: sel ? g.cor : AppColors.inactive,
                               size: 18,
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               g.nome,
                               style: TextStyle(
@@ -429,9 +429,9 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
                 );
               }).toList(),
             ),
-            SizedBox(height: Dimensions.spacingLG),
+            const SizedBox(height: Dimensions.spacingLG),
             Text('O que aconteceu? *', style: AppTextStyles.h4),
-            SizedBox(height: Dimensions.spacingSM),
+            const SizedBox(height: Dimensions.spacingSM),
             TextFormField(
               controller: _descricaoCtrl,
               decoration: const InputDecoration(
@@ -444,15 +444,15 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
               maxLines: 8,
               textCapitalization: TextCapitalization.sentences,
             ),
-            SizedBox(height: Dimensions.spacingMD),
+            const SizedBox(height: Dimensions.spacingMD),
             Text('Anexos (opcional)', style: AppTextStyles.h4),
-            SizedBox(height: Dimensions.spacingSM),
+            const SizedBox(height: Dimensions.spacingSM),
             Card(
               child: Column(
                 children: [
                   ListTile(
-                    leading: Icon(Icons.photo_camera_outlined),
-                    title: Text('Foto'),
+                    leading: const Icon(Icons.photo_camera_outlined),
+                    title: const Text('Foto'),
                     subtitle: Text(
                       _fotoSelecionada?.nomeArquivo ??
                           _fotoNomeAtual ??
@@ -468,19 +468,19 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
                         if (_fotoSelecionada != null || _fotoUrlAtual != null)
                           IconButton(
                             onPressed: _salvando ? null : _removerFoto,
-                            icon: Icon(Icons.delete_outline),
+                            icon: const Icon(Icons.delete_outline),
                           ),
                         IconButton(
                           onPressed: _salvando ? null : _selecionarFoto,
-                          icon: Icon(Icons.add_a_photo_outlined),
+                          icon: const Icon(Icons.add_a_photo_outlined),
                         ),
                       ],
                     ),
                   ),
-                  Divider(height: 1),
+                  const Divider(height: 1),
                   ListTile(
-                    leading: Icon(Icons.attach_file),
-                    title: Text('Arquivo'),
+                    leading: const Icon(Icons.attach_file),
+                    title: const Text('Arquivo'),
                     subtitle: Text(
                       _arquivoSelecionado?.nomeArquivo ??
                           _arquivoNomeAtual ??
@@ -497,11 +497,11 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
                             _arquivoUrlAtual != null)
                           IconButton(
                             onPressed: _salvando ? null : _removerArquivo,
-                            icon: Icon(Icons.delete_outline),
+                            icon: const Icon(Icons.delete_outline),
                           ),
                         IconButton(
                           onPressed: _salvando ? null : _selecionarArquivo,
-                          icon: Icon(Icons.upload_file_outlined),
+                          icon: const Icon(Icons.upload_file_outlined),
                         ),
                       ],
                     ),
@@ -509,7 +509,7 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
                 ],
               ),
             ),
-            SizedBox(height: Dimensions.spacingXL),
+            const SizedBox(height: Dimensions.spacingXL),
             Row(
               children: [
                 Expanded(
@@ -520,15 +520,15 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
                       minimumSize:
                           const Size.fromHeight(Dimensions.buttonHeight),
                     ),
-                    child: Text('Cancelar'),
+                    child: const Text('Cancelar'),
                   ),
                 ),
-                SizedBox(width: Dimensions.spacingSM),
+                const SizedBox(width: Dimensions.spacingSM),
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: _salvando ? null : _salvar,
                     icon: _salvando
-                        ? SizedBox(
+                        ? const SizedBox(
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(

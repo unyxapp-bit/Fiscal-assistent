@@ -154,7 +154,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           if (!_isEditMode && !_isChangingPassword)
             IconButton(
-              icon: Icon(Icons.edit),
+              icon: const Icon(Icons.edit),
               onPressed: () => setState(() => _isEditMode = true),
               tooltip: 'Editar Perfil',
             ),
@@ -163,12 +163,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: Consumer2<FiscalProvider, AuthProvider>(
         builder: (context, fiscalProvider, authProvider, _) {
           if (fiscalProvider.isLoading) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           final fiscal = fiscalProvider.fiscal;
           if (fiscal == null) {
-            return Center(
+            return const Center(
               child: Text('Nenhum perfil encontrado'),
             );
           }
@@ -194,7 +194,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
 
-                  SizedBox(height: Dimensions.spacingXL),
+                  const SizedBox(height: Dimensions.spacingXL),
 
                   // Informações do Perfil
                   Card(
@@ -204,12 +204,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Informações Pessoais', style: AppTextStyles.h4),
-                          SizedBox(height: Dimensions.spacingMD),
+                          const SizedBox(height: Dimensions.spacingMD),
 
                           // Nome
                           TextFormField(
                             controller: _nomeController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Nome Completo',
                               prefixIcon: Icon(Icons.person),
                             ),
@@ -222,12 +222,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             },
                           ),
 
-                          SizedBox(height: Dimensions.spacingMD),
+                          const SizedBox(height: Dimensions.spacingMD),
 
                           // Email (readonly)
                           TextFormField(
                             initialValue: fiscal.email,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Email',
                               prefixIcon: Icon(Icons.email),
                               helperText: 'O email não pode ser alterado',
@@ -235,12 +235,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             enabled: false,
                           ),
 
-                          SizedBox(height: Dimensions.spacingMD),
+                          const SizedBox(height: Dimensions.spacingMD),
 
                           // Telefone
                           TextFormField(
                             controller: _telefoneController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Telefone (opcional)',
                               prefixIcon: Icon(Icons.phone),
                               hintText: '(00) 00000-0000',
@@ -249,12 +249,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             enabled: _isEditMode,
                           ),
 
-                          SizedBox(height: Dimensions.spacingMD),
+                          const SizedBox(height: Dimensions.spacingMD),
 
                           // Loja
                           DropdownButtonFormField<String>(
                             initialValue: _lojaSelecionada,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Loja',
                               prefixIcon: Icon(Icons.store),
                             ),
@@ -271,7 +271,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
 
                           if (_isEditMode) ...[
-                            SizedBox(height: Dimensions.spacingLG),
+                            const SizedBox(height: Dimensions.spacingLG),
                             Row(
                               children: [
                                 Expanded(
@@ -280,14 +280,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       _loadProfileData();
                                       setState(() => _isEditMode = false);
                                     },
-                                    child: Text('Cancelar'),
+                                    child: const Text('Cancelar'),
                                   ),
                                 ),
-                                SizedBox(width: Dimensions.spacingSM),
+                                const SizedBox(width: Dimensions.spacingSM),
                                 Expanded(
                                   child: ElevatedButton(
                                     onPressed: _salvarPerfil,
-                                    child: Text('Salvar'),
+                                    child: const Text('Salvar'),
                                   ),
                                 ),
                               ],
@@ -298,7 +298,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
 
-                  SizedBox(height: Dimensions.spacingLG),
+                  const SizedBox(height: Dimensions.spacingLG),
 
                   // Alteração de Senha
                   Card(
@@ -308,13 +308,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Segurança', style: AppTextStyles.h4),
-                          SizedBox(height: Dimensions.spacingMD),
+                          const SizedBox(height: Dimensions.spacingMD),
                           if (!_isChangingPassword) ...[
                             ListTile(
                               leading:
                                   Icon(Icons.lock, color: AppColors.primary),
-                              title: Text('Alterar Senha'),
-                              trailing: Icon(Icons.chevron_right),
+                              title: const Text('Alterar Senha'),
+                              trailing: const Icon(Icons.chevron_right),
                               onTap: () =>
                                   setState(() => _isChangingPassword = true),
                             ),
@@ -324,7 +324,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               controller: _senhaAtualController,
                               decoration: InputDecoration(
                                 labelText: 'Senha Atual',
-                                prefixIcon: Icon(Icons.lock_outline),
+                                prefixIcon: const Icon(Icons.lock_outline),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscureSenhaAtual
@@ -338,14 +338,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               obscureText: _obscureSenhaAtual,
                             ),
 
-                            SizedBox(height: Dimensions.spacingMD),
+                            const SizedBox(height: Dimensions.spacingMD),
 
                             // Nova Senha
                             TextFormField(
                               controller: _novaSenhaController,
                               decoration: InputDecoration(
                                 labelText: 'Nova Senha',
-                                prefixIcon: Icon(Icons.lock),
+                                prefixIcon: const Icon(Icons.lock),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscureNovaSenha
@@ -359,14 +359,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               obscureText: _obscureNovaSenha,
                             ),
 
-                            SizedBox(height: Dimensions.spacingMD),
+                            const SizedBox(height: Dimensions.spacingMD),
 
                             // Confirmar Senha
                             TextFormField(
                               controller: _confirmarSenhaController,
                               decoration: InputDecoration(
                                 labelText: 'Confirmar Nova Senha',
-                                prefixIcon: Icon(Icons.lock),
+                                prefixIcon: const Icon(Icons.lock),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscureConfirmarSenha
@@ -381,7 +381,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               obscureText: _obscureConfirmarSenha,
                             ),
 
-                            SizedBox(height: Dimensions.spacingLG),
+                            const SizedBox(height: Dimensions.spacingLG),
 
                             Row(
                               children: [
@@ -395,14 +395,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         _confirmarSenhaController.clear();
                                       });
                                     },
-                                    child: Text('Cancelar'),
+                                    child: const Text('Cancelar'),
                                   ),
                                 ),
-                                SizedBox(width: Dimensions.spacingSM),
+                                const SizedBox(width: Dimensions.spacingSM),
                                 Expanded(
                                   child: ElevatedButton(
                                     onPressed: _alterarSenha,
-                                    child: Text('Alterar Senha'),
+                                    child: const Text('Alterar Senha'),
                                   ),
                                 ),
                               ],
@@ -413,7 +413,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
 
-                  SizedBox(height: Dimensions.spacingLG),
+                  const SizedBox(height: Dimensions.spacingLG),
 
                   // Botão de Logout
                   SizedBox(
@@ -423,13 +423,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
-                            title: Text('Sair'),
+                            title: const Text('Sair'),
                             content:
-                                Text('Deseja realmente sair do aplicativo?'),
+                                const Text('Deseja realmente sair do aplicativo?'),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: Text('Cancelar'),
+                                child: const Text('Cancelar'),
                               ),
                               ElevatedButton(
                                 onPressed: () {
@@ -439,14 +439,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.danger,
                                 ),
-                                child: Text('Sair'),
+                                child: const Text('Sair'),
                               ),
                             ],
                           ),
                         );
                       },
-                      icon: Icon(Icons.logout),
-                      label: Text('Sair da Conta'),
+                      icon: const Icon(Icons.logout),
+                      label: const Text('Sair da Conta'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.danger,
                         padding: const EdgeInsets.symmetric(
@@ -455,7 +455,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
 
-                  SizedBox(height: Dimensions.spacingMD),
+                  const SizedBox(height: Dimensions.spacingMD),
 
                   // Info da conta
                   Center(

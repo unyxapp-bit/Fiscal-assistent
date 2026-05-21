@@ -245,14 +245,14 @@ class _CupomWidgetState extends State<CupomWidget> {
 
   Widget _buildAcoes(String texto) {
     final copiarBtn = OutlinedButton.icon(
-      icon: Icon(Icons.copy, size: 18),
-      label: Text('Copiar'),
+      icon: const Icon(Icons.copy, size: 18),
+      label: const Text('Copiar'),
       onPressed: _loadingConfig
           ? null
           : () {
               Clipboard.setData(ClipboardData(text: texto));
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+                const SnackBar(
                   content: Text('Cupom copiado. Cole no WhatsApp.'),
                   duration: Duration(seconds: 2),
                 ),
@@ -261,14 +261,14 @@ class _CupomWidgetState extends State<CupomWidget> {
     );
 
     final imprimirBtn = OutlinedButton.icon(
-      icon: Icon(Icons.print, size: 18),
-      label: Text('Imprimir'),
+      icon: const Icon(Icons.print, size: 18),
+      label: const Text('Imprimir'),
       onPressed: _loadingConfig ? null : () => imprimirCupom(texto),
     );
 
     final concluirBtn = FilledButton.icon(
-      icon: Icon(Icons.check_circle_outline, size: 18),
-      label: Text('Concluir'),
+      icon: const Icon(Icons.check_circle_outline, size: 18),
+      label: const Text('Concluir'),
       onPressed: widget.onFechar,
     );
 
@@ -280,10 +280,10 @@ class _CupomWidgetState extends State<CupomWidget> {
             children: [
               SizedBox(width: double.infinity, child: copiarBtn),
               if (kIsWeb) ...[
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 SizedBox(width: double.infinity, child: imprimirBtn),
               ],
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               SizedBox(width: double.infinity, child: concluirBtn),
             ],
           );
@@ -293,10 +293,10 @@ class _CupomWidgetState extends State<CupomWidget> {
           children: [
             Expanded(child: copiarBtn),
             if (kIsWeb) ...[
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Expanded(child: imprimirBtn),
             ],
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Expanded(child: concluirBtn),
           ],
         );
@@ -324,23 +324,23 @@ class _CupomWidgetState extends State<CupomWidget> {
             children: [
               Row(
                 children: [
-                  Icon(Icons.receipt_long, color: Colors.orange),
-                  SizedBox(width: 8),
-                  Text(
+                  const Icon(Icons.receipt_long, color: Colors.orange),
+                  const SizedBox(width: 8),
+                  const Text(
                     'Cupom do Pedido',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
                   IconButton(
-                    icon: Icon(Icons.close),
+                    icon: const Icon(Icons.close),
                     onPressed: widget.onFechar,
                   ),
                 ],
               ),
-              Divider(),
+              const Divider(),
               Expanded(
                 child: _loadingConfig
-                    ? Center(child: CircularProgressIndicator())
+                    ? const Center(child: CircularProgressIndicator())
                     : SingleChildScrollView(
                         child: Container(
                           width: double.infinity,
@@ -360,7 +360,7 @@ class _CupomWidgetState extends State<CupomWidget> {
                         ),
                       ),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               _buildAcoes(texto),
             ],
           ),

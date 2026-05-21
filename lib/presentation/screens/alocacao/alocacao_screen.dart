@@ -86,7 +86,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(Dimensions.radiusSheet),
         ),
@@ -166,7 +166,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -194,11 +194,11 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     backgroundColor: AppColors.primary,
                     child: Text(
                       turno.colaboradorNome[0].toUpperCase(),
-                      style: TextStyle(
+                      style: const TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,7 +219,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 ],
               ),
             ),
-            Divider(height: 1),
+            const Divider(height: 1),
             Expanded(
               child: ListView(
                 controller: scrollCtrl,
@@ -230,10 +230,9 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       leading: CircleAvatar(
                         backgroundColor:
                             AppColors.brown.withValues(alpha: 0.10),
-                        child:
-                            Icon(Icons.inventory_2, color: AppColors.brown),
+                        child: Icon(Icons.inventory_2, color: AppColors.brown),
                       ),
-                      title: Text('Empacotador',
+                      title: const Text('Empacotador',
                           style: TextStyle(fontWeight: FontWeight.w600)),
                       subtitle: Text('Adicionar ao plantão de empacotadores',
                           style: AppTextStyles.caption
@@ -249,7 +248,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                         ),
                         onPressed: () => _alocarComoEmpacotador(
                             sheetCtx, turno, pacoteProvider),
-                        child: Text('Alocar'),
+                        child: const Text('Alocar'),
                       ),
                     ),
                   if (isEmpacotador &&
@@ -259,20 +258,20 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 4),
                       child: Row(children: [
-                        Expanded(child: Divider()),
+                        const Expanded(child: Divider()),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: Text('ou em caixa',
                               style: AppTextStyles.caption
                                   .copyWith(color: AppColors.textSecondary)),
                         ),
-                        Expanded(child: Divider()),
+                        const Expanded(child: Divider()),
                       ]),
                     ),
                   // â”€â”€ Caixas disponíveis â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                   if (disponiveis.isEmpty && !isEmpacotador)
                     Padding(
-                      padding: EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(24),
                       child: Text(
                         'Nenhum caixa disponível no momento.',
                         style: AppTextStyles.body,
@@ -525,7 +524,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
 
     showModalBottomSheet(
       context: context,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -557,7 +556,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                         fontSize: 16),
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -568,7 +567,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                           children: [
                             Icon(caixa.tipo.icone,
                                 size: 12, color: AppColors.textSecondary),
-                            SizedBox(width: 4),
+                            const SizedBox(width: 4),
                             Text(
                               caixa.nomeExibicao,
                               style: AppTextStyles.caption
@@ -586,11 +585,11 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
 
             // â”€â”€ Info de intervalo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             if (turno.intervalo != null) ...[
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               _IntervaloBanner(turno: turno),
             ],
 
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // â”€â”€ Ações â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Row(
@@ -602,8 +601,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       side: BorderSide(color: AppColors.indigo),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    icon: Icon(Icons.swap_horiz, size: 18),
-                    label: Text('Trocar',
+                    icon: const Icon(Icons.swap_horiz, size: 18),
+                    label: const Text('Trocar',
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 12)),
                     onPressed: () {
@@ -612,7 +611,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     },
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
@@ -620,8 +619,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       side: BorderSide(color: AppColors.outro),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    icon: Icon(Icons.store, size: 18),
-                    label: Text('Outro Setor',
+                    icon: const Icon(Icons.store, size: 18),
+                    label: const Text('Outro Setor',
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 12)),
                     onPressed: () {
@@ -630,7 +629,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     },
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
@@ -640,8 +639,8 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    icon: Icon(Icons.logout, size: 18),
-                    label: Text('Liberar',
+                    icon: const Icon(Icons.logout, size: 18),
+                    label: const Text('Liberar',
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 12)),
                     onPressed: () => _confirmarLiberacao(
@@ -739,7 +738,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -766,15 +765,14 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
               children: [
                 CircleAvatar(
                   radius: 18,
-                  backgroundColor:
-                      AppColors.outro.withValues(alpha: 0.12),
+                  backgroundColor: AppColors.outro.withValues(alpha: 0.12),
                   child: Text(
                     turno.colaboradorNome[0].toUpperCase(),
                     style: TextStyle(
                         color: AppColors.outro, fontWeight: FontWeight.bold),
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -790,7 +788,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -812,7 +810,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       ))
                   .toList(),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             TextField(
               controller: customCtrl,
               decoration: InputDecoration(
@@ -1162,12 +1160,12 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Alocar Colaborador'),
+        title: const Text('Alocar Colaborador'),
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: _reload,
           ),
         ],
@@ -1186,19 +1184,19 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     color: AppColors.statusAtivo,
                     label: '${disponiveis.length} disponiveis',
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   _PainelInfoChip(
                     icon: Icons.point_of_sale,
                     color: AppColors.primary,
                     label: '${jaAlocados.length} no caixa',
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   _PainelInfoChip(
                     icon: Icons.coffee,
                     color: AppColors.statusCafe,
                     label: '$emPausa em pausa',
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   _PainelInfoChip(
                     icon: Icons.storefront_outlined,
                     color: AppColors.outro,
@@ -1207,7 +1205,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 ],
               ),
             ),
-            SizedBox(height: Dimensions.spacingSM),
+            const SizedBox(height: Dimensions.spacingSM),
             Row(
               children: [
                 Expanded(
@@ -1224,7 +1222,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                         children: [
                           Icon(Icons.person_add_alt_1,
                               color: AppColors.statusAtivo, size: 18),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
                             '${disponiveis.length}',
                             style: AppTextStyles.h3.copyWith(
@@ -1243,7 +1241,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     ),
                   ),
                 ),
-                SizedBox(width: Dimensions.spacingSM),
+                const SizedBox(width: Dimensions.spacingSM),
                 Expanded(
                   child: GestureDetector(
                     onTap: abrirResumoAlocados,
@@ -1258,7 +1256,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                         children: [
                           Icon(Icons.point_of_sale,
                               color: AppColors.primary, size: 18),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
                             '${jaAlocados.length}',
                             style: AppTextStyles.h3.copyWith(
@@ -1277,7 +1275,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     ),
                   ),
                 ),
-                SizedBox(width: Dimensions.spacingSM),
+                const SizedBox(width: Dimensions.spacingSM),
                 Expanded(
                   child: GestureDetector(
                     onTap: abrirResumoAtencao,
@@ -1297,7 +1295,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                                   ? AppColors.danger
                                   : AppColors.statusAtencao,
                               size: 18),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
                             '$alocadosEmAtencao',
                             style: AppTextStyles.h3.copyWith(
@@ -1318,7 +1316,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                     ),
                   ),
                 ),
-                SizedBox(width: Dimensions.spacingSM),
+                const SizedBox(width: Dimensions.spacingSM),
                 Expanded(
                   child: GestureDetector(
                     onTap: abrirResumoAChegar,
@@ -1333,7 +1331,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                         children: [
                           Icon(Icons.directions_walk,
                               color: AppColors.statusAtencao, size: 18),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
                             '${aChegar.length}',
                             style: AppTextStyles.h3.copyWith(
@@ -1354,7 +1352,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 ),
               ],
             ),
-            SizedBox(height: Dimensions.spacingMD),
+            const SizedBox(height: Dimensions.spacingMD),
             TextField(
               controller: _searchCtrl,
               decoration: InputDecoration(
@@ -1393,7 +1391,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
               ),
             ),
             if (alocadosEmAtencao > 0) ...[
-              SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingMD),
               Container(
                 padding: const EdgeInsets.all(Dimensions.paddingMD),
                 decoration: AppStyles.softCard(
@@ -1407,7 +1405,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                       Icons.warning_amber_rounded,
                       color: AppColors.danger,
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         '$alocadosEmAtencao colaborador(es) ja passaram do horario ideal de intervalo. Vale priorizar liberacao ou troca.',
@@ -1421,7 +1419,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 ),
               ),
             ],
-            SizedBox(height: Dimensions.spacingLG),
+            const SizedBox(height: Dimensions.spacingLG),
             if (turnosHoje.isEmpty) ...[
               const _Empty(
                 icon: Icons.calendar_today,
@@ -1435,7 +1433,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                   label: 'Disponíveis agora',
                   count: disponiveis.length,
                   color: AppColors.statusAtivo),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               if (disponiveis.isEmpty)
                 const _Empty(
                   icon: Icons.hourglass_empty,
@@ -1451,13 +1449,13 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
 
               // Já alocados
               if (jaAlocados.isNotEmpty) ...[
-                SizedBox(height: Dimensions.spacingLG),
+                const SizedBox(height: Dimensions.spacingLG),
                 _Header(
                     icon: Icons.point_of_sale,
                     label: 'Já alocados',
                     count: jaAlocados.length,
                     color: AppColors.primary),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 ...jaAlocados.map((t) {
                   final al =
                       alocacaoProvider.getAlocacaoColaborador(t.colaboradorId);
@@ -1472,13 +1470,13 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
 
               // Em Outro Setor
               if (emOutroSetor.isNotEmpty) ...[
-                SizedBox(height: Dimensions.spacingLG),
+                const SizedBox(height: Dimensions.spacingLG),
                 _Header(
                     icon: Icons.store,
                     label: 'Em outro setor',
                     count: emOutroSetor.length,
                     color: AppColors.outro),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 ...emOutroSetor.map((t) {
                   final item =
                       outroSetorProvider.getByColaborador(t.colaboradorId);
@@ -1504,13 +1502,13 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
 
               // A caminho
               if (aChegar.isNotEmpty) ...[
-                SizedBox(height: Dimensions.spacingLG),
+                const SizedBox(height: Dimensions.spacingLG),
                 _Header(
                     icon: Icons.directions_walk,
                     label: 'A caminho',
                     count: aChegar.length,
                     color: AppColors.statusAtencao),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 ...aChegar.map((t) => _CardAChegar(
                       turno: t,
                       minutosParaChegar: _minutosParaChegar(t) ?? 0,
@@ -1519,7 +1517,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
 
               // Folgas
               if (folgas.isNotEmpty) ...[
-                SizedBox(height: Dimensions.spacingLG),
+                const SizedBox(height: Dimensions.spacingLG),
                 _HeaderToggle(
                   icon: Icons.beach_access,
                   label: 'Folgas / Feriados',
@@ -1529,19 +1527,17 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                   onTap: () => setState(() => _mostrarFolgas = !_mostrarFolgas),
                 ),
                 if (_mostrarFolgas) ...[
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   ...folgas.map((t) => _CardFolga(turno: t)),
                 ],
               ],
             ],
-            SizedBox(height: 80),
+            const SizedBox(height: 80),
           ],
         ),
       ),
     );
   }
-
-  String _cap(String s) => s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
 }
 
 // â”€â”€â”€ Widgets auxiliares do sheet â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -1659,7 +1655,7 @@ class _IntervaloBanner extends StatelessWidget {
       child: Row(
         children: [
           Icon(icone, size: 14, color: cor),
-          SizedBox(width: 6),
+          const SizedBox(width: 6),
           Text(texto,
               style: TextStyle(
                   fontSize: 12, color: cor, fontWeight: FontWeight.w600)),
@@ -1694,7 +1690,7 @@ class _PainelInfoChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: color),
-          SizedBox(width: 6),
+          const SizedBox(width: 6),
           Text(
             label,
             style: AppTextStyles.caption.copyWith(
@@ -1704,95 +1700,6 @@ class _PainelInfoChip extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _PainelResumoCard extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String label;
-  final String value;
-  final String subtitle;
-  final VoidCallback? onTap;
-
-  const _PainelResumoCard({
-    required this.icon,
-    required this.color,
-    required this.label,
-    required this.value,
-    required this.subtitle,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final child = Container(
-      decoration: AppStyles.softCard(
-        tint: color,
-        radius: Dimensions.radiusMD,
-        elevated: false,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(icon, color: color, size: 16),
-                ),
-                const Spacer(),
-                if (onTap != null)
-                  Icon(
-                    Icons.open_in_new_rounded,
-                    size: 15,
-                    color: color.withValues(alpha: 0.70),
-                  ),
-              ],
-            ),
-            const Spacer(),
-            Text(
-              value,
-              style: AppTextStyles.h3.copyWith(
-                color: color,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            SizedBox(height: 2),
-            Text(
-              label,
-              style: AppTextStyles.body.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            SizedBox(height: 4),
-            Text(
-              subtitle,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-
-    if (onTap == null) return child;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(Dimensions.radiusMD),
-      child: child,
     );
   }
 }
@@ -1846,13 +1753,13 @@ class _ResumoAlocacaoSheet extends StatelessWidget {
                     ),
                     child: Icon(icon, color: color, size: 20),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(title, style: AppTextStyles.h4),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
                           subtitle,
                           style: AppTextStyles.caption.copyWith(
@@ -1865,7 +1772,7 @@ class _ResumoAlocacaoSheet extends StatelessWidget {
                 ],
               ),
             ),
-            Divider(height: 1),
+            const Divider(height: 1),
             Expanded(
               child: children.isEmpty
                   ? Center(
@@ -1908,9 +1815,9 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(children: [
       Icon(icon, size: 16, color: color),
-      SizedBox(width: 6),
+      const SizedBox(width: 6),
       Text(label, style: AppTextStyles.subtitle.copyWith(color: color)),
-      SizedBox(width: 6),
+      const SizedBox(width: 6),
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
         decoration: BoxDecoration(
@@ -1951,9 +1858,9 @@ class _HeaderToggle extends StatelessWidget {
         child: Row(
           children: [
             Icon(icon, size: 16, color: color),
-            SizedBox(width: 6),
+            const SizedBox(width: 6),
             Text(label, style: AppTextStyles.subtitle.copyWith(color: color)),
-            SizedBox(width: 6),
+            const SizedBox(width: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
               decoration: BoxDecoration(
@@ -2008,7 +1915,7 @@ class _CardDisponivel extends StatelessWidget {
             if (onOutroSetor != null)
               IconButton(
                 tooltip: 'Outro setor',
-                icon: Icon(Icons.store_outlined),
+                icon: const Icon(Icons.store_outlined),
                 color: AppColors.statusIntervalo,
                 onPressed: onOutroSetor,
               ),
@@ -2022,7 +1929,7 @@ class _CardDisponivel extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               ),
               onPressed: onAlocar,
-              child: Text('Alocar'),
+              child: const Text('Alocar'),
             ),
           ],
         );
@@ -2043,10 +1950,10 @@ class _CardDisponivel extends StatelessWidget {
                       ? AppColors.statusAtencao
                       : AppColors.statusAtivo,
                   child: Text(turno.colaboradorNome[0].toUpperCase(),
-                      style: TextStyle(
+                      style: const TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -2058,7 +1965,7 @@ class _CardDisponivel extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
                         subtitulo,
                         style: AppTextStyles.caption
@@ -2070,7 +1977,7 @@ class _CardDisponivel extends StatelessWidget {
                   ),
                 ),
                 if (!acoesEmbaixo) ...[
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   acoes(),
                 ],
               ],
@@ -2082,7 +1989,7 @@ class _CardDisponivel extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 cabecalho,
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [acoes()],
@@ -2162,7 +2069,7 @@ class _CardAlocadoState extends State<_CardAlocado> {
                   color: emAtencao ? AppColors.danger : AppColors.primary,
                   fontWeight: FontWeight.bold)),
         ),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         Icon(Icons.chevron_right, size: 18, color: AppColors.textSecondary),
       ],
     );
@@ -2217,7 +2124,7 @@ class _CardAlocadoState extends State<_CardAlocado> {
                               fontWeight: FontWeight.bold),
                         ),
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -2229,7 +2136,7 @@ class _CardAlocadoState extends State<_CardAlocado> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            SizedBox(height: 2),
+                            const SizedBox(height: 2),
                             Text(
                               subtitulo,
                               style: AppTextStyles.caption
@@ -2241,7 +2148,7 @@ class _CardAlocadoState extends State<_CardAlocado> {
                         ),
                       ),
                       if (!acoesEmbaixo) ...[
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         _buildAcoes(emAtencao),
                       ],
                     ],
@@ -2253,7 +2160,7 @@ class _CardAlocadoState extends State<_CardAlocado> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       cabecalho,
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [_buildAcoes(emAtencao)],
@@ -2301,7 +2208,7 @@ class _CardAlocadoState extends State<_CardAlocado> {
       child: Row(
         children: [
           Icon(icone, size: 13, color: cor),
-          SizedBox(width: 5),
+          const SizedBox(width: 5),
           Text(
             texto,
             style: TextStyle(
@@ -2366,7 +2273,7 @@ class _CardAChegar extends StatelessWidget {
                           color: AppColors.statusAtencao,
                           fontWeight: FontWeight.bold)),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -2378,7 +2285,7 @@ class _CardAChegar extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
                         subtitulo,
                         style: AppTextStyles.caption
@@ -2390,7 +2297,7 @@ class _CardAChegar extends StatelessWidget {
                   ),
                 ),
                 if (!acoesEmbaixo) ...[
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   _buildChip(),
                 ],
               ],
@@ -2402,7 +2309,7 @@ class _CardAChegar extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 cabecalho,
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [_buildChip()],
@@ -2467,8 +2374,8 @@ class _CardOutroSetor extends StatelessWidget {
         side: BorderSide(color: kColor),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       ),
-      icon: Icon(Icons.undo, size: 14),
-      label: Text('Chamar',
+      icon: const Icon(Icons.undo, size: 14),
+      label: const Text('Chamar',
           style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
       onPressed: onChamarDeVolta,
     );
@@ -2495,7 +2402,7 @@ class _CardOutroSetor extends StatelessWidget {
                         TextStyle(color: kColor, fontWeight: FontWeight.bold),
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -2507,11 +2414,11 @@ class _CardOutroSetor extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Row(
                         children: [
                           Icon(Icons.location_on, size: 11, color: kColor),
-                          SizedBox(width: 3),
+                          const SizedBox(width: 3),
                           Expanded(
                             child: Text(
                               setor,
@@ -2527,7 +2434,7 @@ class _CardOutroSetor extends StatelessWidget {
                   ),
                 ),
                 if (!acoesEmbaixo) ...[
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   _buildBotao(),
                 ],
               ],
@@ -2539,7 +2446,7 @@ class _CardOutroSetor extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 cabecalho,
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [_buildBotao()],
@@ -2564,7 +2471,7 @@ class _Empty extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 24),
       child: Column(children: [
         Icon(icon, size: 48, color: AppColors.textSecondary),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         Text(msg,
             style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
             textAlign: TextAlign.center),

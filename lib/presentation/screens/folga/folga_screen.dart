@@ -43,7 +43,7 @@ class FolgaScreen extends StatelessWidget {
                       ),
                     ),
 
-                    SizedBox(height: Dimensions.spacingLG),
+                    const SizedBox(height: Dimensions.spacingLG),
 
                     // Relógio atual
                     Text(
@@ -55,7 +55,7 @@ class FolgaScreen extends StatelessWidget {
                       ),
                     ),
 
-                    SizedBox(height: Dimensions.spacingSM),
+                    const SizedBox(height: Dimensions.spacingSM),
 
                     // Data atual
                     Text(
@@ -67,7 +67,7 @@ class FolgaScreen extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
 
-                    SizedBox(height: Dimensions.spacingXL),
+                    const SizedBox(height: Dimensions.spacingXL),
 
                     // Status de folga
                     Container(
@@ -94,7 +94,7 @@ class FolgaScreen extends StatelessWidget {
                                 color: AppColors.success,
                                 size: 28,
                               ),
-                              SizedBox(width: Dimensions.spacingSM),
+                              const SizedBox(width: Dimensions.spacingSM),
                               Text(
                                 'VOCÊ ESTÁ DE FOLGA',
                                 style: AppTextStyles.headingMedium.copyWith(
@@ -104,7 +104,7 @@ class FolgaScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          SizedBox(height: Dimensions.spacingSM),
+                          const SizedBox(height: Dimensions.spacingSM),
                           Text(
                             'Aproveite seu dia de descanso!',
                             style: AppTextStyles.bodyMedium.copyWith(
@@ -115,7 +115,7 @@ class FolgaScreen extends StatelessWidget {
                       ),
                     ),
 
-                    SizedBox(height: Dimensions.spacingXL),
+                    const SizedBox(height: Dimensions.spacingXL),
 
                     // Próximo turno
                     if (proximoTurno != null) ...[
@@ -136,7 +136,7 @@ class FolgaScreen extends StatelessWidget {
                                   color: AppColors.primary,
                                   size: 24,
                                 ),
-                                SizedBox(width: Dimensions.spacingSM),
+                                const SizedBox(width: Dimensions.spacingSM),
                                 Text(
                                   'Próximo turno',
                                   style: AppTextStyles.bodyLarge.copyWith(
@@ -146,7 +146,7 @@ class FolgaScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            SizedBox(height: Dimensions.spacingMD),
+                            const SizedBox(height: Dimensions.spacingMD),
                             Text(
                               DateFormat('EEEE, dd/MM', 'pt_BR')
                                   .format(proximoTurno),
@@ -154,7 +154,7 @@ class FolgaScreen extends StatelessWidget {
                                 color: AppColors.primary,
                               ),
                             ),
-                            SizedBox(height: Dimensions.spacingXS),
+                            const SizedBox(height: Dimensions.spacingXS),
                             Text(
                               'às ${DateFormat('HH:mm').format(proximoTurno)}',
                               style: AppTextStyles.bodyLarge.copyWith(
@@ -166,7 +166,7 @@ class FolgaScreen extends StatelessWidget {
                       ),
                     ],
 
-                    SizedBox(height: Dimensions.spacingXL),
+                    const SizedBox(height: Dimensions.spacingXL),
 
                     // Ações rápidas
                     Column(
@@ -182,8 +182,8 @@ class FolgaScreen extends StatelessWidget {
                                 ),
                               );
                             },
-                            icon: Icon(Icons.calendar_today),
-                            label: Text('Ver Escala Semanal'),
+                            icon: const Icon(Icons.calendar_today),
+                            label: const Text('Ver Escala Semanal'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
@@ -198,7 +198,7 @@ class FolgaScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(height: Dimensions.spacingMD),
+                        const SizedBox(height: Dimensions.spacingMD),
                         SizedBox(
                           width: double.infinity,
                           child: OutlinedButton.icon(
@@ -210,8 +210,8 @@ class FolgaScreen extends StatelessWidget {
                                 ),
                               );
                             },
-                            icon: Icon(Icons.settings),
-                            label: Text('Configurações'),
+                            icon: const Icon(Icons.settings),
+                            label: const Text('Configurações'),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.primary,
                               padding: const EdgeInsets.symmetric(
@@ -232,7 +232,7 @@ class FolgaScreen extends StatelessWidget {
                       ],
                     ),
 
-                    SizedBox(height: Dimensions.spacingXL),
+                    const SizedBox(height: Dimensions.spacingXL),
 
                     // Informações adicionais
                     Container(
@@ -249,7 +249,7 @@ class FolgaScreen extends StatelessWidget {
                             color: AppColors.info,
                             size: 20,
                           ),
-                          SizedBox(width: Dimensions.spacingSM),
+                          const SizedBox(width: Dimensions.spacingSM),
                           Expanded(
                             child: Text(
                               'Notificações silenciadas durante a folga',

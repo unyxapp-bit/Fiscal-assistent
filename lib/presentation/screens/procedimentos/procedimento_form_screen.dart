@@ -190,7 +190,7 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
               // â”€â”€ Título â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               TextFormField(
                 controller: _tituloController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Título *',
                   hintText: 'Ex: Emissão de Nota Fiscal',
                   prefixIcon: Icon(Icons.title),
@@ -204,12 +204,12 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                 },
               ),
 
-              SizedBox(height: Dimensions.spacingLG),
+              const SizedBox(height: Dimensions.spacingLG),
 
               // â”€â”€ Descrição â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               TextFormField(
                 controller: _descricaoController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Descrição',
                   hintText: 'Breve descrição do procedimento',
                   prefixIcon: Icon(Icons.description),
@@ -218,12 +218,12 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                 maxLines: 3,
               ),
 
-              SizedBox(height: Dimensions.spacingLG),
+              const SizedBox(height: Dimensions.spacingLG),
 
               // â”€â”€ Categoria â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               DropdownButtonFormField<String>(
                 initialValue: _categoriaSelecionada,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Categoria *',
                   prefixIcon: Icon(Icons.category),
                 ),
@@ -234,7 +234,7 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                       children: [
                         Icon(cat.$1.categoriaIcon,
                             size: 16, color: cat.$1.categoriaColor),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Text(cat.$2),
                       ],
                     ),
@@ -247,12 +247,12 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                 },
               ),
 
-              SizedBox(height: Dimensions.spacingLG),
+              const SizedBox(height: Dimensions.spacingLG),
 
               // â”€â”€ Tempo estimado â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               TextFormField(
                 controller: _tempoEstimadoController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Tempo estimado (minutos)',
                   hintText: 'Ex: 15',
                   prefixIcon: Icon(Icons.timer),
@@ -261,14 +261,14 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                 keyboardType: TextInputType.number,
               ),
 
-              SizedBox(height: Dimensions.spacingLG),
+              const SizedBox(height: Dimensions.spacingLG),
 
               // â”€â”€ Favorito â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               Card(
                 child: CheckboxListTile(
                   value: _favorito,
                   onChanged: (v) => setState(() => _favorito = v ?? false),
-                  title: Text('Marcar como favorito'),
+                  title: const Text('Marcar como favorito'),
                   secondary: Icon(
                     _favorito ? Icons.star : Icons.star_outline,
                     color: _favorito ? Colors.orange : AppColors.textSecondary,
@@ -276,7 +276,7 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                 ),
               ),
 
-              SizedBox(height: Dimensions.spacingXL),
+              const SizedBox(height: Dimensions.spacingXL),
 
               // â”€â”€ Passos (reordenáveis) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               Row(
@@ -295,7 +295,7 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary),
               ),
-              SizedBox(height: Dimensions.spacingSM),
+              const SizedBox(height: Dimensions.spacingSM),
 
               // ReorderableListView com shrinkWrap dentro do scroll pai
               ReorderableListView(
@@ -316,7 +316,7 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                           ReorderableDragStartListener(
                             index: i,
                             child: Padding(
-                              padding: EdgeInsets.only(top: 16, right: 4),
+                              padding: const EdgeInsets.only(top: 16, right: 4),
                               child: Icon(Icons.drag_handle,
                                   color: AppColors.inactive),
                             ),
@@ -341,7 +341,7 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(width: Dimensions.spacingSM),
+                          const SizedBox(width: Dimensions.spacingSM),
 
                           // Campo de texto
                           Expanded(
@@ -368,7 +368,7 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                 ],
               ),
 
-              SizedBox(height: Dimensions.spacingXL),
+              const SizedBox(height: Dimensions.spacingXL),
 
               // â”€â”€ Botões â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               Row(
@@ -380,10 +380,10 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                         minimumSize:
                             const Size.fromHeight(Dimensions.buttonHeight),
                       ),
-                      child: Text('Cancelar'),
+                      child: const Text('Cancelar'),
                     ),
                   ),
-                  SizedBox(width: Dimensions.spacingSM),
+                  const SizedBox(width: Dimensions.spacingSM),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _salvar,

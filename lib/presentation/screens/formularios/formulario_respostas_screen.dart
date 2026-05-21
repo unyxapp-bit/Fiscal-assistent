@@ -63,12 +63,12 @@ class FormularioRespostasScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Excluir resposta'),
+        title: const Text('Excluir resposta'),
         content: Text('Excluir a Resposta #$numero?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
@@ -111,13 +111,13 @@ class FormularioRespostasScreen extends StatelessWidget {
                 children: [
                   Icon(Icons.inbox_outlined,
                       size: 64, color: AppColors.inactive),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(
                     'Nenhuma resposta ainda',
                     style: AppTextStyles.h4
                         .copyWith(color: AppColors.textSecondary),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     'Preencha o formulário para ver\nas respostas aqui',
                     textAlign: TextAlign.center,
@@ -209,7 +209,7 @@ class FormularioRespostasScreen extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
@@ -251,7 +251,7 @@ class FormularioRespostasScreen extends StatelessWidget {
                   ),
                   // Copiar tudo
                   IconButton(
-                    icon: Icon(Icons.copy),
+                    icon: const Icon(Icons.copy),
                     tooltip: 'Copiar tudo',
                     onPressed: () {
                       Clipboard.setData(
@@ -265,14 +265,14 @@ class FormularioRespostasScreen extends StatelessWidget {
                     },
                   ),
                   IconButton(
-                    icon: Icon(Icons.close),
+                    icon: const Icon(Icons.close),
                     onPressed: () => Navigator.pop(ctx),
                   ),
                 ],
               ),
             ),
 
-            Divider(),
+            const Divider(),
 
             // Conteúdo
             Expanded(
@@ -280,7 +280,7 @@ class FormularioRespostasScreen extends StatelessWidget {
                 controller: scrollCtrl,
                 padding: const EdgeInsets.all(16),
                 itemCount: resposta.valores.length,
-                separatorBuilder: (_, __) => Divider(height: 24),
+                separatorBuilder: (_, __) => const Divider(height: 24),
                 itemBuilder: (ctx, i) {
                   final entry = resposta.valores.entries.elementAt(i);
                   final campo = _findCampo(entry.key);
@@ -299,7 +299,7 @@ class FormularioRespostasScreen extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       // Exibição especial para Sim/Não
                       if (campo?.tipo == TipoCampo.simNao && preenchido)
                         Row(
@@ -313,7 +313,7 @@ class FormularioRespostasScreen extends StatelessWidget {
                                   : AppColors.danger,
                               size: 20,
                             ),
-                            SizedBox(width: 6),
+                            const SizedBox(width: 6),
                             Text(
                               valStr,
                               style: AppTextStyles.body.copyWith(

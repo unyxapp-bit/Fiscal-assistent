@@ -42,12 +42,12 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Excluir procedimento'),
+        title: const Text('Excluir procedimento'),
         content: Text('Excluir "${proc.titulo}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
@@ -123,7 +123,7 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
                 proc.categoria.categoriaNome,
                 style: AppTextStyles.caption
@@ -133,7 +133,7 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                 Row(
                   children: [
                     Icon(Icons.timer, size: 12, color: AppColors.textSecondary),
-                    SizedBox(width: 3),
+                    const SizedBox(width: 3),
                     Text(
                       '${proc.tempoEstimado} min',
                       style: AppTextStyles.caption
@@ -154,13 +154,13 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                     size: 18,
                     color: Colors.orange,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(proc.favorito
                       ? 'Remover favorito'
                       : 'Adicionar favorito'),
                 ]),
               ),
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: 'editar',
                 child: Row(children: [
                   Icon(Icons.edit, size: 18),
@@ -168,7 +168,7 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                   Text('Editar'),
                 ]),
               ),
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: 'copiar',
                 child: Row(children: [
                   Icon(Icons.copy, size: 18),
@@ -180,7 +180,7 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                 value: 'deletar',
                 child: Row(children: [
                   Icon(Icons.delete, size: 18, color: AppColors.danger),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text('Deletar', style: TextStyle(color: AppColors.danger)),
                 ]),
               ),
@@ -202,12 +202,12 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Procedimentos'),
+        title: const Text('Procedimentos'),
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => const ProcedimentoFormScreen(),
             )),
@@ -225,10 +225,10 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Buscar procedimento...',
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: Icon(Icons.clear),
+                        icon: const Icon(Icons.clear),
                         onPressed: () {
                           _searchController.clear();
                           provider.setSearchQuery('');
@@ -306,7 +306,7 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                       children: [
                         Icon(Icons.menu_book,
                             size: 64, color: AppColors.inactive),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Text(
                           isFiltering
                               ? 'Nenhum resultado encontrado'
@@ -325,10 +325,10 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                         // Seção Favoritos (só quando não está filtrando)
                         if (!isFiltering && favoritosFiltrados.isNotEmpty) ...[
                           Text('Favoritos', style: AppTextStyles.h3),
-                          SizedBox(height: Dimensions.spacingSM),
+                          const SizedBox(height: Dimensions.spacingSM),
                           ...favoritosFiltrados.map(
                               (proc) => _buildCard(context, proc, provider)),
-                          SizedBox(height: Dimensions.spacingLG),
+                          const SizedBox(height: Dimensions.spacingLG),
                         ],
 
                         // Seção Todos
@@ -338,7 +338,7 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                               : 'Todos os Procedimentos',
                           style: AppTextStyles.h3,
                         ),
-                        SizedBox(height: Dimensions.spacingSM),
+                        const SizedBox(height: Dimensions.spacingSM),
                         ...filtrados
                             .map((proc) => _buildCard(context, proc, provider)),
                       ],

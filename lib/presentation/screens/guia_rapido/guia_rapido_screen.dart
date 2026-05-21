@@ -49,12 +49,12 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Excluir situação'),
+        title: const Text('Excluir situação'),
         content: Text('Excluir "${s.titulo}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () async {
@@ -90,7 +90,7 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Guia Rápido'),
+        title: const Text('Guia Rápido'),
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
@@ -116,10 +116,10 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
               controller: _searchCtrl,
               decoration: InputDecoration(
                 hintText: 'O que está acontecendo?',
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
                 suffixIcon: _query.isNotEmpty
                     ? IconButton(
-                        icon: Icon(Icons.clear),
+                        icon: const Icon(Icons.clear),
                         onPressed: () {
                           _searchCtrl.clear();
                           setState(() => _query = '');
@@ -145,7 +145,7 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: FilterChip(
-                    label: Text('Todas'),
+                    label: const Text('Todas'),
                     selected: _categoriaFiltro == null,
                     onSelected: (_) => setState(() => _categoriaFiltro = null),
                     selectedColor: AppColors.primary.withValues(alpha: 0.15),
@@ -196,7 +196,7 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
                       children: [
                         Icon(Icons.search_off,
                             size: 64, color: AppColors.inactive),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Text(
                           todas.isEmpty
                               ? 'Carregando guia...'
@@ -258,8 +258,8 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
                               Dimensions.paddingMD,
                               Dimensions.paddingMD),
                           children: [
-                            Divider(height: 1),
-                            SizedBox(height: Dimensions.spacingMD),
+                            const Divider(height: 1),
+                            const SizedBox(height: Dimensions.spacingMD),
                             ...s.passos.asMap().entries.map(
                                   (e) => Padding(
                                     padding: const EdgeInsets.only(
@@ -287,7 +287,7 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
                                             ),
                                           ),
                                         ),
-                                        SizedBox(width: 10),
+                                        const SizedBox(width: 10),
                                         Expanded(
                                           child: Text(
                                             e.value,
@@ -310,8 +310,8 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
         onPressed: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const GuiaRapidoFormScreen()),
         ),
-        icon: Icon(Icons.add),
-        label: Text('Nova Situação'),
+        icon: const Icon(Icons.add),
+        label: const Text('Nova Situação'),
         backgroundColor: AppColors.primary,
       ),
     );
