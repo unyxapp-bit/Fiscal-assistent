@@ -34,6 +34,7 @@ class CartazPriceText extends StatelessWidget {
       fontSize: baseFontSize * 0.5,
       letterSpacing: (style.letterSpacing ?? 0) * 0.5,
     );
+    final centsLift = baseFontSize * 0.22;
 
     return Text.rich(
       TextSpan(
@@ -41,10 +42,13 @@ class CartazPriceText extends StatelessWidget {
           TextSpan(text: parts.reais, style: style),
           WidgetSpan(
             alignment: PlaceholderAlignment.top,
-            child: Text(
-              parts.centavos,
-              maxLines: 1,
-              style: centsStyle,
+            child: Transform.translate(
+              offset: Offset(0, -centsLift),
+              child: Text(
+                parts.centavos,
+                maxLines: 1,
+                style: centsStyle,
+              ),
             ),
           ),
         ],
