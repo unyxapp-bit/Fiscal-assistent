@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:fiscal_assistant/data/models/cartaz_form_data.dart';
+import 'package:fiscal_assistant/presentation/widgets/cartazes/cartaz_price_text.dart';
 import 'package:fiscal_assistant/presentation/widgets/cartazes/cartaz_template_specs.dart';
 import 'package:fiscal_assistant/presentation/widgets/cartazes/poster_factory.dart';
 import 'package:flutter/material.dart';
@@ -55,5 +56,30 @@ void main() {
     final currencyRect = tester.getRect(find.text('R\$').first);
     final priceRect = tester.getRect(find.text('19,99').first);
     expect(currencyRect.right, lessThan(priceRect.left));
+  });
+
+  testWidgets('centavos menores ocupam a metade superior do preco',
+      (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Center(
+          child: CartazPriceText(
+            text: '19,99',
+            centavosMenores: true,
+            style: TextStyle(
+              fontSize: 100,
+              fontWeight: FontWeight.w900,
+              height: 1,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final reaisRect = tester.getRect(find.text('19'));
+    final centavosRect = tester.getRect(find.text(',99'));
+
+    expect(centavosRect.top, closeTo(reaisRect.top, 0.5));
+    expect(centavosRect.bottom, lessThanOrEqualTo(reaisRect.center.dy));
   });
 }

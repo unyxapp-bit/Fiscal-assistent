@@ -34,27 +34,23 @@ class CartazPriceText extends StatelessWidget {
       fontSize: baseFontSize * 0.5,
       letterSpacing: (style.letterSpacing ?? 0) * 0.5,
     );
-    final centsLift = baseFontSize * 0.22;
-
-    return Text.rich(
-      TextSpan(
-        children: [
-          TextSpan(text: parts.reais, style: style),
-          WidgetSpan(
-            alignment: PlaceholderAlignment.top,
-            child: Transform.translate(
-              offset: Offset(0, -centsLift),
-              child: Text(
-                parts.centavos,
-                maxLines: 1,
-                style: centsStyle,
-              ),
-            ),
-          ),
-        ],
-      ),
-      maxLines: 1,
-      textAlign: textAlign,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          parts.reais,
+          maxLines: 1,
+          textAlign: textAlign,
+          style: style,
+        ),
+        Text(
+          parts.centavos,
+          maxLines: 1,
+          textAlign: textAlign,
+          style: centsStyle,
+        ),
+      ],
     );
   }
 }
