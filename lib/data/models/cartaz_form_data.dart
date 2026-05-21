@@ -65,6 +65,7 @@ class CartazFormData {
   final String preco;
   final String unidade;
   final String? validade;
+  final bool centavosMenores;
 
   const CartazFormData({
     required this.tipo,
@@ -76,6 +77,7 @@ class CartazFormData {
     required this.preco,
     required this.unidade,
     this.validade,
+    this.centavosMenores = false,
   });
 
   Map<String, dynamic> toJson() {
@@ -89,6 +91,7 @@ class CartazFormData {
       'preco': preco,
       'unidade': unidade,
       'validade': validade,
+      'centavosMenores': centavosMenores,
     };
   }
 
@@ -109,6 +112,7 @@ class CartazFormData {
       preco: json['preco'] as String? ?? '',
       unidade: json['unidade'] as String? ?? '',
       validade: json['validade'] as String? ?? '',
+      centavosMenores: json['centavosMenores'] as bool? ?? false,
     );
   }
 }

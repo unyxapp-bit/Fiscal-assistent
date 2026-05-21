@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../data/models/cartaz_form_data.dart';
+import 'cartaz_price_text.dart';
 import 'cartaz_text_adjustments.dart';
 import 'poster_canvas.dart';
 import 'poster_template_background.dart';
@@ -58,6 +59,7 @@ class CartazAproveiteAgoraWidget extends StatelessWidget {
               scaleAlignment: Alignment.topLeft,
               child: _PriceLayer(
                 text: priceText,
+                centavosMenores: data.centavosMenores,
                 color: _aaPink,
                 shadowColor: Colors.black.withAlpha(42),
                 alignment: Alignment.topLeft,
@@ -243,6 +245,7 @@ String _priceWithoutCurrency(String value) {
 
 class _PriceLayer extends StatelessWidget {
   final String text;
+  final bool centavosMenores;
   final Color color;
   final Color shadowColor;
   final Alignment alignment;
@@ -251,6 +254,7 @@ class _PriceLayer extends StatelessWidget {
 
   const _PriceLayer({
     required this.text,
+    required this.centavosMenores,
     required this.color,
     required this.shadowColor,
     required this.alignment,
@@ -273,8 +277,9 @@ class _PriceLayer extends StatelessWidget {
           children: [
             Transform.translate(
               offset: const Offset(4, 7),
-              child: Text(
-                text,
+              child: CartazPriceText(
+                text: text,
+                centavosMenores: centavosMenores,
                 style: TextStyle(
                   fontSize: fontSize,
                   fontWeight: FontWeight.w900,
@@ -284,8 +289,9 @@ class _PriceLayer extends StatelessWidget {
                 ),
               ),
             ),
-            Text(
-              text,
+            CartazPriceText(
+              text: text,
+              centavosMenores: centavosMenores,
               style: TextStyle(
                 fontSize: fontSize,
                 fontWeight: FontWeight.w900,

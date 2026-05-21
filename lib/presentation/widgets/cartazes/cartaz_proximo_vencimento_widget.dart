@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../data/models/cartaz_form_data.dart';
+import 'cartaz_price_text.dart';
 import 'cartaz_text_adjustments.dart';
 import 'poster_canvas.dart';
 import 'poster_template_background.dart';
@@ -59,6 +60,7 @@ class CartazProximoVencimentoWidget extends StatelessWidget {
                 scaleAlignment: Alignment.bottomLeft,
                 child: _PriceLayer(
                   text: priceText,
+                  centavosMenores: data.centavosMenores,
                   color: _pvRed,
                   shadowColor: Colors.black.withAlpha(45),
                   outlineColor: Colors.white,
@@ -227,12 +229,14 @@ class _FitTextBox extends StatelessWidget {
 
 class _PriceLayer extends StatelessWidget {
   final String text;
+  final bool centavosMenores;
   final Color color;
   final Color shadowColor;
   final Color outlineColor;
 
   const _PriceLayer({
     required this.text,
+    required this.centavosMenores,
     required this.color,
     required this.shadowColor,
     required this.outlineColor,
@@ -253,8 +257,9 @@ class _PriceLayer extends StatelessWidget {
           children: [
             Transform.translate(
               offset: const Offset(4, 7),
-              child: Text(
-                text,
+              child: CartazPriceText(
+                text: text,
+                centavosMenores: centavosMenores,
                 style: TextStyle(
                   fontSize: 235,
                   fontWeight: FontWeight.w900,
@@ -264,8 +269,9 @@ class _PriceLayer extends StatelessWidget {
                 ),
               ),
             ),
-            Text(
-              text,
+            CartazPriceText(
+              text: text,
+              centavosMenores: centavosMenores,
               style: TextStyle(
                 fontSize: 235,
                 fontWeight: FontWeight.w900,
@@ -277,8 +283,9 @@ class _PriceLayer extends StatelessWidget {
                   ..color = outlineColor,
               ),
             ),
-            Text(
-              text,
+            CartazPriceText(
+              text: text,
+              centavosMenores: centavosMenores,
               style: TextStyle(
                 fontSize: 235,
                 fontWeight: FontWeight.w900,

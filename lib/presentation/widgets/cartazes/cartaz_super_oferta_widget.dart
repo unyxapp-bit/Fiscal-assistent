@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../data/models/cartaz_form_data.dart';
+import 'cartaz_price_text.dart';
 import 'cartaz_text_adjustments.dart';
 import 'poster_canvas.dart';
 import 'poster_template_background.dart';
@@ -57,7 +58,10 @@ class CartazSuperOfertaWidget extends StatelessWidget {
                 width: w * 0.84,
                 height: h * 0.29,
                 scaleAlignment: Alignment.center,
-                child: _SuperOfertaPriceGroup(text: priceText),
+                child: _SuperOfertaPriceGroup(
+                  text: priceText,
+                  centavosMenores: data.centavosMenores,
+                ),
               ),
             if (data.unidade.trim().isNotEmpty)
               CartazTextSlot(
@@ -224,8 +228,12 @@ class _FitTextBox extends StatelessWidget {
 
 class _SuperOfertaPriceGroup extends StatelessWidget {
   final String text;
+  final bool centavosMenores;
 
-  const _SuperOfertaPriceGroup({required this.text});
+  const _SuperOfertaPriceGroup({
+    required this.text,
+    required this.centavosMenores,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -262,6 +270,7 @@ class _SuperOfertaPriceGroup extends StatelessWidget {
               height: h * 0.88,
               child: _OutlinedTextBox(
                 text: displayText,
+                centavosMenores: centavosMenores,
                 fontSize: 198,
                 strokeWidth: 8,
                 alignment: Alignment.topLeft,
@@ -276,12 +285,14 @@ class _SuperOfertaPriceGroup extends StatelessWidget {
 
 class _OutlinedTextBox extends StatelessWidget {
   final String text;
+  final bool centavosMenores;
   final double fontSize;
   final double strokeWidth;
   final Alignment alignment;
 
   const _OutlinedTextBox({
     required this.text,
+    this.centavosMenores = false,
     required this.fontSize,
     required this.strokeWidth,
     required this.alignment,
@@ -298,8 +309,9 @@ class _OutlinedTextBox extends StatelessWidget {
           children: [
             Transform.translate(
               offset: const Offset(5, 7),
-              child: Text(
-                text,
+              child: CartazPriceText(
+                text: text,
+                centavosMenores: centavosMenores,
                 style: TextStyle(
                   fontSize: fontSize,
                   fontWeight: FontWeight.w900,
@@ -308,8 +320,9 @@ class _OutlinedTextBox extends StatelessWidget {
                 ),
               ),
             ),
-            Text(
-              text,
+            CartazPriceText(
+              text: text,
+              centavosMenores: centavosMenores,
               style: TextStyle(
                 fontSize: fontSize,
                 fontWeight: FontWeight.w900,
@@ -320,8 +333,9 @@ class _OutlinedTextBox extends StatelessWidget {
                   ..color = Colors.white,
               ),
             ),
-            Text(
-              text,
+            CartazPriceText(
+              text: text,
+              centavosMenores: centavosMenores,
               style: TextStyle(
                 fontSize: fontSize,
                 fontWeight: FontWeight.w900,

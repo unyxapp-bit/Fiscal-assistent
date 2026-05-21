@@ -28,6 +28,7 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
   final _precoCtrl = TextEditingController();
   final _unidadeCtrl = TextEditingController();
   final _validadeCtrl = TextEditingController();
+  bool _centavosMenores = false;
 
   CartazTemplateSpec get _spec => cartazTemplateSpec(widget.tipo);
   CartazTemplateFieldHints get _fields => _spec.fields;
@@ -55,6 +56,7 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
       preco: _normalizarPreco(_precoCtrl.text),
       unidade: _fields.showUnidade ? _unidadeCtrl.text.trim() : '',
       validade: _fields.showValidade ? _validadeCtrl.text.trim() : '',
+      centavosMenores: _centavosMenores,
     );
   }
 
@@ -181,6 +183,13 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
                       ],
                     ],
                   ),
+                  const SizedBox(height: 10),
+                  _switchCampo(
+                    value: _centavosMenores,
+                    onChanged: (value) {
+                      setState(() => _centavosMenores = value);
+                    },
+                  ),
                   if (_fields.showValidade) ...[
                     const SizedBox(height: 10),
                     _campo(
@@ -289,6 +298,28 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
         ),
       ),
       onChanged: (_) => setState(() {}),
+    );
+  }
+
+  Widget _switchCampo({
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return SwitchListTile(
+      value: value,
+      onChanged: onChanged,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+      tileColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(color: Colors.grey.shade300),
+      ),
+      activeThumbColor: const Color(0xFFD6166A),
+      secondary: const Icon(Icons.text_fields_rounded),
+      title: const Text(
+        'Centavos 50%',
+        style: TextStyle(fontWeight: FontWeight.w700),
+      ),
     );
   }
 }
