@@ -55,6 +55,8 @@ class AlocacaoProvider extends ChangeNotifier {
 
   EscalaProvider? _escalaProvider;
   Timer? _timerSaidas;
+  StreamSubscription<List<Alocacao>>? _alocacoesSubscription;
+  String? _fiscalIdObservado;
   final Set<String> _saidasProcessadas = {};
   DateTime? _diaProcessado;
 
@@ -205,10 +207,23 @@ class AlocacaoProvider extends ChangeNotifier {
 
   /// Inicia stream de alocações em tempo real
   void watchAlocacoes(String fiscalId) {
-    getAlocacoesAtivasUseCase.watch(fiscalId).listen((alocacoes) {
-      _alocacoes = alocacoes;
-      notifyListeners();
-    });
+    if (_fiscalIdObservado == fiscalId && _alocacoesSubscription != null) {
+      return;
+    }
+
+    _alocacoesSubscription?.cancel();
+    _fiscalIdObservado = fiscalId;
+    _alocacoesSubscription = getAlocacoesAtivasUseCase.watch(fiscalId).listen(
+      (alocacoes) {
+        _alocacoes = alocacoes;
+        notifyListeners();
+      },
+      onError: (error) {
+        _error = 'Erro ao observar alocacoes: $error';
+        _loadingState = LoadingState.error;
+        notifyListeners();
+      },
+    );
   }
 
   /// Aloca colaborador em caixa
@@ -410,6 +425,7 @@ class AlocacaoProvider extends ChangeNotifier {
   @override
   void dispose() {
     _timerSaidas?.cancel();
+    _alocacoesSubscription?.cancel();
     super.dispose();
   }
 }

@@ -146,12 +146,16 @@ class AlocacaoRemoteDataSource {
 
   /// Stream de alocações ativas (Realtime)
   Stream<List<AlocacaoModel>> watchAlocacoesAtivas(String fiscalId) {
-    return _client.from('alocacoes').stream(primaryKey: ['id']).map(
-      (data) => data
-          .map((json) => AlocacaoModel.fromJson(json))
-          .where((alocacao) => alocacao.liberadoEm == null)
-          .toList()
-        ..sort((a, b) => a.alocadoEm.compareTo(b.alocadoEm)),
-    );
+    return _client
+        .from('alocacoes')
+        .stream(primaryKey: ['id'])
+        .eq('fiscal_id', fiscalId)
+        .map(
+          (data) => data
+              .map((json) => AlocacaoModel.fromJson(json))
+              .where((alocacao) => alocacao.liberadoEm == null)
+              .toList()
+            ..sort((a, b) => a.alocadoEm.compareTo(b.alocadoEm)),
+        );
   }
 }

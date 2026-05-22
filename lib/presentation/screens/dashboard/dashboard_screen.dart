@@ -109,7 +109,8 @@ class _DashboardScreenState extends State<DashboardScreen>
           children: [
             const SizedBox(height: 8),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingMD),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: Dimensions.paddingMD),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -137,7 +138,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     destinoSelecionado.onTap();
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadData({bool refreshSharedData = false}) async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (authProvider.user == null) return;
 
@@ -157,19 +158,22 @@ class _DashboardScreenState extends State<DashboardScreen>
     await Future.wait([
       Provider.of<FiscalProvider>(context, listen: false).loadProfile(userId),
       Provider.of<ColaboradorProvider>(context, listen: false)
-          .loadColaboradores(userId),
+          .loadColaboradores(userId, forceRefresh: refreshSharedData),
       Provider.of<CaixaProvider>(context, listen: false).loadCaixas(userId),
       Provider.of<AlocacaoProvider>(context, listen: false)
           .loadAlocacoes(userId),
-      Provider.of<CafeProvider>(context, listen: false).load(),
-      Provider.of<EntregaProvider>(context, listen: false).load(),
-      Provider.of<NotaProvider>(context, listen: false).load(),
-      Provider.of<FormularioProvider>(context, listen: false).load(),
-      Provider.of<ProcedimentoProvider>(context, listen: false).load(),
-      Provider.of<OcorrenciaProvider>(context, listen: false).load(),
-      Provider.of<ChecklistProvider>(context, listen: false).load(),
-      Provider.of<PassagemTurnoProvider>(context, listen: false).load(),
       Provider.of<EventoTurnoProvider>(context, listen: false).load(userId),
+      if (refreshSharedData) ...[
+        Provider.of<CafeProvider>(context, listen: false).load(),
+        Provider.of<EntregaProvider>(context, listen: false).load(),
+        Provider.of<EscalaProvider>(context, listen: false).load(),
+        Provider.of<NotaProvider>(context, listen: false).load(),
+        Provider.of<FormularioProvider>(context, listen: false).load(),
+        Provider.of<ProcedimentoProvider>(context, listen: false).load(),
+        Provider.of<OcorrenciaProvider>(context, listen: false).load(),
+        Provider.of<ChecklistProvider>(context, listen: false).load(),
+        Provider.of<PassagemTurnoProvider>(context, listen: false).load(),
+      ],
     ]);
 
     if (mounted) {
@@ -177,6 +181,8 @@ class _DashboardScreenState extends State<DashboardScreen>
           .watchAlocacoes(userId);
     }
   }
+
+  Future<void> _refreshData() => _loadData(refreshSharedData: true);
 
   @override
   Widget build(BuildContext context) {
@@ -267,6 +273,11 @@ class _DashboardScreenState extends State<DashboardScreen>
     final VoidCallback? onTapBannerSaude = destinosBannerSaude.isNotEmpty
         ? () => _abrirDestinoBannerSaude(context, destinosBannerSaude)
         : null;
+    final turnoCritico = cafeProvider.totalEmAtraso > 0 ||
+        notaProvider.totalLembretesVencidos > 0;
+    final turnoEmAtencao = ocorrenciaProvider.totalAbertas > 0 ||
+        entregaProvider.totalSeparadas > 0 ||
+        checklistProvider.templatesPendentesAgora.isNotEmpty;
 
     final alertas = <_AlertItem>[
       if (cafeProvider.totalEmAtraso > 0)
@@ -324,7 +335,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ ABA 1: INÃƒÂCIO ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
         LayoutBuilder(
             builder: (context, constraints) => RefreshIndicator(
-                  onRefresh: _loadData,
+                  onRefresh: _refreshData,
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: EdgeInsets.symmetric(
@@ -357,6 +368,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                           },
                         ),
                         const SizedBox(height: Dimensions.spacingMD),
+                        _BannerSaudeTurno(
+                          critico: turnoCritico,
+                          atencao: turnoEmAtencao,
+                          onTap: onTapBannerSaude,
+                        ),
+                        const SizedBox(height: Dimensions.spacingLG),
 
                         // BotÃƒÂ£o ComeÃƒÂ§ar Turno Ã¢â‚¬â€ oculto apÃƒÂ³s confirmar inÃƒÂ­cio
                         const _DashboardSectionHeader(
@@ -405,8 +422,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                               color: AppColors.cyan,
                               onPressed: () => Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (_) =>
-                                      const RelatorioDiarioScreen(),
+                                  builder: (_) => const RelatorioDiarioScreen(),
                                 ),
                               ),
                             ),
@@ -542,7 +558,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                     ),
                   ),
                 )),
-
 
         // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ ABA 3: PIZZARIA ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
         const PizzaModuleScreen(),
@@ -728,7 +743,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
         // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ ABA 5: LOJA ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
         RefreshIndicator(
-          onRefresh: _loadData,
+          onRefresh: _refreshData,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.all(Dimensions.paddingMD),
@@ -741,11 +756,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                 ),
                 const SizedBox(height: Dimensions.spacingSM),
                 _BannerSaudeTurno(
-                  critico: cafeProvider.totalEmAtraso > 0 ||
-                      notaProvider.totalLembretesVencidos > 0,
-                  atencao: ocorrenciaProvider.totalAbertas > 0 ||
-                      entregaProvider.totalSeparadas > 0 ||
-                      checklistProvider.templatesPendentesAgora.isNotEmpty,
+                  critico: turnoCritico,
+                  atencao: turnoEmAtencao,
                   onTap: onTapBannerSaude,
                 ),
                 const SizedBox(height: Dimensions.spacingMD),
@@ -1198,8 +1210,8 @@ class _MonitorTempoReal extends StatelessWidget {
                           onChanged: (v) => setStateDialog(
                             () => permitirMesmoCaixa = v ?? false,
                           ),
-                          title:
-                              const Text('Permitir mesmo caixa (exce\u00e7\u00e3o)'),
+                          title: const Text(
+                              'Permitir mesmo caixa (exce\u00e7\u00e3o)'),
                           subtitle: const Text(
                             'Necess\u00e1rio justificar para auditoria.',
                           ),
@@ -2246,7 +2258,6 @@ class _OcupacaoBar extends StatelessWidget {
   }
 }
 
-
 // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Briefing de inÃƒÂ­cio de turno ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
 
 class _BriefingTurnoSheet extends StatelessWidget {
@@ -2464,19 +2475,30 @@ class _BriefingTurnoSheet extends StatelessWidget {
     );
   }
 
-  void _confirmarInicio(
+  Future<void> _confirmarInicio(
     BuildContext context,
     List<dynamic> presentes,
     List<dynamic> defolga,
     List<dynamic> notasImportantes,
     String horaFormatada,
-  ) {
+  ) async {
     final passagemProvider =
         Provider.of<PassagemTurnoProvider>(context, listen: false);
     final eventoProvider =
         Provider.of<EventoTurnoProvider>(context, listen: false);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final fiscalId = authProvider.user?.id ?? '';
+
+    if (fiscalId.isEmpty) {
+      AppNotif.show(
+        context,
+        titulo: 'In\u00edcio n\u00e3o registrado',
+        mensagem: 'Usu\u00e1rio n\u00e3o autenticado para iniciar o turno.',
+        tipo: 'alerta',
+        cor: AppColors.danger,
+      );
+      return;
+    }
 
     final resumo =
         'In\u00edcio de turno \u00e0s $horaFormatada\nPresentes: ${presentes.length} colaborador(es)';
@@ -2489,18 +2511,34 @@ class _BriefingTurnoSheet extends StatelessWidget {
         ? 'De folga/feriado: ${defolga.map((t) => t.colaboradorNome).join(', ')}'
         : 'Nenhum colaborador de folga hoje';
 
+    try {
+      await eventoProvider.registrar(
+        fiscalId: fiscalId,
+        tipo: TipoEvento.turnoIniciado,
+        detalhe:
+            '${presentes.length} presente(s). ${defolga.isNotEmpty ? recados : ''}',
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      AppNotif.show(
+        context,
+        titulo: 'In\u00edcio n\u00e3o registrado',
+        mensagem:
+            'N\u00e3o foi poss\u00edvel registrar o in\u00edcio na timeline. Tente novamente.',
+        tipo: 'alerta',
+        cor: AppColors.danger,
+        duracao: const Duration(seconds: 4),
+      );
+      return;
+    }
+
     passagemProvider.registrar(
       resumo: resumo,
       pendencias: pendencias,
       recados: recados,
     );
 
-    eventoProvider.registrar(
-      fiscalId: fiscalId,
-      tipo: TipoEvento.turnoIniciado,
-      detalhe:
-          '${presentes.length} presente(s). ${defolga.isNotEmpty ? recados : ''}',
-    );
+    if (!context.mounted) return;
 
     Navigator.pop(context);
 
@@ -2621,8 +2659,8 @@ class _BriefingColabTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(nome,
-                    style:
-                        const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    style: const TextStyle(
+                        fontSize: 13, fontWeight: FontWeight.w600)),
                 Text(detalhe,
                     style: AppTextStyles.caption
                         .copyWith(color: AppColors.textSecondary)),
