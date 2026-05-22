@@ -249,6 +249,28 @@ const cartazTemplateSpecs = <CartazTemplateSpec>[
     ),
   ),
   CartazTemplateSpec(
+    tipo: CartazTemplateTipo.carrosselPlus,
+    title: 'Carrossel Plus',
+    description: 'Oferta exclusiva para clientes do app',
+    color: Color(0xFFFFC400),
+    iconColor: Color(0xFF052F8D),
+    icon: Icons.smartphone_rounded,
+    asset: PosterTemplateAsset(
+      path: 'templates/carrossel plus.svg',
+      type: PosterTemplateAssetType.svg,
+    ),
+    fields: CartazTemplateFieldHints(
+      linha1Hint: 'Ex: ARROZ TIPO 1',
+      linha2Hint: 'Ex: CARROSSEL',
+      subtituloLabel: 'Peso / volume',
+      subtituloHint: 'Ex: PACOTE 5KG',
+      showDetalhe: true,
+      detalheLabel: 'Detalhe',
+      detalheHint: 'Ex: CLIENTE APP',
+      unidadeHint: 'Ex: UNID',
+    ),
+  ),
+  CartazTemplateSpec(
     tipo: CartazTemplateTipo.avisoImportante,
     title: 'Aviso importante',
     description: 'Cartaz informativo com mensagem livre',
@@ -295,7 +317,9 @@ CartazTemplateSpec cartazTemplateSpec(CartazTemplateTipo tipo) {
       return cartazTemplateSpecs[6];
     case CartazTemplateTipo.superOfertaPercentual:
       return cartazTemplateSpecs[7];
-    case CartazTemplateTipo.avisoImportante:
+    case CartazTemplateTipo.carrosselPlus:
       return cartazTemplateSpecs[8];
+    case CartazTemplateTipo.avisoImportante:
+      return cartazTemplateSpecs[9];
   }
 }

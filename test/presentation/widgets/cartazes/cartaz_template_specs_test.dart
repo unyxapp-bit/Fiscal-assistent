@@ -117,6 +117,35 @@ void main() {
     expect(find.text('PRODUTO VENCE 30/05/2026'), findsOneWidget);
   });
 
+  testWidgets('carrossel plus renderiza produto e preco no layout do app',
+      (tester) async {
+    const data = CartazFormData(
+      tipo: CartazTemplateTipo.carrosselPlus,
+      tamanho: CartazTamanho.a6,
+      tituloLinha1: 'Arroz tipo 1',
+      tituloLinha2: 'Carrossel',
+      subtitulo: 'Pacote 5KG',
+      detalhe: 'Cliente app',
+      preco: '24,99',
+      condicaoPromocao: 'Oferta exclusiva',
+      unidade: 'UNID',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Center(
+          child: buildPosterWidget(data),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('ARROZ TIPO 1'), findsOneWidget);
+    expect(find.text('24,99'), findsWidgets);
+    expect(find.text('OFERTA EXCLUSIVA'), findsOneWidget);
+  });
+
   testWidgets('aviso importante mostra mensagem sem preco', (tester) async {
     const data = CartazFormData(
       tipo: CartazTemplateTipo.avisoImportante,

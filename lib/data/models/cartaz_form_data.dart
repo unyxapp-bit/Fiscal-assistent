@@ -7,6 +7,7 @@ enum CartazTemplateTipo {
   ofertaDoDiaTradicional,
   ofertaDoDiaMoeda,
   superOfertaPercentual,
+  carrosselPlus,
   avisoImportante,
 }
 
@@ -64,6 +65,8 @@ extension CartazTemplateTipoExt on CartazTemplateTipo {
         return 'Oferta do dia moeda';
       case CartazTemplateTipo.superOfertaPercentual:
         return 'Super oferta percentual';
+      case CartazTemplateTipo.carrosselPlus:
+        return 'Carrossel Plus';
       case CartazTemplateTipo.avisoImportante:
         return 'Aviso importante';
     }
