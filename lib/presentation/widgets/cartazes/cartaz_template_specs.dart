@@ -22,6 +22,9 @@ class CartazTemplateFieldHints {
   final String linha2Hint;
   final String subtituloLabel;
   final String subtituloHint;
+  final bool showProduto;
+  final bool requiresPreco;
+  final bool showPromotionFields;
   final bool showDetalhe;
   final String detalheLabel;
   final String detalheHint;
@@ -29,12 +32,18 @@ class CartazTemplateFieldHints {
   final String unidadeHint;
   final bool showValidade;
   final String validadeHint;
+  final bool showMensagem;
+  final String mensagemLabel;
+  final String mensagemHint;
 
   const CartazTemplateFieldHints({
     required this.linha1Hint,
     required this.linha2Hint,
     required this.subtituloLabel,
     required this.subtituloHint,
+    this.showProduto = true,
+    this.requiresPreco = true,
+    this.showPromotionFields = true,
     this.showDetalhe = false,
     this.detalheLabel = 'Detalhe',
     this.detalheHint = '',
@@ -42,6 +51,9 @@ class CartazTemplateFieldHints {
     this.unidadeHint = 'Ex: UNID.',
     this.showValidade = false,
     this.validadeHint = '',
+    this.showMensagem = false,
+    this.mensagemLabel = 'Mensagem',
+    this.mensagemHint = '',
   });
 }
 
@@ -152,6 +164,117 @@ const cartazTemplateSpecs = <CartazTemplateSpec>[
       unidadeHint: 'Ex: UNID',
     ),
   ),
+  CartazTemplateSpec(
+    tipo: CartazTemplateTipo.cartazOferta,
+    title: 'Cartaz oferta',
+    description: 'Oferta com faixa vermelha e preco em destaque',
+    color: Color(0xFFD52C1A),
+    icon: Icons.campaign_rounded,
+    asset: PosterTemplateAsset(
+      path: 'templates/Cartaz Oferta.svg',
+      type: PosterTemplateAssetType.svg,
+    ),
+    fields: CartazTemplateFieldHints(
+      linha1Hint: 'Ex: CAFE TORRADO',
+      linha2Hint: 'Ex: MARCA DA CASA',
+      subtituloLabel: 'Peso / volume',
+      subtituloHint: 'Ex: 500G',
+      showDetalhe: true,
+      detalheLabel: 'Sabor / observacao',
+      detalheHint: 'Ex: TRADICIONAL',
+      unidadeHint: 'Ex: UN',
+    ),
+  ),
+  CartazTemplateSpec(
+    tipo: CartazTemplateTipo.ofertaDoDiaTradicional,
+    title: 'Oferta do dia tradicional',
+    description: 'Oferta do dia com selo de promocao',
+    color: Color(0xFFB40000),
+    icon: Icons.today_rounded,
+    asset: PosterTemplateAsset(
+      path: 'templates/Oferta do Dia Tradicional.svg',
+      type: PosterTemplateAssetType.svg,
+    ),
+    fields: CartazTemplateFieldHints(
+      linha1Hint: 'Ex: LEITE INTEGRAL',
+      linha2Hint: 'Ex: MARCA FAVORITA',
+      subtituloLabel: 'Peso / volume',
+      subtituloHint: 'Ex: 1L',
+      showDetalhe: true,
+      detalheLabel: 'Detalhe',
+      detalheHint: 'Ex: CADA UNIDADE',
+      unidadeHint: 'Ex: UN',
+    ),
+  ),
+  CartazTemplateSpec(
+    tipo: CartazTemplateTipo.ofertaDoDiaMoeda,
+    title: 'Oferta do dia moeda',
+    description: 'Oferta do dia com moeda decorativa',
+    color: Color(0xFFE60000),
+    icon: Icons.monetization_on_rounded,
+    asset: PosterTemplateAsset(
+      path: 'templates/Cartaz oferta do dua.svg',
+      type: PosterTemplateAssetType.svg,
+    ),
+    fields: CartazTemplateFieldHints(
+      linha1Hint: 'Ex: REFRIGERANTE',
+      linha2Hint: 'Ex: COLA ZERO',
+      subtituloLabel: 'Peso / volume',
+      subtituloHint: 'Ex: 2L',
+      showDetalhe: true,
+      detalheLabel: 'Detalhe',
+      detalheHint: 'Ex: GELADO',
+      unidadeHint: 'Ex: UN',
+    ),
+  ),
+  CartazTemplateSpec(
+    tipo: CartazTemplateTipo.superOfertaPercentual,
+    title: 'Super oferta percentual',
+    description: 'Super oferta com selo de desconto',
+    color: Color(0xFFE41212),
+    icon: Icons.percent_rounded,
+    asset: PosterTemplateAsset(
+      path: 'templates/Oferta (2).svg',
+      type: PosterTemplateAssetType.svg,
+    ),
+    fields: CartazTemplateFieldHints(
+      linha1Hint: 'Ex: SABAO EM PO',
+      linha2Hint: 'Ex: LAVA BEM',
+      subtituloLabel: 'Peso / volume',
+      subtituloHint: 'Ex: 1,6KG',
+      showDetalhe: true,
+      detalheLabel: 'Detalhe',
+      detalheHint: 'Ex: LEVE MAIS',
+      unidadeHint: 'Ex: UN',
+    ),
+  ),
+  CartazTemplateSpec(
+    tipo: CartazTemplateTipo.avisoImportante,
+    title: 'Aviso importante',
+    description: 'Cartaz informativo com mensagem livre',
+    color: Color(0xFFC72D2D),
+    icon: Icons.notifications_active_rounded,
+    asset: PosterTemplateAsset(
+      path: 'templates/Aviso Importante.svg',
+      type: PosterTemplateAssetType.svg,
+    ),
+    fields: CartazTemplateFieldHints(
+      linha1Hint: '',
+      linha2Hint: '',
+      subtituloLabel: '',
+      subtituloHint: '',
+      showProduto: false,
+      requiresPreco: false,
+      showPromotionFields: false,
+      showDetalhe: true,
+      detalheLabel: 'Complemento',
+      detalheHint: 'Ex: Procure um colaborador para ajuda',
+      showUnidade: false,
+      showMensagem: true,
+      mensagemLabel: 'Mensagem principal *',
+      mensagemHint: 'Ex: ATENCAO: BALCAO FECHADO PARA LIMPEZA',
+    ),
+  ),
 ];
 
 CartazTemplateSpec cartazTemplateSpec(CartazTemplateTipo tipo) {
@@ -164,5 +287,15 @@ CartazTemplateSpec cartazTemplateSpec(CartazTemplateTipo tipo) {
       return cartazTemplateSpecs[2];
     case CartazTemplateTipo.superOferta:
       return cartazTemplateSpecs[3];
+    case CartazTemplateTipo.cartazOferta:
+      return cartazTemplateSpecs[4];
+    case CartazTemplateTipo.ofertaDoDiaTradicional:
+      return cartazTemplateSpecs[5];
+    case CartazTemplateTipo.ofertaDoDiaMoeda:
+      return cartazTemplateSpecs[6];
+    case CartazTemplateTipo.superOfertaPercentual:
+      return cartazTemplateSpecs[7];
+    case CartazTemplateTipo.avisoImportante:
+      return cartazTemplateSpecs[8];
   }
 }

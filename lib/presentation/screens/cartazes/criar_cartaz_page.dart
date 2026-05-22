@@ -26,8 +26,15 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
   final _subtituloCtrl = TextEditingController();
   final _detalheCtrl = TextEditingController();
   final _precoCtrl = TextEditingController();
+  final _precoAnteriorCtrl = TextEditingController();
+  final _precoPorMedidaCtrl = TextEditingController();
   final _unidadeCtrl = TextEditingController();
   final _validadeCtrl = TextEditingController();
+  final _condicaoCtrl = TextEditingController();
+  final _limiteCtrl = TextEditingController();
+  final _validadeOfertaCtrl = TextEditingController();
+  final _validadeProdutoCtrl = TextEditingController();
+  final _mensagemCtrl = TextEditingController();
   bool _centavosMenores = false;
 
   CartazTemplateSpec get _spec => cartazTemplateSpec(widget.tipo);
@@ -40,8 +47,15 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
     _subtituloCtrl.dispose();
     _detalheCtrl.dispose();
     _precoCtrl.dispose();
+    _precoAnteriorCtrl.dispose();
+    _precoPorMedidaCtrl.dispose();
     _unidadeCtrl.dispose();
     _validadeCtrl.dispose();
+    _condicaoCtrl.dispose();
+    _limiteCtrl.dispose();
+    _validadeOfertaCtrl.dispose();
+    _validadeProdutoCtrl.dispose();
+    _mensagemCtrl.dispose();
     super.dispose();
   }
 
@@ -53,10 +67,23 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
       tituloLinha2: _linha2Ctrl.text.trim(),
       subtitulo: _subtituloCtrl.text.trim(),
       detalhe: _fields.showDetalhe ? _detalheCtrl.text.trim() : '',
-      preco: _normalizarPreco(_precoCtrl.text),
+      preco: _fields.requiresPreco ? _normalizarPreco(_precoCtrl.text) : '',
       unidade: _fields.showUnidade ? _unidadeCtrl.text.trim() : '',
       validade: _fields.showValidade ? _validadeCtrl.text.trim() : '',
       centavosMenores: _centavosMenores,
+      precoAnterior: _fields.showPromotionFields
+          ? _normalizarPreco(_precoAnteriorCtrl.text)
+          : '',
+      precoPorMedida:
+          _fields.showPromotionFields ? _precoPorMedidaCtrl.text.trim() : '',
+      condicaoPromocao:
+          _fields.showPromotionFields ? _condicaoCtrl.text.trim() : '',
+      limiteCliente: _fields.showPromotionFields ? _limiteCtrl.text.trim() : '',
+      validadeOferta:
+          _fields.showPromotionFields ? _validadeOfertaCtrl.text.trim() : '',
+      validadeProduto:
+          _fields.showPromotionFields ? _validadeProdutoCtrl.text.trim() : '',
+      mensagem: _fields.showMensagem ? _mensagemCtrl.text.trim() : '',
     );
   }
 
@@ -80,10 +107,16 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
   }
 
   void _visualizar() {
-    if (_linha1Ctrl.text.trim().isEmpty ||
-        _normalizarPreco(_precoCtrl.text).isEmpty) {
+    final produtoInvalido =
+        _fields.showProduto && _linha1Ctrl.text.trim().isEmpty;
+    final precoInvalido =
+        _fields.requiresPreco && _normalizarPreco(_precoCtrl.text).isEmpty;
+    final mensagemInvalida =
+        _fields.showMensagem && _mensagemCtrl.text.trim().isEmpty;
+
+    if (produtoInvalido || precoInvalido || mensagemInvalida) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Preencha o produto e o preço')),
+        SnackBar(content: Text(_validationMessage())),
       );
       return;
     }
@@ -91,6 +124,12 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => PreviewCartazPage(data: _buildData())),
     );
+  }
+
+  String _validationMessage() {
+    if (_fields.showMensagem) return 'Preencha a mensagem do aviso';
+    if (!_fields.requiresPreco) return 'Preencha os dados do cartaz';
+    return 'Preencha o produto e o preco';
   }
 
   @override
@@ -128,75 +167,159 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _sectionLabel('Produto'),
-                  _campo(
-                    controller: _linha1Ctrl,
-                    label: 'Linha 1 - nome / marca *',
-                    hint: _fields.linha1Hint,
-                  ),
-                  const SizedBox(height: 10),
-                  _campo(
-                    controller: _linha2Ctrl,
-                    label: 'Linha 2 - complemento',
-                    hint: _fields.linha2Hint,
-                  ),
-                  const SizedBox(height: 10),
-                  _campo(
-                    controller: _subtituloCtrl,
-                    label: _fields.subtituloLabel,
-                    hint: _fields.subtituloHint,
-                  ),
-                  if (_fields.showDetalhe) ...[
+                  if (_fields.showProduto) ...[
+                    _sectionLabel('Produto'),
+                    _campo(
+                      controller: _linha1Ctrl,
+                      label: 'Linha 1 - nome / marca *',
+                      hint: _fields.linha1Hint,
+                    ),
                     const SizedBox(height: 10),
                     _campo(
-                      controller: _detalheCtrl,
-                      label: _fields.detalheLabel,
-                      hint: _fields.detalheHint,
+                      controller: _linha2Ctrl,
+                      label: 'Linha 2 - complemento',
+                      hint: _fields.linha2Hint,
                     ),
-                  ],
-                  const SizedBox(height: 20),
-                  _sectionLabel('Preço'),
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: _campo(
-                          controller: _precoCtrl,
-                          label: 'Preço *',
-                          hint: 'Ex: 9,99',
-                          keyboard: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          caps: false,
-                        ),
+                    const SizedBox(height: 10),
+                    _campo(
+                      controller: _subtituloCtrl,
+                      label: _fields.subtituloLabel,
+                      hint: _fields.subtituloHint,
+                    ),
+                    if (_fields.showDetalhe) ...[
+                      const SizedBox(height: 10),
+                      _campo(
+                        controller: _detalheCtrl,
+                        label: _fields.detalheLabel,
+                        hint: _fields.detalheHint,
                       ),
-                      if (_fields.showUnidade) ...[
+                    ],
+                    const SizedBox(height: 20),
+                  ],
+                  if (_fields.showMensagem) ...[
+                    _sectionLabel('Aviso'),
+                    _campo(
+                      controller: _mensagemCtrl,
+                      label: _fields.mensagemLabel,
+                      hint: _fields.mensagemHint,
+                      maxLines: 4,
+                    ),
+                    if (_fields.showDetalhe) ...[
+                      const SizedBox(height: 10),
+                      _campo(
+                        controller: _detalheCtrl,
+                        label: _fields.detalheLabel,
+                        hint: _fields.detalheHint,
+                        maxLines: 2,
+                      ),
+                    ],
+                    const SizedBox(height: 20),
+                  ],
+                  if (_fields.requiresPreco) ...[
+                    _sectionLabel('Preco'),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: _campo(
+                            controller: _precoCtrl,
+                            label: 'Preco *',
+                            hint: 'Ex: 9,99',
+                            keyboard: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            caps: false,
+                          ),
+                        ),
+                        if (_fields.showUnidade) ...[
+                          const SizedBox(width: 10),
+                          Expanded(
+                            flex: 2,
+                            child: _campo(
+                              controller: _unidadeCtrl,
+                              label: 'Unidade',
+                              hint: _fields.unidadeHint,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    _switchCampo(
+                      value: _centavosMenores,
+                      onChanged: (value) {
+                        setState(() => _centavosMenores = value);
+                      },
+                    ),
+                    if (_fields.showValidade) ...[
+                      const SizedBox(height: 10),
+                      _campo(
+                        controller: _validadeCtrl,
+                        label: 'Rodape livre',
+                        hint: _fields.validadeHint,
+                      ),
+                    ],
+                    const SizedBox(height: 20),
+                  ],
+                  if (_fields.showPromotionFields) ...[
+                    _sectionLabel('Informacoes promocionais'),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _campo(
+                            controller: _precoAnteriorCtrl,
+                            label: 'Preco anterior',
+                            hint: 'Ex: 12,99',
+                            keyboard: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            caps: false,
+                          ),
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
-                          flex: 2,
                           child: _campo(
-                            controller: _unidadeCtrl,
-                            label: 'Unidade',
-                            hint: _fields.unidadeHint,
+                            controller: _precoPorMedidaCtrl,
+                            label: 'Preco por medida',
+                            hint: 'Ex: R\$ 5,60 / KG',
+                            caps: false,
                           ),
                         ),
                       ],
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  _switchCampo(
-                    value: _centavosMenores,
-                    onChanged: (value) {
-                      setState(() => _centavosMenores = value);
-                    },
-                  ),
-                  if (_fields.showValidade) ...[
+                    ),
                     const SizedBox(height: 10),
                     _campo(
-                      controller: _validadeCtrl,
-                      label: 'Validade / rodapé',
-                      hint: _fields.validadeHint,
+                      controller: _condicaoCtrl,
+                      label: 'Condicao da promocao',
+                      hint: 'Ex: PRECO CLUBE ou LEVE 3 PAGUE 2',
                     ),
+                    const SizedBox(height: 10),
+                    _campo(
+                      controller: _limiteCtrl,
+                      label: 'Limite por cliente',
+                      hint: 'Ex: MAX. 2 UNIDADES POR CPF',
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _campo(
+                            controller: _validadeOfertaCtrl,
+                            label: 'Validade da oferta',
+                            hint: 'Ex: OFERTA ATE 26/05/2026',
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _campo(
+                            controller: _validadeProdutoCtrl,
+                            label: 'Validade do produto',
+                            hint: 'Ex: PRODUTO VENCE 30/05/2026',
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
                   ],
                   const SizedBox(height: 28),
                   SizedBox(
@@ -236,8 +359,15 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
                   _subtituloCtrl,
                   _detalheCtrl,
                   _precoCtrl,
+                  _precoAnteriorCtrl,
+                  _precoPorMedidaCtrl,
                   _unidadeCtrl,
                   _validadeCtrl,
+                  _condicaoCtrl,
+                  _limiteCtrl,
+                  _validadeOfertaCtrl,
+                  _validadeProdutoCtrl,
+                  _mensagemCtrl,
                 ],
                 buildData: _buildData,
               ),
@@ -268,10 +398,12 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
     required String label,
     required String hint,
     bool caps = true,
+    int maxLines = 1,
     TextInputType? keyboard,
   }) {
     return TextField(
       controller: controller,
+      maxLines: maxLines,
       textCapitalization:
           caps ? TextCapitalization.characters : TextCapitalization.none,
       keyboardType: keyboard,

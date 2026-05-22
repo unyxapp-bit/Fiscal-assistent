@@ -75,8 +75,17 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
     addIf(data.subtitulo.trim().isNotEmpty, CartazTextElement.subtitulo);
     addIf((data.detalhe ?? '').trim().isNotEmpty, CartazTextElement.detalhe);
     addIf(data.preco.trim().isNotEmpty, CartazTextElement.preco);
+    addIf(
+      (data.precoAnterior ?? '').trim().isNotEmpty,
+      CartazTextElement.precoAnterior,
+    );
     addIf(data.unidade.trim().isNotEmpty, CartazTextElement.unidade);
+    addIf(
+      data.linhasInformacaoPromocional.isNotEmpty,
+      CartazTextElement.promocao,
+    );
     addIf((data.validade ?? '').trim().isNotEmpty, CartazTextElement.validade);
+    addIf((data.mensagem ?? '').trim().isNotEmpty, CartazTextElement.mensagem);
 
     return elements.isEmpty ? [CartazTextElement.tituloLinha1] : elements;
   }

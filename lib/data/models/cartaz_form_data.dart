@@ -3,6 +3,11 @@ enum CartazTemplateTipo {
   aproveiteAgora,
   oferta,
   superOferta,
+  cartazOferta,
+  ofertaDoDiaTradicional,
+  ofertaDoDiaMoeda,
+  superOfertaPercentual,
+  avisoImportante,
 }
 
 enum CartazTamanho {
@@ -51,8 +56,20 @@ extension CartazTemplateTipoExt on CartazTemplateTipo {
         return 'Oferta';
       case CartazTemplateTipo.superOferta:
         return 'Super oferta';
+      case CartazTemplateTipo.cartazOferta:
+        return 'Cartaz oferta';
+      case CartazTemplateTipo.ofertaDoDiaTradicional:
+        return 'Oferta do dia tradicional';
+      case CartazTemplateTipo.ofertaDoDiaMoeda:
+        return 'Oferta do dia moeda';
+      case CartazTemplateTipo.superOfertaPercentual:
+        return 'Super oferta percentual';
+      case CartazTemplateTipo.avisoImportante:
+        return 'Aviso importante';
     }
   }
+
+  bool get isInformativo => this == CartazTemplateTipo.avisoImportante;
 }
 
 class CartazFormData {
@@ -66,6 +83,13 @@ class CartazFormData {
   final String unidade;
   final String? validade;
   final bool centavosMenores;
+  final String? precoAnterior;
+  final String? precoPorMedida;
+  final String? condicaoPromocao;
+  final String? limiteCliente;
+  final String? validadeOferta;
+  final String? validadeProduto;
+  final String? mensagem;
 
   const CartazFormData({
     required this.tipo,
@@ -78,7 +102,26 @@ class CartazFormData {
     required this.unidade,
     this.validade,
     this.centavosMenores = false,
+    this.precoAnterior,
+    this.precoPorMedida,
+    this.condicaoPromocao,
+    this.limiteCliente,
+    this.validadeOferta,
+    this.validadeProduto,
+    this.mensagem,
   });
+
+  List<String> get linhasInformacaoPromocional {
+    return [
+      precoPorMedida,
+      condicaoPromocao,
+      limiteCliente,
+      validadeOferta,
+      validadeProduto,
+    ].whereType<String>().map((line) => line.trim()).where((line) {
+      return line.isNotEmpty;
+    }).toList();
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -92,6 +135,13 @@ class CartazFormData {
       'unidade': unidade,
       'validade': validade,
       'centavosMenores': centavosMenores,
+      'precoAnterior': precoAnterior,
+      'precoPorMedida': precoPorMedida,
+      'condicaoPromocao': condicaoPromocao,
+      'limiteCliente': limiteCliente,
+      'validadeOferta': validadeOferta,
+      'validadeProduto': validadeProduto,
+      'mensagem': mensagem,
     };
   }
 
@@ -113,6 +163,13 @@ class CartazFormData {
       unidade: json['unidade'] as String? ?? '',
       validade: json['validade'] as String? ?? '',
       centavosMenores: json['centavosMenores'] as bool? ?? false,
+      precoAnterior: json['precoAnterior'] as String? ?? '',
+      precoPorMedida: json['precoPorMedida'] as String? ?? '',
+      condicaoPromocao: json['condicaoPromocao'] as String? ?? '',
+      limiteCliente: json['limiteCliente'] as String? ?? '',
+      validadeOferta: json['validadeOferta'] as String? ?? '',
+      validadeProduto: json['validadeProduto'] as String? ?? '',
+      mensagem: json['mensagem'] as String? ?? '',
     );
   }
 }

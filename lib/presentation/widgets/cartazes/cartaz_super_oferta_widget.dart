@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../data/models/cartaz_form_data.dart';
 import 'cartaz_price_text.dart';
+import 'cartaz_promo_text.dart';
 import 'cartaz_text_adjustments.dart';
 import 'poster_canvas.dart';
 import 'poster_template_background.dart';
@@ -47,6 +48,29 @@ class CartazSuperOfertaWidget extends StatelessWidget {
               ),
             ),
             ..._buildProductSlots(canvasSize, detalhe),
+            if ((data.precoAnterior ?? '').trim().isNotEmpty)
+              CartazTextSlot(
+                canvasSize: canvasSize,
+                element: CartazTextElement.precoAnterior,
+                adjustments: textAdjustments,
+                selected: _isSelected(CartazTextElement.precoAnterior),
+                left: w * 0.17,
+                top: h * 0.515,
+                width: w * 0.66,
+                height: h * 0.038,
+                child: CartazPreviousPriceBox(
+                  preco: data.precoAnterior!,
+                  alignment: Alignment.center,
+                  style: const TextStyle(
+                    fontSize: 38,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black87,
+                    height: 1,
+                    decoration: TextDecoration.lineThrough,
+                    decorationThickness: 2.5,
+                  ),
+                ),
+              ),
             if (priceText.isNotEmpty)
               CartazTextSlot(
                 canvasSize: canvasSize,
@@ -81,6 +105,28 @@ class CartazSuperOfertaWidget extends StatelessWidget {
                     fontSize: 32,
                     fontWeight: FontWeight.w900,
                     color: Colors.black,
+                    height: 1,
+                  ),
+                ),
+              ),
+            if (data.linhasInformacaoPromocional.isNotEmpty)
+              CartazTextSlot(
+                canvasSize: canvasSize,
+                element: CartazTextElement.promocao,
+                adjustments: textAdjustments,
+                selected: _isSelected(CartazTextElement.promocao),
+                left: w * 0.12,
+                top: h * 0.86,
+                width: w * 0.76,
+                height: h * 0.09,
+                scaleAlignment: Alignment.topCenter,
+                child: CartazPromoInfoBox(
+                  lines: data.linhasInformacaoPromocional,
+                  alignment: Alignment.topCenter,
+                  style: const TextStyle(
+                    fontSize: 23,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black87,
                     height: 1,
                   ),
                 ),

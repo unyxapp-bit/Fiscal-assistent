@@ -82,4 +82,65 @@ void main() {
     expect(centavosRect.top, closeTo(reaisRect.top, 0.5));
     expect(centavosRect.bottom, lessThanOrEqualTo(reaisRect.center.dy));
   });
+
+  testWidgets('template extra mostra informacoes promocionais', (tester) async {
+    const data = CartazFormData(
+      tipo: CartazTemplateTipo.ofertaDoDiaTradicional,
+      tamanho: CartazTamanho.a6,
+      tituloLinha1: 'Leite integral',
+      tituloLinha2: 'Marca da casa',
+      subtitulo: '1L',
+      detalhe: 'Cada unidade',
+      preco: '9,99',
+      precoAnterior: '12,99',
+      precoPorMedida: 'R\$ 9,99 / L',
+      condicaoPromocao: 'Preco clube',
+      limiteCliente: 'Max. 2 por CPF',
+      validadeOferta: 'Oferta ate 26/05/2026',
+      validadeProduto: 'Produto vence 30/05/2026',
+      unidade: 'UN',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Center(
+          child: buildPosterWidget(data),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('LEITE INTEGRAL'), findsOneWidget);
+    expect(find.text('DE R\$ 12,99'), findsOneWidget);
+    expect(find.text('PRECO CLUBE'), findsOneWidget);
+    expect(find.text('PRODUTO VENCE 30/05/2026'), findsOneWidget);
+  });
+
+  testWidgets('aviso importante mostra mensagem sem preco', (tester) async {
+    const data = CartazFormData(
+      tipo: CartazTemplateTipo.avisoImportante,
+      tamanho: CartazTamanho.a6,
+      tituloLinha1: '',
+      tituloLinha2: '',
+      subtitulo: '',
+      detalhe: 'Procure a fiscal',
+      preco: '',
+      unidade: '',
+      mensagem: 'Balcao fechado para limpeza',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Center(
+          child: buildPosterWidget(data),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('BALCAO FECHADO PARA LIMPEZA'), findsOneWidget);
+    expect(find.text('PROCURE A FISCAL'), findsOneWidget);
+  });
 }

@@ -6,8 +6,11 @@ enum CartazTextElement {
   subtitulo,
   detalhe,
   preco,
+  precoAnterior,
   unidade,
+  promocao,
   validade,
+  mensagem,
 }
 
 CartazTextElement? cartazTextElementFromName(String? name) {
@@ -30,10 +33,16 @@ extension CartazTextElementLabel on CartazTextElement {
         return 'Detalhe';
       case CartazTextElement.preco:
         return 'Preco';
+      case CartazTextElement.precoAnterior:
+        return 'Preco anterior';
       case CartazTextElement.unidade:
         return 'Unidade';
+      case CartazTextElement.promocao:
+        return 'Promocao';
       case CartazTextElement.validade:
         return 'Validade';
+      case CartazTextElement.mensagem:
+        return 'Mensagem';
     }
   }
 }
