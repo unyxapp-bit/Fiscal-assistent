@@ -43,6 +43,7 @@ import '../configuracoes/configuracoes_screen.dart';
 import '../balcao/fiscal_events_screen.dart';
 import '../../providers/fiscal_events_provider.dart';
 import '../cartazes/cartazes_home_page.dart';
+import '../descontos/desconto_calculator_screen.dart';
 import '../../../data/services/seed_data_service.dart';
 import '../../../core/utils/app_notif.dart';
 import 'widgets/stats_card.dart';
@@ -797,6 +798,16 @@ class _DashboardScreenState extends State<DashboardScreen>
                 const SizedBox(height: Dimensions.spacingSM),
                 _GridAcoes(
                   botoes: [
+                    _BotaoAcao(
+                      icon: Icons.percent_rounded,
+                      label: 'Descontos',
+                      color: AppColors.success,
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const DescontoCalculatorScreen(),
+                        ),
+                      ),
+                    ),
                     _BotaoAcao(
                       icon: Icons.history,
                       label: 'Timeline',
