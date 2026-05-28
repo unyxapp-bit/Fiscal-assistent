@@ -49,6 +49,36 @@ class DescontoCalculator {
     );
   }
 
+  static DescontoResultado calcularPorPercentual({
+    required int precoBaseCentavos,
+    required double percentual,
+    int quantidade = 1,
+  }) {
+    final pct = percentual.isNaN || percentual.isInfinite ? 0.0 : percentual;
+    final fator = 1 - (pct.clamp(0.0, 100.0) / 100);
+    final precoFinal = (precoBaseCentavos * fator).round();
+    return calcular(
+      etiquetaCentavos: precoBaseCentavos,
+      sistemaCentavos: precoFinal,
+      quantidade: quantidade,
+    );
+  }
+
+  static DescontoResultado calcularLevePague({
+    required int precoUnitarioCentavos,
+    required int leve,
+    required int pague,
+    int quantidade = 1,
+  }) {
+    final leveValido = leve < 1 ? 1 : leve;
+    final pagueValido = pague < 0 ? 0 : pague.clamp(0, leveValido);
+    return calcular(
+      etiquetaCentavos: precoUnitarioCentavos * leveValido,
+      sistemaCentavos: precoUnitarioCentavos * pagueValido,
+      quantidade: quantidade,
+    );
+  }
+
   static int? parseMoneyToCents(String input) {
     var value = input.trim();
     if (value.isEmpty) return null;
@@ -100,6 +130,23 @@ class DescontoCalculator {
     final parsed = int.tryParse(input.trim());
     if (parsed == null || parsed < 1) return 1;
     return parsed;
+  }
+
+  static double? parsePercent(String input) {
+    var value = input.trim();
+    if (value.isEmpty) return null;
+
+    value = value
+        .replaceAll('%', '')
+        .replaceAll(RegExp(r'\s+'), '')
+        .replaceAll(RegExp(r'[^0-9,.\-]'), '');
+
+    if (value.isEmpty || value == '-' || value == ',' || value == '.') {
+      return null;
+    }
+
+    value = value.replaceAll(',', '.');
+    return double.tryParse(value);
   }
 
   static String formatMoney(int cents) {

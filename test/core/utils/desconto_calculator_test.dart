@@ -34,5 +34,36 @@ void main() {
       expect(DescontoCalculator.parseMoneyToCents('16.99'), 1699);
       expect(DescontoCalculator.parseMoneyToCents('R\$ 1.234,56'), 123456);
     });
+
+    test('calcula desconto por percentual', () {
+      final resultado = DescontoCalculator.calcularPorPercentual(
+        precoBaseCentavos: 2000,
+        percentual: 15,
+        quantidade: 2,
+      );
+
+      expect(resultado.sistemaCentavos, 1700);
+      expect(resultado.descontoUnitarioCentavos, 300);
+      expect(resultado.descontoTotalCentavos, 600);
+      expect(resultado.valorFinalTotalCentavos, 3400);
+    });
+
+    test('calcula promocao leve e pague', () {
+      final resultado = DescontoCalculator.calcularLevePague(
+        precoUnitarioCentavos: 1000,
+        leve: 3,
+        pague: 2,
+      );
+
+      expect(resultado.etiquetaCentavos, 3000);
+      expect(resultado.sistemaCentavos, 2000);
+      expect(resultado.descontoUnitarioCentavos, 1000);
+    });
+
+    test('aceita percentual com virgula e simbolo', () {
+      expect(DescontoCalculator.parsePercent('12,5%'), 12.5);
+      expect(DescontoCalculator.parsePercent('7.25'), 7.25);
+      expect(DescontoCalculator.parsePercent('abc'), isNull);
+    });
   });
 }
