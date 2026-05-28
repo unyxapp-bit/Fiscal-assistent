@@ -362,7 +362,7 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
           if (MediaQuery.of(context).size.width > 700) ...[
             const VerticalDivider(width: 1),
             Expanded(
-              flex: 4,
+              flex: 5,
               child: _LivePreview(
                 ctrls: [
                   _linha1Ctrl,
@@ -504,19 +504,20 @@ class _LivePreviewState extends State<_LivePreview> {
     final data = widget.buildData();
     final posterSize = PosterCanvas.canvasSizeFor(data.tamanho);
 
-    return Center(
+    return Padding(
+      padding: const EdgeInsets.all(8),
       child: LayoutBuilder(
         builder: (context, constraints) {
           final scale = posterPreviewScaleFor(
             posterSize: posterSize,
             constraints: constraints,
-            horizontalPadding: 20,
-            verticalPadding: 36,
-            maxScale: 0.95,
+            horizontalPadding: 8,
+            verticalPadding: 28,
+            maxScale: 1.35,
           );
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(4),
             child: Column(
               children: [
                 Text(
