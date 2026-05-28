@@ -49,6 +49,7 @@ Widget buildPosterWidget(
     case CartazTemplateTipo.ofertaDoDiaMoeda:
     case CartazTemplateTipo.superOfertaPercentual:
     case CartazTemplateTipo.carrosselPlus:
+    case CartazTemplateTipo.diaD:
       return CartazOfertaExtraWidget(
         data: data,
         textAdjustments: textAdjustments,

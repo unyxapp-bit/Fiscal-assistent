@@ -460,6 +460,35 @@ _ExtraOfertaLayout _layoutFor(CartazTemplateTipo tipo) {
         infoHeight: 0.062,
         infoFontSize: 20,
       );
+    case CartazTemplateTipo.diaD:
+      return const _ExtraOfertaLayout(
+        productLeft: 0.08,
+        productTop: 0.35,
+        productWidth: 0.84,
+        productHeight: 0.22,
+        titleFontSize: 116,
+        previousLeft: 0.16,
+        previousTop: 0.61,
+        previousWidth: 0.68,
+        previousHeight: 0.042,
+        previousFontSize: 42,
+        priceLeft: 0.22,
+        priceTop: 0.77,
+        priceWidth: 0.65,
+        priceHeight: 0.16,
+        priceFontSize: 200,
+        priceColor: Color(0xFF1A1A1A),
+        unitLeft: 0.68,
+        unitTop: 0.91,
+        unitWidth: 0.18,
+        unitHeight: 0.03,
+        unitFontSize: 28,
+        infoLeft: 0.10,
+        infoTop: 0.69,
+        infoWidth: 0.80,
+        infoHeight: 0.12,
+        infoFontSize: 32,
+      );
     case CartazTemplateTipo.proximoVencimento:
     case CartazTemplateTipo.aproveiteAgora:
     case CartazTemplateTipo.oferta:

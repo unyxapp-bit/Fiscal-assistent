@@ -9,6 +9,7 @@ enum CartazTemplateTipo {
   superOfertaPercentual,
   carrosselPlus,
   avisoImportante,
+  diaD,
 }
 
 enum CartazTamanho {
@@ -69,6 +70,8 @@ extension CartazTemplateTipoExt on CartazTemplateTipo {
         return 'Carrossel Plus';
       case CartazTemplateTipo.avisoImportante:
         return 'Aviso importante';
+      case CartazTemplateTipo.diaD:
+        return 'Dia D';
     }
   }
 

@@ -297,6 +297,28 @@ const cartazTemplateSpecs = <CartazTemplateSpec>[
       mensagemHint: 'Ex: ATENCAO: BALCAO FECHADO PARA LIMPEZA',
     ),
   ),
+  CartazTemplateSpec(
+    tipo: CartazTemplateTipo.diaD,
+    title: 'Dia D',
+    description: 'Promoção impactante com visual chamativo',
+    color: Color(0xFF1A1A1A),
+    icon: Icons.calendar_today_rounded,
+    asset: PosterTemplateAsset(
+      path: 'templates/dia_d.svg',
+      type: PosterTemplateAssetType.svg,
+    ),
+    fields: CartazTemplateFieldHints(
+      linha1Hint: 'Ex: GRANDE OFERTA',
+      linha2Hint: 'Ex: DO DIA',
+      subtituloLabel: 'Produto',
+      subtituloHint: 'Ex: TODOS OS PRODUTOS',
+      showDetalhe: true,
+      detalheLabel: 'Detalhe',
+      detalheHint: 'Ex: DESCONTO ATE 50%',
+      showPromotionFields: true,
+      unidadeHint: 'Ex: UNID',
+    ),
+  ),
 ];
 
 CartazTemplateSpec cartazTemplateSpec(CartazTemplateTipo tipo) {
@@ -321,5 +343,7 @@ CartazTemplateSpec cartazTemplateSpec(CartazTemplateTipo tipo) {
       return cartazTemplateSpecs[8];
     case CartazTemplateTipo.avisoImportante:
       return cartazTemplateSpecs[9];
+    case CartazTemplateTipo.diaD:
+      return cartazTemplateSpecs[10];
   }
 }
