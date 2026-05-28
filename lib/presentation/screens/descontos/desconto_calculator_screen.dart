@@ -327,10 +327,10 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
           'Final: ${DescontoCalculator.formatMoney(resultado.sistemaCentavos)}')
       ..add('Qtd: ${resultado.quantidade}')
       ..add(
-        '${_diferencaLabel(resultado)} unit.: ${DescontoCalculator.formatMoney(resultado.descontoUnitarioCentavos)}',
+        '${_diferencaLabel(resultado, _modo)} unit.: ${DescontoCalculator.formatMoney(resultado.descontoUnitarioCentavos)}',
       )
       ..add(
-        '${_diferencaLabel(resultado)} total: ${DescontoCalculator.formatMoney(resultado.descontoTotalCentavos)}',
+        '${_diferencaLabel(resultado, _modo)} total: ${DescontoCalculator.formatMoney(resultado.descontoTotalCentavos)}',
       )
       ..add(
         'Valor final total: ${DescontoCalculator.formatMoney(resultado.valorFinalTotalCentavos)}',
@@ -459,6 +459,7 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
                         ),
                         const SizedBox(height: Dimensions.spacingMD),
                         _ActionCard(
+                          modo: _modo,
                           resultado: resultado,
                           onCopy: _copiarResultado,
                           onSave: _salvarHistoricoAtual,
@@ -500,6 +501,7 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
               _ResumoCard(resultado: resultado, modo: _modo),
               const SizedBox(height: Dimensions.spacingMD),
               _ActionCard(
+                modo: _modo,
                 resultado: resultado,
                 onCopy: _copiarResultado,
                 onSave: _salvarHistoricoAtual,
@@ -531,7 +533,7 @@ class _ResultCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = context.appTheme;
-    final color = _statusColor(resultado);
+    final color = _statusColor(resultado, modo);
     final value = resultado == null
         ? 'R\$ 0,00'
         : DescontoCalculator.formatMoney(resultado!.descontoUnitarioCentavos);
@@ -796,6 +798,7 @@ class _InputCard extends StatelessWidget {
 }
 
 class _ActionCard extends StatelessWidget {
+  final _DescontoModo modo;
   final DescontoResultado? resultado;
   final VoidCallback onCopy;
   final VoidCallback onSave;
@@ -803,6 +806,7 @@ class _ActionCard extends StatelessWidget {
   final bool canSwap;
 
   const _ActionCard({
+    required this.modo,
     required this.resultado,
     required this.onCopy,
     required this.onSave,
@@ -813,7 +817,7 @@ class _ActionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = context.appTheme;
-    final color = _statusColor(resultado);
+    final color = _statusColor(resultado, modo);
 
     return Container(
       width: double.infinity,
@@ -832,7 +836,7 @@ class _ActionCard extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: onCopy,
               icon: const Icon(Icons.copy_rounded),
-              label: Text(_copyLabel(resultado)),
+              label: Text(_copyLabel(resultado, modo)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -878,7 +882,7 @@ class _ResumoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = context.appTheme;
-    final itemColor = _statusColor(resultado);
+    final itemColor = _statusColor(resultado, modo);
 
     return Container(
       width: double.infinity,
@@ -915,7 +919,7 @@ class _ResumoCard extends StatelessWidget {
           ),
           const Divider(height: 20),
           _ResumoRow(
-            label: _diferencaTotalLabel(resultado),
+            label: _diferencaTotalLabel(resultado, modo),
             value: resultado == null
                 ? 'R\$ 0,00'
                 : DescontoCalculator.formatMoney(
@@ -1372,7 +1376,12 @@ String _finalResumoLabel(_DescontoModo modo) => switch (modo) {
 String _statusLabel(DescontoResultado? resultado, _DescontoModo modo) {
   if (resultado == null) return 'Aguardando valores';
   if (resultado.valoresIguais) return 'Sem diferenca';
-  if (resultado.sistemaMaior) return 'Acrecimo detectado';
+  if (modo == _DescontoModo.precoFinal && resultado.sistemaMaior) {
+    return 'Preco final acima do original';
+  }
+  if (modo == _DescontoModo.comparacao && resultado.sistemaMaior) {
+    return 'PDV acima da etiqueta';
+  }
   return switch (modo) {
     _DescontoModo.percentual => 'Desconto por percentual',
     _DescontoModo.levePague => 'Promocao aplicada',
@@ -1380,28 +1389,35 @@ String _statusLabel(DescontoResultado? resultado, _DescontoModo modo) {
   };
 }
 
-String _diferencaLabel(DescontoResultado resultado) {
+String _diferencaLabel(DescontoResultado resultado, _DescontoModo modo) {
   if (resultado.valoresIguais) return 'Diferenca';
-  return resultado.sistemaMaior ? 'Acrecimo' : 'Desconto';
+  if (modo == _DescontoModo.precoFinal && resultado.sistemaMaior) {
+    return 'Acrecimo';
+  }
+  return 'Desconto';
 }
 
-String _diferencaTotalLabel(DescontoResultado? resultado) {
+String _diferencaTotalLabel(DescontoResultado? resultado, _DescontoModo modo) {
   if (resultado == null) return 'Diferenca total';
-  return '${_diferencaLabel(resultado)} total';
+  return '${_diferencaLabel(resultado, modo)} total';
 }
 
-String _copyLabel(DescontoResultado? resultado) {
+String _copyLabel(DescontoResultado? resultado, _DescontoModo modo) {
   if (resultado == null) return 'Copiar resultado';
-  if (resultado.sistemaMaior) return 'Copiar acrecimo';
+  if (modo == _DescontoModo.precoFinal && resultado.sistemaMaior) {
+    return 'Copiar acrecimo';
+  }
   if (resultado.valoresIguais) return 'Copiar conferencia';
   return 'Copiar desconto';
 }
 
-Color _statusColor(DescontoResultado? resultado) {
+Color _statusColor(DescontoResultado? resultado, _DescontoModo modo) {
   if (resultado == null || resultado.valoresIguais) {
     return AppColors.textSecondary;
   }
-  if (resultado.sistemaMaior) return AppColors.warning;
+  if (modo == _DescontoModo.precoFinal && resultado.sistemaMaior) {
+    return AppColors.warning;
+  }
   return AppColors.success;
 }
 
