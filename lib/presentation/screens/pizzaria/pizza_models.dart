@@ -128,6 +128,10 @@ class PedidoPizza {
 // ============================================================
 
 class PizzaService {
+  static const _pedidoSelect =
+      'id,nome_cliente,codigo_entrega,endereco,bairro,telefone,referencia,'
+      'data_pedido,horario_pedido,observacoes,status';
+
   static String _textoObrigatorio(String? valor) => (valor ?? '').trim();
 
   static String? _textoOpcional(String? valor) {
@@ -136,34 +140,45 @@ class PizzaService {
     return t;
   }
 
-  static bool _erroColunaInexistente(Object erro) {
+  static bool _erroCampoEntregaAusente(Object erro) {
     final msg = erro.toString().toLowerCase();
-    return msg.contains('column') && msg.contains('does not exist');
+    final falaDeColuna = msg.contains('column') ||
+        msg.contains('schema cache') ||
+        msg.contains('could not find');
+    final campoEntrega = [
+      'endereco',
+      'bairro',
+      'telefone',
+      'referencia',
+    ].any(msg.contains);
+
+    return falaDeColuna && campoEntrega;
+  }
+
+  static Exception _erroMigracaoCamposEntrega(Object erro) {
+    return Exception(
+      'Nao foi possivel salvar endereco/telefone porque a tabela '
+      'pedidos_pizza nao tem os campos de entrega. Execute a migration '
+      'supabase_migrations/add_cliente_fields_to_pedidos_pizza.sql no '
+      'Supabase e tente novamente. Erro original: $erro',
+    );
   }
 
   static Map<String, dynamic> _payloadPedido(
-    PedidoPizza pedido, {
-    bool incluirCamposNovos = true,
-  }) {
-    final payload = <String, dynamic>{
+    PedidoPizza pedido,
+  ) {
+    return <String, dynamic>{
       'nome_cliente': _textoObrigatorio(pedido.nomeCliente),
       'codigo_entrega': _textoObrigatorio(pedido.codigoEntrega),
+      'endereco': _textoOpcional(pedido.endereco),
+      'bairro': _textoOpcional(pedido.bairro),
+      'telefone': _textoOpcional(pedido.telefone),
+      'referencia': _textoOpcional(pedido.referencia),
       'data_pedido': pedido.dataPedido.toIso8601String().substring(0, 10),
       'horario_pedido': pedido.horarioPedido,
       'observacoes': _textoOpcional(pedido.observacoes),
       'status': pedido.status,
     };
-
-    if (incluirCamposNovos) {
-      payload.addAll({
-        'endereco': _textoOpcional(pedido.endereco),
-        'bairro': _textoOpcional(pedido.bairro),
-        'telefone': _textoOpcional(pedido.telefone),
-        'referencia': _textoOpcional(pedido.referencia),
-      });
-    }
-
-    return payload;
   }
 
   // ---------- PIZZAS ----------
@@ -213,10 +228,8 @@ class PizzaService {
 
     final ids = rows.map((r) => r['id'] as String).toList();
 
-    final itensData = await _db
-        .from('itens_pedido')
-        .select()
-        .inFilter('pedido_id', ids);
+    final itensData =
+        await _db.from('itens_pedido').select().inFilter('pedido_id', ids);
 
     final pizzas = await listarPizzas(somenteAtivas: false);
     final pizzaMap = {for (final p in pizzas) p.id: p};
@@ -228,14 +241,14 @@ class PizzaService {
       if (p1 == null) continue;
       final p2 = row['pizza2_id'] != null ? pizzaMap[row['pizza2_id']] : null;
       itensPorPedido.putIfAbsent(pedidoId, () => []).add(ItemPedido(
-        pizzaId: p1.id,
-        pizzaNome: p1.nome,
-        pizzaTamanho: p1.tamanho,
-        pizza2Id: p2?.id,
-        pizza2Nome: p2?.nome,
-        quantidade: row['quantidade'],
-        ehMeioAMeio: row['eh_meio_a_meio'],
-      ));
+            pizzaId: p1.id,
+            pizzaNome: p1.nome,
+            pizzaTamanho: p1.tamanho,
+            pizza2Id: p2?.id,
+            pizza2Nome: p2?.nome,
+            quantidade: row['quantidade'],
+            ehMeioAMeio: row['eh_meio_a_meio'],
+          ));
     }
 
     return rows
@@ -243,24 +256,23 @@ class PizzaService {
         .toList();
   }
 
-  static Future<String> criarPedido(PedidoPizza pedido) async {
+  static Future<PedidoPizza> criarPedido(PedidoPizza pedido) async {
     dynamic result;
     try {
       result = await _db
           .from('pedidos_pizza')
           .insert(_payloadPedido(pedido))
-          .select()
+          .select(_pedidoSelect)
           .single();
     } catch (e) {
-      if (!_erroColunaInexistente(e)) rethrow;
-      result = await _db
-          .from('pedidos_pizza')
-          .insert(_payloadPedido(pedido, incluirCamposNovos: false))
-          .select()
-          .single();
+      if (_erroCampoEntregaAusente(e)) {
+        throw _erroMigracaoCamposEntrega(e);
+      }
+      rethrow;
     }
 
-    final pedidoId = result['id'] as String;
+    final row = Map<String, dynamic>.from(result as Map);
+    final pedidoId = row['id'] as String;
 
     for (final item in pedido.itens) {
       await _db.from('itens_pedido').insert({
@@ -272,7 +284,7 @@ class PizzaService {
       });
     }
 
-    return pedidoId;
+    return PedidoPizza.fromMap(row, pedido.itens);
   }
 
   static Future<void> atualizarPedido(PedidoPizza pedido) async {
@@ -288,11 +300,10 @@ class PizzaService {
           .update(_payloadPedido(pedido))
           .eq('id', pedidoId);
     } catch (e) {
-      if (!_erroColunaInexistente(e)) rethrow;
-      await _db
-          .from('pedidos_pizza')
-          .update(_payloadPedido(pedido, incluirCamposNovos: false))
-          .eq('id', pedidoId);
+      if (_erroCampoEntregaAusente(e)) {
+        throw _erroMigracaoCamposEntrega(e);
+      }
+      rethrow;
     }
 
     await _db.from('itens_pedido').delete().eq('pedido_id', pedidoId);

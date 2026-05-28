@@ -168,7 +168,7 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
         return;
       }
 
-      final id = await PizzaService.criarPedido(pedido);
+      final pedidoSalvo = await PizzaService.criarPedido(pedido);
       if (!mounted) return;
       showModalBottomSheet(
         context: context,
@@ -177,22 +177,10 @@ class _NovoPedidoScreenState extends State<NovoPedidoScreen> {
         backgroundColor: Colors.transparent,
         isDismissible: false,
         builder: (_) => CupomWidget(
-          pedido: PedidoPizza(
-            id: id,
-            nomeCliente: pedido.nomeCliente,
-            codigoEntrega: pedido.codigoEntrega,
-            endereco: pedido.endereco,
-            bairro: pedido.bairro,
-            telefone: pedido.telefone,
-            referencia: pedido.referencia,
-            dataPedido: pedido.dataPedido,
-            horarioPedido: pedido.horarioPedido,
-            observacoes: pedido.observacoes,
-            itens: pedido.itens,
-          ),
+          pedido: pedidoSalvo,
           onFechar: () {
             Navigator.pop(context); // fecha cupom
-            Navigator.pop(context); // volta para lista
+            Navigator.pop(context, true); // volta para lista
           },
         ),
       );
