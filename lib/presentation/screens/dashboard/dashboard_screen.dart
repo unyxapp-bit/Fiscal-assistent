@@ -340,7 +340,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: EdgeInsets.symmetric(
-                      horizontal: Dimensions.hPad(constraints.maxWidth),
+                      horizontal:
+                          _inicioHorizontalPadding(constraints.maxWidth),
                       vertical: Dimensions.paddingMD,
                     ),
                     child: Column(
@@ -395,6 +396,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                         ),
                         const SizedBox(height: Dimensions.spacingSM),
                         _GridAcoes(
+                          wideGrid: true,
                           botoes: [
                             _BotaoAcao(
                               icon: Icons.point_of_sale,
@@ -458,9 +460,16 @@ class _DashboardScreenState extends State<DashboardScreen>
                         LayoutBuilder(
                           builder: (context, statsConstraints) {
                             final crossAxisCount =
-                                statsConstraints.maxWidth >= 640 ? 3 : 2;
-                            final childAspectRatio =
-                                crossAxisCount == 3 ? 1.45 : 1.28;
+                                statsConstraints.maxWidth >= 1040
+                                    ? 6
+                                    : statsConstraints.maxWidth >= 640
+                                        ? 3
+                                        : 2;
+                            final childAspectRatio = switch (crossAxisCount) {
+                              6 => 1.15,
+                              3 => 1.45,
+                              _ => 1.28,
+                            };
                             return GridView.count(
                               crossAxisCount: crossAxisCount,
                               shrinkWrap: true,
@@ -1546,6 +1555,24 @@ class _ProximoIntervalo {
 
 // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Helpers de layout ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
 
+const double _inicioMaxContentWidth = 1180.0;
+
+double _inicioHorizontalPadding(double screenWidth) {
+  if (screenWidth < Dimensions.breakpointTablet) {
+    return Dimensions.paddingMD;
+  }
+
+  final targetPadding = screenWidth >= Dimensions.breakpointWide
+      ? Dimensions.paddingXL
+      : Dimensions.paddingLG;
+
+  if (screenWidth > _inicioMaxContentWidth + targetPadding * 2) {
+    return (screenWidth - _inicioMaxContentWidth) / 2;
+  }
+
+  return targetPadding;
+}
+
 class _BotaoAcao {
   final IconData icon;
   final String label;
@@ -1564,11 +1591,47 @@ class _BotaoAcao {
 
 class _GridAcoes extends StatelessWidget {
   final List<_BotaoAcao> botoes;
+  final bool wideGrid;
 
-  const _GridAcoes({required this.botoes});
+  const _GridAcoes({
+    required this.botoes,
+    this.wideGrid = false,
+  });
 
   @override
   Widget build(BuildContext context) {
+    if (!wideGrid) {
+      return _buildList(context);
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 760) {
+          return _buildList(context);
+        }
+
+        final crossAxisCount = constraints.maxWidth >= 1040 ? 3 : 2;
+        final childAspectRatio = constraints.maxWidth >= 1040 ? 4.2 : 3.8;
+
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: botoes.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: Dimensions.spacingSM,
+            mainAxisSpacing: Dimensions.spacingSM,
+            childAspectRatio: childAspectRatio,
+          ),
+          itemBuilder: (context, index) => _BotaoAcaoCard(
+            botao: botoes[index],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildList(BuildContext context) {
     final tokens = context.appTheme;
     return Container(
       decoration: AppStyles.softCard(
@@ -1591,6 +1654,113 @@ class _GridAcoes extends StatelessWidget {
   }
 }
 
+class _BotaoAcaoIcon extends StatelessWidget {
+  final _BotaoAcao botao;
+
+  const _BotaoAcaoIcon({required this.botao});
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.appTheme;
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: botao.color.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: botao.color.withValues(alpha: 0.18),
+            ),
+          ),
+          child: Icon(botao.icon, color: botao.color, size: 18),
+        ),
+        if (botao.badge != null)
+          Positioned(
+            top: -4,
+            right: -4,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 4,
+                vertical: 1,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.danger,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: tokens.cardBackground,
+                  width: 1.5,
+                ),
+              ),
+              child: Text(
+                botao.badge!,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _BotaoAcaoCard extends StatelessWidget {
+  final _BotaoAcao botao;
+
+  const _BotaoAcaoCard({required this.botao});
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.appTheme;
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(tokens.cardRadius),
+      child: InkWell(
+        onTap: botao.onPressed,
+        borderRadius: BorderRadius.circular(tokens.cardRadius),
+        child: Ink(
+          padding: const EdgeInsets.symmetric(
+            horizontal: Dimensions.paddingMD,
+            vertical: Dimensions.paddingSM,
+          ),
+          decoration: AppStyles.softCard(
+            context: context,
+            tint: botao.color,
+            radius: tokens.cardRadius,
+            elevated: false,
+          ),
+          child: Row(
+            children: [
+              _BotaoAcaoIcon(botao: botao),
+              const SizedBox(width: Dimensions.spacingSM),
+              Expanded(
+                child: Text(
+                  botao.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.body.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: botao.color.withValues(alpha: 0.72),
+                size: 20,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _BotaoAcaoTile extends StatelessWidget {
   final _BotaoAcao botao;
 
@@ -1598,7 +1768,6 @@ class _BotaoAcaoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.appTheme;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -1610,50 +1779,7 @@ class _BotaoAcaoTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: botao.color.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: botao.color.withValues(alpha: 0.18),
-                      ),
-                    ),
-                    child: Icon(botao.icon, color: botao.color, size: 18),
-                  ),
-                  if (botao.badge != null)
-                    Positioned(
-                      top: -4,
-                      right: -4,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 1,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.danger,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: tokens.cardBackground,
-                            width: 1.5,
-                          ),
-                        ),
-                        child: Text(
-                          botao.badge!,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
+              _BotaoAcaoIcon(botao: botao),
               const SizedBox(width: Dimensions.spacingSM),
               Expanded(
                 child: Text(
