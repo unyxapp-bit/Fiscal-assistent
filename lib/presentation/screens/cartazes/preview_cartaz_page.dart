@@ -420,14 +420,17 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
         foregroundColor: Colors.black,
         elevation: 0,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final scale = _previewScale(constraints);
-                return SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final scale = _previewScale(constraints);
+          final bottomPadding =
+              _adjusting ? constraints.maxHeight * 0.56 : 116.0;
+
+          return Stack(
+            children: [
+              Positioned.fill(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(24, 24, 24, bottomPadding),
                   child: Center(
                     child: SizedBox(
                       width: _posterSize.width * scale,
@@ -450,19 +453,31 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
                       ),
                     ),
                   ),
-                );
-              },
-            ),
-          ),
-          _buildBottomBar(),
-        ],
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: _buildBottomBar(),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
   Widget _buildBottomBar() {
     return Container(
-      color: Colors.white,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(20),
+            blurRadius: 18,
+            offset: const Offset(0, -6),
+          ),
+        ],
+      ),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -509,48 +524,57 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
           ),
           if (_adjusting) ...[
             const SizedBox(height: 12),
-            _buildAdjustmentPanel(),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.sizeOf(context).height * 0.42,
+              ),
+              child: SingleChildScrollView(
+                child: _buildAdjustmentPanel(),
+              ),
+            ),
           ],
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: _exporting ? null : _compartilharPNG,
-                  icon: const Icon(Icons.image_rounded, size: 18),
-                  label: const Text('PNG'),
-                  style: _exportButtonStyle(const Color(0xFF1565C0)),
+          if (!_adjusting) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _exporting ? null : _compartilharPNG,
+                    icon: const Icon(Icons.image_rounded, size: 18),
+                    label: const Text('PNG'),
+                    style: _exportButtonStyle(const Color(0xFF1565C0)),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: _exporting ? null : _compartilharPDF,
-                  icon: const Icon(Icons.picture_as_pdf_rounded, size: 18),
-                  label: const Text('PDF'),
-                  style: _exportButtonStyle(const Color(0xFFCC0000)),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _exporting ? null : _compartilharPDF,
+                    icon: const Icon(Icons.picture_as_pdf_rounded, size: 18),
+                    label: const Text('PDF'),
+                    style: _exportButtonStyle(const Color(0xFFCC0000)),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: _exporting ? null : _imprimir,
-                  icon: _exporting
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Icon(Icons.print_rounded, size: 18),
-                  label: Text(_exporting ? 'Gerando' : 'Imprimir'),
-                  style: _exportButtonStyle(const Color(0xFFD6166A)),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _exporting ? null : _imprimir,
+                    icon: _exporting
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.print_rounded, size: 18),
+                    label: Text(_exporting ? 'Gerando' : 'Imprimir'),
+                    style: _exportButtonStyle(const Color(0xFFD6166A)),
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );
