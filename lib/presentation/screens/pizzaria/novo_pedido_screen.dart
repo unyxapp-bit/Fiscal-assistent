@@ -455,20 +455,41 @@ class _SeletorPizzaScreen extends StatefulWidget {
 }
 
 class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
+  final _buscaCtrl = TextEditingController();
   bool _meioAMeio = false;
   bool _expandGrandes = true;
   bool _expandMedias = false;
   Pizza? _p1;
   Pizza? _p2;
   int _qtd = 1;
+  String _busca = '';
   final List<ItemPedido> _itensSelecionados = [];
 
   List<Pizza> get _grandes =>
-      widget.pizzas.where((p) => p.tamanho == 'grande').toList();
+      _filtrarPizzas(widget.pizzas.where((p) => p.tamanho == 'grande'));
   List<Pizza> get _medias =>
-      widget.pizzas.where((p) => p.tamanho == 'media').toList();
+      _filtrarPizzas(widget.pizzas.where((p) => p.tamanho == 'media'));
 
   List<Pizza> get _opcoesMeio => _grandes;
+
+  @override
+  void dispose() {
+    _buscaCtrl.dispose();
+    super.dispose();
+  }
+
+  List<Pizza> _filtrarPizzas(Iterable<Pizza> pizzas) {
+    final termo = _busca.trim().toLowerCase();
+    if (termo.isEmpty) return pizzas.toList();
+    return pizzas.where((pizza) {
+      final campos = [
+        pizza.nome,
+        pizza.ingredientes ?? '',
+        pizza.tamanhoLabel,
+      ];
+      return campos.any((campo) => campo.toLowerCase().contains(termo));
+    }).toList();
+  }
 
   bool get _podeAdicionar {
     if (_meioAMeio) return _p1 != null && _p2 != null;
@@ -797,6 +818,26 @@ class _SeletorPizzaScreenState extends State<_SeletorPizzaScreen> {
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
               ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _buscaCtrl,
+              decoration: InputDecoration(
+                hintText: 'Buscar sabor ou ingrediente',
+                prefixIcon: Icon(Icons.search, color: AppColors.textSecondary),
+                suffixIcon: _busca.isEmpty
+                    ? null
+                    : IconButton(
+                        icon: Icon(Icons.close, color: AppColors.textSecondary),
+                        onPressed: () {
+                          _buscaCtrl.clear();
+                          setState(() => _busca = '');
+                        },
+                      ),
+                border: const OutlineInputBorder(),
+                isDense: true,
+              ),
+              onChanged: (value) => setState(() => _busca = value),
             ),
             const SizedBox(height: 16),
 

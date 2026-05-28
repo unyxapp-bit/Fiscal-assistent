@@ -19,12 +19,21 @@ class PizzasCadastroScreen extends StatefulWidget {
 
 class _PizzasCadastroScreenState extends State<PizzasCadastroScreen> {
   List<Pizza> _pizzas = [];
+  final _buscaCtrl = TextEditingController();
   bool _loading = true;
+  String _busca = '';
+  String _filtroAtividade = 'todos';
 
   @override
   void initState() {
     super.initState();
     _carregar();
+  }
+
+  @override
+  void dispose() {
+    _buscaCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _carregar() async {
@@ -68,16 +77,51 @@ class _PizzasCadastroScreenState extends State<PizzasCadastroScreen> {
       ),
     );
     if (ok == true) {
-      await PizzaService.deletarPizza(pizza.id);
-      _carregar();
+      try {
+        await PizzaService.deletarPizza(pizza.id);
+        _carregar();
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Nao foi possivel excluir. Se esse sabor ja foi usado, desative-o.',
+            ),
+          ),
+        );
+      }
     }
+  }
+
+  List<Pizza> get _pizzasFiltradas {
+    final termo = _busca.trim().toLowerCase();
+    return _pizzas.where((pizza) {
+      final combinaAtividade = switch (_filtroAtividade) {
+        'ativas' => pizza.ativa,
+        'inativas' => !pizza.ativa,
+        _ => true,
+      };
+      if (!combinaAtividade) return false;
+      if (termo.isEmpty) return true;
+
+      final campos = [
+        pizza.nome,
+        pizza.ingredientes ?? '',
+        pizza.tamanhoLabel,
+        if (pizza.preco != null) pizza.preco!.toStringAsFixed(2),
+      ];
+      return campos.any((campo) => campo.toLowerCase().contains(termo));
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.appTheme;
-    final grandes = _pizzas.where((p) => p.tamanho == 'grande').toList();
-    final medias = _pizzas.where((p) => p.tamanho == 'media').toList();
+    final pizzas = _pizzasFiltradas;
+    final grandes = pizzas.where((p) => p.tamanho == 'grande').toList();
+    final medias = pizzas.where((p) => p.tamanho == 'media').toList();
+    final ativas = _pizzas.where((p) => p.ativa).length;
+    final inativas = _pizzas.length - ativas;
 
     return Scaffold(
       backgroundColor: tokens.background,
@@ -104,6 +148,76 @@ class _PizzasCadastroScreenState extends State<PizzasCadastroScreen> {
           : ListView(
               padding: const EdgeInsets.only(bottom: 80),
               children: [
+                Container(
+                  color: tokens.cardBackground,
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: _buscaCtrl,
+                        decoration: InputDecoration(
+                          hintText: 'Buscar sabor, ingrediente ou preco',
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: AppColors.textSecondary,
+                          ),
+                          suffixIcon: _busca.isEmpty
+                              ? null
+                              : IconButton(
+                                  icon: Icon(
+                                    Icons.close,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                  onPressed: () {
+                                    _buscaCtrl.clear();
+                                    setState(() => _busca = '');
+                                  },
+                                ),
+                          border: const OutlineInputBorder(),
+                          isDense: true,
+                        ),
+                        onChanged: (value) => setState(() => _busca = value),
+                      ),
+                      const SizedBox(height: 10),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              _ChipFiltroCardapio(
+                                label: 'Todos',
+                                count: _pizzas.length,
+                                valor: 'todos',
+                                atual: _filtroAtividade,
+                                onTap: (v) =>
+                                    setState(() => _filtroAtividade = v),
+                              ),
+                              _ChipFiltroCardapio(
+                                label: 'Ativos',
+                                count: ativas,
+                                valor: 'ativas',
+                                atual: _filtroAtividade,
+                                color: AppColors.success,
+                                onTap: (v) =>
+                                    setState(() => _filtroAtividade = v),
+                              ),
+                              _ChipFiltroCardapio(
+                                label: 'Inativos',
+                                count: inativas,
+                                valor: 'inativas',
+                                atual: _filtroAtividade,
+                                color: AppColors.textSecondary,
+                                onTap: (v) =>
+                                    setState(() => _filtroAtividade = v),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 _secao(context, Icons.circle, 'Pizzas Grandes', grandes),
                 _secao(context, Icons.circle_outlined, 'Pizzas Médias', medias),
               ],
@@ -140,8 +254,7 @@ class _PizzasCadastroScreenState extends State<PizzasCadastroScreen> {
               ),
               const SizedBox(width: 8),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: AppColors.warning.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(999),
@@ -162,7 +275,8 @@ class _PizzasCadastroScreenState extends State<PizzasCadastroScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
               'Nenhuma pizza cadastrada.',
-              style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+              style:
+                  AppTextStyles.body.copyWith(color: AppColors.textSecondary),
             ),
           ),
         ...lista.map(
@@ -194,9 +308,8 @@ class _PizzasCadastroScreenState extends State<PizzasCadastroScreen> {
               title: Text(
                 p.nome,
                 style: AppTextStyles.body.copyWith(
-                  color: p.ativa
-                      ? AppColors.textPrimary
-                      : AppColors.textSecondary,
+                  color:
+                      p.ativa ? AppColors.textPrimary : AppColors.textSecondary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -249,6 +362,44 @@ class _PizzasCadastroScreenState extends State<PizzasCadastroScreen> {
   }
 }
 
+class _ChipFiltroCardapio extends StatelessWidget {
+  final String label;
+  final int count;
+  final String valor;
+  final String atual;
+  final Color? color;
+  final void Function(String valor) onTap;
+
+  const _ChipFiltroCardapio({
+    required this.label,
+    required this.count,
+    required this.valor,
+    required this.atual,
+    required this.onTap,
+    this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final selecionado = valor == atual;
+    final cor = color ?? AppColors.primary;
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: FilterChip(
+        label: Text('$label ($count)'),
+        selected: selecionado,
+        selectedColor: cor.withValues(alpha: 0.16),
+        checkmarkColor: cor,
+        labelStyle: AppTextStyles.caption.copyWith(
+          color: selecionado ? cor : AppColors.textSecondary,
+          fontWeight: selecionado ? FontWeight.w700 : FontWeight.w500,
+        ),
+        onSelected: (_) => onTap(valor),
+      ),
+    );
+  }
+}
+
 // ============================================================
 // BOTTOM SHEET — Formulário de pizza
 // ============================================================
@@ -293,13 +444,25 @@ class _FormPizzaState extends State<_FormPizza> {
   }
 
   double? _parsePreco() {
-    final texto = _precoCtrl.text.trim().replaceAll(',', '.');
+    var texto = _precoCtrl.text.trim();
     if (texto.isEmpty) return null;
+    texto = texto.replaceAll(RegExp(r'[^0-9,.]'), '');
+    if (texto.contains(',')) {
+      texto = texto.replaceAll('.', '').replaceAll(',', '.');
+    }
     return double.tryParse(texto);
   }
 
   Future<void> _salvar() async {
     if (_nomeCtrl.text.trim().isEmpty) return;
+    final preco = _parsePreco();
+    if (_precoCtrl.text.trim().isNotEmpty && preco == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Informe um preco valido.')),
+      );
+      return;
+    }
+
     setState(() => _salvando = true);
 
     final nova = Pizza(
@@ -309,7 +472,7 @@ class _FormPizzaState extends State<_FormPizza> {
       ingredientes: _ingredientesCtrl.text.trim().isEmpty
           ? null
           : _ingredientesCtrl.text.trim(),
-      preco: _parsePreco(),
+      preco: preco,
     );
 
     if (widget.pizza == null) {
@@ -364,8 +527,7 @@ class _FormPizzaState extends State<_FormPizza> {
             decoration: InputDecoration(
               labelText: 'Ingredientes',
               border: const OutlineInputBorder(),
-              prefixIcon:
-                  Icon(Icons.list_alt, color: AppColors.textSecondary),
+              prefixIcon: Icon(Icons.list_alt, color: AppColors.textSecondary),
               hintText: 'Ex: queijo, molho de tomate, orégano',
             ),
             textCapitalization: TextCapitalization.sentences,
@@ -381,8 +543,7 @@ class _FormPizzaState extends State<_FormPizza> {
                   Icon(Icons.attach_money, color: AppColors.textSecondary),
               hintText: 'Ex: 45,00',
             ),
-            keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
           ),
           const SizedBox(height: 16),
           Text('Tamanho',
@@ -410,8 +571,7 @@ class _FormPizzaState extends State<_FormPizza> {
             width: double.infinity,
             child: FilledButton(
               onPressed: _salvando ? null : _salvar,
-              style:
-                  FilledButton.styleFrom(backgroundColor: AppColors.primary),
+              style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
               child: _salvando
                   ? const SizedBox(
                       height: 20,

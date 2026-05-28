@@ -18,13 +18,21 @@ class PedidosListScreen extends StatefulWidget {
 
 class _PedidosListScreenState extends State<PedidosListScreen> {
   List<PedidoPizza> _pedidos = [];
+  final _buscaCtrl = TextEditingController();
   bool _loading = true;
   String _filtro = 'todos'; // 'todos' | 'aberto' | 'pronto' | 'entregue'
+  String _busca = '';
 
   @override
   void initState() {
     super.initState();
     _carregar();
+  }
+
+  @override
+  void dispose() {
+    _buscaCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _carregar() async {
@@ -46,8 +54,32 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
   }
 
   List<PedidoPizza> get _pedidosFiltrados {
-    if (_filtro == 'todos') return _pedidos;
-    return _pedidos.where((p) => p.status == _filtro).toList();
+    final porStatus = _filtro == 'todos'
+        ? _pedidos
+        : _pedidos.where((p) => p.status == _filtro).toList();
+    final termo = _busca.trim().toLowerCase();
+    if (termo.isEmpty) return porStatus;
+
+    return porStatus.where((pedido) {
+      final campos = <String>[
+        pedido.nomeCliente ?? '',
+        pedido.codigoEntrega ?? '',
+        pedido.endereco ?? '',
+        pedido.bairro ?? '',
+        pedido.telefone ?? '',
+        pedido.referencia ?? '',
+        pedido.observacoes ?? '',
+        ...pedido.itens.expand(
+          (item) => [
+            item.descricao,
+            item.pizzaNome,
+            item.pizza2Nome ?? '',
+            item.tamanhoLabel,
+          ],
+        ),
+      ];
+      return campos.any((campo) => campo.toLowerCase().contains(termo));
+    }).toList();
   }
 
   int _contarStatus(String status) =>
@@ -142,6 +174,72 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
     );
   }
 
+  Future<void> _abrirNovoPedido() async {
+    await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => const NovoPedidoScreen()),
+    );
+    if (!mounted) return;
+    _carregar();
+  }
+
+  Widget _buildListaPedidos(List<PedidoPizza> pedidos) {
+    if (pedidos.isEmpty) {
+      return Center(
+        child: Text(
+          _busca.trim().isEmpty
+              ? 'Nenhum pedido encontrado.'
+              : 'Nenhum pedido combina com a busca.',
+          style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      color: AppColors.primary,
+      onRefresh: _carregar,
+      child: ListView.separated(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+        itemCount: pedidos.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 2),
+        itemBuilder: (_, i) => _buildCardPedido(pedidos[i]),
+      ),
+    );
+  }
+
+  Widget _buildCardPedido(PedidoPizza pedido) {
+    return _CardPedido(
+      pedido: pedido,
+      onAbrirDetalhes: () => _abrirDetalhes(pedido),
+      onVerCupom: () => _verCupom(pedido),
+      onEditar: () => _editarPedido(pedido),
+      onExcluir: () => _excluirPedido(pedido),
+      onMudarStatus: (s) => _mudarStatus(pedido, s),
+    );
+  }
+
+  Widget _buildCorpoPedidos() {
+    if (_loading) {
+      return Center(child: CircularProgressIndicator(color: AppColors.primary));
+    }
+
+    final pedidos = _pedidosFiltrados;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 860) {
+          return _buildListaPedidos(pedidos);
+        }
+
+        return _PedidosBoard(
+          pedidos: pedidos,
+          filtro: _filtro,
+          buscaAtiva: _busca.trim().isNotEmpty,
+          buildCard: _buildCardPedido,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final tokens = context.appTheme;
@@ -163,13 +261,7 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const NovoPedidoScreen()),
-          );
-          _carregar();
-        },
+        onPressed: _abrirNovoPedido,
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.textOnColor,
         icon: const Icon(Icons.add),
@@ -177,28 +269,54 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
       ),
       body: Column(
         children: [
-          // Barra de resumo por status
           Container(
             color: tokens.cardBackground,
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-            child: Row(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _StatusChip(
-                  label: 'Abertos',
-                  count: abertos,
-                  color: AppColors.info,
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _StatusChip(
+                      label: 'Abertos',
+                      count: abertos,
+                      color: AppColors.info,
+                    ),
+                    _StatusChip(
+                      label: 'Prontos',
+                      count: prontos,
+                      color: AppColors.warning,
+                    ),
+                    _StatusChip(
+                      label: 'Entregues',
+                      count: entregues,
+                      color: AppColors.success,
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                _StatusChip(
-                  label: 'Prontos',
-                  count: prontos,
-                  color: AppColors.warning,
-                ),
-                const SizedBox(width: 8),
-                _StatusChip(
-                  label: 'Entregues',
-                  count: entregues,
-                  color: AppColors.success,
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _buscaCtrl,
+                  decoration: InputDecoration(
+                    hintText: 'Buscar por cliente, codigo, telefone ou sabor',
+                    prefixIcon:
+                        Icon(Icons.search, color: AppColors.textSecondary),
+                    suffixIcon: _busca.isEmpty
+                        ? null
+                        : IconButton(
+                            icon: Icon(Icons.close,
+                                color: AppColors.textSecondary),
+                            onPressed: () {
+                              _buscaCtrl.clear();
+                              setState(() => _busca = '');
+                            },
+                          ),
+                    border: const OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                  onChanged: (value) => setState(() => _busca = value),
                 ),
               ],
             ),
@@ -252,41 +370,8 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
               ],
             ),
           ),
-          // Lista
           Expanded(
-            child: _loading
-                ? Center(
-                    child:
-                        CircularProgressIndicator(color: AppColors.primary))
-                : _pedidosFiltrados.isEmpty
-                    ? Center(
-                        child: Text(
-                          'Nenhum pedido encontrado.',
-                          style: AppTextStyles.body
-                              .copyWith(color: AppColors.textSecondary),
-                        ),
-                      )
-                    : RefreshIndicator(
-                        color: AppColors.primary,
-                        onRefresh: _carregar,
-                        child: ListView.separated(
-                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
-                          itemCount: _pedidosFiltrados.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 2),
-                          itemBuilder: (_, i) {
-                            final pedido = _pedidosFiltrados[i];
-                            return _CardPedido(
-                              pedido: pedido,
-                              onAbrirDetalhes: () => _abrirDetalhes(pedido),
-                              onVerCupom: () => _verCupom(pedido),
-                              onEditar: () => _editarPedido(pedido),
-                              onExcluir: () => _excluirPedido(pedido),
-                              onMudarStatus: (s) => _mudarStatus(pedido, s),
-                            );
-                          },
-                        ),
-                      ),
+            child: _buildCorpoPedidos(),
           ),
         ],
       ),
@@ -341,6 +426,147 @@ class _StatusChip extends StatelessWidget {
 }
 
 // ── Card de pedido ────────────────────────────────────────────
+
+class _PedidosBoard extends StatelessWidget {
+  final List<PedidoPizza> pedidos;
+  final String filtro;
+  final bool buscaAtiva;
+  final Widget Function(PedidoPizza pedido) buildCard;
+
+  const _PedidosBoard({
+    required this.pedidos,
+    required this.filtro,
+    required this.buscaAtiva,
+    required this.buildCard,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final statuses =
+        filtro == 'todos' ? ['aberto', 'pronto', 'entregue'] : [filtro];
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < statuses.length; i++) ...[
+            Expanded(
+              child: _PedidosStatusColumn(
+                status: statuses[i],
+                pedidos: pedidos.where((p) => p.status == statuses[i]).toList(),
+                buscaAtiva: buscaAtiva,
+                buildCard: buildCard,
+              ),
+            ),
+            if (i < statuses.length - 1) const SizedBox(width: 12),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _PedidosStatusColumn extends StatelessWidget {
+  final String status;
+  final List<PedidoPizza> pedidos;
+  final bool buscaAtiva;
+  final Widget Function(PedidoPizza pedido) buildCard;
+
+  const _PedidosStatusColumn({
+    required this.status,
+    required this.pedidos,
+    required this.buscaAtiva,
+    required this.buildCard,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.appTheme;
+    final color = _statusColor(status);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: tokens.cardBackground,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.08),
+              border: Border(
+                bottom: BorderSide(color: color.withValues(alpha: 0.18)),
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    _statusLabel(status),
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    '${pedidos.length}',
+                    style: AppTextStyles.caption.copyWith(
+                      color: color,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: pedidos.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        buscaAtiva
+                            ? 'Nada encontrado aqui.'
+                            : 'Nenhum pedido ${_statusLabel(status).toLowerCase()}.',
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(10),
+                    itemCount: pedidos.length,
+                    itemBuilder: (context, index) => buildCard(pedidos[index]),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class _CardPedido extends StatelessWidget {
   final PedidoPizza pedido;
@@ -425,13 +651,13 @@ class _CardPedido extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: corStatus.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                          color: corStatus.withValues(alpha: 0.35)),
+                      border:
+                          Border.all(color: corStatus.withValues(alpha: 0.35)),
                     ),
                     child: Text(
                       _statusLabel(pedido.status),
@@ -486,8 +712,7 @@ class _CardPedido extends StatelessWidget {
                           leading: Icon(Icons.delete_outline,
                               color: AppColors.danger),
                           title: Text('Excluir',
-                              style:
-                                  TextStyle(color: AppColors.danger)),
+                              style: TextStyle(color: AppColors.danger)),
                         ),
                       ),
                     ],
@@ -506,8 +731,8 @@ class _CardPedido extends StatelessWidget {
                           Expanded(
                             child: Text(
                               '${item.quantidade}x ${item.tamanhoLabel} - ${item.descricao}',
-                              style: AppTextStyles.caption.copyWith(
-                                  color: AppColors.textPrimary),
+                              style: AppTextStyles.caption
+                                  .copyWith(color: AppColors.textPrimary),
                             ),
                           ),
                         ],
@@ -612,8 +837,8 @@ class _DetalhesPedidoSheet extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     'Pedido Completo',
-                    style: AppTextStyles.h3
-                        .copyWith(color: AppColors.textPrimary),
+                    style:
+                        AppTextStyles.h3.copyWith(color: AppColors.textPrimary),
                   ),
                   const Spacer(),
                   IconButton(
@@ -639,29 +864,25 @@ class _DetalhesPedidoSheet extends StatelessWidget {
                   value: DateFormat('dd/MM/yyyy').format(pedido.dataPedido)),
               _InfoRow(label: 'Horario', value: pedido.horarioPedido),
               if ((pedido.endereco ?? '').trim().isNotEmpty)
-                _InfoRow(
-                    label: 'Endereco', value: pedido.endereco!.trim()),
+                _InfoRow(label: 'Endereco', value: pedido.endereco!.trim()),
               if ((pedido.bairro ?? '').trim().isNotEmpty)
                 _InfoRow(label: 'Bairro', value: pedido.bairro!.trim()),
               if ((pedido.telefone ?? '').trim().isNotEmpty)
-                _InfoRow(
-                    label: 'Telefone', value: pedido.telefone!.trim()),
+                _InfoRow(label: 'Telefone', value: pedido.telefone!.trim()),
               if ((pedido.referencia ?? '').trim().isNotEmpty)
-                _InfoRow(
-                    label: 'Referencia', value: pedido.referencia!.trim()),
+                _InfoRow(label: 'Referencia', value: pedido.referencia!.trim()),
               const SizedBox(height: 12),
               Text(
                 'Itens',
                 style: AppTextStyles.body.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary),
+                    fontWeight: FontWeight.bold, color: AppColors.textPrimary),
               ),
               const SizedBox(height: 8),
               ...pedido.itens.map(
                 (item) => Container(
                   margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
                     color: AppColors.warning.withValues(alpha: 0.06),
                     borderRadius: BorderRadius.circular(10),
@@ -704,8 +925,7 @@ class _DetalhesPedidoSheet extends StatelessWidget {
               Text(
                 'Status do pedido',
                 style: AppTextStyles.body.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary),
+                    fontWeight: FontWeight.bold, color: AppColors.textPrimary),
               ),
               const SizedBox(height: 8),
               Wrap(
