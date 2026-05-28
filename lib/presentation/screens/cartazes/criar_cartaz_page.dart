@@ -510,13 +510,13 @@ class _LivePreviewState extends State<_LivePreview> {
           final scale = posterPreviewScaleFor(
             posterSize: posterSize,
             constraints: constraints,
-            horizontalPadding: 40,
-            verticalPadding: 72,
-            maxScale: 0.6,
+            horizontalPadding: 20,
+            verticalPadding: 36,
+            maxScale: 0.95,
           );
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(12),
             child: Column(
               children: [
                 Text(

@@ -303,8 +303,9 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
     return posterPreviewScaleFor(
       posterSize: _posterSize,
       constraints: constraints,
-      horizontalPadding: 24,
-      verticalPadding: 48,
+      horizontalPadding: _adjusting ? 12 : 24,
+      verticalPadding: _adjusting ? 24 : 48,
+      maxScale: _adjusting ? 1.35 : 1.15,
     );
   }
 
@@ -423,8 +424,9 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           final scale = _previewScale(constraints);
-          final bottomPadding =
-              _adjusting ? constraints.maxHeight * 0.56 : 116.0;
+          final bottomPadding = _adjusting
+              ? (constraints.maxHeight * 0.34).clamp(170.0, 260.0).toDouble()
+              : 116.0;
 
           return Stack(
             children: [
@@ -526,7 +528,7 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
             const SizedBox(height: 12),
             ConstrainedBox(
               constraints: BoxConstraints(
-                maxHeight: MediaQuery.sizeOf(context).height * 0.42,
+                maxHeight: MediaQuery.sizeOf(context).height * 0.34,
               ),
               child: SingleChildScrollView(
                 child: _buildAdjustmentPanel(),
