@@ -98,17 +98,21 @@ class _NoticeMessage extends StatelessWidget {
         return Center(
           child: FittedBox(
             fit: BoxFit.scaleDown,
+            alignment: cartazAdjustedAlignment(context, Alignment.center),
             child: SizedBox(
               width: constraints.maxWidth,
               child: Text(
                 text.toUpperCase(),
                 maxLines: 5,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 78,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.black87,
-                  height: 1.05,
+                textAlign: cartazAdjustedTextAlign(context, TextAlign.center),
+                style: cartazAdjustedTextStyle(
+                  context,
+                  const TextStyle(
+                    fontSize: 78,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black87,
+                    height: 1.05,
+                  ),
                 ),
               ),
             ),

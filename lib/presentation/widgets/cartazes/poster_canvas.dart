@@ -45,12 +45,20 @@ class PosterCanvas extends StatelessWidget {
     switch (tamanho) {
       case CartazTamanho.a6:
         return const Size(420, 592);
+      case CartazTamanho.a5:
+        return const Size(592, 840);
       case CartazTamanho.a4:
         return const Size(840, 1188);
       case CartazTamanho.a3:
         return const Size(1188, 1680);
       case CartazTamanho.a2:
         return const Size(1680, 2376);
+      case CartazTamanho.a1:
+        return const Size(2376, 3360);
+      case CartazTamanho.feedQuadrado:
+        return const Size(1080, 1080);
+      case CartazTamanho.storyVertical:
+        return const Size(1080, 1920);
     }
   }
 

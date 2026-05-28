@@ -10,13 +10,18 @@ enum CartazTemplateTipo {
   carrosselPlus,
   avisoImportante,
   diaD,
+  templateImportado,
 }
 
 enum CartazTamanho {
   a6,
+  a5,
   a4,
   a3,
   a2,
+  a1,
+  feedQuadrado,
+  storyVertical,
 }
 
 extension CartazTamanhoExt on CartazTamanho {
@@ -24,12 +29,20 @@ extension CartazTamanhoExt on CartazTamanho {
     switch (this) {
       case CartazTamanho.a6:
         return 'A6';
+      case CartazTamanho.a5:
+        return 'A5';
       case CartazTamanho.a4:
         return 'A4';
       case CartazTamanho.a3:
         return 'A3';
       case CartazTamanho.a2:
         return 'A2';
+      case CartazTamanho.a1:
+        return 'A1';
+      case CartazTamanho.feedQuadrado:
+        return 'Feed';
+      case CartazTamanho.storyVertical:
+        return 'Story';
     }
   }
 
@@ -37,12 +50,20 @@ extension CartazTamanhoExt on CartazTamanho {
     switch (this) {
       case CartazTamanho.a6:
         return 'Gôndola / prateleira';
+      case CartazTamanho.a5:
+        return 'Meia pagina';
       case CartazTamanho.a4:
         return 'Cartaz padrão da loja';
       case CartazTamanho.a3:
         return 'Ilha / ponta de gôndola';
       case CartazTamanho.a2:
         return 'Entrada / corredor';
+      case CartazTamanho.a1:
+        return 'Grande destaque';
+      case CartazTamanho.feedQuadrado:
+        return '1080 x 1080';
+      case CartazTamanho.storyVertical:
+        return '1080 x 1920';
     }
   }
 }
@@ -72,6 +93,8 @@ extension CartazTemplateTipoExt on CartazTemplateTipo {
         return 'Aviso importante';
       case CartazTemplateTipo.diaD:
         return 'Dia D';
+      case CartazTemplateTipo.templateImportado:
+        return 'Template importado';
     }
   }
 
@@ -96,6 +119,8 @@ class CartazFormData {
   final String? validadeOferta;
   final String? validadeProduto;
   final String? mensagem;
+  final String? customTemplateName;
+  final String? customTemplateSvg;
 
   const CartazFormData({
     required this.tipo,
@@ -115,7 +140,15 @@ class CartazFormData {
     this.validadeOferta,
     this.validadeProduto,
     this.mensagem,
+    this.customTemplateName,
+    this.customTemplateSvg,
   });
+
+  String get templateLabel {
+    final customName = (customTemplateName ?? '').trim();
+    if (customName.isNotEmpty) return customName;
+    return tipo.label;
+  }
 
   List<String> get linhasInformacaoPromocional {
     return [
@@ -148,6 +181,8 @@ class CartazFormData {
       'validadeOferta': validadeOferta,
       'validadeProduto': validadeProduto,
       'mensagem': mensagem,
+      'customTemplateName': customTemplateName,
+      'customTemplateSvg': customTemplateSvg,
     };
   }
 
@@ -176,6 +211,8 @@ class CartazFormData {
       validadeOferta: json['validadeOferta'] as String? ?? '',
       validadeProduto: json['validadeProduto'] as String? ?? '',
       mensagem: json['mensagem'] as String? ?? '',
+      customTemplateName: json['customTemplateName'] as String? ?? '',
+      customTemplateSvg: json['customTemplateSvg'] as String? ?? '',
     );
   }
 }

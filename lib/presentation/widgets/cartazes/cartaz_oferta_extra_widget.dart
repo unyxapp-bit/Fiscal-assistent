@@ -40,7 +40,10 @@ class CartazOfertaExtraWidget extends StatelessWidget {
           clipBehavior: Clip.none,
           children: [
             Positioned.fill(
-              child: PosterTemplateBackground(tipo: data.tipo),
+              child: PosterTemplateBackground(
+                tipo: data.tipo,
+                customSvg: data.customTemplateSvg,
+              ),
             ),
             ..._buildProductSlots(canvasSize, layout),
             if ((data.precoAnterior ?? '').trim().isNotEmpty)
@@ -123,6 +126,28 @@ class CartazOfertaExtraWidget extends StatelessWidget {
                   style: TextStyle(
                     fontSize: layout.infoFontSize,
                     fontWeight: FontWeight.w900,
+                    color: Colors.black87,
+                    height: 1,
+                  ),
+                ),
+              ),
+            if ((data.validade ?? '').trim().isNotEmpty)
+              CartazTextSlot(
+                canvasSize: canvasSize,
+                element: CartazTextElement.validade,
+                adjustments: textAdjustments,
+                selected: _isSelected(CartazTextElement.validade),
+                left: w * 0.08,
+                top: h * 0.955,
+                width: w * 0.84,
+                height: h * 0.032,
+                scaleAlignment: Alignment.bottomCenter,
+                child: CartazFitTextBox(
+                  text: data.validade!.toUpperCase(),
+                  alignment: Alignment.bottomCenter,
+                  style: const TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.w800,
                     color: Colors.black87,
                     height: 1,
                   ),
@@ -488,6 +513,35 @@ _ExtraOfertaLayout _layoutFor(CartazTemplateTipo tipo) {
         infoWidth: 0.80,
         infoHeight: 0.12,
         infoFontSize: 32,
+      );
+    case CartazTemplateTipo.templateImportado:
+      return const _ExtraOfertaLayout(
+        productLeft: 0.08,
+        productTop: 0.33,
+        productWidth: 0.84,
+        productHeight: 0.24,
+        titleFontSize: 110,
+        previousLeft: 0.16,
+        previousTop: 0.60,
+        previousWidth: 0.68,
+        previousHeight: 0.044,
+        previousFontSize: 40,
+        priceLeft: 0.18,
+        priceTop: 0.68,
+        priceWidth: 0.70,
+        priceHeight: 0.18,
+        priceFontSize: 190,
+        priceColor: Color(0xFF1A1A1A),
+        unitLeft: 0.66,
+        unitTop: 0.84,
+        unitWidth: 0.20,
+        unitHeight: 0.035,
+        unitFontSize: 28,
+        infoLeft: 0.10,
+        infoTop: 0.88,
+        infoWidth: 0.80,
+        infoHeight: 0.08,
+        infoFontSize: 26,
       );
     case CartazTemplateTipo.proximoVencimento:
     case CartazTemplateTipo.aproveiteAgora:

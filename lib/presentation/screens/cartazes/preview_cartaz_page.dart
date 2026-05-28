@@ -43,6 +43,17 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
   static const _maxOffset = 0.18;
   static const _minScale = 0.65;
   static const _maxScale = 1.45;
+  static const _colorPalette = <int>[
+    0xFF111827,
+    0xFFFFFFFF,
+    0xFFD6166A,
+    0xFFE52420,
+    0xFFF59E0B,
+    0xFF16A34A,
+    0xFF1565C0,
+    0xFF7C3AED,
+  ];
+  static const _fontWeightOptions = <int>[400, 700, 900];
 
   @override
   void initState() {
@@ -107,6 +118,11 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
           105 * PdfPageFormat.mm,
           148 * PdfPageFormat.mm,
         );
+      case CartazTamanho.a5:
+        return const PdfPageFormat(
+          148 * PdfPageFormat.mm,
+          210 * PdfPageFormat.mm,
+        );
       case CartazTamanho.a4:
         return PdfPageFormat.a4;
       case CartazTamanho.a3:
@@ -115,6 +131,21 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
         return const PdfPageFormat(
           420 * PdfPageFormat.mm,
           594 * PdfPageFormat.mm,
+        );
+      case CartazTamanho.a1:
+        return const PdfPageFormat(
+          594 * PdfPageFormat.mm,
+          841 * PdfPageFormat.mm,
+        );
+      case CartazTamanho.feedQuadrado:
+        return const PdfPageFormat(
+          1080 * PdfPageFormat.point,
+          1080 * PdfPageFormat.point,
+        );
+      case CartazTamanho.storyVertical:
+        return const PdfPageFormat(
+          1080 * PdfPageFormat.point,
+          1920 * PdfPageFormat.point,
         );
     }
   }
@@ -288,6 +319,14 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
   void _updateSelected({
     Offset? offset,
     double? scale,
+    int? colorValue,
+    bool clearColor = false,
+    String? fontFamily,
+    bool clearFontFamily = false,
+    int? fontWeightValue,
+    bool clearFontWeight = false,
+    CartazTextAlignOption? textAlign,
+    bool clearTextAlign = false,
   }) {
     final element = _effectiveSelectedElement;
     final current = cartazTextAdjustmentFor(_textAdjustments, element);
@@ -296,6 +335,14 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
       _textAdjustments[element] = current.copyWith(
         offset: offset,
         scale: scale,
+        colorValue: colorValue,
+        clearColor: clearColor,
+        fontFamily: fontFamily,
+        clearFontFamily: clearFontFamily,
+        fontWeightValue: fontWeightValue,
+        clearFontWeight: clearFontWeight,
+        textAlign: textAlign,
+        clearTextAlign: clearTextAlign,
       );
     });
     _schedulePersistCartaz();
@@ -326,6 +373,20 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
     _schedulePersistCartaz();
   }
 
+  void _resetSelectedStyle() {
+    final element = _effectiveSelectedElement;
+    final current = cartazTextAdjustmentFor(_textAdjustments, element);
+    setState(() {
+      _textAdjustments[element] = current.copyWith(
+        clearColor: true,
+        clearFontFamily: true,
+        clearFontWeight: true,
+        clearTextAlign: true,
+      );
+    });
+    _schedulePersistCartaz();
+  }
+
   void _resetAllAdjustments() {
     setState(_textAdjustments.clear);
     _schedulePersistCartaz();
@@ -352,7 +413,9 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
     return Scaffold(
       backgroundColor: Colors.grey.shade200,
       appBar: AppBar(
-        title: Text('${widget.data.tipo.label} - ${widget.data.tamanho.label}'),
+        title: Text(
+          '${widget.data.templateLabel} - ${widget.data.tamanho.label}',
+        ),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
@@ -578,6 +641,8 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
               valueText: '${(adjustment.scale * 100).round()}%',
               onChanged: (value) => _updateSelected(scale: value),
             ),
+            const SizedBox(height: 8),
+            _buildStyleControls(adjustment),
             const SizedBox(height: 6),
             Row(
               children: [
@@ -599,6 +664,222 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStyleControls(CartazTextAdjustment adjustment) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: DropdownButtonFormField<String>(
+                key: ValueKey(
+                  'font-${_effectiveSelectedElement.name}-${adjustment.fontFamily ?? ''}',
+                ),
+                initialValue: adjustment.fontFamily ?? '',
+                isDense: true,
+                decoration: const InputDecoration(
+                  labelText: 'Fonte',
+                  border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 8,
+                  ),
+                ),
+                items: [
+                  for (final option in cartazFontOptions)
+                    DropdownMenuItem<String>(
+                      value: option.family ?? '',
+                      child: Text(option.label),
+                    ),
+                ],
+                onChanged: (value) {
+                  final family = (value ?? '').trim();
+                  _updateSelected(
+                    fontFamily: family.isEmpty ? null : family,
+                    clearFontFamily: family.isEmpty,
+                  );
+                },
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: DropdownButtonFormField<int>(
+                key: ValueKey(
+                  'weight-${_effectiveSelectedElement.name}-${adjustment.fontWeightValue ?? 0}',
+                ),
+                initialValue: adjustment.fontWeightValue ?? 0,
+                isDense: true,
+                decoration: const InputDecoration(
+                  labelText: 'Peso',
+                  border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 8,
+                  ),
+                ),
+                items: [
+                  const DropdownMenuItem<int>(
+                    value: 0,
+                    child: Text('Padrao'),
+                  ),
+                  for (final weight in _fontWeightOptions)
+                    DropdownMenuItem<int>(
+                      value: weight,
+                      child: Text(_fontWeightLabel(weight)),
+                    ),
+                ],
+                onChanged: (value) {
+                  final weight = value ?? 0;
+                  _updateSelected(
+                    fontWeightValue: weight == 0 ? null : weight,
+                    clearFontWeight: weight == 0,
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            const SizedBox(
+              width: 72,
+              child: Text(
+                'Alinhar',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+            ToggleButtons(
+              isSelected: [
+                for (final option in CartazTextAlignOption.values)
+                  adjustment.textAlign == option,
+              ],
+              onPressed: (index) {
+                final option = CartazTextAlignOption.values[index];
+                final selected = adjustment.textAlign == option;
+                _updateSelected(
+                  textAlign: selected ? null : option,
+                  clearTextAlign: selected,
+                );
+              },
+              borderRadius: BorderRadius.circular(8),
+              constraints: const BoxConstraints.tightFor(
+                width: 42,
+                height: 34,
+              ),
+              children: [
+                for (final option in CartazTextAlignOption.values)
+                  Icon(option.icon, size: 18),
+              ],
+            ),
+            const Spacer(),
+            TextButton.icon(
+              onPressed: _resetSelectedStyle,
+              icon: const Icon(Icons.format_clear_rounded, size: 18),
+              label: const Text('Estilo'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        _buildColorPalette(adjustment),
+      ],
+    );
+  }
+
+  Widget _buildColorPalette(CartazTextAdjustment adjustment) {
+    return Row(
+      children: [
+        const SizedBox(
+          width: 72,
+          child: Text(
+            'Cor',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _ColorSwatchButton(
+                colorValue: null,
+                selected: adjustment.colorValue == null,
+                tooltip: 'Cor do template',
+                onTap: () => _updateSelected(clearColor: true),
+              ),
+              for (final colorValue in _colorPalette)
+                _ColorSwatchButton(
+                  colorValue: colorValue,
+                  selected: adjustment.colorValue == colorValue,
+                  tooltip: 'Aplicar cor',
+                  onTap: () => _updateSelected(colorValue: colorValue),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _fontWeightLabel(int weight) {
+    switch (weight) {
+      case 400:
+        return 'Normal';
+      case 700:
+        return 'Bold';
+      case 900:
+        return 'Black';
+    }
+    return weight.toString();
+  }
+}
+
+class _ColorSwatchButton extends StatelessWidget {
+  final int? colorValue;
+  final bool selected;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  const _ColorSwatchButton({
+    required this.colorValue,
+    required this.selected,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = colorValue == null ? null : Color(colorValue!);
+
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: color ?? Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: selected ? const Color(0xFF1565C0) : Colors.grey.shade400,
+              width: selected ? 3 : 1,
+            ),
+          ),
+          child: color == null
+              ? const Icon(Icons.format_color_reset_rounded, size: 17)
+              : null,
         ),
       ),
     );

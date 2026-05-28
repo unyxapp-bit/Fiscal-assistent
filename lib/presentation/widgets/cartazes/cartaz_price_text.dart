@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'cartaz_text_adjustments.dart';
+
 class CartazPriceText extends StatelessWidget {
   final String text;
   final TextStyle style;
@@ -18,21 +20,24 @@ class CartazPriceText extends StatelessWidget {
   Widget build(BuildContext context) {
     final displayText = text.trim();
     final parts = _CartazPriceParts.from(displayText);
+    final resolvedStyle = cartazAdjustedTextStyle(context, style);
+    final resolvedTextAlign = cartazAdjustedTextAlign(context, textAlign);
 
     if (!centavosMenores || parts == null) {
       return Text(
         displayText,
         maxLines: 1,
-        textAlign: textAlign,
-        style: style,
+        textAlign: resolvedTextAlign,
+        style: resolvedStyle,
       );
     }
 
-    final baseFontSize =
-        style.fontSize ?? DefaultTextStyle.of(context).style.fontSize ?? 14;
-    final centsStyle = style.copyWith(
+    final baseFontSize = resolvedStyle.fontSize ??
+        DefaultTextStyle.of(context).style.fontSize ??
+        14;
+    final centsStyle = resolvedStyle.copyWith(
       fontSize: baseFontSize * 0.5,
-      letterSpacing: (style.letterSpacing ?? 0) * 0.5,
+      letterSpacing: (resolvedStyle.letterSpacing ?? 0) * 0.5,
     );
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -41,13 +46,13 @@ class CartazPriceText extends StatelessWidget {
         Text(
           parts.reais,
           maxLines: 1,
-          textAlign: textAlign,
-          style: style,
+          textAlign: resolvedTextAlign,
+          style: resolvedStyle,
         ),
         Text(
           parts.centavos,
           maxLines: 1,
-          textAlign: textAlign,
+          textAlign: resolvedTextAlign,
           style: centsStyle,
         ),
       ],

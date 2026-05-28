@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../../../data/models/cartaz_form_data.dart';
@@ -19,6 +22,54 @@ class _CartazesHomePageState extends State<CartazesHomePage> {
   void _abrirCartazesFeitos() {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const CartazesSalvosPage()),
+    );
+  }
+
+  Future<void> _importarSvg() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: const ['svg'],
+        withData: true,
+      );
+      if (result == null || result.files.isEmpty) return;
+
+      final file = result.files.single;
+      final bytes = file.bytes;
+      if (bytes == null || bytes.isEmpty) {
+        _mostrarErroImportacao('Nao foi possivel ler o arquivo SVG.');
+        return;
+      }
+
+      final svg = utf8.decode(bytes, allowMalformed: true).trim();
+      if (!svg.contains('<svg')) {
+        _mostrarErroImportacao('Escolha um arquivo SVG valido.');
+        return;
+      }
+
+      if (!mounted) return;
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => CriarCartazPage(
+            tipo: CartazTemplateTipo.templateImportado,
+            tamanho: _tamanhoSelecionado,
+            customTemplateName: file.name.replaceAll(
+              RegExp(r'\.svg$', caseSensitive: false),
+              '',
+            ),
+            customTemplateSvg: svg,
+          ),
+        ),
+      );
+    } catch (e) {
+      _mostrarErroImportacao('Erro ao importar SVG: $e');
+    }
+  }
+
+  void _mostrarErroImportacao(String mensagem) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(mensagem)),
     );
   }
 
@@ -67,7 +118,28 @@ class _CartazesHomePageState extends State<CartazesHomePage> {
                 children: [
                   _sectionLabel('1. Escolha o modelo'),
                   const SizedBox(height: 12),
-                  for (final spec in cartazTemplateSpecs) ...[
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _importarSvg,
+                      icon: const Icon(Icons.upload_file_rounded),
+                      label: const Text('Importar template SVG'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF374151),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: BorderSide(color: Colors.grey.shade400),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  for (final spec
+                      in cartazTemplateSpecs.where((s) => s.showInPicker)) ...[
                     _TemplateCard(
                       spec: spec,
                       selecionado: _tipoSelecionado == spec.tipo,
@@ -246,47 +318,80 @@ class _TamanhoSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: CartazTamanho.values.map((t) {
-        final sel = t == selecionado;
-        return Expanded(
-          child: GestureDetector(
-            onTap: () => onChanged(t),
-            child: Container(
-              margin: const EdgeInsets.only(right: 8),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                color: sel ? const Color(0xFFD6166A) : Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: sel ? const Color(0xFFD6166A) : Colors.grey.shade300,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = constraints.maxWidth >= 720 ? 4 : 2;
+        final itemWidth =
+            (constraints.maxWidth - (8 * (columns - 1))) / columns;
+
+        return Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final t in CartazTamanho.values)
+              SizedBox(
+                width: itemWidth,
+                child: _TamanhoTile(
+                  tamanho: t,
+                  selecionado: t == selecionado,
+                  onTap: () => onChanged(t),
                 ),
               ),
-              child: Column(
-                children: [
-                  Text(
-                    t.label,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      color: sel ? Colors.white : Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    t.descricao,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 9,
-                      color: sel ? Colors.white70 : Colors.grey.shade500,
-                    ),
-                  ),
-                ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _TamanhoTile extends StatelessWidget {
+  final CartazTamanho tamanho;
+  final bool selecionado;
+  final VoidCallback onTap;
+
+  const _TamanhoTile({
+    required this.tamanho,
+    required this.selecionado,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: selecionado ? const Color(0xFFD6166A) : Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: selecionado ? const Color(0xFFD6166A) : Colors.grey.shade300,
+          ),
+        ),
+        child: Column(
+          children: [
+            Text(
+              tamanho.label,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: selecionado ? Colors.white : Colors.black87,
               ),
             ),
-          ),
-        );
-      }).toList(),
+            const SizedBox(height: 2),
+            Text(
+              tamanho.descricao,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 9,
+                color: selecionado ? Colors.white70 : Colors.grey.shade500,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'cartaz_text_adjustments.dart';
+
 class CartazFitTextBox extends StatelessWidget {
   final String text;
   final Alignment alignment;
@@ -20,14 +22,17 @@ class CartazFitTextBox extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final resolvedAlignment = cartazAdjustedAlignment(context, alignment);
+    final resolvedTextAlign = cartazAdjustedTextAlign(context, textAlign);
+
     return FittedBox(
       fit: BoxFit.scaleDown,
-      alignment: alignment,
+      alignment: resolvedAlignment,
       child: Text(
         text,
         maxLines: 1,
-        textAlign: textAlign,
-        style: style,
+        textAlign: resolvedTextAlign,
+        style: cartazAdjustedTextStyle(context, style),
       ),
     );
   }
@@ -87,18 +92,22 @@ class CartazPromoInfoBox extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final resolvedAlignment = cartazAdjustedAlignment(context, alignment);
+    final resolvedTextAlign = cartazAdjustedTextAlign(context, textAlign);
+    final resolvedStyle = cartazAdjustedTextStyle(context, style);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         return Align(
-          alignment: alignment,
+          alignment: resolvedAlignment,
           child: FittedBox(
             fit: BoxFit.scaleDown,
-            alignment: alignment,
+            alignment: resolvedAlignment,
             child: SizedBox(
               width: constraints.maxWidth,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: _crossAxisAlignment(textAlign),
+                crossAxisAlignment: _crossAxisAlignment(resolvedTextAlign),
                 children: [
                   for (var index = 0; index < visibleLines.length; index++) ...[
                     if (index > 0) SizedBox(height: spacing),
@@ -106,8 +115,8 @@ class CartazPromoInfoBox extends StatelessWidget {
                       visibleLines[index].toUpperCase(),
                       maxLines: 1,
                       overflow: TextOverflow.visible,
-                      textAlign: textAlign,
-                      style: style,
+                      textAlign: resolvedTextAlign,
+                      style: resolvedStyle,
                     ),
                   ],
                 ],

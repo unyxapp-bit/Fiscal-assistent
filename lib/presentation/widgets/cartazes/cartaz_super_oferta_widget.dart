@@ -259,14 +259,16 @@ class _FitTextBox extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final resolvedAlignment = cartazAdjustedAlignment(context, alignment);
+
     return FittedBox(
       fit: BoxFit.scaleDown,
-      alignment: alignment,
+      alignment: resolvedAlignment,
       child: Text(
         text,
         maxLines: 1,
-        textAlign: TextAlign.center,
-        style: style,
+        textAlign: cartazAdjustedTextAlign(context, TextAlign.center),
+        style: cartazAdjustedTextStyle(context, style),
       ),
     );
   }
@@ -346,11 +348,13 @@ class _OutlinedTextBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final resolvedAlignment = cartazAdjustedAlignment(context, alignment);
+
     return Align(
-      alignment: alignment,
+      alignment: resolvedAlignment,
       child: FittedBox(
         fit: BoxFit.scaleDown,
-        alignment: alignment,
+        alignment: resolvedAlignment,
         child: Stack(
           children: [
             Transform.translate(

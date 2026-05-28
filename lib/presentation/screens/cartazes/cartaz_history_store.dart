@@ -22,12 +22,12 @@ class SavedCartaz {
 
   String get title {
     final linha1 = data.tituloLinha1.trim();
-    return linha1.isEmpty ? data.tipo.label : linha1.toUpperCase();
+    return linha1.isEmpty ? data.templateLabel : linha1.toUpperCase();
   }
 
   String get subtitle {
     final parts = <String>[
-      data.tipo.label,
+      data.templateLabel,
       data.tamanho.label,
       if (data.preco.trim().isNotEmpty) data.preco.trim(),
     ];

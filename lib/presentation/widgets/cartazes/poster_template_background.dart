@@ -10,14 +10,27 @@ PosterTemplateAsset posterTemplateAsset(CartazTemplateTipo tipo) {
 
 class PosterTemplateBackground extends StatelessWidget {
   final CartazTemplateTipo tipo;
+  final String? customSvg;
 
   const PosterTemplateBackground({
     super.key,
     required this.tipo,
+    this.customSvg,
   });
 
   @override
   Widget build(BuildContext context) {
+    final svg = (customSvg ?? '').trim();
+    if (svg.isNotEmpty) {
+      return SvgPicture.string(
+        svg,
+        fit: BoxFit.fill,
+        width: double.infinity,
+        height: double.infinity,
+        alignment: Alignment.center,
+      );
+    }
+
     final asset = posterTemplateAsset(tipo);
 
     switch (asset.type) {

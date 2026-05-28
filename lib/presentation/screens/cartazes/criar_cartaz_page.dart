@@ -9,11 +9,15 @@ import 'preview_cartaz_page.dart';
 class CriarCartazPage extends StatefulWidget {
   final CartazTemplateTipo tipo;
   final CartazTamanho tamanho;
+  final String? customTemplateName;
+  final String? customTemplateSvg;
 
   const CriarCartazPage({
     super.key,
     required this.tipo,
     required this.tamanho,
+    this.customTemplateName,
+    this.customTemplateSvg,
   });
 
   @override
@@ -39,6 +43,11 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
 
   CartazTemplateSpec get _spec => cartazTemplateSpec(widget.tipo);
   CartazTemplateFieldHints get _fields => _spec.fields;
+  String get _title {
+    final customName = (widget.customTemplateName ?? '').trim();
+    if (customName.isNotEmpty) return customName;
+    return _spec.title;
+  }
 
   @override
   void dispose() {
@@ -84,6 +93,8 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
       validadeProduto:
           _fields.showPromotionFields ? _validadeProdutoCtrl.text.trim() : '',
       mensagem: _fields.showMensagem ? _mensagemCtrl.text.trim() : '',
+      customTemplateName: widget.customTemplateName,
+      customTemplateSvg: widget.customTemplateSvg,
     );
   }
 
@@ -137,7 +148,7 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
-        title: Text(_spec.title),
+        title: Text(_title),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,

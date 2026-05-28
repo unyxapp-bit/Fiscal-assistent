@@ -66,6 +66,7 @@ class CartazTemplateSpec {
   final IconData icon;
   final PosterTemplateAsset asset;
   final CartazTemplateFieldHints fields;
+  final bool showInPicker;
 
   const CartazTemplateSpec({
     required this.tipo,
@@ -76,6 +77,7 @@ class CartazTemplateSpec {
     required this.asset,
     required this.fields,
     this.iconColor = Colors.white,
+    this.showInPicker = true,
   });
 }
 
@@ -319,31 +321,33 @@ const cartazTemplateSpecs = <CartazTemplateSpec>[
       unidadeHint: 'Ex: UNID',
     ),
   ),
+  CartazTemplateSpec(
+    tipo: CartazTemplateTipo.templateImportado,
+    title: 'Template importado',
+    description: 'Fundo SVG escolhido no dispositivo',
+    color: Color(0xFF374151),
+    icon: Icons.upload_file_rounded,
+    asset: PosterTemplateAsset(
+      path: 'templates/oferta.svg',
+      type: PosterTemplateAssetType.svg,
+    ),
+    fields: CartazTemplateFieldHints(
+      linha1Hint: 'Ex: PRODUTO EM DESTAQUE',
+      linha2Hint: 'Ex: MARCA / LINHA',
+      subtituloLabel: 'Complemento',
+      subtituloHint: 'Ex: 500G',
+      showDetalhe: true,
+      detalheLabel: 'Detalhe',
+      detalheHint: 'Ex: OFERTA ESPECIAL',
+      showPromotionFields: true,
+      showValidade: true,
+      validadeHint: 'Ex: OFERTA VALIDA ATE 30/05',
+      unidadeHint: 'Ex: UNID',
+    ),
+    showInPicker: false,
+  ),
 ];
 
 CartazTemplateSpec cartazTemplateSpec(CartazTemplateTipo tipo) {
-  switch (tipo) {
-    case CartazTemplateTipo.aproveiteAgora:
-      return cartazTemplateSpecs[0];
-    case CartazTemplateTipo.proximoVencimento:
-      return cartazTemplateSpecs[1];
-    case CartazTemplateTipo.oferta:
-      return cartazTemplateSpecs[2];
-    case CartazTemplateTipo.superOferta:
-      return cartazTemplateSpecs[3];
-    case CartazTemplateTipo.cartazOferta:
-      return cartazTemplateSpecs[4];
-    case CartazTemplateTipo.ofertaDoDiaTradicional:
-      return cartazTemplateSpecs[5];
-    case CartazTemplateTipo.ofertaDoDiaMoeda:
-      return cartazTemplateSpecs[6];
-    case CartazTemplateTipo.superOfertaPercentual:
-      return cartazTemplateSpecs[7];
-    case CartazTemplateTipo.carrosselPlus:
-      return cartazTemplateSpecs[8];
-    case CartazTemplateTipo.avisoImportante:
-      return cartazTemplateSpecs[9];
-    case CartazTemplateTipo.diaD:
-      return cartazTemplateSpecs[10];
-  }
+  return cartazTemplateSpecs.firstWhere((spec) => spec.tipo == tipo);
 }
