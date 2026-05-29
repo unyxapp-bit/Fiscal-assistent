@@ -18,16 +18,16 @@ class AppStyles {
       color: backgroundColor,
       borderRadius: BorderRadius.circular(resolvedRadius),
       border: Border.all(
-        color: borderBase.withValues(alpha: tint != null ? 0.16 : 0.72),
+        color: borderBase.withValues(alpha: tint != null ? 0.22 : 0.88),
       ),
       boxShadow: elevated
           ? [
               BoxShadow(
                 color: shadowBase.withValues(
-                  alpha: hasGlow ? 0.14 : 0.04,
+                  alpha: hasGlow ? 0.16 : 0.035,
                 ),
-                blurRadius: hasGlow ? 18 : 10,
-                offset: Offset(0, hasGlow ? 6 : 3),
+                blurRadius: hasGlow ? 14 : 8,
+                offset: Offset(0, hasGlow ? 5 : 2),
               ),
             ]
           : const [],
@@ -45,12 +45,12 @@ class AppStyles {
     final hasGlow = tokens.cardElevation > 0;
     return BoxDecoration(
       color: tileTint.withValues(
-        alpha: hasGlow ? 0.08 : 0.03,
+        alpha: hasGlow ? 0.10 : 0.055,
       ),
       borderRadius: BorderRadius.circular(resolvedRadius),
       border: Border.all(
         color: tileTint.withValues(
-          alpha: hasGlow ? 0.28 : 0.16,
+          alpha: hasGlow ? 0.30 : 0.20,
         ),
       ),
     );

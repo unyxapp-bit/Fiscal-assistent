@@ -84,57 +84,57 @@ class AppThemeTokens extends ThemeExtension<AppThemeTokens> {
   });
 
   static const AppThemeTokens bento = AppThemeTokens(
-    background: Color(0xFFF8FAFC),
-    backgroundSection: Color(0xFFF1F5F9),
+    background: Color(0xFFF4F6F8),
+    backgroundSection: Color(0xFFE9EEF4),
     cardBackground: Color(0xFFFFFFFF),
-    cardBorder: Color(0xFFE2E8F0),
-    divider: Color(0xFFCBD5E1),
-    textPrimary: Color(0xFF0F172A),
-    textSecondary: Color(0xFF64748B),
+    cardBorder: Color(0xFFD8DEE8),
+    divider: Color(0xFFC8D1DC),
+    textPrimary: Color(0xFF111827),
+    textSecondary: Color(0xFF526071),
     textOnColor: Color(0xFFFFFFFF),
-    primary: Color(0xFF2563EB),
-    secondary: Color(0xFFEFF6FF),
-    success: Color(0xFF10B981),
-    danger: Color(0xFFEF4444),
-    warning: Color(0xFFF59E0B),
+    primary: Color(0xFF0F766E),
+    secondary: Color(0xFFE7F7F4),
+    success: Color(0xFF15803D),
+    danger: Color(0xFFB91C1C),
+    warning: Color(0xFFB45309),
     info: Color(0xFF2563EB),
-    alertCritical: Color(0xFFFEF2F2),
-    alertWarning: Color(0xFFFFF7ED),
-    alertInfo: Color(0xFFEFF6FF),
-    alertSuccess: Color(0xFFECFDF5),
+    alertCritical: Color(0xFFFFE4E6),
+    alertWarning: Color(0xFFFFF1D6),
+    alertInfo: Color(0xFFE7F0FF),
+    alertSuccess: Color(0xFFE8F7EE),
     shadowColor: Color(0xFF0F172A),
-    cardRadius: 24,
-    inputRadius: 18,
-    buttonRadius: 18,
-    sheetRadius: 24,
+    cardRadius: 8,
+    inputRadius: 8,
+    buttonRadius: 8,
+    sheetRadius: 14,
     cardElevation: 0,
   );
 
   static const AppThemeTokens gamer = AppThemeTokens(
-    background: Color(0xFF030712),
-    backgroundSection: Color(0xFF0B1220),
-    cardBackground: Color(0xFF111827),
-    cardBorder: Color(0xFF134E4A),
-    divider: Color(0xFF1F2937),
-    textPrimary: Color(0xFFE6FFFB),
-    textSecondary: Color(0xFF94A3B8),
-    textOnColor: Color(0xFF03120F),
-    primary: Color(0xFF5EEAD4),
-    secondary: Color(0xFF0F2F2D),
+    background: Color(0xFF0B0F14),
+    backgroundSection: Color(0xFF111821),
+    cardBackground: Color(0xFF151C25),
+    cardBorder: Color(0xFF263241),
+    divider: Color(0xFF2B3746),
+    textPrimary: Color(0xFFE7EDF4),
+    textSecondary: Color(0xFF9AA7B7),
+    textOnColor: Color(0xFF041816),
+    primary: Color(0xFF2DD4BF),
+    secondary: Color(0xFF0D2C2A),
     success: Color(0xFF4ADE80),
     danger: Color(0xFFFB7185),
     warning: Color(0xFFFBBF24),
-    info: Color(0xFF22D3EE),
-    alertCritical: Color(0xFF2A1020),
-    alertWarning: Color(0xFF261B05),
-    alertInfo: Color(0xFF07212B),
-    alertSuccess: Color(0xFF062417),
-    shadowColor: Color(0xFF5EEAD4),
-    cardRadius: 12,
-    inputRadius: 12,
-    buttonRadius: 12,
-    sheetRadius: 18,
-    cardElevation: 8,
+    info: Color(0xFF60A5FA),
+    alertCritical: Color(0xFF341821),
+    alertWarning: Color(0xFF2D230D),
+    alertInfo: Color(0xFF10243F),
+    alertSuccess: Color(0xFF102B1C),
+    shadowColor: Color(0xFF020617),
+    cardRadius: 8,
+    inputRadius: 8,
+    buttonRadius: 8,
+    sheetRadius: 14,
+    cardElevation: 2,
   );
 
   @override
@@ -305,6 +305,7 @@ class AppThemes {
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
+      visualDensity: VisualDensity.standard,
       scaffoldBackgroundColor: tokens.background,
       colorScheme: colorScheme,
       textTheme: textTheme.apply(
@@ -312,17 +313,18 @@ class AppThemes {
         displayColor: tokens.textPrimary,
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: tokens.background,
+        backgroundColor: tokens.cardBackground,
         foregroundColor: tokens.textPrimary,
         elevation: 0,
         centerTitle: false,
         surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         titleTextStyle: textTheme.titleLarge,
       ),
       cardTheme: CardThemeData(
         color: tokens.cardBackground,
         elevation: tokens.cardElevation,
-        shadowColor: tokens.shadowColor.withValues(alpha: isDark ? 0.22 : 0.10),
+        shadowColor: tokens.shadowColor.withValues(alpha: isDark ? 0.18 : 0.06),
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(tokens.cardRadius),
@@ -336,7 +338,7 @@ class AppThemes {
         fillColor: tokens.cardBackground,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 14,
-          vertical: 14,
+          vertical: 12,
         ),
         hintStyle: textTheme.bodyMedium?.copyWith(color: tokens.textSecondary),
         labelStyle:
@@ -356,7 +358,7 @@ class AppThemes {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(
-          minimumSize: const WidgetStatePropertyAll(Size.fromHeight(48)),
+          minimumSize: const WidgetStatePropertyAll(Size.fromHeight(44)),
           backgroundColor: WidgetStatePropertyAll(tokens.primary),
           foregroundColor: WidgetStatePropertyAll(tokens.textOnColor),
           elevation: WidgetStatePropertyAll(tokens.cardElevation),
@@ -364,7 +366,7 @@ class AppThemes {
             tokens.shadowColor.withValues(alpha: isDark ? 0.24 : 0.10),
           ),
           padding: const WidgetStatePropertyAll(
-            EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            EdgeInsets.symmetric(horizontal: 18, vertical: 11),
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
@@ -376,7 +378,7 @@ class AppThemes {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
-          minimumSize: const WidgetStatePropertyAll(Size.fromHeight(48)),
+          minimumSize: const WidgetStatePropertyAll(Size.fromHeight(44)),
           foregroundColor: WidgetStatePropertyAll(tokens.primary),
           side: WidgetStatePropertyAll(
             BorderSide(color: tokens.cardBorder),
@@ -402,10 +404,11 @@ class AppThemes {
         secondarySelectedColor: tokens.secondary,
         side: BorderSide(color: tokens.cardBorder),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(isDark ? 10 : 14),
+          borderRadius: BorderRadius.circular(tokens.inputRadius),
         ),
         labelStyle: textTheme.bodySmall ?? const TextStyle(),
-        secondaryLabelStyle: (textTheme.bodySmall ?? const TextStyle()).copyWith(
+        secondaryLabelStyle:
+            (textTheme.bodySmall ?? const TextStyle()).copyWith(
           color: tokens.primary,
         ),
         brightness: brightness,
@@ -419,9 +422,9 @@ class AppThemes {
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: tokens.primary,
         foregroundColor: tokens.textOnColor,
-        elevation: isDark ? 6 : 1,
+        elevation: isDark ? 4 : 1,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(tokens.buttonRadius + 10),
+          borderRadius: BorderRadius.circular(tokens.buttonRadius + 4),
         ),
       ),
       bottomSheetTheme: BottomSheetThemeData(
@@ -452,21 +455,36 @@ class AppThemes {
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: tokens.cardBackground.withValues(alpha: 0.94),
+        height: 68,
+        elevation: 0,
+        backgroundColor: tokens.cardBackground,
+        surfaceTintColor: Colors.transparent,
         indicatorColor: tokens.secondary,
-        iconTheme: WidgetStatePropertyAll(
-          IconThemeData(color: tokens.textSecondary),
+        indicatorShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(tokens.buttonRadius),
         ),
-        labelTextStyle: WidgetStatePropertyAll(
-          (textTheme.bodySmall ?? const TextStyle()).copyWith(
-            color: tokens.textPrimary,
-            fontWeight: FontWeight.w700,
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(
+            color: states.contains(WidgetState.selected)
+                ? tokens.primary
+                : tokens.textSecondary,
+            size: 22,
+          ),
+        ),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => (textTheme.bodySmall ?? const TextStyle()).copyWith(
+            color: states.contains(WidgetState.selected)
+                ? tokens.primary
+                : tokens.textSecondary,
+            fontWeight: states.contains(WidgetState.selected)
+                ? FontWeight.w800
+                : FontWeight.w600,
           ),
         ),
       ),
       tabBarTheme: TabBarThemeData(
         indicatorColor: tokens.primary,
-        indicatorSize: TabBarIndicatorSize.label,
+        indicatorSize: TabBarIndicatorSize.tab,
         labelColor: tokens.primary,
         unselectedLabelColor: tokens.textSecondary,
         dividerColor: tokens.cardBorder,
@@ -478,133 +496,135 @@ class AppThemes {
   static TextTheme _bentoTextTheme(AppThemeTokens tokens) {
     return TextTheme(
       displayLarge: TextStyle(
-        fontSize: 34,
+        fontSize: 30,
         fontWeight: FontWeight.w800,
         color: tokens.textPrimary,
         height: 1.15,
-        letterSpacing: -0.6,
+        letterSpacing: 0,
       ),
       displayMedium: TextStyle(
-        fontSize: 26,
+        fontSize: 24,
         fontWeight: FontWeight.w700,
         color: tokens.textPrimary,
         height: 1.2,
-        letterSpacing: -0.3,
+        letterSpacing: 0,
       ),
       titleLarge: TextStyle(
-        fontSize: 20,
+        fontSize: 19,
         fontWeight: FontWeight.w700,
         color: tokens.textPrimary,
         height: 1.3,
+        letterSpacing: 0,
       ),
       titleMedium: TextStyle(
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: FontWeight.w600,
         color: tokens.textPrimary,
         height: 1.35,
+        letterSpacing: 0,
       ),
       bodyLarge: TextStyle(
         fontSize: 15,
         fontWeight: FontWeight.w400,
         color: tokens.textPrimary,
         height: 1.45,
-      ),
-      bodyMedium: TextStyle(
-        fontSize: 15,
-        fontWeight: FontWeight.w400,
-        color: tokens.textPrimary,
-        height: 1.45,
-      ),
-      bodySmall: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-        color: tokens.textSecondary,
-        height: 1.3,
-        letterSpacing: 0.2,
-      ),
-      labelLarge: TextStyle(
-        fontSize: 15,
-        fontWeight: FontWeight.w700,
-        color: tokens.textOnColor,
-        height: 1.2,
-        letterSpacing: 0.2,
-      ),
-      labelMedium: TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w600,
-        color: tokens.textSecondary,
-        height: 1.35,
-        letterSpacing: 0.2,
-      ),
-    );
-  }
-
-  static TextTheme _gamerTextTheme(AppThemeTokens tokens) {
-    const monoFallback = <String>['Courier New', 'monospace'];
-    return TextTheme(
-      displayLarge: TextStyle(
-        fontSize: 34,
-        fontWeight: FontWeight.w900,
-        color: tokens.primary,
-        height: 1.1,
-        letterSpacing: 0.8,
-      ),
-      displayMedium: TextStyle(
-        fontSize: 26,
-        fontWeight: FontWeight.w800,
-        color: tokens.textPrimary,
-        height: 1.15,
-        letterSpacing: 0.6,
-      ),
-      titleLarge: TextStyle(
-        fontSize: 20,
-        fontWeight: FontWeight.w900,
-        color: tokens.primary,
-        height: 1.25,
-        letterSpacing: 0.8,
-      ),
-      titleMedium: TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.w700,
-        color: tokens.textPrimary,
-        height: 1.3,
-        letterSpacing: 0.5,
-      ),
-      bodyLarge: TextStyle(
-        fontSize: 15,
-        fontWeight: FontWeight.w400,
-        color: tokens.textPrimary,
-        height: 1.45,
-        fontFamilyFallback: monoFallback,
+        letterSpacing: 0,
       ),
       bodyMedium: TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w400,
         color: tokens.textPrimary,
         height: 1.45,
-        fontFamilyFallback: monoFallback,
+        letterSpacing: 0,
+      ),
+      bodySmall: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+        color: tokens.textSecondary,
+        height: 1.3,
+        letterSpacing: 0,
+      ),
+      labelLarge: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w700,
+        color: tokens.textOnColor,
+        height: 1.2,
+        letterSpacing: 0,
+      ),
+      labelMedium: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: tokens.textSecondary,
+        height: 1.35,
+        letterSpacing: 0,
+      ),
+    );
+  }
+
+  static TextTheme _gamerTextTheme(AppThemeTokens tokens) {
+    return TextTheme(
+      displayLarge: TextStyle(
+        fontSize: 30,
+        fontWeight: FontWeight.w800,
+        color: tokens.primary,
+        height: 1.15,
+        letterSpacing: 0,
+      ),
+      displayMedium: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.w800,
+        color: tokens.textPrimary,
+        height: 1.2,
+        letterSpacing: 0,
+      ),
+      titleLarge: TextStyle(
+        fontSize: 19,
+        fontWeight: FontWeight.w800,
+        color: tokens.primary,
+        height: 1.3,
+        letterSpacing: 0,
+      ),
+      titleMedium: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+        color: tokens.textPrimary,
+        height: 1.35,
+        letterSpacing: 0,
+      ),
+      bodyLarge: TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.w400,
+        color: tokens.textPrimary,
+        height: 1.45,
+        letterSpacing: 0,
+      ),
+      bodyMedium: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: tokens.textPrimary,
+        height: 1.45,
+        letterSpacing: 0,
       ),
       bodySmall: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w600,
         color: tokens.textSecondary,
         height: 1.3,
-        letterSpacing: 0.3,
-        fontFamilyFallback: monoFallback,
+        letterSpacing: 0,
       ),
       labelLarge: TextStyle(
-        fontSize: 15,
+        fontSize: 14,
         fontWeight: FontWeight.w800,
         color: tokens.textOnColor,
         height: 1.2,
-        letterSpacing: 0.5,
+        letterSpacing: 0,
       ),
       labelMedium: TextStyle(
-        fontSize: 13,
+        fontSize: 12,
         fontWeight: FontWeight.w700,
         color: tokens.primary,
         height: 1.35,
-        letterSpacing: 0.4,
+        letterSpacing: 0,
       ),
     );
   }
