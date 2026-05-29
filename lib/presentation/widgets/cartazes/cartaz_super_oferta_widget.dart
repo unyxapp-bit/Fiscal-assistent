@@ -362,6 +362,7 @@ class _OutlinedTextBox extends StatelessWidget {
               child: CartazPriceText(
                 text: text,
                 centavosMenores: centavosMenores,
+                applyColorAdjustment: false,
                 style: TextStyle(
                   fontSize: fontSize,
                   fontWeight: FontWeight.w900,
@@ -373,6 +374,7 @@ class _OutlinedTextBox extends StatelessWidget {
             CartazPriceText(
               text: text,
               centavosMenores: centavosMenores,
+              applyColorAdjustment: false,
               style: TextStyle(
                 fontSize: fontSize,
                 fontWeight: FontWeight.w900,

@@ -256,7 +256,11 @@ class CartazTextStyleScope extends InheritedWidget {
   }
 }
 
-TextStyle cartazAdjustedTextStyle(BuildContext context, TextStyle base) {
+TextStyle cartazAdjustedTextStyle(
+  BuildContext context,
+  TextStyle base, {
+  bool applyColor = true,
+}) {
   final adjustment = CartazTextStyleScope.maybeOf(context);
   if (adjustment == null) return base;
 
@@ -272,7 +276,7 @@ TextStyle cartazAdjustedTextStyle(BuildContext context, TextStyle base) {
   }
 
   final color = adjustment.color;
-  if (color != null && style.foreground == null) {
+  if (applyColor && color != null && style.foreground == null) {
     style = style.copyWith(color: color);
   }
 

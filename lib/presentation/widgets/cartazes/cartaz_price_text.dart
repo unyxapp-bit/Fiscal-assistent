@@ -7,6 +7,7 @@ class CartazPriceText extends StatelessWidget {
   final TextStyle style;
   final bool centavosMenores;
   final TextAlign textAlign;
+  final bool applyColorAdjustment;
 
   const CartazPriceText({
     super.key,
@@ -14,13 +15,18 @@ class CartazPriceText extends StatelessWidget {
     required this.style,
     this.centavosMenores = false,
     this.textAlign = TextAlign.start,
+    this.applyColorAdjustment = true,
   });
 
   @override
   Widget build(BuildContext context) {
     final displayText = text.trim();
     final parts = _CartazPriceParts.from(displayText);
-    final resolvedStyle = cartazAdjustedTextStyle(context, style);
+    final resolvedStyle = cartazAdjustedTextStyle(
+      context,
+      style,
+      applyColor: applyColorAdjustment,
+    );
     final resolvedTextAlign = cartazAdjustedTextAlign(context, textAlign);
 
     if (!centavosMenores || parts == null) {

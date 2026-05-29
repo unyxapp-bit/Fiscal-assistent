@@ -342,6 +342,7 @@ class _OfferPriceLayer extends StatelessWidget {
               child: CartazPriceText(
                 text: displayText,
                 centavosMenores: centavosMenores,
+                applyColorAdjustment: false,
                 style: TextStyle(
                   fontSize: 188,
                   fontWeight: FontWeight.w900,
@@ -354,6 +355,7 @@ class _OfferPriceLayer extends StatelessWidget {
             CartazPriceText(
               text: displayText,
               centavosMenores: centavosMenores,
+              applyColorAdjustment: false,
               style: TextStyle(
                 fontSize: 188,
                 fontWeight: FontWeight.w900,

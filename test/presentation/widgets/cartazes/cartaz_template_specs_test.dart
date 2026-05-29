@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:fiscal_assistant/data/models/cartaz_form_data.dart';
 import 'package:fiscal_assistant/presentation/widgets/cartazes/cartaz_price_text.dart';
+import 'package:fiscal_assistant/presentation/widgets/cartazes/cartaz_text_adjustments.dart';
 import 'package:fiscal_assistant/presentation/widgets/cartazes/cartaz_template_specs.dart';
 import 'package:fiscal_assistant/presentation/widgets/cartazes/poster_factory.dart';
 import 'package:flutter/material.dart';
@@ -81,6 +82,35 @@ void main() {
 
     expect(centavosRect.top, closeTo(reaisRect.top, 0.5));
     expect(centavosRect.bottom, lessThanOrEqualTo(reaisRect.center.dy));
+  });
+
+  testWidgets('camada decorativa do preco preserva cor original',
+      (tester) async {
+    const originalColor = Color(0x33000000);
+    const adjustedColor = Color(0xFF16A34A);
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Center(
+          child: CartazTextStyleScope(
+            adjustment: CartazTextAdjustment(colorValue: 0xFF16A34A),
+            child: CartazPriceText(
+              text: '19,99',
+              applyColorAdjustment: false,
+              style: TextStyle(
+                color: originalColor,
+                fontSize: 100,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final text = tester.widget<Text>(find.text('19,99'));
+    expect(text.style?.color, originalColor);
+    expect(text.style?.color, isNot(adjustedColor));
   });
 
   testWidgets('template extra mostra informacoes promocionais', (tester) async {
