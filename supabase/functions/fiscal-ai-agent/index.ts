@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") ?? "";
-const OPENAI_MODEL = Deno.env.get("OPENAI_MODEL") ?? "gpt-4o-mini";
+const OPENAI_MODEL = Deno.env.get("OPENAI_MODEL") ?? "gpt-5.4-mini";
 const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY") ?? "";
 const ANTHROPIC_MODEL =
   Deno.env.get("ANTHROPIC_MODEL") ?? "claude-3-5-haiku-20241022";
@@ -512,8 +512,28 @@ Ferramentas que podem ser sugeridas:
 - create_followup_event: cria evento manual de acompanhamento. Sempre requer confirmacao.
 `;
 
+function openAiResponseText(data: Record<string, unknown>) {
+  const directText = text(data.output_text);
+  if (directText) return directText;
+
+  const output = Array.isArray(data.output) ? data.output : [];
+  const chunks: string[] = [];
+  for (const item of output) {
+    const itemRecord = asRecord(item);
+    const content = Array.isArray(itemRecord.content)
+      ? itemRecord.content as unknown[]
+      : [];
+    for (const part of content) {
+      const record = asRecord(part);
+      const value = text(record.text);
+      if (value) chunks.push(value);
+    }
+  }
+  return chunks.join("");
+}
+
 async function callOpenAI(input: FiscalAiInput, fallback: FiscalAiInsight) {
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -521,18 +541,23 @@ async function callOpenAI(input: FiscalAiInput, fallback: FiscalAiInsight) {
     },
     body: JSON.stringify({
       model: OPENAI_MODEL,
-      temperature: 0.2,
-      response_format: { type: "json_object" },
-      messages: [
+      max_output_tokens: 1600,
+      input: [
         { role: "system", content: systemPrompt },
         { role: "user", content: JSON.stringify(input) },
       ],
+      reasoning: { effort: "low" },
+      text: {
+        verbosity: "low",
+        format: { type: "json_object" },
+      },
     }),
   });
 
   if (!response.ok) throw new Error(await response.text());
   const data = await response.json();
-  const raw = data.choices?.[0]?.message?.content ?? "";
+  const raw = openAiResponseText(asRecord(data));
+  if (!raw) throw new Error("OpenAI returned an empty response.");
   return normalizeInsight(parseJsonObject(raw), {
     ...fallback,
     provider: "openai",
