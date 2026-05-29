@@ -1,19 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:notification_listener_service/notification_listener_service.dart';
 import 'package:notification_listener_service/notification_event.dart';
+import 'package:notification_listener_service/notification_listener_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../datasources/remote/supabase_client.dart';
 
-/// Captura notificações do WhatsApp do grupo "Balcão Fiscal" e envia
-/// ao Supabase para categorização e registro.
-///
-/// Texto  → Edge Function (regras + Claude Haiku categoriza)
-/// Áudio  → salvo direto como midia_pendente
-/// Foto   → salvo direto como midia_pendente
 class WhatsAppNotificationService {
   WhatsAppNotificationService._();
 
@@ -22,20 +16,25 @@ class WhatsAppNotificationService {
     'com.whatsapp.w4b',
   ];
 
-  /// Fontes padrão — substituídas pelas salvas em SharedPreferences se existirem.
   static const List<String> _fontesDefault = [
     'balcão fiscal',
+    'balcao fiscal',
     'pyetro filho',
   ];
 
   static const String _prefKey = 'whatsapp_fontes_aceitas';
 
-  /// Fontes em memória, carregadas no init() ou editadas via UI.
   static List<String> _fontesAceitas = List.of(_fontesDefault);
+  static StreamSubscription<ServiceNotificationEvent>? _subscription;
+  static bool _initializing = false;
+  static final Map<String, DateTime> _recentMessages = {};
 
-  // ── Gerenciamento de fontes ────────────────────────────────────────────────
+  static bool debugMode = false;
+  static int receivedTotal = 0;
+  static String lastReceived = '';
 
   static List<String> get fontesAceitas => List.unmodifiable(_fontesAceitas);
+  static bool get isListening => _subscription != null;
 
   static Future<void> _carregarFontes() async {
     try {
@@ -63,56 +62,22 @@ class WhatsAppNotificationService {
     } catch (_) {}
   }
 
-  // ── Estado interno ─────────────────────────────────────────────────────────
-
-  static StreamSubscription<ServiceNotificationEvent>? _subscription;
-
-  /// Impede que duas chamadas simultâneas de init() criem subscriptions duplas.
-  static bool _initializing = false;
-
-  /// Cache de deduplicação: "sender|content" → último processamento.
-  /// WhatsApp às vezes dispara duas notificações para a mesma mensagem
-  /// (chegada + atualização de contador). Ignoramos repetições em 15s.
-  static final Map<String, DateTime> _recentMessages = {};
-
-  // ── Diagnóstico (visível mesmo em release) ─────────────────────────────────
-
-  /// Quando true: aceita QUALQUER notificação (qualquer app) e salva no banco.
-  /// Permite confirmar se o stream está funcionando independente de filtros.
-  static bool debugMode = false;
-
-  /// Total de notificações que chegaram ao handler ANTES de qualquer filtro.
-  /// Se ficar em 0 após várias notificações, o stream não está funcionando.
-  static int receivedTotal = 0;
-
-  /// Última notificação recebida no formato "packageName | title".
-  static String lastReceived = '';
-
-  // ── Getters ────────────────────────────────────────────────────────────────
-
-  static bool get isListening => _subscription != null;
-
-  // ── Inicialização ──────────────────────────────────────────────────────────
-
-  /// Inicializa o listener. Seguro chamar várias vezes — idempotente com
-  /// proteção contra race condition via flag _initializing.
   static Future<void> init() async {
     if (_subscription != null || _initializing) return;
     _initializing = true;
 
     try {
       await _carregarFontes();
-
       final hasPermission =
           await NotificationListenerService.isPermissionGranted();
-      if (kDebugMode) debugPrint('[WhatsApp] Permissão: $hasPermission');
-
+      if (kDebugMode) debugPrint('[WhatsApp] Permissao: $hasPermission');
       if (!hasPermission) return;
 
-      _subscription = NotificationListenerService.notificationsStream
-          .listen(_handleNotification, onError: _onError);
-
-      if (kDebugMode) debugPrint('[WhatsApp] Listener ativo. Fontes: $_fontesAceitas');
+      _subscription = NotificationListenerService.notificationsStream.listen(
+        _handleNotification,
+        onError: _onError,
+      );
+      if (kDebugMode) debugPrint('[WhatsApp] Listener ativo.');
     } catch (e) {
       if (kDebugMode) debugPrint('[WhatsApp] Erro ao iniciar listener: $e');
     } finally {
@@ -120,8 +85,6 @@ class WhatsAppNotificationService {
     }
   }
 
-  /// Cancela o listener atual e reinicia. Use quando o app volta do background
-  /// para garantir que o stream não morreu enquanto o app estava em pausa.
   static Future<void> reset() async {
     await _subscription?.cancel();
     _subscription = null;
@@ -141,39 +104,30 @@ class WhatsAppNotificationService {
     try {
       await NotificationListenerService.requestPermission();
     } catch (e) {
-      if (kDebugMode) debugPrint('[WhatsApp] Erro ao abrir configurações: $e');
+      if (kDebugMode) debugPrint('[WhatsApp] Erro ao abrir configuracoes: $e');
     }
   }
 
-  // ── Handler principal ──────────────────────────────────────────────────────
-
   static Future<void> _handleNotification(
-      ServiceNotificationEvent event) async {
-    // Contadores de diagnóstico — atualizados ANTES de qualquer filtro
+    ServiceNotificationEvent event,
+  ) async {
     receivedTotal++;
     lastReceived = '${event.packageName} | ${event.title ?? ""}';
 
-    // ── Modo diagnóstico: salva TUDO no banco sem filtrar ──────────────────
     if (debugMode) {
       await _salvarDebug(event);
       return;
     }
 
-    // ── Filtro 1: apenas WhatsApp ──────────────────────────────────────────
     if (!_whatsappPackages.contains(event.packageName)) return;
 
-    // ── Filtro 2: apenas fontes aceitas (grupo/contato) ───────────────────
-    final titulo = (event.title ?? '').toLowerCase();
+    final sourceTitle = event.title ?? '';
+    final titulo = sourceTitle.toLowerCase();
     if (!_fontesAceitas.any((f) => titulo.contains(f))) return;
 
-    // ── Filtro 3: conteúdo não vazio ──────────────────────────────────────
     final body = event.content ?? '';
-    if (body.isEmpty) return;
+    if (body.isEmpty || _isMensagemSistema(body)) return;
 
-    // ── Filtro 4: ignora mensagens do sistema ─────────────────────────────
-    if (_isMensagemSistema(body)) return;
-
-    // ── Extrai remetente e conteúdo ───────────────────────────────────────
     String sender = '';
     String content = body;
     if (body.contains(': ')) {
@@ -182,105 +136,132 @@ class WhatsAppNotificationService {
       content = body.substring(idx + 2).trim();
     }
 
-    // ── Filtro 5: deduplicação (mesmo conteúdo em 15 s) ──────────────────
     if (_isDuplicate(sender, content)) return;
 
     final timestamp = DateTime.now().toIso8601String();
     if (kDebugMode) {
-      debugPrint('[WhatsApp] Capturado — de: "$sender" | conteúdo: "$content"');
+      debugPrint('[WhatsApp] Capturado - de: "$sender" | conteudo: "$content"');
     }
 
-    // ── Roteamento ─────────────────────────────────────────────────────────
     try {
       if (_isAudio(content)) {
         await _salvarMidia(
-            sender: sender, mediaType: 'audio', timestamp: timestamp);
+          sender: sender,
+          mediaType: 'audio',
+          timestamp: timestamp,
+          sourceTitle: sourceTitle,
+          rawContent: body,
+        );
       } else if (_isFoto(content)) {
         await _salvarMidia(
-            sender: sender, mediaType: 'foto', timestamp: timestamp);
+          sender: sender,
+          mediaType: 'foto',
+          timestamp: timestamp,
+          sourceTitle: sourceTitle,
+          rawContent: body,
+        );
       } else {
         await _enviarParaEdgeFunction(
-            sender: sender, message: content, timestamp: timestamp);
+          sender: sender,
+          message: content,
+          timestamp: timestamp,
+          sourceTitle: sourceTitle,
+          rawContent: body,
+        );
       }
     } catch (e) {
       if (kDebugMode) debugPrint('[WhatsApp] Erro ao processar: $e');
-      // Falhas de rede são salvas no banco para visibilidade (não ficam silenciosas)
-      await _salvarErro(
-          content: content, sender: sender, error: e.toString());
+      await _salvarErro(content: content, sender: sender, error: e.toString());
     }
   }
 
-  // ── Detectores ────────────────────────────────────────────────────────────
+  static bool _isAudio(String body) {
+    final lower = body.toLowerCase();
+    return lower.contains('ptt-') ||
+        lower.contains('aud-') ||
+        lower.contains('.opus') ||
+        lower.contains('mensagem de voz') ||
+        lower.contains('audio') ||
+        lower.contains('áudio') ||
+        body.contains('🎤');
+  }
 
-  static bool _isAudio(String b) =>
-      b.contains('PTT-') ||
-      b.contains('AUD-') ||
-      b.contains('.opus') ||
-      b.contains('🎤') ||
-      b.contains('Mensagem de voz') ||
-      b.contains('áudio');
+  static bool _isFoto(String body) {
+    final lower = body.toLowerCase();
+    return lower.contains('img-') ||
+        lower.contains('mídia oculta') ||
+        lower.contains('midia oculta') ||
+        lower.contains('.jpg') ||
+        lower.contains('.jpeg') ||
+        lower.contains('.png') ||
+        lower.contains('.webp') ||
+        lower.contains('foto') ||
+        lower.contains('imagem') ||
+        body.contains('📷');
+  }
 
-  static bool _isFoto(String b) =>
-      b.contains('IMG-') ||
-      b.contains('Mídia oculta') ||
-      b.contains('.jpg') ||
-      b.contains('.png') ||
-      b.contains('Foto') ||
-      b.contains('Imagem') ||
-      b.contains('📷');
-
-  static bool _isMensagemSistema(String b) {
-    // Padrões de sistema e notificações de resumo do WhatsApp
+  static bool _isMensagemSistema(String body) {
     const frases = [
-      'Mensagem apagada', 'Mensagem editada', 'adicionou você',
-      'STK-', '.webp', 'criou o grupo', 'saiu', 'Figurinha',
-      '🔴', 'reagiu com',
-      // Resumos de grupo: "3 novas mensagens", "1 nova mensagem",
-      // "5 mensagens não lidas" — sem remetente real, sem conteúdo útil
-      'nova mensagem', 'novas mensagens',
-      'mensagem não lida', 'mensagens não lidas',
-      'mensagem não vista', 'mensagens não vistas',
-      // Ligações perdidas
-      'Chamada perdida', 'Chamada de vídeo perdida',
+      'Mensagem apagada',
+      'Mensagem editada',
+      'adicionou você',
+      'adicionou voce',
+      'STK-',
+      '.webp',
+      'criou o grupo',
+      'saiu',
+      'Figurinha',
+      'reagiu com',
+      'nova mensagem',
+      'novas mensagens',
+      'mensagem não lida',
+      'mensagem nao lida',
+      'mensagens não lidas',
+      'mensagens nao lidas',
+      'mensagem não vista',
+      'mensagem nao vista',
+      'mensagens não vistas',
+      'mensagens nao vistas',
+      'Chamada perdida',
+      'Chamada de vídeo perdida',
+      'Chamada de video perdida',
     ];
-    if (frases.any((p) => b.contains(p))) return true;
-    // "N mensagens" no início (ex: "12 mensagens")
-    if (RegExp(r'^\d+\s+mensagens?', caseSensitive: false).hasMatch(b)) {
-      return true;
-    }
-    return false;
+    if (frases.any((p) => body.contains(p))) return true;
+    return RegExp(r'^\d+\s+mensagens?', caseSensitive: false).hasMatch(body);
   }
 
-  /// Retorna true se a mesma mensagem (sender+content) chegou há menos de 15 s.
-  /// Evita duplicatas causadas por WhatsApp atualizar o contador do grupo.
   static bool _isDuplicate(String sender, String content) {
     final key = '${sender.toLowerCase()}|${content.toLowerCase()}';
     final now = DateTime.now();
-    // Limpa entradas antigas (> 30 s) para não crescer indefinidamente
     _recentMessages.removeWhere(
-        (_, v) => now.difference(v).inSeconds > 30);
+      (_, value) => now.difference(value).inSeconds > 30,
+    );
     final last = _recentMessages[key];
     if (last != null && now.difference(last).inSeconds < 15) {
-      if (kDebugMode) {
-        debugPrint('[WhatsApp] Duplicata ignorada — "$sender": "$content"');
-      }
+      if (kDebugMode) debugPrint('[WhatsApp] Duplicata ignorada: $key');
       return true;
     }
     _recentMessages[key] = now;
     return false;
   }
 
-  // ── Envios ─────────────────────────────────────────────────────────────────
-
   static Future<void> _enviarParaEdgeFunction({
     required String sender,
     required String message,
     required String timestamp,
+    required String sourceTitle,
+    required String rawContent,
   }) async {
     await Supabase.instance.client.functions.invoke(
       'analyze-fiscal-message',
       headers: SupabaseClientManager.edgeFunctionHeaders,
       body: {
+        'fiscal_id': SupabaseClientManager.currentUserId,
+        'source': 'whatsapp_notification',
+        'source_app': 'whatsapp',
+        'source_title': sourceTitle,
+        'raw_title': sourceTitle,
+        'raw_content': rawContent,
         'sender': sender,
         'message': message,
         'timestamp': timestamp,
@@ -292,13 +273,41 @@ class WhatsAppNotificationService {
     required String sender,
     required String mediaType,
     required String timestamp,
+    required String sourceTitle,
+    required String rawContent,
   }) async {
     final emoji = mediaType == 'audio' ? '🎤' : '📷';
-    final nome = sender.isNotEmpty ? sender : 'Alguém';
+    final nome = sender.isNotEmpty ? sender : 'Alguem';
+    try {
+      await Supabase.instance.client.functions.invoke(
+        'analyze-fiscal-message',
+        headers: SupabaseClientManager.edgeFunctionHeaders,
+        body: {
+          'fiscal_id': SupabaseClientManager.currentUserId,
+          'source': 'whatsapp_notification',
+          'source_app': 'whatsapp',
+          'source_title': sourceTitle,
+          'raw_title': sourceTitle,
+          'raw_content': rawContent,
+          'sender': sender,
+          'message': '$emoji $mediaType recebido de $nome',
+          'timestamp': timestamp,
+          'media_type': mediaType,
+        },
+      );
+      if (kDebugMode) debugPrint('[WhatsApp] Midia enviada: $mediaType');
+      return;
+    } catch (e) {
+      if (kDebugMode) debugPrint('[WhatsApp] Edge falhou para midia: $e');
+    }
+
     await Supabase.instance.client.from('fiscal_events').insert({
+      'fiscal_id': SupabaseClientManager.currentUserId,
       'category': 'midia_pendente',
-      'description':
-          '$emoji $mediaType recebido de $nome — preencher após ouvir/ver',
+      'description': '$emoji $mediaType recebido de $nome - anexar arquivo',
+      'source_title': sourceTitle,
+      'raw_title': sourceTitle,
+      'raw_content': rawContent,
       'sender': sender.isNotEmpty ? sender : null,
       'raw_message': '$emoji $mediaType',
       'event_date': timestamp,
@@ -306,20 +315,22 @@ class WhatsAppNotificationService {
       'confidence': 1.0,
       'media_type': mediaType,
       'needs_review': true,
+      'analysis_status': 'needs_file',
     });
-    if (kDebugMode) debugPrint('[WhatsApp] Mídia salva: $mediaType de $nome');
   }
 
-  /// Salva QUALQUER notificação no banco. Usado no modo diagnóstico.
   static Future<void> _salvarDebug(ServiceNotificationEvent event) async {
     try {
       await Supabase.instance.client.from('fiscal_events').insert({
+        'fiscal_id': SupabaseClientManager.currentUserId,
         'category': 'aviso_geral',
-        'description': '[DIAGNÓSTICO]\n'
+        'description': '[DIAGNOSTICO]\n'
             'App: ${event.packageName}\n'
-            'Título: ${event.title}\n'
-            'Conteúdo: ${event.content}',
+            'Titulo: ${event.title}\n'
+            'Conteudo: ${event.content}',
         'raw_message': '${event.title}: ${event.content}',
+        'raw_title': event.title,
+        'raw_content': event.content,
         'sender': event.packageName,
         'event_date': DateTime.now().toIso8601String(),
         'status': 'pending',
@@ -331,7 +342,6 @@ class WhatsAppNotificationService {
     }
   }
 
-  /// Salva erros de processamento no banco — falhas silenciosas viram visíveis.
   static Future<void> _salvarErro({
     required String content,
     required String sender,
@@ -339,26 +349,23 @@ class WhatsAppNotificationService {
   }) async {
     try {
       await Supabase.instance.client.from('fiscal_events').insert({
+        'fiscal_id': SupabaseClientManager.currentUserId,
         'category': 'aviso_geral',
         'description':
             '[ERRO ao processar]\nRemetente: "$sender"\nErro: $error',
         'raw_message': content,
+        'raw_content': content,
         'sender': sender.isNotEmpty ? sender : null,
         'event_date': DateTime.now().toIso8601String(),
         'status': 'pending',
         'confidence': 0.1,
         'needs_review': true,
       });
-    } catch (_) {
-      // Se nem o log de erro funcionar, não há mais o que fazer aqui
-    }
+    } catch (_) {}
   }
 
-  // ── Tratamento de erro do stream ──────────────────────────────────────────
-
-  static void _onError(Object e) {
-    if (kDebugMode) debugPrint('[WhatsApp] Erro no stream: $e');
-    // Se o stream morrer, descarta a subscription e agenda reinicialização
+  static void _onError(Object error) {
+    if (kDebugMode) debugPrint('[WhatsApp] Erro no stream: $error');
     _subscription = null;
     _initializing = false;
     Future.delayed(const Duration(seconds: 5), init);

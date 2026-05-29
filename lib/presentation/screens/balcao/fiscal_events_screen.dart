@@ -10,6 +10,7 @@ import 'package:notification_listener_service/notification_listener_service.dart
 
 import '../../../core/constants/colors.dart';
 import '../../../data/datasources/remote/supabase_client.dart';
+import '../../../data/services/multimodal_inbox_service.dart';
 import '../../../data/services/whatsapp_notification_service.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../../core/constants/text_styles.dart';
@@ -80,6 +81,7 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
   bool _temPermissao = false;
   bool _listenerAtivo = false;
   bool _debugMode = false;
+  bool _analisandoMidia = false;
   Timer? _diagTimer;
 
   // Busca
@@ -238,6 +240,8 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
           e.description.toLowerCase().contains(q) ||
           (e.employeeName?.toLowerCase().contains(q) ?? false) ||
           (e.sender?.toLowerCase().contains(q) ?? false) ||
+          (e.mediaTranscript?.toLowerCase().contains(q) ?? false) ||
+          (e.mediaSummary?.toLowerCase().contains(q) ?? false) ||
           e.rawMessage.toLowerCase().contains(q);
       return catOk && statusOk && colabOk && periodoOk && buscaOk;
     }).toList();
@@ -303,6 +307,20 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
                     builder: (_) => const BalcaoPermissaoScreen()),
               ),
             ),
+          IconButton(
+            icon: _analisandoMidia
+                ? SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.primary,
+                    ),
+                  )
+                : Icon(Icons.upload_file_rounded, color: AppColors.primary),
+            tooltip: 'Analisar midia com IA',
+            onPressed: _analisandoMidia ? null : _analisarMidiaComIa,
+          ),
           // Busca
           IconButton(
             icon: Icon(
@@ -336,6 +354,7 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
               if (action == _BalcaoAction.debug) _toggleDebugMode();
               if (action == _BalcaoAction.teste) _enviarTeste(context);
               if (action == _BalcaoAction.atualizar) provider.load();
+              if (action == _BalcaoAction.analisarMidia) _analisarMidiaComIa();
               if (action == _BalcaoAction.configurarFontes) {
                 Navigator.push(
                   context,
@@ -358,6 +377,15 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
                       size: 18, color: AppColors.textSecondary),
                   const SizedBox(width: 10),
                   const Text('Atualizar'),
+                ]),
+              ),
+              PopupMenuItem(
+                value: _BalcaoAction.analisarMidia,
+                child: Row(children: [
+                  Icon(Icons.upload_file_rounded,
+                      size: 18, color: AppColors.textSecondary),
+                  const SizedBox(width: 10),
+                  const Text('Analisar midia com IA'),
                 ]),
               ),
               PopupMenuItem(
@@ -948,6 +976,29 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
     );
   }
 
+  Future<void> _analisarMidiaComIa() async {
+    if (_analisandoMidia) return;
+    setState(() => _analisandoMidia = true);
+    try {
+      final result = await MultimodalInboxService().pickAndAnalyze();
+      if (!mounted) return;
+      if (result == null) {
+        return;
+      }
+      await context.read<FiscalEventsProvider>().load();
+      if (!mounted) return;
+      AppNotif.show(
+        context,
+        titulo: result.success ? 'Analise concluida' : 'Falha na analise',
+        mensagem: result.message,
+        tipo: result.success ? 'saida' : 'alerta',
+        cor: result.success ? AppColors.success : AppColors.danger,
+      );
+    } finally {
+      if (mounted) setState(() => _analisandoMidia = false);
+    }
+  }
+
   void _abrirPreenchimentoMidia(FiscalEvent event) {
     showModalBottomSheet(
       context: context,
@@ -1332,6 +1383,66 @@ class _EventCard extends StatelessWidget {
                       : AppColors.textSecondary,
                   height: 1.4)),
 
+          if (event.mediaSummary?.trim().isNotEmpty == true ||
+              event.mediaTranscript?.trim().isNotEmpty == true)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.backgroundSection,
+                  borderRadius: BorderRadius.circular(Dimensions.radiusSM),
+                  border: Border.all(
+                    color: AppColors.cardBorder.withValues(alpha: 0.7),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (event.mediaSummary?.trim().isNotEmpty == true) ...[
+                      Text(
+                        'Resumo IA',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        event.mediaSummary!,
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textPrimary,
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
+                    if (event.mediaTranscript?.trim().isNotEmpty == true) ...[
+                      if (event.mediaSummary?.trim().isNotEmpty == true)
+                        const SizedBox(height: 8),
+                      Text(
+                        'Transcricao IA',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        event.mediaTranscript!,
+                        maxLines: 4,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textPrimary,
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+
           // Tags
           if (event.employeeName != null ||
               event.amount != null ||
@@ -1523,6 +1634,39 @@ class _MidiaCard extends StatelessWidget {
                     .copyWith(color: AppColors.textSecondary)),
           ]),
           const SizedBox(height: 12),
+          if (event.analysisStatus == 'needs_file')
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Text(
+                'Arquivo original ainda nao anexado.',
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          if (event.mediaSummary?.trim().isNotEmpty == true ||
+              event.mediaTranscript?.trim().isNotEmpty == true)
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.backgroundSection,
+                borderRadius: BorderRadius.circular(Dimensions.radiusSM),
+              ),
+              child: Text(
+                event.mediaSummary?.trim().isNotEmpty == true
+                    ? event.mediaSummary!
+                    : event.mediaTranscript!,
+                maxLines: 4,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textPrimary,
+                  height: 1.35,
+                ),
+              ),
+            ),
           Divider(color: AppColors.divider, height: 1),
           const SizedBox(height: 12),
           Row(children: [
@@ -2158,7 +2302,14 @@ class _RecategorizacaoSheetState extends State<_RecategorizacaoSheet> {
 //  ENUM DE AÇÕES DO MENU
 // ─────────────────────────────────────────────
 
-enum _BalcaoAction { atualizar, teste, debug, configurarFontes, relatorio }
+enum _BalcaoAction {
+  atualizar,
+  analisarMidia,
+  teste,
+  debug,
+  configurarFontes,
+  relatorio,
+}
 
 // ─────────────────────────────────────────────
 //  SHEET: CRIAR EVENTO MANUAL

@@ -5,6 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 
 // Services
 import 'data/services/notification_service.dart';
+import 'data/services/multimodal_inbox_service.dart';
 import 'data/services/whatsapp_notification_service.dart';
 
 // Data Sources
@@ -73,7 +74,9 @@ import 'presentation/providers/fiscal_events_provider.dart';
 import 'presentation/providers/fiscal_ai_provider.dart';
 
 // App Config
+import 'core/constants/colors.dart';
 import 'core/theme/app_theme.dart';
+import 'core/utils/app_notif.dart';
 import 'presentation/screens/splash/splash_screen.dart';
 import 'presentation/screens/auth/login_screen.dart';
 import 'presentation/screens/dashboard/dashboard_screen.dart';
@@ -365,6 +368,7 @@ class _AppHome extends StatefulWidget {
 
 class _AppHomeState extends State<_AppHome> with WidgetsBindingObserver {
   bool _loaded = false;
+  bool _processingSharedContent = false;
 
   @override
   void initState() {
@@ -385,6 +389,7 @@ class _AppHomeState extends State<_AppHome> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       WhatsAppNotificationService.reset();
+      _processSharedContent();
     }
   }
 
@@ -417,6 +422,33 @@ class _AppHomeState extends State<_AppHome> with WidgetsBindingObserver {
       ctx.read<GuiaRapidoProvider>().load(),
       if (userId.isNotEmpty) ctx.read<PacotePlantaoProvider>().load(userId),
     ]);
+    await _processSharedContent();
+  }
+
+  Future<void> _processSharedContent() async {
+    if (_processingSharedContent) return;
+    _processingSharedContent = true;
+    try {
+      final results = await MultimodalInboxService().consumeSharedContent();
+      if (!mounted || results.isEmpty) return;
+      await context.read<FiscalEventsProvider>().load();
+      if (!mounted) return;
+      final success = results.where((result) => result.success).length;
+      final failed = results.length - success;
+      AppNotif.show(
+        context,
+        titulo: failed == 0 ? 'Conteudo analisado' : 'Analise parcial',
+        mensagem: failed == 0
+            ? '$success item(ns) enviados para a IA.'
+            : '$success item(ns) analisados, $failed com erro.',
+        tipo: failed == 0 ? 'saida' : 'alerta',
+        cor: failed == 0 ? AppColors.success : AppColors.warning,
+      );
+    } catch (_) {
+      // Shared intents are opportunistic; normal app boot should not fail here.
+    } finally {
+      _processingSharedContent = false;
+    }
   }
 
   @override

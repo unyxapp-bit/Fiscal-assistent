@@ -18,6 +18,14 @@ class FiscalEvent {
   String status;
   final double confidence;
   final String? mediaType;
+  final String? mediaStoragePath;
+  final String? mediaFileName;
+  final String? mediaContentType;
+  final String? mediaTranscript;
+  final String? mediaSummary;
+  final String? analysisStatus;
+  final String? analysisError;
+  final String? aiInboxItemId;
   bool needsReview;
   // Fase 2 — novos campos (todos nullable para compatibilidade)
   DateTime? resolvedAt;
@@ -25,9 +33,9 @@ class FiscalEvent {
   String? notes;
   int? caixaNumero;
   String? scheduledTime; // "HH:MM"
-  String? turno;         // "manha" | "tarde" | "noite"
-  String source;         // "whatsapp" | "manual" | "sistema"
-  String priority;       // "baixa" | "normal" | "alta" | "critica"
+  String? turno; // "manha" | "tarde" | "noite"
+  String source; // "whatsapp" | "manual" | "sistema"
+  String priority; // "baixa" | "normal" | "alta" | "critica"
 
   FiscalEvent({
     required this.id,
@@ -42,6 +50,14 @@ class FiscalEvent {
     required this.status,
     required this.confidence,
     this.mediaType,
+    this.mediaStoragePath,
+    this.mediaFileName,
+    this.mediaContentType,
+    this.mediaTranscript,
+    this.mediaSummary,
+    this.analysisStatus,
+    this.analysisError,
+    this.aiInboxItemId,
     required this.needsReview,
     this.resolvedAt,
     this.resolvedBy,
@@ -62,11 +78,19 @@ class FiscalEvent {
         amount: m['amount'] != null ? (m['amount'] as num).toDouble() : null,
         sender: m['sender'] as String?,
         rawMessage: m['raw_message'] as String? ?? '',
-        eventDate: DateTime.parse(
-            (m['event_date'] ?? m['created_at']) as String),
+        eventDate:
+            DateTime.parse((m['event_date'] ?? m['created_at']) as String),
         status: m['status'] as String? ?? 'pending',
         confidence: (m['confidence'] as num?)?.toDouble() ?? 0.5,
         mediaType: m['media_type'] as String?,
+        mediaStoragePath: m['media_storage_path'] as String?,
+        mediaFileName: m['media_file_name'] as String?,
+        mediaContentType: m['media_content_type'] as String?,
+        mediaTranscript: m['media_transcript'] as String?,
+        mediaSummary: m['media_summary'] as String?,
+        analysisStatus: m['analysis_status'] as String?,
+        analysisError: m['analysis_error'] as String?,
+        aiInboxItemId: m['ai_inbox_item_id']?.toString(),
         needsReview: m['needs_review'] as bool? ?? false,
         resolvedAt: m['resolved_at'] != null
             ? DateTime.parse(m['resolved_at'] as String)
@@ -82,6 +106,9 @@ class FiscalEvent {
 
   bool get isAlta => priority == 'alta' || priority == 'critica';
   bool get isCritica => priority == 'critica';
+  bool get hasAiMedia =>
+      mediaTranscript?.trim().isNotEmpty == true ||
+      mediaSummary?.trim().isNotEmpty == true;
 }
 
 // ─────────────────────────────────────────────
@@ -161,6 +188,8 @@ class FiscalEventsProvider with ChangeNotifier {
       return e.description.toLowerCase().contains(q) ||
           (e.employeeName?.toLowerCase().contains(q) ?? false) ||
           (e.sender?.toLowerCase().contains(q) ?? false) ||
+          (e.mediaTranscript?.toLowerCase().contains(q) ?? false) ||
+          (e.mediaSummary?.toLowerCase().contains(q) ?? false) ||
           e.rawMessage.toLowerCase().contains(q);
     }).toList();
   }
@@ -216,23 +245,29 @@ class FiscalEventsProvider with ChangeNotifier {
             // Detecta acúmulo de eventos para o mesmo colaborador no mesmo dia
             if (e.colaboradorId != null && onAcumuloDetectado != null) {
               final hoje = DateTime.now();
-              final count = _events.where((ev) =>
-                ev.colaboradorId == e.colaboradorId &&
-                ev.status == 'pending' &&
-                ev.eventDate.year == hoje.year &&
-                ev.eventDate.month == hoje.month &&
-                ev.eventDate.day == hoje.day,
-              ).length;
+              final count = _events
+                  .where(
+                    (ev) =>
+                        ev.colaboradorId == e.colaboradorId &&
+                        ev.status == 'pending' &&
+                        ev.eventDate.year == hoje.year &&
+                        ev.eventDate.month == hoje.month &&
+                        ev.eventDate.day == hoje.day,
+                  )
+                  .length;
               if (count >= 2) onAcumuloDetectado!(e.colaboradorId!, count);
             }
 
             // Detecta reincidência: ≥3 eventos do mesmo colaborador nos últimos 7 dias
             if (e.colaboradorId != null && onReincidencia != null) {
               final limite = DateTime.now().subtract(const Duration(days: 7));
-              final count = _events.where((ev) =>
-                ev.colaboradorId == e.colaboradorId &&
-                ev.eventDate.isAfter(limite),
-              ).length;
+              final count = _events
+                  .where(
+                    (ev) =>
+                        ev.colaboradorId == e.colaboradorId &&
+                        ev.eventDate.isAfter(limite),
+                  )
+                  .length;
               if (count >= 3) onReincidencia!(e.colaboradorId!, count);
             }
           },
@@ -288,8 +323,7 @@ class FiscalEventsProvider with ChangeNotifier {
       await _client.from(_table).update({
         'category': category,
         'description': description,
-        'employee_name':
-            employeeName?.isNotEmpty == true ? employeeName : null,
+        'employee_name': employeeName?.isNotEmpty == true ? employeeName : null,
         'amount': amount,
         'colaborador_id': colaboradorId,
       }).eq('id', event.id);
@@ -316,8 +350,7 @@ class FiscalEventsProvider with ChangeNotifier {
       await _client.from(_table).update({
         'category': category,
         'description': description,
-        'employee_name':
-            employeeName?.isNotEmpty == true ? employeeName : null,
+        'employee_name': employeeName?.isNotEmpty == true ? employeeName : null,
         'amount': amount,
         'colaborador_id': colaboradorId,
         'needs_review': false,
@@ -387,21 +420,26 @@ class FiscalEventsProvider with ChangeNotifier {
     String? notes,
   }) async {
     try {
-      final data = await _client.from(_table).insert({
-        'category': category,
-        'description': description,
-        'employee_name': employeeName?.isNotEmpty == true ? employeeName : null,
-        'colaborador_id': colaboradorId,
-        'amount': amount,
-        'raw_message': description,
-        'event_date': DateTime.now().toIso8601String(),
-        'status': 'pending',
-        'confidence': 1.0,
-        'needs_review': false,
-        'source': 'manual',
-        'priority': priority,
-        'notes': notes?.isNotEmpty == true ? notes : null,
-      }).select().single();
+      final data = await _client
+          .from(_table)
+          .insert({
+            'category': category,
+            'description': description,
+            'employee_name':
+                employeeName?.isNotEmpty == true ? employeeName : null,
+            'colaborador_id': colaboradorId,
+            'amount': amount,
+            'raw_message': description,
+            'event_date': DateTime.now().toIso8601String(),
+            'status': 'pending',
+            'confidence': 1.0,
+            'needs_review': false,
+            'source': 'manual',
+            'priority': priority,
+            'notes': notes?.isNotEmpty == true ? notes : null,
+          })
+          .select()
+          .single();
       final evento = FiscalEvent.fromMap(data);
       _events.insert(0, evento);
       notifyListeners();
