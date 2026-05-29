@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_styles.dart';
-import '../../../core/constants/colors.dart';
-import '../../../core/constants/text_styles.dart';
-import '../../../core/constants/dimensions.dart';
+import 'operational_widgets.dart';
 
 /// Shown when a list has no data.
 class EmptyStateWidget extends StatelessWidget {
@@ -23,55 +20,12 @@ class EmptyStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(Dimensions.paddingMD),
-        child: Container(
-          decoration: AppStyles.softCard(tint: AppColors.inactive, radius: 20),
-          padding: const EdgeInsets.symmetric(
-            horizontal: Dimensions.paddingLG,
-            vertical: Dimensions.paddingXL,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 76,
-                height: 76,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  border: Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.2),
-                  ),
-                ),
-                child: Icon(icon, size: 34, color: AppColors.primary),
-              ),
-              const SizedBox(height: Dimensions.spacingLG),
-              Text(
-                title,
-                style: AppTextStyles.h3.copyWith(color: AppColors.textPrimary),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: Dimensions.spacingSM),
-              Text(
-                message,
-                style:
-                    AppTextStyles.body.copyWith(color: AppColors.textSecondary),
-                textAlign: TextAlign.center,
-              ),
-              if (buttonLabel != null && onButtonPressed != null) ...[
-                const SizedBox(height: Dimensions.spacingLG),
-                ElevatedButton.icon(
-                  onPressed: onButtonPressed,
-                  icon: const Icon(Icons.arrow_forward, size: 18),
-                  label: Text(buttonLabel!),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
+    return OperationalEmptyState(
+      icon: icon,
+      title: title,
+      message: message,
+      actionLabel: buttonLabel,
+      onAction: onButtonPressed,
     );
   }
 }

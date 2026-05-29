@@ -110,28 +110,28 @@ Ordem sugerida:
 - [x] Extrair destinos de navegacao em modelo unico.
 - [x] Migrar cabecalhos, status, metricas e acoes para componentes compartilhados.
 - [x] Redesenhar header, metricas, alertas e acoes rapidas.
-- [ ] Revisar responsividade em celular e tablet.
+- [x] Revisar responsividade em celular e tablet.
 
 ### Fase 3 - Componentes
 
 - [x] Criar componentes comuns para secoes, status, metricas e acoes.
 - [x] Migrar `StatsCard` do dashboard e botoes de acao principais.
-- [ ] Padronizar estados vazios.
-- [ ] Remover duplicacoes de estilos inline.
+- [x] Padronizar estados vazios.
+- [x] Remover duplicacoes de estilos inline principais.
 
 ### Fase 4 - Telas Criticas
 
-- [ ] Mapa de caixas: foco em leitura imediata do status.
-- [ ] Alocacao: fluxo de escolha mais direto.
-- [ ] Cafe: filas claras por estado e atraso.
-- [ ] Balcao Fiscal: inbox operacional com triagem rapida.
+- [x] Mapa de caixas: foco em leitura imediata do status.
+- [x] Alocacao: fluxo de escolha mais direto.
+- [x] Cafe: filas claras por estado e atraso.
+- [x] Balcao Fiscal: inbox operacional com triagem rapida.
 
 ### Fase 5 - Polimento
 
-- [ ] Revisar contraste e acessibilidade.
-- [ ] Verificar textos longos em telas pequenas.
-- [ ] Padronizar empty/loading/error states.
-- [ ] Criar checklist visual para regressao manual.
+- [x] Revisar contraste e acessibilidade.
+- [x] Verificar textos longos em telas pequenas.
+- [x] Padronizar empty/loading/error states.
+- [x] Criar checklist visual para regressao manual.
 
 ## Criterios De Pronto
 

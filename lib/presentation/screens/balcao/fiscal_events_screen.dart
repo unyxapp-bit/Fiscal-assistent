@@ -18,6 +18,7 @@ import '../../../domain/entities/colaborador.dart';
 import '../../providers/colaborador_provider.dart';
 import '../../providers/fiscal_events_provider.dart';
 import '../../providers/notificacao_provider.dart';
+import '../../widgets/common/operational_widgets.dart';
 import '../../widgets/selecao_colaborador_sheet.dart';
 import '../ocorrencias/ocorrencia_form_screen.dart';
 import 'balcao_fontes_screen.dart';
@@ -36,28 +37,24 @@ class _CatConfig {
 }
 
 final Map<String, _CatConfig> _cats = {
-  'caixa':
-      _CatConfig('Caixa', Icons.account_balance_wallet, () => AppColors.warning),
-  'ausencia':
-      _CatConfig('Ausência', Icons.person_off, () => AppColors.danger),
+  'caixa': _CatConfig(
+      'Caixa', Icons.account_balance_wallet, () => AppColors.warning),
+  'ausencia': _CatConfig('Ausência', Icons.person_off, () => AppColors.danger),
   'atestado':
       _CatConfig('Atestado', Icons.medical_services, () => AppColors.info),
   'horario_especial':
       _CatConfig('Horário Especial', Icons.schedule, () => AppColors.outro),
-  'ferias':
-      _CatConfig('Férias', Icons.beach_access, () => AppColors.success),
-  'vale':
-      _CatConfig('Vale', Icons.receipt_long, () => AppColors.teal),
+  'ferias': _CatConfig('Férias', Icons.beach_access, () => AppColors.success),
+  'vale': _CatConfig('Vale', Icons.receipt_long, () => AppColors.teal),
   'problema_operacional':
       _CatConfig('Problema', Icons.warning_amber, () => AppColors.statusSaida),
-  'aviso_geral':
-      _CatConfig('Aviso', Icons.campaign, () => AppColors.blueGrey),
+  'aviso_geral': _CatConfig('Aviso', Icons.campaign, () => AppColors.blueGrey),
   'midia_pendente':
       _CatConfig('Mídia', Icons.perm_media, () => AppColors.deepPurple),
-  'troco':
-      _CatConfig('Troco', Icons.currency_exchange_rounded, () => AppColors.statusAtencao),
-  'escala':
-      _CatConfig('Escala', Icons.calendar_month_rounded, () => AppColors.indigo),
+  'troco': _CatConfig(
+      'Troco', Icons.currency_exchange_rounded, () => AppColors.statusAtencao),
+  'escala': _CatConfig(
+      'Escala', Icons.calendar_month_rounded, () => AppColors.indigo),
   'cooperativa':
       _CatConfig('Cooperativa', Icons.groups_rounded, () => AppColors.cyan),
 };
@@ -155,7 +152,8 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
       final fmt = event.amount?.toStringAsFixed(2).replaceAll('.', ',') ?? '';
       notifProvider.adicionarNotificacao(
         titulo: 'Diferença alta de caixa',
-        mensagem: 'R\$ $fmt${event.employeeName != null ? ' — ${event.employeeName}' : ''}. Revisar urgente.',
+        mensagem:
+            'R\$ $fmt${event.employeeName != null ? ' — ${event.employeeName}' : ''}. Revisar urgente.',
         tipo: 'alerta',
       );
     };
@@ -225,7 +223,8 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
     final semana = hoje.subtract(const Duration(days: 7));
 
     return events.where((e) {
-      final catOk = _selectedCategory == null || e.category == _selectedCategory;
+      final catOk =
+          _selectedCategory == null || e.category == _selectedCategory;
       final statusOk = _selectedStatus == 'all' || e.status == _selectedStatus;
       final colabOk = _colaboradorFiltro == null ||
           e.colaboradorId == _colaboradorFiltro!.id;
@@ -262,16 +261,15 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
             if (provider.totalPendentes > 0) ...[
               const SizedBox(width: 8),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: AppColors.danger,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   '${provider.totalPendentes}',
-                  style: AppTextStyles.caption
-                      .copyWith(color: Colors.white, fontWeight: FontWeight.w700),
+                  style: AppTextStyles.caption.copyWith(
+                      color: Colors.white, fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -309,7 +307,8 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
           IconButton(
             icon: Icon(
               _mostrarBusca ? Icons.search_off_rounded : Icons.search_rounded,
-              color: _mostrarBusca ? AppColors.primary : AppColors.textSecondary,
+              color:
+                  _mostrarBusca ? AppColors.primary : AppColors.textSecondary,
             ),
             tooltip: _mostrarBusca ? 'Fechar busca' : 'Buscar eventos',
             onPressed: () => setState(() {
@@ -324,7 +323,8 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
           IconButton(
             icon: Icon(
               Icons.bar_chart_rounded,
-              color: _mostrarStats ? AppColors.primary : AppColors.textSecondary,
+              color:
+                  _mostrarStats ? AppColors.primary : AppColors.textSecondary,
             ),
             tooltip: _mostrarStats ? 'Ocultar resumo' : 'Ver resumo',
             onPressed: () => setState(() => _mostrarStats = !_mostrarStats),
@@ -354,7 +354,8 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
               PopupMenuItem(
                 value: _BalcaoAction.atualizar,
                 child: Row(children: [
-                  Icon(Icons.refresh_rounded, size: 18, color: AppColors.textSecondary),
+                  Icon(Icons.refresh_rounded,
+                      size: 18, color: AppColors.textSecondary),
                   const SizedBox(width: 10),
                   const Text('Atualizar'),
                 ]),
@@ -362,7 +363,8 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
               PopupMenuItem(
                 value: _BalcaoAction.teste,
                 child: Row(children: [
-                  Icon(Icons.science_outlined, size: 18, color: AppColors.textSecondary),
+                  Icon(Icons.science_outlined,
+                      size: 18, color: AppColors.textSecondary),
                   const SizedBox(width: 10),
                   const Text('Enviar teste'),
                 ]),
@@ -370,8 +372,11 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
               PopupMenuItem(
                 value: _BalcaoAction.debug,
                 child: Row(children: [
-                  Icon(Icons.bug_report_outlined, size: 18,
-                      color: _debugMode ? AppColors.warning : AppColors.textSecondary),
+                  Icon(Icons.bug_report_outlined,
+                      size: 18,
+                      color: _debugMode
+                          ? AppColors.warning
+                          : AppColors.textSecondary),
                   const SizedBox(width: 10),
                   Text(_debugMode ? 'Diagnóstico ATIVO' : 'Diagnóstico'),
                 ]),
@@ -380,7 +385,8 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
               PopupMenuItem(
                 value: _BalcaoAction.configurarFontes,
                 child: Row(children: [
-                  Icon(Icons.manage_search_rounded, size: 18, color: AppColors.textSecondary),
+                  Icon(Icons.manage_search_rounded,
+                      size: 18, color: AppColors.textSecondary),
                   const SizedBox(width: 10),
                   const Text('Fontes monitoradas'),
                 ]),
@@ -389,7 +395,8 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
               PopupMenuItem(
                 value: _BalcaoAction.relatorio,
                 child: Row(children: [
-                  Icon(Icons.summarize_outlined, size: 18, color: AppColors.textSecondary),
+                  Icon(Icons.summarize_outlined,
+                      size: 18, color: AppColors.textSecondary),
                   const SizedBox(width: 10),
                   const Text('Relatório do dia'),
                 ]),
@@ -445,8 +452,7 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
           ),
           ..._cats.entries.map((e) {
             final count = events
-                .where((ev) =>
-                    ev.category == e.key && ev.status == 'pending')
+                .where((ev) => ev.category == e.key && ev.status == 'pending')
                 .length;
             return _CatChip(
               label: e.value.label,
@@ -490,8 +496,7 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
                 },
                 icon: const Icon(Icons.close_rounded, size: 16),
                 label: const Text('Limpar filtro'),
-                style: TextButton.styleFrom(
-                    foregroundColor: AppColors.danger),
+                style: TextButton.styleFrom(foregroundColor: AppColors.danger),
               ),
             ),
           Flexible(
@@ -531,17 +536,13 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
                 color: sel ? AppColors.cardBackground : Colors.transparent,
                 borderRadius: BorderRadius.circular(Dimensions.radiusSM),
                 border: Border.all(
-                    color:
-                        sel ? AppColors.cardBorder : Colors.transparent),
+                    color: sel ? AppColors.cardBorder : Colors.transparent),
               ),
               child: Text(
                 t.$2,
                 style: AppTextStyles.caption.copyWith(
-                  color: sel
-                      ? AppColors.textPrimary
-                      : AppColors.textSecondary,
-                  fontWeight:
-                      sel ? FontWeight.w600 : FontWeight.w400,
+                  color: sel ? AppColors.textPrimary : AppColors.textSecondary,
+                  fontWeight: sel ? FontWeight.w600 : FontWeight.w400,
                 ),
               ),
             ),
@@ -553,48 +554,26 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
 
   Widget _buildList(FiscalEventsProvider provider) {
     if (provider.loading && provider.events.isEmpty) {
-      return Center(
-          child:
-              CircularProgressIndicator(color: AppColors.primary));
+      return const OperationalLoadingState(
+        message: 'Carregando eventos do balcao...',
+      );
     }
 
     if (provider.error != null && provider.events.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.cloud_off_rounded,
-                size: 48, color: AppColors.textSecondary),
-            const SizedBox(height: 12),
-            Text('Erro ao carregar', style: AppTextStyles.body),
-            const SizedBox(height: 8),
-            TextButton(
-                onPressed: provider.load,
-                child: const Text('Tentar novamente')),
-          ],
-        ),
+      return OperationalErrorState(
+        title: 'Erro ao carregar',
+        message: provider.error ?? 'Verifique a conexao e tente novamente.',
+        onRetry: provider.load,
       );
     }
 
     final filtered = _filtrar(provider.events);
 
     if (filtered.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.campaign_outlined,
-                size: 48, color: AppColors.textSecondary),
-            const SizedBox(height: 12),
-            Text('Nenhum evento aqui', style: AppTextStyles.body),
-            const SizedBox(height: 4),
-            Text(
-              'Novas mensagens do grupo aparecerão aqui',
-              style: AppTextStyles.caption
-                  .copyWith(color: AppColors.textSecondary),
-            ),
-          ],
-        ),
+      return const OperationalEmptyState(
+        icon: Icons.campaign_outlined,
+        title: 'Nenhum evento aqui',
+        message: 'Novas mensagens do grupo aparecerao aqui.',
       );
     }
 
@@ -623,8 +602,7 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
               padding: const EdgeInsets.only(right: Dimensions.paddingLG),
               decoration: BoxDecoration(
                 color: AppColors.danger.withValues(alpha: 0.15),
-                borderRadius:
-                    BorderRadius.circular(Dimensions.radiusMD),
+                borderRadius: BorderRadius.circular(Dimensions.radiusMD),
               ),
               child: Icon(Icons.delete_outline, color: AppColors.danger),
             ),
@@ -690,8 +668,7 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(children: [
-            Icon(Icons.bug_report_outlined,
-                color: AppColors.warning, size: 14),
+            Icon(Icons.bug_report_outlined, color: AppColors.warning, size: 14),
             const SizedBox(width: 6),
             Text('MODO DIAGNÓSTICO',
                 style: AppTextStyles.caption.copyWith(
@@ -700,8 +677,8 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
           const SizedBox(height: 4),
           Text(
             'Notificações recebidas (qualquer app): $count',
-            style: AppTextStyles.caption
-                .copyWith(color: AppColors.textSecondary),
+            style:
+                AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
           ),
           if (last.isNotEmpty)
             Text(
@@ -732,8 +709,10 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
         style: AppTextStyles.body,
         decoration: InputDecoration(
           hintText: 'Buscar por descrição, nome, remetente…',
-          hintStyle: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
-          prefixIcon: Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 18),
+          hintStyle:
+              AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+          prefixIcon: Icon(Icons.search_rounded,
+              color: AppColors.textSecondary, size: 18),
           suffixIcon: _queryBusca.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.clear_rounded, size: 16),
@@ -844,8 +823,8 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
       builder: (_) => _RecategorizacaoSheet(
         event: event,
         colaboradores: colaboradores,
-        onSave: (category, description, employeeName, amount,
-            colaboradorId) async {
+        onSave:
+            (category, description, employeeName, amount, colaboradorId) async {
           await context.read<FiscalEventsProvider>().recategorizar(
                 event: event,
                 category: category,
@@ -938,8 +917,7 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
           isAusencia
               ? 'Deseja abrir uma ocorrência de falta para este colaborador?'
               : 'Deseja registrar uma ocorrência de diferença no caixa?',
-          style: AppTextStyles.body
-              .copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
@@ -963,8 +941,7 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
             },
             child: Text('Sim, abrir',
                 style: TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w700)),
+                    color: AppColors.primary, fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -1016,8 +993,7 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 150),
               margin: const EdgeInsets.only(right: 6),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
               decoration: BoxDecoration(
                 color: sel
                     ? AppColors.primary.withValues(alpha: 0.12)
@@ -1033,10 +1009,8 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
               child: Text(
                 p.$2,
                 style: AppTextStyles.caption.copyWith(
-                  color:
-                      sel ? AppColors.primary : AppColors.textSecondary,
-                  fontWeight:
-                      sel ? FontWeight.w700 : FontWeight.w500,
+                  color: sel ? AppColors.primary : AppColors.textSecondary,
+                  fontWeight: sel ? FontWeight.w700 : FontWeight.w500,
                 ),
               ),
             ),
@@ -1108,8 +1082,8 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
                     if (ctx.mounted) Navigator.pop(ctx);
                   },
                   child: const Text('Salvar nota',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w700, fontSize: 15)),
+                      style:
+                          TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
                 ),
               ),
             ],
@@ -1128,18 +1102,17 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
       backgroundColor: Colors.transparent,
       builder: (_) => _CriarEventoSheet(
         colaboradores: colaboradores,
-        onCreate: (category, description, employeeName, colaboradorId,
-            amount, priority, notes) async {
-          final evento =
-              await context.read<FiscalEventsProvider>().criarManual(
-                    category: category,
-                    description: description,
-                    employeeName: employeeName,
-                    colaboradorId: colaboradorId,
-                    amount: amount,
-                    priority: priority,
-                    notes: notes,
-                  );
+        onCreate: (category, description, employeeName, colaboradorId, amount,
+            priority, notes) async {
+          final evento = await context.read<FiscalEventsProvider>().criarManual(
+                category: category,
+                description: description,
+                employeeName: employeeName,
+                colaboradorId: colaboradorId,
+                amount: amount,
+                priority: priority,
+                notes: notes,
+              );
           if (!mounted) return;
           if (evento != null) {
             AppNotif.show(context,
@@ -1189,8 +1162,7 @@ class _PermissaoBanner extends StatelessWidget {
             Expanded(
               child: Text(
                 'Permissão de notificações não concedida. Toque para ativar.',
-                style: AppTextStyles.caption
-                    .copyWith(color: AppColors.warning),
+                style: AppTextStyles.caption.copyWith(color: AppColors.warning),
               ),
             ),
             Icon(Icons.arrow_forward_ios_rounded,
@@ -1251,11 +1223,9 @@ class _CatChip extends StatelessWidget {
           if (badge != null) ...[
             const SizedBox(width: 6),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
               decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(6)),
+                  color: color, borderRadius: BorderRadius.circular(6)),
               child: Text('$badge',
                   style: const TextStyle(
                       color: Colors.white,
@@ -1328,21 +1298,18 @@ class _EventCard extends StatelessWidget {
             if (event.isAlta) ...[
               const SizedBox(width: 6),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                 decoration: BoxDecoration(
-                  color: (event.isCritica
-                          ? AppColors.danger
-                          : AppColors.warning)
-                      .withValues(alpha: 0.15),
+                  color:
+                      (event.isCritica ? AppColors.danger : AppColors.warning)
+                          .withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
                   event.isCritica ? 'CRÍTICA' : 'ALTA',
                   style: AppTextStyles.caption.copyWith(
-                    color: event.isCritica
-                        ? AppColors.danger
-                        : AppColors.warning,
+                    color:
+                        event.isCritica ? AppColors.danger : AppColors.warning,
                     fontSize: 9,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 0.5,
@@ -1381,9 +1348,9 @@ class _EventCard extends StatelessWidget {
                 if (event.amount != null)
                   _Tag(
                       icon: Icons.attach_money_rounded,
-                      label: NumberFormat.currency(
-                              locale: 'pt_BR', symbol: 'R\$')
-                          .format(event.amount),
+                      label:
+                          NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$')
+                              .format(event.amount),
                       color: AppColors.success),
                 if (event.sender != null && event.sender!.isNotEmpty)
                   _Tag(
@@ -1537,15 +1504,14 @@ class _MidiaCard extends StatelessWidget {
             ),
           ]),
           const SizedBox(height: 10),
-
           if (event.sender != null && event.sender!.isNotEmpty)
             Row(children: [
               Icon(Icons.person_rounded,
                   color: AppColors.textSecondary, size: 13),
               const SizedBox(width: 4),
               Text(event.sender!,
-                  style: AppTextStyles.body
-                      .copyWith(fontWeight: FontWeight.w600)),
+                  style:
+                      AppTextStyles.body.copyWith(fontWeight: FontWeight.w600)),
             ]),
           const SizedBox(height: 4),
           Row(children: [
@@ -1556,11 +1522,9 @@ class _MidiaCard extends StatelessWidget {
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary)),
           ]),
-
           const SizedBox(height: 12),
           Divider(color: AppColors.divider, height: 1),
           const SizedBox(height: 12),
-
           Row(children: [
             Expanded(
               child: ElevatedButton.icon(
@@ -1569,14 +1533,13 @@ class _MidiaCard extends StatelessWidget {
                   backgroundColor: color,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(Dimensions.radiusSM)),
+                      borderRadius: BorderRadius.circular(Dimensions.radiusSM)),
                   padding: const EdgeInsets.symmetric(vertical: 10),
                 ),
                 icon: const Icon(Icons.edit_rounded, size: 15),
                 label: const Text('Adicionar informações',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w600, fontSize: 13)),
+                    style:
+                        TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
               ),
             ),
             const SizedBox(width: 8),
@@ -1585,11 +1548,9 @@ class _MidiaCard extends StatelessWidget {
               style: IconButton.styleFrom(
                 backgroundColor: AppColors.backgroundSection,
                 shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(Dimensions.radiusSM)),
+                    borderRadius: BorderRadius.circular(Dimensions.radiusSM)),
               ),
-              icon: Icon(Icons.close_rounded,
-                  color: AppColors.textSecondary),
+              icon: Icon(Icons.close_rounded, color: AppColors.textSecondary),
             ),
           ]),
         ]),
@@ -1604,19 +1565,17 @@ class _MidiaCard extends StatelessWidget {
 
 class _PreenchimentoMidiaSheet extends StatefulWidget {
   final FiscalEvent event;
-  final Future<void> Function(
-      String category, String description, String? employeeName, double? amount) onSave;
+  final Future<void> Function(String category, String description,
+      String? employeeName, double? amount) onSave;
 
-  const _PreenchimentoMidiaSheet(
-      {required this.event, required this.onSave});
+  const _PreenchimentoMidiaSheet({required this.event, required this.onSave});
 
   @override
   State<_PreenchimentoMidiaSheet> createState() =>
       _PreenchimentoMidiaSheetState();
 }
 
-class _PreenchimentoMidiaSheetState
-    extends State<_PreenchimentoMidiaSheet> {
+class _PreenchimentoMidiaSheetState extends State<_PreenchimentoMidiaSheet> {
   String _category = 'aviso_geral';
   final _descCtrl = TextEditingController();
   final _empCtrl = TextEditingController();
@@ -1662,11 +1621,8 @@ class _PreenchimentoMidiaSheetState
 
     return Container(
       margin: const EdgeInsets.all(Dimensions.paddingSM),
-      padding: EdgeInsets.fromLTRB(
-          Dimensions.paddingLG,
-          Dimensions.paddingLG,
-          Dimensions.paddingLG,
-          Dimensions.paddingLG + bottom),
+      padding: EdgeInsets.fromLTRB(Dimensions.paddingLG, Dimensions.paddingLG,
+          Dimensions.paddingLG, Dimensions.paddingLG + bottom),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(Dimensions.radiusSheet),
@@ -1683,7 +1639,6 @@ class _PreenchimentoMidiaSheetState
               style: AppTextStyles.h4,
             ),
           ]),
-
           if (widget.event.sender != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
@@ -1694,9 +1649,7 @@ class _PreenchimentoMidiaSheetState
                     .copyWith(color: AppColors.textSecondary),
               ),
             ),
-
           const SizedBox(height: 16),
-
           Text('Categoria',
               style: AppTextStyles.caption
                   .copyWith(color: AppColors.textSecondary)),
@@ -1705,9 +1658,7 @@ class _PreenchimentoMidiaSheetState
             value: _category,
             onChanged: (v) => setState(() => _category = v),
           ),
-
           const SizedBox(height: 14),
-
           Text('O que aconteceu? *',
               style: AppTextStyles.caption
                   .copyWith(color: AppColors.textSecondary)),
@@ -1716,9 +1667,7 @@ class _PreenchimentoMidiaSheetState
               controller: _descCtrl,
               hint: 'Ex: Caixa da Ana faltou R\$ 5,00...',
               maxLines: 3),
-
           const SizedBox(height: 14),
-
           Row(children: [
             Expanded(
               child: Column(
@@ -1748,9 +1697,7 @@ class _PreenchimentoMidiaSheetState
                   ]),
             ),
           ]),
-
           const SizedBox(height: 20),
-
           SizedBox(
             width: double.infinity,
             height: 50,
@@ -1760,8 +1707,7 @@ class _PreenchimentoMidiaSheetState
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(Dimensions.radiusSM)),
+                    borderRadius: BorderRadius.circular(Dimensions.radiusSM)),
               ),
               child: _saving
                   ? const SizedBox(
@@ -1770,8 +1716,8 @@ class _PreenchimentoMidiaSheetState
                       child: CircularProgressIndicator(
                           color: Colors.white, strokeWidth: 2))
                   : const Text('Salvar',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w700, fontSize: 15)),
+                      style:
+                          TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
             ),
           ),
         ],
@@ -1788,13 +1734,11 @@ class _Tag extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
-  const _Tag(
-      {required this.icon, required this.label, required this.color});
+  const _Tag({required this.icon, required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) => Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         decoration: BoxDecoration(
             color: color.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(6)),
@@ -1802,8 +1746,8 @@ class _Tag extends StatelessWidget {
           Icon(icon, size: 11, color: color),
           const SizedBox(width: 4),
           Text(label,
-              style: AppTextStyles.caption.copyWith(
-                  color: color, fontWeight: FontWeight.w600)),
+              style: AppTextStyles.caption
+                  .copyWith(color: color, fontWeight: FontWeight.w600)),
         ]),
       );
 }
@@ -1831,14 +1775,13 @@ class _ActionBtn extends StatelessWidget {
               horizontal: Dimensions.paddingSM, vertical: 7),
           decoration: BoxDecoration(
               color: color,
-              borderRadius:
-                  BorderRadius.circular(Dimensions.radiusSM)),
+              borderRadius: BorderRadius.circular(Dimensions.radiusSM)),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             Icon(icon, size: 13, color: textColor),
             const SizedBox(width: 5),
             Text(label,
-                style: AppTextStyles.caption.copyWith(
-                    color: textColor, fontWeight: FontWeight.w600)),
+                style: AppTextStyles.caption
+                    .copyWith(color: textColor, fontWeight: FontWeight.w600)),
           ]),
         ),
       );
@@ -1866,13 +1809,11 @@ class _Field extends StatelessWidget {
       style: AppTextStyles.body,
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle:
-            AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+        hintStyle: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
         filled: true,
         fillColor: AppColors.backgroundSection,
         border: OutlineInputBorder(
-            borderRadius:
-                BorderRadius.circular(Dimensions.radiusSM),
+            borderRadius: BorderRadius.circular(Dimensions.radiusSM),
             borderSide: BorderSide.none),
         contentPadding: const EdgeInsets.symmetric(
             horizontal: Dimensions.paddingSM, vertical: 10),
@@ -1889,8 +1830,7 @@ class _CatDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cats =
-        _cats.entries.where((e) => e.key != 'midia_pendente').toList();
+    final cats = _cats.entries.where((e) => e.key != 'midia_pendente').toList();
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -1960,8 +1900,8 @@ class _StatChip extends StatelessWidget {
           children: [
             Text(
               '$label: $value',
-              style: AppTextStyles.caption.copyWith(
-                  color: color, fontWeight: FontWeight.w700),
+              style: AppTextStyles.caption
+                  .copyWith(color: color, fontWeight: FontWeight.w700),
             ),
             if (sub != null)
               Text(sub!,
@@ -2069,8 +2009,7 @@ class _RecategorizacaoSheetState extends State<_RecategorizacaoSheet> {
     final bottom = MediaQuery.of(context).viewInsets.bottom;
     return Container(
       margin: const EdgeInsets.all(Dimensions.paddingSM),
-      padding: EdgeInsets.fromLTRB(
-          Dimensions.paddingLG, Dimensions.paddingLG,
+      padding: EdgeInsets.fromLTRB(Dimensions.paddingLG, Dimensions.paddingLG,
           Dimensions.paddingLG, Dimensions.paddingLG + bottom),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
@@ -2101,7 +2040,8 @@ class _RecategorizacaoSheetState extends State<_RecategorizacaoSheet> {
               style: AppTextStyles.caption
                   .copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: 6),
-          _Field(controller: _descCtrl, hint: 'Descrição do evento', maxLines: 3),
+          _Field(
+              controller: _descCtrl, hint: 'Descrição do evento', maxLines: 3),
           const SizedBox(height: 14),
           // Vínculo com colaborador
           Text('Colaborador vinculado',
@@ -2158,27 +2098,31 @@ class _RecategorizacaoSheetState extends State<_RecategorizacaoSheet> {
           const SizedBox(height: 14),
           Row(children: [
             Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('Funcionário',
-                    style: AppTextStyles.caption
-                        .copyWith(color: AppColors.textSecondary)),
-                const SizedBox(height: 6),
-                _Field(controller: _empCtrl, hint: 'Nome'),
-              ]),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Funcionário',
+                        style: AppTextStyles.caption
+                            .copyWith(color: AppColors.textSecondary)),
+                    const SizedBox(height: 6),
+                    _Field(controller: _empCtrl, hint: 'Nome'),
+                  ]),
             ),
             const SizedBox(width: 12),
             SizedBox(
               width: 110,
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('Valor (R\$)',
-                    style: AppTextStyles.caption
-                        .copyWith(color: AppColors.textSecondary)),
-                const SizedBox(height: 6),
-                _Field(
-                    controller: _amountCtrl,
-                    hint: '0,00',
-                    keyboardType: TextInputType.number),
-              ]),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Valor (R\$)',
+                        style: AppTextStyles.caption
+                            .copyWith(color: AppColors.textSecondary)),
+                    const SizedBox(height: 6),
+                    _Field(
+                        controller: _amountCtrl,
+                        hint: '0,00',
+                        keyboardType: TextInputType.number),
+                  ]),
             ),
           ]),
           const SizedBox(height: 20),
@@ -2195,12 +2139,13 @@ class _RecategorizacaoSheetState extends State<_RecategorizacaoSheet> {
               ),
               child: _saving
                   ? const SizedBox(
-                      width: 20, height: 20,
+                      width: 20,
+                      height: 20,
                       child: CircularProgressIndicator(
                           color: Colors.white, strokeWidth: 2))
                   : const Text('Salvar',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w700, fontSize: 15)),
+                      style:
+                          TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
             ),
           ),
         ],
@@ -2309,11 +2254,8 @@ class _CriarEventoSheetState extends State<_CriarEventoSheet> {
 
     return Container(
       margin: const EdgeInsets.all(Dimensions.paddingSM),
-      padding: EdgeInsets.fromLTRB(
-          Dimensions.paddingLG,
-          Dimensions.paddingLG,
-          Dimensions.paddingLG,
-          Dimensions.paddingLG + bottom),
+      padding: EdgeInsets.fromLTRB(Dimensions.paddingLG, Dimensions.paddingLG,
+          Dimensions.paddingLG, Dimensions.paddingLG + bottom),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(Dimensions.radiusSheet),
@@ -2330,7 +2272,6 @@ class _CriarEventoSheetState extends State<_CriarEventoSheet> {
               Text('Novo evento manual', style: AppTextStyles.h4),
             ]),
             const SizedBox(height: 16),
-
             Text('Categoria',
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary)),
@@ -2339,20 +2280,14 @@ class _CriarEventoSheetState extends State<_CriarEventoSheet> {
               value: _category,
               onChanged: (v) => setState(() => _category = v),
             ),
-
             const SizedBox(height: 14),
-
             Text('Descrição *',
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary)),
             const SizedBox(height: 6),
             _Field(
-                controller: _descCtrl,
-                hint: 'Descreva o evento…',
-                maxLines: 3),
-
+                controller: _descCtrl, hint: 'Descreva o evento…', maxLines: 3),
             const SizedBox(height: 14),
-
             Text('Colaborador vinculado',
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary)),
@@ -2360,12 +2295,11 @@ class _CriarEventoSheetState extends State<_CriarEventoSheet> {
             GestureDetector(
               onTap: _abrirSeletorColaborador,
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
                   color: AppColors.backgroundSection,
-                  borderRadius:
-                      BorderRadius.circular(Dimensions.radiusSM),
+                  borderRadius: BorderRadius.circular(Dimensions.radiusSM),
                   border: Border.all(
                       color: _colaborador != null
                           ? AppColors.teal.withValues(alpha: 0.5)
@@ -2406,9 +2340,7 @@ class _CriarEventoSheetState extends State<_CriarEventoSheet> {
                 ]),
               ),
             ),
-
             const SizedBox(height: 14),
-
             Row(children: [
               Expanded(
                 child: Column(
@@ -2438,9 +2370,7 @@ class _CriarEventoSheetState extends State<_CriarEventoSheet> {
                     ]),
               ),
             ]),
-
             const SizedBox(height: 14),
-
             Text('Prioridade',
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary)),
@@ -2464,8 +2394,8 @@ class _CriarEventoSheetState extends State<_CriarEventoSheet> {
                   onTap: () => setState(() => _priority = p.$1),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: sel
                           ? c.withValues(alpha: 0.12)
@@ -2480,16 +2410,13 @@ class _CriarEventoSheetState extends State<_CriarEventoSheet> {
                     child: Text(p.$2,
                         style: AppTextStyles.caption.copyWith(
                             color: sel ? c : AppColors.textSecondary,
-                            fontWeight: sel
-                                ? FontWeight.w700
-                                : FontWeight.w500)),
+                            fontWeight:
+                                sel ? FontWeight.w700 : FontWeight.w500)),
                   ),
                 );
               }).toList(),
             ),
-
             const SizedBox(height: 14),
-
             Text('Observação (opcional)',
                 style: AppTextStyles.caption
                     .copyWith(color: AppColors.textSecondary)),
@@ -2498,9 +2425,7 @@ class _CriarEventoSheetState extends State<_CriarEventoSheet> {
                 controller: _notesCtrl,
                 hint: 'Alguma observação adicional…',
                 maxLines: 2),
-
             const SizedBox(height: 20),
-
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -2510,8 +2435,7 @@ class _CriarEventoSheetState extends State<_CriarEventoSheet> {
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(Dimensions.radiusSM)),
+                      borderRadius: BorderRadius.circular(Dimensions.radiusSM)),
                 ),
                 child: _saving
                     ? const SizedBox(

@@ -19,6 +19,7 @@ import '../../providers/escala_provider.dart';
 import '../../providers/evento_turno_provider.dart';
 import '../../providers/ocorrencia_provider.dart';
 import '../../../core/utils/app_notif.dart';
+import '../../widgets/common/operational_widgets.dart';
 
 class CafeScreen extends StatefulWidget {
   const CafeScreen({super.key});
@@ -349,6 +350,41 @@ class _CafeScreenState extends State<CafeScreen>
           );
         }
 
+        final cafeMetrics = <OperationalMetricData>[
+          OperationalMetricData(
+            icon: Icons.people_outline,
+            color: AppColors.primary,
+            value: '$totalDisponiveis',
+            label: 'Disponiveis',
+            helper: 'Podem sair agora',
+            onTap: abrirResumoDisponiveis,
+          ),
+          OperationalMetricData(
+            icon: Icons.coffee,
+            color: AppColors.statusCafe,
+            value: '${provider.pausasAtivas.length}',
+            label: 'Em pausa',
+            helper: 'Fora do caixa',
+            onTap: abrirResumoEmIntervalo,
+          ),
+          OperationalMetricData(
+            icon: Icons.warning_amber_rounded,
+            color: temAlertas ? AppColors.danger : AppColors.success,
+            value: '${provider.totalEmAtraso}',
+            label: 'Em atencao',
+            helper: temAlertas ? 'Atrasos ativos' : 'Sem atraso',
+            onTap: abrirResumoAtencao,
+          ),
+          OperationalMetricData(
+            icon: Icons.history,
+            color: AppColors.success,
+            value: '${provider.pausasFinalizadas.length}',
+            label: 'Historico',
+            helper: 'Ja fizeram',
+            onTap: abrirResumoHistorico,
+          ),
+        ];
+
         return Scaffold(
           backgroundColor: AppColors.background,
           appBar: AppBar(
@@ -390,192 +426,13 @@ class _CafeScreenState extends State<CafeScreen>
                   Dimensions.paddingMD,
                   0,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          _CafeInfoChip(
-                            icon: Icons.people_outline,
-                            color: AppColors.primary,
-                            label: '$totalDisponiveis disponiveis',
-                          ),
-                          const SizedBox(width: 8),
-                          _CafeInfoChip(
-                            icon: Icons.coffee,
-                            color: AppColors.statusCafe,
-                            label: '${provider.pausasAtivas.length} em pausa',
-                          ),
-                          const SizedBox(width: 8),
-                          _CafeInfoChip(
-                            icon: Icons.warning_amber_rounded,
-                            color: temAlertas
-                                ? AppColors.danger
-                                : AppColors.success,
-                            label: temAlertas
-                                ? '${provider.totalEmAtraso} em atraso'
-                                : 'Sem atraso',
-                          ),
-                          const SizedBox(width: 8),
-                          _CafeInfoChip(
-                            icon: Icons.history,
-                            color: AppColors.success,
-                            label:
-                                '${provider.pausasFinalizadas.length} ja fizeram',
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: Dimensions.spacingSM),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: abrirResumoDisponiveis,
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: AppStyles.softCard(
-                                tint: AppColors.primary,
-                                radius: Dimensions.radiusMD,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Icon(Icons.people_outline,
-                                      color: AppColors.primary, size: 18),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '$totalDisponiveis',
-                                    style: AppTextStyles.h3.copyWith(
-                                      color: AppColors.primary,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Disponiveis',
-                                    style: AppTextStyles.caption.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: Dimensions.spacingSM),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: abrirResumoEmIntervalo,
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: AppStyles.softCard(
-                                tint: AppColors.statusCafe,
-                                radius: Dimensions.radiusMD,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Icon(Icons.coffee,
-                                      color: AppColors.statusCafe, size: 18),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '${provider.pausasAtivas.length}',
-                                    style: AppTextStyles.h3.copyWith(
-                                      color: AppColors.statusCafe,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Em pausa',
-                                    style: AppTextStyles.caption.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: Dimensions.spacingSM),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: abrirResumoAtencao,
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: AppStyles.softCard(
-                                tint: temAlertas
-                                    ? AppColors.danger
-                                    : AppColors.statusAtencao,
-                                radius: Dimensions.radiusMD,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Icon(Icons.warning_amber_rounded,
-                                      color: temAlertas
-                                          ? AppColors.danger
-                                          : AppColors.statusAtencao,
-                                      size: 18),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '${provider.totalEmAtraso}',
-                                    style: AppTextStyles.h3.copyWith(
-                                      color: temAlertas
-                                          ? AppColors.danger
-                                          : AppColors.statusAtencao,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Em atencao',
-                                    style: AppTextStyles.caption.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: Dimensions.spacingSM),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: abrirResumoHistorico,
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: AppStyles.softCard(
-                                tint: AppColors.success,
-                                radius: Dimensions.radiusMD,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Icon(Icons.history,
-                                      color: AppColors.success, size: 18),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '${provider.pausasFinalizadas.length}',
-                                    style: AppTextStyles.h3.copyWith(
-                                      color: AppColors.success,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Historico',
-                                    style: AppTextStyles.caption.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                child: AppSection(
+                  icon: Icons.timer_outlined,
+                  title: 'Fila de pausas',
+                  child: OperationalMetricGrid(
+                    metrics: cafeMetrics,
+                    minTileWidth: 154,
+                  ),
                 ),
               ),
               if (temAlertas)
@@ -1142,43 +999,6 @@ class _TabHistorico extends StatelessWidget {
 // ---------------------------------------------------------------------------
 // Card: pausa ativa com countdown e progress bar
 // ---------------------------------------------------------------------------
-class _CafeInfoChip extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String label;
-
-  const _CafeInfoChip({
-    required this.icon,
-    required this.color,
-    required this.label,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: color),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: AppTextStyles.caption.copyWith(
-              color: color,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _ResumoCafeSheet extends StatelessWidget {
   final String title;
   final String subtitle;

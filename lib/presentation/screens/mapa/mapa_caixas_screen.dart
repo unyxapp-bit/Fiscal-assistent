@@ -20,6 +20,7 @@ import '../../providers/pacote_plantao_provider.dart';
 import '../../providers/outro_setor_provider.dart';
 import '../../widgets/common/loading_widget.dart';
 import '../../widgets/common/empty_state_widget.dart';
+import '../../widgets/common/operational_widgets.dart';
 import '../caixas/caixa_form_screen.dart';
 import '../caixas/widgets/caixa_card.dart';
 import 'widgets/caixa_list_item.dart';
@@ -287,34 +288,34 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
   String _normalizarBusca(String valor) {
     const mapa = {
       'a': 'a',
-      'á': 'a',
-      'à': 'a',
-      'â': 'a',
-      'ã': 'a',
-      'ä': 'a',
+      '\u00e1': 'a',
+      '\u00e0': 'a',
+      '\u00e2': 'a',
+      '\u00e3': 'a',
+      '\u00e4': 'a',
       'e': 'e',
-      'é': 'e',
-      'è': 'e',
-      'ê': 'e',
-      'ë': 'e',
+      '\u00e9': 'e',
+      '\u00e8': 'e',
+      '\u00ea': 'e',
+      '\u00eb': 'e',
       'i': 'i',
-      'í': 'i',
-      'ì': 'i',
-      'î': 'i',
-      'ï': 'i',
+      '\u00ed': 'i',
+      '\u00ec': 'i',
+      '\u00ee': 'i',
+      '\u00ef': 'i',
       'o': 'o',
-      'ó': 'o',
-      'ò': 'o',
-      'ô': 'o',
-      'õ': 'o',
-      'ö': 'o',
+      '\u00f3': 'o',
+      '\u00f2': 'o',
+      '\u00f4': 'o',
+      '\u00f5': 'o',
+      '\u00f6': 'o',
       'u': 'u',
-      'ú': 'u',
-      'ù': 'u',
-      'û': 'u',
-      'ü': 'u',
-      'ç': 'c',
-      'ñ': 'n',
+      '\u00fa': 'u',
+      '\u00f9': 'u',
+      '\u00fb': 'u',
+      '\u00fc': 'u',
+      '\u00e7': 'c',
+      '\u00f1': 'n',
     };
 
     final lower = valor.toLowerCase();
@@ -1160,49 +1161,20 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
       ),
     ];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            for (int i = 0; i < cards.length; i++) ...[
-              if (i > 0) const SizedBox(width: Dimensions.spacingSM),
-              Expanded(
-                child: GestureDetector(
-                  onTap: cards[i].onTap,
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: AppStyles.softCard(
-                      tint: cards[i].color,
-                      radius: Dimensions.radiusMD,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(cards[i].icon, color: cards[i].color, size: 18),
-                        const SizedBox(height: 4),
-                        Text(
-                          cards[i].value,
-                          style: AppTextStyles.h3.copyWith(
-                            color: cards[i].color,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        Text(
-                          cards[i].label,
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ],
+    return OperationalMetricGrid(
+      minTileWidth: 158,
+      metrics: cards
+          .map(
+            (card) => OperationalMetricData(
+              value: card.value,
+              label: card.label,
+              helper: card.subtitle,
+              color: card.color,
+              icon: card.icon,
+              onTap: card.onTap,
+            ),
+          )
+          .toList(),
     );
   }
 

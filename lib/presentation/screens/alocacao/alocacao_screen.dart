@@ -20,6 +20,7 @@ import '../../providers/pacote_plantao_provider.dart';
 import '../../providers/outro_setor_provider.dart';
 import '../../../core/utils/app_notif.dart';
 import '../../widgets/excecao_dialog.dart';
+import '../../widgets/common/operational_widgets.dart';
 
 /// Tela de alocação — lista colaboradores disponíveis agora e permite
 /// alocar em um caixa com dois toques.
@@ -1157,6 +1158,56 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
       );
     }
 
+    final alocacaoMetrics = <OperationalMetricData>[
+      OperationalMetricData(
+        icon: Icons.person_add_alt_1,
+        color: AppColors.statusAtivo,
+        value: '${disponiveis.length}',
+        label: 'Disponiveis',
+        helper: 'Prontos para caixa',
+        onTap: abrirResumoDisponiveis,
+      ),
+      OperationalMetricData(
+        icon: Icons.point_of_sale,
+        color: AppColors.primary,
+        value: '${jaAlocados.length}',
+        label: 'Ja alocados',
+        helper: 'Em operacao',
+        onTap: abrirResumoAlocados,
+      ),
+      OperationalMetricData(
+        icon: Icons.warning_amber_rounded,
+        color:
+            alocadosEmAtencao > 0 ? AppColors.danger : AppColors.statusAtencao,
+        value: '$alocadosEmAtencao',
+        label: 'Em atencao',
+        helper: 'Intervalo pendente',
+        onTap: abrirResumoAtencao,
+      ),
+      OperationalMetricData(
+        icon: Icons.directions_walk,
+        color: AppColors.statusAtencao,
+        value: '${aChegar.length}',
+        label: 'A caminho',
+        helper: 'Proximas entradas',
+        onTap: abrirResumoAChegar,
+      ),
+      OperationalMetricData(
+        icon: Icons.coffee,
+        color: AppColors.statusCafe,
+        value: '$emPausa',
+        label: 'Em pausa',
+        helper: 'Fora do caixa',
+      ),
+      OperationalMetricData(
+        icon: Icons.storefront_outlined,
+        color: AppColors.outro,
+        value: '${emOutroSetor.length}',
+        label: 'Outro setor',
+        helper: 'Apoio fora da frente',
+      ),
+    ];
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -1175,182 +1226,13 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
         child: ListView(
           padding: const EdgeInsets.all(Dimensions.paddingMD),
           children: [
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _PainelInfoChip(
-                    icon: Icons.person_add_alt_1,
-                    color: AppColors.statusAtivo,
-                    label: '${disponiveis.length} disponiveis',
-                  ),
-                  const SizedBox(width: 8),
-                  _PainelInfoChip(
-                    icon: Icons.point_of_sale,
-                    color: AppColors.primary,
-                    label: '${jaAlocados.length} no caixa',
-                  ),
-                  const SizedBox(width: 8),
-                  _PainelInfoChip(
-                    icon: Icons.coffee,
-                    color: AppColors.statusCafe,
-                    label: '$emPausa em pausa',
-                  ),
-                  const SizedBox(width: 8),
-                  _PainelInfoChip(
-                    icon: Icons.storefront_outlined,
-                    color: AppColors.outro,
-                    label: '${emOutroSetor.length} em outro setor',
-                  ),
-                ],
+            AppSection(
+              icon: Icons.route_rounded,
+              title: 'Fluxo de alocacao',
+              child: OperationalMetricGrid(
+                metrics: alocacaoMetrics,
+                minTileWidth: 156,
               ),
-            ),
-            const SizedBox(height: Dimensions.spacingSM),
-            Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: abrirResumoDisponiveis,
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: AppStyles.softCard(
-                        tint: AppColors.statusAtivo,
-                        radius: Dimensions.radiusMD,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.person_add_alt_1,
-                              color: AppColors.statusAtivo, size: 18),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${disponiveis.length}',
-                            style: AppTextStyles.h3.copyWith(
-                              color: AppColors.statusAtivo,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          Text(
-                            'Disponiveis',
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: Dimensions.spacingSM),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: abrirResumoAlocados,
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: AppStyles.softCard(
-                        tint: AppColors.primary,
-                        radius: Dimensions.radiusMD,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.point_of_sale,
-                              color: AppColors.primary, size: 18),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${jaAlocados.length}',
-                            style: AppTextStyles.h3.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          Text(
-                            'Ja alocados',
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: Dimensions.spacingSM),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: abrirResumoAtencao,
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: AppStyles.softCard(
-                        tint: alocadosEmAtencao > 0
-                            ? AppColors.danger
-                            : AppColors.statusAtencao,
-                        radius: Dimensions.radiusMD,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.warning_amber_rounded,
-                              color: alocadosEmAtencao > 0
-                                  ? AppColors.danger
-                                  : AppColors.statusAtencao,
-                              size: 18),
-                          const SizedBox(height: 4),
-                          Text(
-                            '$alocadosEmAtencao',
-                            style: AppTextStyles.h3.copyWith(
-                              color: alocadosEmAtencao > 0
-                                  ? AppColors.danger
-                                  : AppColors.statusAtencao,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          Text(
-                            'Em atencao',
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: Dimensions.spacingSM),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: abrirResumoAChegar,
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: AppStyles.softCard(
-                        tint: AppColors.statusAtencao,
-                        radius: Dimensions.radiusMD,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.directions_walk,
-                              color: AppColors.statusAtencao, size: 18),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${aChegar.length}',
-                            style: AppTextStyles.h3.copyWith(
-                              color: AppColors.statusAtencao,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          Text(
-                            'A caminho',
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
             ),
             const SizedBox(height: Dimensions.spacingMD),
             TextField(
@@ -1666,43 +1548,6 @@ class _IntervaloBanner extends StatelessWidget {
 }
 
 // â”€â”€â”€ Widgets internos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-class _PainelInfoChip extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String label;
-
-  const _PainelInfoChip({
-    required this.icon,
-    required this.color,
-    required this.label,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: color),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: AppTextStyles.caption.copyWith(
-              color: color,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _ResumoAlocacaoSheet extends StatelessWidget {
   final String title;
@@ -2467,15 +2312,10 @@ class _Empty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24),
-      child: Column(children: [
-        Icon(icon, size: 48, color: AppColors.textSecondary),
-        const SizedBox(height: 12),
-        Text(msg,
-            style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
-            textAlign: TextAlign.center),
-      ]),
+    return OperationalEmptyState(
+      icon: icon,
+      title: 'Nada para exibir',
+      message: msg,
     );
   }
 }

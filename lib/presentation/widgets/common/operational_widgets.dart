@@ -100,6 +100,302 @@ class StatusPill extends StatelessWidget {
   }
 }
 
+class ResponsiveContent extends StatelessWidget {
+  final Widget child;
+  final double maxWidth;
+  final EdgeInsetsGeometry? padding;
+  final AlignmentGeometry alignment;
+
+  const ResponsiveContent({
+    super.key,
+    required this.child,
+    this.maxWidth = 1040,
+    this.padding,
+    this.alignment = Alignment.topCenter,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Align(
+          alignment: alignment,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxWidth),
+            child: Padding(
+              padding: padding ??
+                  EdgeInsets.symmetric(
+                    horizontal: Dimensions.hPad(constraints.maxWidth),
+                    vertical: Dimensions.paddingMD,
+                  ),
+              child: child,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class AppSurface extends StatelessWidget {
+  final Widget child;
+  final Color? tint;
+  final EdgeInsetsGeometry padding;
+  final bool elevated;
+
+  const AppSurface({
+    super.key,
+    required this.child,
+    this.tint,
+    this.padding = const EdgeInsets.all(Dimensions.paddingMD),
+    this.elevated = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: padding,
+      decoration: AppStyles.softCard(
+        context: context,
+        tint: tint,
+        radius: context.appTheme.cardRadius,
+        elevated: elevated,
+      ),
+      child: child,
+    );
+  }
+}
+
+class AppSection extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final Widget child;
+  final Widget? trailing;
+  final EdgeInsetsGeometry? padding;
+
+  const AppSection({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.child,
+    this.trailing,
+    this.padding,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        OperationalSectionHeader(
+          icon: icon,
+          title: title,
+          trailing: trailing,
+        ),
+        const SizedBox(height: Dimensions.spacingSM),
+        Padding(
+          padding: padding ?? EdgeInsets.zero,
+          child: child,
+        ),
+      ],
+    );
+  }
+}
+
+class AppPage extends StatelessWidget {
+  final String title;
+  final String? subtitle;
+  final IconData? icon;
+  final List<Widget>? actions;
+  final PreferredSizeWidget? bottom;
+  final Widget body;
+  final Widget? floatingActionButton;
+
+  const AppPage({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.icon,
+    this.actions,
+    this.bottom,
+    required this.body,
+    this.floatingActionButton,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        toolbarHeight: subtitle == null ? 52 : 64,
+        title: Row(
+          children: [
+            if (icon != null) ...[
+              Icon(icon, color: AppColors.primary, size: 20),
+              const SizedBox(width: Dimensions.spacingXS),
+            ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.h3,
+                  ),
+                  if (subtitle != null)
+                    Text(
+                      subtitle!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: actions,
+        bottom: bottom,
+      ),
+      body: body,
+      floatingActionButton: floatingActionButton,
+    );
+  }
+}
+
+class OperationalEmptyState extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String message;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+
+  const OperationalEmptyState({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.message,
+    this.actionLabel,
+    this.onAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(Dimensions.paddingMD),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 440),
+          child: AppSurface(
+            tint: AppColors.inactive,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: AppStyles.softTile(
+                    context: context,
+                    tint: AppColors.primary,
+                    radius: 999,
+                  ),
+                  child: Icon(icon, size: 28, color: AppColors.primary),
+                ),
+                const SizedBox(height: Dimensions.spacingMD),
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.h4,
+                ),
+                const SizedBox(height: Dimensions.spacingXS),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.body.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.35,
+                  ),
+                ),
+                if (actionLabel != null && onAction != null) ...[
+                  const SizedBox(height: Dimensions.spacingMD),
+                  ElevatedButton.icon(
+                    onPressed: onAction,
+                    icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                    label: Text(actionLabel!),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class OperationalLoadingState extends StatelessWidget {
+  final String message;
+
+  const OperationalLoadingState({
+    super.key,
+    this.message = 'Carregando...',
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircularProgressIndicator(color: AppColors.primary),
+          const SizedBox(height: Dimensions.spacingMD),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class OperationalErrorState extends StatelessWidget {
+  final String title;
+  final String message;
+  final VoidCallback? onRetry;
+
+  const OperationalErrorState({
+    super.key,
+    this.title = 'Nao foi possivel carregar',
+    required this.message,
+    this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return OperationalEmptyState(
+      icon: Icons.cloud_off_rounded,
+      title: title,
+      message: message,
+      actionLabel: onRetry == null ? null : 'Tentar novamente',
+      onAction: onRetry,
+    );
+  }
+}
+
 class OperationalMetricTile extends StatelessWidget {
   final String label;
   final String value;

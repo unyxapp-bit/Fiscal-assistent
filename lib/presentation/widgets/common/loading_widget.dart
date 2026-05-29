@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/colors.dart';
+import 'operational_widgets.dart';
 
 class LoadingWidget extends StatelessWidget {
   final String? message;
@@ -11,25 +11,6 @@ class LoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-          ),
-          if (message != null) ...[
-            const SizedBox(height: 16),
-            Text(
-              message!,
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 14,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
+    return OperationalLoadingState(message: message ?? 'Carregando...');
   }
 }
