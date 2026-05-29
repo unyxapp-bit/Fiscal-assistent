@@ -109,13 +109,14 @@ Ordem sugerida:
 - [x] Quebrar `dashboard_screen.dart` em widgets menores.
 - [x] Extrair destinos de navegacao em modelo unico.
 - [x] Migrar cabecalhos, status, metricas e acoes para componentes compartilhados.
-- [ ] Redesenhar header, metricas, alertas e acoes rapidas.
+- [x] Redesenhar header, metricas, alertas e acoes rapidas.
 - [ ] Revisar responsividade em celular e tablet.
 
 ### Fase 3 - Componentes
 
 - [x] Criar componentes comuns para secoes, status, metricas e acoes.
-- [ ] Migrar `StatsCard`, botoes de acao e estados vazios.
+- [x] Migrar `StatsCard` do dashboard e botoes de acao principais.
+- [ ] Padronizar estados vazios.
 - [ ] Remover duplicacoes de estilos inline.
 
 ### Fase 4 - Telas Criticas

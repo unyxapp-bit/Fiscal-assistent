@@ -47,7 +47,6 @@ import '../../../data/services/seed_data_service.dart';
 import '../../widgets/common/operational_widgets.dart';
 import 'widgets/briefing_turno_sheet.dart';
 import 'widgets/monitor_tempo_real.dart';
-import 'widgets/stats_card.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -361,6 +360,82 @@ class _DashboardScreenState extends State<DashboardScreen>
     ];
 
     // ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ Tabs compartilhadas entre phone e tablet ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬
+    final operationalMetrics = <OperationalMetricData>[
+      OperationalMetricData(
+        label: 'Colaboradores',
+        value: totalAtivos.toString(),
+        helper: 'Ativos hoje',
+        icon: Icons.people_alt_outlined,
+        color: AppColors.primary,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const ColaboradoresListScreen()),
+        ),
+      ),
+      OperationalMetricData(
+        label: 'Caixas ativos',
+        value: totalCaixas.toString(),
+        helper: '$livres livres',
+        icon: Icons.point_of_sale_outlined,
+        color: AppColors.success,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+              builder: (_) => const GestaoScreen(initialIndex: 1)),
+        ),
+      ),
+      OperationalMetricData(
+        label: 'Alocados agora',
+        value: alocados.toString(),
+        helper: 'Em operacao',
+        icon: Icons.swap_horiz_rounded,
+        color: AppColors.statusAtivo,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+              builder: (_) => const GestaoScreen(initialIndex: 0)),
+        ),
+      ),
+      OperationalMetricData(
+        label: 'Em pausa',
+        value: emPausa.toString(),
+        helper: cafeProvider.totalEmAtraso > 0
+            ? '${cafeProvider.totalEmAtraso} atraso(s)'
+            : 'Dentro do prazo',
+        icon: Icons.coffee_outlined,
+        color: cafeProvider.totalEmAtraso > 0
+            ? AppColors.danger
+            : AppColors.coffee,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+              builder: (_) => const GestaoScreen(initialIndex: 2)),
+        ),
+      ),
+      OperationalMetricData(
+        label: 'Em rota',
+        value: emRota.toString(),
+        helper: '${entregaProvider.totalSeparadas} aguardando',
+        icon: Icons.local_shipping_outlined,
+        color: AppColors.statusCafe,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const EntregasScreen()),
+        ),
+      ),
+      OperationalMetricData(
+        label: 'Alertas',
+        value: alertas.length.toString(),
+        helper: turnoCritico
+            ? 'Criticos'
+            : turnoEmAtencao
+                ? 'Atencao'
+                : 'Estavel',
+        icon: Icons.notification_important_outlined,
+        color: turnoCritico
+            ? AppColors.danger
+            : turnoEmAtencao
+                ? AppColors.warning
+                : AppColors.success,
+        onTap: onTapBannerSaude,
+      ),
+    ];
+
     final tabBarView = TabBarView(
       controller: _tabController,
       children: [
@@ -383,7 +458,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                           primeiroNome: primeiroNome,
                           turnoJaIniciado: turnoJaIniciado,
                           totalAtivos: totalAtivos,
+                          totalCaixas: totalCaixas,
+                          alocados: alocados,
                           livres: livres,
+                          emPausa: emPausa,
+                          emRota: emRota,
                           alertas: alertas.length,
                           onPrimaryAction: () {
                             if (!turnoJaIniciado) {
@@ -406,6 +485,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                           atencao: turnoEmAtencao,
                           onTap: onTapBannerSaude,
                         ),
+                        const SizedBox(height: Dimensions.spacingLG),
+                        const OperationalSectionHeader(
+                          icon: Icons.insights_rounded,
+                          title: 'Indicadores do turno',
+                        ),
+                        const SizedBox(height: Dimensions.spacingSM),
+                        OperationalMetricGrid(metrics: operationalMetrics),
                         const SizedBox(height: Dimensions.spacingLG),
 
                         // BotÃƒÆ’Ã‚Â£o ComeÃƒÆ’Ã‚Â§ar Turno ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â oculto apÃƒÆ’Ã‚Â³s confirmar inÃƒÆ’Ã‚Â­cio
@@ -481,108 +567,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                               ),
                             ),
                           ],
-                        ),
-                        const SizedBox(height: Dimensions.spacingLG),
-                        const OperationalSectionHeader(
-                          icon: Icons.space_dashboard_outlined,
-                          title: 'Vis\u00e3o geral',
-                        ),
-                        const SizedBox(height: Dimensions.spacingSM),
-                        LayoutBuilder(
-                          builder: (context, statsConstraints) {
-                            final crossAxisCount =
-                                statsConstraints.maxWidth >= 1040
-                                    ? 6
-                                    : statsConstraints.maxWidth >= 640
-                                        ? 3
-                                        : 2;
-                            final childAspectRatio = switch (crossAxisCount) {
-                              6 => 1.15,
-                              3 => 1.45,
-                              _ => 1.28,
-                            };
-                            return GridView.count(
-                              crossAxisCount: crossAxisCount,
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              crossAxisSpacing: Dimensions.spacingSM,
-                              mainAxisSpacing: Dimensions.spacingSM,
-                              childAspectRatio: childAspectRatio,
-                              children: [
-                                StatsCard(
-                                  title: 'Colaboradores',
-                                  value: totalAtivos.toString(),
-                                  icon: Icons.people_alt_outlined,
-                                  color: AppColors.primary,
-                                  onTap: () => Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          const ColaboradoresListScreen(),
-                                    ),
-                                  ),
-                                ),
-                                StatsCard(
-                                  title: 'Caixas ativos',
-                                  value: totalCaixas.toString(),
-                                  icon: Icons.point_of_sale_outlined,
-                                  color: AppColors.success,
-                                  onTap: () => Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          const GestaoScreen(initialIndex: 1),
-                                    ),
-                                  ),
-                                ),
-                                StatsCard(
-                                  title: 'Alocados agora',
-                                  value: alocados.toString(),
-                                  icon: Icons.swap_horiz_rounded,
-                                  color: AppColors.statusAtivo,
-                                  onTap: () => Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          const GestaoScreen(initialIndex: 0),
-                                    ),
-                                  ),
-                                ),
-                                StatsCard(
-                                  title: 'Livres',
-                                  value: livres.toString(),
-                                  icon: Icons.check_circle_outline,
-                                  color: AppColors.info,
-                                  onTap: () => Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          const GestaoScreen(initialIndex: 1),
-                                    ),
-                                  ),
-                                ),
-                                StatsCard(
-                                  title: 'Em pausa',
-                                  value: emPausa.toString(),
-                                  icon: Icons.coffee_outlined,
-                                  color: AppColors.coffee,
-                                  onTap: () => Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          const GestaoScreen(initialIndex: 2),
-                                    ),
-                                  ),
-                                ),
-                                StatsCard(
-                                  title: 'Em rota',
-                                  value: emRota.toString(),
-                                  icon: Icons.local_shipping_outlined,
-                                  color: AppColors.statusCafe,
-                                  onTap: () => Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => const EntregasScreen(),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
                         ),
 
                         if (alertas.isNotEmpty) ...[
@@ -1222,7 +1206,11 @@ class _InicioHeroCard extends StatelessWidget {
   final String primeiroNome;
   final bool turnoJaIniciado;
   final int totalAtivos;
+  final int totalCaixas;
+  final int alocados;
   final int livres;
+  final int emPausa;
+  final int emRota;
   final int alertas;
   final VoidCallback onPrimaryAction;
 
@@ -1231,7 +1219,11 @@ class _InicioHeroCard extends StatelessWidget {
     required this.primeiroNome,
     required this.turnoJaIniciado,
     required this.totalAtivos,
+    required this.totalCaixas,
+    required this.alocados,
     required this.livres,
+    required this.emPausa,
+    required this.emRota,
     required this.alertas,
     required this.onPrimaryAction,
   });
@@ -1239,119 +1231,187 @@ class _InicioHeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = context.appTheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final statusColor = turnoJaIniciado ? AppColors.success : AppColors.primary;
+    final statusLabel =
+        turnoJaIniciado ? 'Turno em andamento' : 'Aguardando in\u00edcio';
+    final statusIcon =
+        turnoJaIniciado ? Icons.play_circle_outline : Icons.hourglass_top;
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(Dimensions.paddingLG),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            statusColor.withValues(alpha: isDark ? 0.24 : 0.14),
-            tokens.cardBackground,
-            tokens.backgroundSection,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(tokens.cardRadius + 2),
-        border: Border.all(
-          color: statusColor.withValues(alpha: isDark ? 0.34 : 0.18),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: tokens.shadowColor.withValues(alpha: isDark ? 0.16 : 0.06),
-            blurRadius: isDark ? 22 : 14,
-            offset: const Offset(0, 8),
-          ),
-        ],
+      decoration: AppStyles.softCard(
+        context: context,
+        tint: statusColor,
+        radius: tokens.sheetRadius,
+        elevated: false,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 760;
+          final headline = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              StatusPill(
-                icon: Icons.dashboard_customize_outlined,
-                label: 'Painel do dia',
-                color: AppColors.primary,
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  StatusPill(
+                    icon: Icons.dashboard_customize_outlined,
+                    label: 'Central do turno',
+                    color: AppColors.primary,
+                  ),
+                  StatusPill(
+                    icon: statusIcon,
+                    label: statusLabel,
+                    color: statusColor,
+                  ),
+                  if (alertas > 0)
+                    StatusPill(
+                      icon: Icons.priority_high_rounded,
+                      label: '$alertas alerta${alertas > 1 ? 's' : ''}',
+                      color: AppColors.warning,
+                    ),
+                ],
               ),
-              StatusPill(
-                icon: turnoJaIniciado
-                    ? Icons.play_circle_outline
-                    : Icons.hourglass_top_rounded,
-                label: turnoJaIniciado
-                    ? 'Turno em andamento'
-                    : 'Aguardando in\u00edcio',
-                color: statusColor,
+              const SizedBox(height: Dimensions.spacingMD),
+              Text(
+                '$saudacao, $primeiroNome',
+                style: AppTextStyles.h2.copyWith(fontWeight: FontWeight.w800),
               ),
-              if (alertas > 0)
-                StatusPill(
-                  icon: Icons.priority_high_rounded,
-                  label: '$alertas alerta${alertas > 1 ? 's' : ''}',
-                  color: AppColors.warning,
+              const SizedBox(height: Dimensions.spacingXS),
+              Text(
+                turnoJaIniciado
+                    ? 'Acompanhe ritmo, alertas e pausas com uma leitura direta da opera\u00e7\u00e3o.'
+                    : 'Abra o turno com contexto do dia e confirme as prioridades antes de assumir.',
+                style: AppTextStyles.body.copyWith(
+                  color: AppColors.textSecondary,
+                  height: 1.35,
                 ),
+              ),
+              const SizedBox(height: Dimensions.spacingMD),
+              SizedBox(
+                width: isWide ? null : double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: onPrimaryAction,
+                  icon: Icon(
+                    turnoJaIniciado
+                        ? Icons.timeline_rounded
+                        : Icons.play_arrow_rounded,
+                  ),
+                  label: Text(
+                    turnoJaIniciado
+                        ? 'Abrir timeline do turno'
+                        : 'Come\u00e7ar turno',
+                  ),
+                ),
+              ),
             ],
-          ),
-          const SizedBox(height: Dimensions.spacingMD),
-          Text(
-            '$saudacao, $primeiroNome',
-            style: AppTextStyles.h2.copyWith(
-              fontWeight: FontWeight.w800,
+          );
+          final signals = Container(
+            padding: const EdgeInsets.all(Dimensions.paddingMD),
+            decoration: AppStyles.softTile(
+              context: context,
+              tint: statusColor,
+              radius: tokens.cardRadius,
             ),
-          ),
-          const SizedBox(height: Dimensions.spacingXS),
-          Text(
-            turnoJaIniciado
-                ? 'Acompanhe o ritmo da opera\u00e7\u00e3o, os alertas e as pausas com uma leitura r\u00e1pida do turno.'
-                : 'Comece o turno com contexto claro da opera\u00e7\u00e3o e acesso r\u00e1pido ao briefing.',
-            style: AppTextStyles.body.copyWith(
-              color: AppColors.textSecondary,
-              height: 1.35,
-            ),
-          ),
-          const SizedBox(height: Dimensions.spacingMD),
-          Row(
-            children: [
-              Expanded(
-                child: OperationalMetricTile(
-                  label: 'Ativos hoje',
+            child: Column(
+              children: [
+                _InicioSignalRow(
+                  icon: Icons.people_alt_outlined,
+                  label: 'Equipe ativa',
                   value: totalAtivos.toString(),
                   color: AppColors.primary,
                 ),
-              ),
-              const SizedBox(width: Dimensions.spacingSM),
-              Expanded(
-                child: OperationalMetricTile(
-                  label: 'Livres agora',
-                  value: livres.toString(),
-                  color: AppColors.info,
+                Divider(height: 18, color: tokens.cardBorder),
+                _InicioSignalRow(
+                  icon: Icons.point_of_sale_outlined,
+                  label: 'Caixas ativos',
+                  value: totalCaixas.toString(),
+                  color: AppColors.success,
                 ),
-              ),
+                Divider(height: 18, color: tokens.cardBorder),
+                _InicioSignalRow(
+                  icon: Icons.swap_horiz_rounded,
+                  label: 'Alocados / livres',
+                  value: '$alocados / $livres',
+                  color: AppColors.statusAtivo,
+                ),
+                Divider(height: 18, color: tokens.cardBorder),
+                _InicioSignalRow(
+                  icon: Icons.coffee_outlined,
+                  label: 'Pausas / rotas',
+                  value: '$emPausa / $emRota',
+                  color: AppColors.coffee,
+                ),
+              ],
+            ),
+          );
+
+          if (isWide) {
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: headline),
+                const SizedBox(width: Dimensions.spacingLG),
+                SizedBox(width: 286, child: signals),
+              ],
+            );
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              headline,
+              const SizedBox(height: Dimensions.spacingMD),
+              signals,
             ],
-          ),
-          const SizedBox(height: Dimensions.spacingMD),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ElevatedButton.icon(
-              onPressed: onPrimaryAction,
-              icon: Icon(
-                turnoJaIniciado
-                    ? Icons.timeline_rounded
-                    : Icons.play_arrow_rounded,
-              ),
-              label: Text(
-                turnoJaIniciado
-                    ? 'Abrir timeline do turno'
-                    : 'Come\u00e7ar turno',
-              ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _InicioSignalRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  const _InicioSignalRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, color: color, size: 18),
+        const SizedBox(width: Dimensions.spacingSM),
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
             ),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(width: Dimensions.spacingSM),
+        Text(
+          value,
+          style: AppTextStyles.h4.copyWith(
+            color: color,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -1522,10 +1582,10 @@ class _BannerSaudeTurno extends StatelessWidget {
                 ),
                 child: Text(
                   critico
-                      ? 'CrÃ­tico'
+                      ? 'Cr\u00edtico'
                       : atencao
-                          ? 'AtenÃ§Ã£o'
-                          : 'EstÃ¡vel',
+                          ? 'Aten\u00e7\u00e3o'
+                          : 'Est\u00e1vel',
                   style: AppTextStyles.caption.copyWith(
                     color: cor,
                     fontWeight: FontWeight.w700,

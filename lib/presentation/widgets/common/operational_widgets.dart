@@ -105,6 +105,8 @@ class OperationalMetricTile extends StatelessWidget {
   final String value;
   final Color color;
   final IconData? icon;
+  final String? helper;
+  final VoidCallback? onTap;
 
   const OperationalMetricTile({
     super.key,
@@ -112,20 +114,23 @@ class OperationalMetricTile extends StatelessWidget {
     required this.value,
     required this.color,
     this.icon,
+    this.helper,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      constraints: const BoxConstraints(minHeight: 68),
+    final tokens = context.appTheme;
+    final radius = BorderRadius.circular(tokens.inputRadius);
+    final decoration = AppStyles.softTile(
+      context: context,
+      tint: color,
+      radius: tokens.inputRadius,
+    );
+    final content = Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: Dimensions.paddingSM,
         vertical: Dimensions.paddingSM,
-      ),
-      decoration: AppStyles.softTile(
-        context: context,
-        tint: color,
-        radius: context.appTheme.inputRadius,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -157,11 +162,124 @@ class OperationalMetricTile extends StatelessWidget {
                     color: AppColors.textSecondary,
                   ),
                 ),
+                if (helper != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    helper!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textSecondary.withValues(alpha: 0.78),
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
+          if (onTap != null) ...[
+            const SizedBox(width: 6),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: color.withValues(alpha: 0.72),
+              size: 18,
+            ),
+          ],
         ],
       ),
+    );
+
+    if (onTap == null) {
+      return Container(
+        constraints: const BoxConstraints(minHeight: 68),
+        decoration: decoration,
+        child: content,
+      );
+    }
+
+    return Semantics(
+      button: true,
+      label: '$label: $value',
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: radius,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: radius,
+          child: Ink(
+            decoration: decoration,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 68),
+              child: content,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class OperationalMetricData {
+  final String label;
+  final String value;
+  final Color color;
+  final IconData icon;
+  final String? helper;
+  final VoidCallback? onTap;
+
+  const OperationalMetricData({
+    required this.label,
+    required this.value,
+    required this.color,
+    required this.icon,
+    this.helper,
+    this.onTap,
+  });
+}
+
+class OperationalMetricGrid extends StatelessWidget {
+  final List<OperationalMetricData> metrics;
+  final double minTileWidth;
+
+  const OperationalMetricGrid({
+    super.key,
+    required this.metrics,
+    this.minTileWidth = 168,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (metrics.isEmpty) return const SizedBox.shrink();
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final crossAxisCount = (constraints.maxWidth / minTileWidth)
+            .floor()
+            .clamp(1, metrics.length);
+
+        return GridView.builder(
+          itemCount: metrics.length,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: Dimensions.spacingSM,
+            mainAxisSpacing: Dimensions.spacingSM,
+            mainAxisExtent: 86,
+          ),
+          itemBuilder: (context, index) {
+            final metric = metrics[index];
+            return OperationalMetricTile(
+              label: metric.label,
+              value: metric.value,
+              color: metric.color,
+              icon: metric.icon,
+              helper: metric.helper,
+              onTap: metric.onTap,
+            );
+          },
+        );
+      },
     );
   }
 }
