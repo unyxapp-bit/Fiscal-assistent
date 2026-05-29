@@ -70,6 +70,7 @@ import 'presentation/providers/passagem_turno_provider.dart';
 import 'presentation/providers/guia_rapido_provider.dart';
 import 'presentation/providers/evento_turno_provider.dart';
 import 'presentation/providers/fiscal_events_provider.dart';
+import 'presentation/providers/fiscal_ai_provider.dart';
 
 // App Config
 import 'core/theme/app_theme.dart';
@@ -297,6 +298,11 @@ void main() async {
           // Balcão Fiscal — eventos do WhatsApp
           ChangeNotifierProvider(
             create: (_) => FiscalEventsProvider(),
+          ),
+
+          // IA Fiscal
+          ChangeNotifierProvider(
+            create: (_) => FiscalAiProvider(),
           ),
         ],
         child: const MyApp(),

@@ -40,6 +40,7 @@ import '../pizzaria/pizza_module_screen.dart';
 // profile_screen.dart usado via ConfiguracoesScreen
 import '../configuracoes/configuracoes_screen.dart';
 import '../balcao/fiscal_events_screen.dart';
+import '../ai/fiscal_ai_screen.dart';
 import '../../providers/fiscal_events_provider.dart';
 import '../cartazes/cartazes_home_page.dart';
 import '../descontos/desconto_calculator_screen.dart';
@@ -543,6 +544,16 @@ class _DashboardScreenState extends State<DashboardScreen>
                               onPressed: () => Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (_) => const RelatorioDiarioScreen(),
+                                ),
+                              ),
+                            ),
+                            _BotaoAcao(
+                              icon: Icons.auto_awesome_rounded,
+                              label: 'IA Fiscal',
+                              color: AppColors.deepPurple,
+                              onPressed: () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const FiscalAiScreen(),
                                 ),
                               ),
                             ),
