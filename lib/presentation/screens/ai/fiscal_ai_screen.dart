@@ -5,7 +5,9 @@ import '../../../core/constants/app_styles.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../../core/constants/text_styles.dart';
+import '../../../core/utils/app_notif.dart';
 import '../../../data/models/fiscal_ai_models.dart';
+import '../../../data/services/multimodal_inbox_service.dart';
 import '../../providers/alocacao_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/cafe_provider.dart';
@@ -29,6 +31,7 @@ class FiscalAiScreen extends StatefulWidget {
 class _FiscalAiScreenState extends State<FiscalAiScreen> {
   final _questionController = TextEditingController();
   bool _bootstrapped = false;
+  bool _analisandoMidia = false;
 
   @override
   void initState() {
@@ -87,6 +90,38 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
           fiscalId: fiscalId,
           context: _buildAiContext(context),
         );
+  }
+
+  Future<void> _analisarMidiaComIa() async {
+    if (_analisandoMidia) return;
+    setState(() => _analisandoMidia = true);
+
+    try {
+      final result = await MultimodalInboxService().pickAndAnalyze();
+      if (!mounted || result == null) return;
+
+      await context.read<FiscalEventsProvider>().load();
+      if (!mounted) return;
+
+      final fiscalId = context.read<AuthProvider>().user?.id;
+      if (fiscalId != null && fiscalId.isNotEmpty && result.success) {
+        await context.read<FiscalAiProvider>().analyze(
+              fiscalId: fiscalId,
+              context: _buildAiContext(context),
+            );
+      }
+      if (!mounted) return;
+
+      AppNotif.show(
+        context,
+        titulo: result.success ? 'Midia analisada' : 'Falha na analise',
+        mensagem: result.message,
+        tipo: result.success ? 'saida' : 'alerta',
+        cor: result.success ? AppColors.success : AppColors.danger,
+      );
+    } finally {
+      if (mounted) setState(() => _analisandoMidia = false);
+    }
   }
 
   Future<void> _sendQuestion() async {
@@ -161,6 +196,18 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
       icon: Icons.auto_awesome_rounded,
       actions: [
         IconButton(
+          tooltip: 'Analisar midia',
+          onPressed: aiProvider.running || _analisandoMidia
+              ? null
+              : _analisarMidiaComIa,
+          icon: _analisandoMidia
+              ? const SizedBox.square(
+                  dimension: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.upload_file_rounded),
+        ),
+        IconButton(
           tooltip: 'Analisar agora',
           onPressed: aiProvider.running ? null : _runAnalysis,
           icon: aiProvider.running
@@ -177,10 +224,20 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           child: ResponsiveContent(
             maxWidth: 1120,
+            padding: const EdgeInsets.symmetric(
+              horizontal: Dimensions.paddingLG,
+              vertical: Dimensions.paddingMD,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _MetricsPanel(contextSnapshot: _buildAiContext(context)),
+                const SizedBox(height: Dimensions.spacingMD),
+                _MediaUploadPanel(
+                  isRunning: aiProvider.running || _analisandoMidia,
+                  onUpload: _analisarMidiaComIa,
+                  onAnalyze: _runAnalysis,
+                ),
                 const SizedBox(height: Dimensions.spacingMD),
                 if (aiProvider.error != null) ...[
                   _InlineError(message: aiProvider.error!),
@@ -411,6 +468,60 @@ class _MetricsPanel extends StatelessWidget {
           icon: Icons.payments_rounded,
         ),
       ],
+    );
+  }
+}
+
+class _MediaUploadPanel extends StatelessWidget {
+  final bool isRunning;
+  final VoidCallback onUpload;
+  final VoidCallback onAnalyze;
+
+  const _MediaUploadPanel({
+    required this.isRunning,
+    required this.onUpload,
+    required this.onAnalyze,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AppSurface(
+      tint: AppColors.cyan,
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: AppStyles.softTile(
+              context: context,
+              tint: AppColors.cyan,
+              radius: Dimensions.radiusMD,
+            ),
+            child: Icon(Icons.perm_media_rounded, color: AppColors.cyan),
+          ),
+          const SizedBox(width: Dimensions.spacingMD),
+          Expanded(
+            child: Wrap(
+              spacing: Dimensions.spacingSM,
+              runSpacing: Dimensions.spacingSM,
+              alignment: WrapAlignment.end,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                FilledButton.icon(
+                  onPressed: isRunning ? null : onUpload,
+                  icon: const Icon(Icons.upload_file_rounded, size: 18),
+                  label: const Text('Analisar midia'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: isRunning ? null : onAnalyze,
+                  icon: const Icon(Icons.refresh_rounded, size: 18),
+                  label: const Text('Atualizar IA'),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
