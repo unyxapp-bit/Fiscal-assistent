@@ -166,15 +166,20 @@ class GestaoTopNavigation extends StatelessWidget {
           ),
           if (!compact) ...[
             const SizedBox(width: 8),
-            Text(
-              'Centro de Controle dos Caixas',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.w900),
+            Expanded(
+              flex: 2,
+              child: Text(
+                'Centro de Controle dos Caixas',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.w900),
+              ),
             ),
-          ],
-          const Spacer(),
+            const SizedBox(width: 16),
+          ] else
+            const Spacer(),
           Flexible(
+            flex: compact ? 1 : 3,
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               reverse: true,

@@ -47,16 +47,18 @@ class CaixasCentralView extends StatelessWidget {
         .where((c) => !alocadosIds.contains(c.id) && !pausaIds.contains(c.id))
         .toList();
     final caixasOperacionais = _caixasOperacionais(caixas);
-    final caixasLivres = caixasOperacionais
-        .where((c) => alocacao.getAlocacaoCaixa(c.id) == null);
+    final caixasLivres = caixasOperacionais.where(
+      (c) => alocacao.getAlocacaoCaixa(c.id) == null,
+    );
     final gargalos = contarGargalosHoje(
       escala: escala,
       alocacao: alocacao,
       cafe: cafe,
     );
     final risco = cafe.totalEmAtraso + gargalos;
-    final sugestaoColaborador =
-        disponiveis.isNotEmpty ? disponiveis.first : null;
+    final sugestaoColaborador = disponiveis.isNotEmpty
+        ? disponiveis.first
+        : null;
     final sugestaoCaixa = caixasLivres.isNotEmpty ? caixasLivres.first : null;
     final queue = _buildPauseQueue(escala, alocacao, cafe);
 
@@ -87,9 +89,7 @@ class CaixasCentralView extends StatelessWidget {
                 const SizedBox(height: 24),
                 Text(
                   'Ações necessárias',
-                  style: AppTextStyles.h3.copyWith(
-                    fontWeight: FontWeight.w900,
-                  ),
+                  style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.w900),
                 ),
                 const SizedBox(height: 14),
                 _ActionGrid(
@@ -108,8 +108,11 @@ class CaixasCentralView extends StatelessWidget {
                     if (cafe.totalEmAtraso > 0)
                       _CentralAction(
                         icon: Icons.timer_off_rounded,
-                        title:
-                            '${cafe.totalEmAtraso} pausa${cafe.totalEmAtraso > 1 ? 's' : ''} em atraso',
+                        title: _countText(
+                          cafe.totalEmAtraso,
+                          'pausa em atraso',
+                          'pausas em atraso',
+                        ),
                         description:
                             'Retorne ou realoque antes de abrir nova pausa.',
                         buttonText: 'Ver fila',
@@ -119,8 +122,11 @@ class CaixasCentralView extends StatelessWidget {
                     if (queue.isNotEmpty)
                       _CentralAction(
                         icon: Icons.restaurant_rounded,
-                        title:
-                            '${queue.length} pausa${queue.length > 1 ? 's' : ''} na fila',
+                        title: _countText(
+                          queue.length,
+                          'pausa na fila',
+                          'pausas na fila',
+                        ),
                         description: 'Organize substituições antes de liberar.',
                         buttonText: 'Acompanhar',
                         color: AppColors.statusCafe,
@@ -129,8 +135,11 @@ class CaixasCentralView extends StatelessWidget {
                     if (gargalos > 0)
                       _CentralAction(
                         icon: Icons.insights_rounded,
-                        title:
-                            '$gargalos risco${gargalos > 1 ? 's' : ''} de gargalo',
+                        title: _countText(
+                          gargalos,
+                          'risco de gargalo',
+                          'riscos de gargalo',
+                        ),
                         description:
                             'Revise cobertura nas próximas faixas de horário.',
                         buttonText: 'Ver gargalo',
@@ -164,11 +173,7 @@ class CaixasCentralView extends StatelessWidget {
 
                     if (!wide) {
                       return Column(
-                        children: [
-                          pause,
-                          const SizedBox(height: 18),
-                          map,
-                        ],
+                        children: [pause, const SizedBox(height: 18), map],
                       );
                     }
 
@@ -215,9 +220,17 @@ class _CaixasHeroHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = risco > 0 ? AppColors.warning : AppColors.success;
-    final title = risco > 0 ? '$risco ação crítica' : 'Tudo sob controle';
+    final title = risco > 0
+        ? _countText(risco, 'ação crítica', 'ações críticas')
+        : 'Tudo sob controle';
+    final pausasText = atrasos > 0
+        ? _countText(atrasos, 'pausa em atraso', 'pausas em atraso')
+        : 'Sem pausas atrasadas';
+    final gargalosText = gargalos > 0
+        ? _countText(gargalos, 'gargalo', 'gargalos')
+        : 'sem gargalos';
     final subtitle = risco > 0
-        ? '${atrasos > 0 ? '$atrasos pausa(s) em atraso' : 'Sem pausa atrasada'} - ${gargalos > 0 ? '$gargalos gargalo(s)' : 'sem gargalo'}'
+        ? '$pausasText - $gargalosText'
         : 'Sem atrasos ou gargalos previstos.';
 
     return Container(
@@ -317,11 +330,7 @@ class _CaixasHeroHeader extends StatelessWidget {
           if (constraints.maxWidth < 780) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                headline,
-                const SizedBox(height: 18),
-                alert,
-              ],
+              children: [headline, const SizedBox(height: 18), alert],
             );
           }
 
@@ -379,7 +388,7 @@ class _CaixasSummaryGrid extends StatelessWidget {
         icon: Icons.warning_rounded,
         value: risco.toString(),
         title: 'Risco',
-        subtitle: 'Precisa ação',
+        subtitle: 'Precisa de ação',
         color: risco > 0 ? AppColors.danger : AppColors.success,
       ),
     ];
@@ -389,8 +398,8 @@ class _CaixasSummaryGrid extends StatelessWidget {
         final columns = constraints.maxWidth >= 980
             ? 4
             : constraints.maxWidth >= 560
-                ? 2
-                : 1;
+            ? 2
+            : 1;
 
         return GridView.builder(
           itemCount: items.length,
@@ -421,8 +430,8 @@ class _ActionGrid extends StatelessWidget {
         final columns = constraints.maxWidth >= 1080
             ? 3
             : constraints.maxWidth >= 700
-                ? 2
-                : 1;
+            ? 2
+            : 1;
 
         return GridView.builder(
           itemCount: actions.length,
@@ -434,9 +443,8 @@ class _ActionGrid extends StatelessWidget {
             mainAxisSpacing: 16,
             mainAxisExtent: 220,
           ),
-          itemBuilder: (context, index) => _OperationalActionCard(
-            action: actions[index],
-          ),
+          itemBuilder: (context, index) =>
+              _OperationalActionCard(action: actions[index]),
         );
       },
     );
@@ -578,10 +586,7 @@ class _MiniBottleneckPanel extends StatelessWidget {
                     children: [
                       for (final slot in slots)
                         Expanded(
-                          child: _BottleneckBar(
-                            slot: slot,
-                            peak: peak,
-                          ),
+                          child: _BottleneckBar(slot: slot, peak: peak),
                         ),
                     ],
                   ),
@@ -605,8 +610,9 @@ class _MiniBottleneckPanel extends StatelessWidget {
                         temGargalo
                             ? Icons.auto_awesome_rounded
                             : Icons.check_circle_outline_rounded,
-                        color:
-                            temGargalo ? AppColors.warning : AppColors.success,
+                        color: temGargalo
+                            ? AppColors.warning
+                            : AppColors.success,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -828,10 +834,7 @@ class _PauseQueueCard extends StatelessWidget {
             child: Center(
               child: Text(
                 '$position',
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.w900,
-                ),
+                style: TextStyle(color: color, fontWeight: FontWeight.w900),
               ),
             ),
           ),
@@ -977,8 +980,8 @@ class _BottleneckBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = slot.gargalo
         ? (slot.quantidade < slot.capacidadeMinima
-            ? AppColors.danger
-            : AppColors.warning)
+              ? AppColors.danger
+              : AppColors.warning)
         : AppColors.success;
     final barHeight = (34 + (slot.quantidade / peak) * 74).clamp(34.0, 112.0);
 
@@ -1069,11 +1072,7 @@ class _IconBox extends StatelessWidget {
   final Color color;
   final double size;
 
-  const _IconBox({
-    required this.icon,
-    required this.color,
-    this.size = 44,
-  });
+  const _IconBox({required this.icon, required this.color, this.size = 44});
 
   @override
   Widget build(BuildContext context) {
@@ -1179,10 +1178,12 @@ List<Colaborador> _colaboradoresOperacionais(
   ColaboradorProvider colaboradores,
   EscalaProvider escala,
 ) {
-  final ativos =
-      colaboradores.todosColaboradores.where((c) => c.ativo).toList();
-  final trabalhandoIds =
-      escala.trabalhandoHoje.map((t) => t.colaboradorId).toSet();
+  final ativos = colaboradores.todosColaboradores
+      .where((c) => c.ativo)
+      .toList();
+  final trabalhandoIds = escala.trabalhandoHoje
+      .map((t) => t.colaboradorId)
+      .toSet();
   if (trabalhandoIds.isEmpty) return ativos;
   return ativos.where((c) => trabalhandoIds.contains(c.id)).toList();
 }
@@ -1191,7 +1192,7 @@ List<Caixa> _caixasOperacionais(CaixaProvider provider) {
   final caixas = [
     ...(provider.caixasTodos.isNotEmpty
         ? provider.caixasTodos
-        : provider.caixas)
+        : provider.caixas),
   ]..sort((a, b) => a.numero.compareTo(b.numero));
   return caixas;
 }
@@ -1217,12 +1218,12 @@ List<_PauseQueueEntry> _buildPauseQueue(
     final delay = pausaAtiva != null
         ? 'Em pausa'
         : diff < 0
-            ? '+${diff.abs()} min'
-            : diff <= 15
-                ? 'Agora'
-                : diff <= 45
-                    ? 'Próxima'
-                    : 'Em ${diff ~/ 60 > 0 ? '${diff ~/ 60}h ' : ''}${diff.remainder(60)}min';
+        ? '+${diff.abs()} min'
+        : diff <= 15
+        ? 'Agora'
+        : diff <= 45
+        ? 'Próxima'
+        : 'Em ${diff ~/ 60 > 0 ? '${diff ~/ 60}h ' : ''}${diff.remainder(60)}min';
 
     entries.add(
       _PauseQueueEntry(
@@ -1252,7 +1253,7 @@ List<SlotDisponibilidade> _slotsCaixa(
   if (turnos.isEmpty) return const [];
 
   final alocacaoByColab = {
-    for (final a in alocacao.getAlocacoesAtivas()) a.colaboradorId: a
+    for (final a in alocacao.getAlocacoesAtivas()) a.colaboradorId: a,
   };
   final pausaByColab = {for (final p in cafe.pausasAtivas) p.colaboradorId: p};
   final status = turnos
@@ -1267,8 +1268,11 @@ List<SlotDisponibilidade> _slotsCaixa(
 
   final inicio = _floorToSlot(DateTime.now());
   final fim = inicio.add(const Duration(hours: 4));
-  return GargaloCalculator(status, inicio: inicio, fim: fim)
-      .calcularPorSetor(DepartamentoTipo.caixa);
+  return GargaloCalculator(
+    status,
+    inicio: inicio,
+    fim: fim,
+  ).calcularPorSetor(DepartamentoTipo.caixa);
 }
 
 _CashierStatusInfo _cashierStatus(
@@ -1336,6 +1340,10 @@ int _minutes(String hhmm) {
   final parts = hhmm.split(':');
   if (parts.length < 2) return 0;
   return (int.tryParse(parts[0]) ?? 0) * 60 + (int.tryParse(parts[1]) ?? 0);
+}
+
+String _countText(int count, String singular, String plural) {
+  return '$count ${count == 1 ? singular : plural}';
 }
 
 String _formatTime(DateTime dt) {
