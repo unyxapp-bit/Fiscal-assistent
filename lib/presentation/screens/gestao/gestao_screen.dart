@@ -53,11 +53,15 @@ class _GestaoScreenState extends State<GestaoScreen> {
     if (userId.isEmpty) return;
 
     await Future.wait([
-      Provider.of<ColaboradorProvider>(context, listen: false)
-          .loadColaboradores(userId),
+      Provider.of<ColaboradorProvider>(
+        context,
+        listen: false,
+      ).loadColaboradores(userId),
       Provider.of<CaixaProvider>(context, listen: false).loadCaixas(userId),
-      Provider.of<AlocacaoProvider>(context, listen: false)
-          .loadAlocacoes(userId),
+      Provider.of<AlocacaoProvider>(
+        context,
+        listen: false,
+      ).loadAlocacoes(userId),
       Provider.of<CafeProvider>(context, listen: false).load(),
       Provider.of<EscalaProvider>(context, listen: false).load(),
     ]);
@@ -168,13 +172,16 @@ class _GestaoScreenState extends State<GestaoScreen> {
                       child: GestaoTopNavigation(
                         destinos: destinos,
                         selectedIndex: _currentIndex,
+                        showDestinations: false,
                         onRefresh: _loadData,
                         onSelected: (i) => setState(() => _currentIndex = i),
                       ),
                     ),
                     Expanded(
-                      child:
-                          IndexedStack(index: _currentIndex, children: pages),
+                      child: IndexedStack(
+                        index: _currentIndex,
+                        children: pages,
+                      ),
                     ),
                   ],
                 ),

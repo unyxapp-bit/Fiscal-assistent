@@ -135,6 +135,7 @@ class GestaoTopNavigation extends StatelessWidget {
   final ValueChanged<int> onSelected;
   final VoidCallback onRefresh;
   final bool compact;
+  final bool showDestinations;
 
   const GestaoTopNavigation({
     super.key,
@@ -143,6 +144,7 @@ class GestaoTopNavigation extends StatelessWidget {
     required this.onSelected,
     required this.onRefresh,
     this.compact = false,
+    this.showDestinations = true,
   });
 
   @override
@@ -178,26 +180,30 @@ class GestaoTopNavigation extends StatelessWidget {
             const SizedBox(width: 16),
           ] else
             const Spacer(),
-          Flexible(
-            flex: compact ? 1 : 3,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              reverse: true,
-              child: Row(
-                children: [
-                  for (int i = 0; i < destinos.length; i++) ...[
-                    if (i > 0) const SizedBox(width: 8),
-                    _GestaoChip(
-                      item: destinos[i],
-                      selected: i == selectedIndex,
-                      onTap: () => onSelected(i),
-                    ),
+          if (showDestinations) ...[
+            Flexible(
+              flex: compact ? 1 : 3,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                reverse: true,
+                child: Row(
+                  children: [
+                    for (int i = 0; i < destinos.length; i++) ...[
+                      if (i > 0) const SizedBox(width: 8),
+                      _GestaoChip(
+                        item: destinos[i],
+                        selected: i == selectedIndex,
+                        onTap: () => onSelected(i),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 14),
+            const SizedBox(width: 14),
+          ] else ...[
+            const Spacer(),
+          ],
           IconButton(
             onPressed: onRefresh,
             icon: const Icon(Icons.refresh_rounded),
