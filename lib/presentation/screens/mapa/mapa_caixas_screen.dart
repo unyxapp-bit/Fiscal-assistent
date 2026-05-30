@@ -683,6 +683,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
     return AppSurface(
       tint: _temControlesMapaAtivos ? AppColors.primary : null,
       elevated: false,
+      padding: const EdgeInsets.all(Dimensions.paddingSM),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -822,7 +823,7 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
     return AppSurface(
       tint: corDestaque,
       elevated: false,
-      padding: const EdgeInsets.all(Dimensions.paddingMD),
+      padding: const EdgeInsets.all(Dimensions.paddingSM),
       child: Padding(
         padding: EdgeInsets.zero,
         child: Column(
@@ -1369,20 +1370,16 @@ class _MapaCaixasScreenState extends State<MapaCaixasScreen>
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.symmetric(
-            horizontal: constraints.maxWidth > 960
-                ? (constraints.maxWidth - 960) / 2
-                : Dimensions.hPad(constraints.maxWidth),
+            horizontal: Dimensions.operationalHPad(constraints.maxWidth),
             vertical: Dimensions.paddingMD,
           ),
           child: Builder(
             builder: (context) {
-              final larguraConteudo = constraints.maxWidth > 960
-                  ? 960.0
-                  : constraints.maxWidth -
-                      (Dimensions.hPad(constraints.maxWidth) * 2);
+              final larguraConteudo = constraints.maxWidth -
+                  (Dimensions.operationalHPad(constraints.maxWidth) * 2);
               final insightsEmLinha = larguraConteudo >= 760;
               final localizacoesEmDuasColunas =
-                  larguraConteudo >= 860 && secoesLocalizacao.length > 1;
+                  larguraConteudo >= 980 && secoesLocalizacao.length > 1;
               final larguraColuna = localizacoesEmDuasColunas
                   ? (larguraConteudo - 12) / 2
                   : larguraConteudo;

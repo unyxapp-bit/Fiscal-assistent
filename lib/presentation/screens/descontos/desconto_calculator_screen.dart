@@ -422,26 +422,7 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    flex: 5,
-                    child: Column(
-                      children: [
-                        _ResultCard(resultado: resultado, modo: _modo),
-                        const SizedBox(height: Dimensions.spacingMD),
-                        _ResumoCard(resultado: resultado, modo: _modo),
-                        const SizedBox(height: Dimensions.spacingMD),
-                        _HistoricoCard(
-                          historico: _historico,
-                          loading: _carregandoHistorico,
-                          errorText: _historicoErro,
-                          onRefresh: _carregarHistorico,
-                          onCopy: _copiarHistorico,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: Dimensions.spacingLG),
-                  Expanded(
-                    flex: 4,
+                    flex: 6,
                     child: Column(
                       children: [
                         _InputCard(
@@ -465,6 +446,25 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
                           onSave: _salvarHistoricoAtual,
                           onSwap: _trocarValores,
                           canSwap: _usaValorSecundario,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: Dimensions.spacingLG),
+                  Expanded(
+                    flex: 5,
+                    child: Column(
+                      children: [
+                        _ResultCard(resultado: resultado, modo: _modo),
+                        const SizedBox(height: Dimensions.spacingMD),
+                        _ResumoCard(resultado: resultado, modo: _modo),
+                        const SizedBox(height: Dimensions.spacingMD),
+                        _HistoricoCard(
+                          historico: _historico,
+                          loading: _carregandoHistorico,
+                          errorText: _historicoErro,
+                          onRefresh: _carregarHistorico,
+                          onCopy: _copiarHistorico,
                         ),
                       ],
                     ),
@@ -540,7 +540,7 @@ class _ResultCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(Dimensions.paddingLG),
+      padding: const EdgeInsets.all(Dimensions.paddingMD),
       decoration: AppStyles.softCard(
         context: context,
         tint: color,
@@ -552,8 +552,8 @@ class _ResultCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 46,
-                height: 46,
+                width: 42,
+                height: 42,
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(tokens.inputRadius),
@@ -585,7 +585,7 @@ class _ResultCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: Dimensions.spacingLG),
+          const SizedBox(height: Dimensions.spacingMD),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
@@ -832,7 +832,7 @@ class _ActionCard extends StatelessWidget {
         children: [
           SizedBox(
             width: double.infinity,
-            height: 52,
+            height: 48,
             child: ElevatedButton.icon(
               onPressed: onCopy,
               icon: const Icon(Icons.copy_rounded),
@@ -901,14 +901,14 @@ class _ResumoCard extends StatelessWidget {
                 ? 'R\$ 0,00'
                 : DescontoCalculator.formatMoney(resultado!.etiquetaCentavos),
           ),
-          const Divider(height: 20),
+          const Divider(height: 16),
           _ResumoRow(
             label: _finalResumoLabel(modo),
             value: resultado == null
                 ? 'R\$ 0,00'
                 : DescontoCalculator.formatMoney(resultado!.sistemaCentavos),
           ),
-          const Divider(height: 20),
+          const Divider(height: 16),
           _ResumoRow(
             label: 'Percentual real',
             value: resultado == null
@@ -917,7 +917,7 @@ class _ResumoCard extends StatelessWidget {
                     resultado!.percentualDesconto,
                   ),
           ),
-          const Divider(height: 20),
+          const Divider(height: 16),
           _ResumoRow(
             label: _diferencaTotalLabel(resultado, modo),
             value: resultado == null
@@ -927,7 +927,7 @@ class _ResumoCard extends StatelessWidget {
                   ),
             valueColor: itemColor,
           ),
-          const Divider(height: 20),
+          const Divider(height: 16),
           _ResumoRow(
             label: 'Valor final total',
             value: resultado == null
@@ -1335,14 +1335,7 @@ InputDecoration _inputDecoration(
 }
 
 double _pageHorizontalPadding(double width) {
-  if (width < Dimensions.breakpointTablet) return Dimensions.paddingMD;
-  if (width < 980) return Dimensions.paddingLG;
-  const maxContentWidth = 1180.0;
-  const minPadding = Dimensions.paddingXL;
-  if (width > maxContentWidth + minPadding * 2) {
-    return (width - maxContentWidth) / 2;
-  }
-  return minPadding;
+  return Dimensions.operationalHPad(width);
 }
 
 String _primaryMoneyLabel(_DescontoModo modo) => switch (modo) {

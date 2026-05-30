@@ -419,19 +419,21 @@ class _CafeScreenState extends State<CafeScreen>
           ),
           body: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  Dimensions.paddingMD,
-                  12,
-                  Dimensions.paddingMD,
-                  0,
-                ),
-                child: AppSection(
-                  icon: Icons.timer_outlined,
-                  title: 'Fila de pausas',
-                  child: OperationalMetricGrid(
-                    metrics: cafeMetrics,
-                    minTileWidth: 154,
+              LayoutBuilder(
+                builder: (context, constraints) => Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    Dimensions.operationalHPad(constraints.maxWidth),
+                    12,
+                    Dimensions.operationalHPad(constraints.maxWidth),
+                    0,
+                  ),
+                  child: AppSection(
+                    icon: Icons.timer_outlined,
+                    title: 'Fila de pausas',
+                    child: OperationalMetricGrid(
+                      metrics: cafeMetrics,
+                      minTileWidth: 154,
+                    ),
                   ),
                 ),
               ),
@@ -708,16 +710,22 @@ class _TabDisponiveis extends StatelessWidget {
         }
 
         if (isTablet) {
+          final horizontalPad = Dimensions.operationalHPad(
+            constraints.maxWidth,
+          );
+          final contentWidth = constraints.maxWidth - (horizontalPad * 2);
+          final crossAxisCount = (contentWidth / 280).floor().clamp(1, 4);
+
           return GridView.builder(
             padding: EdgeInsets.symmetric(
-              horizontal: Dimensions.hPad(constraints.maxWidth),
+              horizontal: horizontalPad,
               vertical: Dimensions.paddingMD,
             ),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
               crossAxisSpacing: Dimensions.spacingSM,
               mainAxisSpacing: Dimensions.spacingSM,
-              childAspectRatio: 3.2,
+              childAspectRatio: crossAxisCount >= 3 ? 3.45 : 3.2,
             ),
             itemCount: disponiveis.length,
             itemBuilder: itemBuilder,
@@ -892,16 +900,22 @@ class _TabEmIntervalo extends StatelessWidget {
 
         final isTablet = constraints.maxWidth >= Dimensions.breakpointTablet;
         if (isTablet) {
+          final horizontalPad = Dimensions.operationalHPad(
+            constraints.maxWidth,
+          );
+          final contentWidth = constraints.maxWidth - (horizontalPad * 2);
+          final crossAxisCount = (contentWidth / 320).floor().clamp(1, 3);
+
           return GridView.builder(
             padding: EdgeInsets.symmetric(
-              horizontal: Dimensions.hPad(constraints.maxWidth),
+              horizontal: horizontalPad,
               vertical: Dimensions.paddingMD,
             ),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
               crossAxisSpacing: Dimensions.spacingSM,
               mainAxisSpacing: Dimensions.spacingSM,
-              childAspectRatio: 1.6,
+              childAspectRatio: crossAxisCount >= 3 ? 1.55 : 1.6,
             ),
             itemCount: provider.pausasAtivas.length,
             itemBuilder: (_, i) {
@@ -980,7 +994,7 @@ class _TabHistorico extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) => ListView.builder(
         padding: EdgeInsets.symmetric(
-          horizontal: Dimensions.hPad(constraints.maxWidth),
+          horizontal: Dimensions.operationalHPad(constraints.maxWidth),
           vertical: Dimensions.paddingMD,
         ),
         itemCount: finalizadas.length,

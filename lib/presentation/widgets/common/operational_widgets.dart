@@ -25,8 +25,8 @@ class OperationalSectionHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          width: 32,
-          height: 32,
+          width: 30,
+          height: 30,
           decoration: AppStyles.softTile(
             context: context,
             tint: tokens.primary,
@@ -131,6 +131,32 @@ class ResponsiveContent extends StatelessWidget {
               child: child,
             ),
           ),
+        );
+      },
+    );
+  }
+}
+
+class OperationalPageFrame extends StatelessWidget {
+  final Widget child;
+  final double top;
+  final double bottom;
+
+  const OperationalPageFrame({
+    super.key,
+    required this.child,
+    this.top = Dimensions.paddingMD,
+    this.bottom = Dimensions.paddingLG,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final hPad = Dimensions.operationalHPad(constraints.maxWidth);
+        return Padding(
+          padding: EdgeInsets.fromLTRB(hPad, top, hPad, bottom),
+          child: child,
         );
       },
     );
@@ -426,7 +452,7 @@ class OperationalMetricTile extends StatelessWidget {
     final content = Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: Dimensions.paddingSM,
-        vertical: Dimensions.paddingSM,
+        vertical: 10,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -487,7 +513,7 @@ class OperationalMetricTile extends StatelessWidget {
 
     if (onTap == null) {
       return Container(
-        constraints: const BoxConstraints(minHeight: 68),
+        constraints: const BoxConstraints(minHeight: 62),
         decoration: decoration,
         child: content,
       );
@@ -505,7 +531,7 @@ class OperationalMetricTile extends StatelessWidget {
           child: Ink(
             decoration: decoration,
             child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 68),
+              constraints: const BoxConstraints(minHeight: 62),
               child: content,
             ),
           ),
@@ -540,7 +566,7 @@ class OperationalMetricGrid extends StatelessWidget {
   const OperationalMetricGrid({
     super.key,
     required this.metrics,
-    this.minTileWidth = 168,
+    this.minTileWidth = 154,
   });
 
   @override
@@ -561,7 +587,7 @@ class OperationalMetricGrid extends StatelessWidget {
             crossAxisCount: crossAxisCount,
             crossAxisSpacing: Dimensions.spacingSM,
             mainAxisSpacing: Dimensions.spacingSM,
-            mainAxisExtent: 86,
+            mainAxisExtent: 74,
           ),
           itemBuilder: (context, index) {
             final metric = metrics[index];

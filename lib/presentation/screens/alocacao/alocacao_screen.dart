@@ -1301,7 +1301,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
                 ),
               ),
             ],
-            const SizedBox(height: Dimensions.spacingLG),
+            const SizedBox(height: Dimensions.spacingMD),
             if (turnosHoje.isEmpty) ...[
               const _Empty(
                 icon: Icons.calendar_today,
@@ -1331,7 +1331,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
 
               // Já alocados
               if (jaAlocados.isNotEmpty) ...[
-                const SizedBox(height: Dimensions.spacingLG),
+                const SizedBox(height: Dimensions.spacingMD),
                 _Header(
                     icon: Icons.point_of_sale,
                     label: 'Já alocados',
@@ -1352,7 +1352,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
 
               // Em Outro Setor
               if (emOutroSetor.isNotEmpty) ...[
-                const SizedBox(height: Dimensions.spacingLG),
+                const SizedBox(height: Dimensions.spacingMD),
                 _Header(
                     icon: Icons.store,
                     label: 'Em outro setor',
@@ -1384,7 +1384,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
 
               // A caminho
               if (aChegar.isNotEmpty) ...[
-                const SizedBox(height: Dimensions.spacingLG),
+                const SizedBox(height: Dimensions.spacingMD),
                 _Header(
                     icon: Icons.directions_walk,
                     label: 'A caminho',
@@ -1399,7 +1399,7 @@ class _AlocacaoScreenState extends State<AlocacaoScreen> {
 
               // Folgas
               if (folgas.isNotEmpty) ...[
-                const SizedBox(height: Dimensions.spacingLG),
+                const SizedBox(height: Dimensions.spacingMD),
                 _HeaderToggle(
                   icon: Icons.beach_access,
                   label: 'Folgas / Feriados',
@@ -2312,10 +2312,45 @@ class _Empty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OperationalEmptyState(
-      icon: icon,
-      title: 'Nada para exibir',
-      message: msg,
+    return AppSurface(
+      tint: AppColors.inactive,
+      padding: const EdgeInsets.all(Dimensions.paddingSM),
+      child: Row(
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: AppStyles.softTile(
+              context: context,
+              tint: AppColors.primary,
+              radius: Dimensions.radiusSM,
+            ),
+            child: Icon(icon, color: AppColors.primary, size: 20),
+          ),
+          const SizedBox(width: Dimensions.spacingSM),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Nada para exibir',
+                  style: AppTextStyles.body.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  msg,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.25,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

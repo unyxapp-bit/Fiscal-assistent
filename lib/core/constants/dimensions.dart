@@ -67,10 +67,23 @@ class Dimensions {
 
   /// Largura máxima do conteúdo em telas grandes (centraliza em tablets).
   static const double maxContentWidth = 680.0;
+  static const double maxOperationalContentWidth = 1440.0;
 
   /// Padding horizontal que centraliza o conteúdo em telas largas.
   /// Em telefones: paddingMD (16px). Em tablets: margem calculada para fixar em maxContentWidth.
   static double hPad(double screenWidth) => screenWidth > maxContentWidth
       ? (screenWidth - maxContentWidth) / 2
       : paddingMD;
+
+  /// Padding horizontal para telas de operacao, usando quase toda a largura.
+  static double operationalHPad(double screenWidth) {
+    if (screenWidth < breakpointTablet) return paddingMD;
+
+    const minPadding = paddingMD;
+    if (screenWidth > maxOperationalContentWidth + minPadding * 2) {
+      return (screenWidth - maxOperationalContentWidth) / 2;
+    }
+
+    return minPadding;
+  }
 }

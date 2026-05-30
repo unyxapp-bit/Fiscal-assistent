@@ -3,6 +3,10 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
+import '../../../core/constants/app_styles.dart';
+import '../../../core/constants/colors.dart';
+import '../../../core/constants/dimensions.dart';
+import '../../../core/constants/text_styles.dart';
 import '../../../data/models/cartaz_form_data.dart';
 import '../../widgets/cartazes/cartaz_template_specs.dart';
 import 'cartazes_salvos_page.dart';
@@ -91,15 +95,25 @@ class _CartazesHomePageState extends State<CartazesHomePage> {
     );
   }
 
+  CartazTemplateSpec? get _specSelecionada {
+    final tipo = _tipoSelecionado;
+    if (tipo == null) return null;
+    for (final spec in cartazTemplateSpecs) {
+      if (spec.tipo == tipo) return spec;
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Cartazes promocionais'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: AppColors.background,
+        foregroundColor: AppColors.textPrimary,
         elevation: 0,
+        toolbarHeight: 48,
         actions: [
           IconButton(
             tooltip: 'Cartazes feitos',
@@ -108,117 +122,220 @@ class _CartazesHomePageState extends State<CartazesHomePage> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _sectionLabel('1. Escolha o modelo'),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: _importarSvg,
-                      icon: const Icon(Icons.upload_file_rounded),
-                      label: const Text('Importar template SVG'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF374151),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        side: BorderSide(color: Colors.grey.shade400),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        textStyle: const TextStyle(
-                          fontWeight: FontWeight.w800,
-                        ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final horizontalPad = Dimensions.operationalHPad(
+            constraints.maxWidth,
+          );
+
+          return Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(
+                    horizontalPad,
+                    Dimensions.paddingMD,
+                    horizontalPad,
+                    96,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _sectionLabel('1. Escolha o modelo'),
+                      const SizedBox(height: Dimensions.spacingSM),
+                      _buildToolbar(constraints.maxWidth),
+                      const SizedBox(height: Dimensions.spacingMD),
+                      _buildTemplateGrid(),
+                      const SizedBox(height: Dimensions.spacingMD),
+                      _sectionLabel('2. Escolha o tamanho'),
+                      const SizedBox(height: Dimensions.spacingSM),
+                      _TamanhoSelector(
+                        selecionado: _tamanhoSelecionado,
+                        onChanged: (t) =>
+                            setState(() => _tamanhoSelecionado = t),
                       ),
-                    ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  for (final spec
-                      in cartazTemplateSpecs.where((s) => s.showInPicker)) ...[
-                    _TemplateCard(
-                      spec: spec,
-                      selecionado: _tipoSelecionado == spec.tipo,
-                      onTap: () => setState(() => _tipoSelecionado = spec.tipo),
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-                  const SizedBox(height: 18),
-                  _sectionLabel('2. Escolha o tamanho'),
-                  const SizedBox(height: 12),
-                  _TamanhoSelector(
-                    selecionado: _tamanhoSelecionado,
-                    onChanged: (t) => setState(() => _tamanhoSelecionado = t),
-                  ),
-                  const SizedBox(height: 18),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: _abrirCartazesFeitos,
-                      icon: const Icon(Icons.collections_bookmark_rounded),
-                      label: const Text('Ver cartazes feitos'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFFD6166A),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        side: const BorderSide(color: Color(0xFFD6166A)),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        textStyle: const TextStyle(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-          _buildBottomBar(),
-        ],
+              _buildBottomBar(horizontalPad),
+            ],
+          );
+        },
       ),
+    );
+  }
+
+  Widget _buildToolbar(double width) {
+    final wide = width >= 720;
+    final importar = OutlinedButton.icon(
+      onPressed: _importarSvg,
+      icon: const Icon(Icons.upload_file_rounded, size: 18),
+      label: const Text('Importar SVG'),
+    );
+    final historico = OutlinedButton.icon(
+      onPressed: _abrirCartazesFeitos,
+      icon: const Icon(Icons.collections_bookmark_rounded, size: 18),
+      label: const Text('Feitos'),
+    );
+
+    if (!wide) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          importar,
+          const SizedBox(height: Dimensions.spacingXS),
+          historico,
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        SizedBox(width: 180, child: importar),
+        const SizedBox(width: Dimensions.spacingSM),
+        SizedBox(width: 132, child: historico),
+      ],
+    );
+  }
+
+  Widget _buildTemplateGrid() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = constraints.maxWidth;
+        final columns = availableWidth >= 1120
+            ? 4
+            : availableWidth >= 820
+                ? 3
+                : availableWidth >= 520
+                    ? 2
+                    : 1;
+        const gap = Dimensions.spacingSM;
+        final itemWidth = (availableWidth - (gap * (columns - 1))) / columns;
+
+        return Wrap(
+          spacing: gap,
+          runSpacing: gap,
+          children: [
+            for (final spec in cartazTemplateSpecs.where((s) => s.showInPicker))
+              SizedBox(
+                width: itemWidth,
+                child: _TemplateCard(
+                  spec: spec,
+                  selecionado: _tipoSelecionado == spec.tipo,
+                  onTap: () => setState(() => _tipoSelecionado = spec.tipo),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 
   Widget _sectionLabel(String text) {
     return Text(
       text.toUpperCase(),
-      style: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w700,
-        color: Colors.grey.shade500,
-        letterSpacing: 1,
+      style: AppTextStyles.caption.copyWith(
+        fontWeight: FontWeight.w800,
+        color: AppColors.textSecondary,
+        letterSpacing: 0,
       ),
     );
   }
 
-  Widget _buildBottomBar() {
+  Widget _buildBottomBar(double horizontalPad) {
+    final selected = _specSelecionada;
     return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-      child: SizedBox(
-        width: double.infinity,
-        height: 52,
-        child: ElevatedButton.icon(
-          onPressed: _tipoSelecionado != null ? _iniciar : null,
-          icon: const Icon(Icons.arrow_forward_rounded),
-          label: const Text(
-            'Preencher dados',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFD6166A),
-            foregroundColor: Colors.white,
-            disabledBackgroundColor: Colors.grey.shade300,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        border: Border(top: BorderSide(color: AppColors.cardBorder)),
+      ),
+      padding: EdgeInsets.fromLTRB(horizontalPad, 10, horizontalPad, 18),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final wide = constraints.maxWidth >= 640;
+          final summary = Row(
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: AppStyles.softTile(
+                  tint: selected?.color ?? AppColors.inactive,
+                  radius: Dimensions.radiusSM,
+                ),
+                child: Icon(
+                  selected?.icon ?? Icons.touch_app_rounded,
+                  color: selected?.color ?? AppColors.textSecondary,
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: Dimensions.spacingSM),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      selected?.title ?? 'Escolha um modelo',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.body.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    Text(
+                      selected == null
+                          ? 'Depois preencha os dados do cartaz'
+                          : '${_tamanhoSelecionado.label} - ${_tamanhoSelecionado.descricao}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+          final action = SizedBox(
+            height: 46,
+            width: wide ? 260 : double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _tipoSelecionado != null ? _iniciar : null,
+              icon: const Icon(Icons.arrow_forward_rounded),
+              label: const Text('Preencher dados'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFD6166A),
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: AppColors.inactive,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    Dimensions.buttonBorderRadius,
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+
+          if (wide) {
+            return Row(
+              children: [
+                Expanded(child: summary),
+                const SizedBox(width: Dimensions.spacingMD),
+                action,
+              ],
+            );
+          }
+
+          return Column(
+            children: [
+              summary,
+              const SizedBox(height: Dimensions.spacingSM),
+              action,
+            ],
+          );
+        },
       ),
     );
   }
@@ -238,24 +355,28 @@ class _TemplateCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selecionado ? spec.color.withAlpha(18) : Colors.white,
+      color: selecionado
+          ? spec.color.withValues(alpha: 0.08)
+          : AppColors.cardBackground,
       borderRadius: BorderRadius.circular(8),
-      elevation: selecionado ? 0 : 2,
-      shadowColor: Colors.black12,
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
         onTap: onTap,
         child: Container(
+          constraints: const BoxConstraints(minHeight: 86),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            border:
-                selecionado ? Border.all(color: spec.color, width: 2) : null,
+            border: Border.all(
+              color: selecionado ? spec.color : AppColors.cardBorder,
+              width: selecionado ? 1.6 : 1,
+            ),
           ),
           child: Row(
             children: [
               Container(
-                width: 72,
-                height: 72,
+                width: 62,
+                height: double.infinity,
+                constraints: const BoxConstraints(minHeight: 86),
                 decoration: BoxDecoration(
                   color: spec.color,
                   borderRadius: const BorderRadius.only(
@@ -265,37 +386,44 @@ class _TemplateCard extends StatelessWidget {
                 ),
                 child: Icon(spec.icon, color: spec.iconColor, size: 32),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: Dimensions.spacingSM),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      spec.title,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: selecionado ? spec.color : Colors.black87,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        spec.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.body.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      spec.description,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
+                      const SizedBox(height: 3),
+                      Text(
+                        spec.description,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textSecondary,
+                          height: 1.2,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(right: 14),
+                padding: const EdgeInsets.only(right: Dimensions.spacingSM),
                 child: Icon(
                   selecionado
                       ? Icons.check_circle_rounded
                       : Icons.circle_outlined,
-                  color: selecionado ? spec.color : Colors.grey.shade300,
+                  color: selecionado ? spec.color : AppColors.cardBorder,
                   size: 22,
                 ),
               ),

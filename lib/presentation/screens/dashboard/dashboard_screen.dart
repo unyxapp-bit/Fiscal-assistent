@@ -486,14 +486,14 @@ class _DashboardScreenState extends State<DashboardScreen>
                           atencao: turnoEmAtencao,
                           onTap: onTapBannerSaude,
                         ),
-                        const SizedBox(height: Dimensions.spacingLG),
+                        const SizedBox(height: Dimensions.spacingMD),
                         const OperationalSectionHeader(
                           icon: Icons.insights_rounded,
                           title: 'Indicadores do turno',
                         ),
                         const SizedBox(height: Dimensions.spacingSM),
                         OperationalMetricGrid(metrics: operationalMetrics),
-                        const SizedBox(height: Dimensions.spacingLG),
+                        const SizedBox(height: Dimensions.spacingMD),
 
                         // BotÃƒÆ’Ã‚Â£o ComeÃƒÆ’Ã‚Â§ar Turno ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â oculto apÃƒÆ’Ã‚Â³s confirmar inÃƒÆ’Ã‚Â­cio
                         const OperationalSectionHeader(
@@ -507,7 +507,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           caixaProvider: caixaProvider,
                           escalaProvider: escalaProvider,
                         ),
-                        const SizedBox(height: Dimensions.spacingLG),
+                        const SizedBox(height: Dimensions.spacingMD),
                         const OperationalSectionHeader(
                           icon: Icons.grid_view_rounded,
                           title: 'Rotinas principais',
@@ -1096,22 +1096,8 @@ class _DashboardNavItem {
   }
 }
 
-const double _inicioMaxContentWidth = 1180.0;
-
 double _inicioHorizontalPadding(double screenWidth) {
-  if (screenWidth < Dimensions.breakpointTablet) {
-    return Dimensions.paddingMD;
-  }
-
-  final targetPadding = screenWidth >= Dimensions.breakpointWide
-      ? Dimensions.paddingXL
-      : Dimensions.paddingLG;
-
-  if (screenWidth > _inicioMaxContentWidth + targetPadding * 2) {
-    return (screenWidth - _inicioMaxContentWidth) / 2;
-  }
-
-  return targetPadding;
+  return Dimensions.operationalHPad(screenWidth);
 }
 
 class _BotaoAcao {
@@ -1250,7 +1236,7 @@ class _InicioHeroCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(Dimensions.paddingLG),
+      padding: const EdgeInsets.all(Dimensions.paddingMD),
       decoration: AppStyles.softCard(
         context: context,
         tint: statusColor,
@@ -1285,7 +1271,7 @@ class _InicioHeroCard extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingSM),
               Text(
                 '$saudacao, $primeiroNome',
                 style: AppTextStyles.h2.copyWith(fontWeight: FontWeight.w800),
@@ -1300,7 +1286,7 @@ class _InicioHeroCard extends StatelessWidget {
                   height: 1.35,
                 ),
               ),
-              const SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingSM),
               SizedBox(
                 width: isWide ? null : double.infinity,
                 child: ElevatedButton.icon(
@@ -1320,7 +1306,7 @@ class _InicioHeroCard extends StatelessWidget {
             ],
           );
           final signals = Container(
-            padding: const EdgeInsets.all(Dimensions.paddingMD),
+            padding: const EdgeInsets.all(Dimensions.paddingSM),
             decoration: AppStyles.softTile(
               context: context,
               tint: statusColor,
@@ -1364,8 +1350,8 @@ class _InicioHeroCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(child: headline),
-                const SizedBox(width: Dimensions.spacingLG),
-                SizedBox(width: 286, child: signals),
+                const SizedBox(width: Dimensions.spacingMD),
+                SizedBox(width: 264, child: signals),
               ],
             );
           }
