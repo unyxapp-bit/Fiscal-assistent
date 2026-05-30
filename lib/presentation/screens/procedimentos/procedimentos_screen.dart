@@ -198,6 +198,8 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
     final isFiltering =
         _searchController.text.isNotEmpty || provider.filtroCategoria != null;
     final favoritosFiltrados = filtrados.where((p) => p.favorito).toList();
+    final horizontalPad =
+        Dimensions.operationalHPad(MediaQuery.sizeOf(context).width);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -219,8 +221,7 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
         children: [
           // â”€â”€ Busca â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-                Dimensions.paddingMD, 8, Dimensions.paddingMD, 4),
+            padding: EdgeInsets.fromLTRB(horizontalPad, 8, horizontalPad, 4),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -247,8 +248,8 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
           // â”€â”€ Chips de categoria â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(
-                horizontal: Dimensions.paddingMD, vertical: 4),
+            padding:
+                EdgeInsets.symmetric(horizontal: horizontalPad, vertical: 4),
             child: Row(
               children: [
                 // "Todos"
@@ -318,7 +319,10 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                     ),
                   )
                 : SingleChildScrollView(
-                    padding: const EdgeInsets.all(Dimensions.paddingMD),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: horizontalPad,
+                      vertical: Dimensions.paddingMD,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -328,7 +332,7 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                           const SizedBox(height: Dimensions.spacingSM),
                           ...favoritosFiltrados.map(
                               (proc) => _buildCard(context, proc, provider)),
-                          const SizedBox(height: Dimensions.spacingLG),
+                          const SizedBox(height: Dimensions.spacingMD),
                         ],
 
                         // Seção Todos

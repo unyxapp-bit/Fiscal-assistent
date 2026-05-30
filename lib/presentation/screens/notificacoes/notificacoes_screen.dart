@@ -81,8 +81,7 @@ class NotificacoesScreen extends StatelessWidget {
                   enabled: provider.totalNaoLidas > 0,
                   child: Row(
                     children: [
-                      Icon(Icons.done_all,
-                          size: 18, color: AppColors.primary),
+                      Icon(Icons.done_all, size: 18, color: AppColors.primary),
                       const SizedBox(width: 10),
                       const Text('Marcar todas como lidas'),
                     ],
@@ -106,109 +105,114 @@ class NotificacoesScreen extends StatelessWidget {
       ),
       body: provider.notificacoes.isEmpty
           ? _buildVazio()
-          : ListView.builder(
-              padding: const EdgeInsets.all(Dimensions.paddingMD),
-              itemCount: provider.notificacoes.length,
-              itemBuilder: (context, index) {
-                final notif = provider.notificacoes[index];
-                final cor = _getTipoColor(notif.tipo);
+          : LayoutBuilder(
+              builder: (context, constraints) => ListView.builder(
+                padding: EdgeInsets.symmetric(
+                  horizontal: Dimensions.operationalHPad(constraints.maxWidth),
+                  vertical: Dimensions.paddingMD,
+                ),
+                itemCount: provider.notificacoes.length,
+                itemBuilder: (context, index) {
+                  final notif = provider.notificacoes[index];
+                  final cor = _getTipoColor(notif.tipo);
 
-                return Dismissible(
-                  key: ValueKey(notif.id),
-                  direction: DismissDirection.endToStart,
-                  background: Container(
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.only(right: Dimensions.paddingMD),
-                    margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
-                    decoration: BoxDecoration(
-                      color: AppColors.danger,
-                      borderRadius:
-                          BorderRadius.circular(Dimensions.borderRadius),
+                  return Dismissible(
+                    key: ValueKey(notif.id),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                      alignment: Alignment.centerRight,
+                      padding:
+                          const EdgeInsets.only(right: Dimensions.paddingMD),
+                      margin:
+                          const EdgeInsets.only(bottom: Dimensions.spacingSM),
+                      decoration: BoxDecoration(
+                        color: AppColors.danger,
+                        borderRadius:
+                            BorderRadius.circular(Dimensions.borderRadius),
+                      ),
+                      child: const Icon(Icons.delete_outline,
+                          color: Colors.white, size: 22),
                     ),
-                    child: const Icon(Icons.delete_outline,
-                        color: Colors.white, size: 22),
-                  ),
-                  onDismissed: (_) =>
-                      provider.removerNotificacao(notif.id),
-                  child: Card(
-                    margin:
-                        const EdgeInsets.only(bottom: Dimensions.spacingSM),
-                    clipBehavior: Clip.hardEdge,
-                    child: IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Borda esquerda colorida para não lida
-                          if (!notif.lida)
-                            Container(width: 3, color: AppColors.primary),
-                          Expanded(
-                            child: ListTile(
-                              onTap: () =>
-                                  provider.marcarComoLida(notif.id),
-                              leading: CircleAvatar(
-                                backgroundColor: cor,
-                                child: Icon(
-                                  _getTipoIcon(notif.tipo),
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ),
-                              title: Text(
-                                notif.titulo,
-                                style: AppTextStyles.h4.copyWith(
-                                  fontWeight: notif.lida
-                                      ? FontWeight.normal
-                                      : FontWeight.bold,
-                                ),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(height: 4),
-                                  Text(notif.mensagem,
-                                      style: AppTextStyles.body),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _formatTime(notif.criadoEm),
-                                    style: AppTextStyles.caption.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
+                    onDismissed: (_) => provider.removerNotificacao(notif.id),
+                    child: Card(
+                      margin:
+                          const EdgeInsets.only(bottom: Dimensions.spacingSM),
+                      clipBehavior: Clip.hardEdge,
+                      child: IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Borda esquerda colorida para não lida
+                            if (!notif.lida)
+                              Container(width: 3, color: AppColors.primary),
+                            Expanded(
+                              child: ListTile(
+                                onTap: () => provider.marcarComoLida(notif.id),
+                                leading: CircleAvatar(
+                                  backgroundColor: cor,
+                                  child: Icon(
+                                    _getTipoIcon(notif.tipo),
+                                    color: Colors.white,
+                                    size: 20,
                                   ),
-                                ],
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  // Ponto indicador quando não lida
-                                  if (!notif.lida)
-                                    Container(
-                                      width: 8,
-                                      height: 8,
-                                      margin: const EdgeInsets.only(right: 6),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.primary,
-                                        shape: BoxShape.circle,
+                                ),
+                                title: Text(
+                                  notif.titulo,
+                                  style: AppTextStyles.h4.copyWith(
+                                    fontWeight: notif.lida
+                                        ? FontWeight.normal
+                                        : FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 4),
+                                    Text(notif.mensagem,
+                                        style: AppTextStyles.body),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      _formatTime(notif.criadoEm),
+                                      style: AppTextStyles.caption.copyWith(
+                                        color: AppColors.textSecondary,
                                       ),
                                     ),
-                                  IconButton(
-                                    icon: const Icon(Icons.close),
-                                    iconSize: 18,
-                                    constraints: const BoxConstraints(
-                                        minWidth: 40, minHeight: 40),
-                                    onPressed: () =>
-                                        provider.removerNotificacao(notif.id),
-                                  ),
-                                ],
+                                  ],
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Ponto indicador quando não lida
+                                    if (!notif.lida)
+                                      Container(
+                                        width: 8,
+                                        height: 8,
+                                        margin: const EdgeInsets.only(right: 6),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    IconButton(
+                                      icon: const Icon(Icons.close),
+                                      iconSize: 18,
+                                      constraints: const BoxConstraints(
+                                          minWidth: 40, minHeight: 40),
+                                      onPressed: () =>
+                                          provider.removerNotificacao(notif.id),
+                                    ),
+                                  ],
+                                ),
+                                isThreeLine: true,
                               ),
-                              isThreeLine: true,
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
     );
   }
@@ -235,14 +239,12 @@ class NotificacoesScreen extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
               'Tudo em dia',
-              style: AppTextStyles.h3
-                  .copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.h3.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 8),
             Text(
               'Nenhuma notificação no momento',
-              style: AppTextStyles.body
-                  .copyWith(color: AppColors.inactive),
+              style: AppTextStyles.body.copyWith(color: AppColors.inactive),
               textAlign: TextAlign.center,
             ),
           ],

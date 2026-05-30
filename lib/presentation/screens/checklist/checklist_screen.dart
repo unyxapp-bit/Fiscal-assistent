@@ -668,7 +668,7 @@ class ChecklistScreen extends StatelessWidget {
       body: LayoutBuilder(
         builder: (context, constraints) => SingleChildScrollView(
           padding: EdgeInsets.symmetric(
-            horizontal: Dimensions.hPad(constraints.maxWidth),
+            horizontal: Dimensions.operationalHPad(constraints.maxWidth),
             vertical: Dimensions.paddingMD,
           ),
           child: Column(
@@ -763,7 +763,7 @@ class ChecklistScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: Dimensions.spacingLG),
+              const SizedBox(height: Dimensions.spacingMD),
 
               // ── Turno de hoje ────────────────────────────────────────────
               Text('Turno de Hoje', style: AppTextStyles.h3),

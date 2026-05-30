@@ -54,8 +54,8 @@ class _NotasScreenState extends State<NotasScreen> {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-            top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (ctx) => Padding(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
@@ -111,8 +111,8 @@ class _NotasScreenState extends State<NotasScreen> {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-            top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (ctx) {
         return StatefulBuilder(builder: (ctx, setModalState) {
@@ -208,8 +208,7 @@ class _NotasScreenState extends State<NotasScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child:
-                Text('Deletar', style: TextStyle(color: AppColors.danger)),
+            child: Text('Deletar', style: TextStyle(color: AppColors.danger)),
           ),
         ],
       ),
@@ -265,14 +264,15 @@ class _NotasScreenState extends State<NotasScreen> {
           diaAlvo(n).isBefore(fim);
 
       final vencidos = notas.where((n) => n.isVencido).toList();
-      final hojeList = notas.where((n) => noIntervalo(n, hoje, amanha)).toList();
+      final hojeList =
+          notas.where((n) => noIntervalo(n, hoje, amanha)).toList();
       final amanhaList = notas
-          .where((n) => noIntervalo(
-              n, amanha, amanha.add(const Duration(days: 1))))
+          .where((n) =>
+              noIntervalo(n, amanha, amanha.add(const Duration(days: 1))))
           .toList();
       final semanaList = notas
-          .where((n) => noIntervalo(
-              n, amanha.add(const Duration(days: 1)), semana.add(const Duration(days: 1))))
+          .where((n) => noIntervalo(n, amanha.add(const Duration(days: 1)),
+              semana.add(const Duration(days: 1))))
           .toList();
       final futuros = notas
           .where((n) =>
@@ -280,19 +280,15 @@ class _NotasScreenState extends State<NotasScreen> {
               !n.isVencido &&
               diaAlvo(n).isAfter(semana))
           .toList();
-      final semData = notas
-          .where((n) => !n.isVencido && n.dataLembrete == null)
-          .toList();
+      final semData =
+          notas.where((n) => !n.isVencido && n.dataLembrete == null).toList();
 
       return [
-        if (vencidos.isNotEmpty)
-          _sectionHeader('Vencidos', AppColors.danger),
+        if (vencidos.isNotEmpty) _sectionHeader('Vencidos', AppColors.danger),
         ...vencidos.map((n) => _buildNotaCard(n, provider)),
-        if (hojeList.isNotEmpty)
-          _sectionHeader('Hoje', AppColors.warning),
+        if (hojeList.isNotEmpty) _sectionHeader('Hoje', AppColors.warning),
         ...hojeList.map((n) => _buildNotaCard(n, provider)),
-        if (amanhaList.isNotEmpty)
-          _sectionHeader('Amanhã', AppColors.primary),
+        if (amanhaList.isNotEmpty) _sectionHeader('Amanhã', AppColors.primary),
         ...amanhaList.map((n) => _buildNotaCard(n, provider)),
         if (semanaList.isNotEmpty)
           _sectionHeader('Esta semana', AppColors.success),
@@ -348,9 +344,8 @@ class _NotasScreenState extends State<NotasScreen> {
     final isTarefa = nota.tipo == TipoLembrete.tarefa;
     return Dismissible(
       key: Key(nota.id),
-      direction: isTarefa
-          ? DismissDirection.horizontal
-          : DismissDirection.endToStart,
+      direction:
+          isTarefa ? DismissDirection.horizontal : DismissDirection.endToStart,
       background: isTarefa
           ? Container(
               color: AppColors.success,
@@ -395,17 +390,15 @@ class _NotasScreenState extends State<NotasScreen> {
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: ListTile(
               leading: GestureDetector(
-                onTap: isTarefa
-                    ? () => provider.toggleConcluida(nota.id)
-                    : null,
+                onTap:
+                    isTarefa ? () => provider.toggleConcluida(nota.id) : null,
                 child: Icon(
                   isTarefa && nota.concluida
                       ? Icons.check_box
                       : isTarefa
                           ? Icons.check_box_outline_blank
                           : nota.tipo.icone,
-                  color:
-                      nota.concluida ? AppColors.inactive : nota.tipo.cor,
+                  color: nota.concluida ? AppColors.inactive : nota.tipo.cor,
                 ),
               ),
               title: Text(
@@ -433,8 +426,7 @@ class _NotasScreenState extends State<NotasScreen> {
                   Row(
                     children: [
                       if (nota.importante) ...[
-                        Icon(Icons.star,
-                            size: 12, color: AppColors.warning),
+                        Icon(Icons.star, size: 12, color: AppColors.warning),
                         const SizedBox(width: 4),
                       ],
                       if (nota.dataLembrete != null) ...[
@@ -465,8 +457,8 @@ class _NotasScreenState extends State<NotasScreen> {
                             ),
                             child: const Text(
                               'Vencido',
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 9),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 9),
                             ),
                           ),
                         ],
@@ -483,8 +475,7 @@ class _NotasScreenState extends State<NotasScreen> {
                 ],
               ),
               trailing: PopupMenuButton<String>(
-                onSelected: (value) =>
-                    _onMenuSelected(value, nota, provider),
+                onSelected: (value) => _onMenuSelected(value, nota, provider),
                 itemBuilder: (ctx) => [
                   const PopupMenuItem(
                     value: 'editar',
@@ -625,8 +616,7 @@ class _NotasScreenState extends State<NotasScreen> {
       buf.writeln(nota.conteudo);
     }
     if (nota.dataLembrete != null) {
-      final fmt =
-          DateFormat('dd/MM/yyyy HH:mm').format(nota.dataLembrete!);
+      final fmt = DateFormat('dd/MM/yyyy HH:mm').format(nota.dataLembrete!);
       buf.writeln();
       buf.write('📅 ${nota.tipo.nome}: $fmt');
     } else {
@@ -636,8 +626,7 @@ class _NotasScreenState extends State<NotasScreen> {
   }
 
   Future<void> _copiarNota(Nota nota) async {
-    await Clipboard.setData(
-        ClipboardData(text: _textoCompartilhamento(nota)));
+    await Clipboard.setData(ClipboardData(text: _textoCompartilhamento(nota)));
     if (!mounted) return;
     AppNotif.show(
       context,
@@ -689,8 +678,7 @@ class _NotasScreenState extends State<NotasScreen> {
     return FilterChip(
       avatar: icon != null
           ? Icon(icon,
-              size: 14,
-              color: isSelected ? chipColor : AppColors.textSecondary)
+              size: 14, color: isSelected ? chipColor : AppColors.textSecondary)
           : null,
       label: Text(label),
       selected: isSelected,
@@ -715,6 +703,8 @@ class _NotasScreenState extends State<NotasScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<NotaProvider>(context);
+    final horizontalPad =
+        Dimensions.operationalHPad(MediaQuery.sizeOf(context).width);
     final vencidos = provider.totalLembretesVencidos;
     final lembretesLabel = vencidos > 0
         ? 'Lembretes ($vencidos⚠)'
@@ -756,8 +746,7 @@ class _NotasScreenState extends State<NotasScreen> {
         children: [
           // ── Busca ──────────────────────────────────────────────────────
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-                Dimensions.paddingMD, 8, Dimensions.paddingMD, 0),
+            padding: EdgeInsets.fromLTRB(horizontalPad, 8, horizontalPad, 0),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -774,8 +763,7 @@ class _NotasScreenState extends State<NotasScreen> {
                     : null,
                 isDense: true,
                 border: OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(Dimensions.radiusMD),
+                  borderRadius: BorderRadius.circular(Dimensions.radiusMD),
                 ),
               ),
               onChanged: (v) {
@@ -789,8 +777,7 @@ class _NotasScreenState extends State<NotasScreen> {
 
           // ── Cards de resumo ────────────────────────────────────────────
           Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: Dimensions.paddingMD),
+            padding: EdgeInsets.symmetric(horizontal: horizontalPad),
             child: Row(
               children: [
                 Expanded(
@@ -852,35 +839,25 @@ class _NotasScreenState extends State<NotasScreen> {
             height: 46,
             child: ListView(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(
-                  horizontal: Dimensions.paddingMD),
+              padding: EdgeInsets.symmetric(horizontal: horizontalPad),
               children: [
-                _buildTipoChip(
-                    'Todos (${provider.totalNotas})', null, provider,
+                _buildTipoChip('Todos (${provider.totalNotas})', null, provider,
                     icon: Icons.list),
                 const SizedBox(width: 8),
-                _buildTipoChip(
-                    'Anotações (${provider.anotacoes.length})',
-                    TipoLembrete.anotacao,
-                    provider,
+                _buildTipoChip('Anotações (${provider.anotacoes.length})',
+                    TipoLembrete.anotacao, provider,
                     icon: TipoLembrete.anotacao.icone),
                 const SizedBox(width: 8),
-                _buildTipoChip(
-                    'Tarefas (${provider.tarefas.length})',
-                    TipoLembrete.tarefa,
-                    provider,
+                _buildTipoChip('Tarefas (${provider.tarefas.length})',
+                    TipoLembrete.tarefa, provider,
                     icon: TipoLembrete.tarefa.icone),
                 const SizedBox(width: 8),
-                _buildTipoChip(lembretesLabel, TipoLembrete.lembrete,
-                    provider,
+                _buildTipoChip(lembretesLabel, TipoLembrete.lembrete, provider,
                     icon: TipoLembrete.lembrete.icone),
                 const SizedBox(width: 8),
-                _buildTipoChip(
-                    'Importantes (${provider.importantes.length})',
-                    null,
-                    provider,
-                    icon: Icons.star,
-                    isImportantes: true),
+                _buildTipoChip('Importantes (${provider.importantes.length})',
+                    null, provider,
+                    icon: Icons.star, isImportantes: true),
               ],
             ),
           ),
@@ -889,8 +866,7 @@ class _NotasScreenState extends State<NotasScreen> {
 
           // ── Criação rápida de anotação ────────────────────────────────
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-                Dimensions.paddingMD, 0, Dimensions.paddingMD, 4),
+            padding: EdgeInsets.fromLTRB(horizontalPad, 0, horizontalPad, 4),
             child: TextField(
               controller: _quickCreateCtrl,
               decoration: InputDecoration(
@@ -899,13 +875,11 @@ class _NotasScreenState extends State<NotasScreen> {
                     color: AppColors.textSecondary, size: 20),
                 isDense: true,
                 border: OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(Dimensions.radiusMD),
+                  borderRadius: BorderRadius.circular(Dimensions.radiusMD),
                 ),
                 suffixIcon: _quickCreateCtrl.text.isNotEmpty
                     ? IconButton(
-                        icon: Icon(Icons.add_circle,
-                            color: AppColors.primary),
+                        icon: Icon(Icons.add_circle, color: AppColors.primary),
                         onPressed: () => _criarRapido(provider),
                         tooltip: 'Criar anotação',
                       )
@@ -939,14 +913,13 @@ class _NotasScreenState extends State<NotasScreen> {
                                   provider.searchQuery.isNotEmpty
                                       ? 'Nenhum resultado para "${provider.searchQuery}"'
                                       : 'Nenhuma anotação ainda',
-                                  style: AppTextStyles.body.copyWith(
-                                      color: AppColors.textSecondary),
+                                  style: AppTextStyles.body
+                                      .copyWith(color: AppColors.textSecondary),
                                   textAlign: TextAlign.center,
                                 ),
                                 if (provider.searchQuery.isEmpty) ...[
                                   const SizedBox(height: 24),
-                                  Text('Criar:',
-                                      style: AppTextStyles.label),
+                                  Text('Criar:', style: AppTextStyles.label),
                                   const SizedBox(height: 8),
                                   Wrap(
                                     spacing: 8,
@@ -956,19 +929,16 @@ class _NotasScreenState extends State<NotasScreen> {
                                             icon: Icon(tipo.icone,
                                                 size: 16, color: tipo.cor),
                                             label: Text(tipo.nome,
-                                                style: TextStyle(
-                                                    color: tipo.cor)),
+                                                style:
+                                                    TextStyle(color: tipo.cor)),
                                             style: OutlinedButton.styleFrom(
-                                              side: BorderSide(
-                                                  color: tipo.cor),
+                                              side: BorderSide(color: tipo.cor),
                                             ),
                                             onPressed: () =>
-                                                Navigator.of(context)
-                                                    .push(
+                                                Navigator.of(context).push(
                                               MaterialPageRoute(
-                                                builder: (_) =>
-                                                    NotaFormScreen(
-                                                        tipoInicial: tipo),
+                                                builder: (_) => NotaFormScreen(
+                                                    tipoInicial: tipo),
                                               ),
                                             ),
                                           ),
@@ -987,11 +957,12 @@ class _NotasScreenState extends State<NotasScreen> {
                     onRefresh: provider.load,
                     child: ListView(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(
-                          Dimensions.paddingMD,
-                          0,
-                          Dimensions.paddingMD,
-                          Dimensions.paddingMD),
+                      padding: EdgeInsets.fromLTRB(
+                        horizontalPad,
+                        0,
+                        horizontalPad,
+                        Dimensions.paddingMD,
+                      ),
                       children: _buildListItems(provider),
                     ),
                   ),
@@ -1044,8 +1015,7 @@ class _StatCard extends StatelessWidget {
                     .copyWith(color: color, fontWeight: FontWeight.bold),
               ),
               Text(label,
-                  style: AppTextStyles.caption,
-                  textAlign: TextAlign.center),
+                  style: AppTextStyles.caption, textAlign: TextAlign.center),
               if (progresso != null) ...[
                 const SizedBox(height: 6),
                 ClipRRect(

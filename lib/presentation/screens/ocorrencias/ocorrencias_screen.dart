@@ -160,186 +160,192 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(Dimensions.paddingMD),
-      itemCount: lista.length,
-      itemBuilder: (ctx, i) {
-        final oc = lista[i];
-        return Card(
-          margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
-          child: ListTile(
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => OcorrenciaDetailScreen(
-                  ocorrenciaId: oc.id,
-                  ocorrenciaInicial: oc,
+    return LayoutBuilder(
+      builder: (context, constraints) => ListView.builder(
+        padding: EdgeInsets.symmetric(
+          horizontal: Dimensions.operationalHPad(constraints.maxWidth),
+          vertical: Dimensions.paddingMD,
+        ),
+        itemCount: lista.length,
+        itemBuilder: (ctx, i) {
+          final oc = lista[i];
+          return Card(
+            margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
+            child: ListTile(
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => OcorrenciaDetailScreen(
+                    ocorrenciaId: oc.id,
+                    ocorrenciaInicial: oc,
+                  ),
                 ),
               ),
-            ),
-            leading: CircleAvatar(
-              backgroundColor: oc.gravidade.cor.withValues(alpha: 0.15),
-              child:
-                  Icon(iconForTipo(oc.tipo), color: oc.gravidade.cor, size: 20),
-            ),
-            title: Row(
-              children: [
-                Expanded(
-                  child: Text(oc.tipo, style: AppTextStyles.h4),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: oc.gravidade.cor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(4),
+              leading: CircleAvatar(
+                backgroundColor: oc.gravidade.cor.withValues(alpha: 0.15),
+                child: Icon(iconForTipo(oc.tipo),
+                    color: oc.gravidade.cor, size: 20),
+              ),
+              title: Row(
+                children: [
+                  Expanded(
+                    child: Text(oc.tipo, style: AppTextStyles.h4),
                   ),
-                  child: Text(
-                    oc.gravidade.nome,
-                    style: TextStyle(
-                      color: oc.gravidade.cor,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: oc.gravidade.cor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      oc.gravidade.nome,
+                      style: TextStyle(
+                        color: oc.gravidade.cor,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 4),
-                Text(
-                  oc.descricao,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style:
-                      AppTextStyles.body.copyWith(color: AppColors.textPrimary),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    Icon(Icons.access_time,
-                        size: 12, color: AppColors.textSecondary),
-                    const SizedBox(width: 4),
-                    Text(
-                      _formatDateTime(oc.registradaEm),
-                      style: AppTextStyles.caption
-                          .copyWith(color: AppColors.textSecondary),
+                ],
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 4),
+                  Text(
+                    oc.descricao,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.body
+                        .copyWith(color: AppColors.textPrimary),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Icon(Icons.access_time,
+                          size: 12, color: AppColors.textSecondary),
+                      const SizedBox(width: 4),
+                      Text(
+                        _formatDateTime(oc.registradaEm),
+                        style: AppTextStyles.caption
+                            .copyWith(color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
+                  if (oc.caixaNome != null && oc.caixaNome!.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Icon(Icons.point_of_sale,
+                            size: 12, color: AppColors.textSecondary),
+                        const SizedBox(width: 4),
+                        Text(
+                          oc.caixaNome!,
+                          style: AppTextStyles.caption
+                              .copyWith(color: AppColors.textSecondary),
+                        ),
+                      ],
                     ),
                   ],
-                ),
-                if (oc.caixaNome != null && oc.caixaNome!.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Icon(Icons.point_of_sale,
-                          size: 12, color: AppColors.textSecondary),
-                      const SizedBox(width: 4),
-                      Text(
-                        oc.caixaNome!,
-                        style: AppTextStyles.caption
-                            .copyWith(color: AppColors.textSecondary),
-                      ),
-                    ],
-                  ),
+                  if (oc.colaboradorNome != null &&
+                      oc.colaboradorNome!.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Icon(Icons.person,
+                            size: 12, color: AppColors.textSecondary),
+                        const SizedBox(width: 4),
+                        Text(
+                          oc.colaboradorNome!,
+                          style: AppTextStyles.caption
+                              .copyWith(color: AppColors.textSecondary),
+                        ),
+                      ],
+                    ),
+                  ],
+                  if (oc.resolvida && oc.resolvidaEm != null) ...[
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Icon(Icons.check_circle,
+                            size: 12, color: AppColors.success),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Resolvida em ${_formatDateTime(oc.resolvidaEm!)}',
+                          style: AppTextStyles.caption
+                              .copyWith(color: AppColors.success),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
-                if (oc.colaboradorNome != null &&
-                    oc.colaboradorNome!.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Icon(Icons.person,
-                          size: 12, color: AppColors.textSecondary),
-                      const SizedBox(width: 4),
-                      Text(
-                        oc.colaboradorNome!,
-                        style: AppTextStyles.caption
-                            .copyWith(color: AppColors.textSecondary),
-                      ),
-                    ],
-                  ),
-                ],
-                if (oc.resolvida && oc.resolvidaEm != null) ...[
-                  const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Icon(Icons.check_circle,
-                          size: 12, color: AppColors.success),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Resolvida em ${_formatDateTime(oc.resolvidaEm!)}',
-                        style: AppTextStyles.caption
-                            .copyWith(color: AppColors.success),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-            isThreeLine: true,
-            trailing: PopupMenuButton<String>(
-              onSelected: (v) {
-                if (v == 'resolver') {
-                  provider.resolver(oc.id);
-                  final eventoProvider =
-                      Provider.of<EventoTurnoProvider>(ctx, listen: false);
-                  if (eventoProvider.turnoAtivo) {
-                    final fiscalId =
-                        Provider.of<AuthProvider>(ctx, listen: false)
-                                .user
-                                ?.id ??
-                            '';
-                    eventoProvider.registrar(
-                      fiscalId: fiscalId,
-                      tipo: TipoEvento.ocorrenciaResolvida,
-                      detalhe: '${oc.tipo} — ${oc.gravidade.nome}',
-                    );
+              ),
+              isThreeLine: true,
+              trailing: PopupMenuButton<String>(
+                onSelected: (v) {
+                  if (v == 'resolver') {
+                    provider.resolver(oc.id);
+                    final eventoProvider =
+                        Provider.of<EventoTurnoProvider>(ctx, listen: false);
+                    if (eventoProvider.turnoAtivo) {
+                      final fiscalId =
+                          Provider.of<AuthProvider>(ctx, listen: false)
+                                  .user
+                                  ?.id ??
+                              '';
+                      eventoProvider.registrar(
+                        fiscalId: fiscalId,
+                        tipo: TipoEvento.ocorrenciaResolvida,
+                        detalhe: '${oc.tipo} — ${oc.gravidade.nome}',
+                      );
+                    }
                   }
-                }
-                if (v == 'copiar') _copiarOcorrencia(oc);
-                if (v == 'compartilhar') _compartilharOcorrencia(oc);
-                if (v == 'deletar') _confirmarDelete(ctx, oc, provider);
-              },
-              itemBuilder: (_) => [
-                if (showResolver)
-                  PopupMenuItem(
-                    value: 'resolver',
+                  if (v == 'copiar') _copiarOcorrencia(oc);
+                  if (v == 'compartilhar') _compartilharOcorrencia(oc);
+                  if (v == 'deletar') _confirmarDelete(ctx, oc, provider);
+                },
+                itemBuilder: (_) => [
+                  if (showResolver)
+                    PopupMenuItem(
+                      value: 'resolver',
+                      child: Row(children: [
+                        Icon(Icons.check_circle,
+                            size: 18, color: AppColors.success),
+                        const SizedBox(width: 8),
+                        const Text('Marcar como resolvida'),
+                      ]),
+                    ),
+                  const PopupMenuItem(
+                    value: 'copiar',
                     child: Row(children: [
-                      Icon(Icons.check_circle,
-                          size: 18, color: AppColors.success),
-                      const SizedBox(width: 8),
-                      const Text('Marcar como resolvida'),
+                      Icon(Icons.copy_outlined, size: 18),
+                      SizedBox(width: 8),
+                      Text('Copiar'),
                     ]),
                   ),
-                const PopupMenuItem(
-                  value: 'copiar',
-                  child: Row(children: [
-                    Icon(Icons.copy_outlined, size: 18),
-                    SizedBox(width: 8),
-                    Text('Copiar'),
-                  ]),
-                ),
-                const PopupMenuItem(
-                  value: 'compartilhar',
-                  child: Row(children: [
-                    Icon(Icons.share, size: 18),
-                    SizedBox(width: 8),
-                    Text('Compartilhar'),
-                  ]),
-                ),
-                PopupMenuItem(
-                  value: 'deletar',
-                  child: Row(children: [
-                    Icon(Icons.delete, size: 18, color: AppColors.danger),
-                    const SizedBox(width: 8),
-                    Text('Excluir', style: TextStyle(color: AppColors.danger)),
-                  ]),
-                ),
-              ],
+                  const PopupMenuItem(
+                    value: 'compartilhar',
+                    child: Row(children: [
+                      Icon(Icons.share, size: 18),
+                      SizedBox(width: 8),
+                      Text('Compartilhar'),
+                    ]),
+                  ),
+                  PopupMenuItem(
+                    value: 'deletar',
+                    child: Row(children: [
+                      Icon(Icons.delete, size: 18, color: AppColors.danger),
+                      const SizedBox(width: 8),
+                      Text('Excluir',
+                          style: TextStyle(color: AppColors.danger)),
+                    ]),
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 

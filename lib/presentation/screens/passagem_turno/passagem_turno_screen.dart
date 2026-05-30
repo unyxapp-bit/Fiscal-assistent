@@ -13,9 +13,9 @@ import '../../../core/utils/app_notif.dart';
 const _turnos = ['manha', 'tarde', 'noite'];
 const _turnoLabels = {'manha': 'Manhã', 'tarde': 'Tarde', 'noite': 'Noite'};
 const _turnoCores = {
-  'manha': Color(0xFFFF9800),  // laranja
-  'tarde': Color(0xFF2196F3),  // azul
-  'noite': Color(0xFF3F51B5),  // índigo
+  'manha': Color(0xFFFF9800), // laranja
+  'tarde': Color(0xFF2196F3), // azul
+  'noite': Color(0xFF3F51B5), // índigo
 };
 
 class PassagemTurnoScreen extends StatefulWidget {
@@ -100,8 +100,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
 
   String _textoCompartilhamento(PassagemTurno p) {
     final buf = StringBuffer();
-    final turnoStr =
-        p.turnoLabel.isNotEmpty ? ' (${p.turnoLabel})' : '';
+    final turnoStr = p.turnoLabel.isNotEmpty ? ' (${p.turnoLabel})' : '';
     buf.writeln(
         'PASSAGEM DE TURNO$turnoStr — ${_formatDateTime(p.registradaEm)}');
     buf.writeln('─' * 30);
@@ -134,8 +133,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
   void _compartilhar(PassagemTurno p) {
     Share.share(
       _textoCompartilhamento(p),
-      subject:
-          'Passagem de turno ${_formatDateTime(p.registradaEm)}',
+      subject: 'Passagem de turno ${_formatDateTime(p.registradaEm)}',
     );
   }
 
@@ -159,8 +157,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
               provider.deletar(p.id);
               Navigator.pop(ctx);
             },
-            child: Text('Excluir',
-                style: TextStyle(color: AppColors.danger)),
+            child: Text('Excluir', style: TextStyle(color: AppColors.danger)),
           ),
         ],
       ),
@@ -175,8 +172,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
 
     final ultima = hoje.first;
     final turnoLabel = ultima.turnoLabel;
-    final turnoColor =
-        _turnoCores[ultima.turno] ?? AppColors.primary;
+    final turnoColor = _turnoCores[ultima.turno] ?? AppColors.primary;
 
     return Container(
       margin: const EdgeInsets.only(bottom: Dimensions.spacingMD),
@@ -184,8 +180,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
       decoration: BoxDecoration(
         color: AppColors.primary.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(Dimensions.radiusMD),
-        border: Border.all(
-            color: AppColors.primary.withValues(alpha: 0.2)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -277,15 +272,14 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
           const SizedBox(height: 12),
           Text(
             'Registrar Passagem de Turno',
-            style:
-                AppTextStyles.h4.copyWith(color: AppColors.textPrimary),
+            style: AppTextStyles.h4.copyWith(color: AppColors.textPrimary),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),
           Text(
             'Documente o que aconteceu\npara o próximo fiscal',
-            style: AppTextStyles.caption
-                .copyWith(color: AppColors.textSecondary),
+            style:
+                AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -297,8 +291,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
               label: const Text('Nova Passagem'),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                minimumSize:
-                    const Size.fromHeight(Dimensions.buttonHeight),
+                minimumSize: const Size.fromHeight(Dimensions.buttonHeight),
               ),
             ),
           ),
@@ -359,16 +352,13 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
                         : t == 'tarde'
                             ? Icons.wb_cloudy_outlined
                             : Icons.nights_stay_outlined,
-                    color: _turnoSelecionado == t
-                        ? cor
-                        : AppColors.textSecondary,
+                    color:
+                        _turnoSelecionado == t ? cor : AppColors.textSecondary,
                     size: 16,
                   ),
                 );
               }).toList(),
-              selected: _turnoSelecionado != null
-                  ? {_turnoSelecionado!}
-                  : {},
+              selected: _turnoSelecionado != null ? {_turnoSelecionado!} : {},
               emptySelectionAllowed: true,
               onSelectionChanged: (sel) => setState(
                   () => _turnoSelecionado = sel.isEmpty ? null : sel.first),
@@ -395,7 +385,10 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
               ),
               maxLines: 3,
               maxLength: 500,
-              buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
+              buildCounter: (_,
+                      {required currentLength,
+                      required isFocused,
+                      maxLength}) =>
                   null, // suprime o counter padrão — usamos o counterText
               textCapitalization: TextCapitalization.sentences,
               onChanged: (_) => setState(() {}),
@@ -438,8 +431,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
                 label: const Text('Registrar Passagem'),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  minimumSize:
-                      const Size.fromHeight(Dimensions.buttonHeight),
+                  minimumSize: const Size.fromHeight(Dimensions.buttonHeight),
                 ),
               ),
             ),
@@ -470,8 +462,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
           children: [
             if (turnoLabel.isNotEmpty) ...[
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: turnoColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
@@ -499,8 +490,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
           p.resumo,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: AppTextStyles.caption
-              .copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
         ),
         trailing: PopupMenuButton<String>(
           onSelected: (value) {
@@ -521,8 +511,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
             PopupMenuItem(
               value: 'copiar',
               child: Row(children: [
-                Icon(Icons.copy,
-                    size: 18, color: AppColors.textSecondary),
+                Icon(Icons.copy, size: 18, color: AppColors.textSecondary),
                 const SizedBox(width: 8),
                 const Text('Copiar'),
               ]),
@@ -530,11 +519,9 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
             PopupMenuItem(
               value: 'excluir',
               child: Row(children: [
-                Icon(Icons.delete_outline,
-                    size: 18, color: AppColors.danger),
+                Icon(Icons.delete_outline, size: 18, color: AppColors.danger),
                 const SizedBox(width: 8),
-                Text('Excluir',
-                    style: TextStyle(color: AppColors.danger)),
+                Text('Excluir', style: TextStyle(color: AppColors.danger)),
               ]),
             ),
           ],
@@ -552,8 +539,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
               children: [
                 const Divider(),
                 _buildSection('Resumo do Turno', p.resumo,
-                    icon: Icons.summarize,
-                    cor: AppColors.textSecondary),
+                    icon: Icons.summarize, cor: AppColors.textSecondary),
                 if (p.pendencias.isNotEmpty) ...[
                   const SizedBox(height: Dimensions.spacingMD),
                   _buildSection('Pendências', p.pendencias,
@@ -581,8 +567,7 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
         Row(
           children: [
             if (icon != null) ...[
-              Icon(icon,
-                  size: 14, color: cor ?? AppColors.textSecondary),
+              Icon(icon, size: 14, color: cor ?? AppColors.textSecondary),
               const SizedBox(width: 4),
             ],
             Text(
@@ -623,130 +608,131 @@ class _PassagemTurnoScreenState extends State<PassagemTurnoScreen> {
         backgroundColor: AppColors.background,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(Dimensions.paddingMD),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Card de resumo do dia
-            _buildDaySummary(provider),
+      body: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          padding: EdgeInsets.symmetric(
+            horizontal: Dimensions.operationalHPad(constraints.maxWidth),
+            vertical: Dimensions.paddingMD,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Card de resumo do dia
+              _buildDaySummary(provider),
 
-            // Formulário ou CTA
-            if (_showForm)
-              _buildForm(provider)
-            else
-              _buildCTACard(),
+              // Formulário ou CTA
+              if (_showForm) _buildForm(provider) else _buildCTACard(),
 
-            const SizedBox(height: Dimensions.spacingLG),
+              const SizedBox(height: Dimensions.spacingLG),
 
-            // Cabeçalho do histórico
-            if (provider.historico.isNotEmpty) ...[
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+              // Cabeçalho do histórico
+              if (provider.historico.isNotEmpty) ...[
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(Icons.history,
+                          size: 16, color: AppColors.primary),
                     ),
-                    child: Icon(Icons.history,
-                        size: 16, color: AppColors.primary),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    'Histórico',
-                    style: AppTextStyles.body.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      '${provider.historico.length}',
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.primary,
+                    const SizedBox(width: 10),
+                    Text(
+                      'Histórico',
+                      style: AppTextStyles.body.copyWith(
                         fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: Dimensions.spacingSM),
-
-              // Busca no histórico
-              TextField(
-                controller: _searchCtrl,
-                decoration: InputDecoration(
-                  hintText: 'Buscar no histórico...',
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: _searchQuery.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _searchCtrl.clear();
-                            setState(() => _searchQuery = '');
-                          },
-                        )
-                      : null,
-                  isDense: true,
-                  border: OutlineInputBorder(
-                    borderRadius:
-                        BorderRadius.circular(Dimensions.radiusMD),
-                  ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        '${provider.historico.length}',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                onChanged: (v) =>
-                    setState(() => _searchQuery = v.toLowerCase().trim()),
-              ),
-              const SizedBox(height: Dimensions.spacingMD),
+                const SizedBox(height: Dimensions.spacingSM),
 
-              if (historico.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Center(
-                    child: Text(
-                      'Nenhum resultado para "$_searchQuery"',
-                      style: AppTextStyles.body
-                          .copyWith(color: AppColors.textSecondary),
+                // Busca no histórico
+                TextField(
+                  controller: _searchCtrl,
+                  decoration: InputDecoration(
+                    hintText: 'Buscar no histórico...',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _searchCtrl.clear();
+                              setState(() => _searchQuery = '');
+                            },
+                          )
+                        : null,
+                    isDense: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(Dimensions.radiusMD),
                     ),
                   ),
-                )
-              else
-                ...historico.map(
-                  (p) => _buildRegistro(context, p, provider),
+                  onChanged: (v) =>
+                      setState(() => _searchQuery = v.toLowerCase().trim()),
                 ),
-            ] else if (!_showForm)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 48),
-                  child: Column(
-                    children: [
-                      Icon(Icons.handshake,
-                          size: 64, color: AppColors.inactive),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Nenhuma passagem registrada',
-                        style: AppTextStyles.h4
-                            .copyWith(color: AppColors.textSecondary),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Registre o que aconteceu no turno\npara o próximo fiscal',
-                        textAlign: TextAlign.center,
+                const SizedBox(height: Dimensions.spacingMD),
+
+                if (historico.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Center(
+                      child: Text(
+                        'Nenhum resultado para "$_searchQuery"',
                         style: AppTextStyles.body
                             .copyWith(color: AppColors.textSecondary),
                       ),
-                    ],
+                    ),
+                  )
+                else
+                  ...historico.map(
+                    (p) => _buildRegistro(context, p, provider),
+                  ),
+              ] else if (!_showForm)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 48),
+                    child: Column(
+                      children: [
+                        Icon(Icons.handshake,
+                            size: 64, color: AppColors.inactive),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Nenhuma passagem registrada',
+                          style: AppTextStyles.h4
+                              .copyWith(color: AppColors.textSecondary),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Registre o que aconteceu no turno\npara o próximo fiscal',
+                          textAlign: TextAlign.center,
+                          style: AppTextStyles.body
+                              .copyWith(color: AppColors.textSecondary),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

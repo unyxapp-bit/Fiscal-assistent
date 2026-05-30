@@ -599,159 +599,148 @@ class _DashboardScreenState extends State<DashboardScreen>
         const PizzaModuleScreen(),
 
         // ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ ABA 4: OPERAÃƒÆ’Ã¢â‚¬Â¡ÃƒÆ’Ã¢â‚¬Â¢ES ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬
-        SingleChildScrollView(
-          padding: const EdgeInsets.all(Dimensions.paddingMD),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const OperationalSectionHeader(
-                icon: Icons.priority_high_rounded,
-                title: 'A\u00e7\u00f5es priorit\u00e1rias',
-              ),
-              const SizedBox(height: Dimensions.spacingSM),
-              _GridAcoes(
-                botoes: [
-                  _BotaoAcao(
-                    icon: Icons.local_shipping,
-                    label: 'Entregas',
-                    color: AppColors.statusCafe,
-                    badge: entregaProvider.totalEmRota > 0
-                        ? entregaProvider.totalEmRota.toString()
-                        : null,
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const EntregasScreen()),
-                    ),
-                  ),
-                  _BotaoAcao(
-                    icon: Icons.report_problem,
-                    label: 'Ocorr\u00eancias',
-                    color: AppColors.danger,
-                    badge: ocorrenciaProvider.totalAbertas > 0
-                        ? ocorrenciaProvider.totalAbertas.toString()
-                        : null,
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (_) => const OcorrenciasScreen()),
-                    ),
-                  ),
-                  _BotaoAcao(
-                    icon: Icons.checklist,
-                    label: 'Checklist',
-                    color: AppColors.success,
-                    badge: checklistProvider.templatesPendentesAgora.isNotEmpty
-                        ? '!'
-                        : null,
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (_) => const ChecklistScreen()),
-                    ),
-                  ),
-                  _BotaoAcao(
-                    icon: Icons.handshake,
-                    label: 'Passagem Turno',
-                    color: AppColors.primary,
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (_) => const PassagemTurnoScreen()),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: Dimensions.spacingMD),
-              Theme(
-                data: Theme.of(context).copyWith(
-                  dividerColor: Colors.transparent,
+        LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            padding: EdgeInsets.symmetric(
+              horizontal: Dimensions.operationalHPad(constraints.maxWidth),
+              vertical: Dimensions.paddingMD,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const OperationalSectionHeader(
+                  icon: Icons.priority_high_rounded,
+                  title: 'A\u00e7\u00f5es priorit\u00e1rias',
                 ),
-                child: ExpansionTile(
-                  tilePadding: EdgeInsets.zero,
-                  childrenPadding: EdgeInsets.zero,
-                  title: const OperationalSectionHeader(
-                    icon: Icons.menu_book_rounded,
-                    title: 'Apoio e consulta',
-                  ),
-                  children: [
-                    const SizedBox(height: Dimensions.spacingSM),
-                    _GridAcoes(
-                      botoes: [
-                        _BotaoAcao(
-                          icon: Icons.help_outline,
-                          label: 'Guia R\u00e1pido',
-                          color: AppColors.blueGrey,
-                          onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) => const GuiaRapidoScreen()),
-                          ),
-                        ),
-                        _BotaoAcao(
-                          icon: Icons.note,
-                          label: 'Anota\u00e7\u00f5es',
-                          color: AppColors.statusSaida,
-                          badge: notaProvider.totalTarefasPendentes > 0
-                              ? notaProvider.totalTarefasPendentes.toString()
-                              : null,
-                          onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) => const NotasScreen()),
-                          ),
-                        ),
-                        _BotaoAcao(
-                          icon: Icons.description,
-                          label: 'Formul\u00e1rios',
-                          color: AppColors.indigo,
-                          onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) => const FormulariosScreen()),
-                          ),
-                        ),
-                        _BotaoAcao(
-                          icon: Icons.menu_book,
-                          label: 'Procedimentos',
-                          color: AppColors.deepPurple,
-                          onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) => const ProcedimentosScreen()),
-                          ),
-                        ),
-                        _BotaoAcao(
-                          icon: Icons.notifications,
-                          label: 'Notifica\u00e7\u00f5es',
-                          color: AppColors.primary,
-                          onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) => const NotificacoesScreen()),
-                          ),
-                        ),
-                      ],
+                const SizedBox(height: Dimensions.spacingSM),
+                _GridAcoes(
+                  botoes: [
+                    _BotaoAcao(
+                      icon: Icons.local_shipping,
+                      label: 'Entregas',
+                      color: AppColors.statusCafe,
+                      badge: entregaProvider.totalEmRota > 0
+                          ? entregaProvider.totalEmRota.toString()
+                          : null,
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const EntregasScreen()),
+                      ),
                     ),
-                    const SizedBox(height: Dimensions.spacingSM),
+                    _BotaoAcao(
+                      icon: Icons.report_problem,
+                      label: 'Ocorr\u00eancias',
+                      color: AppColors.danger,
+                      badge: ocorrenciaProvider.totalAbertas > 0
+                          ? ocorrenciaProvider.totalAbertas.toString()
+                          : null,
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const OcorrenciasScreen()),
+                      ),
+                    ),
+                    _BotaoAcao(
+                      icon: Icons.checklist,
+                      label: 'Checklist',
+                      color: AppColors.success,
+                      badge:
+                          checklistProvider.templatesPendentesAgora.isNotEmpty
+                              ? '!'
+                              : null,
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const ChecklistScreen()),
+                      ),
+                    ),
+                    _BotaoAcao(
+                      icon: Icons.handshake,
+                      label: 'Passagem Turno',
+                      color: AppColors.primary,
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const PassagemTurnoScreen()),
+                      ),
+                    ),
                   ],
                 ),
-              ),
-              const SizedBox(height: Dimensions.spacingMD),
-              Row(
-                children: [
-                  Expanded(
-                    child: OperationalMetricTile(
+                const SizedBox(height: Dimensions.spacingMD),
+                const OperationalSectionHeader(
+                  icon: Icons.menu_book_rounded,
+                  title: 'Apoio e consulta',
+                ),
+                const SizedBox(height: Dimensions.spacingSM),
+                _GridAcoes(
+                  botoes: [
+                    _BotaoAcao(
+                      icon: Icons.help_outline,
+                      label: 'Guia R\u00e1pido',
+                      color: AppColors.blueGrey,
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const GuiaRapidoScreen()),
+                      ),
+                    ),
+                    _BotaoAcao(
+                      icon: Icons.note,
+                      label: 'Anota\u00e7\u00f5es',
+                      color: AppColors.statusSaida,
+                      badge: notaProvider.totalTarefasPendentes > 0
+                          ? notaProvider.totalTarefasPendentes.toString()
+                          : null,
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const NotasScreen()),
+                      ),
+                    ),
+                    _BotaoAcao(
+                      icon: Icons.description,
+                      label: 'Formul\u00e1rios',
+                      color: AppColors.indigo,
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const FormulariosScreen()),
+                      ),
+                    ),
+                    _BotaoAcao(
+                      icon: Icons.menu_book,
+                      label: 'Procedimentos',
+                      color: AppColors.deepPurple,
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const ProcedimentosScreen()),
+                      ),
+                    ),
+                    _BotaoAcao(
+                      icon: Icons.notifications,
+                      label: 'Notifica\u00e7\u00f5es',
+                      color: AppColors.primary,
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const NotificacoesScreen()),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: Dimensions.spacingMD),
+                OperationalMetricGrid(
+                  minTileWidth: 156,
+                  metrics: [
+                    OperationalMetricData(
                       label: 'Entregas',
                       value: entregaProvider.totalSeparadas.toString(),
                       color: entregaProvider.totalSeparadas > 0
                           ? AppColors.statusCafe
                           : AppColors.success,
+                      icon: Icons.local_shipping_outlined,
                     ),
-                  ),
-                  const SizedBox(width: Dimensions.spacingSM),
-                  Expanded(
-                    child: OperationalMetricTile(
+                    OperationalMetricData(
                       label: 'Ocorr\u00eancias',
                       value: ocorrenciaProvider.totalAbertas.toString(),
                       color: ocorrenciaProvider.totalAbertas > 0
                           ? AppColors.danger
                           : AppColors.success,
+                      icon: Icons.report_problem_outlined,
                     ),
-                  ),
-                  const SizedBox(width: Dimensions.spacingSM),
-                  Expanded(
-                    child: OperationalMetricTile(
+                    OperationalMetricData(
                       label: 'Checklists',
                       value: checklistProvider.templatesPendentesAgora.length
                           .toString(),
@@ -759,21 +748,20 @@ class _DashboardScreenState extends State<DashboardScreen>
                           checklistProvider.templatesPendentesAgora.isNotEmpty
                               ? AppColors.warning
                               : AppColors.success,
+                      icon: Icons.checklist_rounded,
                     ),
-                  ),
-                  const SizedBox(width: Dimensions.spacingSM),
-                  Expanded(
-                    child: OperationalMetricTile(
+                    OperationalMetricData(
                       label: 'Notas',
                       value: notaProvider.totalTarefasPendentes.toString(),
                       color: notaProvider.totalTarefasPendentes > 0
                           ? AppColors.statusSaida
                           : AppColors.success,
+                      icon: Icons.note_alt_outlined,
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
 

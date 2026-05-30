@@ -86,6 +86,8 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
     final categorias = provider.categorias;
     final todas = provider.situacoes.toList();
     final filtradas = _filtrar(todas);
+    final horizontalPad =
+        Dimensions.operationalHPad(MediaQuery.sizeOf(context).width);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -110,8 +112,7 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
         children: [
           // â”€â”€ Busca â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-                Dimensions.paddingMD, 8, Dimensions.paddingMD, 4),
+            padding: EdgeInsets.fromLTRB(horizontalPad, 8, horizontalPad, 4),
             child: TextField(
               controller: _searchCtrl,
               decoration: InputDecoration(
@@ -138,8 +139,8 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
           // â”€â”€ Chips de categoria â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(
-                horizontal: Dimensions.paddingMD, vertical: 4),
+            padding:
+                EdgeInsets.symmetric(horizontal: horizontalPad, vertical: 4),
             child: Row(
               children: [
                 Padding(
@@ -208,7 +209,10 @@ class _GuiaRapidoScreenState extends State<GuiaRapidoScreen> {
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.all(Dimensions.paddingMD),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: horizontalPad,
+                      vertical: Dimensions.paddingMD,
+                    ),
                     itemCount: filtradas.length,
                     itemBuilder: (ctx, i) {
                       final s = filtradas[i];

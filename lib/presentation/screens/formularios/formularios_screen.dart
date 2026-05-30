@@ -61,6 +61,8 @@ class _FormulariosScreenState extends State<FormulariosScreen>
     final templates = _filtrar(provider.templates);
     final personalizados = _filtrar(provider.personalizados);
     final todasRespostas = _buildRespostasFiltradas(provider);
+    final horizontalPad =
+        Dimensions.operationalHPad(MediaQuery.sizeOf(context).width);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -93,8 +95,7 @@ class _FormulariosScreenState extends State<FormulariosScreen>
         children: [
           // ── Busca com debounce ─────────────────────────────────────────
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-                Dimensions.paddingMD, 10, Dimensions.paddingMD, 4),
+            padding: EdgeInsets.fromLTRB(horizontalPad, 10, horizontalPad, 4),
             child: TextField(
               controller: _searchCtrl,
               decoration: InputDecoration(
@@ -138,8 +139,7 @@ class _FormulariosScreenState extends State<FormulariosScreen>
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(
-              builder: (_) => const FormularioEditorScreen()),
+          MaterialPageRoute(builder: (_) => const FormularioEditorScreen()),
         ),
         icon: const Icon(Icons.add),
         label: const Text('Criar Formulário'),
@@ -170,8 +170,8 @@ class _FormulariosScreenState extends State<FormulariosScreen>
                   : isTemplate
                       ? 'Nenhum template disponível'
                       : 'Nenhum formulário personalizado',
-              style: AppTextStyles.body
-                  .copyWith(color: AppColors.textSecondary),
+              style:
+                  AppTextStyles.body.copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -186,224 +186,226 @@ class _FormulariosScreenState extends State<FormulariosScreen>
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(Dimensions.paddingMD),
-      itemCount: formularios.length,
-      itemBuilder: (context, index) {
-        final f = formularios[index];
-        final totalRespostas =
-            provider.totalRespostasPorFormulario(f.id);
-        final hoje = provider.respostasHoje(f.id);
-        final inativo = !isTemplate && !f.ativo;
+    return LayoutBuilder(
+      builder: (context, constraints) => ListView.builder(
+        padding: EdgeInsets.symmetric(
+          horizontal: Dimensions.operationalHPad(constraints.maxWidth),
+          vertical: Dimensions.paddingMD,
+        ),
+        itemCount: formularios.length,
+        itemBuilder: (context, index) {
+          final f = formularios[index];
+          final totalRespostas = provider.totalRespostasPorFormulario(f.id);
+          final hoje = provider.respostasHoje(f.id);
+          final inativo = !isTemplate && !f.ativo;
 
-        return Opacity(
-          opacity: inativo ? 0.55 : 1.0,
-          child: Card(
-            margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(Dimensions.radiusMD),
-              onTap: inativo
-                  ? null
-                  : () => Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) =>
-                            FormularioPreenchimentoScreen(formulario: f),
-                      )),
-              child: Padding(
-                padding: const EdgeInsets.all(Dimensions.paddingMD),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Leading com badge de hoje
-                    Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: (inativo
-                                    ? AppColors.inactive
-                                    : AppColors.primary)
-                                .withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            Icons.description,
-                            color: inativo
-                                ? AppColors.inactive
-                                : AppColors.primary,
-                          ),
-                        ),
-                        if (hoje > 0)
-                          Positioned(
-                            top: -6,
-                            right: -6,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 5, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: AppColors.success,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                    color: AppColors.background, width: 1.5),
-                              ),
-                              child: Text(
-                                '$hoje',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-
-                    const SizedBox(width: 12),
-
-                    // Conteúdo principal
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+          return Opacity(
+            opacity: inativo ? 0.55 : 1.0,
+            child: Card(
+              margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+                onTap: inativo
+                    ? null
+                    : () => Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) =>
+                              FormularioPreenchimentoScreen(formulario: f),
+                        )),
+                child: Padding(
+                  padding: const EdgeInsets.all(Dimensions.paddingMD),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Leading com badge de hoje
+                      Stack(
+                        clipBehavior: Clip.none,
                         children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(f.titulo,
-                                    style: AppTextStyles.h4),
-                              ),
-                              if (inativo)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.inactive
-                                        .withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    'Inativo',
-                                    style: TextStyle(
-                                        fontSize: 10,
-                                        color: AppColors.inactive),
-                                  ),
-                                ),
-                              PopupMenuButton<String>(
-                                onSelected: (value) => _onMenuSelected(
-                                    value, f, provider, isTemplate),
-                                itemBuilder: (_) => [
-                                  if (!inativo)
-                                    const PopupMenuItem(
-                                      value: 'preencher',
-                                      child: Row(children: [
-                                        Icon(Icons.edit_note, size: 18),
-                                        SizedBox(width: 8),
-                                        Text('Preencher'),
-                                      ]),
-                                    ),
-                                  const PopupMenuItem(
-                                    value: 'respostas',
-                                    child: Row(children: [
-                                      Icon(Icons.history, size: 18),
-                                      SizedBox(width: 8),
-                                      Text('Ver Respostas'),
-                                    ]),
-                                  ),
-                                  const PopupMenuItem(
-                                    value: 'editar',
-                                    child: Row(children: [
-                                      Icon(Icons.edit, size: 18),
-                                      SizedBox(width: 8),
-                                      Text('Editar'),
-                                    ]),
-                                  ),
-                                  if (isTemplate)
-                                    const PopupMenuItem(
-                                      value: 'duplicar',
-                                      child: Row(children: [
-                                        Icon(Icons.content_copy,
-                                            size: 18),
-                                        SizedBox(width: 8),
-                                        Text('Usar como base'),
-                                      ]),
-                                    ),
-                                  if (!isTemplate)
-                                    PopupMenuItem(
-                                      value: 'toggle_ativo',
-                                      child: Row(children: [
-                                        Icon(
-                                          f.ativo
-                                              ? Icons.visibility_off
-                                              : Icons.visibility,
-                                          size: 18,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(f.ativo
-                                            ? 'Desativar'
-                                            : 'Ativar'),
-                                      ]),
-                                    ),
-                                  if (!isTemplate)
-                                    PopupMenuItem(
-                                      value: 'delete',
-                                      child: Row(children: [
-                                        Icon(Icons.delete,
-                                            size: 18,
-                                            color: AppColors.danger),
-                                        const SizedBox(width: 8),
-                                        Text('Deletar',
-                                            style: TextStyle(
-                                                color: AppColors.danger)),
-                                      ]),
-                                    ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          if (f.descricao.isNotEmpty) ...[
-                            const SizedBox(height: 2),
-                            Text(
-                              f.descricao,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.caption.copyWith(
-                                  color: AppColors.textSecondary),
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: (inativo
+                                      ? AppColors.inactive
+                                      : AppColors.primary)
+                                  .withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                          ],
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              Text(
-                                '${f.campos.length} campos  •  $totalRespostas respostas',
-                                style: AppTextStyles.caption.copyWith(
-                                  color: AppColors.textSecondary,
-                                  fontSize: 12,
+                            child: Icon(
+                              Icons.description,
+                              color: inativo
+                                  ? AppColors.inactive
+                                  : AppColors.primary,
+                            ),
+                          ),
+                          if (hoje > 0)
+                            Positioned(
+                              top: -6,
+                              right: -6,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 5, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.success,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                      color: AppColors.background, width: 1.5),
                                 ),
-                              ),
-                              if (hoje > 0) ...[
-                                const SizedBox(width: 6),
-                                Text(
-                                  '+$hoje hoje',
-                                  style: AppTextStyles.caption.copyWith(
-                                    color: AppColors.success,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
+                                child: Text(
+                                  '$hoje',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                              ],
-                            ],
-                          ),
+                              ),
+                            ),
                         ],
                       ),
-                    ),
-                  ],
+
+                      const SizedBox(width: 12),
+
+                      // Conteúdo principal
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child:
+                                      Text(f.titulo, style: AppTextStyles.h4),
+                                ),
+                                if (inativo)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.inactive
+                                          .withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      'Inativo',
+                                      style: TextStyle(
+                                          fontSize: 10,
+                                          color: AppColors.inactive),
+                                    ),
+                                  ),
+                                PopupMenuButton<String>(
+                                  onSelected: (value) => _onMenuSelected(
+                                      value, f, provider, isTemplate),
+                                  itemBuilder: (_) => [
+                                    if (!inativo)
+                                      const PopupMenuItem(
+                                        value: 'preencher',
+                                        child: Row(children: [
+                                          Icon(Icons.edit_note, size: 18),
+                                          SizedBox(width: 8),
+                                          Text('Preencher'),
+                                        ]),
+                                      ),
+                                    const PopupMenuItem(
+                                      value: 'respostas',
+                                      child: Row(children: [
+                                        Icon(Icons.history, size: 18),
+                                        SizedBox(width: 8),
+                                        Text('Ver Respostas'),
+                                      ]),
+                                    ),
+                                    const PopupMenuItem(
+                                      value: 'editar',
+                                      child: Row(children: [
+                                        Icon(Icons.edit, size: 18),
+                                        SizedBox(width: 8),
+                                        Text('Editar'),
+                                      ]),
+                                    ),
+                                    if (isTemplate)
+                                      const PopupMenuItem(
+                                        value: 'duplicar',
+                                        child: Row(children: [
+                                          Icon(Icons.content_copy, size: 18),
+                                          SizedBox(width: 8),
+                                          Text('Usar como base'),
+                                        ]),
+                                      ),
+                                    if (!isTemplate)
+                                      PopupMenuItem(
+                                        value: 'toggle_ativo',
+                                        child: Row(children: [
+                                          Icon(
+                                            f.ativo
+                                                ? Icons.visibility_off
+                                                : Icons.visibility,
+                                            size: 18,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                              f.ativo ? 'Desativar' : 'Ativar'),
+                                        ]),
+                                      ),
+                                    if (!isTemplate)
+                                      PopupMenuItem(
+                                        value: 'delete',
+                                        child: Row(children: [
+                                          Icon(Icons.delete,
+                                              size: 18,
+                                              color: AppColors.danger),
+                                          const SizedBox(width: 8),
+                                          Text('Deletar',
+                                              style: TextStyle(
+                                                  color: AppColors.danger)),
+                                        ]),
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            if (f.descricao.isNotEmpty) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                f.descricao,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.caption
+                                    .copyWith(color: AppColors.textSecondary),
+                              ),
+                            ],
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Text(
+                                  '${f.campos.length} campos  •  $totalRespostas respostas',
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                if (hoje > 0) ...[
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    '+$hoje hoje',
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppColors.success,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -438,153 +440,157 @@ class _FormulariosScreenState extends State<FormulariosScreen>
               _query.isNotEmpty
                   ? 'Nenhuma resposta para "$_query"'
                   : 'Nenhuma resposta registrada',
-              style: AppTextStyles.h4
-                  .copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.h4.copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               'Preencha um formulário para\nver as respostas aqui',
               textAlign: TextAlign.center,
-              style: AppTextStyles.body
-                  .copyWith(color: AppColors.textSecondary),
+              style:
+                  AppTextStyles.body.copyWith(color: AppColors.textSecondary),
             ),
           ],
         ),
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(Dimensions.paddingMD),
-      itemCount: todas.length,
-      itemBuilder: (context, index) {
-        final r = todas[index];
-        Formulario? form;
-        for (final f in provider.formularios) {
-          if (f.id == r.formularioId) {
-            form = f;
-            break;
+    return LayoutBuilder(
+      builder: (context, constraints) => ListView.builder(
+        padding: EdgeInsets.symmetric(
+          horizontal: Dimensions.operationalHPad(constraints.maxWidth),
+          vertical: Dimensions.paddingMD,
+        ),
+        itemCount: todas.length,
+        itemBuilder: (context, index) {
+          final r = todas[index];
+          Formulario? form;
+          for (final f in provider.formularios) {
+            if (f.id == r.formularioId) {
+              form = f;
+              break;
+            }
           }
-        }
-        final titulo = form?.titulo ?? 'Formulário removido';
-        final filled = r.valores.values
-            .where((v) => v != null && v.toString().isNotEmpty)
-            .length;
-        final total = r.valores.length;
-        final progresso = total > 0 ? filled / total : 0.0;
+          final titulo = form?.titulo ?? 'Formulário removido';
+          final filled = r.valores.values
+              .where((v) => v != null && v.toString().isNotEmpty)
+              .length;
+          final total = r.valores.length;
+          final progresso = total > 0 ? filled / total : 0.0;
 
-        // Preview inline: primeiras 2 respostas não-vazias
-        final preview = r.valores.entries
-            .where((e) => e.value != null && e.value.toString().isNotEmpty)
-            .take(2)
-            .map((e) => '${e.key}: ${e.value}')
-            .join('  •  ');
+          // Preview inline: primeiras 2 respostas não-vazias
+          final preview = r.valores.entries
+              .where((e) => e.value != null && e.value.toString().isNotEmpty)
+              .take(2)
+              .map((e) => '${e.key}: ${e.value}')
+              .join('  •  ');
 
-        return Card(
-          margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(Dimensions.radiusMD),
-            onTap: () => _mostrarDetalhesResposta(context, r, titulo, form),
-            child: Padding(
-              padding: const EdgeInsets.all(Dimensions.paddingMD),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
+          return Card(
+            margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+              onTap: () => _mostrarDetalhesResposta(context, r, titulo, form),
+              child: Padding(
+                padding: const EdgeInsets.all(Dimensions.paddingMD),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.description,
+                          color: AppColors.primary, size: 20),
                     ),
-                    child: Icon(Icons.description,
-                        color: AppColors.primary, size: 20),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(titulo,
-                            style: AppTextStyles.h4,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis),
-                        const SizedBox(height: 2),
-                        Text(
-                          _fmtDt(r.preenchidoEm),
-                          style: AppTextStyles.caption
-                              .copyWith(color: AppColors.textSecondary),
-                        ),
-                        if (preview.isNotEmpty) ...[
-                          const SizedBox(height: 4),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(titulo,
+                              style: AppTextStyles.h4,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis),
+                          const SizedBox(height: 2),
                           Text(
-                            preview,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.textPrimary,
-                              fontStyle: FontStyle.italic,
-                            ),
+                            _fmtDt(r.preenchidoEm),
+                            style: AppTextStyles.caption
+                                .copyWith(color: AppColors.textSecondary),
                           ),
-                        ],
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(4),
-                                child: LinearProgressIndicator(
-                                  value: progresso,
-                                  minHeight: 4,
-                                  backgroundColor: AppColors.primary
-                                      .withValues(alpha: 0.1),
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    progresso == 1.0
-                                        ? AppColors.success
-                                        : AppColors.primary,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
+                          if (preview.isNotEmpty) ...[
+                            const SizedBox(height: 4),
                             Text(
-                              '$filled/$total',
+                              preview,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: AppTextStyles.caption.copyWith(
-                                color: progresso == 1.0
-                                    ? AppColors.success
-                                    : AppColors.textSecondary,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 11,
+                                color: AppColors.textPrimary,
+                                fontStyle: FontStyle.italic,
                               ),
                             ),
                           ],
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: LinearProgressIndicator(
+                                    value: progresso,
+                                    minHeight: 4,
+                                    backgroundColor: AppColors.primary
+                                        .withValues(alpha: 0.1),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      progresso == 1.0
+                                          ? AppColors.success
+                                          : AppColors.primary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '$filled/$total',
+                                style: AppTextStyles.caption.copyWith(
+                                  color: progresso == 1.0
+                                      ? AppColors.success
+                                      : AppColors.textSecondary,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.copy,
+                              size: 18, color: AppColors.textSecondary),
+                          tooltip: 'Copiar',
+                          onPressed: () => _copiarResposta(r, titulo),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete_outline,
+                              size: 18, color: AppColors.danger),
+                          tooltip: 'Excluir',
+                          onPressed: () => _confirmarDeleteResposta(
+                              context, r, provider, titulo),
                         ),
                       ],
                     ),
-                  ),
-                  Column(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.copy,
-                            size: 18, color: AppColors.textSecondary),
-                        tooltip: 'Copiar',
-                        onPressed: () => _copiarResposta(r, titulo),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete_outline,
-                            size: 18, color: AppColors.danger),
-                        tooltip: 'Excluir',
-                        onPressed: () => _confirmarDeleteResposta(
-                            context, r, provider, titulo),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -646,8 +652,7 @@ class _FormulariosScreenState extends State<FormulariosScreen>
               provider.deletarResposta(r.id);
               Navigator.pop(ctx);
             },
-            child: Text('Excluir',
-                style: TextStyle(color: AppColors.danger)),
+            child: Text('Excluir', style: TextStyle(color: AppColors.danger)),
           ),
         ],
       ),
@@ -664,8 +669,8 @@ class _FormulariosScreenState extends State<FormulariosScreen>
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-            top: Radius.circular(Dimensions.radiusSheet)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Dimensions.radiusSheet)),
       ),
       builder: (ctx) => DraggableScrollableSheet(
         initialChildSize: 0.7,
@@ -713,16 +718,13 @@ class _FormulariosScreenState extends State<FormulariosScreen>
                 controller: scrollCtrl,
                 padding: const EdgeInsets.all(16),
                 itemCount: r.valores.length,
-                separatorBuilder: (_, __) =>
-                    const Divider(height: 24),
+                separatorBuilder: (_, __) => const Divider(height: 24),
                 itemBuilder: (ctx, i) {
                   final entry = r.valores.entries.elementAt(i);
-                  final valStr =
-                      entry.value?.toString().isNotEmpty == true
-                          ? entry.value.toString()
-                          : '(não preenchido)';
-                  final preenchido =
-                      entry.value?.toString().isNotEmpty == true;
+                  final valStr = entry.value?.toString().isNotEmpty == true
+                      ? entry.value.toString()
+                      : '(não preenchido)';
+                  final preenchido = entry.value?.toString().isNotEmpty == true;
 
                   TipoCampo? tipo;
                   if (form != null) {
@@ -820,8 +822,7 @@ class _FormulariosScreenState extends State<FormulariosScreen>
       case 'toggle_ativo':
         provider.toggleAtivo(f.id);
       case 'delete':
-        final totalRespostas =
-            provider.totalRespostasPorFormulario(f.id);
+        final totalRespostas = provider.totalRespostasPorFormulario(f.id);
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
@@ -841,8 +842,8 @@ class _FormulariosScreenState extends State<FormulariosScreen>
                   provider.deletarFormulario(f.id);
                   Navigator.pop(ctx);
                 },
-                child: Text('Deletar',
-                    style: TextStyle(color: AppColors.danger)),
+                child:
+                    Text('Deletar', style: TextStyle(color: AppColors.danger)),
               ),
             ],
           ),
