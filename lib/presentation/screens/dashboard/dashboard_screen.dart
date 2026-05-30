@@ -200,6 +200,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     final notaProvider = Provider.of<NotaProvider>(context);
     final ocorrenciaProvider = Provider.of<OcorrenciaProvider>(context);
     final checklistProvider = Provider.of<ChecklistProvider>(context);
+    final passagemTurnoProvider = Provider.of<PassagemTurnoProvider>(context);
     final eventoProvider = Provider.of<EventoTurnoProvider>(context);
     final turnoJaIniciado = eventoProvider.turnoIniciadoEm != null;
     final fiscalEventsProvider = Provider.of<FiscalEventsProvider>(context);
@@ -616,6 +617,190 @@ class _DashboardScreenState extends State<DashboardScreen>
       onRefresh: _refreshData,
     );
 
+    final entregasAbertas =
+        entregaProvider.totalSeparadas + entregaProvider.totalEmRota;
+    final checklistsPendentes =
+        checklistProvider.templatesPendentesAgora.length;
+    final notasPendentes = notaProvider.totalTarefasPendentes;
+    final passagensHoje = passagemTurnoProvider.historicoHoje.length;
+    final operacoesPendencias = <String>[
+      if (entregasAbertas > 0)
+        _pluralize(entregasAbertas, 'entrega aberta', 'entregas abertas'),
+      if (ocorrenciaProvider.totalAbertas > 0)
+        _pluralize(
+          ocorrenciaProvider.totalAbertas,
+          'ocorr\u00eancia aberta',
+          'ocorr\u00eancias abertas',
+        ),
+      if (checklistsPendentes > 0)
+        _pluralize(
+          checklistsPendentes,
+          'checklist pendente',
+          'checklists pendentes',
+        ),
+      if (notasPendentes > 0)
+        _pluralize(
+          notasPendentes,
+          'tarefa pendente',
+          'tarefas pendentes',
+        ),
+    ];
+    final operacoesDashboardV2 = _OperationsDashboardV2(
+      pendingCount: operacoesPendencias.length,
+      pendingDescription: operacoesPendencias.isEmpty
+          ? 'Nenhuma a\u00e7\u00e3o pendente no momento'
+          : operacoesPendencias.take(2).join(' + '),
+      onRefresh: _refreshData,
+      summaryItems: [
+        _OperationsSummaryItem(
+          icon: Icons.local_shipping_outlined,
+          value: entregasAbertas.toString(),
+          title: 'Entregas',
+          subtitle: entregaProvider.totalEmRota > 0
+              ? '${entregaProvider.totalEmRota} em rota'
+              : 'Abertas agora',
+          color: AppColors.primary,
+          highlighted: entregasAbertas > 0,
+        ),
+        _OperationsSummaryItem(
+          icon: Icons.warning_amber_rounded,
+          value: ocorrenciaProvider.totalAbertas.toString(),
+          title: 'Ocorr\u00eancias',
+          subtitle: 'Abertas agora',
+          color: AppColors.danger,
+          highlighted: ocorrenciaProvider.totalAbertas > 0,
+        ),
+        _OperationsSummaryItem(
+          icon: Icons.fact_check_outlined,
+          value: checklistsPendentes.toString(),
+          title: 'Checklists',
+          subtitle: 'Pendentes',
+          color: AppColors.warning,
+          highlighted: checklistsPendentes > 0,
+        ),
+        _OperationsSummaryItem(
+          icon: Icons.edit_note_rounded,
+          value: notaProvider.totalNotas.toString(),
+          title: 'Notas',
+          subtitle: notasPendentes > 0
+              ? _pluralize(
+                  notasPendentes, 'tarefa pendente', 'tarefas pendentes')
+              : 'Registradas',
+          color: AppColors.indigo,
+          highlighted: notasPendentes > 0,
+        ),
+      ],
+      priorityActions: [
+        _OperationsActionItem(
+          icon: Icons.local_shipping_outlined,
+          title: 'Entregas',
+          subtitle: 'Gerencie e acompanhe entregas em aberto',
+          badge: entregasAbertas > 0
+              ? _pluralize(entregasAbertas, 'aberta', 'abertas')
+              : 'Tudo certo',
+          color: AppColors.primary,
+          highlighted: entregasAbertas > 0,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const EntregasScreen()),
+          ),
+        ),
+        _OperationsActionItem(
+          icon: Icons.warning_amber_rounded,
+          title: 'Ocorr\u00eancias',
+          subtitle: 'Registre e acompanhe ocorr\u00eancias da loja',
+          badge: ocorrenciaProvider.totalAbertas > 0
+              ? _pluralize(
+                  ocorrenciaProvider.totalAbertas,
+                  'aberta',
+                  'abertas',
+                )
+              : 'Tudo certo',
+          color: AppColors.danger,
+          highlighted: ocorrenciaProvider.totalAbertas > 0,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OcorrenciasScreen()),
+          ),
+        ),
+        _OperationsActionItem(
+          icon: Icons.fact_check_outlined,
+          title: 'Checklist',
+          subtitle: 'Verifique e conclua pend\u00eancias do turno',
+          badge: checklistsPendentes > 0
+              ? _pluralize(checklistsPendentes, 'pendente', 'pendentes')
+              : 'Tudo certo',
+          color: AppColors.warning,
+          highlighted: checklistsPendentes > 0,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const ChecklistScreen()),
+          ),
+        ),
+        _OperationsActionItem(
+          icon: Icons.sync_alt_rounded,
+          title: 'Passagem Turno',
+          subtitle: 'Registre recados, pend\u00eancias e contexto',
+          badge: passagensHoje > 0
+              ? _pluralize(passagensHoje, 'registro hoje', 'registros hoje')
+              : 'Sem registro',
+          color: AppColors.primary,
+          highlighted: passagensHoje == 0,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const PassagemTurnoScreen()),
+          ),
+        ),
+      ],
+      supportActions: [
+        _OperationsActionItem(
+          icon: Icons.help_outline_rounded,
+          title: 'Guia R\u00e1pido',
+          subtitle: 'Consulte orienta\u00e7\u00f5es e d\u00favidas frequentes',
+          color: AppColors.blueGrey,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const GuiaRapidoScreen()),
+          ),
+        ),
+        _OperationsActionItem(
+          icon: Icons.note_alt_outlined,
+          title: 'Anota\u00e7\u00f5es',
+          subtitle: 'Crie e acompanhe notas r\u00e1pidas',
+          badge: notasPendentes > 0 ? notasPendentes.toString() : null,
+          color: AppColors.statusSaida,
+          highlighted: notasPendentes > 0,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const NotasScreen()),
+          ),
+        ),
+        _OperationsActionItem(
+          icon: Icons.description_outlined,
+          title: 'Formul\u00e1rios',
+          subtitle: 'Acesse modelos e documentos',
+          color: AppColors.indigo,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const FormulariosScreen()),
+          ),
+        ),
+        _OperationsActionItem(
+          icon: Icons.menu_book_outlined,
+          title: 'Procedimentos',
+          subtitle: 'Consulte POPs e rotinas padr\u00e3o',
+          color: AppColors.deepPurple,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const ProcedimentosScreen()),
+          ),
+        ),
+        _OperationsActionItem(
+          icon: Icons.notifications_none_rounded,
+          title: 'Notifica\u00e7\u00f5es',
+          subtitle: 'Veja comunicados e alertas',
+          badge: alertas.isNotEmpty ? alertas.length.toString() : null,
+          color: AppColors.primary,
+          highlighted: alertas.isNotEmpty,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const NotificacoesScreen()),
+          ),
+        ),
+      ],
+    );
+
     final tabBarView = TabBarView(
       controller: _tabController,
       children: [
@@ -780,171 +965,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         const PizzaModuleScreen(),
 
         // ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ ABA 4: OPERAÃƒÆ’Ã¢â‚¬Â¡ÃƒÆ’Ã¢â‚¬Â¢ES ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬
-        LayoutBuilder(
-          builder: (context, constraints) => SingleChildScrollView(
-            padding: EdgeInsets.symmetric(
-              horizontal: Dimensions.operationalHPad(constraints.maxWidth),
-              vertical: Dimensions.paddingMD,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const OperationalSectionHeader(
-                  icon: Icons.priority_high_rounded,
-                  title: 'A\u00e7\u00f5es priorit\u00e1rias',
-                ),
-                const SizedBox(height: Dimensions.spacingSM),
-                _GridAcoes(
-                  botoes: [
-                    _BotaoAcao(
-                      icon: Icons.local_shipping,
-                      label: 'Entregas',
-                      color: AppColors.statusCafe,
-                      badge: entregaProvider.totalEmRota > 0
-                          ? entregaProvider.totalEmRota.toString()
-                          : null,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const EntregasScreen()),
-                      ),
-                    ),
-                    _BotaoAcao(
-                      icon: Icons.report_problem,
-                      label: 'Ocorr\u00eancias',
-                      color: AppColors.danger,
-                      badge: ocorrenciaProvider.totalAbertas > 0
-                          ? ocorrenciaProvider.totalAbertas.toString()
-                          : null,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const OcorrenciasScreen()),
-                      ),
-                    ),
-                    _BotaoAcao(
-                      icon: Icons.checklist,
-                      label: 'Checklist',
-                      color: AppColors.success,
-                      badge:
-                          checklistProvider.templatesPendentesAgora.isNotEmpty
-                              ? '!'
-                              : null,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const ChecklistScreen()),
-                      ),
-                    ),
-                    _BotaoAcao(
-                      icon: Icons.handshake,
-                      label: 'Passagem Turno',
-                      color: AppColors.primary,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const PassagemTurnoScreen()),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: Dimensions.spacingMD),
-                const OperationalSectionHeader(
-                  icon: Icons.menu_book_rounded,
-                  title: 'Apoio e consulta',
-                ),
-                const SizedBox(height: Dimensions.spacingSM),
-                _GridAcoes(
-                  botoes: [
-                    _BotaoAcao(
-                      icon: Icons.help_outline,
-                      label: 'Guia R\u00e1pido',
-                      color: AppColors.blueGrey,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const GuiaRapidoScreen()),
-                      ),
-                    ),
-                    _BotaoAcao(
-                      icon: Icons.note,
-                      label: 'Anota\u00e7\u00f5es',
-                      color: AppColors.statusSaida,
-                      badge: notaProvider.totalTarefasPendentes > 0
-                          ? notaProvider.totalTarefasPendentes.toString()
-                          : null,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const NotasScreen()),
-                      ),
-                    ),
-                    _BotaoAcao(
-                      icon: Icons.description,
-                      label: 'Formul\u00e1rios',
-                      color: AppColors.indigo,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const FormulariosScreen()),
-                      ),
-                    ),
-                    _BotaoAcao(
-                      icon: Icons.menu_book,
-                      label: 'Procedimentos',
-                      color: AppColors.deepPurple,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const ProcedimentosScreen()),
-                      ),
-                    ),
-                    _BotaoAcao(
-                      icon: Icons.notifications,
-                      label: 'Notifica\u00e7\u00f5es',
-                      color: AppColors.primary,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const NotificacoesScreen()),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: Dimensions.spacingMD),
-                OperationalMetricGrid(
-                  minTileWidth: 156,
-                  metrics: [
-                    OperationalMetricData(
-                      label: 'Entregas',
-                      value: entregaProvider.totalSeparadas.toString(),
-                      color: entregaProvider.totalSeparadas > 0
-                          ? AppColors.statusCafe
-                          : AppColors.success,
-                      icon: Icons.local_shipping_outlined,
-                    ),
-                    OperationalMetricData(
-                      label: 'Ocorr\u00eancias',
-                      value: ocorrenciaProvider.totalAbertas.toString(),
-                      color: ocorrenciaProvider.totalAbertas > 0
-                          ? AppColors.danger
-                          : AppColors.success,
-                      icon: Icons.report_problem_outlined,
-                    ),
-                    OperationalMetricData(
-                      label: 'Checklists',
-                      value: checklistProvider.templatesPendentesAgora.length
-                          .toString(),
-                      color:
-                          checklistProvider.templatesPendentesAgora.isNotEmpty
-                              ? AppColors.warning
-                              : AppColors.success,
-                      icon: Icons.checklist_rounded,
-                    ),
-                    OperationalMetricData(
-                      label: 'Notas',
-                      value: notaProvider.totalTarefasPendentes.toString(),
-                      color: notaProvider.totalTarefasPendentes > 0
-                          ? AppColors.statusSaida
-                          : AppColors.success,
-                      icon: Icons.note_alt_outlined,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
+        operacoesDashboardV2,
 
         // ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ ABA 5: LOJA ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬
         RefreshIndicator(
@@ -1289,14 +1310,12 @@ class _BotaoAcao {
   final IconData icon;
   final String label;
   final Color color;
-  final String? badge;
   final VoidCallback onPressed;
 
   const _BotaoAcao({
     required this.icon,
     required this.label,
     required this.color,
-    this.badge,
     required this.onPressed,
   });
 }
@@ -1341,7 +1360,6 @@ class _GridAcoes extends StatelessWidget {
               icon: botao.icon,
               label: botao.label,
               color: botao.color,
-              badge: botao.badge,
               onTap: botao.onPressed,
             );
           },
@@ -1367,7 +1385,6 @@ class _GridAcoes extends StatelessWidget {
               icon: botoes[i].icon,
               label: botoes[i].label,
               color: botoes[i].color,
-              badge: botoes[i].badge,
               onTap: botoes[i].onPressed,
               framed: false,
               dense: true,
@@ -1382,6 +1399,603 @@ class _GridAcoes extends StatelessWidget {
 }
 
 // ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ Widgets auxiliares ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬
+
+class _OperationsDashboardV2 extends StatelessWidget {
+  final int pendingCount;
+  final String pendingDescription;
+  final Future<void> Function() onRefresh;
+  final List<_OperationsSummaryItem> summaryItems;
+  final List<_OperationsActionItem> priorityActions;
+  final List<_OperationsActionItem> supportActions;
+
+  const _OperationsDashboardV2({
+    required this.pendingCount,
+    required this.pendingDescription,
+    required this.onRefresh,
+    required this.summaryItems,
+    required this.priorityActions,
+    required this.supportActions,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      color: AppColors.primary,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(
+              horizontal: Dimensions.operationalHPad(constraints.maxWidth),
+              vertical: Dimensions.paddingMD,
+            ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1440),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _OperationsHero(
+                      pendingCount: pendingCount,
+                      pendingDescription: pendingDescription,
+                    ),
+                    const SizedBox(height: 28),
+                    _OperationsSummaryGrid(items: summaryItems),
+                    const SizedBox(height: 32),
+                    const _OperationsSectionHeader(
+                      icon: Icons.star_border_rounded,
+                      title: 'A\u00e7\u00f5es priorit\u00e1rias',
+                    ),
+                    const SizedBox(height: 16),
+                    _OperationsActionsGrid(
+                      actions: priorityActions,
+                      large: true,
+                      maxColumns: 4,
+                    ),
+                    const SizedBox(height: 32),
+                    const _OperationsSectionHeader(
+                      icon: Icons.menu_book_rounded,
+                      title: 'Apoio e consulta',
+                    ),
+                    const SizedBox(height: 16),
+                    _OperationsActionsGrid(
+                      actions: supportActions,
+                      maxColumns: 5,
+                    ),
+                    const SizedBox(height: Dimensions.spacingXL),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _OperationsHero extends StatelessWidget {
+  final int pendingCount;
+  final String pendingDescription;
+
+  const _OperationsHero({
+    required this.pendingCount,
+    required this.pendingDescription,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final hasPending = pendingCount > 0;
+    final alertColor = hasPending ? const Color(0xFFFDE047) : Colors.white;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(34),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [AppColors.primary, const Color(0xFF0E7490)],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.20),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 820;
+          final headline = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Opera\u00e7\u00f5es',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 38,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0,
+                  height: 1.05,
+                ),
+              ),
+              const SizedBox(height: 18),
+              Text(
+                'Gerencie entregas, ocorr\u00eancias, checklists e passagem de turno.',
+                maxLines: isWide ? 2 : 3,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.86),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  height: 1.35,
+                ),
+              ),
+            ],
+          );
+
+          final alert = Container(
+            width: isWide ? 320 : double.infinity,
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  hasPending
+                      ? Icons.notifications_active_outlined
+                      : Icons.check_circle_outline_rounded,
+                  color: alertColor,
+                  size: 32,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        hasPending
+                            ? _pluralize(
+                                pendingCount,
+                                'a\u00e7\u00e3o precisa de aten\u00e7\u00e3o',
+                                'a\u00e7\u00f5es precisam de aten\u00e7\u00e3o',
+                              )
+                            : 'Opera\u00e7\u00e3o em dia',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        pendingDescription,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.82),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+
+          if (!isWide) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                headline,
+                const SizedBox(height: 22),
+                alert,
+              ],
+            );
+          }
+
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned(
+                right: 326,
+                top: -66,
+                child: Icon(
+                  Icons.settings_rounded,
+                  size: 190,
+                  color: Colors.white.withValues(alpha: 0.08),
+                ),
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(child: headline),
+                  const SizedBox(width: 28),
+                  alert,
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _OperationsSummaryGrid extends StatelessWidget {
+  final List<_OperationsSummaryItem> items;
+
+  const _OperationsSummaryGrid({required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final columns = width >= 1080 ? 4 : (width >= 640 ? 2 : 1);
+        const gap = 18.0;
+        final itemWidth = (width - gap * (columns - 1)) / columns;
+
+        return Wrap(
+          spacing: gap,
+          runSpacing: gap,
+          children: [
+            for (final item in items)
+              SizedBox(
+                width: itemWidth,
+                height: 150,
+                child: _OperationsSummaryCard(item: item),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _OperationsSummaryCard extends StatelessWidget {
+  final _OperationsSummaryItem item;
+
+  const _OperationsSummaryCard({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    final softColor = item.highlighted
+        ? item.color.withValues(alpha: 0.10)
+        : item.color.withValues(alpha: 0.08);
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: _operationsCardDecoration(
+        borderColor:
+            item.highlighted ? item.color.withValues(alpha: 0.36) : null,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 74,
+            height: 74,
+            decoration: BoxDecoration(
+              color: softColor,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Icon(item.icon, color: item.color, size: 34),
+          ),
+          const SizedBox(width: 22),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  item.value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: item.color,
+                    fontSize: 32,
+                    fontWeight: FontWeight.w900,
+                    height: 1,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  item.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.label.copyWith(
+                    color: AppColors.textPrimary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  item.subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.caption.copyWith(
+                    color:
+                        item.highlighted ? item.color : AppColors.textSecondary,
+                    fontWeight:
+                        item.highlighted ? FontWeight.w800 : FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OperationsSectionHeader extends StatelessWidget {
+  final IconData icon;
+  final String title;
+
+  const _OperationsSectionHeader({
+    required this.icon,
+    required this.title,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: AppColors.primary, size: 22),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.h3.copyWith(
+              fontWeight: FontWeight.w900,
+              fontSize: 21,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _OperationsActionsGrid extends StatelessWidget {
+  final List<_OperationsActionItem> actions;
+  final bool large;
+  final int maxColumns;
+
+  const _OperationsActionsGrid({
+    required this.actions,
+    this.large = false,
+    required this.maxColumns,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final columns = _operationsColumns(width, maxColumns);
+        const gap = 18.0;
+        final itemWidth = (width - gap * (columns - 1)) / columns;
+        final itemHeight = large ? 286.0 : 220.0;
+
+        return Wrap(
+          spacing: gap,
+          runSpacing: gap,
+          children: [
+            for (final action in actions)
+              SizedBox(
+                width: itemWidth,
+                height: itemHeight,
+                child: _OperationsActionCard(action: action, large: large),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _OperationsActionCard extends StatelessWidget {
+  final _OperationsActionItem action;
+  final bool large;
+
+  const _OperationsActionCard({
+    required this.action,
+    required this.large,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: action.onTap,
+        child: Ink(
+          padding: EdgeInsets.all(large ? 24 : 20),
+          decoration: _operationsCardDecoration(
+            borderColor: action.highlighted
+                ? action.color.withValues(alpha: 0.34)
+                : null,
+            color: action.highlighted
+                ? action.color.withValues(alpha: 0.045)
+                : AppColors.cardBackground,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: large ? 66 : 54,
+                    height: large ? 66 : 54,
+                    decoration: BoxDecoration(
+                      color: action.color.withValues(alpha: 0.11),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Icon(
+                      action.icon,
+                      color: action.color,
+                      size: large ? 34 : 28,
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.cardBorder),
+                    ),
+                    child: Icon(
+                      Icons.chevron_right_rounded,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              Text(
+                action.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.h4.copyWith(
+                  color: AppColors.textPrimary,
+                  fontSize: large ? 19 : 16,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                action.subtitle,
+                maxLines: large ? 2 : 3,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.body.copyWith(
+                  color: AppColors.textSecondary,
+                  fontSize: 14,
+                  height: 1.35,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              if (action.badge != null && action.badge!.isNotEmpty) ...[
+                const SizedBox(height: 18),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
+                  decoration: BoxDecoration(
+                    color: action.color.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    action.badge!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.caption.copyWith(
+                      color: action.color,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _OperationsSummaryItem {
+  final IconData icon;
+  final String value;
+  final String title;
+  final String subtitle;
+  final Color color;
+  final bool highlighted;
+
+  const _OperationsSummaryItem({
+    required this.icon,
+    required this.value,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+    this.highlighted = false,
+  });
+}
+
+class _OperationsActionItem {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final String? badge;
+  final Color color;
+  final bool highlighted;
+  final VoidCallback onTap;
+
+  const _OperationsActionItem({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+    required this.onTap,
+    this.badge,
+    this.highlighted = false,
+  });
+}
+
+BoxDecoration _operationsCardDecoration({
+  Color? color,
+  Color? borderColor,
+}) {
+  return BoxDecoration(
+    color: color ?? AppColors.cardBackground,
+    borderRadius: BorderRadius.circular(24),
+    border: Border.all(color: borderColor ?? AppColors.cardBorder),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withValues(alpha: 0.035),
+        blurRadius: 20,
+        offset: const Offset(0, 10),
+      ),
+    ],
+  );
+}
+
+int _operationsColumns(double width, int maxColumns) {
+  if (width < 560) return 1;
+  if (width < 900) return maxColumns >= 3 ? 2 : 1;
+  if (width < 1180) return maxColumns >= 4 ? 3 : maxColumns;
+  return maxColumns;
+}
+
+String _pluralize(int value, String singular, String plural) {
+  return '$value ${value == 1 ? singular : plural}';
+}
 
 class _InicioHeroCard extends StatelessWidget {
   final String saudacao;
