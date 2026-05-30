@@ -13,6 +13,7 @@ import '../../widgets/cartazes/cartaz_text_adjustments.dart';
 import '../../widgets/cartazes/poster_canvas.dart';
 import '../../widgets/cartazes/poster_factory.dart';
 import 'cartaz_history_store.dart';
+import 'cartaz_workspace_layout.dart';
 
 class PreviewCartazPage extends StatefulWidget {
   final CartazFormData data;
@@ -423,47 +424,143 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final scale = _previewScale(constraints);
-          final bottomPadding = _adjusting
-              ? (constraints.maxHeight * 0.34).clamp(170.0, 260.0).toDouble()
-              : 116.0;
+          final wide = constraints.maxWidth >= 980;
 
-          return Stack(
+          return Column(
             children: [
-              Positioned.fill(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(24, 24, 24, bottomPadding),
-                  child: Center(
-                    child: SizedBox(
-                      width: _posterSize.width * scale,
-                      height: _posterSize.height * scale,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onPanUpdate: _adjusting
-                            ? (details) => _moveSelected(details.delta, scale)
-                            : null,
-                        child: Transform.scale(
-                          scale: scale,
-                          alignment: Alignment.topLeft,
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: _buildTemplate(
-                              showSelection: _adjusting,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: _buildBottomBar(),
+              _buildWorkspaceBar(),
+              Expanded(
+                child: wide ? _buildWideEditor() : _buildMobileEditor(),
               ),
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildWorkspaceBar() {
+    return CartazWorkspaceBar(
+      badge:
+          'Cartaz / ${widget.data.templateLabel} / ${widget.data.tamanho.label}',
+      actions: [
+        CartazWorkspaceAction(
+          label: 'Editar',
+          icon: Icons.edit_rounded,
+          onPressed: _exporting ? null : () => Navigator.of(context).pop(),
+        ),
+        CartazWorkspaceAction(
+          label: _adjusting ? 'Concluir' : 'Ajustar',
+          icon: _adjusting ? Icons.check_rounded : Icons.tune_rounded,
+          selected: _adjusting,
+          onPressed: _exporting
+              ? null
+              : () => setState(() => _adjusting = !_adjusting),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWideEditor() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            flex: 7,
+            child: CartazWorkspacePanel(
+              title: 'Cartaz',
+              subtitle: _adjusting
+                  ? 'Arraste o texto selecionado no cartaz'
+                  : 'Previa final para compartilhar ou imprimir',
+              icon: Icons.dashboard_customize_rounded,
+              expandChild: true,
+              childPadding: EdgeInsets.zero,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final scale = _previewScale(constraints);
+                  return _buildPosterStage(
+                    scale,
+                    padding: const EdgeInsets.all(20),
+                  );
+                },
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          SizedBox(
+            width: 380,
+            child: CartazWorkspacePanel(
+              title: _adjusting ? 'Ajustes' : 'Exportacao',
+              subtitle: _adjusting
+                  ? 'Escolha o texto e ajuste posicao'
+                  : 'Edite, compartilhe ou imprima',
+              icon: _adjusting ? Icons.tune_rounded : Icons.ios_share_rounded,
+              expandChild: true,
+              child: SingleChildScrollView(
+                child: _buildControlsContent(constrainAdjustment: false),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileEditor() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final scale = _previewScale(constraints);
+        final bottomPadding = _adjusting
+            ? (constraints.maxHeight * 0.34).clamp(170.0, 260.0).toDouble()
+            : 116.0;
+
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: _buildPosterStage(
+                scale,
+                padding: EdgeInsets.fromLTRB(24, 24, 24, bottomPadding),
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: _buildBottomBar(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildPosterStage(
+    double scale, {
+    required EdgeInsets padding,
+  }) {
+    return SingleChildScrollView(
+      padding: padding,
+      child: Center(
+        child: SizedBox(
+          width: _posterSize.width * scale,
+          height: _posterSize.height * scale,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onPanUpdate: _adjusting
+                ? (details) => _moveSelected(details.delta, scale)
+                : null,
+            child: Transform.scale(
+              scale: scale,
+              alignment: Alignment.topLeft,
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: _buildTemplate(
+                  showSelection: _adjusting,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -481,104 +578,112 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
         ],
       ),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+      child: _buildControlsContent(constrainAdjustment: true),
+    );
+  }
+
+  Widget _buildControlsContent({required bool constrainAdjustment}) {
+    final adjustmentPanel = constrainAdjustment
+        ? ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.sizeOf(context).height * 0.34,
+            ),
+            child: SingleChildScrollView(
+              child: _buildAdjustmentPanel(),
+            ),
+          )
+        : _buildAdjustmentPanel();
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed:
+                    _exporting ? null : () => Navigator.of(context).pop(),
+                icon: const Icon(Icons.edit_rounded, size: 18),
+                label: const Text('Editar'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.black87,
+                  padding: const EdgeInsets.symmetric(vertical: 13),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _exporting
+                    ? null
+                    : () => setState(() => _adjusting = !_adjusting),
+                icon: Icon(
+                  _adjusting ? Icons.check_rounded : Icons.tune_rounded,
+                  size: 18,
+                ),
+                label: Text(_adjusting ? 'Concluir' : 'Ajustar'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF1565C0),
+                  padding: const EdgeInsets.symmetric(vertical: 13),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  textStyle: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (_adjusting) ...[
+          const SizedBox(height: 12),
+          adjustmentPanel,
+        ],
+        if (!_adjusting) ...[
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
-                child: OutlinedButton.icon(
-                  onPressed:
-                      _exporting ? null : () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.edit_rounded, size: 18),
-                  label: const Text('Editar'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.black87,
-                    padding: const EdgeInsets.symmetric(vertical: 13),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
+                child: ElevatedButton.icon(
+                  onPressed: _exporting ? null : _compartilharPNG,
+                  icon: const Icon(Icons.image_rounded, size: 18),
+                  label: const Text('PNG'),
+                  style: _exportButtonStyle(const Color(0xFF1565C0)),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: _exporting
-                      ? null
-                      : () => setState(() => _adjusting = !_adjusting),
-                  icon: Icon(
-                    _adjusting ? Icons.check_rounded : Icons.tune_rounded,
-                    size: 18,
-                  ),
-                  label: Text(_adjusting ? 'Concluir' : 'Ajustar'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF1565C0),
-                    padding: const EdgeInsets.symmetric(vertical: 13),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    textStyle: const TextStyle(fontWeight: FontWeight.w800),
-                  ),
+                child: ElevatedButton.icon(
+                  onPressed: _exporting ? null : _compartilharPDF,
+                  icon: const Icon(Icons.picture_as_pdf_rounded, size: 18),
+                  label: const Text('PDF'),
+                  style: _exportButtonStyle(const Color(0xFFCC0000)),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _exporting ? null : _imprimir,
+                  icon: _exporting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.print_rounded, size: 18),
+                  label: Text(_exporting ? 'Gerando' : 'Imprimir'),
+                  style: _exportButtonStyle(const Color(0xFFD6166A)),
                 ),
               ),
             ],
           ),
-          if (_adjusting) ...[
-            const SizedBox(height: 12),
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.sizeOf(context).height * 0.34,
-              ),
-              child: SingleChildScrollView(
-                child: _buildAdjustmentPanel(),
-              ),
-            ),
-          ],
-          if (!_adjusting) ...[
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _exporting ? null : _compartilharPNG,
-                    icon: const Icon(Icons.image_rounded, size: 18),
-                    label: const Text('PNG'),
-                    style: _exportButtonStyle(const Color(0xFF1565C0)),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _exporting ? null : _compartilharPDF,
-                    icon: const Icon(Icons.picture_as_pdf_rounded, size: 18),
-                    label: const Text('PDF'),
-                    style: _exportButtonStyle(const Color(0xFFCC0000)),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _exporting ? null : _imprimir,
-                    icon: _exporting
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.print_rounded, size: 18),
-                    label: Text(_exporting ? 'Gerando' : 'Imprimir'),
-                    style: _exportButtonStyle(const Color(0xFFD6166A)),
-                  ),
-                ),
-              ],
-            ),
-          ],
         ],
-      ),
+      ],
     );
   }
 

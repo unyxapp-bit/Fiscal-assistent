@@ -4,6 +4,7 @@ import '../../../data/models/cartaz_form_data.dart';
 import '../../widgets/cartazes/cartaz_template_specs.dart';
 import '../../widgets/cartazes/poster_canvas.dart';
 import '../../widgets/cartazes/poster_factory.dart';
+import 'cartaz_workspace_layout.dart';
 import 'preview_cartaz_page.dart';
 
 class CriarCartazPage extends StatefulWidget {
@@ -169,223 +170,301 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
           ),
         ],
       ),
-      body: Row(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final wide = constraints.maxWidth >= 900;
+
+          return Column(
+            children: [
+              CartazWorkspaceBar(
+                badge: 'Cartaz / $_title / ${widget.tamanho.label}',
+                actions: [
+                  const CartazWorkspaceAction(
+                    label: 'Campos',
+                    icon: Icons.edit_note_rounded,
+                    selected: true,
+                  ),
+                  if (wide)
+                    const CartazWorkspaceAction(
+                      label: 'Previa',
+                      icon: Icons.visibility_rounded,
+                      selected: true,
+                    ),
+                ],
+              ),
+              Expanded(
+                child: wide ? _buildWideWorkspace() : _buildNarrowWorkspace(),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  List<TextEditingController> get _previewControllers {
+    return [
+      _linha1Ctrl,
+      _linha2Ctrl,
+      _subtituloCtrl,
+      _detalheCtrl,
+      _precoCtrl,
+      _precoAnteriorCtrl,
+      _precoPorMedidaCtrl,
+      _unidadeCtrl,
+      _validadeCtrl,
+      _condicaoCtrl,
+      _limiteCtrl,
+      _validadeOfertaCtrl,
+      _validadeProdutoCtrl,
+      _mensagemCtrl,
+    ];
+  }
+
+  Widget _buildWideWorkspace() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
+            flex: 6,
+            child: CartazWorkspacePanel(
+              title: 'Preenchimento',
+              subtitle: 'Dados que entram no cartaz',
+              icon: Icons.edit_note_rounded,
+              expandChild: true,
+              child: SingleChildScrollView(child: _buildFormFields()),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
             flex: 5,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (_fields.showProduto) ...[
-                    _sectionLabel('Produto'),
-                    _campo(
-                      controller: _linha1Ctrl,
-                      label: 'Linha 1 - nome / marca *',
-                      hint: _fields.linha1Hint,
-                    ),
-                    const SizedBox(height: 10),
-                    _campo(
-                      controller: _linha2Ctrl,
-                      label: 'Linha 2 - complemento',
-                      hint: _fields.linha2Hint,
-                    ),
-                    const SizedBox(height: 10),
-                    _campo(
-                      controller: _subtituloCtrl,
-                      label: _fields.subtituloLabel,
-                      hint: _fields.subtituloHint,
-                    ),
-                    if (_fields.showDetalhe) ...[
-                      const SizedBox(height: 10),
-                      _campo(
-                        controller: _detalheCtrl,
-                        label: _fields.detalheLabel,
-                        hint: _fields.detalheHint,
-                      ),
-                    ],
-                    const SizedBox(height: 20),
-                  ],
-                  if (_fields.showMensagem) ...[
-                    _sectionLabel('Aviso'),
-                    _campo(
-                      controller: _mensagemCtrl,
-                      label: _fields.mensagemLabel,
-                      hint: _fields.mensagemHint,
-                      maxLines: 4,
-                    ),
-                    if (_fields.showDetalhe) ...[
-                      const SizedBox(height: 10),
-                      _campo(
-                        controller: _detalheCtrl,
-                        label: _fields.detalheLabel,
-                        hint: _fields.detalheHint,
-                        maxLines: 2,
-                      ),
-                    ],
-                    const SizedBox(height: 20),
-                  ],
-                  if (_fields.requiresPreco) ...[
-                    _sectionLabel('Preco'),
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: _campo(
-                            controller: _precoCtrl,
-                            label: 'Preco *',
-                            hint: 'Ex: 9,99',
-                            keyboard: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            caps: false,
-                          ),
-                        ),
-                        if (_fields.showUnidade) ...[
-                          const SizedBox(width: 10),
-                          Expanded(
-                            flex: 2,
-                            child: _campo(
-                              controller: _unidadeCtrl,
-                              label: 'Unidade',
-                              hint: _fields.unidadeHint,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    _switchCampo(
-                      value: _centavosMenores,
-                      onChanged: (value) {
-                        setState(() => _centavosMenores = value);
-                      },
-                    ),
-                    if (_fields.showValidade) ...[
-                      const SizedBox(height: 10),
-                      _campo(
-                        controller: _validadeCtrl,
-                        label: 'Rodape livre',
-                        hint: _fields.validadeHint,
-                      ),
-                    ],
-                    const SizedBox(height: 20),
-                  ],
-                  if (_fields.showPromotionFields) ...[
-                    _sectionLabel('Informacoes promocionais'),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _campo(
-                            controller: _precoAnteriorCtrl,
-                            label: 'Preco anterior',
-                            hint: 'Ex: 12,99',
-                            keyboard: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            caps: false,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: _campo(
-                            controller: _precoPorMedidaCtrl,
-                            label: 'Preco por medida',
-                            hint: 'Ex: R\$ 5,60 / KG',
-                            caps: false,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    _campo(
-                      controller: _condicaoCtrl,
-                      label: 'Condicao da promocao',
-                      hint: 'Ex: PRECO CLUBE ou LEVE 3 PAGUE 2',
-                    ),
-                    const SizedBox(height: 10),
-                    _campo(
-                      controller: _limiteCtrl,
-                      label: 'Limite por cliente',
-                      hint: 'Ex: MAX. 2 UNIDADES POR CPF',
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _campo(
-                            controller: _validadeOfertaCtrl,
-                            label: 'Validade da oferta',
-                            hint: 'Ex: OFERTA ATE 26/05/2026',
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: _campo(
-                            controller: _validadeProdutoCtrl,
-                            label: 'Validade do produto',
-                            hint: 'Ex: PRODUTO VENCE 30/05/2026',
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                  const SizedBox(height: 28),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton.icon(
-                      onPressed: _visualizar,
-                      icon: const Icon(Icons.visibility_rounded),
-                      label: const Text(
-                        'Visualizar cartaz',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFD6166A),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
+            child: _buildPreviewPanel(expand: true),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNarrowWorkspace() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          CartazWorkspacePanel(
+            title: 'Preenchimento',
+            subtitle: 'Dados que entram no cartaz',
+            icon: Icons.edit_note_rounded,
+            child: _buildFormFields(),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 520,
+            child: _buildPreviewPanel(expand: true),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPreviewPanel({required bool expand}) {
+    return CartazWorkspacePanel(
+      title: 'Previa',
+      subtitle: 'Atualiza conforme voce preenche',
+      icon: Icons.visibility_rounded,
+      expandChild: expand,
+      childPadding: EdgeInsets.zero,
+      child: _LivePreview(
+        ctrls: _previewControllers,
+        buildData: _buildData,
+      ),
+    );
+  }
+
+  Widget _buildFormFields() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (_fields.showProduto) ...[
+          _sectionLabel('Produto'),
+          _campo(
+            controller: _linha1Ctrl,
+            label: 'Linha 1 - nome / marca *',
+            hint: _fields.linha1Hint,
+          ),
+          const SizedBox(height: 10),
+          _campo(
+            controller: _linha2Ctrl,
+            label: 'Linha 2 - complemento',
+            hint: _fields.linha2Hint,
+          ),
+          const SizedBox(height: 10),
+          _campo(
+            controller: _subtituloCtrl,
+            label: _fields.subtituloLabel,
+            hint: _fields.subtituloHint,
+          ),
+          if (_fields.showDetalhe) ...[
+            const SizedBox(height: 10),
+            _campo(
+              controller: _detalheCtrl,
+              label: _fields.detalheLabel,
+              hint: _fields.detalheHint,
+            ),
+          ],
+          const SizedBox(height: 20),
+        ],
+        if (_fields.showMensagem) ...[
+          _sectionLabel('Aviso'),
+          _campo(
+            controller: _mensagemCtrl,
+            label: _fields.mensagemLabel,
+            hint: _fields.mensagemHint,
+            maxLines: 4,
+          ),
+          if (_fields.showDetalhe) ...[
+            const SizedBox(height: 10),
+            _campo(
+              controller: _detalheCtrl,
+              label: _fields.detalheLabel,
+              hint: _fields.detalheHint,
+              maxLines: 2,
+            ),
+          ],
+          const SizedBox(height: 20),
+        ],
+        if (_fields.requiresPreco) ...[
+          _sectionLabel('Preco'),
+          Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: _campo(
+                  controller: _precoCtrl,
+                  label: 'Preco *',
+                  hint: 'Ex: 9,99',
+                  keyboard: const TextInputType.numberWithOptions(
+                    decimal: true,
                   ),
-                ],
+                  caps: false,
+                ),
+              ),
+              if (_fields.showUnidade) ...[
+                const SizedBox(width: 10),
+                Expanded(
+                  flex: 2,
+                  child: _campo(
+                    controller: _unidadeCtrl,
+                    label: 'Unidade',
+                    hint: _fields.unidadeHint,
+                  ),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 10),
+          _switchCampo(
+            value: _centavosMenores,
+            onChanged: (value) {
+              setState(() => _centavosMenores = value);
+            },
+          ),
+          if (_fields.showValidade) ...[
+            const SizedBox(height: 10),
+            _campo(
+              controller: _validadeCtrl,
+              label: 'Rodape livre',
+              hint: _fields.validadeHint,
+            ),
+          ],
+          const SizedBox(height: 20),
+        ],
+        if (_fields.showPromotionFields) ...[
+          _sectionLabel('Informacoes promocionais'),
+          Row(
+            children: [
+              Expanded(
+                child: _campo(
+                  controller: _precoAnteriorCtrl,
+                  label: 'Preco anterior',
+                  hint: 'Ex: 12,99',
+                  keyboard: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  caps: false,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _campo(
+                  controller: _precoPorMedidaCtrl,
+                  label: 'Preco por medida',
+                  hint: 'Ex: R\$ 5,60 / KG',
+                  caps: false,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          _campo(
+            controller: _condicaoCtrl,
+            label: 'Condicao da promocao',
+            hint: 'Ex: PRECO CLUBE ou LEVE 3 PAGUE 2',
+          ),
+          const SizedBox(height: 10),
+          _campo(
+            controller: _limiteCtrl,
+            label: 'Limite por cliente',
+            hint: 'Ex: MAX. 2 UNIDADES POR CPF',
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _campo(
+                  controller: _validadeOfertaCtrl,
+                  label: 'Validade da oferta',
+                  hint: 'Ex: OFERTA ATE 26/05/2026',
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _campo(
+                  controller: _validadeProdutoCtrl,
+                  label: 'Validade do produto',
+                  hint: 'Ex: PRODUTO VENCE 30/05/2026',
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+        ],
+        const SizedBox(height: 28),
+        SizedBox(
+          width: double.infinity,
+          height: 52,
+          child: ElevatedButton.icon(
+            onPressed: _visualizar,
+            icon: const Icon(Icons.visibility_rounded),
+            label: const Text(
+              'Visualizar cartaz',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFD6166A),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
           ),
-          if (MediaQuery.of(context).size.width > 700) ...[
-            const VerticalDivider(width: 1),
-            Expanded(
-              flex: 5,
-              child: _LivePreview(
-                ctrls: [
-                  _linha1Ctrl,
-                  _linha2Ctrl,
-                  _subtituloCtrl,
-                  _detalheCtrl,
-                  _precoCtrl,
-                  _precoAnteriorCtrl,
-                  _precoPorMedidaCtrl,
-                  _unidadeCtrl,
-                  _validadeCtrl,
-                  _condicaoCtrl,
-                  _limiteCtrl,
-                  _validadeOfertaCtrl,
-                  _validadeProdutoCtrl,
-                  _mensagemCtrl,
-                ],
-                buildData: _buildData,
-              ),
-            ),
-          ],
-        ],
-      ),
+        ),
+      ],
     );
   }
 
