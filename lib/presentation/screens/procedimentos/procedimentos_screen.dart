@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
+import '../../widgets/common/operational_widgets.dart';
 import '../../providers/procedimento_provider.dart';
 import 'procedimento_form_screen.dart';
 import 'procedimento_detail_screen.dart';
@@ -222,80 +223,44 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
           // â”€â”€ Busca â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Padding(
             padding: EdgeInsets.fromLTRB(horizontalPad, 8, horizontalPad, 4),
-            child: TextField(
+            child: OperationalSearchField(
               controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Buscar procedimento...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          provider.setSearchQuery('');
-                        },
-                      )
-                    : null,
-                isDense: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(Dimensions.radiusMD),
-                ),
-              ),
+              hintText: 'Buscar procedimento',
+              showClear: provider.searchQuery.isNotEmpty,
               onChanged: provider.setSearchQuery,
+              onClear: () {
+                _searchController.clear();
+                provider.setSearchQuery('');
+              },
             ),
           ),
 
           // â”€â”€ Chips de categoria â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
+          OperationalFilterChips<String>(
+            selected: provider.filtroCategoria ?? 'todos',
             padding:
                 EdgeInsets.symmetric(horizontal: horizontalPad, vertical: 4),
-            child: Row(
-              children: [
-                // "Todos"
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: FilterChip(
-                    label: Text('Todos (${provider.procedimentos.length})'),
-                    selected: provider.filtroCategoria == null,
-                    onSelected: (_) => provider.setFiltroCategoria(null),
-                    selectedColor: AppColors.primary.withValues(alpha: 0.15),
-                    checkmarkColor: AppColors.primary,
-                    labelStyle: TextStyle(
-                      color: provider.filtroCategoria == null
-                          ? AppColors.primary
-                          : AppColors.textSecondary,
-                      fontWeight: provider.filtroCategoria == null
-                          ? FontWeight.w600
-                          : FontWeight.normal,
-                    ),
-                  ),
-                ),
-                // Por categoria
-                ..._categorias.map((cat) {
-                  final count = provider.countByCategoria(cat);
-                  if (count == 0) return const SizedBox.shrink();
-                  final isSelected = provider.filtroCategoria == cat;
-                  final cor = cat.categoriaColor;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: FilterChip(
-                      label: Text('${cat.categoriaNome} ($count)'),
-                      selected: isSelected,
-                      onSelected: (_) =>
-                          provider.setFiltroCategoria(isSelected ? null : cat),
-                      selectedColor: cor.withValues(alpha: 0.15),
-                      checkmarkColor: cor,
-                      labelStyle: TextStyle(
-                        color: isSelected ? cor : AppColors.textSecondary,
-                        fontWeight:
-                            isSelected ? FontWeight.w600 : FontWeight.normal,
-                      ),
-                    ),
-                  );
-                }),
-              ],
+            onSelected: (value) => provider.setFiltroCategoria(
+              value == 'todos' ? null : value,
             ),
+            options: [
+              OperationalChipOption<String>(
+                value: 'todos',
+                label: 'Todos',
+                icon: Icons.menu_book_outlined,
+                color: AppColors.primary,
+                count: provider.procedimentos.length,
+              ),
+              for (final cat in _categorias)
+                if (provider.countByCategoria(cat) > 0)
+                  OperationalChipOption<String>(
+                    value: cat,
+                    label: cat.categoriaNome,
+                    icon: cat.categoriaIcon,
+                    color: cat.categoriaColor,
+                    count: provider.countByCategoria(cat),
+                  ),
+            ],
           ),
 
           // â”€â”€ Lista â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€

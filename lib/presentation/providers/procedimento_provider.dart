@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/datasources/remote/supabase_client.dart';
+import '../../data/services/operation_audit_service.dart';
 import '../../core/constants/colors.dart';
 
 // ── Extension de helpers por categoria ────────────────────────────────────────
@@ -219,12 +222,27 @@ class ProcedimentoProvider with ChangeNotifier {
     _procedimentos.add(proc);
     notifyListeners();
     _upsert(proc, seedKey: null);
+    unawaited(OperationAuditService.log(
+      fiscalId: _fiscalId,
+      area: 'procedimentos',
+      action: 'created',
+      entityType: 'procedimento',
+      entityId: proc.id,
+      title: 'Procedimento criado',
+      description: proc.titulo,
+      metadata: {
+        'categoria': proc.categoria,
+        'passos': proc.passos.length,
+        'tempo_estimado': proc.tempoEstimado,
+      },
+    ));
   }
 
   void toggleFavorito(String id) {
     final index = _procedimentos.indexWhere((p) => p.id == id);
     if (index != -1) {
       _procedimentos[index].favorito = !_procedimentos[index].favorito;
+      final favorito = _procedimentos[index].favorito;
       notifyListeners();
       SupabaseClientManager.client
           .from(_table)
@@ -236,6 +254,15 @@ class ProcedimentoProvider with ChangeNotifier {
               debugPrint('[ProcedimentoProvider] Erro ao toggle: $e');
             }
           });
+      unawaited(OperationAuditService.log(
+        fiscalId: _fiscalId,
+        area: 'procedimentos',
+        action: favorito ? 'favorited' : 'unfavorited',
+        entityType: 'procedimento',
+        entityId: id,
+        title: favorito ? 'Procedimento favoritado' : 'Favorito removido',
+        description: _procedimentos[index].titulo,
+      ));
     }
   }
 
@@ -262,10 +289,25 @@ class ProcedimentoProvider with ChangeNotifier {
       _procedimentos[index] = updated;
       notifyListeners();
       _upsert(updated, seedKey: null);
+      unawaited(OperationAuditService.log(
+        fiscalId: _fiscalId,
+        area: 'procedimentos',
+        action: 'updated',
+        entityType: 'procedimento',
+        entityId: updated.id,
+        title: 'Procedimento atualizado',
+        description: updated.titulo,
+        metadata: {
+          'categoria': updated.categoria,
+          'passos': updated.passos.length,
+          'tempo_estimado': updated.tempoEstimado,
+        },
+      ));
     }
   }
 
   void removerProcedimento(String id) {
+    final removido = _procedimentos.where((p) => p.id == id).firstOrNull;
     _procedimentos.removeWhere((p) => p.id == id);
     notifyListeners();
     SupabaseClientManager.client
@@ -278,6 +320,16 @@ class ProcedimentoProvider with ChangeNotifier {
         debugPrint('[ProcedimentoProvider] Erro ao remover: $e');
       }
     });
+    unawaited(OperationAuditService.log(
+      fiscalId: _fiscalId,
+      area: 'procedimentos',
+      action: 'deleted',
+      entityType: 'procedimento',
+      entityId: id,
+      severity: 'warning',
+      title: 'Procedimento removido',
+      description: removido?.titulo,
+    ));
   }
 
   // ── Internos ───────────────────────────────────────────────────────────────

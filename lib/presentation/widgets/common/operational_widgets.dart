@@ -606,6 +606,136 @@ class OperationalMetricGrid extends StatelessWidget {
   }
 }
 
+class OperationalSearchField extends StatelessWidget {
+  final TextEditingController controller;
+  final String hintText;
+  final ValueChanged<String> onChanged;
+  final VoidCallback? onClear;
+  final bool showClear;
+
+  const OperationalSearchField({
+    super.key,
+    required this.controller,
+    required this.hintText,
+    required this.onChanged,
+    this.onClear,
+    this.showClear = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        hintText: hintText,
+        prefixIcon: Icon(Icons.search_rounded, color: AppColors.textSecondary),
+        suffixIcon: showClear
+            ? IconButton(
+                icon: const Icon(Icons.close_rounded),
+                tooltip: 'Limpar busca',
+                onPressed: onClear,
+              )
+            : null,
+        isDense: true,
+      ),
+      textInputAction: TextInputAction.search,
+      onChanged: onChanged,
+    );
+  }
+}
+
+class OperationalChipOption<T> {
+  final T value;
+  final String label;
+  final IconData? icon;
+  final Color? color;
+  final int? count;
+
+  const OperationalChipOption({
+    required this.value,
+    required this.label,
+    this.icon,
+    this.color,
+    this.count,
+  });
+}
+
+class OperationalFilterChips<T> extends StatelessWidget {
+  final List<OperationalChipOption<T>> options;
+  final T? selected;
+  final ValueChanged<T> onSelected;
+  final EdgeInsetsGeometry padding;
+
+  const OperationalFilterChips({
+    super.key,
+    required this.options,
+    required this.selected,
+    required this.onSelected,
+    this.padding = EdgeInsets.zero,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (options.isEmpty) return const SizedBox.shrink();
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: padding,
+      child: Row(
+        children: [
+          for (final option in options) ...[
+            _OperationalFilterChip<T>(
+              option: option,
+              selected: option.value == selected,
+              onSelected: onSelected,
+            ),
+            const SizedBox(width: 8),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _OperationalFilterChip<T> extends StatelessWidget {
+  final OperationalChipOption<T> option;
+  final bool selected;
+  final ValueChanged<T> onSelected;
+
+  const _OperationalFilterChip({
+    required this.option,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = option.color ?? AppColors.primary;
+    final label = option.count == null
+        ? option.label
+        : '${option.label} (${option.count})';
+
+    return FilterChip(
+      avatar: option.icon == null
+          ? null
+          : Icon(
+              option.icon,
+              size: 16,
+              color: selected ? color : AppColors.textSecondary,
+            ),
+      label: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+      selected: selected,
+      checkmarkColor: color,
+      selectedColor: color.withValues(alpha: 0.12),
+      labelStyle: AppTextStyles.caption.copyWith(
+        color: selected ? color : AppColors.textSecondary,
+        fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+      ),
+      onSelected: (_) => onSelected(option.value),
+    );
+  }
+}
+
 class OperationalActionTile extends StatelessWidget {
   final IconData icon;
   final String label;

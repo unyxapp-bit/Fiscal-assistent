@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/datasources/remote/supabase_client.dart';
+import '../../data/services/operation_audit_service.dart';
 import '../../core/constants/colors.dart';
 
 // ── Sugestões de tipo (apenas para quick-select na tela de registro) ───────────
@@ -203,6 +206,40 @@ class OcorrenciaProvider with ChangeNotifier {
     _ocorrencias.insert(0, oc);
     notifyListeners();
     _upsert(oc);
+    unawaited(OperationAuditService.log(
+      fiscalId: _fiscalId,
+      area: 'ocorrencias',
+      action: 'created',
+      entityType: 'ocorrencia',
+      entityId: oc.id,
+      severity: gravidade == GravidadeOcorrencia.alta ? 'critical' : 'warning',
+      title: 'Ocorrencia registrada',
+      description: '${oc.tipo}: ${oc.descricao}',
+      metadata: {
+        'tipo': oc.tipo,
+        'gravidade': oc.gravidade.name,
+        'caixa_id': oc.caixaId,
+        'caixa_nome': oc.caixaNome,
+        'colaborador_id': oc.colaboradorId,
+        'colaborador_nome': oc.colaboradorNome,
+        'tem_foto': oc.fotoUrl != null,
+        'tem_arquivo': oc.arquivoUrl != null,
+      },
+    ));
+    unawaited(OperationAuditService.queueNotification(
+      fiscalId: _fiscalId,
+      area: 'ocorrencias',
+      entityType: 'ocorrencia',
+      entityId: oc.id,
+      priority: gravidade == GravidadeOcorrencia.alta ? 'critical' : 'high',
+      title: 'Ocorrencia ${oc.gravidade.nome}',
+      message: '${oc.tipo}: ${oc.descricao}',
+      actionPayload: {
+        'route': 'ocorrencias',
+        'id': oc.id,
+        'gravidade': oc.gravidade.name,
+      },
+    ));
   }
 
   void atualizar(Ocorrencia ocorrencia) {
@@ -211,6 +248,20 @@ class OcorrenciaProvider with ChangeNotifier {
     _ocorrencias[index] = ocorrencia;
     notifyListeners();
     _upsert(ocorrencia);
+    unawaited(OperationAuditService.log(
+      fiscalId: _fiscalId,
+      area: 'ocorrencias',
+      action: 'updated',
+      entityType: 'ocorrencia',
+      entityId: ocorrencia.id,
+      severity: ocorrencia.resolvida ? 'success' : 'warning',
+      title: 'Ocorrencia atualizada',
+      description: ocorrencia.tipo,
+      metadata: {
+        'gravidade': ocorrencia.gravidade.name,
+        'resolvida': ocorrencia.resolvida,
+      },
+    ));
   }
 
   void resolver(String id) {
@@ -219,6 +270,7 @@ class OcorrenciaProvider with ChangeNotifier {
     final agora = DateTime.now();
     _ocorrencias[index].resolvida = true;
     _ocorrencias[index].resolvidaEm = agora;
+    final resolvida = _ocorrencias[index];
     notifyListeners();
     SupabaseClientManager.client
         .from(_table)
@@ -233,9 +285,24 @@ class OcorrenciaProvider with ChangeNotifier {
             debugPrint('[OcorrenciaProvider] Erro ao resolver: $e');
           }
         });
+    unawaited(OperationAuditService.log(
+      fiscalId: _fiscalId,
+      area: 'ocorrencias',
+      action: 'resolved',
+      entityType: 'ocorrencia',
+      entityId: id,
+      severity: 'success',
+      title: 'Ocorrencia resolvida',
+      description: resolvida.tipo,
+      metadata: {
+        'gravidade': resolvida.gravidade.name,
+        'resolvida_em': agora.toIso8601String(),
+      },
+    ));
   }
 
   void deletar(String id) {
+    final removida = _ocorrencias.where((o) => o.id == id).firstOrNull;
     _ocorrencias.removeWhere((o) => o.id == id);
     notifyListeners();
     SupabaseClientManager.client
@@ -248,6 +315,16 @@ class OcorrenciaProvider with ChangeNotifier {
         debugPrint('[OcorrenciaProvider] Erro ao deletar: $e');
       }
     });
+    unawaited(OperationAuditService.log(
+      fiscalId: _fiscalId,
+      area: 'ocorrencias',
+      action: 'deleted',
+      entityType: 'ocorrencia',
+      entityId: id,
+      severity: 'warning',
+      title: 'Ocorrencia removida',
+      description: removida?.tipo,
+    ));
   }
 
   void _upsert(Ocorrencia o) {

@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../datasources/remote/supabase_client.dart';
+import 'operation_audit_service.dart';
 
 class AnexoSelecionado {
   final String nomeArquivo;
@@ -76,9 +78,65 @@ class AnexoUploadService {
           ),
         );
 
-    return SupabaseClientManager.client.storage
-        .from(_bucket)
-        .getPublicUrl(path);
+    final url =
+        SupabaseClientManager.client.storage.from(_bucket).getPublicUrl(path);
+
+    unawaited(_registrarAnexo(
+      anexo: anexo,
+      fiscalId: fiscalId,
+      modulo: modulo,
+      entidadeId: entidadeId,
+      path: path,
+      url: url,
+      contentType: contentType,
+    ));
+
+    return url;
+  }
+
+  Future<void> _registrarAnexo({
+    required AnexoSelecionado anexo,
+    required String fiscalId,
+    required String modulo,
+    required String entidadeId,
+    required String path,
+    required String url,
+    required String contentType,
+  }) async {
+    try {
+      await SupabaseClientManager.client.from('operation_attachments').insert({
+        'fiscal_id': fiscalId,
+        'module': modulo,
+        'entity_type': modulo,
+        'entity_id': entidadeId,
+        'file_name': anexo.nomeArquivo,
+        'file_url': url,
+        'storage_bucket': _bucket,
+        'storage_path': path,
+        'content_type': contentType,
+        'file_size_bytes': anexo.bytes.length,
+        'is_image': anexo.isImagem,
+      });
+    } catch (_) {
+      // A tabela nova pode ainda nao existir em ambientes sem migration aplicada.
+    }
+
+    await OperationAuditService.log(
+      fiscalId: fiscalId,
+      area: modulo,
+      action:
+          anexo.isImagem ? 'attachment_image_uploaded' : 'attachment_uploaded',
+      entityType: modulo,
+      entityId: entidadeId,
+      title: 'Anexo enviado',
+      description: anexo.nomeArquivo,
+      metadata: {
+        'file_name': anexo.nomeArquivo,
+        'file_url': url,
+        'content_type': contentType,
+        'file_size_bytes': anexo.bytes.length,
+      },
+    );
   }
 
   String _sanitizarNome(String nome) {

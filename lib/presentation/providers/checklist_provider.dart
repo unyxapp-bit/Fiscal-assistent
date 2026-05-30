@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/datasources/remote/supabase_client.dart';
+import '../../data/services/operation_audit_service.dart';
 
 const _checklistModoPrefix = '[[modo_execucao:';
 const _checklistModoSuffix = ']]';
@@ -592,6 +594,20 @@ class ChecklistProvider with ChangeNotifier {
     await _saveTitulosCache();
     try {
       await _upsertTemplate(t);
+      unawaited(OperationAuditService.log(
+        fiscalId: _fiscalId,
+        area: 'checklist',
+        action: 'template_created',
+        entityType: 'checklist_template',
+        entityId: t.id,
+        title: 'Checklist criado',
+        description: t.titulo,
+        metadata: {
+          'periodizacao': t.periodizacao.toValue,
+          'modo_execucao': t.modoExecucao.toValue,
+          'itens': t.itens.length,
+        },
+      ));
     } catch (_) {
       // Salvo localmente — não reverte. Re-lança para UI mostrar aviso.
       rethrow;
@@ -608,6 +624,20 @@ class ChecklistProvider with ChangeNotifier {
       await _saveTitulosCache();
       try {
         await _upsertTemplate(t);
+        unawaited(OperationAuditService.log(
+          fiscalId: _fiscalId,
+          area: 'checklist',
+          action: 'template_updated',
+          entityType: 'checklist_template',
+          entityId: t.id,
+          title: 'Checklist atualizado',
+          description: t.titulo,
+          metadata: {
+            'periodizacao': t.periodizacao.toValue,
+            'modo_execucao': t.modoExecucao.toValue,
+            'itens': t.itens.length,
+          },
+        ));
       } catch (_) {
         rethrow;
       }
@@ -615,6 +645,7 @@ class ChecklistProvider with ChangeNotifier {
   }
 
   Future<void> deletarTemplate(String id) async {
+    final removido = _templates.where((t) => t.id == id).firstOrNull;
     _templates.removeWhere((t) => t.id == id);
     _deletedTemplateIds.add(id);
     notifyListeners();
@@ -624,9 +655,20 @@ class ChecklistProvider with ChangeNotifier {
       await SupabaseClientManager.client.from(_tableT).delete().eq('id', id);
       _deletedTemplateIds.remove(id);
       await _saveDeletedIds();
+      unawaited(OperationAuditService.log(
+        fiscalId: _fiscalId,
+        area: 'checklist',
+        action: 'template_deleted',
+        entityType: 'checklist_template',
+        entityId: id,
+        severity: 'warning',
+        title: 'Checklist removido',
+        description: removido?.titulo,
+      ));
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('[ChecklistProvider] Erro ao deletar template no Supabase: $e');
+        debugPrint(
+            '[ChecklistProvider] Erro ao deletar template no Supabase: $e');
       }
       rethrow;
     }
@@ -670,6 +712,19 @@ class ChecklistProvider with ChangeNotifier {
     await _saveExecucoesToCache();
     try {
       await _upsert(exec);
+      unawaited(OperationAuditService.log(
+        fiscalId: _fiscalId,
+        area: 'checklist',
+        action: 'execution_started',
+        entityType: 'checklist_execucao',
+        entityId: exec.id,
+        title: 'Checklist iniciado',
+        description: template?.titulo ?? templateId,
+        metadata: {
+          'template_id': templateId,
+          'total_itens': exec.totalItens,
+        },
+      ));
     } catch (_) {
       _execucoes.removeWhere((e) => e.id == exec.id);
       await _saveExecucoesToCache();
@@ -718,6 +773,21 @@ class ChecklistProvider with ChangeNotifier {
       await _saveExecucoesToCache();
       try {
         await _upsert(exec);
+        unawaited(OperationAuditService.log(
+          fiscalId: _fiscalId,
+          area: 'checklist',
+          action: 'execution_completed',
+          entityType: 'checklist_execucao',
+          entityId: exec.id,
+          severity: 'success',
+          title: 'Checklist concluido',
+          description: tituloParaTemplate(exec.tipo),
+          metadata: {
+            'template_id': exec.tipo,
+            'total_itens': exec.totalItens,
+            'marcados': exec.marcados,
+          },
+        ));
       } catch (_) {
         exec.concluido = concluidoAnterior;
         exec.concluidoEm = concluidoEmAnterior;
@@ -730,6 +800,7 @@ class ChecklistProvider with ChangeNotifier {
 
   /// Remove uma execução do histórico (local + Supabase).
   Future<void> deletarExecucao(String execucaoId) async {
+    final removida = _execucoes.where((e) => e.id == execucaoId).firstOrNull;
     _execucoes.removeWhere((e) => e.id == execucaoId);
     notifyListeners();
     await _saveExecucoesToCache();
@@ -738,9 +809,21 @@ class ChecklistProvider with ChangeNotifier {
           .from(_table)
           .delete()
           .eq('id', execucaoId);
+      unawaited(OperationAuditService.log(
+        fiscalId: _fiscalId,
+        area: 'checklist',
+        action: 'execution_deleted',
+        entityType: 'checklist_execucao',
+        entityId: execucaoId,
+        severity: 'warning',
+        title: 'Execucao de checklist removida',
+        description:
+            removida == null ? null : tituloParaTemplate(removida.tipo),
+      ));
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('[ChecklistProvider] Erro ao deletar execução no Supabase: $e');
+        debugPrint(
+            '[ChecklistProvider] Erro ao deletar execução no Supabase: $e');
       }
       // Mantém deletado localmente mesmo se Supabase falhar
     }
@@ -794,8 +877,7 @@ class ChecklistProvider with ChangeNotifier {
         'tipo': exec.tipo,
         'data': exec.data.toIso8601String(),
         'itens_marcados': {
-          for (final e in exec.itensMarcados.entries)
-            e.key.toString(): e.value,
+          for (final e in exec.itensMarcados.entries) e.key.toString(): e.value,
         },
         'itens_snapshot': exec.itensSnapshot,
         'concluido': exec.concluido,

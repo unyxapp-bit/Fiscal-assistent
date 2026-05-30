@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/datasources/remote/supabase_client.dart';
+import '../../data/services/operation_audit_service.dart';
 
 /// Model para Entrega
 class Entrega {
@@ -172,6 +175,21 @@ class EntregaProvider with ChangeNotifier {
     _entregas.insert(0, entrega);
     notifyListeners();
     _upsert(entrega);
+    unawaited(OperationAuditService.log(
+      fiscalId: _fiscalId,
+      area: 'entregas',
+      action: 'created',
+      entityType: 'entrega',
+      entityId: entrega.id,
+      title: 'Entrega cadastrada',
+      description: 'Nota ${entrega.numeroNota} para ${entrega.clienteNome}',
+      metadata: {
+        'status': entrega.status,
+        'cidade': entrega.cidade,
+        'bairro': entrega.bairro,
+        'horario_marcado': entrega.horarioMarcado?.toIso8601String(),
+      },
+    ));
   }
 
   /// Atualiza entrega existente
@@ -201,6 +219,20 @@ class EntregaProvider with ChangeNotifier {
     _entregas[index] = atualizada;
     notifyListeners();
     _upsert(atualizada);
+    unawaited(OperationAuditService.log(
+      fiscalId: _fiscalId,
+      area: 'entregas',
+      action: 'updated',
+      entityType: 'entrega',
+      entityId: atualizada.id,
+      title: 'Entrega atualizada',
+      description: 'Nota ${atualizada.numeroNota}',
+      metadata: {
+        'status': atualizada.status,
+        'cidade': atualizada.cidade,
+        'bairro': atualizada.bairro,
+      },
+    ));
   }
 
   /// Atualiza status
@@ -208,6 +240,7 @@ class EntregaProvider with ChangeNotifier {
     final index = _entregas.indexWhere((e) => e.id == id);
     if (index == -1) return;
     var entrega = _entregas[index];
+    final statusAnterior = entrega.status;
     DateTime? saiuEm = entrega.saiuParaEntregaEm;
     DateTime? entregueEm = entrega.entregueEm;
 
@@ -225,10 +258,45 @@ class EntregaProvider with ChangeNotifier {
     _entregas[index] = atualizada;
     notifyListeners();
     _upsert(atualizada);
+    unawaited(OperationAuditService.log(
+      fiscalId: _fiscalId,
+      area: 'entregas',
+      action: 'status_changed',
+      entityType: 'entrega',
+      entityId: atualizada.id,
+      severity: novoStatus == 'cancelada' ? 'warning' : 'info',
+      title: 'Status de entrega alterado',
+      description: '${atualizada.numeroNota}: $statusAnterior -> $novoStatus',
+      metadata: {
+        'status_anterior': statusAnterior,
+        'status_novo': novoStatus,
+        'numero_nota': atualizada.numeroNota,
+        'cliente': atualizada.clienteNome,
+      },
+    ));
+    if (novoStatus == 'em_rota' ||
+        novoStatus == 'entregue' ||
+        novoStatus == 'cancelada') {
+      unawaited(OperationAuditService.queueNotification(
+        fiscalId: _fiscalId,
+        area: 'entregas',
+        entityType: 'entrega',
+        entityId: atualizada.id,
+        priority: novoStatus == 'cancelada' ? 'high' : 'normal',
+        title: 'Entrega ${_statusLabel(novoStatus)}',
+        message: 'Nota ${atualizada.numeroNota} - ${atualizada.clienteNome}',
+        actionPayload: {
+          'route': 'entregas',
+          'status': novoStatus,
+          'id': atualizada.id,
+        },
+      ));
+    }
   }
 
   /// Remove entrega
   void removerEntrega(String id) {
+    final removida = _entregas.where((e) => e.id == id).firstOrNull;
     _entregas.removeWhere((e) => e.id == id);
     notifyListeners();
     SupabaseClientManager.client.from(_table).delete().eq('id', id).then((_) {
@@ -236,6 +304,29 @@ class EntregaProvider with ChangeNotifier {
     }).catchError((e) {
       if (kDebugMode) debugPrint('[EntregaProvider] Erro ao remover: $e');
     });
+    unawaited(OperationAuditService.log(
+      fiscalId: _fiscalId,
+      area: 'entregas',
+      action: 'deleted',
+      entityType: 'entrega',
+      entityId: id,
+      severity: 'warning',
+      title: 'Entrega removida',
+      description: removida?.numeroNota,
+    ));
+  }
+
+  String _statusLabel(String status) {
+    switch (status) {
+      case 'em_rota':
+        return 'em rota';
+      case 'entregue':
+        return 'entregue';
+      case 'cancelada':
+        return 'cancelada';
+      default:
+        return status;
+    }
   }
 
   void _upsert(Entrega entrega) {

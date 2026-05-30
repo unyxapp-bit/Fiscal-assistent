@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/datasources/remote/supabase_client.dart';
+import '../../data/services/operation_audit_service.dart';
 
 // ── Model ─────────────────────────────────────────────────────────────────────
 
@@ -93,9 +96,39 @@ class PassagemTurnoProvider with ChangeNotifier {
     _passagens.insert(0, passagem);
     notifyListeners();
     _upsert(passagem);
+    unawaited(OperationAuditService.log(
+      fiscalId: _fiscalId,
+      area: 'passagem_turno',
+      action: 'created',
+      entityType: 'passagem_turno',
+      entityId: passagem.id,
+      title: 'Passagem de turno registrada',
+      description: passagem.resumo,
+      metadata: {
+        'turno': passagem.turno,
+        'tem_pendencias': passagem.pendencias.isNotEmpty,
+        'tem_recados': passagem.recados.isNotEmpty,
+      },
+    ));
+    if (passagem.pendencias.isNotEmpty) {
+      unawaited(OperationAuditService.queueNotification(
+        fiscalId: _fiscalId,
+        area: 'passagem_turno',
+        entityType: 'passagem_turno',
+        entityId: passagem.id,
+        priority: 'high',
+        title: 'Pendencia na passagem de turno',
+        message: passagem.pendencias,
+        actionPayload: {
+          'route': 'passagem_turno',
+          'id': passagem.id,
+        },
+      ));
+    }
   }
 
   void deletar(String id) {
+    final removida = _passagens.where((p) => p.id == id).firstOrNull;
     _passagens.removeWhere((p) => p.id == id);
     notifyListeners();
     SupabaseClientManager.client
@@ -108,6 +141,16 @@ class PassagemTurnoProvider with ChangeNotifier {
         debugPrint('[PassagemTurnoProvider] Erro ao deletar: $e');
       }
     });
+    unawaited(OperationAuditService.log(
+      fiscalId: _fiscalId,
+      area: 'passagem_turno',
+      action: 'deleted',
+      entityType: 'passagem_turno',
+      entityId: id,
+      severity: 'warning',
+      title: 'Passagem de turno removida',
+      description: removida?.resumo,
+    ));
   }
 
   void _upsert(PassagemTurno p) {

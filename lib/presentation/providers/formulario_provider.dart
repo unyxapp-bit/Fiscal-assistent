@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../../domain/entities/formulario.dart';
 import '../../data/datasources/remote/supabase_client.dart';
+import '../../data/services/operation_audit_service.dart';
 
 class FormularioProvider with ChangeNotifier {
   static const _tableF = 'formularios';
@@ -85,6 +88,19 @@ class FormularioProvider with ChangeNotifier {
     _formularios.add(formulario);
     notifyListeners();
     _upsertF(formulario);
+    unawaited(OperationAuditService.log(
+      fiscalId: _fiscalId,
+      area: 'formularios',
+      action: 'created',
+      entityType: 'formulario',
+      entityId: formulario.id,
+      title: 'Formulario criado',
+      description: formulario.titulo,
+      metadata: {
+        'template': formulario.template,
+        'campos': formulario.campos.length,
+      },
+    ));
   }
 
   void atualizarFormulario(Formulario formulario) {
@@ -93,10 +109,24 @@ class FormularioProvider with ChangeNotifier {
       _formularios[index] = formulario;
       notifyListeners();
       _upsertF(formulario);
+      unawaited(OperationAuditService.log(
+        fiscalId: _fiscalId,
+        area: 'formularios',
+        action: 'updated',
+        entityType: 'formulario',
+        entityId: formulario.id,
+        title: 'Formulario atualizado',
+        description: formulario.titulo,
+        metadata: {
+          'ativo': formulario.ativo,
+          'campos': formulario.campos.length,
+        },
+      ));
     }
   }
 
   void deletarFormulario(String id) {
+    final removido = _formularios.where((f) => f.id == id).firstOrNull;
     _formularios.removeWhere((f) => f.id == id);
     _respostas.removeWhere((r) => r.formularioId == id);
     notifyListeners();
@@ -108,6 +138,16 @@ class FormularioProvider with ChangeNotifier {
         .catchError((e) {
       if (kDebugMode) debugPrint('[FormularioProvider] Erro ao deletar: $e');
     });
+    unawaited(OperationAuditService.log(
+      fiscalId: _fiscalId,
+      area: 'formularios',
+      action: 'deleted',
+      entityType: 'formulario',
+      entityId: id,
+      severity: 'warning',
+      title: 'Formulario removido',
+      description: removido?.titulo,
+    ));
   }
 
   /// Duplica um template como formulário personalizado.
@@ -137,6 +177,15 @@ class FormularioProvider with ChangeNotifier {
       _formularios[index] = atualizado;
       notifyListeners();
       _upsertF(atualizado);
+      unawaited(OperationAuditService.log(
+        fiscalId: _fiscalId,
+        area: 'formularios',
+        action: atualizado.ativo ? 'enabled' : 'disabled',
+        entityType: 'formulario',
+        entityId: atualizado.id,
+        title: atualizado.ativo ? 'Formulario ativado' : 'Formulario pausado',
+        description: atualizado.titulo,
+      ));
     }
   }
 
@@ -160,9 +209,23 @@ class FormularioProvider with ChangeNotifier {
             debugPrint('[FormularioProvider] Erro ao salvar resposta: $e');
           }
         });
+    unawaited(OperationAuditService.log(
+      fiscalId: _fiscalId,
+      area: 'formularios',
+      action: 'response_created',
+      entityType: 'resposta_formulario',
+      entityId: resposta.id,
+      title: 'Resposta registrada',
+      description: resposta.formularioId,
+      metadata: {
+        'formulario_id': resposta.formularioId,
+        'campos': resposta.valores.length,
+      },
+    ));
   }
 
   void deletarResposta(String id) {
+    final removida = _respostas.where((r) => r.id == id).firstOrNull;
     _respostas.removeWhere((r) => r.id == id);
     notifyListeners();
     SupabaseClientManager.client
@@ -175,6 +238,16 @@ class FormularioProvider with ChangeNotifier {
         debugPrint('[FormularioProvider] Erro ao deletar resposta: $e');
       }
     });
+    unawaited(OperationAuditService.log(
+      fiscalId: _fiscalId,
+      area: 'formularios',
+      action: 'response_deleted',
+      entityType: 'resposta_formulario',
+      entityId: id,
+      severity: 'warning',
+      title: 'Resposta removida',
+      description: removida?.formularioId,
+    ));
   }
 
   // ─── Sync ─────────────────────────────────────────────────────────────────

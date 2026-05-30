@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../../domain/entities/nota.dart';
 import '../../domain/enums/tipo_lembrete.dart';
 import '../../data/datasources/remote/supabase_client.dart';
 import '../../data/services/notification_service.dart';
+import '../../data/services/operation_audit_service.dart';
 
 enum OrdenacaoNota { importancia, dataCriacao, dataVencimento, tipo }
 
@@ -181,6 +184,42 @@ class NotaProvider with ChangeNotifier {
     notifyListeners();
     _upsert(nota);
     _agendarNotificacao(nota);
+    unawaited(OperationAuditService.log(
+      fiscalId: _fiscalId,
+      area: 'notas',
+      action: 'created',
+      entityType: 'nota',
+      entityId: nota.id,
+      severity: nota.importante ? 'warning' : 'info',
+      title: 'Nota criada',
+      description: nota.titulo,
+      metadata: {
+        'tipo': nota.tipo.name,
+        'importante': nota.importante,
+        'data_lembrete': nota.dataLembrete?.toIso8601String(),
+        'tem_foto': nota.fotoUrl != null,
+        'tem_arquivo': nota.arquivoUrl != null,
+      },
+    ));
+    if (nota.importante || nota.tipo == TipoLembrete.lembrete) {
+      unawaited(OperationAuditService.queueNotification(
+        fiscalId: _fiscalId,
+        area: 'notas',
+        entityType: 'nota',
+        entityId: nota.id,
+        priority: nota.importante ? 'high' : 'normal',
+        title: nota.tipo == TipoLembrete.lembrete
+            ? 'Lembrete criado'
+            : 'Nota importante',
+        message: nota.titulo,
+        scheduledFor: nota.dataLembrete,
+        actionPayload: {
+          'route': 'notas',
+          'id': nota.id,
+          'tipo': nota.tipo.name,
+        },
+      ));
+    }
   }
 
   void atualizarNota(Nota nota) {
@@ -193,6 +232,21 @@ class NotaProvider with ChangeNotifier {
       // Cancela a notificação anterior e reagenda se necessário
       NotificationService.instance.cancel(_notifId(nota.id));
       _agendarNotificacao(atualizada);
+      unawaited(OperationAuditService.log(
+        fiscalId: _fiscalId,
+        area: 'notas',
+        action: 'updated',
+        entityType: 'nota',
+        entityId: atualizada.id,
+        severity: atualizada.importante ? 'warning' : 'info',
+        title: 'Nota atualizada',
+        description: atualizada.titulo,
+        metadata: {
+          'tipo': atualizada.tipo.name,
+          'importante': atualizada.importante,
+          'concluida': atualizada.concluida,
+        },
+      ));
     }
   }
 
@@ -206,6 +260,16 @@ class NotaProvider with ChangeNotifier {
       _notas[index] = atualizada;
       notifyListeners();
       _upsert(atualizada);
+      unawaited(OperationAuditService.log(
+        fiscalId: _fiscalId,
+        area: 'notas',
+        action: atualizada.concluida ? 'completed' : 'reopened',
+        entityType: 'nota',
+        entityId: atualizada.id,
+        severity: atualizada.concluida ? 'success' : 'info',
+        title: atualizada.concluida ? 'Nota concluida' : 'Nota reaberta',
+        description: atualizada.titulo,
+      ));
     }
   }
 
@@ -219,6 +283,19 @@ class NotaProvider with ChangeNotifier {
       _notas[index] = atualizada;
       notifyListeners();
       _upsert(atualizada);
+      unawaited(OperationAuditService.log(
+        fiscalId: _fiscalId,
+        area: 'notas',
+        action:
+            atualizada.importante ? 'marked_important' : 'unmarked_important',
+        entityType: 'nota',
+        entityId: atualizada.id,
+        severity: atualizada.importante ? 'warning' : 'info',
+        title: atualizada.importante
+            ? 'Nota marcada como importante'
+            : 'Importancia removida',
+        description: atualizada.titulo,
+      ));
     }
   }
 
@@ -241,6 +318,7 @@ class NotaProvider with ChangeNotifier {
   }
 
   void deletarNota(String id) {
+    final removida = _notas.where((n) => n.id == id).firstOrNull;
     NotificationService.instance.cancel(_notifId(id));
     _notas.removeWhere((n) => n.id == id);
     notifyListeners();
@@ -252,6 +330,16 @@ class NotaProvider with ChangeNotifier {
         .catchError((e) {
       if (kDebugMode) debugPrint('[NotaProvider] Erro ao remover: $e');
     });
+    unawaited(OperationAuditService.log(
+      fiscalId: _fiscalId,
+      area: 'notas',
+      action: 'deleted',
+      entityType: 'nota',
+      entityId: id,
+      severity: 'warning',
+      title: 'Nota removida',
+      description: removida?.titulo,
+    ));
   }
 
   // ─── Notificações ────────────────────────────────────────────────────────

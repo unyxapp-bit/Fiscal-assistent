@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../data/datasources/remote/supabase_client.dart';
+import '../../data/services/operation_audit_service.dart';
 
 // ── Opções de ícone disponíveis ────────────────────────────────────────────────
 
@@ -144,6 +147,19 @@ class GuiaRapidoProvider with ChangeNotifier {
       await SupabaseClientManager.client
           .from(_table)
           .upsert(s.toMap(_fiscalId));
+      unawaited(OperationAuditService.log(
+        fiscalId: _fiscalId,
+        area: 'guia_rapido',
+        action: 'created',
+        entityType: 'situacao_guia',
+        entityId: s.id,
+        title: 'Situacao criada no guia',
+        description: s.titulo,
+        metadata: {
+          'categoria': s.categoria,
+          'passos': s.passos.length,
+        },
+      ));
     } catch (e) {
       _situacoes.removeWhere((x) => x.id == s.id);
       notifyListeners();
@@ -162,6 +178,19 @@ class GuiaRapidoProvider with ChangeNotifier {
       await SupabaseClientManager.client
           .from(_table)
           .upsert(s.toMap(_fiscalId));
+      unawaited(OperationAuditService.log(
+        fiscalId: _fiscalId,
+        area: 'guia_rapido',
+        action: 'updated',
+        entityType: 'situacao_guia',
+        entityId: s.id,
+        title: 'Situacao atualizada no guia',
+        description: s.titulo,
+        metadata: {
+          'categoria': s.categoria,
+          'passos': s.passos.length,
+        },
+      ));
     } catch (e) {
       _situacoes[idx] = anterior;
       notifyListeners();
@@ -176,6 +205,16 @@ class GuiaRapidoProvider with ChangeNotifier {
     notifyListeners();
     try {
       await SupabaseClientManager.client.from(_table).delete().eq('id', id);
+      unawaited(OperationAuditService.log(
+        fiscalId: _fiscalId,
+        area: 'guia_rapido',
+        action: 'deleted',
+        entityType: 'situacao_guia',
+        entityId: id,
+        severity: 'warning',
+        title: 'Situacao removida do guia',
+        description: removido.firstOrNull?.titulo,
+      ));
     } catch (e) {
       if (removido.isNotEmpty) {
         _situacoes.addAll(removido);

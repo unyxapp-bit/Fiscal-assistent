@@ -16,8 +16,10 @@ class EntregasScreen extends StatefulWidget {
 }
 
 class _EntregasScreenState extends State<EntregasScreen> {
+  final _searchCtrl = TextEditingController();
   String _filtroStatus = 'todos';
   String _filtroCidade = 'todas';
+  String _busca = '';
   bool _ordenacaoDescendente = true;
 
   static const _statusOptions = [
@@ -37,12 +39,23 @@ class _EntregasScreenState extends State<EntregasScreen> {
     final filtradas = entregas.where((e) {
       final statusOk = _filtroStatus == 'todos' || e.status == _filtroStatus;
       final cidadeOk = _filtroCidade == 'todas' || e.cidade == _filtroCidade;
-      return statusOk && cidadeOk;
+      final buscaOk = _busca.isEmpty ||
+          e.numeroNota.toLowerCase().contains(_busca) ||
+          e.clienteNome.toLowerCase().contains(_busca) ||
+          e.bairro.toLowerCase().contains(_busca) ||
+          e.cidade.toLowerCase().contains(_busca);
+      return statusOk && cidadeOk && buscaOk;
     }).toList();
     filtradas.sort((a, b) => _ordenacaoDescendente
         ? b.separadoEm.compareTo(a.separadoEm)
         : a.separadoEm.compareTo(b.separadoEm));
     return filtradas;
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
   }
 
   @override
@@ -121,91 +134,61 @@ class _EntregasScreenState extends State<EntregasScreen> {
 
                 const SizedBox(height: Dimensions.spacingMD),
 
-                // ---- Filtro por Status ----
-                Text('Filtrar por Status', style: AppTextStyles.label),
-                const SizedBox(height: 8),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: _statusOptions.map((opt) {
-                      final selecionado = _filtroStatus == opt.$1;
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: FilterChip(
-                          label: Text(opt.$2),
-                          selected: selecionado,
-                          selectedColor: AppColors.primary,
-                          labelStyle: TextStyle(
-                            color: selecionado
-                                ? Colors.white
-                                : AppColors.textPrimary,
-                            fontWeight: selecionado
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                          ),
-                          checkmarkColor: Colors.white,
-                          onSelected: (_) =>
-                              setState(() => _filtroStatus = opt.$1),
+                AppSurface(
+                  elevated: false,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      OperationalSearchField(
+                        controller: _searchCtrl,
+                        hintText: 'Buscar nota, cliente, bairro ou cidade',
+                        showClear: _busca.isNotEmpty,
+                        onClear: () {
+                          _searchCtrl.clear();
+                          setState(() => _busca = '');
+                        },
+                        onChanged: (v) =>
+                            setState(() => _busca = v.toLowerCase().trim()),
+                      ),
+                      const SizedBox(height: Dimensions.spacingSM),
+                      OperationalFilterChips<String>(
+                        selected: _filtroStatus,
+                        onSelected: (value) =>
+                            setState(() => _filtroStatus = value),
+                        options: [
+                          for (final opt in _statusOptions)
+                            OperationalChipOption<String>(
+                              value: opt.$1,
+                              label: opt.$2,
+                              color: AppColors.primary,
+                            ),
+                        ],
+                      ),
+                      if (cidades.isNotEmpty) ...[
+                        const SizedBox(height: Dimensions.spacingXS),
+                        OperationalFilterChips<String>(
+                          selected: _filtroCidade,
+                          onSelected: (value) =>
+                              setState(() => _filtroCidade = value),
+                          options: [
+                            const OperationalChipOption<String>(
+                              value: 'todas',
+                              label: 'Todas cidades',
+                              icon: Icons.location_city_outlined,
+                            ),
+                            for (final cidade in cidades)
+                              OperationalChipOption<String>(
+                                value: cidade,
+                                label: cidade,
+                                icon: Icons.place_outlined,
+                                color: AppColors.statusIntervalo,
+                              ),
+                          ],
                         ),
-                      );
-                    }).toList(),
+                      ],
+                    ],
                   ),
                 ),
-
-                // ---- Filtro por Cidade ----
-                if (cidades.isNotEmpty) ...[
-                  const SizedBox(height: Dimensions.spacingSM),
-                  Text('Filtrar por Cidade', style: AppTextStyles.label),
-                  const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: FilterChip(
-                            label: const Text('Todas'),
-                            selected: _filtroCidade == 'todas',
-                            selectedColor: AppColors.statusIntervalo,
-                            labelStyle: TextStyle(
-                              color: _filtroCidade == 'todas'
-                                  ? Colors.white
-                                  : AppColors.textPrimary,
-                              fontWeight: _filtroCidade == 'todas'
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
-                            checkmarkColor: Colors.white,
-                            onSelected: (_) =>
-                                setState(() => _filtroCidade = 'todas'),
-                          ),
-                        ),
-                        ...cidades.map((cidade) {
-                          final selecionada = _filtroCidade == cidade;
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: FilterChip(
-                              label: Text(cidade),
-                              selected: selecionada,
-                              selectedColor: AppColors.statusIntervalo,
-                              labelStyle: TextStyle(
-                                color: selecionada
-                                    ? Colors.white
-                                    : AppColors.textPrimary,
-                                fontWeight: selecionada
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                              checkmarkColor: Colors.white,
-                              onSelected: (_) =>
-                                  setState(() => _filtroCidade = cidade),
-                            ),
-                          );
-                        }),
-                      ],
-                    ),
-                  ),
-                ],
 
                 const SizedBox(height: Dimensions.spacingLG),
 
