@@ -424,7 +424,7 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final wide = constraints.maxWidth >= 980;
+          final wide = constraints.maxWidth >= 720;
 
           return Column(
             children: [
@@ -464,46 +464,52 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
   Widget _buildWideEditor() {
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            flex: 7,
-            child: CartazWorkspacePanel(
-              title: 'Cartaz',
-              subtitle: _adjusting
-                  ? 'Arraste o texto selecionado no cartaz'
-                  : 'Previa final para compartilhar ou imprimir',
-              icon: Icons.dashboard_customize_rounded,
-              expandChild: true,
-              childPadding: EdgeInsets.zero,
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final scale = _previewScale(constraints);
-                  return _buildPosterStage(
-                    scale,
-                    padding: const EdgeInsets.all(20),
-                  );
-                },
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final controlsWidth = constraints.maxWidth < 920 ? 320.0 : 380.0;
+
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: CartazWorkspacePanel(
+                  title: 'Cartaz',
+                  subtitle: _adjusting
+                      ? 'Arraste o texto selecionado no cartaz'
+                      : 'Previa final para compartilhar ou imprimir',
+                  icon: Icons.dashboard_customize_rounded,
+                  expandChild: true,
+                  childPadding: EdgeInsets.zero,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final scale = _previewScale(constraints);
+                      return _buildPosterStage(
+                        scale,
+                        padding: const EdgeInsets.all(20),
+                      );
+                    },
+                  ),
+                ),
               ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          SizedBox(
-            width: 380,
-            child: CartazWorkspacePanel(
-              title: _adjusting ? 'Ajustes' : 'Exportacao',
-              subtitle: _adjusting
-                  ? 'Escolha o texto e ajuste posicao'
-                  : 'Edite, compartilhe ou imprima',
-              icon: _adjusting ? Icons.tune_rounded : Icons.ios_share_rounded,
-              expandChild: true,
-              child: SingleChildScrollView(
-                child: _buildControlsContent(constrainAdjustment: false),
+              const SizedBox(width: 16),
+              SizedBox(
+                width: controlsWidth,
+                child: CartazWorkspacePanel(
+                  title: _adjusting ? 'Ajustes' : 'Exportacao',
+                  subtitle: _adjusting
+                      ? 'Escolha o texto e ajuste posicao'
+                      : 'Edite, compartilhe ou imprima',
+                  icon:
+                      _adjusting ? Icons.tune_rounded : Icons.ios_share_rounded,
+                  expandChild: true,
+                  child: SingleChildScrollView(
+                    child: _buildControlsContent(constrainAdjustment: false),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }

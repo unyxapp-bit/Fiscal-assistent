@@ -172,7 +172,7 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final wide = constraints.maxWidth >= 900;
+          final wide = constraints.maxWidth >= 720;
 
           return Column(
             children: [
@@ -228,7 +228,7 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
-            flex: 6,
+            flex: 7,
             child: CartazWorkspacePanel(
               title: 'Preenchimento',
               subtitle: 'Dados que entram no cartaz',
@@ -239,7 +239,7 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
           ),
           const SizedBox(width: 16),
           Expanded(
-            flex: 5,
+            flex: 4,
             child: _buildPreviewPanel(expand: true),
           ),
         ],
