@@ -222,11 +222,12 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
         onRefresh: _runAnalysis,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          child: ResponsiveContent(
-            maxWidth: 1120,
-            padding: const EdgeInsets.symmetric(
-              horizontal: Dimensions.paddingLG,
-              vertical: Dimensions.paddingMD,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              Dimensions.paddingMD,
+              Dimensions.paddingMD,
+              Dimensions.paddingMD,
+              Dimensions.paddingLG,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -487,40 +488,60 @@ class _MediaUploadPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppSurface(
       tint: AppColors.cyan,
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
+      padding: const EdgeInsets.all(Dimensions.paddingSM),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final actions = [
+            OutlinedButton.icon(
+              onPressed: isRunning ? null : onAnalyze,
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: const Text('Atualizar IA'),
+            ),
+            FilledButton.icon(
+              onPressed: isRunning ? null : onUpload,
+              icon: const Icon(Icons.upload_file_rounded, size: 18),
+              label: const Text('Analisar midia'),
+            ),
+          ];
+
+          final icon = Container(
+            width: 36,
+            height: 36,
             decoration: AppStyles.softTile(
               context: context,
               tint: AppColors.cyan,
-              radius: Dimensions.radiusMD,
+              radius: Dimensions.radiusSM,
             ),
             child: Icon(Icons.perm_media_rounded, color: AppColors.cyan),
-          ),
-          const SizedBox(width: Dimensions.spacingMD),
-          Expanded(
-            child: Wrap(
-              spacing: Dimensions.spacingSM,
-              runSpacing: Dimensions.spacingSM,
-              alignment: WrapAlignment.end,
-              crossAxisAlignment: WrapCrossAlignment.center,
+          );
+
+          if (constraints.maxWidth < 520) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                FilledButton.icon(
-                  onPressed: isRunning ? null : onUpload,
-                  icon: const Icon(Icons.upload_file_rounded, size: 18),
-                  label: const Text('Analisar midia'),
-                ),
-                OutlinedButton.icon(
-                  onPressed: isRunning ? null : onAnalyze,
-                  icon: const Icon(Icons.refresh_rounded, size: 18),
-                  label: const Text('Atualizar IA'),
+                Align(alignment: Alignment.centerLeft, child: icon),
+                const SizedBox(height: Dimensions.spacingSM),
+                ...actions.map(
+                  (button) => Padding(
+                    padding:
+                        const EdgeInsets.only(bottom: Dimensions.spacingXS),
+                    child: button,
+                  ),
                 ),
               ],
-            ),
-          ),
-        ],
+            );
+          }
+
+          return Row(
+            children: [
+              icon,
+              const Spacer(),
+              actions[0],
+              const SizedBox(width: Dimensions.spacingSM),
+              actions[1],
+            ],
+          );
+        },
       ),
     );
   }
