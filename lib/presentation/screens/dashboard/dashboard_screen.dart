@@ -46,6 +46,7 @@ import '../cartazes/cartazes_home_page.dart';
 import '../descontos/desconto_calculator_screen.dart';
 import '../../../data/services/seed_data_service.dart';
 import '../../widgets/common/operational_widgets.dart';
+import 'dashboard_v2_layout.dart';
 import 'widgets/briefing_turno_sheet.dart';
 import 'widgets/monitor_tempo_real.dart';
 
@@ -436,6 +437,182 @@ class _DashboardScreenState extends State<DashboardScreen>
         onTap: onTapBannerSaude,
       ),
     ];
+
+    void abrirTurnoOuTimeline() {
+      if (!turnoJaIniciado) {
+        _abrirBriefingTurno(
+          context,
+          authProvider.user?.id ?? '',
+        );
+        return;
+      }
+
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => const TimelineScreen(),
+        ),
+      );
+    }
+
+    int countEventoTermo(String termo) {
+      return eventoProvider.eventos.where((e) {
+        final alvo =
+            '${e.tipo.valor} ${e.tipo.label} ${e.detalhe ?? ''}'.toLowerCase();
+        return alvo.contains(termo);
+      }).length;
+    }
+
+    final caixasOperacionais = [
+      ...(caixaProvider.caixasTodos.isNotEmpty
+          ? caixaProvider.caixasTodos
+          : caixaProvider.caixas),
+    ]..sort((a, b) => a.numero.compareTo(b.numero));
+    final pausasRegistradas = eventoProvider.eventos.where((e) {
+      final tipo = e.tipo.valor;
+      return tipo.contains('cafe') || tipo.contains('intervalo');
+    }).length;
+    final dashboardV2NavItems = [
+      for (final item in navItems)
+        DashboardV2NavItem(
+          label: item.label,
+          icon: item.icon,
+          selectedIcon: item.selectedIcon,
+          badgeCount: item.badgeCount,
+          showBadgeCount: item.showBadgeCount,
+        ),
+    ];
+    final dashboardV2QuickActions = <DashboardV2QuickAction>[
+      DashboardV2QuickAction(
+        icon: Icons.point_of_sale_outlined,
+        title: 'Caixas',
+        subtitle: 'Gerenciar caixas',
+        color: AppColors.primary,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+              builder: (_) => const GestaoScreen(initialIndex: 1)),
+        ),
+      ),
+      DashboardV2QuickAction(
+        icon: Icons.groups_2_outlined,
+        title: 'Colaboradores',
+        subtitle: 'Ver equipe',
+        color: AppColors.success,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const ColaboradoresListScreen()),
+        ),
+      ),
+      DashboardV2QuickAction(
+        icon: Icons.emoji_events_outlined,
+        title: 'Pausas e rotas',
+        subtitle: 'Acompanhar',
+        color: AppColors.statusCafe,
+        badge: cafeProvider.totalEmAtraso > 0
+            ? cafeProvider.totalEmAtraso.toString()
+            : null,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+              builder: (_) => const GestaoScreen(initialIndex: 2)),
+        ),
+      ),
+      DashboardV2QuickAction(
+        icon: Icons.shield_outlined,
+        title: 'Ocorr\u00eancias',
+        subtitle: 'Registrar e acompanhar',
+        color: AppColors.danger,
+        badge: ocorrenciaProvider.totalAbertas > 0
+            ? ocorrenciaProvider.totalAbertas.toString()
+            : null,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const OcorrenciasScreen()),
+        ),
+      ),
+      DashboardV2QuickAction(
+        icon: Icons.local_shipping_outlined,
+        title: 'Entregas',
+        subtitle: 'Gerenciar entregas',
+        color: AppColors.success,
+        badge: entregaProvider.totalSeparadas + entregaProvider.totalEmRota > 0
+            ? (entregaProvider.totalSeparadas + entregaProvider.totalEmRota)
+                .toString()
+            : null,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const EntregasScreen()),
+        ),
+      ),
+      DashboardV2QuickAction(
+        icon: Icons.check_circle_outline_rounded,
+        title: 'Checklists',
+        subtitle: 'Ver pend\u00eancias',
+        color: AppColors.success,
+        badge: checklistProvider.templatesPendentesAgora.isNotEmpty
+            ? checklistProvider.templatesPendentesAgora.length.toString()
+            : null,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const ChecklistScreen()),
+        ),
+      ),
+    ];
+    final dashboardV2ReportItems = <DashboardV2ReportItem>[
+      DashboardV2ReportItem(
+        icon: Icons.swap_horiz_rounded,
+        label: 'Movimenta\u00e7\u00f5es',
+        value: eventoProvider.eventos.length.toString(),
+      ),
+      DashboardV2ReportItem(
+        icon: Icons.water_drop_outlined,
+        label: 'Sangrias',
+        value: countEventoTermo('sangria').toString(),
+      ),
+      DashboardV2ReportItem(
+        icon: Icons.inventory_2_outlined,
+        label: 'Suprimentos',
+        value: countEventoTermo('suprimento').toString(),
+      ),
+      DashboardV2ReportItem(
+        icon: Icons.shield_outlined,
+        label: 'Ocorr\u00eancias',
+        value: ocorrenciaProvider.totalAbertas.toString(),
+        color: ocorrenciaProvider.totalAbertas > 0
+            ? AppColors.danger
+            : AppColors.textPrimary,
+      ),
+      DashboardV2ReportItem(
+        icon: Icons.emoji_events_outlined,
+        label: 'Pausas',
+        value: pausasRegistradas.toString(),
+      ),
+      DashboardV2ReportItem(
+        icon: Icons.local_shipping_outlined,
+        label: 'Entregas',
+        value: (entregaProvider.totalSeparadas + entregaProvider.totalEmRota)
+            .toString(),
+      ),
+    ];
+    final dashboardV2Home = DashboardV2Home(
+      saudacao: saudacao,
+      primeiroNome: primeiroNome,
+      turnoJaIniciado: turnoJaIniciado,
+      turnoIniciadoEm: eventoProvider.turnoIniciadoEm,
+      turnoCritico: turnoCritico,
+      turnoEmAtencao: turnoEmAtencao,
+      totalAtivos: totalAtivos,
+      totalCaixas: totalCaixas,
+      alocados: alocados,
+      livres: livres,
+      emPausa: emPausa,
+      emRota: emRota,
+      alertas: alertas.length,
+      metrics: operationalMetrics,
+      caixas: caixasOperacionais,
+      quickActions: dashboardV2QuickActions,
+      reportItems: dashboardV2ReportItems,
+      onPrimaryAction: abrirTurnoOuTimeline,
+      onAlertTap: onTapBannerSaude,
+      onReportTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const RelatorioDiarioScreen()),
+      ),
+      onRefresh: _refreshData,
+    );
 
     final tabBarView = TabBarView(
       controller: _tabController,
@@ -867,6 +1044,22 @@ class _DashboardScreenState extends State<DashboardScreen>
         final isTablet = constraints.maxWidth >= Dimensions.breakpointTablet;
         final isWide = constraints.maxWidth >= Dimensions.breakpointWide;
 
+        if (isTablet) {
+          return DashboardV2Shell(
+            navItems: dashboardV2NavItems,
+            selectedIndex: _tabController.index,
+            onDestinationSelected: (i) => _tabController.animateTo(i),
+            userName: primeiroNome,
+            userRole: 'Fiscal de Caixa',
+            alertCount: alertas.length,
+            onSettings: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ConfiguracoesScreen()),
+            ),
+            onSignOut: () => authProvider.signOut(),
+            child: _tabController.index == 0 ? dashboardV2Home : tabBarView,
+          );
+        }
+
         // ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ TABLET: NavigationRail + TabBarView ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬
         if (isTablet) {
           return Scaffold(
@@ -1015,7 +1208,7 @@ class _DashboardScreenState extends State<DashboardScreen>
               ),
             ],
           ),
-          body: tabBarView,
+          body: _tabController.index == 0 ? dashboardV2Home : tabBarView,
           bottomNavigationBar: DecoratedBox(
             decoration: BoxDecoration(
               border: Border(top: BorderSide(color: AppColors.cardBorder)),
