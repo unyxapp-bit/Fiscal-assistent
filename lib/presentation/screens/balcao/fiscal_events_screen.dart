@@ -82,6 +82,7 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
   bool _listenerAtivo = false;
   bool _debugMode = false;
   bool _analisandoMidia = false;
+  final Set<int> _midiasAnalisando = {};
   Timer? _diagTimer;
 
   // Busca
@@ -617,6 +618,8 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
           if (event.needsReview) {
             return _MidiaCard(
               event: event,
+              isUploading: _midiasAnalisando.contains(event.id),
+              onUpload: () => _anexarMidiaAoEvento(event),
               onFill: () => _abrirPreenchimentoMidia(event),
               onIgnore: () => _updateStatus(event, 'ignored'),
             );
@@ -996,6 +999,37 @@ class _FiscalEventsScreenState extends State<FiscalEventsScreen>
       );
     } finally {
       if (mounted) setState(() => _analisandoMidia = false);
+    }
+  }
+
+  Future<void> _anexarMidiaAoEvento(FiscalEvent event) async {
+    if (_midiasAnalisando.contains(event.id)) return;
+    setState(() => _midiasAnalisando.add(event.id));
+    try {
+      final result = await MultimodalInboxService().pickAndAnalyzeForEvent(
+        eventId: event.id,
+        mediaType: event.mediaType,
+        sender: event.sender,
+        rawMessage: event.rawMessage,
+        description: event.description,
+        eventDate: event.eventDate,
+      );
+      if (!mounted || result == null) return;
+
+      await context.read<FiscalEventsProvider>().load();
+      if (!mounted) return;
+
+      AppNotif.show(
+        context,
+        titulo: result.success ? 'Midia analisada' : 'Falha na analise',
+        mensagem: result.message,
+        tipo: result.success ? 'saida' : 'alerta',
+        cor: result.success ? AppColors.success : AppColors.danger,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _midiasAnalisando.remove(event.id));
+      }
     }
   }
 
@@ -1568,15 +1602,23 @@ class _EventCard extends StatelessWidget {
 
 class _MidiaCard extends StatelessWidget {
   final FiscalEvent event;
+  final bool isUploading;
+  final VoidCallback onUpload;
   final VoidCallback onFill;
   final VoidCallback onIgnore;
 
-  const _MidiaCard(
-      {required this.event, required this.onFill, required this.onIgnore});
+  const _MidiaCard({
+    required this.event,
+    required this.isUploading,
+    required this.onUpload,
+    required this.onFill,
+    required this.onIgnore,
+  });
 
   @override
   Widget build(BuildContext context) {
     final isAudio = event.mediaType == 'audio';
+    final isFoto = event.mediaType == 'foto' || event.mediaType == 'image';
     final emoji = isAudio ? '🎤' : '📷';
     final label = isAudio ? 'ÁUDIO' : 'FOTO';
     final color = AppColors.deepPurple;
@@ -1637,11 +1679,21 @@ class _MidiaCard extends StatelessWidget {
           if (event.analysisStatus == 'needs_file')
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
-              child: Text(
-                'Arquivo original ainda nao anexado.',
-                style: AppTextStyles.caption.copyWith(
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w600,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(Dimensions.radiusSM),
+                  border: Border.all(color: color.withValues(alpha: 0.18)),
+                ),
+                child: Text(
+                  'A IA identificou uma ${isAudio ? 'mensagem de audio' : isFoto ? 'foto' : 'midia'} pelo WhatsApp. Anexe o arquivo original neste card para ela ouvir/ver, analisar e salvar as informacoes aqui.',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.35,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -1669,10 +1721,45 @@ class _MidiaCard extends StatelessWidget {
             ),
           Divider(color: AppColors.divider, height: 1),
           const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: isUploading ? null : onUpload,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: color,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: color.withValues(alpha: 0.35),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(Dimensions.radiusSM),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 11),
+              ),
+              icon: isUploading
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Icon(Icons.upload_file_rounded, size: 17),
+              label: Text(
+                isUploading
+                    ? 'Analisando arquivo...'
+                    : 'Anexar arquivo e analisar com IA',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
           Row(children: [
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: onFill,
+                onPressed: isUploading ? null : onFill,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: color,
                   foregroundColor: Colors.white,
@@ -1688,7 +1775,7 @@ class _MidiaCard extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             IconButton(
-              onPressed: onIgnore,
+              onPressed: isUploading ? null : onIgnore,
               style: IconButton.styleFrom(
                 backgroundColor: AppColors.backgroundSection,
                 shape: RoundedRectangleBorder(

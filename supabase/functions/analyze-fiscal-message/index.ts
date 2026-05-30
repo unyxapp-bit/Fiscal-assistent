@@ -75,6 +75,7 @@ const socialExact = new Set([
 
 interface AnalyzeRequest {
   capture_id?: string | null;
+  target_event_id?: number | string | null;
   fiscal_id?: string | null;
   sender?: string | null;
   message?: string | null;
@@ -764,28 +765,30 @@ async function findColaboradorId(
   return matchColaborador(employeeName, colaboradores as ColaboradorRow[]);
 }
 
-async function insertFiscalEvent(
+interface FiscalEventPersistParams {
+  fiscalId: string | null;
+  capture: Record<string, unknown>;
+  source: string;
+  sender: string;
+  rawMessage: string;
+  timestamp: string;
+  contentType: string;
+  storageBucket: string | null;
+  storagePath: string | null;
+  fileName: string | null;
+  mimeType: string | null;
+  transcript: string | null;
+  imageText: string | null;
+  mediaSummary: string | null;
+  contentHash: string | null;
+  analysisStatus: string;
+  analysisError?: string | null;
+}
+
+async function buildFiscalEventPayload(
   supabase: ReturnType<typeof createClient>,
   parsed: RuleResult,
-  params: {
-    fiscalId: string | null;
-    capture: Record<string, unknown>;
-    source: string;
-    sender: string;
-    rawMessage: string;
-    timestamp: string;
-    contentType: string;
-    storageBucket: string | null;
-    storagePath: string | null;
-    fileName: string | null;
-    mimeType: string | null;
-    transcript: string | null;
-    imageText: string | null;
-    mediaSummary: string | null;
-    contentHash: string | null;
-    analysisStatus: string;
-    analysisError?: string | null;
-  },
+  params: FiscalEventPersistParams,
 ) {
   const colaboradorId = await findColaboradorId(supabase, parsed.employee_name);
   const confidence = clampConfidence(parsed.confidence);
@@ -795,7 +798,7 @@ async function insertFiscalEvent(
     (params.contentType !== "text" && (parsed.missing_fields?.length ?? 0) > 0);
   const needsReview = parsed.needs_review ?? inferredNeedsReview;
 
-  const payload = {
+  return {
     fiscal_id: params.fiscalId,
     ai_inbox_item_id: text(params.capture.id) || null,
     content_hash: params.contentHash,
@@ -817,7 +820,11 @@ async function insertFiscalEvent(
     event_date: params.timestamp,
     status: "pending",
     confidence,
-    media_type: params.contentType === "image" ? "foto" : params.contentType === "audio" ? "audio" : null,
+    media_type: params.contentType === "image"
+      ? "foto"
+      : params.contentType === "audio"
+      ? "audio"
+      : null,
     needs_review: needsReview,
     media_storage_bucket: params.storageBucket,
     media_storage_path: params.storagePath,
@@ -835,6 +842,14 @@ async function insertFiscalEvent(
     analysis_error: params.analysisError ?? null,
     analyzed_at: new Date().toISOString(),
   };
+}
+
+async function insertFiscalEvent(
+  supabase: ReturnType<typeof createClient>,
+  parsed: RuleResult,
+  params: FiscalEventPersistParams,
+) {
+  const payload = await buildFiscalEventPayload(supabase, parsed, params);
 
   const { data, error } = await supabase
     .from("fiscal_events")
@@ -856,6 +871,24 @@ async function insertFiscalEvent(
     .maybeSingle();
   if (selectError) throw selectError;
   return asRecord(existing);
+}
+
+async function updateFiscalEvent(
+  supabase: ReturnType<typeof createClient>,
+  eventId: number,
+  parsed: RuleResult,
+  params: FiscalEventPersistParams,
+) {
+  const payload = await buildFiscalEventPayload(supabase, parsed, params);
+  const { data, error } = await supabase
+    .from("fiscal_events")
+    .update(payload)
+    .eq("id", eventId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return asRecord(data);
 }
 
 async function createAiAction(
@@ -1005,6 +1038,8 @@ serve(async (req) => {
     const rawMessage = body.message ??
       text(capture.raw_text) ??
       text(capture.raw_content);
+    const targetEventId = numberValue(body.target_event_id) ??
+      numberValue(capture.fiscal_event_id);
     const contentHash = nullableText(capture.content_hash) ??
       await sha256([
         fiscalId ?? "anon",
@@ -1137,7 +1172,7 @@ serve(async (req) => {
       );
     }
 
-    const event = await insertFiscalEvent(supabase, parsed, {
+    const persistParams = {
       fiscalId,
       capture,
       source,
@@ -1155,7 +1190,10 @@ serve(async (req) => {
       contentHash,
       analysisStatus,
       analysisError,
-    });
+    };
+    const event = targetEventId
+      ? await updateFiscalEvent(supabase, targetEventId, parsed, persistParams)
+      : await insertFiscalEvent(supabase, parsed, persistParams);
 
     await updateCapture(supabase, captureId, {
       analysis_status: analysisStatus,

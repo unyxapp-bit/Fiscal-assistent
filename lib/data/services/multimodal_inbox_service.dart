@@ -74,6 +74,39 @@ class MultimodalInboxService {
   SupabaseClient get _client => SupabaseClientManager.client;
 
   Future<MultimodalInboxResult?> pickAndAnalyze() async {
+    final item = await _pickSingleFile();
+    if (item == null) return null;
+
+    return analyzeSharedItem(
+      item,
+      source: 'manual_upload',
+    );
+  }
+
+  Future<MultimodalInboxResult?> pickAndAnalyzeForEvent({
+    required int eventId,
+    String? mediaType,
+    String? sender,
+    String? rawMessage,
+    String? description,
+    DateTime? eventDate,
+  }) async {
+    final item = await _pickSingleFile();
+    if (item == null) return null;
+
+    return analyzeSharedItem(
+      item,
+      source: 'manual_media_completion',
+      sourceTitle: 'Arquivo anexado ao evento #$eventId',
+      sender: sender,
+      targetEventId: eventId,
+      contextText:
+          rawMessage?.trim().isNotEmpty == true ? rawMessage : description,
+      eventDate: eventDate,
+    );
+  }
+
+  Future<SharedInboxItem?> _pickSingleFile() async {
     final result = await FilePicker.platform.pickFiles(
       allowMultiple: false,
       withData: true,
@@ -99,21 +132,14 @@ class MultimodalInboxService {
     final file = result.files.first;
     final bytes = file.bytes;
     if (bytes == null || bytes.isEmpty) {
-      return const MultimodalInboxResult(
-        success: false,
-        skipped: false,
-        message: 'Arquivo sem dados para enviar.',
-      );
+      return null;
     }
 
-    return analyzeSharedItem(
-      SharedInboxItem(
-        bytes: bytes,
-        fileName: file.name,
-        mimeType: _contentType(file.name),
-        sourceApp: 'file_picker',
-      ),
-      source: 'manual_upload',
+    return SharedInboxItem(
+      bytes: bytes,
+      fileName: file.name,
+      mimeType: _contentType(file.name),
+      sourceApp: 'file_picker',
     );
   }
 
@@ -170,6 +196,9 @@ class MultimodalInboxService {
     required String source,
     String? sourceTitle,
     String? sender,
+    int? targetEventId,
+    String? contextText,
+    DateTime? eventDate,
   }) async {
     try {
       final fiscalId = SupabaseClientManager.currentUserId;
@@ -178,7 +207,10 @@ class MultimodalInboxService {
       }
 
       final now = DateTime.now();
-      final rawText = item.text?.trim();
+      final captureDate = eventDate ?? now;
+      final rawText = item.text?.trim().isNotEmpty == true
+          ? item.text!.trim()
+          : contextText?.trim();
       final fileName = item.fileName ?? 'conteudo.txt';
       final mimeType = item.mimeType?.isNotEmpty == true
           ? item.mimeType!
@@ -228,8 +260,9 @@ class MultimodalInboxService {
             'file_name': item.hasFile ? fileName : null,
             'mime_type': item.hasFile ? mimeType : null,
             'size_bytes': item.bytes?.length,
-            'event_date': now.toIso8601String(),
+            'event_date': captureDate.toIso8601String(),
             'analysis_status': 'pending',
+            'fiscal_event_id': targetEventId,
           })
           .select()
           .single();
@@ -240,6 +273,10 @@ class MultimodalInboxService {
         body: {
           'capture_id': capture['id'],
           'fiscal_id': fiscalId,
+          'target_event_id': targetEventId,
+          'message': rawText,
+          'sender': sender,
+          'timestamp': captureDate.toIso8601String(),
         },
       );
 
