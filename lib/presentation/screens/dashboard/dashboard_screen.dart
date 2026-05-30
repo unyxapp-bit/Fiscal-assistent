@@ -489,7 +489,9 @@ class _DashboardScreenState extends State<DashboardScreen>
         color: AppColors.primary,
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute(
-              builder: (_) => const GestaoScreen(initialIndex: 1)),
+            builder: (_) =>
+                const GestaoScreen(initialIndex: GestaoScreen.centralIndex),
+          ),
         ),
       ),
       DashboardV2QuickAction(
@@ -699,7 +701,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                               color: AppColors.primary,
                               onPressed: () => Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (_) => const GestaoScreen(),
+                                  builder: (_) => const GestaoScreen(
+                                    initialIndex: GestaoScreen.centralIndex,
+                                  ),
                                 ),
                               ),
                             ),
