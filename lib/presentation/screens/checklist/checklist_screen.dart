@@ -323,24 +323,23 @@ class ChecklistScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      if (!template.isDefault)
-                        PopupMenuItem(
-                          value: 'deletar',
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.delete_outline,
-                                size: 18,
-                                color: AppColors.danger,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Excluir',
-                                style: TextStyle(color: AppColors.danger),
-                              ),
-                            ],
-                          ),
+                      PopupMenuItem(
+                        value: 'deletar',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.delete_outline,
+                              size: 18,
+                              color: AppColors.danger,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Excluir',
+                              style: TextStyle(color: AppColors.danger),
+                            ),
+                          ],
                         ),
+                      ),
                     ],
                   ),
                 ],

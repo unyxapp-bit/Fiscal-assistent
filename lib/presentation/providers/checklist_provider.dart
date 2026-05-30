@@ -358,7 +358,7 @@ class ChecklistProvider with ChangeNotifier {
   /// Cache de títulos: preserva títulos mesmo após templates deletados.
   final Map<String, String> _titulosCache = {};
 
-  /// IDs de templates deletados localmente mas ainda não removidos do Supabase.
+  /// IDs de templates ocultados/excluidos pelo usuario.
   final Set<String> _deletedTemplateIds = {};
 
   String get _fiscalId => SupabaseClientManager.currentUserId!;
@@ -521,16 +521,16 @@ class ChecklistProvider with ChangeNotifier {
         _templates.clear();
         _templates.addAll(rows.map(ChecklistTemplate.fromMap));
 
-        // Aplica deleções pendentes (templates excluídos offline)
+        // Aplica exclusoes locais, inclusive para templates padrao.
         if (_deletedTemplateIds.isNotEmpty) {
+          final idsRemotos = _templates.map((t) => t.id).toSet();
           _templates.removeWhere((t) => _deletedTemplateIds.contains(t.id));
-          for (final id in _deletedTemplateIds.toList()) {
+          for (final id in _deletedTemplateIds.intersection(idsRemotos)) {
             try {
               await SupabaseClientManager.client
                   .from(_tableT)
                   .delete()
                   .eq('id', id);
-              _deletedTemplateIds.remove(id);
             } catch (_) {}
           }
           await _saveDeletedIds();
@@ -556,7 +556,9 @@ class ChecklistProvider with ChangeNotifier {
         debugPrint('[ChecklistProvider] Erro ao carregar templates: $e');
       }
       if (_templates.isEmpty) {
-        _templates.addAll(_buildDefaults());
+        _templates.addAll(
+          _buildDefaults().where((t) => !_deletedTemplateIds.contains(t.id)),
+        );
         notifyListeners();
       }
     }
@@ -653,7 +655,6 @@ class ChecklistProvider with ChangeNotifier {
     await _saveDeletedIds();
     try {
       await SupabaseClientManager.client.from(_tableT).delete().eq('id', id);
-      _deletedTemplateIds.remove(id);
       await _saveDeletedIds();
       unawaited(OperationAuditService.log(
         fiscalId: _fiscalId,
@@ -885,7 +886,15 @@ class ChecklistProvider with ChangeNotifier {
       };
 
   Future<void> _seedTemplates() async {
-    final defaults = _buildDefaults();
+    final defaults = _buildDefaults()
+        .where((t) => !_deletedTemplateIds.contains(t.id))
+        .toList();
+    if (defaults.isEmpty) {
+      await _saveTemplatesToCache();
+      notifyListeners();
+      return;
+    }
+
     try {
       await SupabaseClientManager.client
           .from(_tableT)
