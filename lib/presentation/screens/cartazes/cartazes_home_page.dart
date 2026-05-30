@@ -354,80 +354,82 @@ class _TemplateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: selecionado
-          ? spec.color.withValues(alpha: 0.08)
-          : AppColors.cardBackground,
-      borderRadius: BorderRadius.circular(8),
-      child: InkWell(
+    return SizedBox(
+      height: 86,
+      child: Material(
+        color: selecionado
+            ? spec.color.withValues(alpha: 0.08)
+            : AppColors.cardBackground,
         borderRadius: BorderRadius.circular(8),
-        onTap: onTap,
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 86),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: selecionado ? spec.color : AppColors.cardBorder,
-              width: selecionado ? 1.6 : 1,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: onTap,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: selecionado ? spec.color : AppColors.cardBorder,
+                width: selecionado ? 1.6 : 1,
+              ),
             ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 62,
-                height: double.infinity,
-                constraints: const BoxConstraints(minHeight: 86),
-                decoration: BoxDecoration(
-                  color: spec.color,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(8),
-                    bottomLeft: Radius.circular(8),
+            child: Row(
+              children: [
+                Container(
+                  width: 62,
+                  decoration: BoxDecoration(
+                    color: spec.color,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(8),
+                      bottomLeft: Radius.circular(8),
+                    ),
+                  ),
+                  child: Center(
+                    child: Icon(spec.icon, color: spec.iconColor, size: 32),
                   ),
                 ),
-                child: Icon(spec.icon, color: spec.iconColor, size: 32),
-              ),
-              const SizedBox(width: Dimensions.spacingSM),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        spec.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.body.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                const SizedBox(width: Dimensions.spacingSM),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          spec.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.body.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        spec.description,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppColors.textSecondary,
-                          height: 1.2,
+                        const SizedBox(height: 3),
+                        Text(
+                          spec.description,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.textSecondary,
+                            height: 1.2,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: Dimensions.spacingSM),
-                child: Icon(
-                  selecionado
-                      ? Icons.check_circle_rounded
-                      : Icons.circle_outlined,
-                  color: selecionado ? spec.color : AppColors.cardBorder,
-                  size: 22,
+                Padding(
+                  padding: const EdgeInsets.only(right: Dimensions.spacingSM),
+                  child: Icon(
+                    selecionado
+                        ? Icons.check_circle_rounded
+                        : Icons.circle_outlined,
+                    color: selecionado ? spec.color : AppColors.cardBorder,
+                    size: 22,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
