@@ -36,11 +36,14 @@ class CaixasOperationalSnapshot {
     final partes = <String>[];
 
     if (atrasos > 0) {
-      partes.add(atrasos == 1 ? '1 pausa em atraso' : '$atrasos pausas em atraso');
+      partes.add(
+          atrasos == 1 ? '1 pausa em atraso' : '$atrasos pausas em atraso');
     }
 
     if (gargalos > 0) {
-      partes.add(gargalos == 1 ? '1 gargalo previsto' : '$gargalos gargalos previstos');
+      partes.add(gargalos == 1
+          ? '1 gargalo previsto'
+          : '$gargalos gargalos previstos');
     }
 
     return partes.join(' • ');

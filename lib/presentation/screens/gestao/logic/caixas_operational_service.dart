@@ -6,7 +6,7 @@ import '../../../providers/cafe_provider.dart';
 import '../../../providers/caixa_provider.dart';
 import '../../../providers/colaborador_provider.dart';
 import '../../../providers/escala_provider.dart';
-import '../gargalo_calculator.dart';
+import '../visao_gargalo_screen.dart';
 import 'caixas_operational_snapshot.dart';
 
 class CaixasOperationalService {
@@ -36,7 +36,7 @@ class CaixasOperationalService {
       cafe: cafe,
     );
     final atrasos = cafe.totalEmAtraso;
-    final risco = atrasos + gargalos;
+    final risco = (atrasos + gargalos).toInt();
     final pausasNaFila = buildPauseQueue(escala, alocacao, cafe).length;
 
     return CaixasOperationalSnapshot(
@@ -77,16 +77,18 @@ class CaixasOperationalService {
   }
 
   static List<Caixa> caixasOperacionais(CaixaProvider caixas) {
-    return caixas.caixas.where((caixa) => caixa.ativo).toList();
+    final todos =
+        caixas.caixasTodos.isNotEmpty ? caixas.caixasTodos : caixas.caixas;
+    return todos.where((caixa) => caixa.ativo).toList()
+      ..sort((a, b) => a.numero.compareTo(b.numero));
   }
 
   static List<Colaborador> colaboradoresOperacionais(
     ColaboradorProvider colaboradores,
     EscalaProvider escala,
   ) {
-    final hoje = DateTime.now();
-    final escalaHoje = escala.escalasDoDia(hoje);
-    final idsEscalados = escalaHoje.map((e) => e.colaboradorId).toSet();
+    final idsEscalados =
+        escala.trabalhandoHoje.map((e) => e.colaboradorId).toSet();
 
     if (idsEscalados.isEmpty) {
       return colaboradores.todosColaboradores.where((c) => c.ativo).toList();

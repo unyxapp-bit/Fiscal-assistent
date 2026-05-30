@@ -12,6 +12,8 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   exclude:
     - "Dados e modulos/**"
+    - "operacoes_dashboard_v2/**"
+    - "refatoracao_caixas_v3/**"
     - "**/*.g.dart"
     - "**/*.freezed.dart"
 
