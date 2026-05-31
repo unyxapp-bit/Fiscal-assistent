@@ -229,80 +229,90 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
               Dimensions.paddingMD,
               Dimensions.paddingLG,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _MetricsPanel(contextSnapshot: _buildAiContext(context)),
-                const SizedBox(height: Dimensions.spacingMD),
-                _MediaUploadPanel(
-                  isRunning: aiProvider.running || _analisandoMidia,
-                  onUpload: _analisarMidiaComIa,
-                  onAnalyze: _runAnalysis,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 960),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _MetricsPanel(contextSnapshot: _buildAiContext(context)),
+                    const SizedBox(height: Dimensions.spacingMD),
+                    _MediaUploadPanel(
+                      isRunning: aiProvider.running || _analisandoMidia,
+                      onUpload: _analisarMidiaComIa,
+                      onAnalyze: _runAnalysis,
+                    ),
+                    const SizedBox(height: Dimensions.spacingMD),
+                    if (aiProvider.error != null) ...[
+                      _InlineError(message: aiProvider.error!),
+                      const SizedBox(height: Dimensions.spacingMD),
+                    ],
+                    if ((aiProvider.loading || aiProvider.running) &&
+                        insight == null) ...[
+                      const SizedBox(height: 180),
+                      const OperationalLoadingState(
+                        message: 'Lendo eventos fiscais e contexto do turno...',
+                      ),
+                      const SizedBox(height: 180),
+                    ] else if (insight == null) ...[
+                      OperationalEmptyState(
+                        icon: Icons.auto_awesome_rounded,
+                        title: 'IA Fiscal pronta',
+                        message:
+                            'Analise o Balcao Fiscal junto com caixas, equipe e alertas do turno.',
+                        actionLabel: 'Analisar agora',
+                        onAction: _runAnalysis,
+                      ),
+                    ] else ...[
+                      _InsightSummary(
+                        insight: insight,
+                        isRunning: aiProvider.running,
+                        onRunPlan: insight.actionPlan.isEmpty
+                            ? null
+                            : () => _executePlan(insight.actionPlan),
+                      ),
+                      const SizedBox(height: Dimensions.spacingMD),
+                      _QuestionPanel(
+                        controller: _questionController,
+                        isRunning: aiProvider.running,
+                        chatAnswer: insight.chatAnswer,
+                        onSubmit: _sendQuestion,
+                      ),
+                      const SizedBox(height: Dimensions.spacingMD),
+                      if (insight.actionResult.hasMessage ||
+                          insight.actionResult.hasArtifact) ...[
+                        _ActionResultPanel(result: insight.actionResult),
+                        const SizedBox(height: Dimensions.spacingMD),
+                      ],
+                      if (insight.resolution.hasDraft) ...[
+                        _ResolutionPanel(resolution: insight.resolution),
+                        const SizedBox(height: Dimensions.spacingMD),
+                      ],
+                      if (insight.risks.isNotEmpty) ...[
+                        _RisksPanel(
+                          risks: insight.risks,
+                          isRunning: aiProvider.running,
+                          onResolveRisk: _resolveRisk,
+                        ),
+                        const SizedBox(height: Dimensions.spacingMD),
+                      ],
+                      if (insight.recommendations.isNotEmpty) ...[
+                        _RecommendationsPanel(
+                          recommendations: insight.recommendations,
+                        ),
+                        const SizedBox(height: Dimensions.spacingMD),
+                      ],
+                      if (aiProvider.actions.isNotEmpty)
+                        _QueuedActionsPanel(
+                          actions: aiProvider.actions,
+                          isRunning: aiProvider.running,
+                          onRun: _runQueuedAction,
+                          onDismiss: _dismissQueuedAction,
+                        ),
+                    ],
+                  ],
                 ),
-                const SizedBox(height: Dimensions.spacingMD),
-                if (aiProvider.error != null) ...[
-                  _InlineError(message: aiProvider.error!),
-                  const SizedBox(height: Dimensions.spacingMD),
-                ],
-                if ((aiProvider.loading || aiProvider.running) &&
-                    insight == null) ...[
-                  const SizedBox(height: 180),
-                  const OperationalLoadingState(
-                    message: 'Lendo eventos fiscais e contexto do turno...',
-                  ),
-                  const SizedBox(height: 180),
-                ] else if (insight == null) ...[
-                  OperationalEmptyState(
-                    icon: Icons.auto_awesome_rounded,
-                    title: 'IA Fiscal pronta',
-                    message:
-                        'Analise o Balcao Fiscal junto com caixas, equipe e alertas do turno.',
-                    actionLabel: 'Analisar agora',
-                    onAction: _runAnalysis,
-                  ),
-                ] else ...[
-                  _InsightSummary(
-                    insight: insight,
-                    isRunning: aiProvider.running,
-                    onRunPlan: insight.actionPlan.isEmpty
-                        ? null
-                        : () => _executePlan(insight.actionPlan),
-                  ),
-                  const SizedBox(height: Dimensions.spacingMD),
-                  _QuestionPanel(
-                    controller: _questionController,
-                    isRunning: aiProvider.running,
-                    chatAnswer: insight.chatAnswer,
-                    onSubmit: _sendQuestion,
-                  ),
-                  const SizedBox(height: Dimensions.spacingMD),
-                  if (insight.actionResult.hasMessage ||
-                      insight.actionResult.hasArtifact) ...[
-                    _ActionResultPanel(result: insight.actionResult),
-                    const SizedBox(height: Dimensions.spacingMD),
-                  ],
-                  if (insight.resolution.hasDraft) ...[
-                    _ResolutionPanel(resolution: insight.resolution),
-                    const SizedBox(height: Dimensions.spacingMD),
-                  ],
-                  _RisksPanel(
-                    risks: insight.risks,
-                    isRunning: aiProvider.running,
-                    onResolveRisk: _resolveRisk,
-                  ),
-                  const SizedBox(height: Dimensions.spacingMD),
-                  _RecommendationsPanel(
-                    recommendations: insight.recommendations,
-                  ),
-                  const SizedBox(height: Dimensions.spacingMD),
-                  _QueuedActionsPanel(
-                    actions: aiProvider.actions,
-                    isRunning: aiProvider.running,
-                    onRun: _runQueuedAction,
-                    onDismiss: _dismissQueuedAction,
-                  ),
-                ],
-              ],
+              ),
             ),
           ),
         ),
@@ -961,7 +971,7 @@ class _RiskTile extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(Dimensions.paddingSM),
+      padding: const EdgeInsets.all(Dimensions.paddingXS),
       decoration: AppStyles.softTile(
         context: context,
         tint: color,
@@ -993,6 +1003,8 @@ class _RiskTile extends StatelessWidget {
             const SizedBox(height: Dimensions.spacingXS),
             Text(
               risk.reason,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: AppTextStyles.caption.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -1002,30 +1014,30 @@ class _RiskTile extends StatelessWidget {
             const SizedBox(height: Dimensions.spacingXS),
             Text(
               risk.evidence,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: AppTextStyles.caption.copyWith(
                 color: AppColors.textSecondary,
                 fontStyle: FontStyle.italic,
               ),
             ),
           ],
-          const SizedBox(height: Dimensions.spacingSM),
-          Row(
-            children: [
-              Expanded(
-                child: _BulletLine(
-                  icon: Icons.route_rounded,
-                  text: risk.action.isEmpty
-                      ? 'Revisar evento e registrar tratativa.'
-                      : risk.action,
-                ),
+          if (risk.action.isNotEmpty) ...[
+            const SizedBox(height: Dimensions.spacingXS),
+            _BulletLine(icon: Icons.route_rounded, text: risk.action),
+          ],
+          const SizedBox(height: Dimensions.spacingXS),
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton.icon(
+              onPressed: isRunning ? null : onResolve,
+              icon: const Icon(Icons.fact_check_rounded, size: 18),
+              label: const Text('Resolver'),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(0, 36),
+                visualDensity: VisualDensity.compact,
               ),
-              const SizedBox(width: Dimensions.spacingSM),
-              OutlinedButton.icon(
-                onPressed: isRunning ? null : onResolve,
-                icon: const Icon(Icons.fact_check_rounded, size: 18),
-                label: const Text('Resolver'),
-              ),
-            ],
+            ),
           ),
         ],
       ),
