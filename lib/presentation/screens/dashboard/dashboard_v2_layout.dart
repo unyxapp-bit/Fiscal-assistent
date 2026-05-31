@@ -870,17 +870,18 @@ class _HeroHeadline extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                '$saudacao, $primeiroNome!',
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: _textStyle(
-                  size: 32,
-                  color: _v2Text,
-                  weight: FontWeight.w900,
-                  height: 1.12,
+              Flexible(
+                child: Text(
+                  '$saudacao, $primeiroNome!',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: _textStyle(
+                    size: 32,
+                    color: _v2Text,
+                    weight: FontWeight.w900,
+                    height: 1.12,
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
@@ -890,6 +891,8 @@ class _HeroHeadline extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             turnoLabel,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style:
                 _textStyle(size: 16, color: _v2Muted, weight: FontWeight.w600),
           ),
@@ -1178,7 +1181,7 @@ class _DashboardMetricsGrid extends StatelessWidget {
             crossAxisCount: crossAxisCount,
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
-            mainAxisExtent: 138,
+            mainAxisExtent: 154,
           ),
           itemBuilder: (context, index) {
             return _MetricV2Card(metric: metrics[index]);
@@ -1197,7 +1200,7 @@ class _MetricV2Card extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final content = Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: _cardDecoration(
         borderColor: metric.color.withValues(alpha: 0.24),
         radius: 16,
@@ -1229,7 +1232,7 @@ class _MetricV2Card extends StatelessWidget {
               height: 1,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             metric.label,
             maxLines: 1,
@@ -1237,7 +1240,7 @@ class _MetricV2Card extends StatelessWidget {
             style:
                 _textStyle(size: 13, color: _v2Text, weight: FontWeight.w800),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Row(
             children: [
               Icon(
