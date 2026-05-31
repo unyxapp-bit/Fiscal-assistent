@@ -64,7 +64,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController = TabController(length: 7, vsync: this);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) setState(() {});
     });
@@ -225,6 +225,11 @@ class _DashboardScreenState extends State<DashboardScreen>
         label: 'Loja',
         icon: Icons.store_outlined,
         selectedIcon: Icons.store,
+      ),
+      const _DashboardNavItem(
+        label: 'Descontos',
+        icon: Icons.percent_outlined,
+        selectedIcon: Icons.percent_rounded,
       ),
       _DashboardNavItem(
         label: 'Balc\u00e3o',
@@ -1038,16 +1043,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                 _GridAcoes(
                   botoes: [
                     _BotaoAcao(
-                      icon: Icons.percent_rounded,
-                      label: 'Descontos',
-                      color: AppColors.success,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const DescontoCalculatorScreen(),
-                        ),
-                      ),
-                    ),
-                    _BotaoAcao(
                       icon: Icons.history,
                       label: 'Timeline',
                       color: AppColors.statusSelf,
@@ -1073,6 +1068,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         ),
 
         // â”€â”€ ABA 5: BALCÃƒO FISCAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        const DescontoCalculatorScreen(),
         const FiscalEventsScreen(),
         const FiscalAiScreen(),
       ],
