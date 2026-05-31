@@ -64,7 +64,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 6, vsync: this);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) setState(() {});
     });
@@ -232,6 +232,11 @@ class _DashboardScreenState extends State<DashboardScreen>
         selectedIcon: Icons.campaign,
         badgeCount: fiscalEventsProvider.totalPendentes,
         showBadgeCount: true,
+      ),
+      const _DashboardNavItem(
+        label: 'IA Fiscal',
+        icon: Icons.auto_awesome_outlined,
+        selectedIcon: Icons.auto_awesome_rounded,
       ),
     ];
 
@@ -552,6 +557,15 @@ class _DashboardScreenState extends State<DashboardScreen>
             : null,
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const ChecklistScreen()),
+        ),
+      ),
+      DashboardV2QuickAction(
+        icon: Icons.auto_awesome_rounded,
+        title: 'IA Fiscal',
+        subtitle: 'Perguntar e agir',
+        color: AppColors.deepPurple,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const FiscalAiScreen()),
         ),
       ),
     ];
@@ -1060,6 +1074,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
         // â”€â”€ ABA 5: BALCÃƒO FISCAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         const FiscalEventsScreen(),
+        const FiscalAiScreen(),
       ],
     );
 
