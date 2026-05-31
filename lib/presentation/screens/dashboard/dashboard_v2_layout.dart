@@ -258,39 +258,28 @@ class _DashboardV2Sidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 280,
+      width: 232,
       decoration: const BoxDecoration(
         color: _v2Card,
         border: Border(right: BorderSide(color: _v2Border)),
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+          padding: const EdgeInsets.fromLTRB(14, 16, 14, 14),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _UserCard(userName: userName, userRole: userRole),
-              const SizedBox(height: 26),
-              Row(
-                children: [
-                  _SidebarIconButton(
-                    icon: Icons.settings_outlined,
-                    tooltip: 'Configuracoes',
-                    onTap: onSettings,
-                  ),
-                  const SizedBox(width: 10),
-                  _SidebarIconButton(
-                    icon: Icons.logout_rounded,
-                    tooltip: 'Sair',
-                    onTap: onSignOut,
-                  ),
-                ],
+              _UserCard(
+                userName: userName,
+                userRole: userRole,
+                onSettings: onSettings,
+                onSignOut: onSignOut,
               ),
-              const SizedBox(height: 26),
+              const SizedBox(height: 22),
               Expanded(
                 child: ListView.separated(
                   itemCount: navItems.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
                   itemBuilder: (context, index) {
                     final item = navItems[index];
                     return _SidebarNavTile(
@@ -335,14 +324,21 @@ class _DashboardV2Sidebar extends StatelessWidget {
 class _UserCard extends StatelessWidget {
   final String userName;
   final String userRole;
+  final VoidCallback onSettings;
+  final VoidCallback onSignOut;
 
-  const _UserCard({required this.userName, required this.userRole});
+  const _UserCard({
+    required this.userName,
+    required this.userRole,
+    required this.onSettings,
+    required this.onSignOut,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(minHeight: 116),
-      padding: const EdgeInsets.all(18),
+      constraints: const BoxConstraints(minHeight: 132),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -352,86 +348,113 @@ class _UserCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: _softShadow(_v2Primary, opacity: 0.18, blur: 22),
       ),
-      child: Row(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Stack(
-            clipBehavior: Clip.none,
+          Row(
             children: [
-              CircleAvatar(
-                radius: 28,
-                backgroundColor: Colors.white.withValues(alpha: 0.92),
-                child: const Icon(
-                  Icons.person_rounded,
-                  color: _v2Primary,
-                  size: 32,
-                ),
-              ),
-              Positioned(
-                right: -1,
-                bottom: -1,
-                child: Container(
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF22C55E),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 3),
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  CircleAvatar(
+                    radius: 24,
+                    backgroundColor: Colors.white.withValues(alpha: 0.92),
+                    child: const Icon(
+                      Icons.person_rounded,
+                      color: _v2Primary,
+                      size: 28,
+                    ),
                   ),
+                  Positioned(
+                    right: -1,
+                    bottom: -1,
+                    child: Container(
+                      width: 14,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF22C55E),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 3),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      userName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: _textStyle(
+                        size: 15,
+                        color: Colors.white,
+                        weight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      userRole,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: _textStyle(
+                        size: 12,
+                        color: Colors.white.withValues(alpha: 0.82),
+                        weight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 7),
+                    Row(
+                      children: [
+                        Container(
+                          width: 7,
+                          height: 7,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFBBF7D0),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Online',
+                          style: _textStyle(
+                            size: 11,
+                            color: Colors.white.withValues(alpha: 0.9),
+                            weight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  userName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: _textStyle(
-                    size: 16,
-                    color: Colors.white,
-                    weight: FontWeight.w800,
-                  ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _ProfileActionButton(
+                  icon: Icons.settings_outlined,
+                  label: 'Config.',
+                  tooltip: 'Configuracoes',
+                  onTap: onSettings,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  userRole,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: _textStyle(
-                    size: 13,
-                    color: Colors.white.withValues(alpha: 0.82),
-                    weight: FontWeight.w600,
-                  ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _ProfileActionButton(
+                  icon: Icons.logout_rounded,
+                  label: 'Sair',
+                  tooltip: 'Sair',
+                  onTap: onSignOut,
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Container(
-                      width: 7,
-                      height: 7,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFBBF7D0),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Online',
-                      style: _textStyle(
-                        size: 12,
-                        color: Colors.white.withValues(alpha: 0.9),
-                        weight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
@@ -439,13 +462,15 @@ class _UserCard extends StatelessWidget {
   }
 }
 
-class _SidebarIconButton extends StatelessWidget {
+class _ProfileActionButton extends StatelessWidget {
   final IconData icon;
+  final String label;
   final String tooltip;
   final VoidCallback onTap;
 
-  const _SidebarIconButton({
+  const _ProfileActionButton({
     required this.icon,
+    required this.label,
     required this.tooltip,
     required this.onTap,
   });
@@ -458,16 +483,33 @@ class _SidebarIconButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
           child: Container(
-            width: 48,
-            height: 48,
+            height: 36,
             decoration: BoxDecoration(
-              color: _v2Background,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: _v2Border),
+              color: Colors.white.withValues(alpha: 0.16),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
             ),
-            child: Icon(icon, color: const Color(0xFF334155), size: 22),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: Colors.white, size: 16),
+                const SizedBox(width: 5),
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: _textStyle(
+                      size: 11,
+                      color: Colors.white,
+                      weight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -497,8 +539,8 @@ class _SidebarNavTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
-          constraints: const BoxConstraints(minHeight: 58),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          constraints: const BoxConstraints(minHeight: 54),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           decoration: BoxDecoration(
             color: selected ? const Color(0xFFE6F7F5) : Colors.transparent,
             borderRadius: BorderRadius.circular(16),
@@ -508,26 +550,26 @@ class _SidebarNavTile extends StatelessWidget {
               AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
                 width: 4,
-                height: 28,
+                height: 26,
                 decoration: BoxDecoration(
                   color: selected ? _v2Primary : Colors.transparent,
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 12),
               Icon(
                 selected ? item.selectedIcon : item.icon,
                 color: color,
-                size: 22,
+                size: 20,
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   item.label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: _textStyle(
-                    size: 14,
+                    size: 13,
                     color: color,
                     weight: selected ? FontWeight.w800 : FontWeight.w600,
                   ),
@@ -555,8 +597,8 @@ class _SupportTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(minHeight: 58),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      constraints: const BoxConstraints(minHeight: 54),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
       decoration: BoxDecoration(
         color: _v2Background,
         borderRadius: BorderRadius.circular(14),
