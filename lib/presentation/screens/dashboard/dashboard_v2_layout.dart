@@ -134,6 +134,11 @@ class DashboardV2Home extends StatelessWidget {
   final VoidCallback onPrimaryAction;
   final VoidCallback? onAlertTap;
   final VoidCallback onReportTap;
+  final VoidCallback onPizzariaTap;
+  final VoidCallback onOperacoesTap;
+  final VoidCallback onDescontoTap;
+  final VoidCallback onBalcaoTap;
+  final VoidCallback onAiTap;
   final Future<void> Function() onRefresh;
 
   const DashboardV2Home({
@@ -158,6 +163,11 @@ class DashboardV2Home extends StatelessWidget {
     required this.onPrimaryAction,
     required this.onAlertTap,
     required this.onReportTap,
+    required this.onPizzariaTap,
+    required this.onOperacoesTap,
+    required this.onDescontoTap,
+    required this.onBalcaoTap,
+    required this.onAiTap,
     required this.onRefresh,
   });
 
@@ -173,6 +183,28 @@ class DashboardV2Home extends StatelessWidget {
             final horizontalPadding = constraints.maxWidth >= 900 ? 28.0 : 16.0;
             final isPhone = constraints.maxWidth < 600;
             final sectionGap = isPhone ? 12.0 : 20.0;
+
+            if (isPhone) {
+              return _MobileDashboardHome(
+                saudacao: saudacao,
+                primeiroNome: primeiroNome,
+                turnoJaIniciado: turnoJaIniciado,
+                turnoIniciadoEm: turnoIniciadoEm,
+                turnoCritico: turnoCritico,
+                turnoEmAtencao: turnoEmAtencao,
+                totalAtivos: totalAtivos,
+                totalCaixas: totalCaixas,
+                alocados: alocados,
+                livres: livres,
+                alertas: alertas,
+                onPrimaryAction: onPrimaryAction,
+                onPizzariaTap: onPizzariaTap,
+                onOperacoesTap: onOperacoesTap,
+                onDescontoTap: onDescontoTap,
+                onBalcaoTap: onBalcaoTap,
+                onAiTap: onAiTap,
+              );
+            }
 
             return SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -243,6 +275,661 @@ class DashboardV2Home extends StatelessWidget {
             );
           },
         ),
+      ),
+    );
+  }
+}
+
+class _MobileDashboardHome extends StatelessWidget {
+  final String saudacao;
+  final String primeiroNome;
+  final bool turnoJaIniciado;
+  final DateTime? turnoIniciadoEm;
+  final bool turnoCritico;
+  final bool turnoEmAtencao;
+  final int totalAtivos;
+  final int totalCaixas;
+  final int alocados;
+  final int livres;
+  final int alertas;
+  final VoidCallback onPrimaryAction;
+  final VoidCallback onPizzariaTap;
+  final VoidCallback onOperacoesTap;
+  final VoidCallback onDescontoTap;
+  final VoidCallback onBalcaoTap;
+  final VoidCallback onAiTap;
+
+  const _MobileDashboardHome({
+    required this.saudacao,
+    required this.primeiroNome,
+    required this.turnoJaIniciado,
+    required this.turnoIniciadoEm,
+    required this.turnoCritico,
+    required this.turnoEmAtencao,
+    required this.totalAtivos,
+    required this.totalCaixas,
+    required this.alocados,
+    required this.livres,
+    required this.alertas,
+    required this.onPrimaryAction,
+    required this.onPizzariaTap,
+    required this.onOperacoesTap,
+    required this.onDescontoTap,
+    required this.onBalcaoTap,
+    required this.onAiTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final stats = [
+      _MobileStatItem(
+        label: 'Equipe',
+        value: totalAtivos.toString(),
+        trend: '$alocados alocados',
+        positive: true,
+      ),
+      _MobileStatItem(
+        label: 'Caixas',
+        value: totalCaixas.toString(),
+        trend: '$livres livres',
+        positive: livres > 0,
+      ),
+      _MobileStatItem(
+        label: 'Alertas',
+        value: alertas.toString(),
+        trend: turnoCritico
+            ? 'critico'
+            : turnoEmAtencao
+                ? 'atencao'
+                : 'ok',
+        positive: alertas == 0 && !turnoCritico,
+      ),
+    ];
+
+    final modules = [
+      _MobileModuleItem(
+        title: 'IA Fiscal',
+        subtitle: 'Assistente operacional',
+        icon: Icons.smart_toy_rounded,
+        color: const Color(0xFF7C3AED),
+        background: const Color(0xFFEDE9FE),
+        onTap: onAiTap,
+        wide: true,
+        badge: 'Online',
+        badgeColor: const Color(0xFF10B981),
+      ),
+      _MobileModuleItem(
+        title: 'Pizzaria',
+        subtitle: 'Pedidos e cardapio',
+        icon: Icons.local_pizza_rounded,
+        color: const Color(0xFFD97706),
+        background: const Color(0xFFFEF3C7),
+        onTap: onPizzariaTap,
+      ),
+      _MobileModuleItem(
+        title: 'Operacoes',
+        subtitle: 'Visao geral',
+        icon: Icons.dashboard_customize_rounded,
+        color: const Color(0xFF2563EB),
+        background: const Color(0xFFDBEAFE),
+        onTap: onOperacoesTap,
+        badge: alertas > 0 ? '$alertas' : null,
+        badgeColor: alertas > 0 ? _v2Danger : null,
+      ),
+      _MobileModuleItem(
+        title: 'Descontos',
+        subtitle: 'Calculadora rapida',
+        icon: Icons.loyalty_rounded,
+        color: const Color(0xFF059669),
+        background: const Color(0xFFD1FAE5),
+        onTap: onDescontoTap,
+      ),
+      _MobileModuleItem(
+        title: 'Balcao',
+        subtitle: 'Atendimento fiscal',
+        icon: Icons.point_of_sale_rounded,
+        color: const Color(0xFF0284C7),
+        background: const Color(0xFFE0F2FE),
+        onTap: onBalcaoTap,
+      ),
+    ];
+
+    return SafeArea(
+      bottom: false,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _MobileHomeHeader(
+              saudacao: saudacao,
+              primeiroNome: primeiroNome,
+            ),
+            const SizedBox(height: 16),
+            _MobileTurnoCard(
+              turnoJaIniciado: turnoJaIniciado,
+              turnoIniciadoEm: turnoIniciadoEm,
+              onTap: onPrimaryAction,
+            ),
+            const SizedBox(height: 16),
+            _MobileStatsRow(stats: stats),
+            const SizedBox(height: 18),
+            _MobileBentoGrid(modules: modules),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MobileStatItem {
+  final String label;
+  final String value;
+  final String trend;
+  final bool positive;
+
+  const _MobileStatItem({
+    required this.label,
+    required this.value,
+    required this.trend,
+    required this.positive,
+  });
+}
+
+class _MobileModuleItem {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
+  final Color background;
+  final VoidCallback onTap;
+  final bool wide;
+  final String? badge;
+  final Color? badgeColor;
+
+  const _MobileModuleItem({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.color,
+    required this.background,
+    required this.onTap,
+    this.wide = false,
+    this.badge,
+    this.badgeColor,
+  });
+}
+
+class _MobileHomeHeader extends StatelessWidget {
+  final String saudacao;
+  final String primeiroNome;
+
+  const _MobileHomeHeader({
+    required this.saudacao,
+    required this.primeiroNome,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: const LinearGradient(
+              colors: [Color(0xFF2563EB), Color(0xFF7C3AED)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF2563EB).withValues(alpha: 0.28),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child:
+              const Icon(Icons.person_rounded, color: Colors.white, size: 26),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '$saudacao, $primeiroNome',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: _textStyle(
+                  size: 18,
+                  color: const Color(0xFF1E293B),
+                  weight: FontWeight.w900,
+                  height: 1.05,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Fiscal de Caixa',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: _textStyle(
+                  size: 13,
+                  color: const Color(0xFF64748B),
+                  weight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 10),
+        const _MobileDateTimePill(),
+      ],
+    );
+  }
+}
+
+class _MobileDateTimePill extends StatefulWidget {
+  const _MobileDateTimePill();
+
+  @override
+  State<_MobileDateTimePill> createState() => _MobileDateTimePillState();
+}
+
+class _MobileDateTimePillState extends State<_MobileDateTimePill> {
+  late DateTime _now;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _now = DateTime.now();
+    _timer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted) setState(() => _now = DateTime.now());
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: _softShadow(Colors.black, opacity: 0.045, blur: 12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            DateFormat('HH:mm').format(_now),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: _textStyle(
+              size: 18,
+              color: const Color(0xFF1E293B),
+              weight: FontWeight.w900,
+              height: 1,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            _formatShortDate(_now),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: _textStyle(
+              size: 11,
+              color: const Color(0xFF94A3B8),
+              weight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MobileTurnoCard extends StatelessWidget {
+  final bool turnoJaIniciado;
+  final DateTime? turnoIniciadoEm;
+  final VoidCallback onTap;
+
+  const _MobileTurnoCard({
+    required this.turnoJaIniciado,
+    required this.turnoIniciadoEm,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = turnoJaIniciado ? _v2Success : _v2Primary;
+    final title = turnoJaIniciado ? 'Turno em andamento' : 'Comecar turno';
+    final subtitle = turnoJaIniciado && turnoIniciadoEm != null
+        ? 'Iniciado as ${DateFormat('HH:mm').format(turnoIniciadoEm!)}'
+        : 'Acompanhe a operacao de hoje';
+
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: color.withValues(alpha: 0.14)),
+            boxShadow: _softShadow(Colors.black, opacity: 0.035, blur: 12),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: Icon(
+                  turnoJaIniciado
+                      ? Icons.timeline_rounded
+                      : Icons.play_arrow_rounded,
+                  color: color,
+                  size: 23,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: _textStyle(
+                        size: 14,
+                        color: const Color(0xFF1E293B),
+                        weight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: _textStyle(
+                        size: 12,
+                        color: const Color(0xFF64748B),
+                        weight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Icon(Icons.chevron_right_rounded, color: color),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MobileStatsRow extends StatelessWidget {
+  final List<_MobileStatItem> stats;
+
+  const _MobileStatsRow({required this.stats});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        for (var i = 0; i < stats.length; i++) ...[
+          Expanded(child: _MobileStatCard(stat: stats[i])),
+          if (i < stats.length - 1) const SizedBox(width: 10),
+        ],
+      ],
+    );
+  }
+}
+
+class _MobileStatCard extends StatelessWidget {
+  final _MobileStatItem stat;
+
+  const _MobileStatCard({required this.stat});
+
+  @override
+  Widget build(BuildContext context) {
+    final trendColor =
+        stat.positive ? const Color(0xFF10B981) : const Color(0xFFEF4444);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: _softShadow(Colors.black, opacity: 0.035, blur: 10),
+      ),
+      child: Column(
+        children: [
+          Text(
+            stat.value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: _textStyle(
+              size: 18,
+              color: const Color(0xFF1E293B),
+              weight: FontWeight.w900,
+              height: 1,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            stat.label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: _textStyle(
+              size: 10,
+              color: const Color(0xFF94A3B8),
+              weight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            stat.trend,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: _textStyle(
+                size: 11, color: trendColor, weight: FontWeight.w800),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MobileBentoGrid extends StatelessWidget {
+  final List<_MobileModuleItem> modules;
+
+  const _MobileBentoGrid({required this.modules});
+
+  @override
+  Widget build(BuildContext context) {
+    final wide = modules.where((module) => module.wide).toList();
+    final grid = modules.where((module) => !module.wide).toList();
+
+    return Column(
+      children: [
+        for (final module in wide)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _MobileBentoCard(module: module, wide: true),
+          ),
+        for (var i = 0; i < grid.length; i += 2)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              children: [
+                Expanded(child: _MobileBentoCard(module: grid[i])),
+                const SizedBox(width: 12),
+                if (i + 1 < grid.length)
+                  Expanded(child: _MobileBentoCard(module: grid[i + 1]))
+                else
+                  const Expanded(child: SizedBox.shrink()),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _MobileBentoCard extends StatelessWidget {
+  final _MobileModuleItem module;
+  final bool wide;
+
+  const _MobileBentoCard({
+    required this.module,
+    this.wide = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(22),
+      child: InkWell(
+        onTap: module.onTap,
+        borderRadius: BorderRadius.circular(22),
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(wide ? 22 : 18),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: Colors.black.withValues(alpha: 0.04)),
+            boxShadow: _softShadow(Colors.black, opacity: 0.03, blur: 15),
+          ),
+          child: Stack(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(11),
+                        decoration: BoxDecoration(
+                          color: module.background,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Icon(
+                          module.icon,
+                          color: module.color,
+                          size: wide ? 28 : 22,
+                        ),
+                      ),
+                      if (module.badge != null && module.badgeColor != null)
+                        _MobileBadge(
+                          label: module.badge!,
+                          color: module.badgeColor!,
+                        ),
+                    ],
+                  ),
+                  SizedBox(height: wide ? 18 : 14),
+                  Text(
+                    module.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: _textStyle(
+                      size: wide ? 20 : 16,
+                      color: const Color(0xFF1E293B),
+                      weight: FontWeight.w900,
+                      height: 1.05,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    module.subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: _textStyle(
+                      size: 12,
+                      color: const Color(0xFF94A3B8),
+                      weight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 3,
+                  decoration: BoxDecoration(
+                    color: module.color.withValues(alpha: 0.25),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(22),
+                      bottomRight: Radius.circular(22),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MobileBadge extends StatelessWidget {
+  final String label;
+  final Color color;
+
+  const _MobileBadge({
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: _textStyle(size: 11, color: color, weight: FontWeight.w800),
+          ),
+        ],
       ),
     );
   }
@@ -2456,6 +3143,26 @@ String _formatDate(DateTime date) {
   } catch (_) {
     return DateFormat("EEEE, d 'de' MMMM").format(date);
   }
+}
+
+String _formatShortDate(DateTime date) {
+  const weekdays = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'];
+  const months = [
+    'jan',
+    'fev',
+    'mar',
+    'abr',
+    'mai',
+    'jun',
+    'jul',
+    'ago',
+    'set',
+    'out',
+    'nov',
+    'dez',
+  ];
+
+  return '${weekdays[date.weekday % 7]}, ${date.day} ${months[date.month - 1]}';
 }
 
 String _capitalize(String value) {
