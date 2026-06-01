@@ -642,33 +642,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         checklistProvider.templatesPendentesAgora.length;
     final notasPendentes = notaProvider.totalTarefasPendentes;
     final passagensHoje = passagemTurnoProvider.historicoHoje.length;
-    final operacoesPendencias = <String>[
-      if (entregasAbertas > 0)
-        _pluralize(entregasAbertas, 'entrega aberta', 'entregas abertas'),
-      if (ocorrenciaProvider.totalAbertas > 0)
-        _pluralize(
-          ocorrenciaProvider.totalAbertas,
-          'ocorr\u00eancia aberta',
-          'ocorr\u00eancias abertas',
-        ),
-      if (checklistsPendentes > 0)
-        _pluralize(
-          checklistsPendentes,
-          'checklist pendente',
-          'checklists pendentes',
-        ),
-      if (notasPendentes > 0)
-        _pluralize(
-          notasPendentes,
-          'tarefa pendente',
-          'tarefas pendentes',
-        ),
-    ];
     final operacoesDashboardV2 = _OperationsDashboardV2(
-      pendingCount: operacoesPendencias.length,
-      pendingDescription: operacoesPendencias.isEmpty
-          ? 'Nenhuma a\u00e7\u00e3o pendente no momento'
-          : operacoesPendencias.take(2).join(' + '),
       onRefresh: _refreshData,
       summaryItems: [
         _OperationsSummaryItem(
@@ -1412,16 +1386,12 @@ class _GridAcoes extends StatelessWidget {
 // ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ Widgets auxiliares ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬
 
 class _OperationsDashboardV2 extends StatelessWidget {
-  final int pendingCount;
-  final String pendingDescription;
   final Future<void> Function() onRefresh;
   final List<_OperationsSummaryItem> summaryItems;
   final List<_OperationsActionItem> priorityActions;
   final List<_OperationsActionItem> supportActions;
 
   const _OperationsDashboardV2({
-    required this.pendingCount,
-    required this.pendingDescription,
     required this.onRefresh,
     required this.summaryItems,
     required this.priorityActions,
@@ -1447,29 +1417,24 @@ class _OperationsDashboardV2 extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _OperationsHero(
-                      pendingCount: pendingCount,
-                      pendingDescription: pendingDescription,
-                    ),
-                    const SizedBox(height: 28),
                     _OperationsSummaryGrid(items: summaryItems),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
                     const _OperationsSectionHeader(
                       icon: Icons.star_border_rounded,
                       title: 'A\u00e7\u00f5es priorit\u00e1rias',
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     _OperationsActionsGrid(
                       actions: priorityActions,
                       large: true,
                       maxColumns: 4,
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
                     const _OperationsSectionHeader(
                       icon: Icons.menu_book_rounded,
                       title: 'Apoio e consulta',
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     _OperationsActionsGrid(
                       actions: supportActions,
                       maxColumns: 5,
@@ -1479,165 +1444,6 @@ class _OperationsDashboardV2 extends StatelessWidget {
                 ),
               ),
             ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _OperationsHero extends StatelessWidget {
-  final int pendingCount;
-  final String pendingDescription;
-
-  const _OperationsHero({
-    required this.pendingCount,
-    required this.pendingDescription,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final hasPending = pendingCount > 0;
-    final alertColor = hasPending ? const Color(0xFFFDE047) : Colors.white;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(34),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-          colors: [AppColors.primary, const Color(0xFF0E7490)],
-        ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.20),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final isWide = constraints.maxWidth >= 820;
-          final headline = Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Opera\u00e7\u00f5es',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 38,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0,
-                  height: 1.05,
-                ),
-              ),
-              const SizedBox(height: 18),
-              Text(
-                'Gerencie entregas, ocorr\u00eancias, checklists e passagem de turno.',
-                maxLines: isWide ? 2 : 3,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.86),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  height: 1.35,
-                ),
-              ),
-            ],
-          );
-
-          final alert = Container(
-            width: isWide ? 320 : double.infinity,
-            padding: const EdgeInsets.all(22),
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  hasPending
-                      ? Icons.notifications_active_outlined
-                      : Icons.check_circle_outline_rounded,
-                  color: alertColor,
-                  size: 32,
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        hasPending
-                            ? _pluralize(
-                                pendingCount,
-                                'a\u00e7\u00e3o precisa de aten\u00e7\u00e3o',
-                                'a\u00e7\u00f5es precisam de aten\u00e7\u00e3o',
-                              )
-                            : 'Opera\u00e7\u00e3o em dia',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        pendingDescription,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.82),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          );
-
-          if (!isWide) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                headline,
-                const SizedBox(height: 22),
-                alert,
-              ],
-            );
-          }
-
-          return Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Positioned(
-                right: 326,
-                top: -66,
-                child: Icon(
-                  Icons.settings_rounded,
-                  size: 190,
-                  color: Colors.white.withValues(alpha: 0.08),
-                ),
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(child: headline),
-                  const SizedBox(width: 28),
-                  alert,
-                ],
-              ),
-            ],
           );
         },
       ),
@@ -1656,7 +1462,7 @@ class _OperationsSummaryGrid extends StatelessWidget {
       builder: (context, constraints) {
         final width = constraints.maxWidth;
         final columns = width >= 1080 ? 4 : (width >= 640 ? 2 : 1);
-        const gap = 18.0;
+        const gap = 14.0;
         final itemWidth = (width - gap * (columns - 1)) / columns;
 
         return Wrap(
@@ -1666,7 +1472,7 @@ class _OperationsSummaryGrid extends StatelessWidget {
             for (final item in items)
               SizedBox(
                 width: itemWidth,
-                height: 150,
+                height: 112,
                 child: _OperationsSummaryCard(item: item),
               ),
           ],
@@ -1688,7 +1494,7 @@ class _OperationsSummaryCard extends StatelessWidget {
         : item.color.withValues(alpha: 0.08);
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(16),
       decoration: _operationsCardDecoration(
         borderColor:
             item.highlighted ? item.color.withValues(alpha: 0.36) : null,
@@ -1696,15 +1502,15 @@ class _OperationsSummaryCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 74,
-            height: 74,
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
               color: softColor,
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(item.icon, color: item.color, size: 34),
+            child: Icon(item.icon, color: item.color, size: 26),
           ),
-          const SizedBox(width: 22),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1716,23 +1522,23 @@ class _OperationsSummaryCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: item.color,
-                    fontSize: 32,
+                    fontSize: 26,
                     fontWeight: FontWeight.w900,
                     height: 1,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 3),
                 Text(
                   item.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.label.copyWith(
                     color: AppColors.textPrimary,
-                    fontSize: 15,
+                    fontSize: 13,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Text(
                   item.subtitle,
                   maxLines: 1,
@@ -1767,15 +1573,15 @@ class _OperationsSectionHeader extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 34,
-          height: 34,
+          width: 30,
+          height: 30,
           decoration: BoxDecoration(
             color: AppColors.primary.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, color: AppColors.primary, size: 22),
+          child: Icon(icon, color: AppColors.primary, size: 18),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 10),
         Expanded(
           child: Text(
             title,
@@ -1783,7 +1589,7 @@ class _OperationsSectionHeader extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: AppTextStyles.h3.copyWith(
               fontWeight: FontWeight.w900,
-              fontSize: 21,
+              fontSize: 18,
             ),
           ),
         ),
@@ -1809,9 +1615,9 @@ class _OperationsActionsGrid extends StatelessWidget {
       builder: (context, constraints) {
         final width = constraints.maxWidth;
         final columns = _operationsColumns(width, maxColumns);
-        const gap = 18.0;
+        const gap = 14.0;
         final itemWidth = (width - gap * (columns - 1)) / columns;
-        final itemHeight = large ? 286.0 : 220.0;
+        final itemHeight = large ? 204.0 : 156.0;
 
         return Wrap(
           spacing: gap,
@@ -1844,10 +1650,10 @@ class _OperationsActionCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(16),
         onTap: action.onTap,
         child: Ink(
-          padding: EdgeInsets.all(large ? 24 : 20),
+          padding: EdgeInsets.all(large ? 16 : 14),
           decoration: _operationsCardDecoration(
             borderColor: action.highlighted
                 ? action.color.withValues(alpha: 0.34)
@@ -1862,22 +1668,22 @@ class _OperationsActionCard extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    width: large ? 66 : 54,
-                    height: large ? 66 : 54,
+                    width: large ? 48 : 42,
+                    height: large ? 48 : 42,
                     decoration: BoxDecoration(
                       color: action.color.withValues(alpha: 0.11),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
                       action.icon,
                       color: action.color,
-                      size: large ? 34 : 28,
+                      size: large ? 25 : 22,
                     ),
                   ),
                   const Spacer(),
                   Container(
-                    width: 44,
-                    height: 44,
+                    width: 34,
+                    height: 34,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
@@ -1890,34 +1696,34 @@ class _OperationsActionCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const Spacer(),
+              SizedBox(height: large ? 22 : 16),
               Text(
                 action.title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.h4.copyWith(
                   color: AppColors.textPrimary,
-                  fontSize: large ? 19 : 16,
+                  fontSize: large ? 16 : 14,
                   fontWeight: FontWeight.w900,
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 6),
               Text(
                 action.subtitle,
-                maxLines: large ? 2 : 3,
+                maxLines: large ? 2 : 2,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.body.copyWith(
                   color: AppColors.textSecondary,
-                  fontSize: 14,
-                  height: 1.35,
+                  fontSize: 12,
+                  height: 1.25,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               if (action.badge != null && action.badge!.isNotEmpty) ...[
-                const SizedBox(height: 18),
+                const SizedBox(height: 10),
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: action.color.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(999),
@@ -1985,13 +1791,13 @@ BoxDecoration _operationsCardDecoration({
 }) {
   return BoxDecoration(
     color: color ?? AppColors.cardBackground,
-    borderRadius: BorderRadius.circular(24),
+    borderRadius: BorderRadius.circular(16),
     border: Border.all(color: borderColor ?? AppColors.cardBorder),
     boxShadow: [
       BoxShadow(
         color: Colors.black.withValues(alpha: 0.035),
-        blurRadius: 20,
-        offset: const Offset(0, 10),
+        blurRadius: 12,
+        offset: const Offset(0, 6),
       ),
     ],
   );
