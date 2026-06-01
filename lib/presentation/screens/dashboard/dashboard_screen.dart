@@ -743,6 +743,17 @@ class _DashboardScreenState extends State<DashboardScreen>
       ],
       supportActions: [
         _OperationsActionItem(
+          icon: Icons.percent_rounded,
+          title: 'Descontos',
+          subtitle: 'Calcule descontos rapidamente',
+          color: AppColors.success,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const DescontoCalculatorScreen(),
+            ),
+          ),
+        ),
+        _OperationsActionItem(
           icon: Icons.help_outline_rounded,
           title: 'Guia R\u00e1pido',
           subtitle: 'Consulte orienta\u00e7\u00f5es e d\u00favidas frequentes',
@@ -1187,6 +1198,17 @@ class _DashboardScreenState extends State<DashboardScreen>
         }
 
         // ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ PHONE: AppBar com TabBar ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬
+        final mobileNavEntries = <_MobileDashboardNavEntry>[
+          _MobileDashboardNavEntry(tabIndex: 0, item: navItems[0]),
+          _MobileDashboardNavEntry(tabIndex: 1, item: navItems[1]),
+          _MobileDashboardNavEntry(tabIndex: 2, item: navItems[2]),
+          _MobileDashboardNavEntry(tabIndex: 5, item: navItems[5]),
+          _MobileDashboardNavEntry(tabIndex: 6, item: navItems[6]),
+        ];
+        final selectedMobileIndex = mobileNavEntries.indexWhere(
+          (entry) => entry.tabIndex == _tabController.index,
+        );
+
         return Scaffold(
           backgroundColor: AppColors.background,
           appBar: AppBar(
@@ -1224,10 +1246,13 @@ class _DashboardScreenState extends State<DashboardScreen>
               border: Border(top: BorderSide(color: AppColors.cardBorder)),
             ),
             child: NavigationBar(
-              selectedIndex: _tabController.index,
-              onDestinationSelected: (i) => _tabController.animateTo(i),
+              selectedIndex: selectedMobileIndex < 0 ? 0 : selectedMobileIndex,
+              onDestinationSelected: (i) => _tabController.animateTo(
+                mobileNavEntries[i].tabIndex,
+              ),
               destinations: [
-                for (final item in navItems) item.toNavigationDestination(),
+                for (final entry in mobileNavEntries)
+                  entry.item.toNavigationDestination(),
               ],
             ),
           ),
@@ -1245,6 +1270,16 @@ class _DashboardScreenState extends State<DashboardScreen>
 }
 
 // ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ Monitor em tempo real ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬
+
+class _MobileDashboardNavEntry {
+  final int tabIndex;
+  final _DashboardNavItem item;
+
+  const _MobileDashboardNavEntry({
+    required this.tabIndex,
+    required this.item,
+  });
+}
 
 class _DashboardNavItem {
   final String label;
@@ -1405,11 +1440,13 @@ class _OperationsDashboardV2 extends StatelessWidget {
       color: AppColors.primary,
       child: LayoutBuilder(
         builder: (context, constraints) {
+          final isPhone = constraints.maxWidth < 600;
+          final sectionGap = isPhone ? 16.0 : 24.0;
           return SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: EdgeInsets.symmetric(
               horizontal: Dimensions.operationalHPad(constraints.maxWidth),
-              vertical: Dimensions.paddingMD,
+              vertical: isPhone ? 12 : Dimensions.paddingMD,
             ),
             child: Center(
               child: ConstrainedBox(
@@ -1417,29 +1454,34 @@ class _OperationsDashboardV2 extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _OperationsSummaryGrid(items: summaryItems),
-                    const SizedBox(height: 24),
+                    _OperationsSummaryGrid(
+                      items: summaryItems,
+                      compact: isPhone,
+                    ),
+                    SizedBox(height: sectionGap),
                     const _OperationsSectionHeader(
                       icon: Icons.star_border_rounded,
                       title: 'A\u00e7\u00f5es priorit\u00e1rias',
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: isPhone ? 10 : 12),
                     _OperationsActionsGrid(
                       actions: priorityActions,
                       large: true,
                       maxColumns: 4,
+                      compact: isPhone,
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: sectionGap),
                     const _OperationsSectionHeader(
                       icon: Icons.menu_book_rounded,
                       title: 'Apoio e consulta',
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: isPhone ? 10 : 12),
                     _OperationsActionsGrid(
                       actions: supportActions,
                       maxColumns: 5,
+                      compact: isPhone,
                     ),
-                    const SizedBox(height: Dimensions.spacingXL),
+                    SizedBox(height: isPhone ? 16 : Dimensions.spacingXL),
                   ],
                 ),
               ),
@@ -1453,16 +1495,21 @@ class _OperationsDashboardV2 extends StatelessWidget {
 
 class _OperationsSummaryGrid extends StatelessWidget {
   final List<_OperationsSummaryItem> items;
+  final bool compact;
 
-  const _OperationsSummaryGrid({required this.items});
+  const _OperationsSummaryGrid({
+    required this.items,
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final columns = width >= 1080 ? 4 : (width >= 640 ? 2 : 1);
-        const gap = 14.0;
+        final columns =
+            compact ? 2 : (width >= 1080 ? 4 : (width >= 640 ? 2 : 1));
+        final gap = compact ? 10.0 : 14.0;
         final itemWidth = (width - gap * (columns - 1)) / columns;
 
         return Wrap(
@@ -1472,8 +1519,11 @@ class _OperationsSummaryGrid extends StatelessWidget {
             for (final item in items)
               SizedBox(
                 width: itemWidth,
-                height: 112,
-                child: _OperationsSummaryCard(item: item),
+                height: compact ? 88 : 112,
+                child: _OperationsSummaryCard(
+                  item: item,
+                  compact: compact,
+                ),
               ),
           ],
         );
@@ -1484,8 +1534,12 @@ class _OperationsSummaryGrid extends StatelessWidget {
 
 class _OperationsSummaryCard extends StatelessWidget {
   final _OperationsSummaryItem item;
+  final bool compact;
 
-  const _OperationsSummaryCard({required this.item});
+  const _OperationsSummaryCard({
+    required this.item,
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1494,7 +1548,7 @@ class _OperationsSummaryCard extends StatelessWidget {
         : item.color.withValues(alpha: 0.08);
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(compact ? 11 : 16),
       decoration: _operationsCardDecoration(
         borderColor:
             item.highlighted ? item.color.withValues(alpha: 0.36) : null,
@@ -1502,15 +1556,15 @@ class _OperationsSummaryCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 52,
-            height: 52,
+            width: compact ? 36 : 52,
+            height: compact ? 36 : 52,
             decoration: BoxDecoration(
               color: softColor,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(compact ? 10 : 14),
             ),
-            child: Icon(item.icon, color: item.color, size: 26),
+            child: Icon(item.icon, color: item.color, size: compact ? 18 : 26),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: compact ? 9 : 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1522,34 +1576,36 @@ class _OperationsSummaryCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: item.color,
-                    fontSize: 26,
+                    fontSize: compact ? 22 : 26,
                     fontWeight: FontWeight.w900,
                     height: 1,
                   ),
                 ),
-                const SizedBox(height: 3),
+                SizedBox(height: compact ? 2 : 3),
                 Text(
                   item.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.label.copyWith(
                     color: AppColors.textPrimary,
-                    fontSize: 13,
+                    fontSize: compact ? 11.5 : 13,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  item.subtitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.caption.copyWith(
-                    color:
-                        item.highlighted ? item.color : AppColors.textSecondary,
-                    fontWeight:
-                        item.highlighted ? FontWeight.w800 : FontWeight.w600,
+                if (!compact) const SizedBox(height: 4),
+                if (!compact)
+                  Text(
+                    item.subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.caption.copyWith(
+                      color: item.highlighted
+                          ? item.color
+                          : AppColors.textSecondary,
+                      fontWeight:
+                          item.highlighted ? FontWeight.w800 : FontWeight.w600,
+                    ),
                   ),
-                ),
               ],
             ),
           ),
@@ -1602,11 +1658,13 @@ class _OperationsActionsGrid extends StatelessWidget {
   final List<_OperationsActionItem> actions;
   final bool large;
   final int maxColumns;
+  final bool compact;
 
   const _OperationsActionsGrid({
     required this.actions,
     this.large = false,
     required this.maxColumns,
+    this.compact = false,
   });
 
   @override
@@ -1614,10 +1672,10 @@ class _OperationsActionsGrid extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final columns = _operationsColumns(width, maxColumns);
-        const gap = 14.0;
+        final columns = compact ? 2 : _operationsColumns(width, maxColumns);
+        final gap = compact ? 10.0 : 14.0;
         final itemWidth = (width - gap * (columns - 1)) / columns;
-        final itemHeight = large ? 204.0 : 156.0;
+        final itemHeight = compact ? 68.0 : (large ? 204.0 : 156.0);
 
         return Wrap(
           spacing: gap,
@@ -1627,7 +1685,11 @@ class _OperationsActionsGrid extends StatelessWidget {
               SizedBox(
                 width: itemWidth,
                 height: itemHeight,
-                child: _OperationsActionCard(action: action, large: large),
+                child: _OperationsActionCard(
+                  action: action,
+                  large: large,
+                  compact: compact,
+                ),
               ),
           ],
         );
@@ -1639,10 +1701,12 @@ class _OperationsActionsGrid extends StatelessWidget {
 class _OperationsActionCard extends StatelessWidget {
   final _OperationsActionItem action;
   final bool large;
+  final bool compact;
 
   const _OperationsActionCard({
     required this.action,
     required this.large,
+    this.compact = false,
   });
 
   @override
@@ -1650,10 +1714,10 @@ class _OperationsActionCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(compact ? 14 : 16),
         onTap: action.onTap,
         child: Ink(
-          padding: EdgeInsets.all(large ? 16 : 14),
+          padding: EdgeInsets.all(compact ? 10 : (large ? 16 : 14)),
           decoration: _operationsCardDecoration(
             borderColor: action.highlighted
                 ? action.color.withValues(alpha: 0.34)
@@ -1662,85 +1726,125 @@ class _OperationsActionCard extends StatelessWidget {
                 ? action.color.withValues(alpha: 0.045)
                 : AppColors.cardBackground,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: large ? 48 : 42,
-                    height: large ? 48 : 42,
-                    decoration: BoxDecoration(
-                      color: action.color.withValues(alpha: 0.11),
-                      borderRadius: BorderRadius.circular(12),
+          child: compact
+              ? Row(
+                  children: [
+                    Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: action.color.withValues(alpha: 0.11),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        action.icon,
+                        color: action.color,
+                        size: 18,
+                      ),
                     ),
-                    child: Icon(
-                      action.icon,
-                      color: action.color,
-                      size: large ? 25 : 22,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        action.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.label.copyWith(
+                          color: AppColors.textPrimary,
+                          fontSize: 12,
+                          height: 1.05,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
                     ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    width: 34,
-                    height: 34,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.cardBorder),
-                    ),
-                    child: Icon(
+                    const SizedBox(width: 4),
+                    Icon(
                       Icons.chevron_right_rounded,
                       color: AppColors.textSecondary,
+                      size: 20,
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: large ? 22 : 16),
-              Text(
-                action.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.h4.copyWith(
-                  color: AppColors.textPrimary,
-                  fontSize: large ? 16 : 14,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                action.subtitle,
-                maxLines: large ? 2 : 2,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.body.copyWith(
-                  color: AppColors.textSecondary,
-                  fontSize: 12,
-                  height: 1.25,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              if (action.badge != null && action.badge!.isNotEmpty) ...[
-                const SizedBox(height: 10),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: action.color.withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Text(
-                    action.badge!,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.caption.copyWith(
-                      color: action.color,
-                      fontWeight: FontWeight.w900,
+                  ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: large ? 48 : 42,
+                          height: large ? 48 : 42,
+                          decoration: BoxDecoration(
+                            color: action.color.withValues(alpha: 0.11),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            action.icon,
+                            color: action.color,
+                            size: large ? 25 : 22,
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppColors.cardBorder),
+                          ),
+                          child: Icon(
+                            Icons.chevron_right_rounded,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
+                    SizedBox(height: large ? 22 : 16),
+                    Text(
+                      action.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.h4.copyWith(
+                        color: AppColors.textPrimary,
+                        fontSize: large ? 16 : 14,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      action.subtitle,
+                      maxLines: large ? 2 : 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                        height: 1.25,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    if (action.badge != null && action.badge!.isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: action.color.withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          action.badge!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.caption.copyWith(
+                            color: action.color,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-              ],
-            ],
-          ),
         ),
       ),
     );

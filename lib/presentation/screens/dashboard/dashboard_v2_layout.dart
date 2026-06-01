@@ -171,14 +171,16 @@ class DashboardV2Home extends StatelessWidget {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final horizontalPadding = constraints.maxWidth >= 900 ? 28.0 : 16.0;
+            final isPhone = constraints.maxWidth < 600;
+            final sectionGap = isPhone ? 12.0 : 20.0;
 
             return SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: EdgeInsets.fromLTRB(
                 horizontalPadding,
-                16,
+                isPhone ? 12 : 16,
                 horizontalPadding,
-                28,
+                isPhone ? 18 : 28,
               ),
               child: Center(
                 child: ConstrainedBox(
@@ -199,28 +201,40 @@ class DashboardV2Home extends StatelessWidget {
                         emRota: emRota,
                         alertas: alertas,
                         onPrimaryAction: onPrimaryAction,
+                        compact: isPhone,
                       ),
-                      const SizedBox(height: 20),
-                      _DashboardAlertBanner(
-                        alertas: alertas,
-                        critico: turnoCritico,
-                        atencao: turnoEmAtencao,
-                        onTap: onAlertTap,
+                      if (!isPhone ||
+                          alertas > 0 ||
+                          turnoCritico ||
+                          turnoEmAtencao) ...[
+                        SizedBox(height: sectionGap),
+                        _DashboardAlertBanner(
+                          alertas: alertas,
+                          critico: turnoCritico,
+                          atencao: turnoEmAtencao,
+                          onTap: onAlertTap,
+                          compact: isPhone,
+                        ),
+                      ],
+                      SizedBox(height: sectionGap),
+                      _DashboardMetricsGrid(
+                        metrics: metrics,
+                        compact: isPhone,
                       ),
-                      const SizedBox(height: 20),
-                      _DashboardMetricsGrid(metrics: metrics),
-                      const SizedBox(height: 20),
+                      SizedBox(height: sectionGap),
                       _OperationalMonitorCard(
                         caixas: caixas,
                         alertas: alertas,
                         turnoCritico: turnoCritico,
                         turnoEmAtencao: turnoEmAtencao,
+                        compact: isPhone,
                       ),
-                      const SizedBox(height: 20),
+                      SizedBox(height: sectionGap),
                       _DashboardBottomPanels(
                         quickActions: quickActions,
                         reportItems: reportItems,
                         onReportTap: onReportTap,
+                        compact: isPhone,
                       ),
                     ],
                   ),
@@ -640,6 +654,7 @@ class _HeroDashboardSection extends StatelessWidget {
   final int emRota;
   final int alertas;
   final VoidCallback onPrimaryAction;
+  final bool compact;
 
   const _HeroDashboardSection({
     required this.saudacao,
@@ -654,6 +669,7 @@ class _HeroDashboardSection extends StatelessWidget {
     required this.emRota,
     required this.alertas,
     required this.onPrimaryAction,
+    this.compact = false,
   });
 
   @override
@@ -661,6 +677,117 @@ class _HeroDashboardSection extends StatelessWidget {
     final statusColor = turnoJaIniciado ? _v2Success : const Color(0xFF1D4ED8);
     final statusLabel =
         turnoJaIniciado ? 'Turno em andamento' : 'Aguardando inicio';
+
+    if (compact) {
+      final turnoLabel = turnoJaIniciado && turnoIniciadoEm != null
+          ? 'Iniciado as ${DateFormat('HH:mm').format(turnoIniciadoEm!)}'
+          : '08:00 as 16:00';
+
+      return _V2Card(
+        padding: const EdgeInsets.all(16),
+        radius: 18,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '$saudacao, $primeiroNome!',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: _textStyle(
+                          size: 22,
+                          color: _v2Text,
+                          weight: FontWeight.w900,
+                          height: 1.08,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Turno da manha - $turnoLabel',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: _textStyle(
+                          size: 12,
+                          color: _v2Muted,
+                          weight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                _StatusPill(
+                  icon: Icons.circle,
+                  label: statusLabel,
+                  color: statusColor,
+                  compact: true,
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            SizedBox(
+              height: 48,
+              child: ElevatedButton.icon(
+                onPressed: onPrimaryAction,
+                icon: Icon(
+                  turnoJaIniciado
+                      ? Icons.timeline_rounded
+                      : Icons.play_arrow_rounded,
+                  size: 21,
+                ),
+                label: Text(
+                  turnoJaIniciado ? 'Timeline' : 'Comecar turno',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _v2Primary,
+                  foregroundColor: Colors.white,
+                  textStyle: _textStyle(size: 14, weight: FontWeight.w900),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  elevation: 0,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _CompactSignalChip(
+                  label: 'Equipe',
+                  value: totalAtivos.toString(),
+                  color: _v2Primary,
+                ),
+                _CompactSignalChip(
+                  label: 'Caixas',
+                  value: totalCaixas.toString(),
+                  color: _v2Success,
+                ),
+                _CompactSignalChip(
+                  label: 'Livres',
+                  value: livres.toString(),
+                  color: _v2Success,
+                ),
+                _CompactSignalChip(
+                  label: 'Alertas',
+                  value: alertas.toString(),
+                  color: alertas > 0 ? _v2Danger : _v2Success,
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
 
     return _V2Card(
       padding: EdgeInsets.zero,
@@ -1045,17 +1172,63 @@ class _HeroInfoRow extends StatelessWidget {
   }
 }
 
+class _CompactSignalChip extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+
+  const _CompactSignalChip({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minHeight: 34),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withValues(alpha: 0.16)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: _textStyle(size: 13, color: color, weight: FontWeight.w900),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style:
+                _textStyle(size: 11, color: _v2Muted, weight: FontWeight.w700),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _DashboardAlertBanner extends StatelessWidget {
   final int alertas;
   final bool critico;
   final bool atencao;
   final VoidCallback? onTap;
+  final bool compact;
 
   const _DashboardAlertBanner({
     required this.alertas,
     required this.critico,
     required this.atencao,
     required this.onTap,
+    this.compact = false,
   });
 
   @override
@@ -1083,8 +1256,11 @@ class _DashboardAlertBanner extends StatelessWidget {
         onTap: hasAlert ? onTap : null,
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          constraints: const BoxConstraints(minHeight: 88),
-          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
+          constraints: BoxConstraints(minHeight: compact ? 64 : 88),
+          padding: EdgeInsets.symmetric(
+            horizontal: compact ? 14 : 22,
+            vertical: compact ? 12 : 18,
+          ),
           decoration: BoxDecoration(
             color: background,
             borderRadius: BorderRadius.circular(16),
@@ -1097,10 +1273,10 @@ class _DashboardAlertBanner extends StatelessWidget {
                     ? Icons.warning_amber_rounded
                     : Icons.check_circle_rounded,
                 color: color,
-                size: 48,
-                iconSize: 30,
+                size: compact ? 36 : 48,
+                iconSize: compact ? 22 : 30,
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: compact ? 10 : 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1111,18 +1287,18 @@ class _DashboardAlertBanner extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: _textStyle(
-                        size: 16,
+                        size: compact ? 13 : 16,
                         color: color,
                         weight: FontWeight.w900,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: compact ? 2 : 4),
                     Text(
                       message,
-                      maxLines: 2,
+                      maxLines: compact ? 1 : 2,
                       overflow: TextOverflow.ellipsis,
                       style: _textStyle(
-                        size: 14,
+                        size: compact ? 12 : 14,
                         color: _v2Muted,
                         weight: FontWeight.w500,
                       ),
@@ -1130,8 +1306,10 @@ class _DashboardAlertBanner extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 14),
-              if (hasAlert)
+              SizedBox(width: compact ? 8 : 14),
+              if (hasAlert && compact)
+                Icon(Icons.chevron_right_rounded, color: color)
+              else if (hasAlert)
                 OutlinedButton.icon(
                   onPressed: onTap,
                   icon: const Icon(Icons.arrow_forward_rounded, size: 18),
@@ -1155,8 +1333,12 @@ class _DashboardAlertBanner extends StatelessWidget {
 
 class _DashboardMetricsGrid extends StatelessWidget {
   final List<OperationalMetricData> metrics;
+  final bool compact;
 
-  const _DashboardMetricsGrid({required this.metrics});
+  const _DashboardMetricsGrid({
+    required this.metrics,
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1171,7 +1353,7 @@ class _DashboardMetricsGrid extends StatelessWidget {
                 ? 3
                 : width >= 560
                     ? 2
-                    : 1;
+                    : 2;
 
         return GridView.builder(
           itemCount: metrics.length,
@@ -1179,12 +1361,15 @@ class _DashboardMetricsGrid extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            mainAxisExtent: 154,
+            crossAxisSpacing: compact ? 10 : 16,
+            mainAxisSpacing: compact ? 10 : 16,
+            mainAxisExtent: compact ? 108 : 154,
           ),
           itemBuilder: (context, index) {
-            return _MetricV2Card(metric: metrics[index]);
+            return _MetricV2Card(
+              metric: metrics[index],
+              compact: compact,
+            );
           },
         );
       },
@@ -1194,13 +1379,17 @@ class _DashboardMetricsGrid extends StatelessWidget {
 
 class _MetricV2Card extends StatelessWidget {
   final OperationalMetricData metric;
+  final bool compact;
 
-  const _MetricV2Card({required this.metric});
+  const _MetricV2Card({
+    required this.metric,
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final content = Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(compact ? 11 : 14),
       decoration: _cardDecoration(
         borderColor: metric.color.withValues(alpha: 0.24),
         radius: 16,
@@ -1210,52 +1399,60 @@ class _MetricV2Card extends StatelessWidget {
         children: [
           Row(
             children: [
-              _IconBubble(icon: metric.icon, color: metric.color),
+              _IconBubble(
+                icon: metric.icon,
+                color: metric.color,
+                size: compact ? 32 : 42,
+                iconSize: compact ? 17 : 21,
+              ),
               const Spacer(),
               if (metric.onTap != null)
                 Icon(
                   Icons.chevron_right_rounded,
                   color: metric.color,
-                  size: 22,
+                  size: compact ? 18 : 22,
                 ),
             ],
           ),
-          const Spacer(),
+          if (compact) const SizedBox(height: 8) else const Spacer(),
           Text(
             metric.value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: _textStyle(
-              size: 30,
+              size: compact ? 24 : 30,
               color: metric.color,
               weight: FontWeight.w900,
               height: 1,
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: compact ? 3 : 6),
           Text(
             metric.label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style:
-                _textStyle(size: 13, color: _v2Text, weight: FontWeight.w800),
+            style: _textStyle(
+              size: compact ? 11.5 : 13,
+              color: _v2Text,
+              weight: FontWeight.w800,
+            ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: compact ? 3 : 6),
           Row(
             children: [
               Icon(
                 Icons.trending_up_rounded,
-                size: 16,
+                size: compact ? 13 : 16,
                 color: metric.color,
               ),
-              const SizedBox(width: 6),
+              SizedBox(width: compact ? 4 : 6),
               Expanded(
                 child: Text(
                   metric.helper ?? 'Em operacao',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: _textStyle(
-                    size: 12,
+                    size: compact ? 10.5 : 12,
                     color: _v2Subtle,
                     weight: FontWeight.w600,
                   ),
@@ -1285,17 +1482,19 @@ class _OperationalMonitorCard extends StatelessWidget {
   final int alertas;
   final bool turnoCritico;
   final bool turnoEmAtencao;
+  final bool compact;
 
   const _OperationalMonitorCard({
     required this.caixas,
     required this.alertas,
     required this.turnoCritico,
     required this.turnoEmAtencao,
+    this.compact = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final visibleCaixas = caixas.take(5).toList();
+    final visibleCaixas = caixas.take(compact ? 3 : 5).toList();
     final hiddenCount = caixas.length - visibleCaixas.length;
     final statusColor = turnoCritico
         ? _v2Danger
@@ -1309,25 +1508,27 @@ class _OperationalMonitorCard extends StatelessWidget {
             : 'Estavel';
 
     return _V2Card(
+      padding: EdgeInsets.all(compact ? 14 : 20),
+      radius: compact ? 16 : 20,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const _IconBubble(
+              _IconBubble(
                 icon: Icons.monitor_heart_outlined,
                 color: _v2Primary,
-                size: 32,
-                iconSize: 18,
+                size: compact ? 28 : 32,
+                iconSize: compact ? 16 : 18,
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: compact ? 8 : 12),
               Expanded(
                 child: Text(
                   'Monitor em tempo real',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: _textStyle(
-                    size: 18,
+                    size: compact ? 15 : 18,
                     color: _v2Text,
                     weight: FontWeight.w900,
                   ),
@@ -1339,11 +1540,15 @@ class _OperationalMonitorCard extends StatelessWidget {
                 color: statusColor,
                 compact: true,
               ),
-              const SizedBox(width: 8),
-              const Icon(Icons.chevron_right_rounded, color: _v2Primary),
+              SizedBox(width: compact ? 4 : 8),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: _v2Primary,
+                size: compact ? 20 : 24,
+              ),
             ],
           ),
-          const SizedBox(height: 22),
+          SizedBox(height: compact ? 14 : 22),
           LayoutBuilder(
             builder: (context, constraints) {
               final isWide = constraints.maxWidth >= 860;
@@ -1351,10 +1556,12 @@ class _OperationalMonitorCard extends StatelessWidget {
                 alertas: alertas,
                 color: statusColor,
                 statusLabel: statusLabel,
+                compact: compact,
               );
               final caixasRow = _MonitorCaixasRow(
                 caixas: visibleCaixas,
                 hiddenCount: hiddenCount,
+                compact: compact,
               );
 
               if (!isWide) {
@@ -1362,7 +1569,7 @@ class _OperationalMonitorCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     summary,
-                    const SizedBox(height: 18),
+                    SizedBox(height: compact ? 12 : 18),
                     caixasRow,
                   ],
                 );
@@ -1388,11 +1595,13 @@ class _MonitorSummary extends StatelessWidget {
   final int alertas;
   final Color color;
   final String statusLabel;
+  final bool compact;
 
   const _MonitorSummary({
     required this.alertas,
     required this.color,
     required this.statusLabel,
+    this.compact = false,
   });
 
   @override
@@ -1409,31 +1618,36 @@ class _MonitorSummary extends StatelessWidget {
         Icon(
           alertas > 0 ? Icons.priority_high_rounded : Icons.check_circle,
           color: color,
-          size: 34,
+          size: compact ? 26 : 34,
         ),
-        const SizedBox(width: 14),
+        SizedBox(width: compact ? 10 : 14),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style:
-                    _textStyle(size: 14, color: color, weight: FontWeight.w900),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                subtitle,
-                maxLines: 2,
+                maxLines: compact ? 1 : 2,
                 overflow: TextOverflow.ellipsis,
                 style: _textStyle(
-                  size: 13,
-                  color: _v2Muted,
-                  weight: FontWeight.w500,
+                  size: compact ? 12 : 14,
+                  color: color,
+                  weight: FontWeight.w900,
                 ),
               ),
+              if (!compact) ...[
+                const SizedBox(height: 6),
+                Text(
+                  subtitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: _textStyle(
+                    size: 13,
+                    color: _v2Muted,
+                    weight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -1445,17 +1659,19 @@ class _MonitorSummary extends StatelessWidget {
 class _MonitorCaixasRow extends StatelessWidget {
   final List<Caixa> caixas;
   final int hiddenCount;
+  final bool compact;
 
   const _MonitorCaixasRow({
     required this.caixas,
     required this.hiddenCount,
+    this.compact = false,
   });
 
   @override
   Widget build(BuildContext context) {
     if (caixas.isEmpty) {
       return Container(
-        constraints: const BoxConstraints(minHeight: 64),
+        constraints: BoxConstraints(minHeight: compact ? 52 : 64),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: _v2Background,
@@ -1475,10 +1691,11 @@ class _MonitorCaixasRow extends StatelessWidget {
       child: Row(
         children: [
           for (final caixa in caixas) ...[
-            _CaixaStatusTile(caixa: caixa),
-            const SizedBox(width: 12),
+            _CaixaStatusTile(caixa: caixa, compact: compact),
+            SizedBox(width: compact ? 8 : 12),
           ],
-          if (hiddenCount > 0) _MoreCaixasTile(hiddenCount: hiddenCount),
+          if (hiddenCount > 0)
+            _MoreCaixasTile(hiddenCount: hiddenCount, compact: compact),
         ],
       ),
     );
@@ -1487,17 +1704,24 @@ class _MonitorCaixasRow extends StatelessWidget {
 
 class _CaixaStatusTile extends StatelessWidget {
   final Caixa caixa;
+  final bool compact;
 
-  const _CaixaStatusTile({required this.caixa});
+  const _CaixaStatusTile({
+    required this.caixa,
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final status = _caixaStatus(caixa);
 
     return Container(
-      width: 140,
-      height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      width: compact ? 112 : 140,
+      height: compact ? 54 : 64,
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 10 : 14,
+        vertical: compact ? 8 : 10,
+      ),
       decoration: BoxDecoration(
         color: status.color.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
@@ -1517,14 +1741,14 @@ class _CaixaStatusTile extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: compact ? 6 : 8),
               Expanded(
                 child: Text(
                   _formatCaixaName(caixa),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: _textStyle(
-                    size: 13,
+                    size: compact ? 11.5 : 13,
                     color: _v2Text,
                     weight: FontWeight.w800,
                   ),
@@ -1532,13 +1756,13 @@ class _CaixaStatusTile extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 7),
+          SizedBox(height: compact ? 4 : 7),
           Text(
             status.label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: _textStyle(
-              size: 12,
+              size: compact ? 10.5 : 12,
               color: status.color,
               weight: FontWeight.w800,
             ),
@@ -1551,14 +1775,18 @@ class _CaixaStatusTile extends StatelessWidget {
 
 class _MoreCaixasTile extends StatelessWidget {
   final int hiddenCount;
+  final bool compact;
 
-  const _MoreCaixasTile({required this.hiddenCount});
+  const _MoreCaixasTile({
+    required this.hiddenCount,
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 86,
-      height: 64,
+      width: compact ? 64 : 86,
+      height: compact ? 54 : 64,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: const Color(0xFFF1F5F9),
@@ -1570,14 +1798,20 @@ class _MoreCaixasTile extends StatelessWidget {
         children: [
           Text(
             '+$hiddenCount',
-            style:
-                _textStyle(size: 15, color: _v2Text, weight: FontWeight.w900),
+            style: _textStyle(
+              size: compact ? 13 : 15,
+              color: _v2Text,
+              weight: FontWeight.w900,
+            ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: compact ? 2 : 4),
           Text(
             'Caixas',
-            style:
-                _textStyle(size: 12, color: _v2Muted, weight: FontWeight.w700),
+            style: _textStyle(
+              size: compact ? 10.5 : 12,
+              color: _v2Muted,
+              weight: FontWeight.w700,
+            ),
           ),
         ],
       ),
@@ -1589,11 +1823,13 @@ class _DashboardBottomPanels extends StatelessWidget {
   final List<DashboardV2QuickAction> quickActions;
   final List<DashboardV2ReportItem> reportItems;
   final VoidCallback onReportTap;
+  final bool compact;
 
   const _DashboardBottomPanels({
     required this.quickActions,
     required this.reportItems,
     required this.onReportTap,
+    this.compact = false,
   });
 
   @override
@@ -1601,9 +1837,14 @@ class _DashboardBottomPanels extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isWide = constraints.maxWidth >= 980;
-        final routines = _RoutinesPanel(quickActions: quickActions);
+        final routines = _RoutinesPanel(
+          quickActions: compact ? quickActions.take(4).toList() : quickActions,
+          compact: compact,
+        );
         final report =
             _ReportPanel(items: reportItems, onReportTap: onReportTap);
+
+        if (compact) return routines;
 
         if (!isWide) {
           return Column(
@@ -1631,28 +1872,37 @@ class _DashboardBottomPanels extends StatelessWidget {
 
 class _RoutinesPanel extends StatelessWidget {
   final List<DashboardV2QuickAction> quickActions;
+  final bool compact;
 
-  const _RoutinesPanel({required this.quickActions});
+  const _RoutinesPanel({
+    required this.quickActions,
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return _V2Card(
+      padding: EdgeInsets.all(compact ? 14 : 20),
+      radius: compact ? 16 : 20,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _SectionTitle(
+          _SectionTitle(
             icon: Icons.grid_view_rounded,
-            title: 'Rotinas principais',
+            title: compact ? 'Atalhos' : 'Rotinas principais',
+            compact: compact,
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: compact ? 12 : 18),
           LayoutBuilder(
             builder: (context, constraints) {
               final width = constraints.maxWidth;
-              final columns = width >= 720
-                  ? 3
-                  : width >= 460
-                      ? 2
-                      : 1;
+              final columns = compact
+                  ? 2
+                  : width >= 720
+                      ? 3
+                      : width >= 460
+                          ? 2
+                          : 1;
 
               return GridView.builder(
                 itemCount: quickActions.length,
@@ -1660,12 +1910,15 @@ class _RoutinesPanel extends StatelessWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: columns,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  mainAxisExtent: 74,
+                  crossAxisSpacing: compact ? 10 : 16,
+                  mainAxisSpacing: compact ? 10 : 16,
+                  mainAxisExtent: compact ? 62 : 74,
                 ),
                 itemBuilder: (context, index) {
-                  return _QuickActionTile(action: quickActions[index]);
+                  return _QuickActionTile(
+                    action: quickActions[index],
+                    compact: compact,
+                  );
                 },
               );
             },
@@ -1678,8 +1931,12 @@ class _RoutinesPanel extends StatelessWidget {
 
 class _QuickActionTile extends StatelessWidget {
   final DashboardV2QuickAction action;
+  final bool compact;
 
-  const _QuickActionTile({required this.action});
+  const _QuickActionTile({
+    required this.action,
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1689,7 +1946,7 @@ class _QuickActionTile extends StatelessWidget {
         onTap: action.onTap,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.all(14),
+          padding: EdgeInsets.all(compact ? 10 : 14),
           decoration: BoxDecoration(
             color: _v2Card,
             borderRadius: BorderRadius.circular(12),
@@ -1700,7 +1957,12 @@ class _QuickActionTile extends StatelessWidget {
               Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  _IconBubble(icon: action.icon, color: action.color),
+                  _IconBubble(
+                    icon: action.icon,
+                    color: action.color,
+                    size: compact ? 34 : 42,
+                    iconSize: compact ? 17 : 21,
+                  ),
                   if (action.badge != null)
                     Positioned(
                       right: -6,
@@ -1709,7 +1971,7 @@ class _QuickActionTile extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: compact ? 8 : 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1720,30 +1982,32 @@ class _QuickActionTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: _textStyle(
-                        size: 13,
+                        size: compact ? 11.5 : 13,
                         color: _v2Text,
                         weight: FontWeight.w900,
                       ),
                     ),
-                    const SizedBox(height: 3),
-                    Text(
-                      action.subtitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: _textStyle(
-                        size: 12,
-                        color: _v2Subtle,
-                        weight: FontWeight.w600,
+                    if (!compact) ...[
+                      const SizedBox(height: 3),
+                      Text(
+                        action.subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: _textStyle(
+                          size: 12,
+                          color: _v2Subtle,
+                          weight: FontWeight.w600,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: compact ? 4 : 8),
               Icon(
                 Icons.chevron_right_rounded,
                 color: _v2Muted.withValues(alpha: 0.8),
-                size: 20,
+                size: compact ? 18 : 20,
               ),
             ],
           ),
@@ -1855,22 +2119,35 @@ class _ReportRow extends StatelessWidget {
 class _SectionTitle extends StatelessWidget {
   final IconData icon;
   final String title;
+  final bool compact;
 
-  const _SectionTitle({required this.icon, required this.title});
+  const _SectionTitle({
+    required this.icon,
+    required this.title,
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        _IconBubble(icon: icon, color: _v2Primary, size: 32, iconSize: 18),
-        const SizedBox(width: 12),
+        _IconBubble(
+          icon: icon,
+          color: _v2Primary,
+          size: compact ? 28 : 32,
+          iconSize: compact ? 16 : 18,
+        ),
+        SizedBox(width: compact ? 9 : 12),
         Expanded(
           child: Text(
             title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style:
-                _textStyle(size: 16, color: _v2Text, weight: FontWeight.w900),
+            style: _textStyle(
+              size: compact ? 14 : 16,
+              color: _v2Text,
+              weight: FontWeight.w900,
+            ),
           ),
         ),
       ],
