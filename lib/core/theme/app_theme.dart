@@ -2,6 +2,8 @@ import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
 
+const Color _materialSeedColor = Color(0xFF00856F);
+
 enum AppThemeVariant { bento, gamer }
 
 class AppThemeController extends ChangeNotifier {
@@ -92,7 +94,7 @@ class AppThemeTokens extends ThemeExtension<AppThemeTokens> {
     textPrimary: Color(0xFF111827),
     textSecondary: Color(0xFF526071),
     textOnColor: Color(0xFFFFFFFF),
-    primary: Color(0xFF0F766E),
+    primary: Color(0xFF00856F),
     secondary: Color(0xFFE7F7F4),
     success: Color(0xFF15803D),
     danger: Color(0xFFB91C1C),
@@ -280,30 +282,23 @@ class AppThemes {
     required TextTheme textTheme,
   }) {
     final isDark = brightness == Brightness.dark;
-    final colorScheme = isDark
-        ? ColorScheme.dark(
-            primary: tokens.primary,
-            onPrimary: tokens.textOnColor,
-            secondary: tokens.info,
-            onSecondary: tokens.textOnColor,
-            error: tokens.danger,
-            onError: tokens.textOnColor,
-            surface: tokens.cardBackground,
-            onSurface: tokens.textPrimary,
-          )
-        : ColorScheme.light(
-            primary: tokens.primary,
-            onPrimary: tokens.textOnColor,
-            secondary: tokens.info,
-            onSecondary: tokens.textOnColor,
-            error: tokens.danger,
-            onError: tokens.textOnColor,
-            surface: tokens.cardBackground,
-            onSurface: tokens.textPrimary,
-          );
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: _materialSeedColor,
+      brightness: brightness,
+    ).copyWith(
+      primary: tokens.primary,
+      onPrimary: tokens.textOnColor,
+      secondary: tokens.info,
+      onSecondary: tokens.textOnColor,
+      error: tokens.danger,
+      onError: tokens.textOnColor,
+      surface: tokens.cardBackground,
+      onSurface: tokens.textPrimary,
+    );
 
     return ThemeData(
       useMaterial3: true,
+      fontFamily: 'Roboto',
       brightness: brightness,
       visualDensity: VisualDensity.standard,
       scaffoldBackgroundColor: tokens.background,

@@ -649,7 +649,28 @@ class _DashboardScreenState extends State<DashboardScreen>
         checklistProvider.templatesPendentesAgora.length;
     final notasPendentes = notaProvider.totalTarefasPendentes;
     final passagensHoje = passagemTurnoProvider.historicoHoje.length;
+    final recentOperationsActivities =
+        eventoProvider.eventos.reversed.take(3).map((evento) {
+      final details = <String>[
+        if ((evento.colaboradorNome ?? '').trim().isNotEmpty)
+          evento.colaboradorNome!.trim(),
+        if ((evento.caixaNome ?? '').trim().isNotEmpty)
+          evento.caixaNome!.trim(),
+        if ((evento.detalhe ?? '').trim().isNotEmpty) evento.detalhe!.trim(),
+      ];
+
+      return _OperationsRecentActivityItem(
+        icon: _operationsActivityIcon(evento.tipo.valor),
+        title: evento.tipo.label,
+        subtitle: details.isEmpty ? 'Turno de hoje' : details.join(' - '),
+        time: _formatOperationsTime(evento.timestamp),
+        color: _operationsActivityColor(evento.tipo.valor),
+      );
+    }).toList();
     final operacoesDashboardV2 = _OperationsDashboardV2(
+      saudacao: saudacao,
+      primeiroNome: primeiroNome,
+      alertCount: alertas.length,
       onRefresh: _refreshData,
       summaryItems: [
         _OperationsSummaryItem(
@@ -810,6 +831,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           ),
         ),
       ],
+      recentActivities: recentOperationsActivities,
     );
 
     final tabBarView = TabBarView(
@@ -1584,16 +1606,24 @@ class _GridAcoes extends StatelessWidget {
 // ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ Widgets auxiliares ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬
 
 class _OperationsDashboardV2 extends StatelessWidget {
+  final String saudacao;
+  final String primeiroNome;
+  final int alertCount;
   final Future<void> Function() onRefresh;
   final List<_OperationsSummaryItem> summaryItems;
   final List<_OperationsActionItem> priorityActions;
   final List<_OperationsActionItem> supportActions;
+  final List<_OperationsRecentActivityItem> recentActivities;
 
   const _OperationsDashboardV2({
+    required this.saudacao,
+    required this.primeiroNome,
+    required this.alertCount,
     required this.onRefresh,
     required this.summaryItems,
     required this.priorityActions,
     required this.supportActions,
+    required this.recentActivities,
   });
 
   @override
@@ -1604,6 +1634,18 @@ class _OperationsDashboardV2 extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final isPhone = constraints.maxWidth < 600;
+          if (isPhone) {
+            return _OperationsMobileDashboard(
+              saudacao: saudacao,
+              primeiroNome: primeiroNome,
+              alertCount: alertCount,
+              summaryItems: summaryItems,
+              priorityActions: priorityActions,
+              supportActions: supportActions,
+              recentActivities: recentActivities,
+            );
+          }
+
           final sectionGap = isPhone ? 16.0 : 24.0;
           return SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -1652,6 +1694,559 @@ class _OperationsDashboardV2 extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+class _OperationsMobileDashboard extends StatelessWidget {
+  final String saudacao;
+  final String primeiroNome;
+  final int alertCount;
+  final List<_OperationsSummaryItem> summaryItems;
+  final List<_OperationsActionItem> priorityActions;
+  final List<_OperationsActionItem> supportActions;
+  final List<_OperationsRecentActivityItem> recentActivities;
+
+  const _OperationsMobileDashboard({
+    required this.saudacao,
+    required this.primeiroNome,
+    required this.alertCount,
+    required this.summaryItems,
+    required this.priorityActions,
+    required this.supportActions,
+    required this.recentActivities,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _OperationsMobileHeader(
+            saudacao: saudacao,
+            primeiroNome: primeiroNome,
+            alertCount: alertCount,
+          ),
+          const SizedBox(height: 24),
+          _OperationsMobileMetricGrid(items: summaryItems.take(4).toList()),
+          const SizedBox(height: 28),
+          const _OperationsMobileSectionTitle(title: 'Ações prioritárias'),
+          const SizedBox(height: 14),
+          _OperationsMobileActionGrid(actions: priorityActions),
+          const SizedBox(height: 28),
+          const _OperationsMobileSectionTitle(title: 'Apoio e consulta'),
+          const SizedBox(height: 14),
+          _OperationsMobileSupportGrid(actions: supportActions),
+          const SizedBox(height: 28),
+          const _OperationsMobileSectionTitle(title: 'Atividades recentes'),
+          const SizedBox(height: 14),
+          _OperationsMobileActivityCard(activities: recentActivities),
+        ],
+      ),
+    );
+  }
+}
+
+class _OperationsMobileHeader extends StatelessWidget {
+  final String saudacao;
+  final String primeiroNome;
+  final int alertCount;
+
+  const _OperationsMobileHeader({
+    required this.saudacao,
+    required this.primeiroNome,
+    required this.alertCount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cleanName =
+        primeiroNome.trim().isEmpty ? 'Fiscal' : primeiroNome.trim();
+    final initial = cleanName.substring(0, 1).toUpperCase();
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '$saudacao,',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.body.copyWith(
+                  color: AppColors.textSecondary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                cleanName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.h1.copyWith(
+                  color: AppColors.textPrimary,
+                  fontSize: 32,
+                  height: 1.05,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                alertCount > 0
+                    ? _pluralize(alertCount, 'ponto precisa de atenção',
+                        'pontos precisam de atenção')
+                    : 'Tudo sob controle',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.body.copyWith(
+                  color: AppColors.textSecondary,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+        _OperationsMobileCircleIcon(
+          icon: Icons.notifications_none_rounded,
+          badge: alertCount > 0 ? alertCount.toString() : null,
+        ),
+        const SizedBox(width: 12),
+        CircleAvatar(
+          radius: 23,
+          backgroundColor: AppColors.primary,
+          child: Text(
+            initial,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _OperationsMobileCircleIcon extends StatelessWidget {
+  final IconData icon;
+  final String? badge;
+
+  const _OperationsMobileCircleIcon({
+    required this.icon,
+    this.badge,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: 46,
+          height: 46,
+          decoration: _operationsMobileCardDecoration(radius: 999),
+          child: Icon(icon, color: AppColors.textSecondary, size: 22),
+        ),
+        if (badge != null)
+          Positioned(
+            right: -3,
+            top: -3,
+            child: Container(
+              constraints: const BoxConstraints(minWidth: 18),
+              height: 18,
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: AppColors.danger,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+              child: Text(
+                badge!,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
+                  height: 1,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _OperationsMobileMetricGrid extends StatelessWidget {
+  final List<_OperationsSummaryItem> items;
+
+  const _OperationsMobileMetricGrid({required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        for (var index = 0; index < items.length; index += 2) ...[
+          Row(
+            children: [
+              Expanded(child: _OperationsMobileMetricCard(item: items[index])),
+              const SizedBox(width: 12),
+              if (index + 1 < items.length)
+                Expanded(
+                  child: _OperationsMobileMetricCard(item: items[index + 1]),
+                )
+              else
+                const Spacer(),
+            ],
+          ),
+          if (index + 2 < items.length) const SizedBox(height: 12),
+        ],
+      ],
+    );
+  }
+}
+
+class _OperationsMobileMetricCard extends StatelessWidget {
+  final _OperationsSummaryItem item;
+
+  const _OperationsMobileMetricCard({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 128,
+      padding: const EdgeInsets.all(16),
+      decoration: _operationsMobileCardDecoration(
+        borderColor:
+            item.highlighted ? item.color.withValues(alpha: 0.26) : null,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _OperationsMobileIconBox(icon: item.icon, color: item.color),
+          const Spacer(),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              item.value,
+              maxLines: 1,
+              style: AppTextStyles.h1.copyWith(
+                color: item.color,
+                fontSize: 34,
+                height: 1,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            item.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.label.copyWith(
+              color: AppColors.textPrimary,
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OperationsMobileActionGrid extends StatelessWidget {
+  final List<_OperationsActionItem> actions;
+
+  const _OperationsMobileActionGrid({required this.actions});
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: actions.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 2.15,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+      ),
+      itemBuilder: (context, index) =>
+          _OperationsMobileActionCard(action: actions[index]),
+    );
+  }
+}
+
+class _OperationsMobileActionCard extends StatelessWidget {
+  final _OperationsActionItem action;
+
+  const _OperationsMobileActionCard({required this.action});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: action.onTap,
+        child: Ink(
+          padding: const EdgeInsets.all(14),
+          decoration: _operationsMobileCardDecoration(
+            borderColor: action.highlighted
+                ? action.color.withValues(alpha: 0.30)
+                : null,
+            color: action.highlighted
+                ? action.color.withValues(alpha: 0.045)
+                : AppColors.cardBackground,
+          ),
+          child: Row(
+            children: [
+              _OperationsMobileIconBox(icon: action.icon, color: action.color),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      action.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.label.copyWith(
+                        color: AppColors.textPrimary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      action.subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondary,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: AppColors.textSecondary,
+                size: 22,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _OperationsMobileSupportGrid extends StatelessWidget {
+  final List<_OperationsActionItem> actions;
+
+  const _OperationsMobileSupportGrid({required this.actions});
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: actions.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        childAspectRatio: .95,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+      ),
+      itemBuilder: (context, index) =>
+          _OperationsMobileSupportCard(action: actions[index]),
+    );
+  }
+}
+
+class _OperationsMobileSupportCard extends StatelessWidget {
+  final _OperationsActionItem action;
+
+  const _OperationsMobileSupportCard({required this.action});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: action.onTap,
+        child: Ink(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+          decoration: _operationsMobileCardDecoration(
+            borderColor: action.highlighted
+                ? action.color.withValues(alpha: 0.28)
+                : null,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _OperationsMobileIconBox(icon: action.icon, color: action.color),
+              const SizedBox(height: 12),
+              Text(
+                action.title,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.label.copyWith(
+                  color: AppColors.textPrimary,
+                  fontSize: 12,
+                  height: 1.08,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _OperationsMobileActivityCard extends StatelessWidget {
+  final List<_OperationsRecentActivityItem> activities;
+
+  const _OperationsMobileActivityCard({required this.activities});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: _operationsMobileCardDecoration(),
+      child: activities.isEmpty
+          ? _OperationsMobileActivityTile(
+              item: _OperationsRecentActivityItem(
+                icon: Icons.check_circle_outline_rounded,
+                title: 'Sem atividades recentes',
+                subtitle: 'As ações do turno aparecem aqui.',
+                time: '',
+                color: AppColors.success,
+              ),
+            )
+          : Column(
+              children: [
+                for (var index = 0; index < activities.length; index++) ...[
+                  _OperationsMobileActivityTile(item: activities[index]),
+                  if (index < activities.length - 1)
+                    Divider(height: 28, color: AppColors.cardBorder),
+                ],
+              ],
+            ),
+    );
+  }
+}
+
+class _OperationsMobileActivityTile extends StatelessWidget {
+  final _OperationsRecentActivityItem item;
+
+  const _OperationsMobileActivityTile({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        _OperationsMobileIconBox(icon: item.icon, color: item.color),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                item.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.label.copyWith(
+                  color: AppColors.textPrimary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                item.subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textSecondary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (item.time.isNotEmpty) ...[
+          const SizedBox(width: 10),
+          Text(
+            item.time,
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _OperationsMobileSectionTitle extends StatelessWidget {
+  final String title;
+
+  const _OperationsMobileSectionTitle({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      title,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: AppTextStyles.h3.copyWith(
+        color: AppColors.textPrimary,
+        fontSize: 18,
+        fontWeight: FontWeight.w900,
+      ),
+    );
+  }
+}
+
+class _OperationsMobileIconBox extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+
+  const _OperationsMobileIconBox({
+    required this.icon,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Icon(icon, color: color, size: 23),
     );
   }
 }
@@ -2052,6 +2647,22 @@ class _OperationsActionItem {
   });
 }
 
+class _OperationsRecentActivityItem {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final String time;
+  final Color color;
+
+  const _OperationsRecentActivityItem({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.time,
+    required this.color,
+  });
+}
+
 BoxDecoration _operationsCardDecoration({
   Color? color,
   Color? borderColor,
@@ -2070,11 +2681,62 @@ BoxDecoration _operationsCardDecoration({
   );
 }
 
+BoxDecoration _operationsMobileCardDecoration({
+  Color? color,
+  Color? borderColor,
+  double radius = 20,
+}) {
+  return BoxDecoration(
+    color: color ?? AppColors.cardBackground,
+    borderRadius: BorderRadius.circular(radius),
+    border: Border.all(color: borderColor ?? AppColors.cardBorder),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withValues(alpha: 0.035),
+        blurRadius: 16,
+        offset: const Offset(0, 8),
+      ),
+    ],
+  );
+}
+
 int _operationsColumns(double width, int maxColumns) {
   if (width < 560) return 1;
   if (width < 900) return maxColumns >= 3 ? 2 : 1;
   if (width < 1180) return maxColumns >= 4 ? 3 : maxColumns;
   return maxColumns;
+}
+
+String _formatOperationsTime(DateTime value) {
+  final hour = value.hour.toString().padLeft(2, '0');
+  final minute = value.minute.toString().padLeft(2, '0');
+  return '$hour:$minute';
+}
+
+IconData _operationsActivityIcon(String type) {
+  if (type.contains('checklist')) return Icons.fact_check_outlined;
+  if (type.contains('entrega')) return Icons.local_shipping_outlined;
+  if (type.contains('ocorrencia')) return Icons.warning_amber_rounded;
+  if (type.contains('anotacao')) return Icons.edit_note_rounded;
+  if (type.contains('formulario')) return Icons.description_outlined;
+  if (type.contains('cafe') || type.contains('intervalo')) {
+    return Icons.coffee_outlined;
+  }
+  if (type.contains('liberado')) return Icons.logout_rounded;
+  if (type.contains('alocado')) return Icons.person_add_alt_1_rounded;
+  return Icons.check_circle_outline_rounded;
+}
+
+Color _operationsActivityColor(String type) {
+  if (type.contains('ocorrencia')) return AppColors.danger;
+  if (type.contains('checklist')) return AppColors.warning;
+  if (type.contains('entrega')) return AppColors.primary;
+  if (type.contains('anotacao')) return AppColors.statusSaida;
+  if (type.contains('formulario')) return AppColors.indigo;
+  if (type.contains('cafe') || type.contains('intervalo')) {
+    return AppColors.coffee;
+  }
+  return AppColors.success;
 }
 
 String _pluralize(int value, String singular, String plural) {
