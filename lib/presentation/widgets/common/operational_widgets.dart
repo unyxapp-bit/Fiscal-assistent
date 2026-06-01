@@ -736,6 +736,738 @@ class _OperationalFilterChip<T> extends StatelessWidget {
   }
 }
 
+class OperationalReferenceHeader extends StatelessWidget {
+  final String eyebrow;
+  final String title;
+  final String statusLabel;
+  final String? subtitle;
+  final IconData statusIcon;
+  final Color statusColor;
+  final int? alertCount;
+  final String? avatarLabel;
+  final VoidCallback? onBack;
+  final List<Widget> actions;
+
+  const OperationalReferenceHeader({
+    super.key,
+    required this.eyebrow,
+    required this.title,
+    required this.statusLabel,
+    this.subtitle,
+    this.statusIcon = Icons.circle,
+    this.statusColor = const Color(0xFF00856F),
+    this.alertCount,
+    this.avatarLabel,
+    this.onBack,
+    this.actions = const [],
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.appTheme;
+    final cleanAvatar = avatarLabel?.trim();
+    final initial = (cleanAvatar == null || cleanAvatar.isEmpty)
+        ? null
+        : cleanAvatar.substring(0, 1).toUpperCase();
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        if (onBack != null) ...[
+          _ReferenceCircleButton(
+            icon: Icons.arrow_back_rounded,
+            onTap: onBack,
+          ),
+          const SizedBox(width: 10),
+        ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                eyebrow,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.body.copyWith(
+                  color: tokens.textSecondary,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.h1.copyWith(
+                  color: tokens.textPrimary,
+                  fontSize: 30,
+                  height: 1.05,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(statusIcon, color: statusColor, size: 15),
+                  const SizedBox(width: 7),
+                  Expanded(
+                    child: Text(
+                      statusLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.body.copyWith(
+                        color: statusColor,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (subtitle != null) ...[
+                const SizedBox(height: 2),
+                Text(
+                  subtitle!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.caption.copyWith(
+                    color: tokens.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        for (final action in actions) ...[
+          const SizedBox(width: 8),
+          action,
+        ],
+        if (alertCount != null) ...[
+          const SizedBox(width: 10),
+          OperationalNotificationButton(count: alertCount!),
+        ],
+        if (initial != null) ...[
+          const SizedBox(width: 10),
+          CircleAvatar(
+            radius: 24,
+            backgroundColor: tokens.primary,
+            child: Text(
+              initial,
+              style: TextStyle(
+                color: tokens.textOnColor,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class OperationalNotificationButton extends StatelessWidget {
+  final int count;
+  final VoidCallback? onTap;
+
+  const OperationalNotificationButton({
+    super.key,
+    required this.count,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        _ReferenceCircleButton(
+          icon: Icons.notifications_none_rounded,
+          onTap: onTap,
+        ),
+        if (count > 0)
+          Positioned(
+            top: 1,
+            right: 1,
+            child: Container(
+              constraints: const BoxConstraints(minWidth: 20),
+              height: 20,
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+              child: Text(
+                count > 99 ? '99+' : count.toString(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  height: 1,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class OperationalHeroPanel extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData? icon;
+  final List<OperationalHeroMetric> metrics;
+  final Color? color;
+  final VoidCallback? onTap;
+
+  const OperationalHeroPanel({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    this.icon,
+    this.metrics = const [],
+    this.color,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.appTheme;
+    final base = color ?? tokens.primary;
+    final radius = BorderRadius.circular(26);
+    final child = Ink(
+      width: double.infinity,
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [base, Color.lerp(base, Colors.black, 0.18) ?? base],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: radius,
+        boxShadow: [
+          BoxShadow(
+            color: base.withValues(alpha: 0.24),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              if (icon != null) ...[
+                Icon(icon, color: tokens.textOnColor, size: 24),
+                const SizedBox(width: 10),
+              ],
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.h2.copyWith(
+                    color: tokens.textOnColor,
+                    fontSize: 25,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            subtitle,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.body.copyWith(
+              color: tokens.textOnColor.withValues(alpha: 0.90),
+              height: 1.35,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          if (metrics.isNotEmpty) ...[
+            const SizedBox(height: 22),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                for (final metric in metrics)
+                  Flexible(child: _OperationalHeroMetricView(metric: metric)),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+
+    if (onTap == null) return child;
+    return Material(
+      color: Colors.transparent,
+      borderRadius: radius,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: radius,
+        child: child,
+      ),
+    );
+  }
+}
+
+class OperationalHeroMetric {
+  final String value;
+  final String label;
+  final IconData icon;
+
+  const OperationalHeroMetric({
+    required this.value,
+    required this.label,
+    required this.icon,
+  });
+}
+
+class _OperationalHeroMetricView extends StatelessWidget {
+  final OperationalHeroMetric metric;
+
+  const _OperationalHeroMetricView({required this.metric});
+
+  @override
+  Widget build(BuildContext context) {
+    final onColor = context.appTheme.textOnColor;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(metric.icon, color: onColor.withValues(alpha: 0.90), size: 23),
+        const SizedBox(height: 6),
+        Text(
+          metric.value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.h3.copyWith(
+            color: onColor,
+            fontSize: 22,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        Text(
+          metric.label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.caption.copyWith(
+            color: onColor.withValues(alpha: 0.88),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class OperationalReferenceKpiCard extends StatelessWidget {
+  final IconData icon;
+  final String value;
+  final String title;
+  final String subtitle;
+  final Color color;
+  final VoidCallback? onTap;
+
+  const OperationalReferenceKpiCard({
+    super.key,
+    required this.icon,
+    required this.value,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final radius = BorderRadius.circular(20);
+    final content = Ink(
+      height: 132,
+      padding: const EdgeInsets.all(14),
+      decoration: _referenceCardDecoration(context, borderColor: color),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _ReferenceIconBox(icon: icon, color: color),
+          const Spacer(),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              maxLines: 1,
+              style: AppTextStyles.h2.copyWith(
+                color: color,
+                fontSize: 27,
+                height: 1,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.label.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          Text(
+            subtitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (onTap == null) return content;
+    return Material(
+      color: Colors.transparent,
+      borderRadius: radius,
+      child: InkWell(onTap: onTap, borderRadius: radius, child: content),
+    );
+  }
+}
+
+class OperationalReferenceKpiGrid extends StatelessWidget {
+  final List<Widget> children;
+  final double breakpoint;
+
+  const OperationalReferenceKpiGrid({
+    super.key,
+    required this.children,
+    this.breakpoint = 720,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (children.isEmpty) return const SizedBox.shrink();
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = constraints.maxWidth >= breakpoint ? 4 : 2;
+        final spacing = columns == 4 ? 12.0 : 10.0;
+        final width =
+            (constraints.maxWidth - (columns - 1) * spacing) / columns;
+
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (final child in children) SizedBox(width: width, child: child),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class OperationalReferenceActionCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final String badge;
+  final Color color;
+  final VoidCallback onTap;
+
+  const OperationalReferenceActionCard({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.badge,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final radius = BorderRadius.circular(20);
+    return Material(
+      color: Colors.transparent,
+      borderRadius: radius,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: radius,
+        child: Ink(
+          height: 142,
+          padding: const EdgeInsets.all(14),
+          decoration: _referenceCardDecoration(context, borderColor: color),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _ReferenceIconBox(icon: icon, color: color),
+              const Spacer(),
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.label.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              StatusPill(label: badge, color: color, compact: true),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class OperationalTimelineCard extends StatelessWidget {
+  final List<OperationalTimelineEntry> entries;
+  final String emptyTitle;
+  final String emptySubtitle;
+
+  const OperationalTimelineCard({
+    super.key,
+    required this.entries,
+    this.emptyTitle = 'Sem registros recentes',
+    this.emptySubtitle = 'As movimentacoes aparecem aqui.',
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: _referenceCardDecoration(context),
+      child: entries.isEmpty
+          ? _OperationalTimelineEntryView(
+              entry: OperationalTimelineEntry(
+                time: '',
+                icon: Icons.check_circle_outline_rounded,
+                title: emptyTitle,
+                subtitle: emptySubtitle,
+                color: AppColors.success,
+              ),
+            )
+          : Column(
+              children: [
+                for (var i = 0; i < entries.length; i++) ...[
+                  _OperationalTimelineEntryView(entry: entries[i]),
+                  if (i < entries.length - 1)
+                    Divider(height: 26, color: AppColors.cardBorder),
+                ],
+              ],
+            ),
+    );
+  }
+}
+
+class OperationalTimelineEntry {
+  final String time;
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final Color color;
+
+  const OperationalTimelineEntry({
+    required this.time,
+    required this.icon,
+    required this.title,
+    this.subtitle,
+    required this.color,
+  });
+}
+
+class _OperationalTimelineEntryView extends StatelessWidget {
+  final OperationalTimelineEntry entry;
+
+  const _OperationalTimelineEntryView({required this.entry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        _ReferenceIconBox(icon: entry.icon, color: entry.color),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                entry.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.label.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              if (entry.subtitle != null) ...[
+                const SizedBox(height: 3),
+                Text(
+                  entry.subtitle!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        if (entry.time.isNotEmpty) ...[
+          const SizedBox(width: 10),
+          Text(
+            entry.time,
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class ReferenceSectionTitle extends StatelessWidget {
+  final String title;
+  final String? action;
+  final VoidCallback? onAction;
+
+  const ReferenceSectionTitle({
+    super.key,
+    required this.title,
+    this.action,
+    this.onAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.h3.copyWith(
+              color: AppColors.textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ),
+        if (action != null)
+          TextButton(
+            onPressed: onAction,
+            child: Text(action!),
+          ),
+      ],
+    );
+  }
+}
+
+class _ReferenceCircleButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  const _ReferenceCircleButton({
+    required this.icon,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.appTheme;
+    return Material(
+      color: Colors.transparent,
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: Ink(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: tokens.cardBackground,
+            shape: BoxShape.circle,
+            border: Border.all(color: tokens.cardBorder),
+          ),
+          child: Icon(icon, color: tokens.textPrimary, size: 22),
+        ),
+      ),
+    );
+  }
+}
+
+class _ReferenceIconBox extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+
+  const _ReferenceIconBox({
+    required this.icon,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: 0.14)),
+      ),
+      child: Icon(icon, color: color, size: 23),
+    );
+  }
+}
+
+BoxDecoration _referenceCardDecoration(
+  BuildContext context, {
+  Color? borderColor,
+}) {
+  final tokens = context.appTheme;
+  return BoxDecoration(
+    color: tokens.cardBackground,
+    borderRadius: BorderRadius.circular(20),
+    border: Border.all(
+      color: borderColor?.withValues(alpha: 0.22) ?? tokens.cardBorder,
+    ),
+    boxShadow: [
+      BoxShadow(
+        color: tokens.shadowColor.withValues(alpha: 0.035),
+        blurRadius: 16,
+        offset: const Offset(0, 8),
+      ),
+    ],
+  );
+}
+
 class OperationalActionTile extends StatelessWidget {
   final IconData icon;
   final String label;

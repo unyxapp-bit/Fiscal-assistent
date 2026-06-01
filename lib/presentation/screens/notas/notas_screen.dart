@@ -9,6 +9,7 @@ import '../../../core/constants/dimensions.dart';
 import '../../../domain/entities/nota.dart';
 import '../../../domain/enums/tipo_lembrete.dart';
 import '../../providers/nota_provider.dart';
+import '../../widgets/common/operational_widgets.dart';
 import 'nota_form_screen.dart';
 import 'nota_detail_screen.dart';
 import '../../../core/utils/app_notif.dart';
@@ -778,54 +779,55 @@ class _NotasScreenState extends State<NotasScreen> {
           // ── Cards de resumo ────────────────────────────────────────────
           Padding(
             padding: EdgeInsets.symmetric(horizontal: horizontalPad),
-            child: Row(
+            child: OperationalReferenceKpiGrid(
               children: [
-                Expanded(
-                  child: _StatCard(
-                    label: 'Tarefas',
-                    value: provider.tarefas.isEmpty
-                        ? '0'
-                        : '${provider.tarefasConcluidas.length}/${provider.tarefas.length}',
-                    color: TipoLembrete.tarefa.cor,
-                    icon: TipoLembrete.tarefa.icone,
-                    progresso: provider.tarefas.isEmpty
-                        ? null
-                        : provider.tarefasConcluidas.length /
-                            provider.tarefas.length,
-                    onTap: () {
-                      setState(() => _filtroImportantes = false);
-                      provider.setFiltroTipo(TipoLembrete.tarefa);
-                    },
-                  ),
+                OperationalReferenceKpiCard(
+                  icon: TipoLembrete.tarefa.icone,
+                  value: provider.tarefas.isEmpty
+                      ? '0'
+                      : '${provider.tarefasConcluidas.length}/${provider.tarefas.length}',
+                  title: 'Tarefas',
+                  subtitle: 'Concluidas / total',
+                  color: TipoLembrete.tarefa.cor,
+                  onTap: () {
+                    setState(() => _filtroImportantes = false);
+                    provider.setFiltroTipo(TipoLembrete.tarefa);
+                  },
                 ),
-                const SizedBox(width: Dimensions.spacingSM),
-                Expanded(
-                  child: _StatCard(
-                    label: 'Lembretes',
-                    value: provider.totalLembretesAtivos.toString(),
-                    color: vencidos > 0
-                        ? AppColors.danger
-                        : TipoLembrete.lembrete.cor,
-                    icon: vencidos > 0
-                        ? Icons.alarm_off
-                        : TipoLembrete.lembrete.icone,
-                    onTap: () {
-                      setState(() => _filtroImportantes = false);
-                      provider.setFiltroTipo(TipoLembrete.lembrete);
-                    },
-                  ),
+                OperationalReferenceKpiCard(
+                  icon: vencidos > 0
+                      ? Icons.alarm_off
+                      : TipoLembrete.lembrete.icone,
+                  value: provider.totalLembretesAtivos.toString(),
+                  title: 'Lembretes',
+                  subtitle: vencidos > 0 ? '$vencidos vencido(s)' : 'Ativos',
+                  color: vencidos > 0
+                      ? AppColors.danger
+                      : TipoLembrete.lembrete.cor,
+                  onTap: () {
+                    setState(() => _filtroImportantes = false);
+                    provider.setFiltroTipo(TipoLembrete.lembrete);
+                  },
                 ),
-                const SizedBox(width: Dimensions.spacingSM),
-                Expanded(
-                  child: _StatCard(
-                    label: 'Anotações',
-                    value: provider.anotacoes.length.toString(),
-                    color: TipoLembrete.anotacao.cor,
-                    icon: TipoLembrete.anotacao.icone,
-                    onTap: () {
-                      setState(() => _filtroImportantes = false);
-                      provider.setFiltroTipo(TipoLembrete.anotacao);
-                    },
+                OperationalReferenceKpiCard(
+                  icon: TipoLembrete.anotacao.icone,
+                  value: provider.anotacoes.length.toString(),
+                  title: 'Anotacoes',
+                  subtitle: 'Registros livres',
+                  color: TipoLembrete.anotacao.cor,
+                  onTap: () {
+                    setState(() => _filtroImportantes = false);
+                    provider.setFiltroTipo(TipoLembrete.anotacao);
+                  },
+                ),
+                OperationalReferenceKpiCard(
+                  icon: Icons.star_rounded,
+                  value: provider.importantes.length.toString(),
+                  title: 'Importantes',
+                  subtitle: 'Nao concluidas',
+                  color: AppColors.warning,
+                  onTap: () => setState(
+                    () => _filtroImportantes = !_filtroImportantes,
                   ),
                 ),
               ],
@@ -973,64 +975,6 @@ class _NotasScreenState extends State<NotasScreen> {
         onPressed: () => _mostrarMenuCriar(context),
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.add),
-      ),
-    );
-  }
-}
-
-// ── Stat card ─────────────────────────────────────────────────────────────────
-
-class _StatCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-  final IconData icon;
-  final double? progresso;
-  final VoidCallback? onTap;
-
-  const _StatCard({
-    required this.label,
-    required this.value,
-    required this.color,
-    required this.icon,
-    this.progresso,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(Dimensions.radiusMD),
-        child: Padding(
-          padding: const EdgeInsets.all(Dimensions.paddingSM),
-          child: Column(
-            children: [
-              Icon(icon, color: color, size: 22),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: AppTextStyles.h3
-                    .copyWith(color: color, fontWeight: FontWeight.bold),
-              ),
-              Text(label,
-                  style: AppTextStyles.caption, textAlign: TextAlign.center),
-              if (progresso != null) ...[
-                const SizedBox(height: 6),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: progresso,
-                    minHeight: 4,
-                    backgroundColor: color.withValues(alpha: 0.15),
-                    valueColor: AlwaysStoppedAnimation<Color>(color),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
       ),
     );
   }

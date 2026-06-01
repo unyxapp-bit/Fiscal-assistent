@@ -10,6 +10,7 @@ import '../../../domain/entities/evento_turno.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/evento_turno_provider.dart';
 import '../../providers/ocorrencia_provider.dart';
+import '../../widgets/common/operational_widgets.dart';
 import 'ocorrencia_detail_screen.dart';
 import 'ocorrencia_form_screen.dart';
 
@@ -354,77 +355,104 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
     final provider = Provider.of<OcorrenciaProvider>(context);
     final abertas = provider.abertas;
     final resolvidas = provider.resolvidas;
+    final criticas =
+        abertas.where((o) => o.gravidade == GravidadeOcorrencia.alta).length;
+    final hoje = provider.hoje.length;
+    final horizontalPad =
+        Dimensions.operationalHPad(MediaQuery.sizeOf(context).width);
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Ocorrências'),
-        backgroundColor: AppColors.background,
-        elevation: 0,
-        bottom: TabBar(
-          controller: _tabCtrl,
-          tabs: [
-            Tab(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(horizontalPad, 14, horizontalPad, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Abertas'),
-                  if (abertas.isNotEmpty) ...[
-                    const SizedBox(width: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 1),
-                      decoration: BoxDecoration(
+                  OperationalReferenceHeader(
+                    eyebrow: 'Operacao',
+                    title: 'Ocorrencias',
+                    statusLabel: abertas.isEmpty
+                        ? 'Nenhuma ocorrencia aberta'
+                        : '$criticas critica(s) em aberto',
+                    subtitle: '$hoje registro(s) hoje',
+                    statusIcon: abertas.isEmpty
+                        ? Icons.check_circle_rounded
+                        : Icons.warning_amber_rounded,
+                    statusColor:
+                        abertas.isEmpty ? AppColors.success : AppColors.danger,
+                    alertCount: abertas.length,
+                    onBack: Navigator.of(context).canPop()
+                        ? () => Navigator.pop(context)
+                        : null,
+                  ),
+                  const SizedBox(height: 20),
+                  OperationalReferenceKpiGrid(
+                    children: [
+                      OperationalReferenceKpiCard(
+                        icon: Icons.warning_amber_rounded,
+                        value: abertas.length.toString(),
+                        title: 'Abertas',
+                        subtitle: 'Precisam acao',
+                        color: abertas.isEmpty
+                            ? AppColors.success
+                            : AppColors.danger,
+                        onTap: () => _tabCtrl.animateTo(0),
+                      ),
+                      OperationalReferenceKpiCard(
+                        icon: Icons.priority_high_rounded,
+                        value: criticas.toString(),
+                        title: 'Criticas',
+                        subtitle: 'Alta gravidade',
                         color: AppColors.danger,
-                        borderRadius: BorderRadius.circular(8),
+                        onTap: () => _tabCtrl.animateTo(0),
                       ),
-                      child: Text(
-                        '${abertas.length}',
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold),
+                      OperationalReferenceKpiCard(
+                        icon: Icons.today_outlined,
+                        value: hoje.toString(),
+                        title: 'Hoje',
+                        subtitle: 'Registradas',
+                        color: AppColors.primary,
                       ),
+                      OperationalReferenceKpiCard(
+                        icon: Icons.check_circle_outline,
+                        value: resolvidas.length.toString(),
+                        title: 'Resolvidas',
+                        subtitle: 'Concluidas',
+                        color: AppColors.success,
+                        onTap: () => _tabCtrl.animateTo(1),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  AppSurface(
+                    padding: const EdgeInsets.all(4),
+                    elevated: false,
+                    child: TabBar(
+                      controller: _tabCtrl,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      tabs: [
+                        Tab(text: 'Abertas (${abertas.length})'),
+                        Tab(text: 'Resolvidas (${resolvidas.length})'),
+                      ],
                     ),
-                  ],
+                  ),
                 ],
               ),
             ),
-            Tab(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+            Expanded(
+              child: TabBarView(
+                controller: _tabCtrl,
                 children: [
-                  const Text('Resolvidas'),
-                  if (resolvidas.isNotEmpty) ...[
-                    const SizedBox(width: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 1),
-                      decoration: BoxDecoration(
-                        color: AppColors.success,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        '${resolvidas.length}',
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
+                  _buildLista(context, abertas, provider, true),
+                  _buildLista(context, resolvidas, provider, false),
                 ],
               ),
             ),
           ],
         ),
-      ),
-      body: TabBarView(
-        controller: _tabCtrl,
-        children: [
-          _buildLista(context, abertas, provider, true),
-          _buildLista(context, resolvidas, provider, false),
-        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.of(context).push(
