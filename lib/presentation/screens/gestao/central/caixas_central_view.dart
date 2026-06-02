@@ -12,6 +12,7 @@ import '../../../providers/cafe_provider.dart';
 import '../../../providers/caixa_provider.dart';
 import '../../../providers/colaborador_provider.dart';
 import '../../../providers/escala_provider.dart';
+import '../../mapa/widgets/colaborador_detalhes_sheet.dart';
 import '../gargalo_calculator.dart';
 import '../visao_gargalo_screen.dart';
 
@@ -56,9 +57,8 @@ class CaixasCentralView extends StatelessWidget {
       cafe: cafe,
     );
     final risco = cafe.totalEmAtraso + gargalos;
-    final sugestaoColaborador = disponiveis.isNotEmpty
-        ? disponiveis.first
-        : null;
+    final sugestaoColaborador =
+        disponiveis.isNotEmpty ? disponiveis.first : null;
     final sugestaoCaixa = caixasLivres.isNotEmpty ? caixasLivres.first : null;
     final queue = _buildPauseQueue(escala, alocacao, cafe);
 
@@ -234,30 +234,30 @@ class _CaixasHeroHeader extends StatelessWidget {
         : 'Sem atrasos ou gargalos previstos.';
 
     return Container(
-      padding: const EdgeInsets.all(28),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [Color(0xFF0F766E), Color(0xFF14B8A6)],
         ),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.18),
-            blurRadius: 24,
-            offset: const Offset(0, 10),
+            color: AppColors.primary.withValues(alpha: 0.14),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
           final alert = Container(
-            width: constraints.maxWidth >= 780 ? 330 : double.infinity,
-            padding: const EdgeInsets.all(20),
+            width: constraints.maxWidth >= 780 ? 286 : double.infinity,
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: Colors.black.withValues(alpha: 0.16),
-              borderRadius: BorderRadius.circular(22),
+              borderRadius: BorderRadius.circular(18),
             ),
             child: Row(
               children: [
@@ -266,9 +266,9 @@ class _CaixasHeroHeader extends StatelessWidget {
                       ? Icons.notifications_active_rounded
                       : Icons.check_circle_outline_rounded,
                   color: color,
-                  size: 30,
+                  size: 24,
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -280,7 +280,7 @@ class _CaixasHeroHeader extends StatelessWidget {
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w900,
-                          fontSize: 16,
+                          fontSize: 14,
                         ),
                       ),
                       Text(
@@ -289,6 +289,7 @@ class _CaixasHeroHeader extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.72),
+                          fontSize: 12.5,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -305,23 +306,23 @@ class _CaixasHeroHeader extends StatelessWidget {
               const Text(
                 'Central Operacional',
                 style: TextStyle(
-                  fontSize: 34,
+                  fontSize: 28,
                   fontWeight: FontWeight.w900,
                   color: Colors.white,
                   letterSpacing: 0,
                   height: 1.05,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Text(
                 'Decida quem alocar, quem liberar e onde existe risco de cobertura.',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.76),
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  height: 1.35,
+                  height: 1.28,
                 ),
               ),
             ],
@@ -330,14 +331,14 @@ class _CaixasHeroHeader extends StatelessWidget {
           if (constraints.maxWidth < 780) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [headline, const SizedBox(height: 18), alert],
+              children: [headline, const SizedBox(height: 12), alert],
             );
           }
 
           return Row(
             children: [
               Expanded(child: headline),
-              const SizedBox(width: 24),
+              const SizedBox(width: 18),
               alert,
             ],
           );
@@ -398,8 +399,8 @@ class _CaixasSummaryGrid extends StatelessWidget {
         final columns = constraints.maxWidth >= 980
             ? 4
             : constraints.maxWidth >= 560
-            ? 2
-            : 1;
+                ? 2
+                : 1;
 
         return GridView.builder(
           itemCount: items.length,
@@ -430,8 +431,8 @@ class _ActionGrid extends StatelessWidget {
         final columns = constraints.maxWidth >= 1080
             ? 3
             : constraints.maxWidth >= 700
-            ? 2
-            : 1;
+                ? 2
+                : 1;
 
         return GridView.builder(
           itemCount: actions.length,
@@ -439,9 +440,9 @@ class _ActionGrid extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: columns,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            mainAxisExtent: 220,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            mainAxisExtent: 178,
           ),
           itemBuilder: (context, index) =>
               _OperationalActionCard(action: actions[index]),
@@ -519,16 +520,73 @@ class _MiniCashierMap extends StatelessWidget {
               spacing: 12,
               runSpacing: 12,
               children: [
-                for (final caixa in visible)
-                  _CashierMiniCard(
-                    caixa: caixa,
-                    alocacao: alocByCaixa[caixa.id],
-                    colaborador:
-                        colabById[alocByCaixa[caixa.id]?.colaboradorId],
-                    pausa: cafe.getPausaAtivaPorCaixa(caixa.id),
+                for (final caixa in visible) ...[
+                  Builder(
+                    builder: (context) {
+                      final alocacao = alocByCaixa[caixa.id];
+                      final pausa = cafe.getPausaAtivaPorCaixa(caixa.id);
+                      final colaborador = colabById[alocacao?.colaboradorId] ??
+                          colabById[pausa?.colaboradorId];
+
+                      return _CashierMiniCard(
+                        caixa: caixa,
+                        alocacao: alocacao,
+                        colaborador: colaborador,
+                        pausa: pausa,
+                        onTap: () => _showCashierDetails(
+                          context,
+                          caixa,
+                          alocacao,
+                          colaborador,
+                        ),
+                      );
+                    },
                   ),
+                ],
               ],
             ),
+    );
+  }
+
+  void _showCashierDetails(
+    BuildContext context,
+    Caixa caixa,
+    Alocacao? alocacao,
+    Colaborador? colaborador,
+  ) {
+    final alocacaoProvider = context.read<AlocacaoProvider>();
+    final escalaProvider = context.read<EscalaProvider>();
+    final cafeProvider = context.read<CafeProvider>();
+
+    TurnoLocal? turno;
+    if (colaborador != null) {
+      for (final item in escalaProvider.turnosHoje) {
+        if (item.colaboradorId == colaborador.id) {
+          turno = item;
+          break;
+        }
+      }
+    }
+
+    final pausa = colaborador != null
+        ? cafeProvider.getPausaAtiva(colaborador.id)
+        : cafeProvider.getPausaAtivaPorCaixa(caixa.id);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => ColaboradorDetalhesSheet(
+        caixa: caixa,
+        colaborador: colaborador,
+        alocacao: alocacao,
+        turno: turno,
+        pausa: pausa,
+        alocacaoProvider: alocacaoProvider,
+        providerContext: context,
+      ),
     );
   }
 }
@@ -610,9 +668,8 @@ class _MiniBottleneckPanel extends StatelessWidget {
                         temGargalo
                             ? Icons.auto_awesome_rounded
                             : Icons.check_circle_outline_rounded,
-                        color: temGargalo
-                            ? AppColors.warning
-                            : AppColors.success,
+                        color:
+                            temGargalo ? AppColors.warning : AppColors.success,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -707,7 +764,7 @@ class _OperationalActionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(14),
       decoration: _softCard(
         color: action.color.withValues(alpha: 0.06),
         borderColor: action.color.withValues(alpha: 0.22),
@@ -717,35 +774,47 @@ class _OperationalActionCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              _IconBox(icon: action.icon, color: action.color, size: 44),
+              _IconBox(icon: action.icon, color: action.color, size: 34),
               const Spacer(),
-              Icon(Icons.chevron_right_rounded, color: action.color),
+              Icon(Icons.chevron_right_rounded, color: action.color, size: 20),
             ],
           ),
-          const Spacer(),
+          const SizedBox(height: 10),
           Text(
             action.title,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.h4.copyWith(fontWeight: FontWeight.w900),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            action.description,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.body.copyWith(
-              color: AppColors.textSecondary,
-              height: 1.35,
+            style: AppTextStyles.h4.copyWith(
+              fontWeight: FontWeight.w900,
+              fontSize: 15,
+              height: 1.12,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 4),
+          Expanded(
+            child: Text(
+              action.description,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.25,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
           FilledButton(
             style: FilledButton.styleFrom(
               backgroundColor: action.color,
               foregroundColor: Colors.white,
+              minimumSize: const Size(0, 34),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              textStyle: AppTextStyles.caption.copyWith(
+                fontWeight: FontWeight.w900,
+              ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
             onPressed: action.onTap,
@@ -893,78 +962,90 @@ class _CashierMiniCard extends StatelessWidget {
   final Alocacao? alocacao;
   final Colaborador? colaborador;
   final PausaCafe? pausa;
+  final VoidCallback onTap;
 
   const _CashierMiniCard({
     required this.caixa,
     required this.alocacao,
     required this.colaborador,
     required this.pausa,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final status = _cashierStatus(caixa, alocacao, pausa);
-    return Container(
-      width: 190,
-      height: 150,
-      padding: const EdgeInsets.all(16),
-      decoration: _softCard(
-        color: status.color.withValues(alpha: 0.06),
-        borderColor: status.color.withValues(alpha: 0.25),
-        radius: 18,
-        elevated: false,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          width: 190,
+          height: 150,
+          padding: const EdgeInsets.all(16),
+          decoration: _softCard(
+            color: status.color.withValues(alpha: 0.06),
+            borderColor: status.color.withValues(alpha: 0.25),
+            radius: 18,
+            elevated: false,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: status.color,
-                  shape: BoxShape.circle,
-                ),
+              Row(
+                children: [
+                  Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: status.color,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const Spacer(),
+                  Icon(Icons.point_of_sale_rounded, color: status.color),
+                ],
               ),
               const Spacer(),
-              Icon(Icons.point_of_sale_rounded, color: status.color),
+              Text(
+                _caixaLabel(caixa),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.w900),
+              ),
+              Text(
+                caixa.localizacao?.trim().isNotEmpty == true
+                    ? caixa.localizacao!
+                    : caixa.tipo.nome,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                colaborador?.nome ??
+                    pausa?.colaboradorNome ??
+                    status.operatorName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style:
+                    AppTextStyles.label.copyWith(fontWeight: FontWeight.w800),
+              ),
+              Text(
+                '${status.label} - ${status.note}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.caption.copyWith(
+                  color: status.color,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ],
           ),
-          const Spacer(),
-          Text(
-            _caixaLabel(caixa),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.w900),
-          ),
-          Text(
-            caixa.localizacao?.trim().isNotEmpty == true
-                ? caixa.localizacao!
-                : caixa.tipo.nome,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.caption.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            colaborador?.nome ?? pausa?.colaboradorNome ?? status.operatorName,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.label.copyWith(fontWeight: FontWeight.w800),
-          ),
-          Text(
-            '${status.label} - ${status.note}',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.caption.copyWith(
-              color: status.color,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -980,8 +1061,8 @@ class _BottleneckBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = slot.gargalo
         ? (slot.quantidade < slot.capacidadeMinima
-              ? AppColors.danger
-              : AppColors.warning)
+            ? AppColors.danger
+            : AppColors.warning)
         : AppColors.success;
     final barHeight = (34 + (slot.quantidade / peak) * 74).clamp(34.0, 112.0);
 
@@ -1178,12 +1259,10 @@ List<Colaborador> _colaboradoresOperacionais(
   ColaboradorProvider colaboradores,
   EscalaProvider escala,
 ) {
-  final ativos = colaboradores.todosColaboradores
-      .where((c) => c.ativo)
-      .toList();
-  final trabalhandoIds = escala.trabalhandoHoje
-      .map((t) => t.colaboradorId)
-      .toSet();
+  final ativos =
+      colaboradores.todosColaboradores.where((c) => c.ativo).toList();
+  final trabalhandoIds =
+      escala.trabalhandoHoje.map((t) => t.colaboradorId).toSet();
   if (trabalhandoIds.isEmpty) return ativos;
   return ativos.where((c) => trabalhandoIds.contains(c.id)).toList();
 }
@@ -1218,12 +1297,12 @@ List<_PauseQueueEntry> _buildPauseQueue(
     final delay = pausaAtiva != null
         ? 'Em pausa'
         : diff < 0
-        ? '+${diff.abs()} min'
-        : diff <= 15
-        ? 'Agora'
-        : diff <= 45
-        ? 'Próxima'
-        : 'Em ${diff ~/ 60 > 0 ? '${diff ~/ 60}h ' : ''}${diff.remainder(60)}min';
+            ? '+${diff.abs()} min'
+            : diff <= 15
+                ? 'Agora'
+                : diff <= 45
+                    ? 'Próxima'
+                    : 'Em ${diff ~/ 60 > 0 ? '${diff ~/ 60}h ' : ''}${diff.remainder(60)}min';
 
     entries.add(
       _PauseQueueEntry(

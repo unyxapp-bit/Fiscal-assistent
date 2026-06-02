@@ -9,6 +9,7 @@ class GestaoDestination {
   final IconData icon;
   final IconData selectedIcon;
   final Color color;
+  final int pageIndex;
   final int badgeCount;
 
   const GestaoDestination({
@@ -16,6 +17,7 @@ class GestaoDestination {
     required this.icon,
     required this.selectedIcon,
     required this.color,
+    required this.pageIndex,
     this.badgeCount = 0,
   });
 }
@@ -99,8 +101,8 @@ class CaixasSidebarV3 extends StatelessWidget {
             for (int i = 0; i < destinos.length; i++) ...[
               _SidebarTile(
                 item: destinos[i],
-                selected: i == selectedIndex,
-                onTap: () => onSelected(i),
+                selected: destinos[i].pageIndex == selectedIndex,
+                onTap: () => onSelected(destinos[i].pageIndex),
               ),
               const SizedBox(height: 10),
             ],
@@ -192,8 +194,8 @@ class GestaoTopNavigation extends StatelessWidget {
                       if (i > 0) const SizedBox(width: 8),
                       _GestaoChip(
                         item: destinos[i],
-                        selected: i == selectedIndex,
-                        onTap: () => onSelected(i),
+                        selected: destinos[i].pageIndex == selectedIndex,
+                        onTap: () => onSelected(destinos[i].pageIndex),
                       ),
                     ],
                   ],

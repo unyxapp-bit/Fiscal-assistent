@@ -88,24 +88,21 @@ class _GestaoScreenState extends State<GestaoScreen> {
         icon: Icons.dashboard_customize_outlined,
         selectedIcon: Icons.dashboard_customize_rounded,
         color: AppColors.primary,
+        pageIndex: 0,
       ),
       GestaoDestination(
         label: 'Alocação',
         icon: Icons.swap_horiz_outlined,
         selectedIcon: Icons.swap_horiz_rounded,
         color: AppColors.primary,
-      ),
-      GestaoDestination(
-        label: 'Mapa',
-        icon: Icons.map_outlined,
-        selectedIcon: Icons.map_rounded,
-        color: AppColors.cyan,
+        pageIndex: 1,
       ),
       GestaoDestination(
         label: 'Café',
         icon: Icons.restaurant_outlined,
         selectedIcon: Icons.restaurant_rounded,
         color: AppColors.statusCafe,
+        pageIndex: 3,
         badgeCount: atrasos,
       ),
       GestaoDestination(
@@ -113,6 +110,7 @@ class _GestaoScreenState extends State<GestaoScreen> {
         icon: Icons.insights_outlined,
         selectedIcon: Icons.insights_rounded,
         color: AppColors.statusAtencao,
+        pageIndex: 4,
         badgeCount: gargalos,
       ),
     ];
