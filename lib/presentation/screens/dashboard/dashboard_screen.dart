@@ -64,7 +64,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 7, vsync: this);
+    _tabController = TabController(length: 8, vsync: this);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) setState(() {});
     });
@@ -225,6 +225,11 @@ class _DashboardScreenState extends State<DashboardScreen>
         label: 'Loja',
         icon: Icons.store_outlined,
         selectedIcon: Icons.store,
+      ),
+      const _DashboardNavItem(
+        label: 'Cartaz',
+        icon: Icons.local_offer_outlined,
+        selectedIcon: Icons.local_offer_rounded,
       ),
       const _DashboardNavItem(
         label: 'Descontos',
@@ -565,6 +570,15 @@ class _DashboardScreenState extends State<DashboardScreen>
         ),
       ),
       DashboardV2QuickAction(
+        icon: Icons.local_offer_outlined,
+        title: 'Cartaz',
+        subtitle: 'Criar ofertas',
+        color: const Color(0xFFD6166A),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const CartazesHomePage()),
+        ),
+      ),
+      DashboardV2QuickAction(
         icon: Icons.auto_awesome_rounded,
         title: 'IA Fiscal',
         subtitle: 'Perguntar e agir',
@@ -638,8 +652,8 @@ class _DashboardScreenState extends State<DashboardScreen>
       onDescontoTap: () => Navigator.of(context).push(
         MaterialPageRoute(builder: (_) => const DescontoCalculatorScreen()),
       ),
-      onBalcaoTap: () => _tabController.animateTo(5),
-      onAiTap: () => _tabController.animateTo(6),
+      onBalcaoTap: () => _tabController.animateTo(6),
+      onAiTap: () => _tabController.animateTo(7),
       onRefresh: _refreshData,
     );
 
@@ -1082,6 +1096,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         ),
 
         // â”€â”€ ABA 5: BALCÃƒO FISCAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        const CartazesHomePage(),
         const DescontoCalculatorScreen(),
         const FiscalEventsScreen(),
         const FiscalAiScreen(),
