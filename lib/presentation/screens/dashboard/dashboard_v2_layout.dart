@@ -136,6 +136,8 @@ class DashboardV2Home extends StatelessWidget {
   final VoidCallback onReportTap;
   final VoidCallback onPizzariaTap;
   final VoidCallback onOperacoesTap;
+  final VoidCallback onCaixasTap;
+  final VoidCallback onCartazTap;
   final VoidCallback onDescontoTap;
   final VoidCallback onBalcaoTap;
   final VoidCallback onAiTap;
@@ -165,6 +167,8 @@ class DashboardV2Home extends StatelessWidget {
     required this.onReportTap,
     required this.onPizzariaTap,
     required this.onOperacoesTap,
+    required this.onCaixasTap,
+    required this.onCartazTap,
     required this.onDescontoTap,
     required this.onBalcaoTap,
     required this.onAiTap,
@@ -200,6 +204,8 @@ class DashboardV2Home extends StatelessWidget {
                 onPrimaryAction: onPrimaryAction,
                 onPizzariaTap: onPizzariaTap,
                 onOperacoesTap: onOperacoesTap,
+                onCaixasTap: onCaixasTap,
+                onCartazTap: onCartazTap,
                 onDescontoTap: onDescontoTap,
                 onBalcaoTap: onBalcaoTap,
                 onAiTap: onAiTap,
@@ -295,6 +301,8 @@ class _MobileDashboardHome extends StatelessWidget {
   final VoidCallback onPrimaryAction;
   final VoidCallback onPizzariaTap;
   final VoidCallback onOperacoesTap;
+  final VoidCallback onCaixasTap;
+  final VoidCallback onCartazTap;
   final VoidCallback onDescontoTap;
   final VoidCallback onBalcaoTap;
   final VoidCallback onAiTap;
@@ -314,6 +322,8 @@ class _MobileDashboardHome extends StatelessWidget {
     required this.onPrimaryAction,
     required this.onPizzariaTap,
     required this.onOperacoesTap,
+    required this.onCaixasTap,
+    required this.onCartazTap,
     required this.onDescontoTap,
     required this.onBalcaoTap,
     required this.onAiTap,
@@ -338,9 +348,9 @@ class _MobileDashboardHome extends StatelessWidget {
         label: 'Alertas',
         value: alertas.toString(),
         trend: turnoCritico
-            ? 'critico'
+            ? 'cr\u00edtico'
             : turnoEmAtencao
-                ? 'atencao'
+                ? 'aten\u00e7\u00e3o'
                 : 'ok',
         positive: alertas == 0 && !turnoCritico,
       ),
@@ -360,15 +370,15 @@ class _MobileDashboardHome extends StatelessWidget {
       ),
       _MobileModuleItem(
         title: 'Pizzaria',
-        subtitle: 'Pedidos e cardapio',
+        subtitle: 'Pedidos e card\u00e1pio',
         icon: Icons.local_pizza_rounded,
         color: const Color(0xFFD97706),
         background: const Color(0xFFFEF3C7),
         onTap: onPizzariaTap,
       ),
       _MobileModuleItem(
-        title: 'Operacoes',
-        subtitle: 'Visao geral',
+        title: 'Opera\u00e7\u00f5es',
+        subtitle: 'Vis\u00e3o geral',
         icon: Icons.dashboard_customize_rounded,
         color: const Color(0xFF2563EB),
         background: const Color(0xFFDBEAFE),
@@ -377,15 +387,31 @@ class _MobileDashboardHome extends StatelessWidget {
         badgeColor: alertas > 0 ? _v2Danger : null,
       ),
       _MobileModuleItem(
+        title: 'Caixas',
+        subtitle: 'Central operacional',
+        icon: Icons.point_of_sale_rounded,
+        color: _v2Primary,
+        background: const Color(0xFFDDF7F3),
+        onTap: onCaixasTap,
+      ),
+      _MobileModuleItem(
+        title: 'Cartaz',
+        subtitle: 'Ofertas e campanhas',
+        icon: Icons.local_offer_rounded,
+        color: const Color(0xFFD6166A),
+        background: const Color(0xFFFFE4EE),
+        onTap: onCartazTap,
+      ),
+      _MobileModuleItem(
         title: 'Descontos',
-        subtitle: 'Calculadora rapida',
+        subtitle: 'Calculadora r\u00e1pida',
         icon: Icons.loyalty_rounded,
         color: const Color(0xFF059669),
         background: const Color(0xFFD1FAE5),
         onTap: onDescontoTap,
       ),
       _MobileModuleItem(
-        title: 'Balcao',
+        title: 'Balc\u00e3o',
         subtitle: 'Atendimento fiscal',
         icon: Icons.point_of_sale_rounded,
         color: const Color(0xFF0284C7),
@@ -873,21 +899,6 @@ class _MobileBentoCard extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 3,
-                  decoration: BoxDecoration(
-                    color: module.color.withValues(alpha: 0.25),
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(22),
-                      bottomRight: Radius.circular(22),
-                    ),
-                  ),
-                ),
               ),
             ],
           ),

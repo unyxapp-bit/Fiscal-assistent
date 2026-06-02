@@ -187,6 +187,240 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   Future<void> _refreshData() => _loadData(refreshSharedData: true);
 
+  void _switchToTab(int index) {
+    if (_tabController.index != index) {
+      _tabController.animateTo(index);
+    }
+  }
+
+  Future<void> _openScreen(Widget screen) {
+    return Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => screen),
+    );
+  }
+
+  Future<void> _showMobileMoreMenu() async {
+    final sections = [
+      _MobileMoreSection(
+        title: 'M\u00f3dulos',
+        actions: [
+          _MobileMoreAction(
+            label: 'Loja',
+            icon: Icons.store_rounded,
+            color: AppColors.warning,
+            onTap: () => _switchToTab(3),
+          ),
+          _MobileMoreAction(
+            label: 'Cartaz',
+            icon: Icons.local_offer_rounded,
+            color: const Color(0xFFD6166A),
+            onTap: () => _switchToTab(4),
+          ),
+          _MobileMoreAction(
+            label: 'Descontos',
+            icon: Icons.percent_rounded,
+            color: AppColors.success,
+            onTap: () => _switchToTab(5),
+          ),
+          _MobileMoreAction(
+            label: 'Balc\u00e3o',
+            icon: Icons.campaign_rounded,
+            color: AppColors.info,
+            onTap: () => _switchToTab(6),
+          ),
+          _MobileMoreAction(
+            label: 'IA Fiscal',
+            icon: Icons.auto_awesome_rounded,
+            color: AppColors.deepPurple,
+            onTap: () => _switchToTab(7),
+          ),
+        ],
+      ),
+      _MobileMoreSection(
+        title: 'Opera\u00e7\u00e3o',
+        actions: [
+          _MobileMoreAction(
+            label: 'Central',
+            icon: Icons.dashboard_customize_rounded,
+            color: AppColors.primary,
+            onTap: () => _openScreen(
+              const GestaoScreen(initialIndex: GestaoScreen.centralIndex),
+            ),
+          ),
+          _MobileMoreAction(
+            label: 'Aloca\u00e7\u00e3o',
+            icon: Icons.swap_horiz_rounded,
+            color: AppColors.primary,
+            onTap: () => _openScreen(const GestaoScreen(initialIndex: 0)),
+          ),
+          _MobileMoreAction(
+            label: 'Caf\u00e9',
+            icon: Icons.restaurant_rounded,
+            color: AppColors.statusCafe,
+            onTap: () => _openScreen(const GestaoScreen(initialIndex: 2)),
+          ),
+          _MobileMoreAction(
+            label: 'Gargalo',
+            icon: Icons.insights_rounded,
+            color: AppColors.statusAtencao,
+            onTap: () => _openScreen(const GestaoScreen(initialIndex: 3)),
+          ),
+          _MobileMoreAction(
+            label: 'Colaboradores',
+            icon: Icons.groups_2_rounded,
+            color: AppColors.success,
+            onTap: () => _openScreen(const ColaboradoresListScreen()),
+          ),
+          _MobileMoreAction(
+            label: 'Entregas',
+            icon: Icons.local_shipping_rounded,
+            color: AppColors.primary,
+            onTap: () => _openScreen(const EntregasScreen()),
+          ),
+          _MobileMoreAction(
+            label: 'Ocorr\u00eancias',
+            icon: Icons.warning_amber_rounded,
+            color: AppColors.danger,
+            onTap: () => _openScreen(const OcorrenciasScreen()),
+          ),
+          _MobileMoreAction(
+            label: 'Checklists',
+            icon: Icons.fact_check_rounded,
+            color: AppColors.warning,
+            onTap: () => _openScreen(const ChecklistScreen()),
+          ),
+          _MobileMoreAction(
+            label: 'Passagem',
+            icon: Icons.sync_alt_rounded,
+            color: AppColors.primary,
+            onTap: () => _openScreen(const PassagemTurnoScreen()),
+          ),
+        ],
+      ),
+      _MobileMoreSection(
+        title: 'Apoio',
+        actions: [
+          _MobileMoreAction(
+            label: 'Guia r\u00e1pido',
+            icon: Icons.help_outline_rounded,
+            color: AppColors.blueGrey,
+            onTap: () => _openScreen(const GuiaRapidoScreen()),
+          ),
+          _MobileMoreAction(
+            label: 'Anota\u00e7\u00f5es',
+            icon: Icons.note_alt_rounded,
+            color: AppColors.statusSaida,
+            onTap: () => _openScreen(const NotasScreen()),
+          ),
+          _MobileMoreAction(
+            label: 'Formul\u00e1rios',
+            icon: Icons.description_rounded,
+            color: AppColors.indigo,
+            onTap: () => _openScreen(const FormulariosScreen()),
+          ),
+          _MobileMoreAction(
+            label: 'Procedimentos',
+            icon: Icons.menu_book_rounded,
+            color: AppColors.deepPurple,
+            onTap: () => _openScreen(const ProcedimentosScreen()),
+          ),
+          _MobileMoreAction(
+            label: 'Notifica\u00e7\u00f5es',
+            icon: Icons.notifications_none_rounded,
+            color: AppColors.primary,
+            onTap: () => _openScreen(const NotificacoesScreen()),
+          ),
+          _MobileMoreAction(
+            label: 'Relat\u00f3rio',
+            icon: Icons.assessment_rounded,
+            color: AppColors.info,
+            onTap: () => _openScreen(const RelatorioDiarioScreen()),
+          ),
+          _MobileMoreAction(
+            label: 'Escala',
+            icon: Icons.calendar_month_rounded,
+            color: AppColors.primary,
+            onTap: () => _openScreen(const EscalaScreen()),
+          ),
+          _MobileMoreAction(
+            label: 'Folgas',
+            icon: Icons.event_busy_rounded,
+            color: AppColors.warning,
+            onTap: () => _openScreen(const FolgaScreen()),
+          ),
+          _MobileMoreAction(
+            label: 'Config.',
+            icon: Icons.settings_rounded,
+            color: AppColors.textSecondary,
+            onTap: () => _openScreen(const ConfiguracoesScreen()),
+          ),
+        ],
+      ),
+    ];
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: AppColors.cardBackground,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (sheetContext) {
+        void closeAndRun(VoidCallback action) {
+          Navigator.of(sheetContext).pop();
+          WidgetsBinding.instance.addPostFrameCallback((_) => action());
+        }
+
+        return SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Mais atalhos', style: AppTextStyles.h3),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Acesso r\u00e1pido \u00e0s telas que n\u00e3o cabem na barra inferior.',
+                    style: AppTextStyles.body
+                        .copyWith(color: AppColors.textSecondary),
+                  ),
+                  const SizedBox(height: 20),
+                  for (final section in sections) ...[
+                    Text(section.title, style: AppTextStyles.h4),
+                    const SizedBox(height: 12),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: section.actions.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        childAspectRatio: 1.02,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                      ),
+                      itemBuilder: (context, index) {
+                        final action = section.actions[index];
+                        return _MobileMoreActionCard(
+                          action: action,
+                          onTap: () => closeAndRun(action.onTap),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
@@ -647,13 +881,15 @@ class _DashboardScreenState extends State<DashboardScreen>
       onReportTap: () => Navigator.of(context).push(
         MaterialPageRoute(builder: (_) => const RelatorioDiarioScreen()),
       ),
-      onPizzariaTap: () => _tabController.animateTo(1),
-      onOperacoesTap: () => _tabController.animateTo(2),
-      onDescontoTap: () => Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const DescontoCalculatorScreen()),
+      onPizzariaTap: () => _switchToTab(1),
+      onOperacoesTap: () => _switchToTab(2),
+      onCaixasTap: () => _openScreen(
+        const GestaoScreen(initialIndex: GestaoScreen.centralIndex),
       ),
-      onBalcaoTap: () => _tabController.animateTo(6),
-      onAiTap: () => _tabController.animateTo(7),
+      onCartazTap: () => _switchToTab(4),
+      onDescontoTap: () => _switchToTab(5),
+      onBalcaoTap: () => _switchToTab(6),
+      onAiTap: () => _switchToTab(7),
       onRefresh: _refreshData,
     );
 
@@ -1246,30 +1482,30 @@ class _DashboardScreenState extends State<DashboardScreen>
           _MobileDashboardNavEntry(
             item: navItems[0],
             selected: _tabController.index == 0,
-            onTap: () => _tabController.animateTo(0),
+            onTap: () => _switchToTab(0),
           ),
           _MobileDashboardNavEntry(
             item: navItems[1],
             selected: _tabController.index == 1,
-            onTap: () => _tabController.animateTo(1),
+            onTap: () => _switchToTab(1),
           ),
           _MobileDashboardNavEntry(
             item: navItems[2],
             selected: _tabController.index == 2,
-            onTap: () => _tabController.animateTo(2),
+            onTap: () => _switchToTab(2),
           ),
           _MobileDashboardNavEntry(
             item: const _DashboardNavItem(
-              label: 'Config.',
-              icon: Icons.settings_outlined,
-              selectedIcon: Icons.settings_rounded,
+              label: 'Mais',
+              icon: Icons.apps_outlined,
+              selectedIcon: Icons.apps_rounded,
             ),
-            selected: false,
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const ConfiguracoesScreen()),
-            ),
+            selected: _tabController.index > 2,
+            onTap: _showMobileMoreMenu,
           ),
         ];
+
+        final currentTabLabel = navItems[_tabController.index].label;
 
         return Scaffold(
           backgroundColor: AppColors.background,
@@ -1281,16 +1517,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                   shape: Border(
                     bottom: BorderSide(color: AppColors.cardBorder),
                   ),
-                  title: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        saudacao,
-                        style: AppTextStyles.caption
-                            .copyWith(color: AppColors.textSecondary),
-                      ),
-                      Text(primeiroNome, style: AppTextStyles.h3),
-                    ],
+                  title: Text(
+                    currentTabLabel,
+                    style: AppTextStyles.h3,
                   ),
                   actions: [
                     IconButton(
@@ -1518,6 +1747,86 @@ class _DashboardNavItem {
       icon: iconWidget(selected: false),
       selectedIcon: iconWidget(selected: true),
       label: label,
+    );
+  }
+}
+
+class _MobileMoreSection {
+  final String title;
+  final List<_MobileMoreAction> actions;
+
+  const _MobileMoreSection({
+    required this.title,
+    required this.actions,
+  });
+}
+
+class _MobileMoreAction {
+  final String label;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _MobileMoreAction({
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+}
+
+class _MobileMoreActionCard extends StatelessWidget {
+  final _MobileMoreAction action;
+  final VoidCallback onTap;
+
+  const _MobileMoreActionCard({
+    required this.action,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: onTap,
+        child: Ink(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+          decoration: AppStyles.softCard(
+            context: context,
+            tint: action.color,
+            radius: 18,
+            elevated: false,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: action.color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(action.icon, color: action.color, size: 22),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                action.label,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w800,
+                  height: 1.1,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -1985,18 +2294,23 @@ class _OperationsMobileActionGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: actions.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 2.15,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-      ),
-      itemBuilder: (context, index) =>
-          _OperationsMobileActionCard(action: actions[index]),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 430;
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: actions.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: compact ? 1 : 2,
+            childAspectRatio: compact ? 3.35 : 2.15,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
+          itemBuilder: (context, index) =>
+              _OperationsMobileActionCard(action: actions[index]),
+        );
+      },
     );
   }
 }
@@ -2034,22 +2348,24 @@ class _OperationsMobileActionCard extends StatelessWidget {
                   children: [
                     Text(
                       action.title,
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.label.copyWith(
                         color: AppColors.textPrimary,
                         fontSize: 14,
+                        height: 1.05,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
                     const SizedBox(height: 3),
                     Text(
                       action.subtitle,
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.textSecondary,
                         fontSize: 11,
+                        height: 1.15,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -2076,18 +2392,23 @@ class _OperationsMobileSupportGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: actions.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        childAspectRatio: .95,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-      ),
-      itemBuilder: (context, index) =>
-          _OperationsMobileSupportCard(action: actions[index]),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 430;
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: actions.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: compact ? 2 : 3,
+            childAspectRatio: compact ? 1.08 : .95,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
+          itemBuilder: (context, index) =>
+              _OperationsMobileSupportCard(action: actions[index]),
+        );
+      },
     );
   }
 }

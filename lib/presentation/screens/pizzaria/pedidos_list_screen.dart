@@ -300,7 +300,8 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
                 TextField(
                   controller: _buscaCtrl,
                   decoration: InputDecoration(
-                    hintText: 'Buscar por cliente, codigo, telefone ou sabor',
+                    hintText:
+                        'Buscar por cliente, c\u00f3digo, telefone ou sabor',
                     prefixIcon:
                         Icon(Icons.search, color: AppColors.textSecondary),
                     suffixIcon: _busca.isEmpty
@@ -327,11 +328,9 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
-                  child: Row(
-                    children: [
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final filtros = [
                       _ChipFiltro(
                         label: 'Todos',
                         count: _pedidos.length,
@@ -363,8 +362,25 @@ class _PedidosListScreenState extends State<PedidosListScreen> {
                         onTap: (v) => setState(() => _filtro = v),
                         cor: AppColors.success,
                       ),
-                    ],
-                  ),
+                    ];
+
+                    if (constraints.maxWidth < 430) {
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+                        child: Wrap(
+                          spacing: 0,
+                          runSpacing: 0,
+                          children: filtros,
+                        ),
+                      );
+                    }
+
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+                      child: Row(children: filtros),
+                    );
+                  },
                 ),
                 Divider(height: 1, thickness: 1, color: AppColors.divider),
               ],
