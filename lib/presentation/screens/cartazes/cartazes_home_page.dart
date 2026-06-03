@@ -136,7 +136,7 @@ class _CartazesHomePageState extends State<CartazesHomePage> {
                     horizontalPad,
                     Dimensions.paddingMD,
                     horizontalPad,
-                    96,
+                    80,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,15 +250,15 @@ class _CartazesHomePageState extends State<CartazesHomePage> {
         color: AppColors.cardBackground,
         border: Border(top: BorderSide(color: AppColors.cardBorder)),
       ),
-      padding: EdgeInsets.fromLTRB(horizontalPad, 10, horizontalPad, 18),
+      padding: EdgeInsets.fromLTRB(horizontalPad, 8, horizontalPad, 12),
       child: LayoutBuilder(
         builder: (context, constraints) {
           final wide = constraints.maxWidth >= 640;
           final summary = Row(
             children: [
               Container(
-                width: 34,
-                height: 34,
+                width: 30,
+                height: 30,
                 decoration: AppStyles.softTile(
                   tint: selected?.color ?? AppColors.inactive,
                   radius: Dimensions.radiusSM,
@@ -266,7 +266,7 @@ class _CartazesHomePageState extends State<CartazesHomePage> {
                 child: Icon(
                   selected?.icon ?? Icons.touch_app_rounded,
                   color: selected?.color ?? AppColors.textSecondary,
-                  size: 18,
+                  size: 16,
                 ),
               ),
               const SizedBox(width: Dimensions.spacingSM),
@@ -299,7 +299,7 @@ class _CartazesHomePageState extends State<CartazesHomePage> {
             ],
           );
           final action = SizedBox(
-            height: 46,
+            height: 42,
             width: wide ? 260 : double.infinity,
             child: ElevatedButton.icon(
               onPressed: _tipoSelecionado != null ? _iniciar : null,
@@ -355,7 +355,7 @@ class _TemplateCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 86,
+      height: 72,
       child: Material(
         color: selecionado
             ? spec.color.withValues(alpha: 0.08)
@@ -375,7 +375,7 @@ class _TemplateCard extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                  width: 62,
+                  width: 52,
                   decoration: BoxDecoration(
                     color: spec.color,
                     borderRadius: const BorderRadius.only(
@@ -384,13 +384,13 @@ class _TemplateCard extends StatelessWidget {
                     ),
                   ),
                   child: Center(
-                    child: Icon(spec.icon, color: spec.iconColor, size: 32),
+                    child: Icon(spec.icon, color: spec.iconColor, size: 26),
                   ),
                 ),
                 const SizedBox(width: Dimensions.spacingSM),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -425,7 +425,7 @@ class _TemplateCard extends StatelessWidget {
                         ? Icons.check_circle_rounded
                         : Icons.circle_outlined,
                     color: selecionado ? spec.color : AppColors.cardBorder,
-                    size: 22,
+                    size: 20,
                   ),
                 ),
               ],
@@ -490,7 +490,7 @@ class _TamanhoTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 8),
         decoration: BoxDecoration(
           color: selecionado ? const Color(0xFFD6166A) : Colors.white,
           borderRadius: BorderRadius.circular(8),
@@ -503,7 +503,7 @@ class _TamanhoTile extends StatelessWidget {
             Text(
               tamanho.label,
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 16,
                 fontWeight: FontWeight.w900,
                 color: selecionado ? Colors.white : Colors.black87,
               ),

@@ -165,14 +165,20 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
       builder: (context, constraints) => ListView.builder(
         padding: EdgeInsets.symmetric(
           horizontal: Dimensions.operationalHPad(constraints.maxWidth),
-          vertical: Dimensions.paddingMD,
+          vertical: Dimensions.paddingSM,
         ),
         itemCount: lista.length,
         itemBuilder: (ctx, i) {
           final oc = lista[i];
           return Card(
-            margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
+            margin: const EdgeInsets.only(bottom: Dimensions.spacingXS),
             child: ListTile(
+              dense: true,
+              visualDensity: VisualDensity.compact,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: Dimensions.paddingSM,
+                vertical: 6,
+              ),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => OcorrenciaDetailScreen(
@@ -212,7 +218,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 3),
                   Text(
                     oc.descricao,
                     maxLines: 2,
@@ -220,7 +226,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                     style: AppTextStyles.body
                         .copyWith(color: AppColors.textPrimary),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                   Row(
                     children: [
                       Icon(Icons.access_time,
@@ -388,7 +394,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                         ? () => Navigator.pop(context)
                         : null,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 14),
                   OperationalReferenceKpiGrid(
                     children: [
                       OperationalReferenceKpiCard(
@@ -426,7 +432,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   AppSurface(
                     padding: const EdgeInsets.all(4),
                     elevated: false,

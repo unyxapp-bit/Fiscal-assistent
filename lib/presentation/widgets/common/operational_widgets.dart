@@ -794,19 +794,19 @@ class OperationalReferenceHeader extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 1),
               Text(
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.h1.copyWith(
                   color: tokens.textPrimary,
-                  fontSize: 30,
+                  fontSize: 27,
                   height: 1.05,
                   fontWeight: FontWeight.w900,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Row(
                 children: [
                   Icon(statusIcon, color: statusColor, size: 15),
@@ -818,7 +818,7 @@ class OperationalReferenceHeader extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.body.copyWith(
                         color: statusColor,
-                        fontSize: 15,
+                        fontSize: 14,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -845,13 +845,13 @@ class OperationalReferenceHeader extends StatelessWidget {
           action,
         ],
         if (alertCount != null) ...[
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           OperationalNotificationButton(count: alertCount!),
         ],
         if (initial != null) ...[
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           CircleAvatar(
-            radius: 24,
+            radius: 22,
             backgroundColor: tokens.primary,
             child: Text(
               initial,
@@ -938,10 +938,10 @@ class OperationalHeroPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.appTheme;
     final base = color ?? tokens.primary;
-    final radius = BorderRadius.circular(26);
+    final radius = BorderRadius.circular(18);
     final child = Ink(
       width: double.infinity,
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [base, Color.lerp(base, Colors.black, 0.18) ?? base],
@@ -952,8 +952,8 @@ class OperationalHeroPanel extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: base.withValues(alpha: 0.24),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -963,8 +963,8 @@ class OperationalHeroPanel extends StatelessWidget {
           Row(
             children: [
               if (icon != null) ...[
-                Icon(icon, color: tokens.textOnColor, size: 24),
-                const SizedBox(width: 10),
+                Icon(icon, color: tokens.textOnColor, size: 21),
+                const SizedBox(width: 8),
               ],
               Expanded(
                 child: Text(
@@ -973,14 +973,14 @@ class OperationalHeroPanel extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.h2.copyWith(
                     color: tokens.textOnColor,
-                    fontSize: 25,
+                    fontSize: 21,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             subtitle,
             maxLines: 2,
@@ -992,7 +992,7 @@ class OperationalHeroPanel extends StatelessWidget {
             ),
           ),
           if (metrics.isNotEmpty) ...[
-            const SizedBox(height: 22),
+            const SizedBox(height: 14),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -1041,15 +1041,15 @@ class _OperationalHeroMetricView extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(metric.icon, color: onColor.withValues(alpha: 0.90), size: 23),
-        const SizedBox(height: 6),
+        Icon(metric.icon, color: onColor.withValues(alpha: 0.90), size: 19),
+        const SizedBox(height: 4),
         Text(
           metric.value,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: AppTextStyles.h3.copyWith(
             color: onColor,
-            fontSize: 22,
+            fontSize: 19,
             fontWeight: FontWeight.w900,
           ),
         ),
@@ -1087,10 +1087,10 @@ class OperationalReferenceKpiCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(20);
+    final radius = BorderRadius.circular(14);
     final content = Ink(
-      height: 132,
-      padding: const EdgeInsets.all(14),
+      height: 106,
+      padding: const EdgeInsets.all(12),
       decoration: _referenceCardDecoration(context, borderColor: color),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1105,7 +1105,7 @@ class OperationalReferenceKpiCard extends StatelessWidget {
               maxLines: 1,
               style: AppTextStyles.h2.copyWith(
                 color: color,
-                fontSize: 27,
+                fontSize: 24,
                 height: 1,
                 fontWeight: FontWeight.w900,
               ),
@@ -1196,7 +1196,7 @@ class OperationalReferenceActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(20);
+    final radius = BorderRadius.circular(14);
     return Material(
       color: Colors.transparent,
       borderRadius: radius,
@@ -1204,8 +1204,8 @@ class OperationalReferenceActionCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: radius,
         child: Ink(
-          height: 142,
-          padding: const EdgeInsets.all(14),
+          height: 118,
+          padding: const EdgeInsets.all(12),
           decoration: _referenceCardDecoration(context, borderColor: color),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1257,7 +1257,7 @@ class OperationalTimelineCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(14),
       decoration: _referenceCardDecoration(context),
       child: entries.isEmpty
           ? _OperationalTimelineEntryView(
@@ -1274,7 +1274,7 @@ class OperationalTimelineCard extends StatelessWidget {
                 for (var i = 0; i < entries.length; i++) ...[
                   _OperationalTimelineEntryView(entry: entries[i]),
                   if (i < entries.length - 1)
-                    Divider(height: 26, color: AppColors.cardBorder),
+                    Divider(height: 20, color: AppColors.cardBorder),
                 ],
               ],
             ),
@@ -1409,14 +1409,14 @@ class _ReferenceCircleButton extends StatelessWidget {
         customBorder: const CircleBorder(),
         onTap: onTap,
         child: Ink(
-          width: 48,
-          height: 48,
+          width: 44,
+          height: 44,
           decoration: BoxDecoration(
             color: tokens.cardBackground,
             shape: BoxShape.circle,
             border: Border.all(color: tokens.cardBorder),
           ),
-          child: Icon(icon, color: tokens.textPrimary, size: 22),
+          child: Icon(icon, color: tokens.textPrimary, size: 20),
         ),
       ),
     );
@@ -1435,14 +1435,14 @@ class _ReferenceIconBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 44,
-      height: 44,
+      width: 38,
+      height: 38,
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withValues(alpha: 0.14)),
       ),
-      child: Icon(icon, color: color, size: 23),
+      child: Icon(icon, color: color, size: 20),
     );
   }
 }
@@ -1454,15 +1454,15 @@ BoxDecoration _referenceCardDecoration(
   final tokens = context.appTheme;
   return BoxDecoration(
     color: tokens.cardBackground,
-    borderRadius: BorderRadius.circular(20),
+    borderRadius: BorderRadius.circular(14),
     border: Border.all(
       color: borderColor?.withValues(alpha: 0.22) ?? tokens.cardBorder,
     ),
     boxShadow: [
       BoxShadow(
         color: tokens.shadowColor.withValues(alpha: 0.035),
-        blurRadius: 16,
-        offset: const Offset(0, 8),
+        blurRadius: 12,
+        offset: const Offset(0, 5),
       ),
     ],
   );

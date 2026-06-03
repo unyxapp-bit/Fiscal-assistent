@@ -132,7 +132,7 @@ class _EntregasScreenState extends State<EntregasScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 14),
                 OperationalHeroPanel(
                   title: 'Central de entregas',
                   subtitle:
@@ -156,7 +156,7 @@ class _EntregasScreenState extends State<EntregasScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 12),
                 _ReferenceKpiRows(
                   children: [
                     OperationalReferenceKpiCard(
@@ -193,9 +193,10 @@ class _EntregasScreenState extends State<EntregasScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 14),
                 AppSurface(
                   elevated: false,
+                  padding: const EdgeInsets.all(Dimensions.paddingSM),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -249,12 +250,12 @@ class _EntregasScreenState extends State<EntregasScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 18),
                 ReferenceSectionTitle(
                   title: 'Entregas de hoje',
                   action: '${entregasFiltradas.length} resultado(s)',
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 if (entregasFiltradas.isEmpty)
                   OperationalEmptyState(
                     icon: Icons.local_shipping_outlined,
@@ -346,12 +347,12 @@ class _EntregasScreenState extends State<EntregasScreen> {
                     ],
                   ),
                 if (entregasFiltradas.isNotEmpty) ...[
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 18),
                   const ReferenceSectionTitle(
                     title: 'Últimas movimentações',
                     action: 'Hoje',
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   OperationalTimelineCard(
                     entries: entregasFiltradas.take(4).map((entrega) {
                       return OperationalTimelineEntry(
@@ -480,35 +481,35 @@ class _EntregaReferenceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.appTheme;
     return Padding(
-      padding: const EdgeInsets.only(bottom: Dimensions.spacingSM),
+      padding: const EdgeInsets.only(bottom: Dimensions.spacingXS),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(14),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(14),
           child: Ink(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(12),
             decoration: AppStyles.softCard(
               context: context,
               tint: statusColor,
-              radius: 20,
+              radius: 14,
             ),
             child: Row(
               children: [
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
                     color: statusColor.withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: statusColor.withValues(alpha: 0.14),
                     ),
                   ),
-                  child: Icon(statusIcon, color: statusColor, size: 24),
+                  child: Icon(statusIcon, color: statusColor, size: 21),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -522,7 +523,7 @@ class _EntregaReferenceCard extends StatelessWidget {
                           fontWeight: FontWeight.w900,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 3),
                       Text(
                         'NF ${entrega.numeroNota} - ${entrega.bairro} - ${entrega.cidade}',
                         maxLines: 1,
@@ -533,7 +534,7 @@ class _EntregaReferenceCard extends StatelessWidget {
                         ),
                       ),
                       if ((entrega.observacoes ?? '').trim().isNotEmpty) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 3),
                         Text(
                           entrega.observacoes!.trim(),
                           maxLines: 1,
@@ -546,7 +547,7 @@ class _EntregaReferenceCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -555,7 +556,7 @@ class _EntregaReferenceCard extends StatelessWidget {
                       color: statusColor,
                       compact: true,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Icon(
                       Icons.chevron_right_rounded,
                       color: tokens.textSecondary,

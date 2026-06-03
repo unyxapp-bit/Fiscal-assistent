@@ -380,17 +380,17 @@ class _DashboardScreenState extends State<DashboardScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Mais atalhos', style: AppTextStyles.h3),
+                  Text('Mais atalhos', style: AppTextStyles.h4),
                   const SizedBox(height: 8),
                   Text(
                     'Acesso r\u00e1pido \u00e0s telas que n\u00e3o cabem na barra inferior.',
                     style: AppTextStyles.body
                         .copyWith(color: AppColors.textSecondary),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 14),
                   for (final section in sections) ...[
                     Text(section.title, style: AppTextStyles.h4),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                     GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -398,9 +398,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 3,
-                        childAspectRatio: 1.02,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
+                        childAspectRatio: 1.16,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
                       ),
                       itemBuilder: (context, index) {
                         final action = section.actions[index];
@@ -410,7 +410,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                         );
                       },
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
                   ],
                 ],
               ),
@@ -1789,29 +1789,29 @@ class _MobileMoreActionCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(14),
         onTap: onTap,
         child: Ink(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
           decoration: AppStyles.softCard(
             context: context,
             tint: action.color,
-            radius: 18,
+            radius: 14,
             elevated: false,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 42,
-                height: 42,
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(
                   color: action.color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(11),
                 ),
-                child: Icon(action.icon, color: action.color, size: 22),
+                child: Icon(action.icon, color: action.color, size: 19),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               Text(
                 action.label,
                 textAlign: TextAlign.center,
@@ -2045,7 +2045,7 @@ class _OperationsMobileDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+      padding: const EdgeInsets.fromLTRB(18, 14, 18, 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -2054,19 +2054,19 @@ class _OperationsMobileDashboard extends StatelessWidget {
             primeiroNome: primeiroNome,
             alertCount: alertCount,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           _OperationsMobileMetricGrid(items: summaryItems.take(4).toList()),
-          const SizedBox(height: 28),
+          const SizedBox(height: 20),
           const _OperationsMobileSectionTitle(title: 'Ações prioritárias'),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           _OperationsMobileActionGrid(actions: priorityActions),
-          const SizedBox(height: 28),
+          const SizedBox(height: 20),
           const _OperationsMobileSectionTitle(title: 'Apoio e consulta'),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           _OperationsMobileSupportGrid(actions: supportActions),
-          const SizedBox(height: 28),
+          const SizedBox(height: 20),
           const _OperationsMobileSectionTitle(title: 'Atividades recentes'),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           _OperationsMobileActivityCard(activities: recentActivities),
         ],
       ),
@@ -2104,7 +2104,7 @@ class _OperationsMobileHeader extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.body.copyWith(
                   color: AppColors.textSecondary,
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -2115,7 +2115,7 @@ class _OperationsMobileHeader extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.h1.copyWith(
                   color: AppColors.textPrimary,
-                  fontSize: 32,
+                  fontSize: 29,
                   height: 1.05,
                   fontWeight: FontWeight.w900,
                 ),
@@ -2130,7 +2130,7 @@ class _OperationsMobileHeader extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.body.copyWith(
                   color: AppColors.textSecondary,
-                  fontSize: 15,
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -2141,9 +2141,9 @@ class _OperationsMobileHeader extends StatelessWidget {
           icon: Icons.notifications_none_rounded,
           badge: alertCount > 0 ? alertCount.toString() : null,
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 10),
         CircleAvatar(
-          radius: 23,
+          radius: 21,
           backgroundColor: AppColors.primary,
           child: Text(
             initial,
@@ -2173,10 +2173,10 @@ class _OperationsMobileCircleIcon extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         Container(
-          width: 46,
-          height: 46,
+          width: 42,
+          height: 42,
           decoration: _operationsMobileCardDecoration(radius: 999),
-          child: Icon(icon, color: AppColors.textSecondary, size: 22),
+          child: Icon(icon, color: AppColors.textSecondary, size: 20),
         ),
         if (badge != null)
           Positioned(
@@ -2230,7 +2230,7 @@ class _OperationsMobileMetricGrid extends StatelessWidget {
                 const Spacer(),
             ],
           ),
-          if (index + 2 < items.length) const SizedBox(height: 12),
+          if (index + 2 < items.length) const SizedBox(height: 10),
         ],
       ],
     );
@@ -2245,8 +2245,8 @@ class _OperationsMobileMetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 128,
-      padding: const EdgeInsets.all(16),
+      height: 96,
+      padding: const EdgeInsets.all(12),
       decoration: _operationsMobileCardDecoration(
         borderColor:
             item.highlighted ? item.color.withValues(alpha: 0.26) : null,
@@ -2254,8 +2254,12 @@ class _OperationsMobileMetricCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _OperationsMobileIconBox(icon: item.icon, color: item.color),
-          const Spacer(),
+          _OperationsMobileIconBox(
+            icon: item.icon,
+            color: item.color,
+            compact: true,
+          ),
+          const SizedBox(height: 8),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
@@ -2264,7 +2268,7 @@ class _OperationsMobileMetricCard extends StatelessWidget {
               maxLines: 1,
               style: AppTextStyles.h1.copyWith(
                 color: item.color,
-                fontSize: 34,
+                fontSize: 26,
                 height: 1,
                 fontWeight: FontWeight.w900,
               ),
@@ -2277,7 +2281,7 @@ class _OperationsMobileMetricCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: AppTextStyles.label.copyWith(
               color: AppColors.textPrimary,
-              fontSize: 14,
+              fontSize: 12,
               fontWeight: FontWeight.w900,
             ),
           ),
@@ -2302,10 +2306,10 @@ class _OperationsMobileActionGrid extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           itemCount: actions.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: compact ? 1 : 2,
-            childAspectRatio: compact ? 3.35 : 2.15,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
+            crossAxisCount: 1,
+            childAspectRatio: compact ? 4.7 : 5.2,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
           ),
           itemBuilder: (context, index) =>
               _OperationsMobileActionCard(action: actions[index]),
@@ -2325,10 +2329,10 @@ class _OperationsMobileActionCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(14),
         onTap: action.onTap,
         child: Ink(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: _operationsMobileCardDecoration(
             borderColor: action.highlighted
                 ? action.color.withValues(alpha: 0.30)
@@ -2339,8 +2343,12 @@ class _OperationsMobileActionCard extends StatelessWidget {
           ),
           child: Row(
             children: [
-              _OperationsMobileIconBox(icon: action.icon, color: action.color),
-              const SizedBox(width: 12),
+              _OperationsMobileIconBox(
+                icon: action.icon,
+                color: action.color,
+                compact: true,
+              ),
+              const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -2348,19 +2356,19 @@ class _OperationsMobileActionCard extends StatelessWidget {
                   children: [
                     Text(
                       action.title,
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.label.copyWith(
                         color: AppColors.textPrimary,
-                        fontSize: 14,
+                        fontSize: 13,
                         height: 1.05,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 2),
                     Text(
                       action.subtitle,
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.textSecondary,
@@ -2375,7 +2383,7 @@ class _OperationsMobileActionCard extends StatelessWidget {
               Icon(
                 Icons.chevron_right_rounded,
                 color: AppColors.textSecondary,
-                size: 22,
+                size: 20,
               ),
             ],
           ),
@@ -2400,10 +2408,10 @@ class _OperationsMobileSupportGrid extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           itemCount: actions.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: compact ? 2 : 3,
-            childAspectRatio: compact ? 1.08 : .95,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
+            crossAxisCount: 3,
+            childAspectRatio: compact ? 1.05 : 1.12,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
           ),
           itemBuilder: (context, index) =>
               _OperationsMobileSupportCard(action: actions[index]),
@@ -2423,10 +2431,10 @@ class _OperationsMobileSupportCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(14),
         onTap: action.onTap,
         child: Ink(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 9),
           decoration: _operationsMobileCardDecoration(
             borderColor: action.highlighted
                 ? action.color.withValues(alpha: 0.28)
@@ -2435,8 +2443,12 @@ class _OperationsMobileSupportCard extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _OperationsMobileIconBox(icon: action.icon, color: action.color),
-              const SizedBox(height: 12),
+              _OperationsMobileIconBox(
+                icon: action.icon,
+                color: action.color,
+                compact: true,
+              ),
+              const SizedBox(height: 8),
               Text(
                 action.title,
                 textAlign: TextAlign.center,
@@ -2444,7 +2456,7 @@ class _OperationsMobileSupportCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.label.copyWith(
                   color: AppColors.textPrimary,
-                  fontSize: 12,
+                  fontSize: 11,
                   height: 1.08,
                   fontWeight: FontWeight.w900,
                 ),
@@ -2465,7 +2477,7 @@ class _OperationsMobileActivityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(14),
       decoration: _operationsMobileCardDecoration(),
       child: activities.isEmpty
           ? _OperationsMobileActivityTile(
@@ -2482,7 +2494,7 @@ class _OperationsMobileActivityCard extends StatelessWidget {
                 for (var index = 0; index < activities.length; index++) ...[
                   _OperationsMobileActivityTile(item: activities[index]),
                   if (index < activities.length - 1)
-                    Divider(height: 28, color: AppColors.cardBorder),
+                    Divider(height: 20, color: AppColors.cardBorder),
                 ],
               ],
             ),
@@ -2499,8 +2511,12 @@ class _OperationsMobileActivityTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        _OperationsMobileIconBox(icon: item.icon, color: item.color),
-        const SizedBox(width: 12),
+        _OperationsMobileIconBox(
+          icon: item.icon,
+          color: item.color,
+          compact: true,
+        ),
+        const SizedBox(width: 10),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -2511,18 +2527,18 @@ class _OperationsMobileActivityTile extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.label.copyWith(
                   color: AppColors.textPrimary,
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: FontWeight.w900,
                 ),
               ),
-              const SizedBox(height: 3),
+              const SizedBox(height: 2),
               Text(
                 item.subtitle,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.caption.copyWith(
                   color: AppColors.textSecondary,
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -2557,7 +2573,7 @@ class _OperationsMobileSectionTitle extends StatelessWidget {
       overflow: TextOverflow.ellipsis,
       style: AppTextStyles.h3.copyWith(
         color: AppColors.textPrimary,
-        fontSize: 18,
+        fontSize: 17,
         fontWeight: FontWeight.w900,
       ),
     );
@@ -2567,22 +2583,24 @@ class _OperationsMobileSectionTitle extends StatelessWidget {
 class _OperationsMobileIconBox extends StatelessWidget {
   final IconData icon;
   final Color color;
+  final bool compact;
 
   const _OperationsMobileIconBox({
     required this.icon,
     required this.color,
+    this.compact = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 44,
-      height: 44,
+      width: compact ? 36 : 44,
+      height: compact ? 36 : 44,
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(compact ? 10 : 14),
       ),
-      child: Icon(icon, color: color, size: 23),
+      child: Icon(icon, color: color, size: compact ? 18 : 23),
     );
   }
 }

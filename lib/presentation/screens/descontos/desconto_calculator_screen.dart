@@ -414,7 +414,7 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
             return SingleChildScrollView(
               padding: EdgeInsets.fromLTRB(
                 horizontalPadding,
-                Dimensions.paddingMD,
+                Dimensions.paddingSM,
                 horizontalPadding,
                 Dimensions.paddingXL,
               ),
@@ -438,7 +438,7 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
                           onModeChanged: _selecionarModo,
                           onChanged: () => setState(() {}),
                         ),
-                        const SizedBox(height: Dimensions.spacingMD),
+                        const SizedBox(height: Dimensions.spacingSM),
                         _ActionCard(
                           modo: _modo,
                           resultado: resultado,
@@ -456,9 +456,9 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
                     child: Column(
                       children: [
                         _ResultCard(resultado: resultado, modo: _modo),
-                        const SizedBox(height: Dimensions.spacingMD),
+                        const SizedBox(height: Dimensions.spacingSM),
                         _ResumoCard(resultado: resultado, modo: _modo),
-                        const SizedBox(height: Dimensions.spacingMD),
+                        const SizedBox(height: Dimensions.spacingSM),
                         _HistoricoCard(
                           historico: _historico,
                           loading: _carregandoHistorico,
@@ -477,13 +477,13 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
           return ListView(
             padding: EdgeInsets.fromLTRB(
               horizontalPadding,
-              Dimensions.paddingMD,
+              Dimensions.paddingSM,
               horizontalPadding,
               Dimensions.paddingXL,
             ),
             children: [
               _ResultCard(resultado: resultado, modo: _modo),
-              const SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingSM),
               _InputCard(
                 modo: _modo,
                 produtoCodigoCtrl: _produtoCodigoCtrl,
@@ -497,9 +497,9 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
                 onModeChanged: _selecionarModo,
                 onChanged: () => setState(() {}),
               ),
-              const SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingSM),
               _ResumoCard(resultado: resultado, modo: _modo),
-              const SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingSM),
               _ActionCard(
                 modo: _modo,
                 resultado: resultado,
@@ -508,7 +508,7 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
                 onSwap: _trocarValores,
                 canSwap: _usaValorSecundario,
               ),
-              const SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingSM),
               _HistoricoCard(
                 historico: _historico,
                 loading: _carregandoHistorico,
@@ -540,7 +540,7 @@ class _ResultCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(Dimensions.paddingMD),
+      padding: const EdgeInsets.all(Dimensions.paddingSM),
       decoration: AppStyles.softCard(
         context: context,
         tint: color,
@@ -552,14 +552,14 @@ class _ResultCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 42,
-                height: 42,
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(tokens.inputRadius),
                   border: Border.all(color: color.withValues(alpha: 0.18)),
                 ),
-                child: Icon(modo.icon, color: color),
+                child: Icon(modo.icon, color: color, size: 20),
               ),
               const SizedBox(width: Dimensions.spacingSM),
               Expanded(
@@ -585,7 +585,7 @@ class _ResultCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: Dimensions.spacingMD),
+          const SizedBox(height: Dimensions.spacingSM),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
@@ -598,7 +598,7 @@ class _ResultCard extends StatelessWidget {
             ),
           ),
           if (resultado != null) ...[
-            const SizedBox(height: Dimensions.spacingSM),
+            const SizedBox(height: Dimensions.spacingXS),
             Wrap(
               spacing: Dimensions.spacingSM,
               runSpacing: Dimensions.spacingXS,
@@ -659,7 +659,7 @@ class _InputCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(Dimensions.paddingMD),
+      padding: const EdgeInsets.all(Dimensions.paddingSM),
       decoration: AppStyles.softCard(
         context: context,
         tint: AppColors.primary,
@@ -684,7 +684,7 @@ class _InputCard extends StatelessWidget {
               onSelectionChanged: (values) => onModeChanged(values.first),
             ),
           ),
-          const SizedBox(height: Dimensions.spacingMD),
+          const SizedBox(height: Dimensions.spacingSM),
           LayoutBuilder(
             builder: (context, constraints) {
               final inline = constraints.maxWidth >= 520;
@@ -707,7 +707,7 @@ class _InputCard extends StatelessWidget {
                 return Column(
                   children: [
                     codigo,
-                    const SizedBox(height: Dimensions.spacingSM),
+                    const SizedBox(height: Dimensions.spacingXS),
                     nome,
                   ],
                 );
@@ -715,13 +715,13 @@ class _InputCard extends StatelessWidget {
               return Row(
                 children: [
                   Expanded(child: codigo),
-                  const SizedBox(width: Dimensions.spacingSM),
+                  const SizedBox(width: Dimensions.spacingXS),
                   Expanded(child: nome),
                 ],
               );
             },
           ),
-          const SizedBox(height: Dimensions.spacingSM),
+          const SizedBox(height: Dimensions.spacingXS),
           _MoneyField(
             controller: valorPrincipalCtrl,
             label: _primaryMoneyLabel(modo),
@@ -730,7 +730,7 @@ class _InputCard extends StatelessWidget {
           ),
           if (modo == _DescontoModo.comparacao ||
               modo == _DescontoModo.precoFinal) ...[
-            const SizedBox(height: Dimensions.spacingSM),
+            const SizedBox(height: Dimensions.spacingXS),
             _MoneyField(
               controller: valorSecundarioCtrl,
               label: _secondaryMoneyLabel(modo),
@@ -739,7 +739,7 @@ class _InputCard extends StatelessWidget {
             ),
           ],
           if (modo == _DescontoModo.percentual) ...[
-            const SizedBox(height: Dimensions.spacingSM),
+            const SizedBox(height: Dimensions.spacingXS),
             TextField(
               controller: percentualCtrl,
               keyboardType:
@@ -759,7 +759,7 @@ class _InputCard extends StatelessWidget {
             ),
           ],
           if (modo == _DescontoModo.levePague) ...[
-            const SizedBox(height: Dimensions.spacingSM),
+            const SizedBox(height: Dimensions.spacingXS),
             Row(
               children: [
                 Expanded(
@@ -770,7 +770,7 @@ class _InputCard extends StatelessWidget {
                     onChanged: onChanged,
                   ),
                 ),
-                const SizedBox(width: Dimensions.spacingSM),
+                const SizedBox(width: Dimensions.spacingXS),
                 Expanded(
                   child: _IntegerField(
                     controller: pagueCtrl,
@@ -782,7 +782,7 @@ class _InputCard extends StatelessWidget {
               ],
             ),
           ],
-          const SizedBox(height: Dimensions.spacingSM),
+          const SizedBox(height: Dimensions.spacingXS),
           _IntegerField(
             controller: quantidadeCtrl,
             label: modo == _DescontoModo.levePague
@@ -821,7 +821,7 @@ class _ActionCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(Dimensions.paddingMD),
+      padding: const EdgeInsets.all(Dimensions.paddingSM),
       decoration: AppStyles.softCard(
         context: context,
         tint: color,
@@ -847,7 +847,7 @@ class _ActionCard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: Dimensions.spacingSM),
+          const SizedBox(height: Dimensions.spacingXS),
           Row(
             children: [
               Expanded(
@@ -857,7 +857,7 @@ class _ActionCard extends StatelessWidget {
                   label: const Text('Salvar'),
                 ),
               ),
-              const SizedBox(width: Dimensions.spacingSM),
+              const SizedBox(width: Dimensions.spacingXS),
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: canSwap ? onSwap : null,
@@ -886,7 +886,7 @@ class _ResumoCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(Dimensions.paddingMD),
+      padding: const EdgeInsets.all(Dimensions.paddingSM),
       decoration: AppStyles.softCard(
         context: context,
         tint: itemColor,
@@ -901,14 +901,14 @@ class _ResumoCard extends StatelessWidget {
                 ? 'R\$ 0,00'
                 : DescontoCalculator.formatMoney(resultado!.etiquetaCentavos),
           ),
-          const Divider(height: 16),
+          const Divider(height: 10),
           _ResumoRow(
             label: _finalResumoLabel(modo),
             value: resultado == null
                 ? 'R\$ 0,00'
                 : DescontoCalculator.formatMoney(resultado!.sistemaCentavos),
           ),
-          const Divider(height: 16),
+          const Divider(height: 10),
           _ResumoRow(
             label: 'Percentual real',
             value: resultado == null
@@ -917,7 +917,7 @@ class _ResumoCard extends StatelessWidget {
                     resultado!.percentualDesconto,
                   ),
           ),
-          const Divider(height: 16),
+          const Divider(height: 10),
           _ResumoRow(
             label: _diferencaTotalLabel(resultado, modo),
             value: resultado == null
@@ -927,7 +927,7 @@ class _ResumoCard extends StatelessWidget {
                   ),
             valueColor: itemColor,
           ),
-          const Divider(height: 16),
+          const Divider(height: 10),
           _ResumoRow(
             label: 'Valor final total',
             value: resultado == null
@@ -963,7 +963,7 @@ class _HistoricoCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(Dimensions.paddingMD),
+      padding: const EdgeInsets.all(Dimensions.paddingSM),
       decoration: AppStyles.softCard(
         context: context,
         tint: AppColors.info,
@@ -976,7 +976,7 @@ class _HistoricoCard extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.history_rounded, color: AppColors.primary),
-              const SizedBox(width: Dimensions.spacingSM),
+              const SizedBox(width: Dimensions.spacingXS),
               Expanded(
                 child: Text(
                   'Historico recente',
@@ -995,12 +995,12 @@ class _HistoricoCard extends StatelessWidget {
           ),
           if (loading)
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: Dimensions.paddingMD),
+              padding: EdgeInsets.symmetric(vertical: Dimensions.paddingSM),
               child: Center(child: CircularProgressIndicator()),
             )
           else if (errorText != null)
             Padding(
-              padding: const EdgeInsets.only(top: Dimensions.spacingSM),
+              padding: const EdgeInsets.only(top: Dimensions.spacingXS),
               child: Text(
                 errorText!,
                 style: AppTextStyles.caption.copyWith(
@@ -1011,7 +1011,7 @@ class _HistoricoCard extends StatelessWidget {
             )
           else if (historico.isEmpty)
             Padding(
-              padding: const EdgeInsets.only(top: Dimensions.spacingSM),
+              padding: const EdgeInsets.only(top: Dimensions.spacingXS),
               child: Text(
                 'Nenhum calculo salvo ainda.',
                 style: AppTextStyles.caption.copyWith(
@@ -1045,10 +1045,10 @@ class _HistoricoTile extends StatelessWidget {
         .join(' - ');
 
     return Container(
-      margin: const EdgeInsets.only(top: Dimensions.spacingSM),
+      margin: const EdgeInsets.only(top: Dimensions.spacingXS),
       padding: const EdgeInsets.symmetric(
         horizontal: Dimensions.paddingSM,
-        vertical: Dimensions.paddingSM,
+        vertical: Dimensions.paddingXS,
       ),
       decoration: AppStyles.softTile(
         context: context,
@@ -1109,7 +1109,7 @@ class _MetricPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       decoration: AppStyles.softTile(
         context: context,
         tint: color,
@@ -1249,7 +1249,7 @@ class _ResumoRow extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: Dimensions.spacingSM),
+        const SizedBox(width: Dimensions.spacingXS),
         Flexible(
           child: Text(
             value,
@@ -1304,13 +1304,14 @@ InputDecoration _inputDecoration(
     hintText: hint,
     errorText: errorText,
     suffixText: suffixText,
-    prefixIcon: Icon(icon, color: AppColors.primary),
+    prefixIcon: Icon(icon, color: AppColors.primary, size: 20),
     filled: true,
     fillColor: AppColors.backgroundSection,
     contentPadding: const EdgeInsets.symmetric(
       horizontal: Dimensions.paddingSM,
-      vertical: 14,
+      vertical: 10,
     ),
+    prefixIconConstraints: const BoxConstraints(minWidth: 40),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(tokens.inputRadius),
       borderSide: BorderSide(color: AppColors.cardBorder),

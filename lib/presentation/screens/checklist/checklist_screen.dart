@@ -234,7 +234,7 @@ class ChecklistScreen extends StatelessWidget {
                 : 'Iniciar checklist';
 
     return Card(
-      margin: const EdgeInsets.only(bottom: Dimensions.spacingMD),
+      margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
       child: InkWell(
         borderRadius: BorderRadius.circular(Dimensions.radiusMD),
         onTap: () => _abrirChecklist(
@@ -245,7 +245,7 @@ class ChecklistScreen extends StatelessWidget {
           ultimaExecucao,
         ),
         child: Padding(
-          padding: const EdgeInsets.all(Dimensions.paddingMD),
+          padding: const EdgeInsets.all(Dimensions.paddingSM),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -253,10 +253,11 @@ class ChecklistScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CircleAvatar(
+                    radius: 18,
                     backgroundColor: cor.withValues(alpha: 0.15),
-                    child: Icon(template.icone, color: cor),
+                    child: Icon(template.icone, color: cor, size: 19),
                   ),
-                  const SizedBox(width: Dimensions.spacingMD),
+                  const SizedBox(width: Dimensions.spacingSM),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -344,7 +345,7 @@ class ChecklistScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: Dimensions.spacingSM),
+              const SizedBox(height: Dimensions.spacingXS),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -368,10 +369,10 @@ class ChecklistScreen extends StatelessWidget {
                 ],
               ),
               if (template.descricao.isNotEmpty) ...[
-                const SizedBox(height: Dimensions.spacingSM),
+                const SizedBox(height: Dimensions.spacingXS),
                 Text(
                   template.descricao,
-                  maxLines: 3,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.caption.copyWith(
                     color: AppColors.textSecondary,
@@ -379,7 +380,7 @@ class ChecklistScreen extends StatelessWidget {
                 ),
               ],
               if (execucaoVisual != null) ...[
-                const SizedBox(height: Dimensions.spacingMD),
+                const SizedBox(height: Dimensions.spacingSM),
                 LinearProgressIndicator(
                   value: execucaoVisual.progresso,
                   backgroundColor: AppColors.inactive.withValues(alpha: 0.2),
@@ -397,7 +398,7 @@ class ChecklistScreen extends StatelessWidget {
                   ),
                 ),
               ],
-              const SizedBox(height: Dimensions.spacingSM),
+              const SizedBox(height: Dimensions.spacingXS),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
@@ -668,7 +669,7 @@ class ChecklistScreen extends StatelessWidget {
         builder: (context, constraints) => SingleChildScrollView(
           padding: EdgeInsets.symmetric(
             horizontal: Dimensions.operationalHPad(constraints.maxWidth),
-            vertical: Dimensions.paddingMD,
+            vertical: Dimensions.paddingSM,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -676,7 +677,7 @@ class ChecklistScreen extends StatelessWidget {
               // ── Resumo do dia ────────────────────────────────────────────
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(Dimensions.paddingMD),
+                padding: const EdgeInsets.all(Dimensions.paddingSM),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(Dimensions.radiusMD),
@@ -720,7 +721,7 @@ class ChecklistScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingSM),
 
               // ── Dica de uso ──────────────────────────────────────────────
               Container(
@@ -731,7 +732,7 @@ class ChecklistScreen extends StatelessWidget {
                   elevated: false,
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(Dimensions.paddingMD),
+                  padding: const EdgeInsets.all(Dimensions.paddingSM),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -762,11 +763,11 @@ class ChecklistScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingSM),
 
               // ── Turno de hoje ────────────────────────────────────────────
               Text('Turno de Hoje', style: AppTextStyles.h3),
-              const SizedBox(height: Dimensions.spacingMD),
+              const SizedBox(height: Dimensions.spacingSM),
               if (templates.isEmpty)
                 Center(
                   child: Padding(
@@ -798,7 +799,7 @@ class ChecklistScreen extends StatelessWidget {
                 )
               else if (ativos.isEmpty)
                 Container(
-                  padding: const EdgeInsets.all(Dimensions.paddingMD),
+                  padding: const EdgeInsets.all(Dimensions.paddingSM),
                   decoration: AppStyles.softCard(
                     tint: AppColors.success,
                     radius: Dimensions.radiusMD,
@@ -827,7 +828,7 @@ class ChecklistScreen extends StatelessWidget {
 
               // ── Uso único concluído ──────────────────────────────────────
               if (arquivadosUsoUnico.isNotEmpty) ...[
-                const SizedBox(height: Dimensions.spacingMD),
+                const SizedBox(height: Dimensions.spacingSM),
                 ExpansionTile(
                   leading: Icon(
                     Icons.lock_outline,
@@ -851,7 +852,7 @@ class ChecklistScreen extends StatelessWidget {
 
               // ── Histórico Recente ────────────────────────────────────────
               if (historicoRecente.isNotEmpty) ...[
-                const SizedBox(height: Dimensions.spacingMD),
+                const SizedBox(height: Dimensions.spacingSM),
                 Row(
                   children: [
                     Expanded(
