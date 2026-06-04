@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -73,31 +72,20 @@ class _EntregasScreenState extends State<EntregasScreen> {
   }
 
   Future<void> _selecionarCupomUpload() async {
-    final result = await FilePicker.platform.pickFiles(
-      allowMultiple: false,
-      withData: true,
-      type: FileType.image,
+    final image = await _imagePicker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+      maxWidth: 1400,
+      maxHeight: 2200,
     );
-    if (result == null || result.files.isEmpty) return;
+    if (image == null) return;
 
-    final file = result.files.first;
-    final bytes = file.bytes;
-    if (bytes == null || bytes.isEmpty) {
-      if (!mounted) return;
-      AppNotif.show(
-        context,
-        titulo: 'Imagem vazia',
-        mensagem: 'Nao foi possivel ler o arquivo selecionado.',
-        tipo: 'alerta',
-        cor: AppColors.danger,
-      );
-      return;
-    }
-
+    final bytes = await image.readAsBytes();
     await _analisarCupom(
       bytes: bytes,
-      fileName: file.name,
-      mimeType: EntregaCupomAiService.mimeTypeForFileName(file.name),
+      fileName: image.name,
+      mimeType: image.mimeType ??
+          EntregaCupomAiService.mimeTypeForFileName(image.name),
     );
   }
 
@@ -105,8 +93,9 @@ class _EntregasScreenState extends State<EntregasScreen> {
     try {
       final image = await _imagePicker.pickImage(
         source: ImageSource.camera,
-        imageQuality: 85,
-        maxWidth: 1800,
+        imageQuality: 80,
+        maxWidth: 1400,
+        maxHeight: 2200,
       );
       if (image == null) return;
 

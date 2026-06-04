@@ -1,7 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../domain/entities/caixa.dart';
 import '../../widgets/common/operational_widgets.dart';
@@ -17,6 +20,7 @@ const _v2Border = Color(0xFFE2E8F0);
 const _v2Text = Color(0xFF0F172A);
 const _v2Muted = Color(0xFF475569);
 const _v2Subtle = Color(0xFF64748B);
+const _quickNoteStorageKey = 'dashboard_quick_note_v1';
 
 class DashboardV2NavItem {
   final String label;
@@ -246,6 +250,8 @@ class DashboardV2Home extends StatelessWidget {
                         ),
                       ],
                       SizedBox(height: sectionGap),
+                      const _QuickNotePanel(),
+                      SizedBox(height: sectionGap),
                       _OperationalMonitorCard(
                         caixas: caixas,
                         alertas: alertas,
@@ -431,6 +437,8 @@ class _MobileDashboardHome extends StatelessWidget {
               turnoIniciadoEm: turnoIniciadoEm,
               onTap: onPrimaryAction,
             ),
+            const SizedBox(height: 14),
+            const _QuickNotePanel(compact: true),
             const SizedBox(height: 16),
             _MobileStatsRow(stats: stats),
             const SizedBox(height: 18),
@@ -2141,6 +2149,227 @@ class _DashboardBottomPanels extends StatelessWidget {
         items: reportItems,
         onReportTap: onReportTap,
         compact: compact,
+      ),
+    );
+  }
+}
+
+class _QuickNotePanel extends StatefulWidget {
+  final bool compact;
+
+  const _QuickNotePanel({this.compact = false});
+
+  @override
+  State<_QuickNotePanel> createState() => _QuickNotePanelState();
+}
+
+class _QuickNotePanelState extends State<_QuickNotePanel> {
+  final _controller = TextEditingController();
+  Timer? _saveDebounce;
+  bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_scheduleSave);
+    unawaited(_loadNote());
+  }
+
+  Future<void> _loadNote() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    _controller.text = prefs.getString(_quickNoteStorageKey) ?? '';
+    setState(() => _loaded = true);
+  }
+
+  void _scheduleSave() {
+    if (!_loaded) return;
+    _saveDebounce?.cancel();
+    _saveDebounce = Timer(
+      const Duration(milliseconds: 350),
+      () => unawaited(_saveNote(_controller.text)),
+    );
+  }
+
+  Future<void> _saveNote(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_quickNoteStorageKey, value);
+  }
+
+  void _showMessage(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+  }
+
+  Future<void> _copyNote() async {
+    final note = _controller.text.trim();
+    if (note.isEmpty) {
+      _showMessage('Escreva uma nota antes.');
+      return;
+    }
+
+    await Clipboard.setData(ClipboardData(text: note));
+    _showMessage('Nota copiada.');
+  }
+
+  Future<void> _shareNote() async {
+    final note = _controller.text.trim();
+    if (note.isEmpty) {
+      _showMessage('Escreva uma nota antes.');
+      return;
+    }
+
+    await Share.share(note, subject: 'Nota rapida');
+  }
+
+  Future<void> _clearNote() async {
+    if (_controller.text.isEmpty) return;
+    _controller.clear();
+    _saveDebounce?.cancel();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_quickNoteStorageKey);
+    _showMessage('Nota limpa.');
+  }
+
+  @override
+  void dispose() {
+    final value = _controller.text;
+    _saveDebounce?.cancel();
+    if (_loaded) unawaited(_saveNote(value));
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final compact = widget.compact;
+
+    return _V2Card(
+      padding: EdgeInsets.all(compact ? 14 : 18),
+      radius: compact ? 16 : 20,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: _SectionTitle(
+                  icon: Icons.sticky_note_2_outlined,
+                  title: 'Nota rapida',
+                  compact: compact,
+                ),
+              ),
+              SizedBox(width: compact ? 8 : 10),
+              _QuickNoteIconButton(
+                icon: Icons.content_copy_rounded,
+                tooltip: 'Copiar nota',
+                compact: compact,
+                onPressed: _copyNote,
+              ),
+              SizedBox(width: compact ? 6 : 8),
+              _QuickNoteIconButton(
+                icon: Icons.ios_share_rounded,
+                tooltip: 'Compartilhar nota',
+                compact: compact,
+                onPressed: _shareNote,
+              ),
+              SizedBox(width: compact ? 6 : 8),
+              _QuickNoteIconButton(
+                icon: Icons.delete_outline_rounded,
+                tooltip: 'Limpar nota',
+                compact: compact,
+                onPressed: _clearNote,
+              ),
+            ],
+          ),
+          SizedBox(height: compact ? 10 : 12),
+          TextField(
+            controller: _controller,
+            minLines: compact ? 2 : 2,
+            maxLines: compact ? 3 : 4,
+            maxLength: 360,
+            textInputAction: TextInputAction.newline,
+            style: _textStyle(
+              size: compact ? 13 : 14,
+              color: _v2Text,
+              weight: FontWeight.w700,
+              height: 1.3,
+            ),
+            decoration: InputDecoration(
+              hintText: 'Escreva um lembrete rapido...',
+              counterText: '',
+              filled: true,
+              fillColor: const Color(0xFFF8FAFC),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: compact ? 12 : 14,
+                vertical: compact ? 11 : 13,
+              ),
+              hintStyle: _textStyle(
+                size: compact ? 13 : 14,
+                color: _v2Subtle,
+                weight: FontWeight.w600,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: _v2Border),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: _v2Border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: _v2Primary, width: 1.4),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickNoteIconButton extends StatelessWidget {
+  final IconData icon;
+  final String tooltip;
+  final bool compact;
+  final VoidCallback onPressed;
+
+  const _QuickNoteIconButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onPressed,
+    this.compact = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final size = compact ? 34.0 : 38.0;
+
+    return Tooltip(
+      message: tooltip,
+      child: SizedBox.square(
+        dimension: size,
+        child: IconButton(
+          onPressed: onPressed,
+          icon: Icon(icon, size: compact ? 17 : 18),
+          color: _v2Primary,
+          padding: EdgeInsets.zero,
+          style: IconButton.styleFrom(
+            backgroundColor: const Color(0xFFEFFDF9),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(11),
+              side: const BorderSide(color: Color(0xFFD0F2EA)),
+            ),
+          ),
+        ),
       ),
     );
   }
