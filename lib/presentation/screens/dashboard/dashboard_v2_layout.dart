@@ -230,16 +230,7 @@ class DashboardV2Home extends StatelessWidget {
                         saudacao: saudacao,
                         primeiroNome: primeiroNome,
                         turnoJaIniciado: turnoJaIniciado,
-                        turnoIniciadoEm: turnoIniciadoEm,
-                        totalAtivos: totalAtivos,
-                        totalCaixas: totalCaixas,
-                        alocados: alocados,
-                        livres: livres,
-                        emPausa: emPausa,
-                        emRota: emRota,
-                        alertas: alertas,
                         onPrimaryAction: onPrimaryAction,
-                        compact: isPhone,
                       ),
                       if (!isPhone ||
                           alertas > 0 ||
@@ -255,16 +246,16 @@ class DashboardV2Home extends StatelessWidget {
                         ),
                       ],
                       SizedBox(height: sectionGap),
-                      _DashboardMetricsGrid(
-                        metrics: metrics,
-                        compact: isPhone,
-                      ),
-                      SizedBox(height: sectionGap),
                       _OperationalMonitorCard(
                         caixas: caixas,
                         alertas: alertas,
                         turnoCritico: turnoCritico,
                         turnoEmAtencao: turnoEmAtencao,
+                        compact: isPhone,
+                      ),
+                      SizedBox(height: sectionGap),
+                      _DashboardMetricsGrid(
+                        metrics: metrics,
                         compact: isPhone,
                       ),
                       SizedBox(height: sectionGap),
@@ -970,14 +961,14 @@ class _DashboardV2Sidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 232,
+      width: 204,
       decoration: const BoxDecoration(
         color: _v2Card,
         border: Border(right: BorderSide(color: _v2Border)),
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(14, 16, 14, 14),
+          padding: const EdgeInsets.fromLTRB(12, 14, 12, 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -1049,8 +1040,8 @@ class _UserCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(minHeight: 132),
-      padding: const EdgeInsets.all(14),
+      constraints: const BoxConstraints(minHeight: 124),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -1069,12 +1060,12 @@ class _UserCard extends StatelessWidget {
                 clipBehavior: Clip.none,
                 children: [
                   CircleAvatar(
-                    radius: 24,
+                    radius: 22,
                     backgroundColor: Colors.white.withValues(alpha: 0.92),
                     child: const Icon(
                       Icons.person_rounded,
                       color: _v2Primary,
-                      size: 28,
+                      size: 26,
                     ),
                   ),
                   Positioned(
@@ -1092,7 +1083,7 @@ class _UserCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -1146,7 +1137,7 @@ class _UserCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
@@ -1197,7 +1188,7 @@ class _ProfileActionButton extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
           child: Container(
-            height: 36,
+            height: 34,
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.16),
               borderRadius: BorderRadius.circular(12),
@@ -1251,8 +1242,8 @@ class _SidebarNavTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
-          constraints: const BoxConstraints(minHeight: 54),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          constraints: const BoxConstraints(minHeight: 50),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           decoration: BoxDecoration(
             color: selected ? const Color(0xFFE6F7F5) : Colors.transparent,
             borderRadius: BorderRadius.circular(16),
@@ -1268,20 +1259,20 @@ class _SidebarNavTile extends StatelessWidget {
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Icon(
                 selected ? item.selectedIcon : item.icon,
                 color: color,
                 size: 20,
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   item.label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: _textStyle(
-                    size: 13,
+                    size: 12.5,
                     color: color,
                     weight: selected ? FontWeight.w800 : FontWeight.w600,
                   ),
@@ -1309,8 +1300,8 @@ class _SupportTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(minHeight: 54),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+      constraints: const BoxConstraints(minHeight: 50),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
         color: _v2Background,
         borderRadius: BorderRadius.circular(14),
@@ -1319,7 +1310,7 @@ class _SupportTile extends StatelessWidget {
       child: Row(
         children: [
           const Icon(Icons.support_agent_rounded, color: _v2Muted, size: 22),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               'Ajuda e suporte',
@@ -1343,276 +1334,25 @@ class _HeroDashboardSection extends StatelessWidget {
   final String saudacao;
   final String primeiroNome;
   final bool turnoJaIniciado;
-  final DateTime? turnoIniciadoEm;
-  final int totalAtivos;
-  final int totalCaixas;
-  final int alocados;
-  final int livres;
-  final int emPausa;
-  final int emRota;
-  final int alertas;
   final VoidCallback onPrimaryAction;
-  final bool compact;
 
   const _HeroDashboardSection({
     required this.saudacao,
     required this.primeiroNome,
     required this.turnoJaIniciado,
-    required this.turnoIniciadoEm,
-    required this.totalAtivos,
-    required this.totalCaixas,
-    required this.alocados,
-    required this.livres,
-    required this.emPausa,
-    required this.emRota,
-    required this.alertas,
     required this.onPrimaryAction,
-    this.compact = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final statusColor = turnoJaIniciado ? _v2Success : const Color(0xFF1D4ED8);
-    final statusLabel =
-        turnoJaIniciado ? 'Turno em andamento' : 'Aguardando inicio';
-
-    if (compact) {
-      final turnoLabel = turnoJaIniciado && turnoIniciadoEm != null
-          ? 'Iniciado as ${DateFormat('HH:mm').format(turnoIniciadoEm!)}'
-          : '08:00 as 16:00';
-
-      return _V2Card(
-        padding: const EdgeInsets.all(16),
-        radius: 18,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '$saudacao, $primeiroNome!',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: _textStyle(
-                          size: 22,
-                          color: _v2Text,
-                          weight: FontWeight.w900,
-                          height: 1.08,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Turno da manha - $turnoLabel',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: _textStyle(
-                          size: 12,
-                          color: _v2Muted,
-                          weight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 10),
-                _StatusPill(
-                  icon: Icons.circle,
-                  label: statusLabel,
-                  color: statusColor,
-                  compact: true,
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            SizedBox(
-              height: 48,
-              child: ElevatedButton.icon(
-                onPressed: onPrimaryAction,
-                icon: Icon(
-                  turnoJaIniciado
-                      ? Icons.timeline_rounded
-                      : Icons.play_arrow_rounded,
-                  size: 21,
-                ),
-                label: Text(
-                  turnoJaIniciado ? 'Timeline' : 'Comecar turno',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _v2Primary,
-                  foregroundColor: Colors.white,
-                  textStyle: _textStyle(size: 14, weight: FontWeight.w900),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  elevation: 0,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _CompactSignalChip(
-                  label: 'Equipe',
-                  value: totalAtivos.toString(),
-                  color: _v2Primary,
-                ),
-                _CompactSignalChip(
-                  label: 'Caixas',
-                  value: totalCaixas.toString(),
-                  color: _v2Success,
-                ),
-                _CompactSignalChip(
-                  label: 'Livres',
-                  value: livres.toString(),
-                  color: _v2Success,
-                ),
-                _CompactSignalChip(
-                  label: 'Alertas',
-                  value: alertas.toString(),
-                  color: alertas > 0 ? _v2Danger : _v2Success,
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    }
-
-    return _V2Card(
-      padding: EdgeInsets.zero,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(28, 18, 28, 16),
-            child: _DashboardTopBar(
-              statusColor: statusColor,
-              statusLabel: statusLabel,
-              alertas: alertas,
-            ),
-          ),
-          const Divider(height: 1, color: _v2Border),
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(
-              bottom: Radius.circular(20),
-            ),
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: CustomPaint(
-                    painter: _HeroLandscapePainter(),
-                    child: const DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Colors.white,
-                            Color(0xFFF8FEFC),
-                            Color(0xFFE8F8F4),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(28, 22, 28, 24),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final isWide = constraints.maxWidth >= 900;
-                      final headline = _HeroHeadline(
-                        saudacao: saudacao,
-                        primeiroNome: primeiroNome,
-                        turnoJaIniciado: turnoJaIniciado,
-                        turnoIniciadoEm: turnoIniciadoEm,
-                        onPrimaryAction: onPrimaryAction,
-                      );
-                      final signals = _HeroSignalsPanel(
-                        totalAtivos: totalAtivos,
-                        totalCaixas: totalCaixas,
-                        alocados: alocados,
-                        livres: livres,
-                        emPausa: emPausa,
-                        emRota: emRota,
-                      );
-
-                      if (!isWide) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            headline,
-                            const SizedBox(height: 22),
-                            signals,
-                          ],
-                        );
-                      }
-
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(child: headline),
-                          const SizedBox(width: 30),
-                          SizedBox(width: 370, child: signals),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 8, 4, 4),
+      child: _HeroHeadline(
+        saudacao: saudacao,
+        primeiroNome: primeiroNome,
+        turnoJaIniciado: turnoJaIniciado,
+        onPrimaryAction: onPrimaryAction,
       ),
-    );
-  }
-}
-
-class _DashboardTopBar extends StatelessWidget {
-  final Color statusColor;
-  final String statusLabel;
-  final int alertas;
-
-  const _DashboardTopBar({
-    required this.statusColor,
-    required this.statusLabel,
-    required this.alertas,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 12,
-      runSpacing: 10,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        _LiveDatePill(),
-        _LiveClockPill(),
-        const SizedBox(width: 8),
-        const _StatusPill(
-          icon: Icons.dashboard_customize_outlined,
-          label: 'Central do turno',
-          color: _v2Primary,
-        ),
-        _StatusPill(
-          icon: Icons.hourglass_top_rounded,
-          label: statusLabel,
-          color: statusColor,
-        ),
-        _StatusPill(
-          icon: Icons.priority_high_rounded,
-          label: alertas == 1 ? '1 alerta' : '$alertas alertas',
-          color: alertas > 0 ? _v2Danger : _v2Success,
-        ),
-      ],
     );
   }
 }
@@ -1669,247 +1409,101 @@ class _HeroHeadline extends StatelessWidget {
   final String saudacao;
   final String primeiroNome;
   final bool turnoJaIniciado;
-  final DateTime? turnoIniciadoEm;
   final VoidCallback onPrimaryAction;
 
   const _HeroHeadline({
     required this.saudacao,
     required this.primeiroNome,
     required this.turnoJaIniciado,
-    required this.turnoIniciadoEm,
     required this.onPrimaryAction,
   });
 
   @override
   Widget build(BuildContext context) {
-    final buttonLabel =
-        turnoJaIniciado ? 'Abrir timeline do turno' : 'Comecar turno';
-    final turnoLabel = turnoJaIniciado && turnoIniciadoEm != null
-        ? 'Turno iniciado as ${DateFormat('HH:mm').format(turnoIniciadoEm!)}'
-        : 'Turno da manha - 08:00 as 16:00';
+    final buttonLabel = turnoJaIniciado ? 'Abrir timeline' : 'Comecar turno';
 
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 190),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Flexible(
-                child: Text(
-                  '$saudacao, $primeiroNome!',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: _textStyle(
-                    size: 32,
-                    color: _v2Text,
-                    weight: FontWeight.w900,
-                    height: 1.12,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              const Icon(Icons.waving_hand_outlined, color: _v2Warning),
-            ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 760;
+        final title = Text(
+          '$saudacao, $primeiroNome!',
+          maxLines: compact ? 2 : 1,
+          overflow: TextOverflow.ellipsis,
+          style: _textStyle(
+            size: compact ? 28 : 34,
+            color: _v2Text,
+            weight: FontWeight.w900,
+            height: 1.08,
           ),
-          const SizedBox(height: 12),
-          Text(
-            turnoLabel,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style:
-                _textStyle(size: 16, color: _v2Muted, weight: FontWeight.w600),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            'Confira os indicadores e acompanhe sua operacao em tempo real.',
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: _textStyle(
-              size: 14,
-              color: _v2Muted,
-              weight: FontWeight.w500,
-              height: 1.4,
+        );
+        final meta = Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            _LiveDatePill(),
+            _LiveClockPill(),
+          ],
+        );
+        final action = SizedBox(
+          width: compact ? double.infinity : 220,
+          height: 54,
+          child: ElevatedButton.icon(
+            onPressed: onPrimaryAction,
+            icon: Icon(
+              turnoJaIniciado
+                  ? Icons.timeline_rounded
+                  : Icons.play_arrow_rounded,
+              size: 22,
             ),
-          ),
-          const SizedBox(height: 28),
-          SizedBox(
-            width: 250,
-            height: 60,
-            child: ElevatedButton.icon(
-              onPressed: onPrimaryAction,
-              icon: Icon(
-                turnoJaIniciado
-                    ? Icons.timeline_rounded
-                    : Icons.play_arrow_rounded,
-                size: 24,
-              ),
-              label: Text(
-                buttonLabel,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _v2Primary,
-                foregroundColor: Colors.white,
-                textStyle: _textStyle(size: 17, weight: FontWeight.w800),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 0,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HeroSignalsPanel extends StatelessWidget {
-  final int totalAtivos;
-  final int totalCaixas;
-  final int alocados;
-  final int livres;
-  final int emPausa;
-  final int emRota;
-
-  const _HeroSignalsPanel({
-    required this.totalAtivos,
-    required this.totalCaixas,
-    required this.alocados,
-    required this.livres,
-    required this.emPausa,
-    required this.emRota,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return _V2Card(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      radius: 16,
-      child: Column(
-        children: [
-          _HeroInfoRow(
-            icon: Icons.groups_2_outlined,
-            label: 'Equipe ativa',
-            value: totalAtivos.toString(),
-            color: _v2Primary,
-          ),
-          const _PanelDivider(),
-          _HeroInfoRow(
-            icon: Icons.point_of_sale_outlined,
-            label: 'Caixas ativos',
-            value: totalCaixas.toString(),
-            color: _v2Success,
-          ),
-          const _PanelDivider(),
-          _HeroInfoRow(
-            icon: Icons.swap_horiz_rounded,
-            label: 'Alocados / livres',
-            value: '$alocados / $livres',
-            color: _v2Success,
-          ),
-          const _PanelDivider(),
-          _HeroInfoRow(
-            icon: Icons.emoji_events_outlined,
-            label: 'Pausas / rotas',
-            value: '$emPausa / $emRota',
-            color: const Color(0xFFC2410C),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HeroInfoRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-
-  const _HeroInfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 42),
-      child: Row(
-        children: [
-          _IconBubble(icon: icon, color: color, size: 36, iconSize: 18),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              label,
+            label: Text(
+              buttonLabel,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: _textStyle(
-                  size: 14, color: _v2Muted, weight: FontWeight.w700),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _v2Primary,
+              foregroundColor: Colors.white,
+              textStyle: _textStyle(size: 16, weight: FontWeight.w900),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              elevation: 0,
             ),
           ),
-          const SizedBox(width: 10),
-          Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: _textStyle(size: 22, color: color, weight: FontWeight.w900),
-          ),
-          const SizedBox(width: 4),
-          Icon(Icons.chevron_right_rounded,
-              color: _v2Muted.withValues(alpha: 0.6)),
-        ],
-      ),
-    );
-  }
-}
+        );
 
-class _CompactSignalChip extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
+        if (compact) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              title,
+              const SizedBox(height: 14),
+              meta,
+              const SizedBox(height: 16),
+              action,
+            ],
+          );
+        }
 
-  const _CompactSignalChip({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: const BoxConstraints(minHeight: 34),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.07),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.16)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: _textStyle(size: 13, color: color, weight: FontWeight.w900),
-          ),
-          const SizedBox(width: 5),
-          Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style:
-                _textStyle(size: 11, color: _v2Muted, weight: FontWeight.w700),
-          ),
-        ],
-      ),
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  title,
+                  const SizedBox(height: 14),
+                  meta,
+                ],
+              ),
+            ),
+            const SizedBox(width: 24),
+            action,
+          ],
+        );
+      },
     );
   }
 }
@@ -2045,13 +1639,17 @@ class _DashboardMetricsGrid extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final crossAxisCount = width >= 1260
-            ? 6
-            : width >= 900
-                ? 3
-                : width >= 560
-                    ? 2
-                    : 2;
+        final crossAxisCount = compact
+            ? 2
+            : width >= 1200
+                ? 6
+                : width >= 920
+                    ? 5
+                    : width >= 720
+                        ? 4
+                        : width >= 520
+                            ? 3
+                            : 2;
 
         return GridView.builder(
           itemCount: metrics.length,
@@ -2059,9 +1657,9 @@ class _DashboardMetricsGrid extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            crossAxisSpacing: compact ? 10 : 16,
-            mainAxisSpacing: compact ? 10 : 16,
-            mainAxisExtent: compact ? 108 : 154,
+            crossAxisSpacing: compact ? 10 : 12,
+            mainAxisSpacing: compact ? 10 : 12,
+            mainAxisExtent: compact ? 96 : 112,
           ),
           itemBuilder: (context, index) {
             return _MetricV2Card(
@@ -2087,60 +1685,64 @@ class _MetricV2Card extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final content = Container(
-      padding: EdgeInsets.all(compact ? 11 : 14),
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 10 : 12,
+        vertical: compact ? 10 : 11,
+      ),
       decoration: _cardDecoration(
         borderColor: metric.color.withValues(alpha: 0.24),
-        radius: 16,
+        radius: 14,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Row(
             children: [
               _IconBubble(
                 icon: metric.icon,
                 color: metric.color,
-                size: compact ? 32 : 42,
-                iconSize: compact ? 17 : 21,
+                size: compact ? 30 : 34,
+                iconSize: compact ? 16 : 18,
               ),
               const Spacer(),
               if (metric.onTap != null)
                 Icon(
                   Icons.chevron_right_rounded,
                   color: metric.color,
-                  size: compact ? 18 : 22,
+                  size: compact ? 18 : 20,
                 ),
             ],
           ),
-          if (compact) const SizedBox(height: 8) else const Spacer(),
+          SizedBox(height: compact ? 6 : 8),
           Text(
             metric.value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: _textStyle(
-              size: compact ? 24 : 30,
+              size: compact ? 22 : 25,
               color: metric.color,
               weight: FontWeight.w900,
               height: 1,
             ),
           ),
-          SizedBox(height: compact ? 3 : 6),
+          SizedBox(height: compact ? 2 : 4),
           Text(
             metric.label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: _textStyle(
-              size: compact ? 11.5 : 13,
+              size: compact ? 11 : 12.5,
               color: _v2Text,
               weight: FontWeight.w800,
             ),
           ),
-          SizedBox(height: compact ? 3 : 6),
+          SizedBox(height: compact ? 2 : 4),
           Row(
             children: [
               Icon(
                 Icons.trending_up_rounded,
-                size: compact ? 13 : 16,
+                size: compact ? 12 : 14,
                 color: metric.color,
               ),
               SizedBox(width: compact ? 4 : 6),
@@ -2150,7 +1752,7 @@ class _MetricV2Card extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: _textStyle(
-                    size: compact ? 10.5 : 12,
+                    size: compact ? 10 : 11.5,
                     color: _v2Subtle,
                     weight: FontWeight.w600,
                   ),
@@ -2168,7 +1770,7 @@ class _MetricV2Card extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: metric.onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         child: content,
       ),
     );
@@ -2532,38 +2134,14 @@ class _DashboardBottomPanels extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isWide = constraints.maxWidth >= 980;
-        final routines = _RoutinesPanel(
-          quickActions: compact ? quickActions.take(4).toList() : quickActions,
-          compact: compact,
-        );
-        final report =
-            _ReportPanel(items: reportItems, onReportTap: onReportTap);
-
-        if (compact) return routines;
-
-        if (!isWide) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              routines,
-              const SizedBox(height: 18),
-              report,
-            ],
-          );
-        }
-
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(flex: 7, child: routines),
-            const SizedBox(width: 18),
-            Expanded(flex: 4, child: report),
-          ],
-        );
-      },
+    return _RoutinesPanel(
+      quickActions: compact ? quickActions.take(4).toList() : quickActions,
+      compact: compact,
+      trailing: _QuickReportButton(
+        items: reportItems,
+        onReportTap: onReportTap,
+        compact: compact,
+      ),
     );
   }
 }
@@ -2571,10 +2149,12 @@ class _DashboardBottomPanels extends StatelessWidget {
 class _RoutinesPanel extends StatelessWidget {
   final List<DashboardV2QuickAction> quickActions;
   final bool compact;
+  final Widget? trailing;
 
   const _RoutinesPanel({
     required this.quickActions,
     this.compact = false,
+    this.trailing,
   });
 
   @override
@@ -2585,10 +2165,20 @@ class _RoutinesPanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _SectionTitle(
-            icon: Icons.grid_view_rounded,
-            title: compact ? 'Atalhos' : 'Rotinas principais',
-            compact: compact,
+          Row(
+            children: [
+              Expanded(
+                child: _SectionTitle(
+                  icon: Icons.grid_view_rounded,
+                  title: compact ? 'Atalhos' : 'Rotinas principais',
+                  compact: compact,
+                ),
+              ),
+              if (trailing != null) ...[
+                const SizedBox(width: 12),
+                trailing!,
+              ],
+            ],
           ),
           SizedBox(height: compact ? 12 : 18),
           LayoutBuilder(
@@ -2596,11 +2186,15 @@ class _RoutinesPanel extends StatelessWidget {
               final width = constraints.maxWidth;
               final columns = compact
                   ? 2
-                  : width >= 720
-                      ? 3
-                      : width >= 460
-                          ? 2
-                          : 1;
+                  : width >= 1180
+                      ? 5
+                      : width >= 900
+                          ? 4
+                          : width >= 620
+                              ? 3
+                              : width >= 420
+                                  ? 2
+                                  : 1;
 
               return GridView.builder(
                 itemCount: quickActions.length,
@@ -2608,9 +2202,9 @@ class _RoutinesPanel extends StatelessWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: columns,
-                  crossAxisSpacing: compact ? 10 : 16,
-                  mainAxisSpacing: compact ? 10 : 16,
-                  mainAxisExtent: compact ? 62 : 74,
+                  crossAxisSpacing: compact ? 10 : 12,
+                  mainAxisSpacing: compact ? 10 : 12,
+                  mainAxisExtent: compact ? 62 : 68,
                 ),
                 itemBuilder: (context, index) {
                   return _QuickActionTile(
@@ -2644,7 +2238,10 @@ class _QuickActionTile extends StatelessWidget {
         onTap: action.onTap,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: EdgeInsets.all(compact ? 10 : 14),
+          padding: EdgeInsets.symmetric(
+            horizontal: compact ? 10 : 12,
+            vertical: compact ? 9 : 10,
+          ),
           decoration: BoxDecoration(
             color: _v2Card,
             borderRadius: BorderRadius.circular(12),
@@ -2658,8 +2255,8 @@ class _QuickActionTile extends StatelessWidget {
                   _IconBubble(
                     icon: action.icon,
                     color: action.color,
-                    size: compact ? 34 : 42,
-                    iconSize: compact ? 17 : 21,
+                    size: compact ? 34 : 38,
+                    iconSize: compact ? 17 : 19,
                   ),
                   if (action.badge != null)
                     Positioned(
@@ -2680,7 +2277,7 @@ class _QuickActionTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: _textStyle(
-                        size: compact ? 11.5 : 13,
+                        size: compact ? 11.5 : 12.5,
                         color: _v2Text,
                         weight: FontWeight.w900,
                       ),
@@ -2715,59 +2312,150 @@ class _QuickActionTile extends StatelessWidget {
   }
 }
 
-class _ReportPanel extends StatelessWidget {
+class _QuickReportButton extends StatelessWidget {
   final List<DashboardV2ReportItem> items;
   final VoidCallback onReportTap;
+  final bool compact;
 
-  const _ReportPanel({required this.items, required this.onReportTap});
+  const _QuickReportButton({
+    required this.items,
+    required this.onReportTap,
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return _V2Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            children: [
-              Expanded(
-                child: _SectionTitle(
-                  icon: Icons.bar_chart_rounded,
-                  title: 'Relatorio rapido',
-                ),
-              ),
-              _SoftPill(
-                label: 'Hoje',
-                icon: Icons.expand_more_rounded,
-                iconColor: _v2Muted,
-                trailingIcon: false,
-              ),
-            ],
+    return SizedBox(
+      height: compact ? 38 : 42,
+      child: OutlinedButton.icon(
+        onPressed: () => _showQuickReport(context),
+        icon: const Icon(Icons.bar_chart_rounded, size: 18),
+        label: Text(compact ? 'Relatorio' : 'Relatorio rapido'),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: _v2Primary,
+          side: const BorderSide(color: _v2Border),
+          backgroundColor: const Color(0xFFF6FEFC),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-          const SizedBox(height: 16),
-          for (final item in items) ...[
-            _ReportRow(item: item),
-            const SizedBox(height: 8),
-          ],
-          const SizedBox(height: 6),
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: OutlinedButton.icon(
-              onPressed: onReportTap,
-              icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-              label: const Text('Ver relatorio completo'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: _v2Primary,
-                side: const BorderSide(color: _v2Border),
-                backgroundColor: const Color(0xFFF6FEFC),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+          padding: EdgeInsets.symmetric(horizontal: compact ? 10 : 14),
+          textStyle:
+              _textStyle(size: compact ? 12 : 13, weight: FontWeight.w900),
+        ),
+      ),
+    );
+  }
+
+  void _showQuickReport(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return _QuickReportDialog(
+          items: items,
+          onOpenFullReport: () {
+            Navigator.of(dialogContext).pop();
+            onReportTap();
+          },
+        );
+      },
+    );
+  }
+}
+
+class _QuickReportDialog extends StatelessWidget {
+  final List<DashboardV2ReportItem> items;
+  final VoidCallback onOpenFullReport;
+
+  const _QuickReportDialog({
+    required this.items,
+    required this.onOpenFullReport,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final maxHeight = MediaQuery.sizeOf(context).height * 0.82;
+
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: 460, maxHeight: maxHeight),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    const Expanded(
+                      child: _SectionTitle(
+                        icon: Icons.bar_chart_rounded,
+                        title: 'Relatorio rapido',
+                      ),
+                    ),
+                    const _SoftPill(
+                      label: 'Hoje',
+                      icon: Icons.today_outlined,
+                      iconColor: _v2Muted,
+                      trailingIcon: false,
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      tooltip: 'Fechar',
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close_rounded),
+                    ),
+                  ],
                 ),
-                textStyle: _textStyle(size: 13, weight: FontWeight.w900),
-              ),
+                const SizedBox(height: 16),
+                if (items.isEmpty)
+                  Container(
+                    constraints: const BoxConstraints(minHeight: 92),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: _v2Background,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: _v2Border),
+                    ),
+                    child: Text(
+                      'Nenhuma informacao carregada para hoje.',
+                      textAlign: TextAlign.center,
+                      style: _textStyle(
+                        size: 13,
+                        color: _v2Muted,
+                        weight: FontWeight.w700,
+                      ),
+                    ),
+                  )
+                else
+                  for (final item in items) ...[
+                    _ReportRow(item: item),
+                    const SizedBox(height: 8),
+                  ],
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 48,
+                  child: OutlinedButton.icon(
+                    onPressed: onOpenFullReport,
+                    icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                    label: const Text('Ver relatorio completo'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: _v2Primary,
+                      side: const BorderSide(color: _v2Border),
+                      backgroundColor: const Color(0xFFF6FEFC),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      textStyle: _textStyle(size: 13, weight: FontWeight.w900),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -2999,15 +2687,6 @@ class _MiniBadge extends StatelessWidget {
   }
 }
 
-class _PanelDivider extends StatelessWidget {
-  const _PanelDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Divider(height: 16, color: _v2Border);
-  }
-}
-
 class _V2Card extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
@@ -3027,67 +2706,6 @@ class _V2Card extends StatelessWidget {
       child: child,
     );
   }
-}
-
-class _HeroLandscapePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..style = PaintingStyle.fill;
-
-    paint.color = const Color(0xFFFFD166).withValues(alpha: 0.55);
-    canvas.drawCircle(Offset(size.width * 0.62, size.height * 0.36), 30, paint);
-
-    final backPath = Path()
-      ..moveTo(0, size.height * 0.78)
-      ..cubicTo(
-        size.width * 0.22,
-        size.height * 0.72,
-        size.width * 0.34,
-        size.height * 0.9,
-        size.width * 0.52,
-        size.height * 0.68,
-      )
-      ..cubicTo(
-        size.width * 0.7,
-        size.height * 0.46,
-        size.width * 0.82,
-        size.height * 0.72,
-        size.width,
-        size.height * 0.5,
-      )
-      ..lineTo(size.width, size.height)
-      ..lineTo(0, size.height)
-      ..close();
-    paint.color = const Color(0xFFBFEFE5).withValues(alpha: 0.42);
-    canvas.drawPath(backPath, paint);
-
-    final frontPath = Path()
-      ..moveTo(0, size.height * 0.86)
-      ..cubicTo(
-        size.width * 0.18,
-        size.height * 0.78,
-        size.width * 0.31,
-        size.height * 0.98,
-        size.width * 0.47,
-        size.height * 0.83,
-      )
-      ..cubicTo(
-        size.width * 0.65,
-        size.height * 0.65,
-        size.width * 0.77,
-        size.height * 0.88,
-        size.width,
-        size.height * 0.65,
-      )
-      ..lineTo(size.width, size.height)
-      ..lineTo(0, size.height)
-      ..close();
-    paint.color = const Color(0xFF8BDACE).withValues(alpha: 0.28);
-    canvas.drawPath(frontPath, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 BoxDecoration _cardDecoration({

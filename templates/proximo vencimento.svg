@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 592" width="420" height="592">
+  <rect width="420" height="592" fill="#fff6d7"/>
+  <rect x="0" y="0" width="420" height="118" fill="#f4c430"/>
+  <rect x="0" y="96" width="420" height="22" fill="#f08a00"/>
+  <path d="M0 118 C70 142 136 128 210 118 C284 108 350 94 420 118 L420 168 C350 145 284 160 210 168 C136 176 70 178 0 154 Z" fill="#ffffff"/>
+  <circle cx="52" cy="48" r="28" fill="#e11a1a"/>
+  <circle cx="52" cy="48" r="18" fill="#fff6d7"/>
+  <path d="M52 32 L52 50 L66 59" fill="none" stroke="#e11a1a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="92" y="48" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="900" fill="#111111">PROXIMO DO</text>
+  <text x="92" y="84" font-family="Arial, Helvetica, sans-serif" font-size="37" font-weight="900" fill="#e11a1a">VENCIMENTO</text>
+  <rect x="24" y="132" width="372" height="8" rx="4" fill="#e11a1a"/>
+  <rect x="31" y="142" width="358" height="188" rx="18" fill="#ffffff"/>
+  <rect x="31" y="142" width="358" height="188" rx="18" fill="none" stroke="#f08a00" stroke-width="5"/>
+  <path d="M48 352 H372 C384 352 392 360 392 372 V526 C392 538 384 546 372 546 H48 C36 546 28 538 28 526 V372 C28 360 36 352 48 352 Z" fill="#ffffff"/>
+  <path d="M48 352 H372 C384 352 392 360 392 372 V526 C392 538 384 546 372 546 H48 C36 546 28 538 28 526 V372 C28 360 36 352 48 352 Z" fill="none" stroke="#e11a1a" stroke-width="6"/>
+  <rect x="42" y="554" width="336" height="24" rx="12" fill="#f4c430"/>
+  <text x="210" y="572" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="900" fill="#111111">CONSULTE A VALIDADE NA EMBALAGEM</text>
+</svg>
