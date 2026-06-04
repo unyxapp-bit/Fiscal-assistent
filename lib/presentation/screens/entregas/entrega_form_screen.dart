@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
+import '../../../data/services/entrega_cupom_ai_service.dart';
 import '../../../domain/entities/evento_turno.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/entrega_provider.dart';
@@ -15,10 +16,12 @@ import '../../../core/utils/app_notif.dart';
 /// Permite cadastrar ou editar uma entrega
 class EntregaFormScreen extends StatefulWidget {
   final Entrega? entrega; // Null para nova, preenchido para edição
+  final EntregaCupomDraft? draft;
 
   const EntregaFormScreen({
     super.key,
     this.entrega,
+    this.draft,
   });
 
   @override
@@ -37,7 +40,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
   String _cidadeSelecionada = 'Baependi';
   DateTime? _horarioMarcado;
 
-  final List<String> _cidades = ['Baependi', 'Caxambu', 'Cruzília'];
+  final List<String> _cidades = ['Baependi', 'Caxambu', 'Cruzilia'];
 
   @override
   void initState() {
@@ -48,9 +51,12 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
       _telefoneController.text = widget.entrega!.telefone ?? '';
       _enderecoController.text = widget.entrega!.endereco;
       _bairroController.text = widget.entrega!.bairro;
+      _garantirCidade(widget.entrega!.cidade);
       _cidadeSelecionada = widget.entrega!.cidade;
       _horarioMarcado = widget.entrega!.horarioMarcado;
       _observacoesController.text = widget.entrega!.observacoes ?? '';
+    } else if (widget.draft != null) {
+      _aplicarDraft(widget.draft!);
     }
   }
 
@@ -63,6 +69,29 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
     _bairroController.dispose();
     _observacoesController.dispose();
     super.dispose();
+  }
+
+  void _garantirCidade(String cidade) {
+    final limpa = cidade.trim();
+    if (limpa.isEmpty) return;
+    final existe = _cidades.any(
+      (item) => item.toLowerCase() == limpa.toLowerCase(),
+    );
+    if (!existe) _cidades.add(limpa);
+  }
+
+  void _aplicarDraft(EntregaCupomDraft draft) {
+    _numeroNFController.text = draft.numeroNota;
+    _nomeClienteController.text = draft.clienteNome;
+    _telefoneController.text = draft.telefone;
+    _enderecoController.text = draft.endereco;
+    _bairroController.text = draft.bairro;
+    _garantirCidade(draft.cidade);
+    if (draft.cidade.trim().isNotEmpty) {
+      _cidadeSelecionada = draft.cidade.trim();
+    }
+    _horarioMarcado = draft.horarioMarcado;
+    _observacoesController.text = draft.observacoesParaSalvar();
   }
 
   Future<void> _selecionarHorario() async {

@@ -1,12 +1,21 @@
+import 'dart:typed_data';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_styles.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/app_notif.dart';
+import '../../../data/services/entrega_cupom_ai_service.dart';
+import '../../../domain/entities/evento_turno.dart';
 import '../../widgets/common/operational_widgets.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/entrega_provider.dart';
+import '../../providers/evento_turno_provider.dart';
 import 'entrega_form_screen.dart';
 import 'entrega_detail_screen.dart';
 
@@ -23,6 +32,9 @@ class _EntregasScreenState extends State<EntregasScreen> {
   String _filtroCidade = 'todas';
   String _busca = '';
   bool _ordenacaoDescendente = true;
+  bool _processandoCupom = false;
+  final _cupomAiService = EntregaCupomAiService();
+  final _imagePicker = ImagePicker();
 
   static const _statusOptions = [
     ('todos', 'Todos'),
@@ -58,6 +70,177 @@ class _EntregasScreenState extends State<EntregasScreen> {
   void dispose() {
     _searchCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _selecionarCupomUpload() async {
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
+      withData: true,
+      type: FileType.image,
+    );
+    if (result == null || result.files.isEmpty) return;
+
+    final file = result.files.first;
+    final bytes = file.bytes;
+    if (bytes == null || bytes.isEmpty) {
+      if (!mounted) return;
+      AppNotif.show(
+        context,
+        titulo: 'Imagem vazia',
+        mensagem: 'Nao foi possivel ler o arquivo selecionado.',
+        tipo: 'alerta',
+        cor: AppColors.danger,
+      );
+      return;
+    }
+
+    await _analisarCupom(
+      bytes: bytes,
+      fileName: file.name,
+      mimeType: EntregaCupomAiService.mimeTypeForFileName(file.name),
+    );
+  }
+
+  Future<void> _tirarFotoCupom() async {
+    try {
+      final image = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 85,
+        maxWidth: 1800,
+      );
+      if (image == null) return;
+
+      final bytes = await image.readAsBytes();
+      await _analisarCupom(
+        bytes: bytes,
+        fileName: image.name,
+        mimeType: image.mimeType ??
+            EntregaCupomAiService.mimeTypeForFileName(image.name),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      AppNotif.show(
+        context,
+        titulo: 'Camera indisponivel',
+        mensagem:
+            'Nao foi possivel abrir a camera. Tente enviar a foto pelo upload.',
+        tipo: 'alerta',
+        cor: AppColors.danger,
+      );
+    }
+  }
+
+  Future<void> _analisarCupom({
+    required Uint8List bytes,
+    required String fileName,
+    required String mimeType,
+  }) async {
+    if (_processandoCupom) return;
+
+    setState(() => _processandoCupom = true);
+    try {
+      final draft = await _cupomAiService.extractFromImage(
+        bytes: bytes,
+        fileName: fileName,
+        mimeType: mimeType,
+      );
+      if (!mounted) return;
+      await _abrirPreviaCupom(draft);
+    } catch (e) {
+      if (!mounted) return;
+      AppNotif.show(
+        context,
+        titulo: 'IA nao analisou',
+        mensagem: '$e',
+        tipo: 'alerta',
+        cor: AppColors.danger,
+        duracao: const Duration(seconds: 4),
+      );
+    } finally {
+      if (mounted) setState(() => _processandoCupom = false);
+    }
+  }
+
+  Future<void> _abrirPreviaCupom(EntregaCupomDraft draft) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => _CupomEntregaPreviewSheet(
+        draft: draft,
+        onCreate: draft.canCreate
+            ? () {
+                Navigator.of(sheetContext).pop();
+                _criarEntregaDoCupom(draft);
+              }
+            : null,
+        onEdit: () {
+          Navigator.of(sheetContext).pop();
+          _abrirFormularioComDraft(draft);
+        },
+      ),
+    );
+  }
+
+  Future<void> _abrirFormularioComDraft(EntregaCupomDraft draft) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => EntregaFormScreen(draft: draft)),
+    );
+  }
+
+  void _criarEntregaDoCupom(EntregaCupomDraft draft) {
+    final pendentes = draft.requiredMissingFields;
+    if (pendentes.isNotEmpty) {
+      AppNotif.show(
+        context,
+        titulo: 'Revise o cupom',
+        mensagem: 'Campos pendentes: ${pendentes.join(', ')}.',
+        tipo: 'alerta',
+        cor: AppColors.statusAtencao,
+        duracao: const Duration(seconds: 4),
+      );
+      _abrirFormularioComDraft(draft);
+      return;
+    }
+
+    final entregaProvider = context.read<EntregaProvider>();
+    entregaProvider.adicionarEntrega(
+      numeroNota: draft.numeroNota.trim(),
+      clienteNome: draft.clienteNome.trim(),
+      telefone: draft.telefone.trim().isEmpty ? null : draft.telefone.trim(),
+      endereco: draft.endereco.trim(),
+      bairro: draft.bairro.trim(),
+      cidade: draft.cidade.trim(),
+      observacoes: draft.observacoesParaSalvar(),
+      horarioMarcado: draft.horarioMarcado,
+    );
+
+    final eventoProvider = context.read<EventoTurnoProvider>();
+    if (eventoProvider.turnoAtivo) {
+      final fiscalId = context.read<AuthProvider>().user?.id ?? '';
+      eventoProvider.registrar(
+        fiscalId: fiscalId,
+        tipo: TipoEvento.entregaCadastrada,
+        detalhe: 'NF ${draft.numeroNota.trim()} - ${draft.clienteNome.trim()}',
+      );
+    }
+
+    _searchCtrl.clear();
+    setState(() {
+      _busca = '';
+      _filtroStatus = 'separada';
+      _filtroCidade = 'todas';
+      _ordenacaoDescendente = true;
+    });
+
+    AppNotif.show(
+      context,
+      titulo: 'Entrega criada',
+      mensagem: 'Entrega criada a partir do cupom lido pela IA.',
+      tipo: 'saida',
+      cor: AppColors.success,
+    );
   }
 
   @override
@@ -117,6 +300,27 @@ class _EntregasScreenState extends State<EntregasScreen> {
                       ? () => Navigator.pop(context)
                       : null,
                   actions: [
+                    if (_processandoCupom)
+                      const SizedBox(
+                        width: 40,
+                        height: 40,
+                        child: Padding(
+                          padding: EdgeInsets.all(10),
+                          child: CircularProgressIndicator(strokeWidth: 2.4),
+                        ),
+                      )
+                    else ...[
+                      IconButton.filledTonal(
+                        icon: const Icon(Icons.upload_file_rounded),
+                        tooltip: 'Enviar foto do cupom',
+                        onPressed: _selecionarCupomUpload,
+                      ),
+                      IconButton.filledTonal(
+                        icon: const Icon(Icons.photo_camera_outlined),
+                        tooltip: 'Tirar foto do cupom',
+                        onPressed: _tirarFotoCupom,
+                      ),
+                    ],
                     IconButton.filledTonal(
                       icon: Icon(
                         _ordenacaoDescendente
@@ -126,9 +330,12 @@ class _EntregasScreenState extends State<EntregasScreen> {
                       tooltip: _ordenacaoDescendente
                           ? 'Mais recentes primeiro'
                           : 'Mais antigos primeiro',
-                      onPressed: () => setState(
-                        () => _ordenacaoDescendente = !_ordenacaoDescendente,
-                      ),
+                      onPressed: _processandoCupom
+                          ? null
+                          : () => setState(
+                                () => _ordenacaoDescendente =
+                                    !_ordenacaoDescendente,
+                              ),
                     ),
                   ],
                 ),
@@ -458,6 +665,269 @@ class _ReferenceKpiRows extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class _CupomEntregaPreviewSheet extends StatelessWidget {
+  final EntregaCupomDraft draft;
+  final VoidCallback? onCreate;
+  final VoidCallback onEdit;
+
+  const _CupomEntregaPreviewSheet({
+    required this.draft,
+    required this.onCreate,
+    required this.onEdit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.appTheme;
+    final missing = draft.requiredMissingFields;
+    final reviewFields = {
+      ...missing,
+      ...draft.missingFields,
+    }.toList();
+
+    return SafeArea(
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: 640,
+            maxHeight: MediaQuery.sizeOf(context).height * 0.92,
+          ),
+          margin: const EdgeInsets.all(12),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+          decoration: BoxDecoration(
+            color: tokens.cardBackground,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: tokens.cardBorder),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.12),
+                blurRadius: 24,
+                offset: const Offset(0, 12),
+              ),
+            ],
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 42,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 14),
+                    decoration: BoxDecoration(
+                      color: tokens.cardBorder,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                ),
+                Row(
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: AppStyles.softTile(
+                        context: context,
+                        tint: AppColors.primary,
+                        radius: 12,
+                      ),
+                      child: Icon(
+                        Icons.auto_fix_high_rounded,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Cupom lido pela IA',
+                            style: AppTextStyles.h3.copyWith(
+                              color: tokens.textPrimary,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          Text(
+                            'Confianca ${draft.confidenceLabel}',
+                            style: AppTextStyles.caption.copyWith(
+                              color: tokens.textSecondary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Fechar',
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close_rounded),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                if (reviewFields.isNotEmpty) ...[
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: AppStyles.softCard(
+                      context: context,
+                      tint: AppColors.statusAtencao,
+                      radius: 14,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.warning_amber_rounded,
+                          color: AppColors.statusAtencao,
+                          size: 21,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Revise: ${reviewFields.join(', ')}',
+                            style: AppTextStyles.body.copyWith(
+                              color: tokens.textPrimary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                _CupomPreviewRow(
+                  icon: Icons.receipt_long_outlined,
+                  label: 'NF',
+                  value: draft.numeroNota,
+                ),
+                _CupomPreviewRow(
+                  icon: Icons.person_outline_rounded,
+                  label: 'Cliente',
+                  value: draft.clienteNome,
+                ),
+                _CupomPreviewRow(
+                  icon: Icons.phone_outlined,
+                  label: 'Telefone',
+                  value: draft.telefone,
+                ),
+                _CupomPreviewRow(
+                  icon: Icons.home_outlined,
+                  label: 'Endereco',
+                  value: draft.endereco,
+                ),
+                _CupomPreviewRow(
+                  icon: Icons.location_city_outlined,
+                  label: 'Bairro',
+                  value: draft.bairro,
+                ),
+                _CupomPreviewRow(
+                  icon: Icons.place_outlined,
+                  label: 'Cidade',
+                  value: draft.cidade,
+                ),
+                if (draft.observacoes.trim().isNotEmpty)
+                  _CupomPreviewRow(
+                    icon: Icons.sticky_note_2_outlined,
+                    label: 'Observacoes',
+                    value: draft.observacoes,
+                    multiline: true,
+                  ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: onEdit,
+                        icon: const Icon(Icons.edit_outlined, size: 18),
+                        label: const Text('Editar antes'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: onCreate,
+                        icon: const Icon(Icons.check_rounded, size: 18),
+                        label: const Text('Criar entrega'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CupomPreviewRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final bool multiline;
+
+  const _CupomPreviewRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.multiline = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.appTheme;
+    final cleanValue = value.trim();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment:
+            multiline ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+        children: [
+          Icon(icon, color: tokens.textSecondary, size: 20),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 86,
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.caption.copyWith(
+                color: tokens.textSecondary,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              cleanValue.isEmpty ? 'Nao identificado' : cleanValue,
+              maxLines: multiline ? 4 : 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.body.copyWith(
+                color: cleanValue.isEmpty
+                    ? tokens.textSecondary
+                    : tokens.textPrimary,
+                fontWeight:
+                    cleanValue.isEmpty ? FontWeight.w600 : FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,4 +1,4 @@
-﻿name: fiscal_assistant
+name: fiscal_assistant
 description: Assistente pessoal para fiscais de caixa - GestÃ£o de escala em tempo real
 publish_to: 'none'
 version: 1.0.0+1
@@ -48,6 +48,7 @@ dependencies:
   pdf: ^3.11.1
   printing: ^5.13.4
   flutter_svg: ^2.2.4
+  image_picker: ^1.2.2
 
 
 dev_dependencies:
