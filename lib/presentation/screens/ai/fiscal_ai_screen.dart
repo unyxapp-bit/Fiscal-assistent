@@ -190,35 +190,15 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
     final aiProvider = context.watch<FiscalAiProvider>();
     final insight = aiProvider.insight;
     final metrics = _buildAiMetrics(context);
+    final recentEvents =
+        _selectRelevantEvents(context.read<FiscalEventsProvider>().events)
+            .take(5)
+            .toList();
+    final displayName = _displayName(context.watch<AuthProvider>().user);
+    final isBusy = aiProvider.running || _analisandoMidia;
 
-    return AppPage(
-      title: 'IA Fiscal',
-      subtitle: 'Leitura do Balcao, caixas e turno',
-      icon: Icons.auto_awesome_rounded,
-      actions: [
-        IconButton(
-          tooltip: 'Analisar midia',
-          onPressed: aiProvider.running || _analisandoMidia
-              ? null
-              : _analisarMidiaComIa,
-          icon: _analisandoMidia
-              ? const SizedBox.square(
-                  dimension: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.upload_file_rounded),
-        ),
-        IconButton(
-          tooltip: 'Analisar agora',
-          onPressed: aiProvider.running ? null : _runAnalysis,
-          icon: aiProvider.running
-              ? const SizedBox.square(
-                  dimension: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.refresh_rounded),
-        ),
-      ],
+    return Scaffold(
+      backgroundColor: AppColors.background,
       body: RefreshIndicator(
         onRefresh: _runAnalysis,
         child: SingleChildScrollView(
@@ -232,27 +212,30 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
             ),
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 960),
+                constraints: const BoxConstraints(maxWidth: 1120),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _MetricsPanel(metrics: metrics),
-                    const SizedBox(height: Dimensions.spacingSM),
-                    _AiStatusPanel(
+                    _AiDashboardHeader(
+                      displayName: displayName,
+                      isBusy: isBusy,
+                      onAnalyzeMedia: _analisarMidiaComIa,
+                      onRefresh: _runAnalysis,
+                    ),
+                    const SizedBox(height: Dimensions.spacingMD),
+                    _OperationStatusCard(
+                      metrics: metrics,
+                      insight: insight,
                       provider: insight?.provider,
                       source: insight?.source,
                       model: insight?.model,
                       warning: insight?.warning,
                       lastAnalyzedAt: aiProvider.lastAnalyzedAt,
                       actionsCount: aiProvider.actions.length,
-                      running: aiProvider.running || _analisandoMidia,
+                      running: isBusy,
                     ),
                     const SizedBox(height: Dimensions.spacingMD),
-                    _MediaUploadPanel(
-                      isRunning: aiProvider.running || _analisandoMidia,
-                      onUpload: _analisarMidiaComIa,
-                      onAnalyze: _runAnalysis,
-                    ),
+                    _SeverityOverviewGrid(metrics: metrics, insight: insight),
                     const SizedBox(height: Dimensions.spacingMD),
                     if (aiProvider.error != null) ...[
                       _InlineError(message: aiProvider.error!),
@@ -275,19 +258,30 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
                         onAction: _runAnalysis,
                       ),
                     ] else ...[
-                      _InsightSummary(
-                        insight: insight,
-                        isRunning: aiProvider.running,
-                        onRunPlan: insight.actionPlan.isEmpty
-                            ? null
-                            : () => _executePlan(insight.actionPlan),
+                      _DashboardTwoColumn(
+                        left: _PriorityActionsCard(
+                          insight: insight,
+                          actions: aiProvider.actions,
+                          isRunning: aiProvider.running,
+                          onRunPlan: insight.actionPlan.isEmpty
+                              ? null
+                              : () => _executePlan(insight.actionPlan),
+                          onRunQueuedAction: _runQueuedAction,
+                          onDismissQueuedAction: _dismissQueuedAction,
+                        ),
+                        right: _ActiveAlertsCard(
+                          risks: insight.risks,
+                          isRunning: aiProvider.running,
+                          onResolveRisk: _resolveRisk,
+                        ),
                       ),
                       const SizedBox(height: Dimensions.spacingMD),
-                      _QuestionPanel(
-                        controller: _questionController,
-                        isRunning: aiProvider.running,
-                        chatAnswer: insight.chatAnswer,
-                        onSubmit: _sendQuestion,
+                      _DashboardTwoColumn(
+                        left: _ExecutiveSummaryCard(
+                          metrics: metrics,
+                          insight: insight,
+                        ),
+                        right: _RecentMovementCard(events: recentEvents),
                       ),
                       const SizedBox(height: Dimensions.spacingMD),
                       if (insight.actionResult.hasMessage ||
@@ -299,27 +293,28 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
                         _ResolutionPanel(resolution: insight.resolution),
                         const SizedBox(height: Dimensions.spacingMD),
                       ],
-                      if (insight.risks.isNotEmpty) ...[
-                        _RisksPanel(
-                          risks: insight.risks,
-                          isRunning: aiProvider.running,
-                          onResolveRisk: _resolveRisk,
-                        ),
-                        const SizedBox(height: Dimensions.spacingMD),
-                      ],
                       if (insight.recommendations.isNotEmpty) ...[
                         _RecommendationsPanel(
                           recommendations: insight.recommendations,
                         ),
                         const SizedBox(height: Dimensions.spacingMD),
                       ],
-                      if (aiProvider.actions.isNotEmpty)
-                        _QueuedActionsPanel(
-                          actions: aiProvider.actions,
-                          isRunning: aiProvider.running,
-                          onRun: _runQueuedAction,
-                          onDismiss: _dismissQueuedAction,
+                      _QuestionPanel(
+                        controller: _questionController,
+                        isRunning: aiProvider.running,
+                        chatAnswer: insight.chatAnswer,
+                        onSubmit: _sendQuestion,
+                      ),
+                      const SizedBox(height: Dimensions.spacingSM),
+                      Center(
+                        child: Text(
+                          'IA Fiscal pode cometer erros. Valide informacoes criticas.',
+                          textAlign: TextAlign.center,
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
                         ),
+                      ),
                     ],
                   ],
                 ),
@@ -498,217 +493,6 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
   }
 }
 
-class _MetricsPanel extends StatelessWidget {
-  final Map<String, dynamic> metrics;
-
-  const _MetricsPanel({required this.metrics});
-
-  @override
-  Widget build(BuildContext context) {
-    final valorCaixa = (metrics['valor_caixa_pendente'] as num?) ?? 0;
-
-    return OperationalMetricGrid(
-      minTileWidth: 154,
-      metrics: [
-        OperationalMetricData(
-          label: 'Pendencias',
-          value: '${metrics['eventos_pendentes'] ?? 0}',
-          color: AppColors.statusAtencao,
-          icon: Icons.pending_actions_rounded,
-        ),
-        OperationalMetricData(
-          label: 'Midias',
-          value: '${metrics['midias_pendentes'] ?? 0}',
-          color: AppColors.cyan,
-          icon: Icons.perm_media_rounded,
-        ),
-        OperationalMetricData(
-          label: 'Caixas ativos',
-          value: '${metrics['caixas_ativos'] ?? 0}',
-          color: AppColors.primary,
-          icon: Icons.point_of_sale_rounded,
-        ),
-        OperationalMetricData(
-          label: 'Manutencao',
-          value: '${metrics['caixas_manutencao'] ?? 0}',
-          color: AppColors.danger,
-          icon: Icons.build_circle_rounded,
-        ),
-        OperationalMetricData(
-          label: 'Alertas turno',
-          value:
-              '${(metrics['pausas_em_atraso'] ?? 0) + (metrics['ocorrencias_abertas'] ?? 0) + (metrics['lembretes_vencidos'] ?? 0)}',
-          color: AppColors.deepPurple,
-          icon: Icons.crisis_alert_rounded,
-        ),
-        OperationalMetricData(
-          label: 'Valor caixa',
-          value: 'R\$ ${valorCaixa.toStringAsFixed(2)}',
-          color: AppColors.teal,
-          icon: Icons.payments_rounded,
-        ),
-      ],
-    );
-  }
-}
-
-class _AiStatusPanel extends StatelessWidget {
-  final String? provider;
-  final String? source;
-  final String? model;
-  final String? warning;
-  final DateTime? lastAnalyzedAt;
-  final int actionsCount;
-  final bool running;
-
-  const _AiStatusPanel({
-    required this.provider,
-    required this.source,
-    required this.model,
-    required this.warning,
-    required this.lastAnalyzedAt,
-    required this.actionsCount,
-    required this.running,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final color = running
-        ? AppColors.info
-        : warning == null
-            ? AppColors.success
-            : AppColors.statusAtencao;
-
-    return AppSurface(
-      tint: color,
-      padding: const EdgeInsets.all(Dimensions.paddingSM),
-      child: Wrap(
-        spacing: Dimensions.spacingXS,
-        runSpacing: Dimensions.spacingXS,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          StatusPill(
-            icon: running
-                ? Icons.sync_rounded
-                : warning == null
-                    ? Icons.check_circle_rounded
-                    : Icons.info_outline_rounded,
-            label: running ? 'Analisando' : 'Pronta',
-            color: color,
-            compact: true,
-          ),
-          StatusPill(
-            icon: Icons.schedule_rounded,
-            label: _formatAiTimestamp(lastAnalyzedAt),
-            color: AppColors.blueGrey,
-            compact: true,
-          ),
-          StatusPill(
-            icon: Icons.memory_rounded,
-            label: _providerLabel(provider, model),
-            color: AppColors.info,
-            compact: true,
-          ),
-          StatusPill(
-            icon: _sourceIcon(source),
-            label: _sourceLabel(source),
-            color: _sourceColor(source),
-            compact: true,
-          ),
-          if (actionsCount > 0)
-            StatusPill(
-              icon: Icons.playlist_add_check_circle_rounded,
-              label: '$actionsCount acao${actionsCount == 1 ? '' : 'es'}',
-              color: AppColors.statusAtencao,
-              compact: true,
-            ),
-          if (warning?.trim().isNotEmpty == true)
-            Text(
-              warning!,
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MediaUploadPanel extends StatelessWidget {
-  final bool isRunning;
-  final VoidCallback onUpload;
-  final VoidCallback onAnalyze;
-
-  const _MediaUploadPanel({
-    required this.isRunning,
-    required this.onUpload,
-    required this.onAnalyze,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AppSurface(
-      tint: AppColors.cyan,
-      padding: const EdgeInsets.all(Dimensions.paddingSM),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final actions = [
-            OutlinedButton.icon(
-              onPressed: isRunning ? null : onAnalyze,
-              icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Atualizar IA'),
-            ),
-            FilledButton.icon(
-              onPressed: isRunning ? null : onUpload,
-              icon: const Icon(Icons.upload_file_rounded, size: 18),
-              label: const Text('Analisar midia'),
-            ),
-          ];
-
-          final icon = Container(
-            width: 36,
-            height: 36,
-            decoration: AppStyles.softTile(
-              context: context,
-              tint: AppColors.cyan,
-              radius: Dimensions.radiusSM,
-            ),
-            child: Icon(Icons.perm_media_rounded, color: AppColors.cyan),
-          );
-
-          if (constraints.maxWidth < 520) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Align(alignment: Alignment.centerLeft, child: icon),
-                const SizedBox(height: Dimensions.spacingSM),
-                ...actions.map(
-                  (button) => Padding(
-                    padding:
-                        const EdgeInsets.only(bottom: Dimensions.spacingXS),
-                    child: button,
-                  ),
-                ),
-              ],
-            );
-          }
-
-          return Row(
-            children: [
-              icon,
-              const Spacer(),
-              actions[0],
-              const SizedBox(width: Dimensions.spacingSM),
-              actions[1],
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
-
 class _InlineError extends StatelessWidget {
   final String message;
 
@@ -734,12 +518,582 @@ class _InlineError extends StatelessWidget {
   }
 }
 
-class _InsightSummary extends StatelessWidget {
+class _AiDashboardHeader extends StatelessWidget {
+  final String displayName;
+  final bool isBusy;
+  final VoidCallback onAnalyzeMedia;
+  final VoidCallback onRefresh;
+
+  const _AiDashboardHeader({
+    required this.displayName,
+    required this.isBusy,
+    required this.onAnalyzeMedia,
+    required this.onRefresh,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 700;
+        final titleBlock = Row(
+          children: [
+            Container(
+              width: 54,
+              height: 54,
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(Dimensions.radiusLG),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.18),
+                    blurRadius: 18,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.auto_awesome_rounded,
+                color: Colors.white,
+                size: 28,
+              ),
+            ),
+            const SizedBox(width: Dimensions.spacingMD),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Ola, $displayName!',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.h2.copyWith(
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _formatHeaderDate(DateTime.now()),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+
+        final actions = Wrap(
+          spacing: Dimensions.spacingSM,
+          runSpacing: Dimensions.spacingXS,
+          alignment: compact ? WrapAlignment.start : WrapAlignment.end,
+          children: [
+            OutlinedButton.icon(
+              onPressed: isBusy ? null : onAnalyzeMedia,
+              icon: isBusy
+                  ? const SizedBox.square(
+                      dimension: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.upload_file_rounded, size: 18),
+              label: const Text('Analisar midia'),
+            ),
+            FilledButton.icon(
+              onPressed: isBusy ? null : onRefresh,
+              icon: isBusy
+                  ? const SizedBox.square(
+                      dimension: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.refresh_rounded, size: 18),
+              label: const Text('Atualizar'),
+            ),
+          ],
+        );
+
+        if (compact) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              titleBlock,
+              const SizedBox(height: Dimensions.spacingMD),
+              actions,
+            ],
+          );
+        }
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: titleBlock),
+            const SizedBox(width: Dimensions.spacingMD),
+            actions,
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _OperationStatusCard extends StatelessWidget {
+  final Map<String, dynamic> metrics;
+  final FiscalAiInsight? insight;
+  final String? provider;
+  final String? source;
+  final String? model;
+  final String? warning;
+  final DateTime? lastAnalyzedAt;
+  final int actionsCount;
+  final bool running;
+
+  const _OperationStatusCard({
+    required this.metrics,
+    required this.insight,
+    required this.provider,
+    required this.source,
+    required this.model,
+    required this.warning,
+    required this.lastAnalyzedAt,
+    required this.actionsCount,
+    required this.running,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final severity = insight?.overallSeverity ?? _severityFromMetrics(metrics);
+    final color = running ? AppColors.info : _severityColor(severity);
+    final confidence = _analysisConfidence(insight);
+    final sources = _sourceChecks(metrics);
+
+    return AppSurface(
+      elevated: true,
+      padding: const EdgeInsets.all(Dimensions.paddingLG),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 780;
+          final status = Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 78,
+                height: 78,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.14),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  running
+                      ? Icons.sync_rounded
+                      : severity == 'normal'
+                          ? Icons.check_rounded
+                          : Icons.priority_high_rounded,
+                  color: color,
+                  size: 44,
+                ),
+              ),
+              const SizedBox(width: Dimensions.spacingLG),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      running
+                          ? 'Analisando operacao'
+                          : _operationTitle(severity, metrics),
+                      style: AppTextStyles.h2.copyWith(
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      _operationDescription(metrics, insight),
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.textSecondary,
+                        height: 1.35,
+                      ),
+                    ),
+                    const SizedBox(height: Dimensions.spacingSM),
+                    Wrap(
+                      spacing: Dimensions.spacingXS,
+                      runSpacing: Dimensions.spacingXS,
+                      children: [
+                        StatusPill(
+                          icon: _sourceIcon(source),
+                          label: _sourceLabel(source),
+                          color: _sourceColor(source),
+                          compact: true,
+                        ),
+                        StatusPill(
+                          icon: Icons.memory_rounded,
+                          label: _providerLabel(provider, model),
+                          color: AppColors.info,
+                          compact: true,
+                        ),
+                        StatusPill(
+                          icon: Icons.schedule_rounded,
+                          label: _formatAiTimestamp(lastAnalyzedAt),
+                          color: AppColors.blueGrey,
+                          compact: true,
+                        ),
+                        if (actionsCount > 0)
+                          StatusPill(
+                            icon: Icons.playlist_add_check_circle_rounded,
+                            label:
+                                '$actionsCount acao${actionsCount == 1 ? '' : 'es'}',
+                            color: AppColors.statusAtencao,
+                            compact: true,
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+
+          final details = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                confidence == null
+                    ? 'Confianca indisponivel'
+                    : 'Confianca da acao',
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: Dimensions.spacingXS),
+              Text(
+                confidence == null ? '--' : '${(confidence * 100).round()}%',
+                style: AppTextStyles.h2.copyWith(
+                  color: confidence == null ? AppColors.textSecondary : color,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: Dimensions.spacingXS),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(99),
+                child: LinearProgressIndicator(
+                  minHeight: 8,
+                  value: confidence ?? 0,
+                  backgroundColor: AppColors.divider,
+                  color: confidence == null ? AppColors.blueGrey : color,
+                ),
+              ),
+              const SizedBox(height: Dimensions.spacingMD),
+              Text(
+                'Fontes analisadas',
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: Dimensions.spacingXS),
+              ...sources.map(
+                (source) => Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Row(
+                    children: [
+                      Icon(
+                        source.enabled
+                            ? Icons.check_circle_rounded
+                            : Icons.radio_button_unchecked_rounded,
+                        size: 16,
+                        color: source.enabled
+                            ? AppColors.success
+                            : AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          source.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.caption.copyWith(
+                            color: source.enabled
+                                ? AppColors.textPrimary
+                                : AppColors.textSecondary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (warning?.trim().isNotEmpty == true) ...[
+                const SizedBox(height: Dimensions.spacingXS),
+                Text(
+                  warning!,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ],
+          );
+
+          if (compact) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                status,
+                const SizedBox(height: Dimensions.spacingLG),
+                details,
+              ],
+            );
+          }
+
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(flex: 5, child: status),
+              Container(width: 1, height: 120, color: AppColors.divider),
+              const SizedBox(width: Dimensions.spacingLG),
+              Expanded(flex: 2, child: details),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _SeverityOverviewGrid extends StatelessWidget {
+  final Map<String, dynamic> metrics;
+  final FiscalAiInsight? insight;
+
+  const _SeverityOverviewGrid({
+    required this.metrics,
+    required this.insight,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final critical = _criticalCount(metrics, insight);
+    final attention = _attentionCount(metrics, insight);
+    final normal = _normalCount(metrics, critical, attention);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final columns = width >= 860
+            ? 3
+            : width >= 560
+                ? 2
+                : 1;
+        return GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: columns,
+          crossAxisSpacing: Dimensions.spacingMD,
+          mainAxisSpacing: Dimensions.spacingMD,
+          childAspectRatio: width < 560 ? 3.0 : 2.4,
+          children: [
+            _SeverityMetricCard(
+              title: 'Criticos',
+              value: critical,
+              subtitle: critical > 0 ? 'Acao imediata' : 'Sem criticos',
+              color: AppColors.danger,
+              icon: Icons.warning_rounded,
+            ),
+            _SeverityMetricCard(
+              title: 'Atencao',
+              value: attention,
+              subtitle:
+                  attention > 0 ? 'Precisam de atencao' : 'Sem pendencias',
+              color: AppColors.statusAtencao,
+              icon: Icons.notifications_active_rounded,
+            ),
+            _SeverityMetricCard(
+              title: 'Normal',
+              value: normal,
+              subtitle: 'Operando normalmente',
+              color: AppColors.success,
+              icon: Icons.check_circle_rounded,
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _SeverityMetricCard extends StatelessWidget {
+  final String title;
+  final int value;
+  final String subtitle;
+  final Color color;
+  final IconData icon;
+
+  const _SeverityMetricCard({
+    required this.title,
+    required this.value,
+    required this.subtitle,
+    required this.color,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AppSurface(
+      tint: color,
+      padding: const EdgeInsets.all(Dimensions.paddingMD),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title.toUpperCase(),
+                  style: AppTextStyles.caption.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '$value',
+                  style: AppTextStyles.h1.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(icon, color: color, size: 46),
+        ],
+      ),
+    );
+  }
+}
+
+class _DashboardTwoColumn extends StatelessWidget {
+  final Widget left;
+  final Widget right;
+
+  const _DashboardTwoColumn({
+    required this.left,
+    required this.right,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 820) {
+          return Column(
+            children: [
+              left,
+              const SizedBox(height: Dimensions.spacingMD),
+              right,
+            ],
+          );
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: left),
+            const SizedBox(width: Dimensions.spacingMD),
+            Expanded(child: right),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _PriorityActionsCard extends StatelessWidget {
+  final FiscalAiInsight insight;
+  final List<FiscalAiQueuedAction> actions;
+  final bool isRunning;
+  final VoidCallback? onRunPlan;
+  final Future<void> Function(FiscalAiQueuedAction action) onRunQueuedAction;
+  final Future<void> Function(FiscalAiQueuedAction action)
+      onDismissQueuedAction;
+
+  const _PriorityActionsCard({
+    required this.insight,
+    required this.actions,
+    required this.isRunning,
+    required this.onRunPlan,
+    required this.onRunQueuedAction,
+    required this.onDismissQueuedAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final items = actions.take(3).toList();
+    final total = actions.length + (insight.actionPlan.isEmpty ? 0 : 1);
+
+    return AppSurface(
+      elevated: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          OperationalSectionHeader(
+            icon: Icons.track_changes_rounded,
+            title: 'Acoes prioritarias',
+            trailing: StatusPill(
+              label: '$total pendencia${total == 1 ? '' : 's'}',
+              color: AppColors.success,
+              compact: true,
+            ),
+          ),
+          const SizedBox(height: Dimensions.spacingSM),
+          if (!insight.actionPlan.isEmpty)
+            _PriorityPlanTile(
+              number: 1,
+              insight: insight,
+              isRunning: isRunning,
+              onRunPlan: onRunPlan,
+            ),
+          ...items.asMap().entries.map(
+                (entry) => _PriorityQueuedTile(
+                  number: entry.key + (insight.actionPlan.isEmpty ? 1 : 2),
+                  action: entry.value,
+                  isRunning: isRunning,
+                  onRun: () => onRunQueuedAction(entry.value),
+                  onDismiss: () => onDismissQueuedAction(entry.value),
+                ),
+              ),
+          if (insight.actionPlan.isEmpty && items.isEmpty)
+            _EmptyDashboardLine(
+              icon: Icons.check_circle_outline_rounded,
+              title: insight.nextAction.title,
+              message: insight.nextAction.description,
+              color: AppColors.success,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PriorityPlanTile extends StatelessWidget {
+  final int number;
   final FiscalAiInsight insight;
   final bool isRunning;
   final VoidCallback? onRunPlan;
 
-  const _InsightSummary({
+  const _PriorityPlanTile({
+    required this.number,
     required this.insight,
     required this.isRunning,
     required this.onRunPlan,
@@ -747,138 +1101,251 @@ class _InsightSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _severityColor(insight.overallSeverity);
+    final confidence = insight.actionPlan.confidence;
+    return _DashboardListTile(
+      leading: _NumberBadge(number: number, color: AppColors.success),
+      title: insight.nextAction.title,
+      subtitle: insight.nextAction.description,
+      trailing: Wrap(
+        spacing: Dimensions.spacingXS,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          if (confidence > 0)
+            StatusPill(
+              label: '${(confidence * 100).round()}%',
+              color: AppColors.info,
+              compact: true,
+            ),
+          if (onRunPlan != null)
+            FilledButton(
+              onPressed: isRunning ? null : onRunPlan,
+              child: Text(
+                insight.actionPlan.confirmationRequired
+                    ? 'Confirmar'
+                    : 'Executar',
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PriorityQueuedTile extends StatelessWidget {
+  final int number;
+  final FiscalAiQueuedAction action;
+  final bool isRunning;
+  final VoidCallback onRun;
+  final VoidCallback onDismiss;
+
+  const _PriorityQueuedTile({
+    required this.number,
+    required this.action,
+    required this.isRunning,
+    required this.onRun,
+    required this.onDismiss,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color =
+        action.confirmationRequired ? AppColors.statusAtencao : AppColors.info;
+    return _DashboardListTile(
+      leading: _NumberBadge(number: number, color: color),
+      title: action.title,
+      subtitle: action.description,
+      trailing: Wrap(
+        spacing: Dimensions.spacingXS,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          StatusPill(
+            label: _actionStatusLabel(action.status),
+            color: color,
+            compact: true,
+          ),
+          IconButton(
+            tooltip: 'Executar',
+            onPressed: isRunning ? null : onRun,
+            icon: const Icon(Icons.play_arrow_rounded),
+          ),
+          IconButton(
+            tooltip: 'Descartar',
+            onPressed: isRunning ? null : onDismiss,
+            icon: const Icon(Icons.close_rounded),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActiveAlertsCard extends StatelessWidget {
+  final List<FiscalAiRisk> risks;
+  final bool isRunning;
+  final Future<void> Function(FiscalAiRisk risk) onResolveRisk;
+
+  const _ActiveAlertsCard({
+    required this.risks,
+    required this.isRunning,
+    required this.onResolveRisk,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final critical = risks
+        .where((risk) => risk.severity == 'critico' || risk.severity == 'alto')
+        .length;
 
     return AppSurface(
-      tint: color,
       elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: AppStyles.softTile(
-                  context: context,
-                  tint: color,
-                  radius: Dimensions.radiusMD,
-                ),
-                child: Icon(Icons.auto_awesome_rounded, color: color),
-              ),
-              const SizedBox(width: Dimensions.spacingMD),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      spacing: Dimensions.spacingXS,
-                      runSpacing: Dimensions.spacingXS,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        StatusPill(
-                          icon: Icons.shield_rounded,
-                          label: _severityLabel(insight.overallSeverity),
-                          color: color,
-                          compact: true,
-                        ),
-                        StatusPill(
-                          icon: Icons.memory_rounded,
-                          label:
-                              _providerLabel(insight.provider, insight.model),
-                          color: AppColors.info,
-                          compact: true,
-                        ),
-                        StatusPill(
-                          icon: _sourceIcon(insight.source),
-                          label: _sourceLabel(insight.source),
-                          color: _sourceColor(insight.source),
-                          compact: true,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: Dimensions.spacingSM),
-                    Text(
-                      insight.summary.isEmpty
-                          ? 'Sem resumo disponivel ainda.'
-                          : insight.summary,
-                      style: AppTextStyles.h4.copyWith(height: 1.25),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          OperationalSectionHeader(
+            icon: Icons.alarm_rounded,
+            title: 'Alertas ativos',
+            trailing: StatusPill(
+              label: critical > 0
+                  ? '$critical critico${critical == 1 ? '' : 's'}'
+                  : '${risks.length} alerta${risks.length == 1 ? '' : 's'}',
+              color: critical > 0 ? AppColors.danger : AppColors.info,
+              compact: true,
+            ),
           ),
-          if (insight.warning != null) ...[
+          const SizedBox(height: Dimensions.spacingSM),
+          if (risks.isEmpty)
+            const _EmptyDashboardLine(
+              icon: Icons.check_circle_outline_rounded,
+              title: 'Sem alertas ativos',
+              message: 'A IA nao destacou riscos no contexto atual.',
+              color: Color(0xFF0F766E),
+            )
+          else
+            ...risks.take(4).map(
+                  (risk) => _AlertRiskTile(
+                    risk: risk,
+                    isRunning: isRunning,
+                    onResolve: () => onResolveRisk(risk),
+                  ),
+                ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AlertRiskTile extends StatelessWidget {
+  final FiscalAiRisk risk;
+  final bool isRunning;
+  final VoidCallback onResolve;
+
+  const _AlertRiskTile({
+    required this.risk,
+    required this.isRunning,
+    required this.onResolve,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _severityColor(risk.severity);
+    return _DashboardListTile(
+      tint: color,
+      leading: Icon(Icons.warning_amber_rounded, color: color),
+      title: risk.title,
+      subtitle: risk.reason.isNotEmpty ? risk.reason : risk.action,
+      trailing: Wrap(
+        spacing: Dimensions.spacingXS,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          StatusPill(
+            label: _severityLabel(risk.severity),
+            color: color,
+            compact: true,
+          ),
+          OutlinedButton(
+            onPressed: isRunning ? null : onResolve,
+            child: const Text('Resolver'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ExecutiveSummaryCard extends StatelessWidget {
+  final Map<String, dynamic> metrics;
+  final FiscalAiInsight insight;
+
+  const _ExecutiveSummaryCard({
+    required this.metrics,
+    required this.insight,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final caixasAtivos = _metricInt(metrics, 'caixas_ativos');
+    final manutencao = _metricInt(metrics, 'caixas_manutencao');
+    final pendencias = _metricInt(metrics, 'eventos_pendentes');
+    final ocorrencias = _metricInt(metrics, 'ocorrencias_abertas');
+    final valorCaixa = _metricDouble(metrics, 'valor_caixa_pendente');
+
+    return AppSurface(
+      elevated: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const OperationalSectionHeader(
+            icon: Icons.receipt_long_rounded,
+            title: 'Resumo executivo',
+          ),
+          const SizedBox(height: Dimensions.spacingSM),
+          _SummaryLine(
+            icon: Icons.point_of_sale_rounded,
+            label: 'Caixas ativos',
+            value: '$caixasAtivos',
+            color: AppColors.success,
+          ),
+          _SummaryLine(
+            icon: Icons.build_circle_rounded,
+            label: 'Caixas em manutencao',
+            value: '$manutencao',
+            color: manutencao > 0 ? AppColors.statusAtencao : AppColors.success,
+          ),
+          _SummaryLine(
+            icon: Icons.pending_actions_rounded,
+            label: 'Pendencias no Balcao',
+            value: '$pendencias',
+            color: pendencias > 0 ? AppColors.statusAtencao : AppColors.success,
+          ),
+          _SummaryLine(
+            icon: Icons.report_problem_rounded,
+            label: 'Ocorrencias abertas',
+            value: '$ocorrencias',
+            color: ocorrencias > 0 ? AppColors.danger : AppColors.success,
+          ),
+          _SummaryLine(
+            icon: Icons.payments_rounded,
+            label: 'Valor pendente de caixa',
+            value: 'R\$ ${valorCaixa.toStringAsFixed(2)}',
+            color: valorCaixa >= 100
+                ? AppColors.danger
+                : valorCaixa > 0
+                    ? AppColors.statusAtencao
+                    : AppColors.success,
+          ),
+          if (insight.summary.trim().isNotEmpty) ...[
             const SizedBox(height: Dimensions.spacingSM),
-            Text(
-              insight.warning!,
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(Dimensions.paddingSM),
+              decoration: AppStyles.softTile(
+                context: context,
+                tint: _severityColor(insight.overallSeverity),
+                radius: Dimensions.radiusMD,
               ),
-            ),
-          ],
-          const SizedBox(height: Dimensions.spacingMD),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(Dimensions.paddingSM),
-            decoration: AppStyles.softTile(
-              context: context,
-              tint: AppColors.info,
-              radius: Dimensions.radiusMD,
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.flag_rounded, color: AppColors.info, size: 20),
-                const SizedBox(width: Dimensions.spacingSM),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        insight.nextAction.title,
-                        style: AppTextStyles.body.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        insight.nextAction.description,
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (onRunPlan != null) ...[
-                  const SizedBox(width: Dimensions.spacingSM),
-                  FilledButton.icon(
-                    onPressed: isRunning ? null : onRunPlan,
-                    icon: Icon(
-                      insight.actionPlan.confirmationRequired
-                          ? Icons.verified_user_rounded
-                          : Icons.play_arrow_rounded,
-                      size: 18,
-                    ),
-                    label: Text(
-                      insight.actionPlan.confirmationRequired
-                          ? 'Confirmar'
-                          : 'Executar',
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          if (insight.actionPlan.argumentsSummary.isNotEmpty) ...[
-            const SizedBox(height: Dimensions.spacingXS),
-            Text(
-              insight.actionPlan.argumentsSummary,
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
+              child: Text(
+                insight.summary,
+                style: AppTextStyles.caption.copyWith(height: 1.35),
               ),
             ),
           ],
@@ -886,6 +1353,318 @@ class _InsightSummary extends StatelessWidget {
       ),
     );
   }
+}
+
+class _RecentMovementCard extends StatelessWidget {
+  final List<dynamic> events;
+
+  const _RecentMovementCard({required this.events});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppSurface(
+      elevated: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const OperationalSectionHeader(
+            icon: Icons.monitor_heart_rounded,
+            title: 'Movimentacao recente',
+          ),
+          const SizedBox(height: Dimensions.spacingSM),
+          if (events.isEmpty)
+            const _EmptyDashboardLine(
+              icon: Icons.timeline_rounded,
+              title: 'Sem eventos recentes',
+              message: 'O Balcao Fiscal ainda nao trouxe movimentos para a IA.',
+              color: Color(0xFF475569),
+            )
+          else
+            ...events.map((event) => _RecentEventTile(event: event)),
+        ],
+      ),
+    );
+  }
+}
+
+class _RecentEventTile extends StatelessWidget {
+  final dynamic event;
+
+  const _RecentEventTile({required this.event});
+
+  @override
+  Widget build(BuildContext context) {
+    final priority = _eventText(event, 'priority', fallback: 'normal');
+    final color = priority == 'critica'
+        ? AppColors.danger
+        : priority == 'alta'
+            ? AppColors.statusAtencao
+            : AppColors.success;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Dimensions.spacingSM),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 46,
+            child: Text(
+              _eventTime(event),
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          Container(
+            width: 22,
+            height: 22,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.14),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.circle, size: 8, color: color),
+          ),
+          const SizedBox(width: Dimensions.spacingSM),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _categoryLabel(_eventText(event, 'category')),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.body.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _eventDescription(event),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.25,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: Dimensions.spacingSM),
+          StatusPill(
+            label: priority == 'critica'
+                ? 'Critico'
+                : priority == 'alta'
+                    ? 'Atencao'
+                    : 'Normal',
+            color: color,
+            compact: true,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DashboardListTile extends StatelessWidget {
+  final Widget leading;
+  final String title;
+  final String subtitle;
+  final Widget? trailing;
+  final Color? tint;
+
+  const _DashboardListTile({
+    required this.leading,
+    required this.title,
+    required this.subtitle,
+    this.trailing,
+    this.tint,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: Dimensions.spacingSM),
+      padding: const EdgeInsets.all(Dimensions.paddingSM),
+      decoration: AppStyles.softTile(
+        context: context,
+        tint: tint ?? AppColors.blueGrey,
+        radius: Dimensions.radiusMD,
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 420;
+          final content = Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              leading,
+              const SizedBox(width: Dimensions.spacingSM),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title.isEmpty ? 'Acao da IA' : title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.body.copyWith(
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    if (subtitle.trim().isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textSecondary,
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          );
+
+          if (trailing == null) return content;
+          if (compact) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                content,
+                const SizedBox(height: Dimensions.spacingSM),
+                Align(alignment: Alignment.centerRight, child: trailing!),
+              ],
+            );
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(child: content),
+              const SizedBox(width: Dimensions.spacingSM),
+              trailing!,
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _NumberBadge extends StatelessWidget {
+  final int number;
+  final Color color;
+
+  const _NumberBadge({
+    required this.number,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 26,
+      height: 26,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+      ),
+      child: Text(
+        '$number',
+        style: AppTextStyles.caption.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+    );
+  }
+}
+
+class _SummaryLine extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  const _SummaryLine({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 7),
+      child: Row(
+        children: [
+          Container(
+            width: 30,
+            height: 30,
+            decoration: AppStyles.softTile(
+              context: context,
+              tint: color,
+              radius: Dimensions.radiusSM,
+            ),
+            child: Icon(icon, size: 16, color: color),
+          ),
+          const SizedBox(width: Dimensions.spacingSM),
+          Expanded(
+            child: Text(
+              label,
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
+          Text(
+            value,
+            style: AppTextStyles.body.copyWith(
+              color: color,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyDashboardLine extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String message;
+  final Color color;
+
+  const _EmptyDashboardLine({
+    required this.icon,
+    required this.title,
+    required this.message,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _DashboardListTile(
+      leading: Icon(icon, color: color),
+      title: title,
+      subtitle: message,
+      tint: color,
+    );
+  }
+}
+
+class _SourceCheck {
+  final String label;
+  final bool enabled;
+
+  const _SourceCheck(this.label, this.enabled);
 }
 
 class _QuestionPanel extends StatelessWidget {
@@ -937,6 +1716,42 @@ class _QuestionPanel extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: Dimensions.spacingSM),
+          Wrap(
+            spacing: Dimensions.spacingXS,
+            runSpacing: Dimensions.spacingXS,
+            children: [
+              _QuickQuestionChip(
+                label: 'Caixas sem operador',
+                question: 'Quais caixas estao sem operador agora?',
+                controller: controller,
+                isRunning: isRunning,
+                onSubmit: onSubmit,
+              ),
+              _QuickQuestionChip(
+                label: 'Pendencias criticas',
+                question:
+                    'Quais pendencias criticas preciso resolver primeiro?',
+                controller: controller,
+                isRunning: isRunning,
+                onSubmit: onSubmit,
+              ),
+              _QuickQuestionChip(
+                label: 'Diferencas de valor',
+                question: 'Existe alguma diferenca de valor pendente?',
+                controller: controller,
+                isRunning: isRunning,
+                onSubmit: onSubmit,
+              ),
+              _QuickQuestionChip(
+                label: 'Resumo do dia',
+                question: 'Faca um resumo operacional do dia.',
+                controller: controller,
+                isRunning: isRunning,
+                onSubmit: onSubmit,
+              ),
+            ],
+          ),
           if (chatAnswer.trim().isNotEmpty) ...[
             const SizedBox(height: Dimensions.spacingSM),
             Container(
@@ -955,6 +1770,38 @@ class _QuestionPanel extends StatelessWidget {
           ],
         ],
       ),
+    );
+  }
+}
+
+class _QuickQuestionChip extends StatelessWidget {
+  final String label;
+  final String question;
+  final TextEditingController controller;
+  final bool isRunning;
+  final VoidCallback onSubmit;
+
+  const _QuickQuestionChip({
+    required this.label,
+    required this.question,
+    required this.controller,
+    required this.isRunning,
+    required this.onSubmit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      onPressed: isRunning
+          ? null
+          : () {
+              controller.text = question;
+              controller.selection = TextSelection.collapsed(
+                offset: controller.text.length,
+              );
+              onSubmit();
+            },
+      child: Text(label),
     );
   }
 }
@@ -1059,143 +1906,6 @@ class _ResolutionPanel extends StatelessWidget {
               ),
             ),
           ],
-        ],
-      ),
-    );
-  }
-}
-
-class _RisksPanel extends StatelessWidget {
-  final List<FiscalAiRisk> risks;
-  final bool isRunning;
-  final ValueChanged<FiscalAiRisk> onResolveRisk;
-
-  const _RisksPanel({
-    required this.risks,
-    required this.isRunning,
-    required this.onResolveRisk,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AppSurface(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const OperationalSectionHeader(
-            icon: Icons.warning_amber_rounded,
-            title: 'Riscos detectados',
-          ),
-          const SizedBox(height: Dimensions.spacingSM),
-          if (risks.isEmpty)
-            Text(
-              'Nenhum risco relevante no contexto atual.',
-              style: AppTextStyles.body.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            )
-          else
-            ...risks.map(
-              (risk) => Padding(
-                padding: const EdgeInsets.only(bottom: Dimensions.spacingSM),
-                child: _RiskTile(
-                  risk: risk,
-                  isRunning: isRunning,
-                  onResolve: () => onResolveRisk(risk),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RiskTile extends StatelessWidget {
-  final FiscalAiRisk risk;
-  final bool isRunning;
-  final VoidCallback onResolve;
-
-  const _RiskTile({
-    required this.risk,
-    required this.isRunning,
-    required this.onResolve,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final color = _severityColor(risk.severity);
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(Dimensions.paddingXS),
-      decoration: AppStyles.softTile(
-        context: context,
-        tint: color,
-        radius: Dimensions.radiusMD,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  risk.title,
-                  style: AppTextStyles.body.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              const SizedBox(width: Dimensions.spacingSM),
-              StatusPill(
-                label: _severityLabel(risk.severity),
-                color: color,
-                compact: true,
-              ),
-            ],
-          ),
-          if (risk.reason.isNotEmpty) ...[
-            const SizedBox(height: Dimensions.spacingXS),
-            Text(
-              risk.reason,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-          if (risk.evidence.isNotEmpty) ...[
-            const SizedBox(height: Dimensions.spacingXS),
-            Text(
-              risk.evidence,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ],
-          if (risk.action.isNotEmpty) ...[
-            const SizedBox(height: Dimensions.spacingXS),
-            _BulletLine(icon: Icons.route_rounded, text: risk.action),
-          ],
-          const SizedBox(height: Dimensions.spacingXS),
-          Align(
-            alignment: Alignment.centerRight,
-            child: OutlinedButton.icon(
-              onPressed: isRunning ? null : onResolve,
-              icon: const Icon(Icons.fact_check_rounded, size: 18),
-              label: const Text('Resolver'),
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(0, 36),
-                visualDensity: VisualDensity.compact,
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -1308,149 +2018,6 @@ class _RecommendationTile extends StatelessWidget {
   }
 }
 
-class _QueuedActionsPanel extends StatelessWidget {
-  final List<FiscalAiQueuedAction> actions;
-  final bool isRunning;
-  final ValueChanged<FiscalAiQueuedAction> onRun;
-  final ValueChanged<FiscalAiQueuedAction> onDismiss;
-
-  const _QueuedActionsPanel({
-    required this.actions,
-    required this.isRunning,
-    required this.onRun,
-    required this.onDismiss,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AppSurface(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const OperationalSectionHeader(
-            icon: Icons.playlist_add_check_circle_rounded,
-            title: 'Acoes sugeridas',
-          ),
-          const SizedBox(height: Dimensions.spacingSM),
-          if (actions.isEmpty)
-            Text(
-              'Nenhuma acao pendente da IA.',
-              style: AppTextStyles.body.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            )
-          else
-            ...actions.map(
-              (action) => Padding(
-                padding: const EdgeInsets.only(bottom: Dimensions.spacingSM),
-                child: _QueuedActionTile(
-                  action: action,
-                  isRunning: isRunning,
-                  onRun: () => onRun(action),
-                  onDismiss: () => onDismiss(action),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _QueuedActionTile extends StatelessWidget {
-  final FiscalAiQueuedAction action;
-  final bool isRunning;
-  final VoidCallback onRun;
-  final VoidCallback onDismiss;
-
-  const _QueuedActionTile({
-    required this.action,
-    required this.isRunning,
-    required this.onRun,
-    required this.onDismiss,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final color =
-        action.confirmationRequired ? AppColors.statusAtencao : AppColors.info;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(Dimensions.paddingSM),
-      decoration: AppStyles.softTile(
-        context: context,
-        tint: color,
-        radius: Dimensions.radiusMD,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  action.title,
-                  style: AppTextStyles.body.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              StatusPill(
-                label: _actionStatusLabel(action.status),
-                color: color,
-                compact: true,
-              ),
-            ],
-          ),
-          if (action.description.isNotEmpty) ...[
-            const SizedBox(height: Dimensions.spacingXS),
-            Text(
-              action.description,
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-          if (action.reason?.isNotEmpty == true) ...[
-            const SizedBox(height: Dimensions.spacingXS),
-            Text(
-              action.reason!,
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ],
-          const SizedBox(height: Dimensions.spacingSM),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton.icon(
-                onPressed: isRunning ? null : onDismiss,
-                icon: const Icon(Icons.close_rounded, size: 18),
-                label: const Text('Descartar'),
-              ),
-              const SizedBox(width: Dimensions.spacingXS),
-              FilledButton.icon(
-                onPressed: isRunning || !action.hasTool ? null : onRun,
-                icon: Icon(
-                  action.confirmationRequired
-                      ? Icons.verified_rounded
-                      : Icons.play_arrow_rounded,
-                  size: 18,
-                ),
-                label: Text(
-                  action.confirmationRequired ? 'Confirmar' : 'Executar',
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _BulletLine extends StatelessWidget {
   final IconData icon;
   final String text;
@@ -1479,6 +2046,255 @@ class _BulletLine extends StatelessWidget {
       ],
     );
   }
+}
+
+String _displayName(dynamic user) {
+  try {
+    final metadata = user?.userMetadata;
+    if (metadata is Map) {
+      for (final key in const ['nome', 'name', 'full_name']) {
+        final value = metadata[key]?.toString().trim();
+        if (value != null && value.isNotEmpty) {
+          return value.split(RegExp(r'\s+')).first;
+        }
+      }
+    }
+
+    final email = user?.email?.toString().trim();
+    if (email != null && email.isNotEmpty) {
+      return email.split('@').first;
+    }
+  } catch (_) {
+    return 'Fiscal';
+  }
+  return 'Fiscal';
+}
+
+String _formatHeaderDate(DateTime value) {
+  final local = value.toLocal();
+  const weekdays = [
+    'segunda-feira',
+    'terca-feira',
+    'quarta-feira',
+    'quinta-feira',
+    'sexta-feira',
+    'sabado',
+    'domingo',
+  ];
+  const months = [
+    'janeiro',
+    'fevereiro',
+    'marco',
+    'abril',
+    'maio',
+    'junho',
+    'julho',
+    'agosto',
+    'setembro',
+    'outubro',
+    'novembro',
+    'dezembro',
+  ];
+  final day = local.day.toString().padLeft(2, '0');
+  final hour = local.hour.toString().padLeft(2, '0');
+  final minute = local.minute.toString().padLeft(2, '0');
+  return '${weekdays[local.weekday - 1]}, $day de ${months[local.month - 1]} de ${local.year} - $hour:$minute';
+}
+
+int _metricInt(Map<String, dynamic> metrics, String key) {
+  final value = metrics[key];
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value.replaceAll(',', '.')) ?? 0;
+  return 0;
+}
+
+double _metricDouble(Map<String, dynamic> metrics, String key) {
+  final value = metrics[key];
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value.replaceAll(',', '.')) ?? 0;
+  return 0;
+}
+
+String _severityFromMetrics(Map<String, dynamic> metrics) {
+  if (_metricInt(metrics, 'ocorrencias_abertas') > 0 ||
+      _metricDouble(metrics, 'valor_caixa_pendente') >= 100) {
+    return 'alto';
+  }
+
+  final attention = _metricInt(metrics, 'eventos_pendentes') +
+      _metricInt(metrics, 'midias_pendentes') +
+      _metricInt(metrics, 'caixas_manutencao') +
+      _metricInt(metrics, 'pausas_em_atraso') +
+      _metricInt(metrics, 'lembretes_vencidos') +
+      _metricInt(metrics, 'checklists_pendentes');
+  return attention > 0 ? 'medio' : 'normal';
+}
+
+double? _analysisConfidence(FiscalAiInsight? insight) {
+  if (insight == null || insight.actionPlan.confidence <= 0) return null;
+  final confidence = insight.actionPlan.confidence;
+  if (confidence > 1) return 1;
+  return confidence;
+}
+
+List<_SourceCheck> _sourceChecks(Map<String, dynamic> metrics) {
+  return [
+    _SourceCheck(
+      'Balcao Fiscal',
+      _metricInt(metrics, 'eventos_pendentes') > 0 ||
+          _metricInt(metrics, 'midias_pendentes') > 0 ||
+          _metricDouble(metrics, 'valor_caixa_pendente') > 0,
+    ),
+    _SourceCheck(
+      'Equipe',
+      _metricInt(metrics, 'colaboradores_ativos') > 0,
+    ),
+    _SourceCheck(
+      'Caixas / PDVs',
+      _metricInt(metrics, 'caixas_ativos') > 0 ||
+          _metricInt(metrics, 'caixas_manutencao') > 0,
+    ),
+    _SourceCheck(
+      'Alocacoes',
+      _metricInt(metrics, 'alocacoes_ativas') > 0,
+    ),
+  ];
+}
+
+String _operationTitle(String severity, Map<String, dynamic> metrics) {
+  switch (severity) {
+    case 'critico':
+      return 'Acao imediata';
+    case 'alto':
+      return 'Atencao necessaria';
+    case 'medio':
+      return 'Pontos em acompanhamento';
+    default:
+      final caixas = _metricInt(metrics, 'caixas_ativos');
+      return caixas > 0 ? 'Operacao monitorada' : 'Aguardando contexto';
+  }
+}
+
+String _operationDescription(
+  Map<String, dynamic> metrics,
+  FiscalAiInsight? insight,
+) {
+  final summary = insight?.summary.trim();
+  if (summary != null && summary.isNotEmpty) return summary;
+
+  final pending = _metricInt(metrics, 'eventos_pendentes') +
+      _metricInt(metrics, 'midias_pendentes') +
+      _metricInt(metrics, 'ocorrencias_abertas') +
+      _metricInt(metrics, 'checklists_pendentes');
+  if (pending > 0) {
+    return '$pending pendencia${pending == 1 ? '' : 's'} no contexto atual. Priorize o que exige intervencao do fiscal.';
+  }
+
+  final caixas = _metricInt(metrics, 'caixas_ativos');
+  final colaboradores = _metricInt(metrics, 'colaboradores_ativos');
+  if (caixas > 0 || colaboradores > 0) {
+    return 'Dados reais carregados de caixas, equipe e movimentos recentes para apoiar a fiscalizacao.';
+  }
+
+  return 'Execute uma analise para carregar o panorama fiscal do turno.';
+}
+
+int _criticalCount(Map<String, dynamic> metrics, FiscalAiInsight? insight) {
+  final aiCritical =
+      insight?.risks.where((risk) => risk.severity == 'critico').length ?? 0;
+  final metricCritical = _metricInt(metrics, 'ocorrencias_abertas') +
+      (_metricDouble(metrics, 'valor_caixa_pendente') >= 100 ? 1 : 0);
+  return aiCritical > metricCritical ? aiCritical : metricCritical;
+}
+
+int _attentionCount(Map<String, dynamic> metrics, FiscalAiInsight? insight) {
+  final aiAttention = insight?.risks
+          .where((risk) => risk.severity == 'alto' || risk.severity == 'medio')
+          .length ??
+      0;
+  final metricAttention = _metricInt(metrics, 'eventos_pendentes') +
+      _metricInt(metrics, 'midias_pendentes') +
+      _metricInt(metrics, 'caixas_manutencao') +
+      _metricInt(metrics, 'pausas_em_atraso') +
+      _metricInt(metrics, 'entregas_aguardando') +
+      _metricInt(metrics, 'lembretes_vencidos') +
+      _metricInt(metrics, 'checklists_pendentes');
+  return aiAttention > metricAttention ? aiAttention : metricAttention;
+}
+
+int _normalCount(
+  Map<String, dynamic> metrics,
+  int critical,
+  int attention,
+) {
+  final total = _metricInt(metrics, 'caixas_ativos') +
+      _metricInt(metrics, 'colaboradores_ativos') +
+      _metricInt(metrics, 'alocacoes_ativas');
+  final normal = total - critical - attention;
+  return normal > 0 ? normal : 0;
+}
+
+String _eventText(dynamic event, String field, {String fallback = ''}) {
+  try {
+    final value = switch (field) {
+      'category' => event.category,
+      'description' => event.description,
+      'rawMessage' => event.rawMessage,
+      'mediaSummary' => event.mediaSummary,
+      'employeeName' => event.employeeName,
+      'status' => event.status,
+      'priority' => event.priority,
+      'analysisStatus' => event.analysisStatus,
+      _ => null,
+    };
+    final text = value?.toString().trim();
+    return text == null || text.isEmpty ? fallback : text;
+  } catch (_) {
+    return fallback;
+  }
+}
+
+String _eventTime(dynamic event) {
+  try {
+    final value = event.eventDate;
+    if (value is DateTime) {
+      final local = value.toLocal();
+      final hour = local.hour.toString().padLeft(2, '0');
+      final minute = local.minute.toString().padLeft(2, '0');
+      return '$hour:$minute';
+    }
+  } catch (_) {
+    return '--:--';
+  }
+  return '--:--';
+}
+
+String _categoryLabel(String category) {
+  return switch (category) {
+    'caixa' => 'Caixa / PDV',
+    'pausa' => 'Pausa',
+    'entrega' => 'Entrega',
+    'ocorrencia' => 'Ocorrencia',
+    'problema_operacional' => 'Problema operacional',
+    'conferencia' => 'Conferencia',
+    'sangria' => 'Sangria',
+    'suprimento' => 'Suprimento',
+    'aviso_geral' || '' => 'Movimento fiscal',
+    _ => category.replaceAll('_', ' '),
+  };
+}
+
+String _eventDescription(dynamic event) {
+  final description = _eventText(event, 'description');
+  if (description.isNotEmpty) return description;
+  final summary = _eventText(event, 'mediaSummary');
+  if (summary.isNotEmpty) return summary;
+  final rawMessage = _eventText(event, 'rawMessage');
+  if (rawMessage.isNotEmpty) return rawMessage;
+  final employee = _eventText(event, 'employeeName');
+  if (employee.isNotEmpty) return 'Relacionado a $employee.';
+  return 'Evento importado para acompanhamento.';
 }
 
 String _formatAiTimestamp(DateTime? value) {
