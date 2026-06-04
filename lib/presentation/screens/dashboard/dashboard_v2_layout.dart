@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -2163,37 +2164,94 @@ class _QuickNotePanel extends StatefulWidget {
   State<_QuickNotePanel> createState() => _QuickNotePanelState();
 }
 
+class _QuickNoteData {
+  final String id;
+  final String text;
+  final DateTime createdAt;
+
+  const _QuickNoteData({
+    required this.id,
+    required this.text,
+    required this.createdAt,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'text': text,
+      'createdAt': createdAt.toIso8601String(),
+    };
+  }
+
+  static _QuickNoteData? fromJson(Object? value) {
+    if (value is! Map) return null;
+    final id = value['id'];
+    final text = value['text'];
+    final createdAt = DateTime.tryParse('${value['createdAt']}');
+    if (id is! String || text is! String || text.trim().isEmpty) return null;
+
+    return _QuickNoteData(
+      id: id,
+      text: text,
+      createdAt: createdAt ?? DateTime.now(),
+    );
+  }
+}
+
 class _QuickNotePanelState extends State<_QuickNotePanel> {
   final _controller = TextEditingController();
-  Timer? _saveDebounce;
+  List<_QuickNoteData> _notes = const [];
   bool _loaded = false;
 
   @override
   void initState() {
     super.initState();
-    _controller.addListener(_scheduleSave);
-    unawaited(_loadNote());
+    unawaited(_loadNotes());
   }
 
-  Future<void> _loadNote() async {
+  Future<void> _loadNotes() async {
     final prefs = await SharedPreferences.getInstance();
+    final rawValue = prefs.getString(_quickNoteStorageKey);
+    final notes = _decodeNotes(rawValue);
+
     if (!mounted) return;
-    _controller.text = prefs.getString(_quickNoteStorageKey) ?? '';
-    setState(() => _loaded = true);
+    setState(() {
+      _notes = notes;
+      _loaded = true;
+    });
   }
 
-  void _scheduleSave() {
-    if (!_loaded) return;
-    _saveDebounce?.cancel();
-    _saveDebounce = Timer(
-      const Duration(milliseconds: 350),
-      () => unawaited(_saveNote(_controller.text)),
-    );
+  List<_QuickNoteData> _decodeNotes(String? rawValue) {
+    final trimmed = rawValue?.trim();
+    if (trimmed == null || trimmed.isEmpty) return const [];
+
+    try {
+      final decoded = jsonDecode(trimmed);
+      if (decoded is List) {
+        return decoded
+            .map(_QuickNoteData.fromJson)
+            .whereType<_QuickNoteData>()
+            .toList();
+      }
+    } catch (_) {
+      // The previous version saved one plain text note in this same key.
+    }
+
+    return [
+      _QuickNoteData(
+        id: 'migrated-${DateTime.now().microsecondsSinceEpoch}',
+        text: trimmed,
+        createdAt: DateTime.now(),
+      ),
+    ];
   }
 
-  Future<void> _saveNote(String value) async {
+  Future<void> _saveNotes(List<_QuickNoteData> notes) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_quickNoteStorageKey, value);
+    await prefs.setString(
+      _quickNoteStorageKey,
+      jsonEncode(notes.map((note) => note.toJson()).toList()),
+    );
   }
 
   void _showMessage(String message) {
@@ -2208,41 +2266,48 @@ class _QuickNotePanelState extends State<_QuickNotePanel> {
       );
   }
 
-  Future<void> _copyNote() async {
+  Future<void> _createNote() async {
     final note = _controller.text.trim();
     if (note.isEmpty) {
       _showMessage('Escreva uma nota antes.');
       return;
     }
 
-    await Clipboard.setData(ClipboardData(text: note));
+    final nextNotes = [
+      _QuickNoteData(
+        id: DateTime.now().microsecondsSinceEpoch.toString(),
+        text: note,
+        createdAt: DateTime.now(),
+      ),
+      ..._notes,
+    ];
+
+    setState(() {
+      _notes = nextNotes;
+      _controller.clear();
+    });
+    await _saveNotes(nextNotes);
+    _showMessage('Nota salva.');
+  }
+
+  Future<void> _copyNote(_QuickNoteData note) async {
+    await Clipboard.setData(ClipboardData(text: note.text));
     _showMessage('Nota copiada.');
   }
 
-  Future<void> _shareNote() async {
-    final note = _controller.text.trim();
-    if (note.isEmpty) {
-      _showMessage('Escreva uma nota antes.');
-      return;
-    }
-
-    await Share.share(note, subject: 'Nota rapida');
+  Future<void> _shareNote(_QuickNoteData note) async {
+    await Share.share(note.text, subject: 'Nota rapida');
   }
 
-  Future<void> _clearNote() async {
-    if (_controller.text.isEmpty) return;
-    _controller.clear();
-    _saveDebounce?.cancel();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_quickNoteStorageKey);
-    _showMessage('Nota limpa.');
+  Future<void> _deleteNote(_QuickNoteData note) async {
+    final nextNotes = _notes.where((item) => item.id != note.id).toList();
+    setState(() => _notes = nextNotes);
+    await _saveNotes(nextNotes);
+    _showMessage('Nota removida.');
   }
 
   @override
   void dispose() {
-    final value = _controller.text;
-    _saveDebounce?.cancel();
-    if (_loaded) unawaited(_saveNote(value));
     _controller.dispose();
     super.dispose();
   }
@@ -2267,25 +2332,10 @@ class _QuickNotePanelState extends State<_QuickNotePanel> {
                 ),
               ),
               SizedBox(width: compact ? 8 : 10),
-              _QuickNoteIconButton(
-                icon: Icons.content_copy_rounded,
-                tooltip: 'Copiar nota',
-                compact: compact,
-                onPressed: _copyNote,
-              ),
-              SizedBox(width: compact ? 6 : 8),
-              _QuickNoteIconButton(
-                icon: Icons.ios_share_rounded,
-                tooltip: 'Compartilhar nota',
-                compact: compact,
-                onPressed: _shareNote,
-              ),
-              SizedBox(width: compact ? 6 : 8),
-              _QuickNoteIconButton(
-                icon: Icons.delete_outline_rounded,
-                tooltip: 'Limpar nota',
-                compact: compact,
-                onPressed: _clearNote,
+              _SoftPill(
+                icon: Icons.note_alt_outlined,
+                iconColor: _v2Primary,
+                label: '${_notes.length}',
               ),
             ],
           ),
@@ -2327,6 +2377,165 @@ class _QuickNotePanelState extends State<_QuickNotePanel> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(color: _v2Primary, width: 1.4),
+              ),
+            ),
+          ),
+          SizedBox(height: compact ? 10 : 12),
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: compact ? 42 : 46,
+                  child: FilledButton.icon(
+                    onPressed: _loaded ? _createNote : null,
+                    icon: const Icon(Icons.add_rounded, size: 18),
+                    label: const Text('Salvar nota'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: _v2Primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      textStyle: _textStyle(
+                        size: compact ? 12 : 13,
+                        weight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: compact ? 8 : 10),
+              _QuickNoteIconButton(
+                icon: Icons.close_rounded,
+                tooltip: 'Limpar texto',
+                compact: compact,
+                onPressed: () {
+                  if (_controller.text.isEmpty) return;
+                  _controller.clear();
+                  setState(() {});
+                },
+              ),
+            ],
+          ),
+          if (_notes.isNotEmpty) ...[
+            SizedBox(height: compact ? 12 : 16),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final width = constraints.maxWidth;
+                final columns = compact
+                    ? 1
+                    : width >= 1000
+                        ? 3
+                        : width >= 640
+                            ? 2
+                            : 1;
+
+                return GridView.builder(
+                  itemCount: _notes.length,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: columns,
+                    crossAxisSpacing: compact ? 10 : 12,
+                    mainAxisSpacing: compact ? 10 : 12,
+                    mainAxisExtent: compact ? 128 : 136,
+                  ),
+                  itemBuilder: (context, index) {
+                    final note = _notes[index];
+                    return _QuickNoteCard(
+                      note: note,
+                      compact: compact,
+                      onCopy: () => _copyNote(note),
+                      onShare: () => _shareNote(note),
+                      onDelete: () => _deleteNote(note),
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickNoteCard extends StatelessWidget {
+  final _QuickNoteData note;
+  final bool compact;
+  final VoidCallback onCopy;
+  final VoidCallback onShare;
+  final VoidCallback onDelete;
+
+  const _QuickNoteCard({
+    required this.note,
+    required this.onCopy,
+    required this.onShare,
+    required this.onDelete,
+    this.compact = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final date = DateFormat('dd/MM HH:mm').format(note.createdAt);
+
+    return Container(
+      padding: EdgeInsets.all(compact ? 12 : 14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: _v2Border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  date,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: _textStyle(
+                    size: compact ? 11 : 12,
+                    color: _v2Subtle,
+                    weight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              _QuickNoteIconButton(
+                icon: Icons.content_copy_rounded,
+                tooltip: 'Copiar nota',
+                compact: true,
+                onPressed: onCopy,
+              ),
+              const SizedBox(width: 6),
+              _QuickNoteIconButton(
+                icon: Icons.ios_share_rounded,
+                tooltip: 'Compartilhar nota',
+                compact: true,
+                onPressed: onShare,
+              ),
+              const SizedBox(width: 6),
+              _QuickNoteIconButton(
+                icon: Icons.delete_outline_rounded,
+                tooltip: 'Excluir nota',
+                compact: true,
+                onPressed: onDelete,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: Text(
+              note.text,
+              maxLines: compact ? 3 : 4,
+              overflow: TextOverflow.ellipsis,
+              style: _textStyle(
+                size: compact ? 12.5 : 13.5,
+                color: _v2Text,
+                weight: FontWeight.w700,
+                height: 1.28,
               ),
             ),
           ),
