@@ -38,25 +38,17 @@ class DescontoResultado {
 }
 
 class TrocaMoedasResultado {
-  final int moedas005;
-  final int moedas010;
-  final int moedas025;
-  final int moedas050;
+  final int valor005Centavos;
+  final int valor010Centavos;
+  final int valor025Centavos;
+  final int valor050Centavos;
 
   const TrocaMoedasResultado({
-    required this.moedas005,
-    required this.moedas010,
-    required this.moedas025,
-    required this.moedas050,
+    required this.valor005Centavos,
+    required this.valor010Centavos,
+    required this.valor025Centavos,
+    required this.valor050Centavos,
   });
-
-  int get valor005Centavos => moedas005 * 5;
-
-  int get valor010Centavos => moedas010 * 10;
-
-  int get valor025Centavos => moedas025 * 25;
-
-  int get valor050Centavos => moedas050 * 50;
 
   int get valorGrupo10Centavos => valor005Centavos + valor010Centavos;
 
@@ -81,6 +73,14 @@ class TrocaMoedasResultado {
     if (valorTotalMoedasCentavos <= 0) return 0;
     return (totalPorcentagensCentavos / valorTotalMoedasCentavos) * 100;
   }
+
+  int get quantidade005 => valor005Centavos ~/ 5;
+
+  int get quantidade010 => valor010Centavos ~/ 10;
+
+  int get quantidade025 => valor025Centavos ~/ 25;
+
+  int get quantidade050 => valor050Centavos ~/ 50;
 
   DescontoResultado toDescontoResultado() {
     return DescontoResultado(
@@ -138,16 +138,16 @@ class DescontoCalculator {
   }
 
   static TrocaMoedasResultado calcularTrocaMoedas({
-    required int moedas005,
-    required int moedas010,
-    required int moedas025,
-    required int moedas050,
+    required int valor005Centavos,
+    required int valor010Centavos,
+    required int valor025Centavos,
+    required int valor050Centavos,
   }) {
     return TrocaMoedasResultado(
-      moedas005: moedas005 < 0 ? 0 : moedas005,
-      moedas010: moedas010 < 0 ? 0 : moedas010,
-      moedas025: moedas025 < 0 ? 0 : moedas025,
-      moedas050: moedas050 < 0 ? 0 : moedas050,
+      valor005Centavos: valor005Centavos < 0 ? 0 : valor005Centavos,
+      valor010Centavos: valor010Centavos < 0 ? 0 : valor010Centavos,
+      valor025Centavos: valor025Centavos < 0 ? 0 : valor025Centavos,
+      valor050Centavos: valor050Centavos < 0 ? 0 : valor050Centavos,
     );
   }
 

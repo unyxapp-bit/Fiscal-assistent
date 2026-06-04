@@ -66,27 +66,27 @@ void main() {
       expect(DescontoCalculator.parsePercent('abc'), isNull);
     });
 
-    test('calcula troca de moedas com percentuais por denominacao', () {
+    test('calcula troca de moedas por valor em cada denominacao', () {
       final resultado = DescontoCalculator.calcularTrocaMoedas(
-        moedas005: 20,
-        moedas010: 30,
-        moedas025: 12,
-        moedas050: 10,
+        valor005Centavos: DescontoCalculator.parseMoneyToCents('14,05')!,
+        valor010Centavos: DescontoCalculator.parseMoneyToCents('0,00')!,
+        valor025Centavos: DescontoCalculator.parseMoneyToCents('12.50')!,
+        valor050Centavos: DescontoCalculator.parseMoneyToCents('0,00')!,
       );
 
-      expect(resultado.valorGrupo10Centavos, 400);
-      expect(resultado.bonusGrupo10Centavos, 40);
-      expect(resultado.valorGrupo5Centavos, 800);
-      expect(resultado.bonusGrupo5Centavos, 40);
-      expect(resultado.valorTotalMoedasCentavos, 1200);
-      expect(resultado.totalPorcentagensCentavos, 80);
-      expect(resultado.totalComPorcentagemCentavos, 1280);
+      expect(resultado.valorGrupo10Centavos, 1405);
+      expect(resultado.bonusGrupo10Centavos, 141);
+      expect(resultado.valorGrupo5Centavos, 1250);
+      expect(resultado.bonusGrupo5Centavos, 63);
+      expect(resultado.valorTotalMoedasCentavos, 2655);
+      expect(resultado.totalPorcentagensCentavos, 204);
+      expect(resultado.totalComPorcentagemCentavos, 2859);
 
       final historico = resultado.toDescontoResultado();
-      expect(historico.etiquetaCentavos, 1200);
-      expect(historico.sistemaCentavos, 1280);
-      expect(historico.descontoTotalCentavos, 80);
-      expect(historico.valorFinalTotalCentavos, 1280);
+      expect(historico.etiquetaCentavos, 2655);
+      expect(historico.sistemaCentavos, 2859);
+      expect(historico.descontoTotalCentavos, 204);
+      expect(historico.valorFinalTotalCentavos, 2859);
     });
   });
 }

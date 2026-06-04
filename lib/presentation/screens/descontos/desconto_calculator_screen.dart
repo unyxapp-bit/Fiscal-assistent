@@ -107,10 +107,10 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
   TrocaMoedasResultado? get _trocaMoedasResultado {
     if (_modo != _DescontoModo.trocaMoedas) return null;
     final resultado = DescontoCalculator.calcularTrocaMoedas(
-      moedas005: _parseCoinQuantity(_moeda005Ctrl.text),
-      moedas010: _parseCoinQuantity(_moeda010Ctrl.text),
-      moedas025: _parseCoinQuantity(_moeda025Ctrl.text),
-      moedas050: _parseCoinQuantity(_moeda050Ctrl.text),
+      valor005Centavos: _parseCoinValue(_moeda005Ctrl.text),
+      valor010Centavos: _parseCoinValue(_moeda010Ctrl.text),
+      valor025Centavos: _parseCoinValue(_moeda025Ctrl.text),
+      valor050Centavos: _parseCoinValue(_moeda050Ctrl.text),
     );
     return resultado.vazio ? null : resultado;
   }
@@ -197,8 +197,8 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
     });
   }
 
-  int _parseCoinQuantity(String value) {
-    final parsed = int.tryParse(value.trim());
+  int _parseCoinValue(String value) {
+    final parsed = DescontoCalculator.parseMoneyToCents(value);
     if (parsed == null || parsed < 0) return 0;
     return parsed;
   }
@@ -229,10 +229,10 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
         case _DescontoModo.trocaMoedas:
           _produtoCodigoCtrl.clear();
           _produtoNomeCtrl.text = 'Troca de moedas';
-          _moeda005Ctrl.text = '20';
-          _moeda010Ctrl.text = '30';
-          _moeda025Ctrl.text = '12';
-          _moeda050Ctrl.text = '10';
+          _moeda005Ctrl.text = 'R\$ 14,05';
+          _moeda010Ctrl.text = 'R\$ 0,00';
+          _moeda025Ctrl.text = 'R\$ 12,50';
+          _moeda050Ctrl.text = 'R\$ 0,00';
           break;
       }
     });
@@ -408,10 +408,10 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
 
     final linhas = <String>[
       'Modo: Troca de moedas',
-      'R\$ 0,05: ${moedas.moedas005} moedas = ${DescontoCalculator.formatMoney(moedas.valor005Centavos)} (+10%)',
-      'R\$ 0,10: ${moedas.moedas010} moedas = ${DescontoCalculator.formatMoney(moedas.valor010Centavos)} (+10%)',
-      'R\$ 0,25: ${moedas.moedas025} moedas = ${DescontoCalculator.formatMoney(moedas.valor025Centavos)} (+5%)',
-      'R\$ 0,50: ${moedas.moedas050} moedas = ${DescontoCalculator.formatMoney(moedas.valor050Centavos)} (+5%)',
+      'Moedas de R\$ 0,05: ${DescontoCalculator.formatMoney(moedas.valor005Centavos)} (+10%)',
+      'Moedas de R\$ 0,10: ${DescontoCalculator.formatMoney(moedas.valor010Centavos)} (+10%)',
+      'Moedas de R\$ 0,25: ${DescontoCalculator.formatMoney(moedas.valor025Centavos)} (+5%)',
+      'Moedas de R\$ 0,50: ${DescontoCalculator.formatMoney(moedas.valor050Centavos)} (+5%)',
       'Valor total das moedas: ${DescontoCalculator.formatMoney(moedas.valorTotalMoedasCentavos)}',
       'Total das porcentagens: ${DescontoCalculator.formatMoney(moedas.totalPorcentagensCentavos)}',
       'Total com porcentagem: ${DescontoCalculator.formatMoney(moedas.totalComPorcentagemCentavos)}',
@@ -932,27 +932,31 @@ class _CoinExchangeFields extends StatelessWidget {
       builder: (context, constraints) {
         final twoColumns = constraints.maxWidth >= 520;
         final fields = [
-          _IntegerField(
+          _CoinValueField(
             controller: moeda005Ctrl,
-            label: 'Qtd. moedas de R\$ 0,05',
+            label: 'Valor em moedas de R\$ 0,05',
+            hint: '14,05',
             icon: Icons.payments_outlined,
             onChanged: onChanged,
           ),
-          _IntegerField(
+          _CoinValueField(
             controller: moeda010Ctrl,
-            label: 'Qtd. moedas de R\$ 0,10',
+            label: 'Valor em moedas de R\$ 0,10',
+            hint: '0,00',
             icon: Icons.payments_outlined,
             onChanged: onChanged,
           ),
-          _IntegerField(
+          _CoinValueField(
             controller: moeda025Ctrl,
-            label: 'Qtd. moedas de R\$ 0,25',
+            label: 'Valor em moedas de R\$ 0,25',
+            hint: '12.50',
             icon: Icons.monetization_on_outlined,
             onChanged: onChanged,
           ),
-          _IntegerField(
+          _CoinValueField(
             controller: moeda050Ctrl,
-            label: 'Qtd. moedas de R\$ 0,50',
+            label: 'Valor em moedas de R\$ 0,50',
+            hint: '0,00',
             icon: Icons.monetization_on_outlined,
             onChanged: onChanged,
           ),
@@ -1324,6 +1328,45 @@ class _MetricPill extends StatelessWidget {
           fontWeight: FontWeight.w800,
         ),
       ),
+    );
+  }
+}
+
+class _CoinValueField extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  final String hint;
+  final IconData icon;
+  final VoidCallback onChanged;
+
+  const _CoinValueField({
+    required this.controller,
+    required this.label,
+    required this.hint,
+    required this.icon,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isInvalid = controller.text.trim().isNotEmpty &&
+        DescontoCalculator.parseMoneyToCents(controller.text) == null;
+
+    return TextField(
+      controller: controller,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r'[0-9,.Rr\$\s]')),
+      ],
+      style: AppTextStyles.body,
+      decoration: _inputDecoration(
+        context,
+        label: label,
+        hint: hint,
+        icon: icon,
+        errorText: isInvalid ? 'Valor invalido' : null,
+      ),
+      onChanged: (_) => onChanged(),
     );
   }
 }
