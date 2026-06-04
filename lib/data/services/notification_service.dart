@@ -48,6 +48,7 @@ class NotificationService {
 
     await _plugin.initialize(initSettings);
     _initialized = true;
+    await _ensureNotificationPermission();
   }
 
   /// Exibe uma notificação imediata.
@@ -57,6 +58,9 @@ class NotificationService {
     required String body,
   }) async {
     if (!_initialized) await initialize();
+    final allowed = await _ensureNotificationPermission();
+    if (!allowed) return;
+
     await _plugin.show(id, title, body, _notifDetails);
   }
 
@@ -68,6 +72,10 @@ class NotificationService {
     required DateTime scheduledAt,
   }) async {
     if (!_initialized) await initialize();
+    final allowed = await _ensureNotificationPermission();
+    if (!allowed) return;
+
+    final canUseExactAlarms = await _ensureExactAlarmPermission();
     final scheduled = tz.TZDateTime.from(scheduledAt, tz.local);
     await _plugin.zonedSchedule(
       id,
@@ -75,7 +83,9 @@ class NotificationService {
       body,
       scheduled,
       _notifDetails,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: canUseExactAlarms
+          ? AndroidScheduleMode.exactAllowWhileIdle
+          : AndroidScheduleMode.inexactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
     );
@@ -89,5 +99,52 @@ class NotificationService {
   /// Cancela todas as notificações pendentes.
   Future<void> cancelAll() async {
     await _plugin.cancelAll();
+  }
+
+  Future<bool> _ensureNotificationPermission() async {
+    final androidImplementation = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    if (androidImplementation != null) {
+      final enabled = await androidImplementation.areNotificationsEnabled();
+      if (enabled == true) return true;
+      return await androidImplementation.requestNotificationsPermission() ??
+          false;
+    }
+
+    final iosImplementation = _plugin.resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>();
+    if (iosImplementation != null) {
+      return await iosImplementation.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          ) ??
+          false;
+    }
+
+    final macosImplementation = _plugin.resolvePlatformSpecificImplementation<
+        MacOSFlutterLocalNotificationsPlugin>();
+    if (macosImplementation != null) {
+      return await macosImplementation.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          ) ??
+          false;
+    }
+
+    return true;
+  }
+
+  Future<bool> _ensureExactAlarmPermission() async {
+    final androidImplementation = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    if (androidImplementation == null) return true;
+
+    final canSchedule =
+        await androidImplementation.canScheduleExactNotifications();
+    if (canSchedule == true) return true;
+
+    return await androidImplementation.requestExactAlarmsPermission() ?? false;
   }
 }
