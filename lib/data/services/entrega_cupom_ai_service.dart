@@ -149,7 +149,7 @@ class EntregaCupomAiService {
     final payload = _asMap(response.data);
     if (payload['success'] == false) {
       throw Exception(
-        payload['error'] ?? 'Falha ao analisar cupom de entrega.',
+        _friendlyFunctionError(payload['error']),
       );
     }
 
@@ -165,6 +165,23 @@ class EntregaCupomAiService {
     if (lower.endsWith('.png')) return 'image/png';
     if (lower.endsWith('.webp')) return 'image/webp';
     return 'image/jpeg';
+  }
+
+  static String _friendlyFunctionError(Object? error) {
+    final message = error?.toString().trim() ?? '';
+    if (message.isEmpty) return 'Falha ao analisar cupom de entrega.';
+
+    final lower = message.toLowerCase();
+    if (lower.contains('token') ||
+        lower.contains('context') ||
+        lower.contains('maximum') ||
+        lower.contains('too large') ||
+        lower.contains('rate limit') ||
+        lower.contains('limite')) {
+      return 'A IA atingiu um limite ao ler a imagem. Tente recortar melhor o cupom ou enviar uma foto mais proxima e limpa.';
+    }
+
+    return message;
   }
 }
 

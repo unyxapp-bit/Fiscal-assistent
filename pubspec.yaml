@@ -49,6 +49,7 @@ dependencies:
   printing: ^5.13.4
   flutter_svg: ^2.2.4
   image_picker: ^1.2.2
+  image: ^4.8.0
 
 
 dev_dependencies:

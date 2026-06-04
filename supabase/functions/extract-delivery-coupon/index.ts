@@ -30,6 +30,8 @@ interface DeliveryCouponDraft {
   raw_text: string;
 }
 
+type ImageDetail = "auto" | "low";
+
 function asRecord(value: unknown): Record<string, unknown> {
   if (value && typeof value === "object" && !Array.isArray(value)) {
     return value as Record<string, unknown>;
@@ -183,8 +185,8 @@ Regras importantes:
 - horario_marcado deve ser null, exceto se houver horario explicitamente agendado para entrega. Nao use o horario de impressao do rodape.
 - Qualquer texto, marca, numero, nome ou orientacao manuscrita deve ir sempre em observacoes, identificado como "Manuscrito: ...".
 - Nao use informacao manuscrita para substituir campos principais impressos como cliente, endereco, bairro, cidade, telefone ou nota.
-- observacoes pode incluir CEP, valor, loja, caixa, caixas/lista ou alertas de baixa confianca.
-- raw_text deve conter uma transcricao compacta dos principais textos lidos.
+- observacoes pode incluir CEP, valor, loja, caixa, caixas/lista ou alertas de baixa confianca, sempre de forma compacta.
+- raw_text deve conter uma transcricao muito curta dos principais textos lidos, com no maximo 220 caracteres.
 
 Formato obrigatorio:
 {
@@ -206,6 +208,8 @@ async function callOpenAI(params: {
   dataUrl: string;
   fileName: string;
   mimeType: string;
+  detail: ImageDetail;
+  maxOutputTokens: number;
 }) {
   if (!OPENAI_API_KEY) {
     throw new Error("OPENAI_API_KEY nao configurada na Supabase Function.");
@@ -219,7 +223,7 @@ async function callOpenAI(params: {
     },
     body: JSON.stringify({
       model: OPENAI_MODEL,
-      max_output_tokens: 1200,
+      max_output_tokens: params.maxOutputTokens,
       reasoning: { effort: "low" },
       input: [
         { role: "system", content: systemPrompt },
@@ -229,9 +233,13 @@ async function callOpenAI(params: {
             {
               type: "input_text",
               text:
-                `Arquivo: ${params.fileName}\nTipo: ${params.mimeType}\nLeia o cupom e devolva o JSON de entrega.`,
+                `Arquivo: ${params.fileName}\nTipo: ${params.mimeType}\nExtraia os campos do cupom e retorne somente o JSON.`,
             },
-            { type: "input_image", image_url: params.dataUrl },
+            {
+              type: "input_image",
+              image_url: params.dataUrl,
+              detail: params.detail,
+            },
           ],
         },
       ],
@@ -247,6 +255,17 @@ async function callOpenAI(params: {
   const raw = openAiResponseText(asRecord(data));
   if (!raw) throw new Error("OpenAI retornou resposta vazia.");
   return normalizeDraft(parseJsonObject(raw));
+}
+
+function isTokenLimitError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  const lower = message.toLowerCase();
+  return lower.includes("token") ||
+    lower.includes("context") ||
+    lower.includes("maximum") ||
+    lower.includes("too large") ||
+    lower.includes("rate limit") ||
+    lower.includes("limite");
 }
 
 serve(async (req) => {
@@ -269,7 +288,26 @@ serve(async (req) => {
 
     const cleanBase64 = imageBase64.replace(/^data:[^,]+,/, "");
     const dataUrl = `data:${mimeType};base64,${cleanBase64}`;
-    const result = await callOpenAI({ dataUrl, fileName, mimeType });
+    let result: DeliveryCouponDraft;
+
+    try {
+      result = await callOpenAI({
+        dataUrl,
+        fileName,
+        mimeType,
+        detail: "auto",
+        maxOutputTokens: 850,
+      });
+    } catch (error) {
+      if (!isTokenLimitError(error)) throw error;
+      result = await callOpenAI({
+        dataUrl,
+        fileName,
+        mimeType,
+        detail: "low",
+        maxOutputTokens: 650,
+      });
+    }
 
     return new Response(JSON.stringify({ success: true, result }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

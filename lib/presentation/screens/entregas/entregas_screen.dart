@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_styles.dart';
@@ -25,6 +26,18 @@ class EntregasScreen extends StatefulWidget {
   State<EntregasScreen> createState() => _EntregasScreenState();
 }
 
+class _CupomImagePayload {
+  final Uint8List bytes;
+  final String fileName;
+  final String mimeType;
+
+  const _CupomImagePayload({
+    required this.bytes,
+    required this.fileName,
+    required this.mimeType,
+  });
+}
+
 class _EntregasScreenState extends State<EntregasScreen> {
   final _searchCtrl = TextEditingController();
   String _filtroStatus = 'todos';
@@ -34,6 +47,8 @@ class _EntregasScreenState extends State<EntregasScreen> {
   bool _processandoCupom = false;
   final _cupomAiService = EntregaCupomAiService();
   final _imagePicker = ImagePicker();
+  static const _cupomMaxLongSide = 1280;
+  static const _cupomJpegQuality = 72;
 
   static const _statusOptions = [
     ('todos', 'Todos'),
@@ -81,11 +96,16 @@ class _EntregasScreenState extends State<EntregasScreen> {
     if (image == null) return;
 
     final bytes = await image.readAsBytes();
-    await _analisarCupom(
+    final payload = _prepararImagemCupom(
       bytes: bytes,
       fileName: image.name,
       mimeType: image.mimeType ??
           EntregaCupomAiService.mimeTypeForFileName(image.name),
+    );
+    await _analisarCupom(
+      bytes: payload.bytes,
+      fileName: payload.fileName,
+      mimeType: payload.mimeType,
     );
   }
 
@@ -100,11 +120,16 @@ class _EntregasScreenState extends State<EntregasScreen> {
       if (image == null) return;
 
       final bytes = await image.readAsBytes();
-      await _analisarCupom(
+      final payload = _prepararImagemCupom(
         bytes: bytes,
         fileName: image.name,
         mimeType: image.mimeType ??
             EntregaCupomAiService.mimeTypeForFileName(image.name),
+      );
+      await _analisarCupom(
+        bytes: payload.bytes,
+        fileName: payload.fileName,
+        mimeType: payload.mimeType,
       );
     } catch (e) {
       if (!mounted) return;
@@ -117,6 +142,49 @@ class _EntregasScreenState extends State<EntregasScreen> {
         cor: AppColors.danger,
       );
     }
+  }
+
+  _CupomImagePayload _prepararImagemCupom({
+    required Uint8List bytes,
+    required String fileName,
+    required String mimeType,
+  }) {
+    final decoded = img.decodeImage(bytes);
+    if (decoded == null) {
+      return _CupomImagePayload(
+        bytes: bytes,
+        fileName: fileName,
+        mimeType: mimeType,
+      );
+    }
+
+    final oriented = img.bakeOrientation(decoded);
+    final longSide =
+        oriented.width > oriented.height ? oriented.width : oriented.height;
+    final scale =
+        longSide > _cupomMaxLongSide ? _cupomMaxLongSide / longSide : 1.0;
+    final resized = scale < 1
+        ? img.copyResize(
+            oriented,
+            width: (oriented.width * scale).round(),
+            height: (oriented.height * scale).round(),
+          )
+        : oriented;
+    final encoded = img.encodeJpg(resized, quality: _cupomJpegQuality);
+
+    return _CupomImagePayload(
+      bytes: Uint8List.fromList(encoded),
+      fileName: _cupomJpegFileName(fileName),
+      mimeType: 'image/jpeg',
+    );
+  }
+
+  String _cupomJpegFileName(String fileName) {
+    final clean = fileName.trim();
+    final base = clean.isEmpty
+        ? 'cupom-entrega'
+        : clean.replaceFirst(RegExp(r'\.[^.]+$'), '');
+    return '$base.jpg';
   }
 
   Future<void> _analisarCupom({
