@@ -3,6 +3,13 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") ?? "";
 const OPENAI_MODEL =
   Deno.env.get("OPENAI_VISION_MODEL") ?? Deno.env.get("OPENAI_MODEL") ?? "gpt-5.4-mini";
+const OPENAI_MINI_MODEL =
+  Deno.env.get("OPENAI_MINI_MODEL") ?? OPENAI_MODEL;
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") ?? "";
+const GEMINI_MODEL =
+  Deno.env.get("GEMINI_VISION_MODEL") ?? Deno.env.get("GEMINI_MODEL") ?? "gemini-2.0-flash";
+const GEMINI_LITE_MODEL =
+  Deno.env.get("GEMINI_LITE_MODEL") ?? "gemini-2.0-flash-lite";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -29,6 +36,11 @@ interface DeliveryCouponDraft {
   confidence: number;
   missing_fields: string[];
   raw_text: string;
+  provider?: string;
+  model?: string | null;
+  source?: string;
+  fonte?: string;
+  warning?: string | null;
 }
 
 type ImageDetail = "auto" | "low";
@@ -62,6 +74,16 @@ function confidence(value: unknown) {
   const parsed = numberValue(value);
   if (parsed === null) return 0.65;
   return Math.max(0, Math.min(1, parsed));
+}
+
+async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs = 25000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 function openAiResponseText(data: Record<string, unknown>) {
@@ -123,7 +145,10 @@ function normalizeHorario(value: unknown) {
   return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
 }
 
-function normalizeDraft(raw: Record<string, unknown>): DeliveryCouponDraft {
+function normalizeDraft(
+  raw: Record<string, unknown>,
+  meta: Partial<Pick<DeliveryCouponDraft, "provider" | "model" | "source" | "fonte" | "warning">> = {},
+): DeliveryCouponDraft {
   const numeroNota = normalizeNota(
     text(raw.numero_nota) || text(raw.numeroNota) || text(raw.nota) ||
       text(raw.nf),
@@ -170,7 +195,36 @@ function normalizeDraft(raw: Record<string, unknown>): DeliveryCouponDraft {
     confidence: confidence(raw.confidence ?? raw.confianca),
     missing_fields: Array.from(missing),
     raw_text: rawText,
+    provider: text(raw.provider) || meta.provider,
+    model: text(raw.model) || meta.model || null,
+    source: text(raw.source) || text(raw.fonte) || meta.source,
+    fonte: text(raw.fonte) || text(raw.source) || meta.fonte || meta.source,
+    warning: text(raw.warning) || meta.warning || null,
   };
+}
+
+function buildLocalDraft(
+  fileName: string,
+  warning = "Nao foi possivel ler o cupom automaticamente agora.",
+): DeliveryCouponDraft {
+  return normalizeDraft({
+    observacoes:
+      `${warning} Revise e preencha os campos manualmente a partir da imagem ${fileName}.`,
+    confidence: 0,
+    missing_fields: [
+      "numero_nota",
+      "cliente_nome",
+      "endereco",
+      "bairro",
+      "cidade",
+    ],
+    raw_text: "",
+  }, {
+    provider: "local",
+    model: null,
+    source: "local_offline",
+    warning,
+  });
 }
 
 const systemPrompt = `
@@ -211,19 +265,22 @@ async function callOpenAI(params: {
   mimeType: string;
   detail: ImageDetail;
   maxOutputTokens: number;
+  model: string;
+  source: string;
+  warning?: string | null;
 }) {
   if (!OPENAI_API_KEY) {
     throw new Error("OPENAI_API_KEY nao configurada na Supabase Function.");
   }
 
-  const response = await fetch("https://api.openai.com/v1/responses", {
+  const response = await fetchWithTimeout("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: OPENAI_MODEL,
+      model: params.model,
       max_output_tokens: params.maxOutputTokens,
       truncation: "auto",
       reasoning: { effort: "low" },
@@ -256,7 +313,81 @@ async function callOpenAI(params: {
   const data = await response.json();
   const raw = openAiResponseText(asRecord(data));
   if (!raw) throw new Error("OpenAI retornou resposta vazia.");
-  return normalizeDraft(parseJsonObject(raw));
+  return normalizeDraft(parseJsonObject(raw), {
+    provider: "openai",
+    model: params.model,
+    source: params.source,
+    warning: params.warning,
+  });
+}
+
+function geminiResponseText(data: Record<string, unknown>) {
+  const candidates = Array.isArray(data.candidates) ? data.candidates : [];
+  const chunks: string[] = [];
+  for (const candidate of candidates) {
+    const content = asRecord(asRecord(candidate).content);
+    const parts = Array.isArray(content.parts) ? content.parts : [];
+    for (const part of parts) {
+      const value = text(asRecord(part).text);
+      if (value) chunks.push(value);
+    }
+  }
+  return chunks.join("");
+}
+
+async function callGemini(params: {
+  imageBase64: string;
+  fileName: string;
+  mimeType: string;
+  model: string;
+  source: string;
+  warning: string;
+}) {
+  if (!GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY nao configurada na Supabase Function.");
+  }
+
+  const endpoint =
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(params.model)}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
+  const response = await fetchWithTimeout(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text:
+                `${systemPrompt}\n\nArquivo: ${params.fileName}\nTipo: ${params.mimeType}\nExtraia os campos do cupom e retorne somente JSON valido.`,
+            },
+            {
+              inline_data: {
+                mime_type: params.mimeType,
+                data: params.imageBase64,
+              },
+            },
+          ],
+        },
+      ],
+      generationConfig: {
+        temperature: 0.1,
+        maxOutputTokens: 900,
+        responseMimeType: "application/json",
+      },
+    }),
+  });
+
+  if (!response.ok) throw new Error(await response.text());
+  const data = await response.json();
+  const raw = geminiResponseText(asRecord(data));
+  if (!raw) throw new Error("Gemini retornou resposta vazia.");
+  return normalizeDraft(parseJsonObject(raw), {
+    provider: "gemini",
+    model: params.model,
+    source: params.source,
+    warning: params.warning,
+  });
 }
 
 function isTokenLimitError(error: unknown) {
@@ -299,16 +430,54 @@ serve(async (req) => {
         mimeType,
         detail: "auto",
         maxOutputTokens: 850,
+        model: OPENAI_MODEL,
+        source: "ia_completa",
       });
     } catch (error) {
-      if (!isTokenLimitError(error)) throw error;
-      result = await callOpenAI({
-        dataUrl,
-        fileName,
-        mimeType,
-        detail: "low",
-        maxOutputTokens: 650,
-      });
+      console.warn("[extract-delivery-coupon] OpenAI principal falhou:", error);
+      try {
+        if (!isTokenLimitError(error) && OPENAI_MINI_MODEL === OPENAI_MODEL) throw error;
+        result = await callOpenAI({
+          dataUrl,
+          fileName,
+          mimeType,
+          detail: "low",
+          maxOutputTokens: 650,
+          model: OPENAI_MINI_MODEL,
+          source: "ia_mini",
+          warning: "IA completa indisponivel; usando leitura resumida.",
+        });
+      } catch (miniError) {
+        console.warn("[extract-delivery-coupon] OpenAI mini falhou:", miniError);
+        try {
+          result = await callGemini({
+            imageBase64: cleanBase64,
+            fileName,
+            mimeType,
+            model: GEMINI_MODEL,
+            source: "ia_gemini",
+            warning: "OpenAI indisponivel; usando Gemini.",
+          });
+        } catch (geminiError) {
+          console.warn("[extract-delivery-coupon] Gemini falhou:", geminiError);
+          try {
+            result = await callGemini({
+              imageBase64: cleanBase64,
+              fileName,
+              mimeType,
+              model: GEMINI_LITE_MODEL,
+              source: "ia_gemini_lite",
+              warning: "IA principal indisponivel; usando Gemini Lite.",
+            });
+          } catch (liteError) {
+            console.warn("[extract-delivery-coupon] Gemini Lite falhou:", liteError);
+            result = buildLocalDraft(
+              fileName,
+              "IA externa indisponivel; usando rascunho local.",
+            );
+          }
+        }
+      }
     }
 
     return new Response(JSON.stringify({ success: true, result }), {

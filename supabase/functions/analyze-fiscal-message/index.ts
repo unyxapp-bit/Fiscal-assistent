@@ -6,8 +6,14 @@ const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") ?? "";
 const OPENAI_MODEL =
   Deno.env.get("OPENAI_ANALYSIS_MODEL") ?? Deno.env.get("OPENAI_MODEL") ?? "gpt-5.4-mini";
+const OPENAI_MINI_MODEL =
+  Deno.env.get("OPENAI_MINI_MODEL") ?? OPENAI_MODEL;
 const OPENAI_TRANSCRIBE_MODEL =
   Deno.env.get("OPENAI_TRANSCRIBE_MODEL") ?? "gpt-4o-transcribe";
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") ?? "";
+const GEMINI_MODEL = Deno.env.get("GEMINI_MODEL") ?? "gemini-2.0-flash";
+const GEMINI_LITE_MODEL =
+  Deno.env.get("GEMINI_LITE_MODEL") ?? "gemini-2.0-flash-lite";
 const MEDIA_BUCKET = "fiscal-media";
 
 const corsHeaders = {
@@ -107,6 +113,10 @@ interface RuleResult {
   image_text?: string | null;
   needs_review?: boolean | null;
   missing_fields?: string[];
+  analysis_provider?: string;
+  analysis_model?: string | null;
+  analysis_source?: string;
+  analysis_warning?: string | null;
 }
 
 interface ColaboradorRow {
@@ -143,6 +153,16 @@ function clampConfidence(value: unknown, fallback = 0.6) {
   const n = numberValue(value);
   if (n === null) return fallback;
   return Math.max(0, Math.min(1, n));
+}
+
+async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs = 25000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 function normalizeLower(value: string) {
@@ -441,6 +461,10 @@ async function categorizarComOpenAI(params: {
   contentType: string;
   transcript?: string | null;
   imageDataUrl?: string | null;
+  model: string;
+  source: string;
+  warning?: string | null;
+  maxOutputTokens?: number;
 }) {
   if (!OPENAI_API_KEY) {
     return {
@@ -452,6 +476,10 @@ async function categorizarComOpenAI(params: {
       priority: "normal",
       needs_review: true,
       missing_fields: ["openai_api_key"],
+      analysis_provider: "local",
+      analysis_model: null,
+      analysis_source: "local_offline",
+      analysis_warning: "OPENAI_API_KEY nao configurada; usando leitura local.",
     } as RuleResult;
   }
 
@@ -471,15 +499,15 @@ async function categorizarComOpenAI(params: {
     content.push({ type: "input_image", image_url: params.imageDataUrl });
   }
 
-  const response = await fetch("https://api.openai.com/v1/responses", {
+  const response = await fetchWithTimeout("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: OPENAI_MODEL,
-      max_output_tokens: 900,
+      model: params.model,
+      max_output_tokens: params.maxOutputTokens ?? 900,
       truncation: "auto",
       reasoning: { effort: "low" },
       input: [
@@ -498,13 +526,24 @@ async function categorizarComOpenAI(params: {
   const raw = openAiResponseText(asRecord(data));
   const parsed = parseJsonObject(raw);
 
-  return normalizeRuleResult(parsed, params.message, params.sender);
+  return normalizeRuleResult(parsed, params.message, params.sender, {
+    provider: "openai",
+    model: params.model,
+    source: params.source,
+    warning: params.warning,
+  });
 }
 
 function normalizeRuleResult(
   input: Record<string, unknown>,
   fallbackText: string,
   sender: string,
+  meta: {
+    provider?: string;
+    model?: string | null;
+    source?: string;
+    warning?: string | null;
+  } = {},
 ): RuleResult {
   let category = text(input.category, "aviso_geral");
   if (!categories.has(category)) category = "aviso_geral";
@@ -536,7 +575,227 @@ function normalizeRuleResult(
     missing_fields: Array.isArray(input.missing_fields)
       ? input.missing_fields.map((item) => String(item))
       : [],
+    analysis_provider: text(input.analysis_provider) || meta.provider,
+    analysis_model: text(input.analysis_model) || meta.model || null,
+    analysis_source: text(input.analysis_source) ||
+      text(input.source) ||
+      text(input.fonte) ||
+      meta.source,
+    analysis_warning: text(input.analysis_warning) ||
+      text(input.warning) ||
+      meta.warning ||
+      null,
   };
+}
+
+function dataUrlParts(dataUrl: string | null | undefined) {
+  if (!dataUrl) return null;
+  const match = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+  if (!match) return null;
+  return { mimeType: match[1], base64: match[2] };
+}
+
+function geminiResponseText(data: Record<string, unknown>) {
+  const candidates = Array.isArray(data.candidates) ? data.candidates : [];
+  const chunks: string[] = [];
+  for (const candidate of candidates) {
+    const content = asRecord(asRecord(candidate).content);
+    const parts = Array.isArray(content.parts) ? content.parts : [];
+    for (const part of parts) {
+      const value = text(asRecord(part).text);
+      if (value) chunks.push(value);
+    }
+  }
+  return chunks.join("");
+}
+
+async function categorizarComGemini(params: {
+  message: string;
+  sender: string;
+  timestamp: string;
+  contentType: string;
+  transcript?: string | null;
+  imageDataUrl?: string | null;
+  audioDataUrl?: string | null;
+  model: string;
+  source: string;
+  warning: string;
+}) {
+  if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY nao configurada");
+
+  const image = dataUrlParts(params.imageDataUrl);
+  const audio = dataUrlParts(params.audioDataUrl);
+  const inputText = [
+    analysisPrompt,
+    "",
+    `Remetente: ${params.sender || "desconhecido"}`,
+    `Horario: ${params.timestamp}`,
+    `Tipo: ${params.contentType}`,
+    params.transcript ? `Transcricao: ${params.transcript}` : null,
+    params.message ? `Texto/contexto: ${params.message}` : null,
+    "Classifique e extraia os campos fiscais. Retorne somente JSON valido.",
+  ].filter(Boolean).join("\n");
+
+  const parts: Record<string, unknown>[] = [{ text: inputText }];
+  if (image) {
+    parts.push({
+      inline_data: {
+        mime_type: image.mimeType,
+        data: image.base64,
+      },
+    });
+  }
+  if (audio) {
+    parts.push({
+      inline_data: {
+        mime_type: audio.mimeType,
+        data: audio.base64,
+      },
+    });
+  }
+
+  const endpoint =
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(params.model)}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
+  const response = await fetchWithTimeout(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ role: "user", parts }],
+      generationConfig: {
+        temperature: 0.1,
+        maxOutputTokens: 900,
+        responseMimeType: "application/json",
+      },
+    }),
+  });
+
+  if (!response.ok) throw new Error(await response.text());
+  const data = await response.json();
+  const raw = geminiResponseText(asRecord(data));
+  if (!raw) throw new Error("Gemini retornou resposta vazia.");
+
+  return normalizeRuleResult(parseJsonObject(raw), params.message, params.sender, {
+    provider: "gemini",
+    model: params.model,
+    source: params.source,
+    warning: params.warning,
+  });
+}
+
+function buildLocalRuleResult(params: {
+  message: string;
+  sender: string;
+  timestamp: string;
+  contentType: string;
+  transcript?: string | null;
+  warning: string;
+}): RuleResult {
+  const baseText = params.transcript?.trim() || params.message.trim();
+  const rule = baseText
+    ? categorizarPorRegra(baseText, params.sender, params.timestamp)
+    : null;
+  if (rule) {
+    return {
+      ...rule,
+      needs_review: rule.needs_review ?? true,
+      confidence: Math.min(rule.confidence, 0.72),
+      analysis_provider: "local",
+      analysis_model: null,
+      analysis_source: "local_offline",
+      analysis_warning: params.warning,
+    };
+  }
+
+  const mediaLabel = params.contentType === "image"
+    ? "foto"
+    : params.contentType === "audio"
+    ? "audio"
+    : params.contentType;
+
+  return {
+    category: params.contentType === "text" ? "aviso_geral" : "midia_pendente",
+    description: baseText ||
+      `${mediaLabel} recebido para revisao manual; IA externa indisponivel.`,
+    employee_name: params.sender || null,
+    amount: baseText ? extrairValor(baseText) : null,
+    confidence: 0.25,
+    priority: "normal",
+    media_summary: params.contentType === "text"
+      ? null
+      : `${mediaLabel} recebido, mas a leitura automatica nao concluiu.`,
+    image_text: null,
+    needs_review: true,
+    missing_fields: ["ia_externa_indisponivel"],
+    analysis_provider: "local",
+    analysis_model: null,
+    analysis_source: "local_offline",
+    analysis_warning: params.warning,
+  };
+}
+
+async function categorizarComFallback(params: {
+  message: string;
+  sender: string;
+  timestamp: string;
+  contentType: string;
+  transcript?: string | null;
+  imageDataUrl?: string | null;
+  audioDataUrl?: string | null;
+}) {
+  if (OPENAI_API_KEY) {
+    try {
+      return await categorizarComOpenAI({
+        ...params,
+        model: OPENAI_MODEL,
+        source: "ia_completa",
+      });
+    } catch (error) {
+      console.warn("[analyze-fiscal-message] OpenAI principal falhou:", error);
+    }
+
+    if (OPENAI_MINI_MODEL !== OPENAI_MODEL) {
+      try {
+        return await categorizarComOpenAI({
+          ...params,
+          model: OPENAI_MINI_MODEL,
+          source: "ia_mini",
+          warning: "IA completa indisponivel; usando analise resumida.",
+          maxOutputTokens: 700,
+        });
+      } catch (error) {
+        console.warn("[analyze-fiscal-message] OpenAI mini falhou:", error);
+      }
+    }
+  }
+
+  if (GEMINI_API_KEY) {
+    try {
+      return await categorizarComGemini({
+        ...params,
+        model: GEMINI_MODEL,
+        source: "ia_gemini",
+        warning: "OpenAI indisponivel; usando Gemini.",
+      });
+    } catch (error) {
+      console.warn("[analyze-fiscal-message] Gemini falhou:", error);
+    }
+
+    try {
+      return await categorizarComGemini({
+        ...params,
+        model: GEMINI_LITE_MODEL,
+        source: "ia_gemini_lite",
+        warning: "IA principal indisponivel; usando Gemini Lite.",
+      });
+    } catch (error) {
+      console.warn("[analyze-fiscal-message] Gemini Lite falhou:", error);
+    }
+  }
+
+  return buildLocalRuleResult({
+    ...params,
+    warning: "IA externa indisponivel; usando leitura local.",
+  });
 }
 
 function matchColaborador(
@@ -838,10 +1097,10 @@ async function buildFiscalEventPayload(
       image_text: params.imageText,
       missing_fields: parsed.missing_fields ?? [],
     },
-    analysis_provider: OPENAI_API_KEY ? "openai" : "local",
-    analysis_model: OPENAI_API_KEY ? OPENAI_MODEL : null,
+    analysis_provider: parsed.analysis_provider ?? "local",
+    analysis_model: parsed.analysis_model ?? null,
     analysis_status: params.analysisStatus,
-    analysis_error: params.analysisError ?? null,
+    analysis_error: params.analysisError ?? parsed.analysis_warning ?? null,
     analyzed_at: new Date().toISOString(),
   };
 }
@@ -984,6 +1243,10 @@ async function processNeedsFile(
     priority: "normal",
     needs_review: true,
     missing_fields: ["arquivo_original"],
+    analysis_provider: "local",
+    analysis_model: null,
+    analysis_source: "needs_file",
+    analysis_warning: "Arquivo original ausente para analise automatica.",
   };
   const event = await insertFiscalEvent(supabase, parsed, {
     fiscalId: params.fiscalId,
@@ -1087,13 +1350,23 @@ serve(async (req) => {
     let mediaSummary: string | null = nullableText(capture.summary);
     let parsed: RuleResult | null = null;
     let imageDataUrl: string | null = null;
+    let audioDataUrl: string | null = null;
     let analysisStatus = "analyzed";
     let analysisError: string | null = null;
 
     if (contentType === "audio" && storagePath) {
       const bytes = await downloadStorageFile(supabase, storageBucket, storagePath);
-      transcript = await transcribeAudio(bytes, fileName ?? "audio", mimeType ?? "");
-      analysisText = transcript || rawMessage;
+      const type = normalizeAudioMime(mimeType ?? "", fileName ?? "audio");
+      audioDataUrl = `data:${type};base64,${bytesToBase64(bytes)}`;
+      try {
+        transcript = await transcribeAudio(bytes, fileName ?? "audio", mimeType ?? "");
+        analysisText = transcript || rawMessage;
+        audioDataUrl = null;
+      } catch (error) {
+        console.warn("[analyze-fiscal-message] transcricao OpenAI falhou:", error);
+        analysisText = rawMessage || "Audio recebido do WhatsApp/Balcao Fiscal";
+        analysisError = "transcricao_openai_indisponivel";
+      }
     }
 
     if (contentType === "image" && storagePath) {
@@ -1145,23 +1418,30 @@ serve(async (req) => {
     }
 
     if (!parsed) {
-      parsed = await categorizarComOpenAI({
+      parsed = await categorizarComFallback({
         message: analysisText,
         sender,
         timestamp,
         contentType,
         transcript,
         imageDataUrl,
+        audioDataUrl,
       });
       imageText = parsed.image_text ?? imageText;
       mediaSummary = parsed.media_summary ?? mediaSummary;
+      if (parsed.analysis_provider === "local") {
+        analysisStatus = "needs_review";
+        analysisError = analysisError ?? parsed.analysis_warning ?? "analise_local";
+      } else if (analysisError === "transcricao_openai_indisponivel") {
+        analysisError = parsed.analysis_warning ?? null;
+      }
     }
 
     if (parsed.category === "nao_relevante") {
       await updateCapture(supabase, captureId, {
         analysis_status: "skipped",
-        analysis_provider: OPENAI_API_KEY ? "openai" : "local",
-        analysis_model: OPENAI_API_KEY ? OPENAI_MODEL : null,
+        analysis_provider: parsed.analysis_provider ?? "local",
+        analysis_model: parsed.analysis_model ?? null,
         skipped_reason: "nao_relevante_ia",
         transcript,
         image_text: imageText,
@@ -1199,8 +1479,8 @@ serve(async (req) => {
 
     await updateCapture(supabase, captureId, {
       analysis_status: analysisStatus,
-      analysis_provider: OPENAI_API_KEY ? "openai" : "local",
-      analysis_model: OPENAI_API_KEY ? OPENAI_MODEL : null,
+      analysis_provider: parsed.analysis_provider ?? "local",
+      analysis_model: parsed.analysis_model ?? null,
       transcript,
       image_text: imageText,
       summary: mediaSummary,
@@ -1216,8 +1496,10 @@ serve(async (req) => {
         success: true,
         event,
         capture_id: captureId,
-        provider: OPENAI_API_KEY ? "openai" : "local",
-        model: OPENAI_API_KEY ? OPENAI_MODEL : null,
+        provider: parsed.analysis_provider ?? "local",
+        model: parsed.analysis_model ?? null,
+        source: parsed.analysis_source ?? null,
+        warning: parsed.analysis_warning ?? null,
         transcription_model: contentType === "audio" ? OPENAI_TRANSCRIBE_MODEL : null,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
@@ -1227,7 +1509,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ success: false, error: String(err) }),
       {
-        status: 500,
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       },
     );

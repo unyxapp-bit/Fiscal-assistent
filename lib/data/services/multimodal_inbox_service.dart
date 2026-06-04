@@ -69,6 +69,7 @@ class SharedInboxItem {
 
 class MultimodalInboxService {
   static const _bucket = 'fiscal-media';
+  static const _analysisTimeout = Duration(seconds: 45);
   static const _channel =
       MethodChannel('com.app.fiscal_assistant/shared_content');
 
@@ -306,13 +307,17 @@ class MultimodalInboxService {
           'sender': sender,
           'timestamp': captureDate.toIso8601String(),
         },
-      );
+      ).timeout(_analysisTimeout);
 
       final payload = _asMap(response.data);
       if (payload['success'] == false) {
-        throw Exception(payload['error'] ?? 'Falha ao analisar conteudo.');
+        throw Exception(_friendlyAnalysisError(payload['error']));
       }
       return MultimodalInboxResult.fromPayload(payload);
+    } on TimeoutException {
+      return MultimodalInboxResult.error(
+        'A IA demorou para responder. O conteudo foi salvo para revisao.',
+      );
     } catch (e) {
       return MultimodalInboxResult.error(e);
     }
@@ -371,6 +376,22 @@ class MultimodalInboxService {
     if (lower.endsWith('.pdf')) return 'application/pdf';
     if (lower.endsWith('.txt')) return 'text/plain';
     return 'application/octet-stream';
+  }
+
+  static String _friendlyAnalysisError(Object? error) {
+    final message = error?.toString().trim() ?? '';
+    if (message.isEmpty) return 'Falha ao analisar conteudo.';
+    final lower = message.toLowerCase();
+    if (lower.contains('token') ||
+        lower.contains('context') ||
+        lower.contains('maximum') ||
+        lower.contains('too large') ||
+        lower.contains('rate limit') ||
+        lower.contains('limite') ||
+        lower.contains('quota')) {
+      return 'A IA atingiu limite temporario. O conteudo foi salvo para revisao.';
+    }
+    return message;
   }
 }
 

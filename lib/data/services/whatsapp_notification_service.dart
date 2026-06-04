@@ -23,6 +23,7 @@ class WhatsAppNotificationService {
   ];
 
   static const String _prefKey = 'whatsapp_fontes_aceitas';
+  static const Duration _edgeTimeout = Duration(seconds: 35);
 
   static List<String> _fontesAceitas = List.of(_fontesDefault);
   static StreamSubscription<ServiceNotificationEvent>? _subscription;
@@ -266,7 +267,7 @@ class WhatsAppNotificationService {
         'message': message,
         'timestamp': timestamp,
       },
-    );
+    ).timeout(_edgeTimeout);
   }
 
   static Future<void> _salvarMidia({
@@ -294,7 +295,7 @@ class WhatsAppNotificationService {
           'timestamp': timestamp,
           'media_type': mediaType,
         },
-      );
+      ).timeout(_edgeTimeout);
       if (kDebugMode) debugPrint('[WhatsApp] Midia enviada: $mediaType');
       return;
     } catch (e) {

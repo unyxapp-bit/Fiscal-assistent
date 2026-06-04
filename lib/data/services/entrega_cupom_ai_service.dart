@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:async';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -18,6 +19,10 @@ class EntregaCupomDraft {
   final List<String> missingFields;
   final String rawText;
   final String? fileName;
+  final String provider;
+  final String source;
+  final String? model;
+  final String? warning;
 
   const EntregaCupomDraft({
     this.numeroNota = '',
@@ -32,6 +37,10 @@ class EntregaCupomDraft {
     this.missingFields = const [],
     this.rawText = '',
     this.fileName,
+    this.provider = 'local',
+    this.source = 'local_offline',
+    this.model,
+    this.warning,
   });
 
   factory EntregaCupomDraft.fromMap(Map<String, dynamic> map) {
@@ -84,6 +93,15 @@ class EntregaCupomDraft {
         'image_text',
       ]),
       fileName: _readString(map, const ['file_name', 'fileName']),
+      provider: _readString(map, const ['provider']).isEmpty
+          ? 'local'
+          : _readString(map, const ['provider']),
+      source:
+          _readString(map, const ['source', 'fonte', 'analysis_source']).isEmpty
+              ? 'local_offline'
+              : _readString(map, const ['source', 'fonte', 'analysis_source']),
+      model: _nullableString(map, const ['model', 'analysis_model']),
+      warning: _nullableString(map, const ['warning']),
     );
   }
 
@@ -109,16 +127,41 @@ class EntregaCupomDraft {
   String observacoesParaSalvar() {
     final parts = <String>[
       if (observacoes.trim().isNotEmpty) observacoes.trim(),
+      if (warning?.trim().isNotEmpty == true) warning!.trim(),
       'Preenchido por IA a partir do cupom de entrega'
           '${fileName?.trim().isNotEmpty == true ? ' (${fileName!.trim()})' : ''}.',
+      if (source.trim().isNotEmpty) 'Fonte da leitura: $source.',
       if (confidence > 0) 'Confianca da leitura: $confidenceLabel.',
     ];
     return parts.join('\n');
+  }
+
+  factory EntregaCupomDraft.localFallback({
+    required String fileName,
+    String warning = 'Nao foi possivel ler o cupom automaticamente agora.',
+  }) {
+    return EntregaCupomDraft(
+      observacoes:
+          '$warning Revise e preencha os campos manualmente a partir da imagem.',
+      confidence: 0,
+      missingFields: const [
+        'numero_nota',
+        'cliente_nome',
+        'endereco',
+        'bairro',
+        'cidade',
+      ],
+      fileName: fileName,
+      provider: 'local',
+      source: 'erro_edge',
+      warning: warning,
+    );
   }
 }
 
 class EntregaCupomAiService {
   static const _functionName = 'extract-delivery-coupon';
+  static const _timeout = Duration(seconds: 45);
 
   SupabaseClient get _client => SupabaseClientManager.client;
 
@@ -135,29 +178,44 @@ class EntregaCupomAiService {
       throw Exception('Imagem vazia.');
     }
 
-    final response = await _client.functions.invoke(
-      _functionName,
-      headers: SupabaseClientManager.edgeFunctionHeaders,
-      body: {
-        'fiscal_id': fiscalId,
-        'file_name': fileName,
-        'mime_type': mimeType,
-        'image_base64': base64Encode(bytes),
-      },
-    );
+    try {
+      final response = await _client.functions.invoke(
+        _functionName,
+        headers: SupabaseClientManager.edgeFunctionHeaders,
+        body: {
+          'fiscal_id': fiscalId,
+          'file_name': fileName,
+          'mime_type': mimeType,
+          'image_base64': base64Encode(bytes),
+        },
+      ).timeout(_timeout);
 
-    final payload = _asMap(response.data);
-    if (payload['success'] == false) {
-      throw Exception(
-        _friendlyFunctionError(payload['error']),
+      final payload = _asMap(response.data);
+      if (payload['success'] == false) {
+        return EntregaCupomDraft.localFallback(
+          fileName: fileName,
+          warning: _friendlyFunctionError(payload['error']),
+        );
+      }
+
+      final result = _asMap(payload['result'] ?? payload);
+      return EntregaCupomDraft.fromMap({
+        ...result,
+        'file_name': fileName,
+      });
+    } on TimeoutException {
+      return EntregaCupomDraft.localFallback(
+        fileName: fileName,
+        warning:
+            'A leitura da IA demorou demais. Voce ainda pode preencher manualmente.',
+      );
+    } catch (_) {
+      return EntregaCupomDraft.localFallback(
+        fileName: fileName,
+        warning:
+            'Nao foi possivel falar com a IA agora. Voce ainda pode preencher manualmente.',
       );
     }
-
-    final result = _asMap(payload['result'] ?? payload);
-    return EntregaCupomDraft.fromMap({
-      ...result,
-      'file_name': fileName,
-    });
   }
 
   static String mimeTypeForFileName(String fileName) {
@@ -207,6 +265,11 @@ String _readString(Map<String, dynamic> map, List<String> keys) {
     if (text.isNotEmpty && text.toLowerCase() != 'null') return text;
   }
   return '';
+}
+
+String? _nullableString(Map<String, dynamic> map, List<String> keys) {
+  final value = _readString(map, keys);
+  return value.isEmpty ? null : value;
 }
 
 double _readDouble(Object? value) {
