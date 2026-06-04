@@ -16,6 +16,7 @@ enum _DescontoModo {
   percentual,
   precoFinal,
   levePague,
+  trocaMoedas,
 }
 
 extension _DescontoModoX on _DescontoModo {
@@ -24,6 +25,7 @@ extension _DescontoModoX on _DescontoModo {
         _DescontoModo.percentual => 'percentual',
         _DescontoModo.precoFinal => 'preco_final',
         _DescontoModo.levePague => 'leve_pague',
+        _DescontoModo.trocaMoedas => 'troca_moedas',
       };
 
   String get label => switch (this) {
@@ -31,6 +33,7 @@ extension _DescontoModoX on _DescontoModo {
         _DescontoModo.percentual => 'Percentual',
         _DescontoModo.precoFinal => 'Preco final',
         _DescontoModo.levePague => 'Leve/Pague',
+        _DescontoModo.trocaMoedas => 'Moedas',
       };
 
   IconData get icon => switch (this) {
@@ -38,6 +41,7 @@ extension _DescontoModoX on _DescontoModo {
         _DescontoModo.percentual => Icons.percent_rounded,
         _DescontoModo.precoFinal => Icons.price_check_rounded,
         _DescontoModo.levePague => Icons.shopping_bag_outlined,
+        _DescontoModo.trocaMoedas => Icons.payments_outlined,
       };
 }
 
@@ -58,6 +62,10 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
   final _quantidadeCtrl = TextEditingController(text: '1');
   final _leveCtrl = TextEditingController(text: '3');
   final _pagueCtrl = TextEditingController(text: '2');
+  final _moeda005Ctrl = TextEditingController();
+  final _moeda010Ctrl = TextEditingController();
+  final _moeda025Ctrl = TextEditingController();
+  final _moeda050Ctrl = TextEditingController();
 
   _DescontoModo _modo = _DescontoModo.comparacao;
   List<DescontoHistoricoItem> _historico = const [];
@@ -80,6 +88,10 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
     _quantidadeCtrl.dispose();
     _leveCtrl.dispose();
     _pagueCtrl.dispose();
+    _moeda005Ctrl.dispose();
+    _moeda010Ctrl.dispose();
+    _moeda025Ctrl.dispose();
+    _moeda050Ctrl.dispose();
     super.dispose();
   }
 
@@ -92,7 +104,22 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
   bool get _usaValorSecundario =>
       _modo == _DescontoModo.comparacao || _modo == _DescontoModo.precoFinal;
 
+  TrocaMoedasResultado? get _trocaMoedasResultado {
+    if (_modo != _DescontoModo.trocaMoedas) return null;
+    final resultado = DescontoCalculator.calcularTrocaMoedas(
+      moedas005: _parseCoinQuantity(_moeda005Ctrl.text),
+      moedas010: _parseCoinQuantity(_moeda010Ctrl.text),
+      moedas025: _parseCoinQuantity(_moeda025Ctrl.text),
+      moedas050: _parseCoinQuantity(_moeda050Ctrl.text),
+    );
+    return resultado.vazio ? null : resultado;
+  }
+
   DescontoResultado? get _resultado {
+    if (_modo == _DescontoModo.trocaMoedas) {
+      return _trocaMoedasResultado?.toDescontoResultado();
+    }
+
     final principal =
         DescontoCalculator.parseMoneyToCents(_valorPrincipalCtrl.text);
     if (principal == null) return null;
@@ -129,6 +156,8 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
           pague: pague,
           quantidade: _quantidade,
         );
+      case _DescontoModo.trocaMoedas:
+        return null;
     }
   }
 
@@ -168,6 +197,12 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
     });
   }
 
+  int _parseCoinQuantity(String value) {
+    final parsed = int.tryParse(value.trim());
+    if (parsed == null || parsed < 0) return 0;
+    return parsed;
+  }
+
   void _preencherExemplo() {
     setState(() {
       _produtoCodigoCtrl.text = '789123';
@@ -191,6 +226,14 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
           _leveCtrl.text = '3';
           _pagueCtrl.text = '2';
           break;
+        case _DescontoModo.trocaMoedas:
+          _produtoCodigoCtrl.clear();
+          _produtoNomeCtrl.text = 'Troca de moedas';
+          _moeda005Ctrl.text = '20';
+          _moeda010Ctrl.text = '30';
+          _moeda025Ctrl.text = '12';
+          _moeda050Ctrl.text = '10';
+          break;
       }
     });
   }
@@ -205,6 +248,10 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
       _quantidadeCtrl.text = '1';
       _leveCtrl.text = '3';
       _pagueCtrl.text = '2';
+      _moeda005Ctrl.clear();
+      _moeda010Ctrl.clear();
+      _moeda025Ctrl.clear();
+      _moeda050Ctrl.clear();
     });
   }
 
@@ -282,7 +329,11 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
       modo: _modo.storage,
       produtoCodigo: _produtoCodigoCtrl.text,
       produtoNome: _produtoNomeCtrl.text,
-      percentual: _modo == _DescontoModo.percentual ? _percentualAtual : null,
+      percentual: _modo == _DescontoModo.percentual
+          ? _percentualAtual
+          : _modo == _DescontoModo.trocaMoedas
+              ? _trocaMoedasResultado?.percentualMedio
+              : null,
       leve: _modo == _DescontoModo.levePague
           ? int.tryParse(_leveCtrl.text.trim())
           : null,
@@ -307,6 +358,10 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
   }
 
   String _mensagemResultado(DescontoResultado resultado) {
+    if (_modo == _DescontoModo.trocaMoedas) {
+      return _mensagemTrocaMoedas();
+    }
+
     final linhas = <String>[];
     final codigo = _produtoCodigoCtrl.text.trim();
     final produto = _produtoNomeCtrl.text.trim();
@@ -347,6 +402,30 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
     return linhas.join('\n');
   }
 
+  String _mensagemTrocaMoedas() {
+    final moedas = _trocaMoedasResultado;
+    if (moedas == null) return 'Modo: ${_modo.label}';
+
+    final linhas = <String>[
+      'Modo: Troca de moedas',
+      'R\$ 0,05: ${moedas.moedas005} moedas = ${DescontoCalculator.formatMoney(moedas.valor005Centavos)} (+10%)',
+      'R\$ 0,10: ${moedas.moedas010} moedas = ${DescontoCalculator.formatMoney(moedas.valor010Centavos)} (+10%)',
+      'R\$ 0,25: ${moedas.moedas025} moedas = ${DescontoCalculator.formatMoney(moedas.valor025Centavos)} (+5%)',
+      'R\$ 0,50: ${moedas.moedas050} moedas = ${DescontoCalculator.formatMoney(moedas.valor050Centavos)} (+5%)',
+      'Valor total das moedas: ${DescontoCalculator.formatMoney(moedas.valorTotalMoedasCentavos)}',
+      'Total das porcentagens: ${DescontoCalculator.formatMoney(moedas.totalPorcentagensCentavos)}',
+      'Total com porcentagem: ${DescontoCalculator.formatMoney(moedas.totalComPorcentagemCentavos)}',
+      'Percentual medio: ${DescontoCalculator.formatPercent(moedas.percentualMedio)}',
+    ];
+
+    final produto = _produtoNomeCtrl.text.trim();
+    if (produto.isNotEmpty && produto != 'Troca de moedas') {
+      linhas.insert(1, produto);
+    }
+
+    return linhas.join('\n');
+  }
+
   Future<void> _copiarHistorico(DescontoHistoricoItem item) async {
     final texto = item.mensagemCopiada.trim().isEmpty
         ? _mensagemHistoricoBasica(item)
@@ -363,6 +442,15 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
   }
 
   String _mensagemHistoricoBasica(DescontoHistoricoItem item) {
+    if (item.modo == _DescontoModo.trocaMoedas.storage) {
+      return [
+        'Modo: ${_modoLabelFromStorage(item.modo)}',
+        'Valor total das moedas: ${DescontoCalculator.formatMoney(item.etiquetaCentavos)}',
+        'Total das porcentagens: ${DescontoCalculator.formatMoney(item.descontoTotalCentavos)}',
+        'Total com porcentagem: ${DescontoCalculator.formatMoney(item.sistemaCentavos)}',
+      ].join('\n');
+    }
+
     return [
       if (item.produtoCodigo.isNotEmpty || item.produtoNome.isNotEmpty)
         [item.produtoCodigo, item.produtoNome]
@@ -435,6 +523,10 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
                           quantidadeCtrl: _quantidadeCtrl,
                           leveCtrl: _leveCtrl,
                           pagueCtrl: _pagueCtrl,
+                          moeda005Ctrl: _moeda005Ctrl,
+                          moeda010Ctrl: _moeda010Ctrl,
+                          moeda025Ctrl: _moeda025Ctrl,
+                          moeda050Ctrl: _moeda050Ctrl,
                           onModeChanged: _selecionarModo,
                           onChanged: () => setState(() {}),
                         ),
@@ -494,6 +586,10 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
                 quantidadeCtrl: _quantidadeCtrl,
                 leveCtrl: _leveCtrl,
                 pagueCtrl: _pagueCtrl,
+                moeda005Ctrl: _moeda005Ctrl,
+                moeda010Ctrl: _moeda010Ctrl,
+                moeda025Ctrl: _moeda025Ctrl,
+                moeda050Ctrl: _moeda050Ctrl,
                 onModeChanged: _selecionarModo,
                 onChanged: () => setState(() {}),
               ),
@@ -636,6 +732,10 @@ class _InputCard extends StatelessWidget {
   final TextEditingController quantidadeCtrl;
   final TextEditingController leveCtrl;
   final TextEditingController pagueCtrl;
+  final TextEditingController moeda005Ctrl;
+  final TextEditingController moeda010Ctrl;
+  final TextEditingController moeda025Ctrl;
+  final TextEditingController moeda050Ctrl;
   final ValueChanged<_DescontoModo> onModeChanged;
   final VoidCallback onChanged;
 
@@ -649,6 +749,10 @@ class _InputCard extends StatelessWidget {
     required this.quantidadeCtrl,
     required this.leveCtrl,
     required this.pagueCtrl,
+    required this.moeda005Ctrl,
+    required this.moeda010Ctrl,
+    required this.moeda025Ctrl,
+    required this.moeda050Ctrl,
     required this.onModeChanged,
     required this.onChanged,
   });
@@ -685,114 +789,206 @@ class _InputCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: Dimensions.spacingSM),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final inline = constraints.maxWidth >= 520;
-              final codigo = _TextFieldPadrao(
-                controller: produtoCodigoCtrl,
-                label: 'Codigo do produto',
-                hint: '789...',
-                icon: Icons.qr_code_rounded,
-                onChanged: onChanged,
-              );
-              final nome = _TextFieldPadrao(
-                controller: produtoNomeCtrl,
-                label: 'Produto',
-                hint: 'Nome do item',
-                icon: Icons.inventory_2_outlined,
-                textCapitalization: TextCapitalization.words,
-                onChanged: onChanged,
-              );
-              if (!inline) {
-                return Column(
+          if (modo == _DescontoModo.trocaMoedas)
+            _CoinExchangeFields(
+              moeda005Ctrl: moeda005Ctrl,
+              moeda010Ctrl: moeda010Ctrl,
+              moeda025Ctrl: moeda025Ctrl,
+              moeda050Ctrl: moeda050Ctrl,
+              onChanged: onChanged,
+            )
+          else ...[
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final inline = constraints.maxWidth >= 520;
+                final codigo = _TextFieldPadrao(
+                  controller: produtoCodigoCtrl,
+                  label: 'Codigo do produto',
+                  hint: '789...',
+                  icon: Icons.qr_code_rounded,
+                  onChanged: onChanged,
+                );
+                final nome = _TextFieldPadrao(
+                  controller: produtoNomeCtrl,
+                  label: 'Produto',
+                  hint: 'Nome do item',
+                  icon: Icons.inventory_2_outlined,
+                  textCapitalization: TextCapitalization.words,
+                  onChanged: onChanged,
+                );
+                if (!inline) {
+                  return Column(
+                    children: [
+                      codigo,
+                      const SizedBox(height: Dimensions.spacingXS),
+                      nome,
+                    ],
+                  );
+                }
+                return Row(
                   children: [
-                    codigo,
-                    const SizedBox(height: Dimensions.spacingXS),
-                    nome,
+                    Expanded(child: codigo),
+                    const SizedBox(width: Dimensions.spacingXS),
+                    Expanded(child: nome),
                   ],
                 );
-              }
-              return Row(
-                children: [
-                  Expanded(child: codigo),
-                  const SizedBox(width: Dimensions.spacingXS),
-                  Expanded(child: nome),
-                ],
-              );
-            },
-          ),
-          const SizedBox(height: Dimensions.spacingXS),
-          _MoneyField(
-            controller: valorPrincipalCtrl,
-            label: _primaryMoneyLabel(modo),
-            hint: 'R\$ 16,99',
-            onChanged: onChanged,
-          ),
-          if (modo == _DescontoModo.comparacao ||
-              modo == _DescontoModo.precoFinal) ...[
+              },
+            ),
             const SizedBox(height: Dimensions.spacingXS),
             _MoneyField(
-              controller: valorSecundarioCtrl,
-              label: _secondaryMoneyLabel(modo),
-              hint: 'R\$ 14,99',
+              controller: valorPrincipalCtrl,
+              label: _primaryMoneyLabel(modo),
+              hint: 'R\$ 16,99',
+              onChanged: onChanged,
+            ),
+            if (modo == _DescontoModo.comparacao ||
+                modo == _DescontoModo.precoFinal) ...[
+              const SizedBox(height: Dimensions.spacingXS),
+              _MoneyField(
+                controller: valorSecundarioCtrl,
+                label: _secondaryMoneyLabel(modo),
+                hint: 'R\$ 14,99',
+                onChanged: onChanged,
+              ),
+            ],
+            if (modo == _DescontoModo.percentual) ...[
+              const SizedBox(height: Dimensions.spacingXS),
+              TextField(
+                controller: percentualCtrl,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9,.]')),
+                ],
+                style: AppTextStyles.body,
+                decoration: _inputDecoration(
+                  context,
+                  label: 'Percentual de desconto',
+                  hint: '10',
+                  icon: Icons.percent_rounded,
+                  suffixText: '%',
+                ),
+                onChanged: (_) => onChanged(),
+              ),
+            ],
+            if (modo == _DescontoModo.levePague) ...[
+              const SizedBox(height: Dimensions.spacingXS),
+              Row(
+                children: [
+                  Expanded(
+                    child: _IntegerField(
+                      controller: leveCtrl,
+                      label: 'Leve',
+                      icon: Icons.add_shopping_cart_rounded,
+                      onChanged: onChanged,
+                    ),
+                  ),
+                  const SizedBox(width: Dimensions.spacingXS),
+                  Expanded(
+                    child: _IntegerField(
+                      controller: pagueCtrl,
+                      label: 'Pague',
+                      icon: Icons.price_check_rounded,
+                      onChanged: onChanged,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            const SizedBox(height: Dimensions.spacingXS),
+            _IntegerField(
+              controller: quantidadeCtrl,
+              label: modo == _DescontoModo.levePague
+                  ? 'Quantidade de combos'
+                  : 'Quantidade',
+              icon: Icons.numbers_rounded,
               onChanged: onChanged,
             ),
           ],
-          if (modo == _DescontoModo.percentual) ...[
-            const SizedBox(height: Dimensions.spacingXS),
-            TextField(
-              controller: percentualCtrl,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[0-9,.]')),
+        ],
+      ),
+    );
+  }
+}
+
+class _CoinExchangeFields extends StatelessWidget {
+  final TextEditingController moeda005Ctrl;
+  final TextEditingController moeda010Ctrl;
+  final TextEditingController moeda025Ctrl;
+  final TextEditingController moeda050Ctrl;
+  final VoidCallback onChanged;
+
+  const _CoinExchangeFields({
+    required this.moeda005Ctrl,
+    required this.moeda010Ctrl,
+    required this.moeda025Ctrl,
+    required this.moeda050Ctrl,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final twoColumns = constraints.maxWidth >= 520;
+        final fields = [
+          _IntegerField(
+            controller: moeda005Ctrl,
+            label: 'Qtd. moedas de R\$ 0,05',
+            icon: Icons.payments_outlined,
+            onChanged: onChanged,
+          ),
+          _IntegerField(
+            controller: moeda010Ctrl,
+            label: 'Qtd. moedas de R\$ 0,10',
+            icon: Icons.payments_outlined,
+            onChanged: onChanged,
+          ),
+          _IntegerField(
+            controller: moeda025Ctrl,
+            label: 'Qtd. moedas de R\$ 0,25',
+            icon: Icons.monetization_on_outlined,
+            onChanged: onChanged,
+          ),
+          _IntegerField(
+            controller: moeda050Ctrl,
+            label: 'Qtd. moedas de R\$ 0,50',
+            icon: Icons.monetization_on_outlined,
+            onChanged: onChanged,
+          ),
+        ];
+
+        if (!twoColumns) {
+          return Column(
+            children: [
+              for (var i = 0; i < fields.length; i++) ...[
+                if (i > 0) const SizedBox(height: Dimensions.spacingXS),
+                fields[i],
               ],
-              style: AppTextStyles.body,
-              decoration: _inputDecoration(
-                context,
-                label: 'Percentual de desconto',
-                hint: '10',
-                icon: Icons.percent_rounded,
-                suffixText: '%',
-              ),
-              onChanged: (_) => onChanged(),
+            ],
+          );
+        }
+
+        return Column(
+          children: [
+            Row(
+              children: [
+                Expanded(child: fields[0]),
+                const SizedBox(width: Dimensions.spacingXS),
+                Expanded(child: fields[1]),
+              ],
             ),
-          ],
-          if (modo == _DescontoModo.levePague) ...[
             const SizedBox(height: Dimensions.spacingXS),
             Row(
               children: [
-                Expanded(
-                  child: _IntegerField(
-                    controller: leveCtrl,
-                    label: 'Leve',
-                    icon: Icons.add_shopping_cart_rounded,
-                    onChanged: onChanged,
-                  ),
-                ),
+                Expanded(child: fields[2]),
                 const SizedBox(width: Dimensions.spacingXS),
-                Expanded(
-                  child: _IntegerField(
-                    controller: pagueCtrl,
-                    label: 'Pague',
-                    icon: Icons.price_check_rounded,
-                    onChanged: onChanged,
-                  ),
-                ),
+                Expanded(child: fields[3]),
               ],
             ),
           ],
-          const SizedBox(height: Dimensions.spacingXS),
-          _IntegerField(
-            controller: quantidadeCtrl,
-            label: modo == _DescontoModo.levePague
-                ? 'Quantidade de combos'
-                : 'Quantidade',
-            icon: Icons.numbers_rounded,
-            onChanged: onChanged,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -910,11 +1106,17 @@ class _ResumoCard extends StatelessWidget {
           ),
           const Divider(height: 10),
           _ResumoRow(
-            label: 'Percentual real',
+            label: modo == _DescontoModo.trocaMoedas
+                ? 'Percentual medio'
+                : 'Percentual real',
             value: resultado == null
                 ? '0,00%'
                 : DescontoCalculator.formatPercent(
-                    resultado!.percentualDesconto,
+                    modo == _DescontoModo.trocaMoedas
+                        ? (resultado!.descontoTotalCentavos /
+                                resultado!.etiquetaCentavos) *
+                            100
+                        : resultado!.percentualDesconto,
                   ),
           ),
           const Divider(height: 10),
@@ -1344,6 +1546,7 @@ String _primaryMoneyLabel(_DescontoModo modo) => switch (modo) {
       _DescontoModo.percentual => 'Preco base',
       _DescontoModo.precoFinal => 'Preco original',
       _DescontoModo.levePague => 'Preco unitario',
+      _DescontoModo.trocaMoedas => 'Valor das moedas',
     };
 
 String _secondaryMoneyLabel(_DescontoModo modo) => switch (modo) {
@@ -1354,21 +1557,25 @@ String _secondaryMoneyLabel(_DescontoModo modo) => switch (modo) {
 
 String _unitLabel(_DescontoModo modo) => switch (modo) {
       _DescontoModo.levePague => 'Diferenca por combo',
+      _DescontoModo.trocaMoedas => 'Bonus calculado',
       _ => 'Diferenca unitaria',
     };
 
 String _baseResumoLabel(_DescontoModo modo) => switch (modo) {
       _DescontoModo.levePague => 'Valor sem promocao',
+      _DescontoModo.trocaMoedas => 'Valor das moedas',
       _ => 'Valor base',
     };
 
 String _finalResumoLabel(_DescontoModo modo) => switch (modo) {
       _DescontoModo.levePague => 'Valor promocional',
+      _DescontoModo.trocaMoedas => 'Total com porcentagem',
       _ => 'Valor final',
     };
 
 String _statusLabel(DescontoResultado? resultado, _DescontoModo modo) {
   if (resultado == null) return 'Aguardando valores';
+  if (modo == _DescontoModo.trocaMoedas) return 'Troca calculada';
   if (resultado.valoresIguais) return 'Sem diferenca';
   if (modo == _DescontoModo.precoFinal && resultado.sistemaMaior) {
     return 'Preco final acima do original';
@@ -1379,11 +1586,13 @@ String _statusLabel(DescontoResultado? resultado, _DescontoModo modo) {
   return switch (modo) {
     _DescontoModo.percentual => 'Desconto por percentual',
     _DescontoModo.levePague => 'Promocao aplicada',
+    _DescontoModo.trocaMoedas => 'Troca calculada',
     _ => 'Desconto detectado',
   };
 }
 
 String _diferencaLabel(DescontoResultado resultado, _DescontoModo modo) {
+  if (modo == _DescontoModo.trocaMoedas) return 'Bonus';
   if (resultado.valoresIguais) return 'Diferenca';
   if (modo == _DescontoModo.precoFinal && resultado.sistemaMaior) {
     return 'Acrecimo';
@@ -1392,11 +1601,13 @@ String _diferencaLabel(DescontoResultado resultado, _DescontoModo modo) {
 }
 
 String _diferencaTotalLabel(DescontoResultado? resultado, _DescontoModo modo) {
+  if (modo == _DescontoModo.trocaMoedas) return 'Total das porcentagens';
   if (resultado == null) return 'Diferenca total';
   return '${_diferencaLabel(resultado, modo)} total';
 }
 
 String _copyLabel(DescontoResultado? resultado, _DescontoModo modo) {
+  if (modo == _DescontoModo.trocaMoedas) return 'Copiar troca';
   if (resultado == null) return 'Copiar resultado';
   if (modo == _DescontoModo.precoFinal && resultado.sistemaMaior) {
     return 'Copiar acrecimo';
@@ -1409,6 +1620,9 @@ Color _statusColor(DescontoResultado? resultado, _DescontoModo modo) {
   if (resultado == null || resultado.valoresIguais) {
     return AppColors.textSecondary;
   }
+  if (modo == _DescontoModo.trocaMoedas) {
+    return AppColors.success;
+  }
   if (modo == _DescontoModo.precoFinal && resultado.sistemaMaior) {
     return AppColors.warning;
   }
@@ -1420,6 +1634,7 @@ String _modoLabelFromStorage(String value) {
     'percentual' => 'Percentual',
     'preco_final' => 'Preco final',
     'leve_pague' => 'Leve/Pague',
+    'troca_moedas' => 'Moedas',
     _ => 'Etiqueta x PDV',
   };
 }

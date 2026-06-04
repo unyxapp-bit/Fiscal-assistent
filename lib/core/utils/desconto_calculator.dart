@@ -2,11 +2,13 @@ class DescontoResultado {
   final int etiquetaCentavos;
   final int sistemaCentavos;
   final int quantidade;
+  final int? valorFinalTotalOverrideCentavos;
 
   const DescontoResultado({
     required this.etiquetaCentavos,
     required this.sistemaCentavos,
     required this.quantidade,
+    this.valorFinalTotalOverrideCentavos,
   });
 
   int get maiorValorCentavos =>
@@ -20,7 +22,8 @@ class DescontoResultado {
 
   int get descontoTotalCentavos => descontoUnitarioCentavos * quantidade;
 
-  int get valorFinalTotalCentavos => menorValorCentavos * quantidade;
+  int get valorFinalTotalCentavos =>
+      valorFinalTotalOverrideCentavos ?? menorValorCentavos * quantidade;
 
   bool get valoresIguais => descontoUnitarioCentavos == 0;
 
@@ -31,6 +34,61 @@ class DescontoResultado {
   double get percentualDesconto {
     if (maiorValorCentavos <= 0) return 0;
     return (descontoUnitarioCentavos / maiorValorCentavos) * 100;
+  }
+}
+
+class TrocaMoedasResultado {
+  final int moedas005;
+  final int moedas010;
+  final int moedas025;
+  final int moedas050;
+
+  const TrocaMoedasResultado({
+    required this.moedas005,
+    required this.moedas010,
+    required this.moedas025,
+    required this.moedas050,
+  });
+
+  int get valor005Centavos => moedas005 * 5;
+
+  int get valor010Centavos => moedas010 * 10;
+
+  int get valor025Centavos => moedas025 * 25;
+
+  int get valor050Centavos => moedas050 * 50;
+
+  int get valorGrupo10Centavos => valor005Centavos + valor010Centavos;
+
+  int get valorGrupo5Centavos => valor025Centavos + valor050Centavos;
+
+  int get valorTotalMoedasCentavos =>
+      valorGrupo10Centavos + valorGrupo5Centavos;
+
+  int get bonusGrupo10Centavos => (valorGrupo10Centavos * 0.10).round();
+
+  int get bonusGrupo5Centavos => (valorGrupo5Centavos * 0.05).round();
+
+  int get totalPorcentagensCentavos =>
+      bonusGrupo10Centavos + bonusGrupo5Centavos;
+
+  int get totalComPorcentagemCentavos =>
+      valorTotalMoedasCentavos + totalPorcentagensCentavos;
+
+  bool get vazio => valorTotalMoedasCentavos == 0;
+
+  double get percentualMedio {
+    if (valorTotalMoedasCentavos <= 0) return 0;
+    return (totalPorcentagensCentavos / valorTotalMoedasCentavos) * 100;
+  }
+
+  DescontoResultado toDescontoResultado() {
+    return DescontoResultado(
+      etiquetaCentavos: valorTotalMoedasCentavos,
+      sistemaCentavos: totalComPorcentagemCentavos,
+      quantidade: 1,
+      valorFinalTotalOverrideCentavos: totalComPorcentagemCentavos,
+    );
   }
 }
 
@@ -76,6 +134,20 @@ class DescontoCalculator {
       etiquetaCentavos: precoUnitarioCentavos * leveValido,
       sistemaCentavos: precoUnitarioCentavos * pagueValido,
       quantidade: quantidade,
+    );
+  }
+
+  static TrocaMoedasResultado calcularTrocaMoedas({
+    required int moedas005,
+    required int moedas010,
+    required int moedas025,
+    required int moedas050,
+  }) {
+    return TrocaMoedasResultado(
+      moedas005: moedas005 < 0 ? 0 : moedas005,
+      moedas010: moedas010 < 0 ? 0 : moedas010,
+      moedas025: moedas025 < 0 ? 0 : moedas025,
+      moedas050: moedas050 < 0 ? 0 : moedas050,
     );
   }
 

@@ -65,5 +65,28 @@ void main() {
       expect(DescontoCalculator.parsePercent('7.25'), 7.25);
       expect(DescontoCalculator.parsePercent('abc'), isNull);
     });
+
+    test('calcula troca de moedas com percentuais por denominacao', () {
+      final resultado = DescontoCalculator.calcularTrocaMoedas(
+        moedas005: 20,
+        moedas010: 30,
+        moedas025: 12,
+        moedas050: 10,
+      );
+
+      expect(resultado.valorGrupo10Centavos, 400);
+      expect(resultado.bonusGrupo10Centavos, 40);
+      expect(resultado.valorGrupo5Centavos, 800);
+      expect(resultado.bonusGrupo5Centavos, 40);
+      expect(resultado.valorTotalMoedasCentavos, 1200);
+      expect(resultado.totalPorcentagensCentavos, 80);
+      expect(resultado.totalComPorcentagemCentavos, 1280);
+
+      final historico = resultado.toDescontoResultado();
+      expect(historico.etiquetaCentavos, 1200);
+      expect(historico.sistemaCentavos, 1280);
+      expect(historico.descontoTotalCentavos, 80);
+      expect(historico.valorFinalTotalCentavos, 1280);
+    });
   });
 }
