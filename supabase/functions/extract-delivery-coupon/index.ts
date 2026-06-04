@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") ?? "";
-const OPENAI_MODEL = Deno.env.get("OPENAI_MODEL") ?? "gpt-5.4-mini";
+const OPENAI_MODEL =
+  Deno.env.get("OPENAI_VISION_MODEL") ?? Deno.env.get("OPENAI_MODEL") ?? "gpt-5.4-mini";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -224,6 +225,7 @@ async function callOpenAI(params: {
     body: JSON.stringify({
       model: OPENAI_MODEL,
       max_output_tokens: params.maxOutputTokens,
+      truncation: "auto",
       reasoning: { effort: "low" },
       input: [
         { role: "system", content: systemPrompt },

@@ -4,7 +4,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") ?? "";
-const OPENAI_MODEL = Deno.env.get("OPENAI_MODEL") ?? "gpt-5.4-mini";
+const OPENAI_MODEL =
+  Deno.env.get("OPENAI_AGENT_MODEL") ?? Deno.env.get("OPENAI_MODEL") ?? "gpt-5.4-mini";
 const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY") ?? "";
 const ANTHROPIC_MODEL =
   Deno.env.get("ANTHROPIC_MODEL") ?? "claude-3-5-haiku-20241022";
@@ -542,6 +543,7 @@ async function callOpenAI(input: FiscalAiInput, fallback: FiscalAiInsight) {
     body: JSON.stringify({
       model: OPENAI_MODEL,
       max_output_tokens: 1600,
+      truncation: "auto",
       input: [
         { role: "system", content: systemPrompt },
         { role: "user", content: JSON.stringify(input) },
@@ -662,12 +664,17 @@ async function executeAction(
       };
     }
 
-    const title = text(args.title, "Acompanhamento fiscal gerado por IA");
-    const notes = text(args.notes, text(insight.summary));
+    const title = text(args.title) ||
+      text(args.description) ||
+      "Acompanhamento fiscal gerado por IA";
+    const notes = text(args.notes) ||
+      text(args.reason) ||
+      text(insight.summary);
     const priority = text(args.priority, "alta");
     const category = text(args.category, "aviso_geral");
 
     const { error } = await supabase.from("fiscal_events").insert({
+      fiscal_id: input.fiscal_id ?? null,
       category,
       description: title,
       employee_name: text(args.employee_name) || null,
@@ -772,8 +779,8 @@ async function persistSuggestedAction(
   const status = confirmationRequired ? "pending_approval" : "ready";
   const title = text(asRecord(insight.next_action).title, "Acao sugerida pela IA");
   const description = text(plan.description, text(asRecord(insight.next_action).description));
-
-  const { error } = await supabase.from("fiscal_ai_actions").insert({
+  const openStatuses = ["suggested", "ready", "pending_approval"];
+  const payload = {
     fiscal_id: input.fiscal_id,
     snapshot_id: snapshotId,
     intent: input.intent ?? "analyze",
@@ -789,7 +796,38 @@ async function persistSuggestedAction(
     target: input.target ?? null,
     context_snapshot: asRecord(input.context),
     action_result: {},
-  });
+    updated_at: new Date().toISOString(),
+  };
+
+  const { data: existing, error: existingError } = await supabase
+    .from("fiscal_ai_actions")
+    .select("id")
+    .eq("fiscal_id", input.fiscal_id)
+    .eq("tool_name", toolName)
+    .eq("title", title)
+    .eq("description", description)
+    .in("status", openStatuses)
+    .limit(1)
+    .maybeSingle();
+
+  if (existingError) {
+    console.warn("[fiscal-ai-agent] action dedupe check failed:", existingError.message);
+  }
+
+  if (existing?.id) {
+    const { error } = await supabase
+      .from("fiscal_ai_actions")
+      .update(payload)
+      .eq("id", existing.id)
+      .eq("fiscal_id", input.fiscal_id);
+
+    if (error) {
+      console.warn("[fiscal-ai-agent] action not updated:", error.message);
+    }
+    return;
+  }
+
+  const { error } = await supabase.from("fiscal_ai_actions").insert(payload);
 
   if (error) {
     console.warn("[fiscal-ai-agent] action not persisted:", error.message);

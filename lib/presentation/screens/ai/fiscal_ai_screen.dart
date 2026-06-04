@@ -189,6 +189,7 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
   Widget build(BuildContext context) {
     final aiProvider = context.watch<FiscalAiProvider>();
     final insight = aiProvider.insight;
+    final metrics = _buildAiMetrics(context);
 
     return AppPage(
       title: 'IA Fiscal',
@@ -235,7 +236,16 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _MetricsPanel(contextSnapshot: _buildAiContext(context)),
+                    _MetricsPanel(metrics: metrics),
+                    const SizedBox(height: Dimensions.spacingSM),
+                    _AiStatusPanel(
+                      provider: insight?.provider,
+                      model: insight?.model,
+                      warning: insight?.warning,
+                      lastAnalyzedAt: aiProvider.lastAnalyzedAt,
+                      actionsCount: aiProvider.actions.length,
+                      running: aiProvider.running || _analisandoMidia,
+                    ),
                     const SizedBox(height: Dimensions.spacingMD),
                     _MediaUploadPanel(
                       isRunning: aiProvider.running || _analisandoMidia,
@@ -320,7 +330,7 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
     );
   }
 
-  Map<String, dynamic> _buildAiContext(BuildContext context) {
+  Map<String, dynamic> _buildAiMetrics(BuildContext context) {
     final eventsProvider = context.read<FiscalEventsProvider>();
     final colaboradorProvider = context.read<ColaboradorProvider>();
     final caixaProvider = context.read<CaixaProvider>();
@@ -331,48 +341,70 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
     final ocorrenciaProvider = context.read<OcorrenciaProvider>();
     final checklistProvider = context.read<ChecklistProvider>();
 
-    final events = eventsProvider.events.take(120).map((event) {
+    return {
+      'eventos_pendentes': eventsProvider.totalPendentes,
+      'midias_pendentes': eventsProvider.totalMidiasPendentes,
+      'colaboradores_ativos': colaboradorProvider.totalAtivos,
+      'caixas_ativos': caixaProvider.totalAtivos,
+      'caixas_manutencao': caixaProvider.totalEmManutencao,
+      'alocacoes_ativas': alocacaoProvider.quantidadeAtivasAgora,
+      'pausas_em_atraso': cafeProvider.totalEmAtraso,
+      'entregas_aguardando': entregaProvider.totalSeparadas,
+      'lembretes_vencidos': notaProvider.totalLembretesVencidos,
+      'ocorrencias_abertas': ocorrenciaProvider.totalAbertas,
+      'checklists_pendentes': checklistProvider.templatesPendentesAgora.length,
+      'valor_caixa_pendente': eventsProvider.totalCaixaValores,
+    };
+  }
+
+  Map<String, dynamic> _buildAiContext(BuildContext context) {
+    final eventsProvider = context.read<FiscalEventsProvider>();
+    final colaboradorProvider = context.read<ColaboradorProvider>();
+    final caixaProvider = context.read<CaixaProvider>();
+    final alocacaoProvider = context.read<AlocacaoProvider>();
+    final metrics = _buildAiMetrics(context);
+    final selectedEvents = _selectRelevantEvents(eventsProvider.events);
+
+    final events = selectedEvents.map((event) {
       return {
         'id': event.id,
         'category': event.category,
-        'description': event.description,
+        'description': _compactText(event.description, 220),
         'employee_name': event.employeeName,
         'colaborador_id': event.colaboradorId,
         'amount': event.amount,
-        'sender': event.sender,
-        'raw_message': event.rawMessage,
+        'raw_message': _compactText(event.rawMessage, 220),
         'event_date': event.eventDate.toIso8601String(),
         'status': event.status,
         'confidence': event.confidence,
         'media_type': event.mediaType,
-        'media_transcript': event.mediaTranscript,
-        'media_summary': event.mediaSummary,
+        'media_transcript': _compactText(event.mediaTranscript, 280),
+        'media_summary': _compactText(event.mediaSummary, 180),
         'analysis_status': event.analysisStatus,
         'analysis_error': event.analysisError,
-        'ai_inbox_item_id': event.aiInboxItemId,
         'needs_review': event.needsReview,
         'caixa_numero': event.caixaNumero,
         'scheduled_time': event.scheduledTime,
         'turno': event.turno,
         'source': event.source,
         'priority': event.priority,
-        'notes': event.notes,
+        'notes': _compactText(event.notes, 180),
       };
     }).toList();
 
     final colaboradores =
-        colaboradorProvider.todosColaboradores.take(120).map((colaborador) {
+        colaboradorProvider.todosColaboradores.take(80).map((colaborador) {
       return {
         'id': colaborador.id,
         'nome': colaborador.nome,
         'departamento': colaborador.departamento.toJson(),
         'ativo': colaborador.ativo,
         'cargo': colaborador.cargo,
-        'observacoes': colaborador.observacoes,
+        'observacoes': _compactText(colaborador.observacoes, 120),
       };
     }).toList();
 
-    final caixas = caixaProvider.caixasTodos.take(120).map((caixa) {
+    final caixas = caixaProvider.caixasTodos.take(80).map((caixa) {
       return {
         'id': caixa.id,
         'numero': caixa.numero,
@@ -384,11 +416,14 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
         'em_manutencao': caixa.emManutencao,
         'colaborador_alocado_id': caixa.colaboradorAlocadoId,
         'colaborador_alocado_nome': caixa.colaboradorAlocadoNome,
-        'observacoes': caixa.observacoes,
+        'observacoes': _compactText(caixa.observacoes, 120),
       };
     }).toList();
 
-    final alocacoes = alocacaoProvider.alocacoes.take(80).map((alocacao) {
+    final alocacoes = alocacaoProvider.alocacoes
+        .where((alocacao) => alocacao.isAtiva)
+        .take(60)
+        .map((alocacao) {
       return {
         'id': alocacao.id,
         'colaborador_id': alocacao.colaboradorId,
@@ -403,21 +438,14 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
 
     return {
       'generated_at': DateTime.now().toIso8601String(),
-      'metrics': {
-        'eventos_pendentes': eventsProvider.totalPendentes,
-        'midias_pendentes': eventsProvider.totalMidiasPendentes,
-        'colaboradores_ativos': colaboradorProvider.totalAtivos,
-        'caixas_ativos': caixaProvider.totalAtivos,
-        'caixas_manutencao': caixaProvider.totalEmManutencao,
-        'alocacoes_ativas': alocacaoProvider.quantidadeAtivasAgora,
-        'pausas_em_atraso': cafeProvider.totalEmAtraso,
-        'entregas_aguardando': entregaProvider.totalSeparadas,
-        'lembretes_vencidos': notaProvider.totalLembretesVencidos,
-        'ocorrencias_abertas': ocorrenciaProvider.totalAbertas,
-        'checklists_pendentes':
-            checklistProvider.templatesPendentesAgora.length,
-        'valor_caixa_pendente': eventsProvider.totalCaixaValores,
+      'context_policy': {
+        'mode': 'compact',
+        'fiscal_events_total': eventsProvider.events.length,
+        'fiscal_events_included': events.length,
+        'event_limit': 45,
+        'text_fields_truncated': true,
       },
+      'metrics': metrics,
       'contagem_por_categoria': eventsProvider.contagemPorCategoria,
       'fiscal_events': events,
       'colaboradores': colaboradores,
@@ -425,17 +453,57 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
       'alocacoes': alocacoes,
     };
   }
+
+  List<dynamic> _selectRelevantEvents(List<dynamic> events) {
+    final selected = <dynamic>[];
+    final selectedIds = <int>{};
+
+    void add(dynamic event) {
+      if (selected.length >= 45) return;
+      final id = event.id as int;
+      if (selectedIds.add(id)) selected.add(event);
+    }
+
+    for (final event in events.where(_isPriorityEvent)) {
+      add(event);
+    }
+    for (final event in events.where((event) => event.status == 'pending')) {
+      add(event);
+    }
+    for (final event in events) {
+      add(event);
+    }
+
+    return selected;
+  }
+
+  bool _isPriorityEvent(dynamic event) {
+    return event.status == 'pending' ||
+        event.priority == 'alta' ||
+        event.priority == 'critica' ||
+        event.needsReview == true ||
+        event.analysisStatus == 'needs_review' ||
+        event.analysisStatus == 'needs_file' ||
+        event.category == 'caixa' ||
+        event.category == 'problema_operacional';
+  }
+
+  String? _compactText(String? value, int maxLength) {
+    final text = value?.trim();
+    if (text == null || text.isEmpty) return null;
+    final normalized = text.replaceAll(RegExp(r'\s+'), ' ');
+    if (normalized.length <= maxLength) return normalized;
+    return '${normalized.substring(0, maxLength).trim()}...';
+  }
 }
 
 class _MetricsPanel extends StatelessWidget {
-  final Map<String, dynamic> contextSnapshot;
+  final Map<String, dynamic> metrics;
 
-  const _MetricsPanel({required this.contextSnapshot});
+  const _MetricsPanel({required this.metrics});
 
   @override
   Widget build(BuildContext context) {
-    final metrics =
-        Map<String, dynamic>.from(contextSnapshot['metrics'] as Map? ?? {});
     final valorCaixa = (metrics['valor_caixa_pendente'] as num?) ?? 0;
 
     return OperationalMetricGrid(
@@ -479,6 +547,81 @@ class _MetricsPanel extends StatelessWidget {
           icon: Icons.payments_rounded,
         ),
       ],
+    );
+  }
+}
+
+class _AiStatusPanel extends StatelessWidget {
+  final String? provider;
+  final String? model;
+  final String? warning;
+  final DateTime? lastAnalyzedAt;
+  final int actionsCount;
+  final bool running;
+
+  const _AiStatusPanel({
+    required this.provider,
+    required this.model,
+    required this.warning,
+    required this.lastAnalyzedAt,
+    required this.actionsCount,
+    required this.running,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = running
+        ? AppColors.info
+        : warning == null
+            ? AppColors.success
+            : AppColors.statusAtencao;
+
+    return AppSurface(
+      tint: color,
+      padding: const EdgeInsets.all(Dimensions.paddingSM),
+      child: Wrap(
+        spacing: Dimensions.spacingXS,
+        runSpacing: Dimensions.spacingXS,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          StatusPill(
+            icon: running
+                ? Icons.sync_rounded
+                : warning == null
+                    ? Icons.check_circle_rounded
+                    : Icons.info_outline_rounded,
+            label: running ? 'Analisando' : 'Pronta',
+            color: color,
+            compact: true,
+          ),
+          StatusPill(
+            icon: Icons.schedule_rounded,
+            label: _formatAiTimestamp(lastAnalyzedAt),
+            color: AppColors.blueGrey,
+            compact: true,
+          ),
+          StatusPill(
+            icon: Icons.memory_rounded,
+            label: _providerLabel(provider, model),
+            color: AppColors.info,
+            compact: true,
+          ),
+          if (actionsCount > 0)
+            StatusPill(
+              icon: Icons.playlist_add_check_circle_rounded,
+              label: '$actionsCount acao${actionsCount == 1 ? '' : 'es'}',
+              color: AppColors.statusAtencao,
+              compact: true,
+            ),
+          if (warning?.trim().isNotEmpty == true)
+            Text(
+              warning!,
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -634,9 +777,8 @@ class _InsightSummary extends StatelessWidget {
                         ),
                         StatusPill(
                           icon: Icons.memory_rounded,
-                          label: insight.model == null
-                              ? insight.provider
-                              : '${insight.provider} / ${insight.model}',
+                          label:
+                              _providerLabel(insight.provider, insight.model),
                           color: AppColors.info,
                           compact: true,
                         ),
@@ -822,7 +964,7 @@ class _ActionResultPanel extends StatelessWidget {
                 : Icons.pending_actions_rounded,
             title: result.title.isEmpty ? 'Resultado da acao' : result.title,
             trailing: StatusPill(
-              label: result.status,
+              label: _actionStatusLabel(result.status),
               color: color,
               compact: true,
             ),
@@ -1239,7 +1381,7 @@ class _QueuedActionTile extends StatelessWidget {
                 ),
               ),
               StatusPill(
-                label: action.status,
+                label: _actionStatusLabel(action.status),
                 color: color,
                 compact: true,
               ),
@@ -1321,6 +1463,54 @@ class _BulletLine extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+String _formatAiTimestamp(DateTime? value) {
+  if (value == null) return 'Sem analise';
+  final local = value.toLocal();
+  final hour = local.hour.toString().padLeft(2, '0');
+  final minute = local.minute.toString().padLeft(2, '0');
+  final day = local.day.toString().padLeft(2, '0');
+  final month = local.month.toString().padLeft(2, '0');
+  return '$day/$month $hour:$minute';
+}
+
+String _providerLabel(String? provider, String? model) {
+  final providerText = switch (provider) {
+    'openai' => 'OpenAI',
+    'anthropic' => 'Anthropic',
+    'fallback' => 'Fallback local',
+    'local' => 'Analise local',
+    null || '' => 'Aguardando IA',
+    _ => provider,
+  };
+  if (model == null || model.trim().isEmpty) return providerText;
+  return '$providerText / ${model.trim()}';
+}
+
+String _actionStatusLabel(String status) {
+  switch (status) {
+    case 'pending_approval':
+      return 'Aguardando aprovacao';
+    case 'pending_confirmation':
+      return 'Confirmacao';
+    case 'ready':
+      return 'Pronta';
+    case 'executed':
+      return 'Executada';
+    case 'dismissed':
+      return 'Descartada';
+    case 'failed':
+      return 'Falhou';
+    case 'blocked':
+      return 'Bloqueada';
+    case 'suggested':
+      return 'Sugerida';
+    case 'none':
+      return 'Sem acao';
+    default:
+      return status;
   }
 }
 

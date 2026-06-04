@@ -4,7 +4,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") ?? "";
-const OPENAI_MODEL = Deno.env.get("OPENAI_MODEL") ?? "gpt-5.4-mini";
+const OPENAI_MODEL =
+  Deno.env.get("OPENAI_ANALYSIS_MODEL") ?? Deno.env.get("OPENAI_MODEL") ?? "gpt-5.4-mini";
 const OPENAI_TRANSCRIBE_MODEL =
   Deno.env.get("OPENAI_TRANSCRIBE_MODEL") ?? "gpt-4o-transcribe";
 const MEDIA_BUCKET = "fiscal-media";
@@ -479,6 +480,7 @@ async function categorizarComOpenAI(params: {
     body: JSON.stringify({
       model: OPENAI_MODEL,
       max_output_tokens: 900,
+      truncation: "auto",
       reasoning: { effort: "low" },
       input: [
         { role: "system", content: analysisPrompt },

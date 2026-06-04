@@ -12,6 +12,7 @@ class FiscalAiProvider with ChangeNotifier {
   FiscalAiInsight? _insight;
   FiscalAiSnapshot? _latestSnapshot;
   List<FiscalAiQueuedAction> _actions = const [];
+  DateTime? _lastAnalyzedAt;
   bool _loading = false;
   bool _running = false;
   String? _error;
@@ -19,6 +20,7 @@ class FiscalAiProvider with ChangeNotifier {
   FiscalAiInsight? get insight => _insight;
   FiscalAiSnapshot? get latestSnapshot => _latestSnapshot;
   List<FiscalAiQueuedAction> get actions => _actions;
+  DateTime? get lastAnalyzedAt => _lastAnalyzedAt;
   bool get loading => _loading;
   bool get running => _running;
   String? get error => _error;
@@ -42,6 +44,7 @@ class FiscalAiProvider with ChangeNotifier {
       _latestSnapshot = results[0] as FiscalAiSnapshot?;
       _actions = results[1] as List<FiscalAiQueuedAction>;
       _insight = _latestSnapshot?.result ?? _insight;
+      _lastAnalyzedAt = _latestSnapshot?.createdAt ?? _lastAnalyzedAt;
     } catch (e) {
       _error = 'Nao foi possivel carregar historico da IA: $e';
     } finally {
@@ -172,6 +175,7 @@ class FiscalAiProvider with ChangeNotifier {
         action: action,
         context: context,
       );
+      _lastAnalyzedAt = DateTime.now();
       _actions = await _service.listQueuedActions(fiscalId);
     } catch (e) {
       _error = 'Falha na IA Fiscal: $e';
