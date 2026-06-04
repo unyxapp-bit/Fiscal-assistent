@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../data/services/dashboard_quick_note_service.dart';
 import '../../../domain/entities/caixa.dart';
 import '../../widgets/common/operational_widgets.dart';
 
@@ -2164,44 +2165,12 @@ class _QuickNotePanel extends StatefulWidget {
   State<_QuickNotePanel> createState() => _QuickNotePanelState();
 }
 
-class _QuickNoteData {
-  final String id;
-  final String text;
-  final DateTime createdAt;
-
-  const _QuickNoteData({
-    required this.id,
-    required this.text,
-    required this.createdAt,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'text': text,
-      'createdAt': createdAt.toIso8601String(),
-    };
-  }
-
-  static _QuickNoteData? fromJson(Object? value) {
-    if (value is! Map) return null;
-    final id = value['id'];
-    final text = value['text'];
-    final createdAt = DateTime.tryParse('${value['createdAt']}');
-    if (id is! String || text is! String || text.trim().isEmpty) return null;
-
-    return _QuickNoteData(
-      id: id,
-      text: text,
-      createdAt: createdAt ?? DateTime.now(),
-    );
-  }
-}
-
 class _QuickNotePanelState extends State<_QuickNotePanel> {
   final _controller = TextEditingController();
-  List<_QuickNoteData> _notes = const [];
+  List<DashboardQuickNote> _notes = const [];
   bool _loaded = false;
+  bool _saving = false;
+  String? _syncError;
 
   @override
   void initState() {
@@ -2210,18 +2179,43 @@ class _QuickNotePanelState extends State<_QuickNotePanel> {
   }
 
   Future<void> _loadNotes() async {
-    final prefs = await SharedPreferences.getInstance();
-    final rawValue = prefs.getString(_quickNoteStorageKey);
-    final notes = _decodeNotes(rawValue);
+    try {
+      await _migrateLocalNotesIfNeeded();
+      final notes = await DashboardQuickNoteService.listar();
 
-    if (!mounted) return;
-    setState(() {
-      _notes = notes;
-      _loaded = true;
-    });
+      if (!mounted) return;
+      setState(() {
+        _notes = notes;
+        _loaded = true;
+        _syncError = null;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loaded = true;
+        _syncError = 'Nao foi possivel sincronizar as notas.';
+      });
+    }
   }
 
-  List<_QuickNoteData> _decodeNotes(String? rawValue) {
+  Future<void> _migrateLocalNotesIfNeeded() async {
+    final prefs = await SharedPreferences.getInstance();
+    const migratedKey = '${_quickNoteStorageKey}_supabase_migrated';
+    if (prefs.getBool(migratedKey) == true) return;
+
+    final legacyNotes =
+        _decodeLegacyNotes(prefs.getString(_quickNoteStorageKey));
+    if (legacyNotes.isNotEmpty) {
+      for (final note in legacyNotes.reversed) {
+        await DashboardQuickNoteService.salvar(note);
+      }
+    }
+
+    await prefs.remove(_quickNoteStorageKey);
+    await prefs.setBool(migratedKey, true);
+  }
+
+  List<String> _decodeLegacyNotes(String? rawValue) {
     final trimmed = rawValue?.trim();
     if (trimmed == null || trimmed.isEmpty) return const [];
 
@@ -2229,29 +2223,16 @@ class _QuickNotePanelState extends State<_QuickNotePanel> {
       final decoded = jsonDecode(trimmed);
       if (decoded is List) {
         return decoded
-            .map(_QuickNoteData.fromJson)
-            .whereType<_QuickNoteData>()
+            .map((item) => item is Map ? item['text'] : item)
+            .map((item) => item?.toString().trim() ?? '')
+            .where((item) => item.isNotEmpty)
             .toList();
       }
     } catch (_) {
       // The previous version saved one plain text note in this same key.
     }
 
-    return [
-      _QuickNoteData(
-        id: 'migrated-${DateTime.now().microsecondsSinceEpoch}',
-        text: trimmed,
-        createdAt: DateTime.now(),
-      ),
-    ];
-  }
-
-  Future<void> _saveNotes(List<_QuickNoteData> notes) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      _quickNoteStorageKey,
-      jsonEncode(notes.map((note) => note.toJson()).toList()),
-    );
+    return [trimmed];
   }
 
   void _showMessage(String message) {
@@ -2267,43 +2248,51 @@ class _QuickNotePanelState extends State<_QuickNotePanel> {
   }
 
   Future<void> _createNote() async {
+    if (_saving) return;
     final note = _controller.text.trim();
     if (note.isEmpty) {
       _showMessage('Escreva uma nota antes.');
       return;
     }
 
-    final nextNotes = [
-      _QuickNoteData(
-        id: DateTime.now().microsecondsSinceEpoch.toString(),
-        text: note,
-        createdAt: DateTime.now(),
-      ),
-      ..._notes,
-    ];
-
-    setState(() {
-      _notes = nextNotes;
-      _controller.clear();
-    });
-    await _saveNotes(nextNotes);
-    _showMessage('Nota salva.');
+    setState(() => _saving = true);
+    try {
+      final saved = await DashboardQuickNoteService.salvar(note);
+      if (!mounted) return;
+      setState(() {
+        _notes = [saved, ..._notes];
+        _controller.clear();
+        _syncError = null;
+      });
+      _showMessage('Nota salva no Supabase.');
+    } catch (e) {
+      _showMessage('Nao foi possivel salvar a nota.');
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 
-  Future<void> _copyNote(_QuickNoteData note) async {
+  Future<void> _copyNote(DashboardQuickNote note) async {
     await Clipboard.setData(ClipboardData(text: note.text));
     _showMessage('Nota copiada.');
   }
 
-  Future<void> _shareNote(_QuickNoteData note) async {
+  Future<void> _shareNote(DashboardQuickNote note) async {
     await Share.share(note.text, subject: 'Nota rapida');
   }
 
-  Future<void> _deleteNote(_QuickNoteData note) async {
+  Future<void> _deleteNote(DashboardQuickNote note) async {
+    final previousNotes = _notes;
     final nextNotes = _notes.where((item) => item.id != note.id).toList();
     setState(() => _notes = nextNotes);
-    await _saveNotes(nextNotes);
-    _showMessage('Nota removida.');
+    try {
+      await DashboardQuickNoteService.excluir(note.id);
+      _showMessage('Nota removida.');
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _notes = previousNotes);
+      _showMessage('Nao foi possivel remover a nota.');
+    }
   }
 
   @override
@@ -2335,10 +2324,18 @@ class _QuickNotePanelState extends State<_QuickNotePanel> {
               _SoftPill(
                 icon: Icons.note_alt_outlined,
                 iconColor: _v2Primary,
-                label: '${_notes.length}',
+                label: _loaded ? '${_notes.length}' : '...',
               ),
             ],
           ),
+          if (_syncError != null) ...[
+            SizedBox(height: compact ? 8 : 10),
+            _QuickNoteSyncError(
+              message: _syncError!,
+              compact: compact,
+              onRetry: _loadNotes,
+            ),
+          ],
           SizedBox(height: compact ? 10 : 12),
           TextField(
             controller: _controller,
@@ -2387,9 +2384,12 @@ class _QuickNotePanelState extends State<_QuickNotePanel> {
                 child: SizedBox(
                   height: compact ? 42 : 46,
                   child: FilledButton.icon(
-                    onPressed: _loaded ? _createNote : null,
-                    icon: const Icon(Icons.add_rounded, size: 18),
-                    label: const Text('Salvar nota'),
+                    onPressed: _loaded && !_saving ? _createNote : null,
+                    icon: Icon(
+                      _saving ? Icons.sync_rounded : Icons.add_rounded,
+                      size: 18,
+                    ),
+                    label: Text(_saving ? 'Salvando...' : 'Salvar nota'),
                     style: FilledButton.styleFrom(
                       backgroundColor: _v2Primary,
                       foregroundColor: Colors.white,
@@ -2461,7 +2461,7 @@ class _QuickNotePanelState extends State<_QuickNotePanel> {
 }
 
 class _QuickNoteCard extends StatelessWidget {
-  final _QuickNoteData note;
+  final DashboardQuickNote note;
   final bool compact;
   final VoidCallback onCopy;
   final VoidCallback onShare;
@@ -2538,6 +2538,62 @@ class _QuickNoteCard extends StatelessWidget {
                 height: 1.28,
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickNoteSyncError extends StatelessWidget {
+  final String message;
+  final bool compact;
+  final VoidCallback onRetry;
+
+  const _QuickNoteSyncError({
+    required this.message,
+    required this.onRetry,
+    this.compact = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 10 : 12,
+        vertical: compact ? 8 : 10,
+      ),
+      decoration: BoxDecoration(
+        color: _v2Warning.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: _v2Warning.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.cloud_off_outlined,
+            color: _v2Warning,
+            size: compact ? 16 : 18,
+          ),
+          SizedBox(width: compact ? 8 : 10),
+          Expanded(
+            child: Text(
+              message,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: _textStyle(
+                size: compact ? 12 : 13,
+                color: _v2Text,
+                weight: FontWeight.w800,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          _QuickNoteIconButton(
+            icon: Icons.refresh_rounded,
+            tooltip: 'Tentar sincronizar',
+            compact: true,
+            onPressed: onRetry,
           ),
         ],
       ),
