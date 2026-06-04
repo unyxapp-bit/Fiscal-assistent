@@ -12,11 +12,13 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     private val channelName = "com.app.fiscal_assistant/shared_content"
     private val pendingItems = mutableListOf<Map<String, Any?>>()
+    private var sharedContentChannel: MethodChannel? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        sharedContentChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, channelName)
         collectSharedItems(intent)
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, channelName).setMethodCallHandler { call, result ->
+        sharedContentChannel?.setMethodCallHandler { call, result ->
             when (call.method) {
                 "consumeSharedContent" -> {
                     val copy = pendingItems.toList()
@@ -31,11 +33,15 @@ class MainActivity : FlutterActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        collectSharedItems(intent)
+        val added = collectSharedItems(intent)
+        if (added > 0) {
+            sharedContentChannel?.invokeMethod("sharedContentAvailable", added)
+        }
     }
 
-    private fun collectSharedItems(intent: Intent?) {
-        if (intent == null) return
+    private fun collectSharedItems(intent: Intent?): Int {
+        if (intent == null) return 0
+        val before = pendingItems.size
         when (intent.action) {
             Intent.ACTION_SEND -> {
                 val text = intent.getStringExtra(Intent.EXTRA_TEXT)
@@ -49,15 +55,27 @@ class MainActivity : FlutterActivity() {
                     )
                 }
                 intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)?.let {
-                    pendingItems.add(readUriItem(it, intent.type, intent.`package`))
+                    pendingItems.add(safeReadUriItem(it, intent.type, intent.`package`))
                 }
             }
             Intent.ACTION_SEND_MULTIPLE -> {
                 val streams = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
                 streams?.forEach {
-                    pendingItems.add(readUriItem(it, intent.type, intent.`package`))
+                    pendingItems.add(safeReadUriItem(it, intent.type, intent.`package`))
                 }
             }
+        }
+        return pendingItems.size - before
+    }
+
+    private fun safeReadUriItem(uri: Uri, fallbackMimeType: String?, sourceApp: String?): Map<String, Any?> {
+        return try {
+            readUriItem(uri, fallbackMimeType, sourceApp)
+        } catch (e: Exception) {
+            mapOf(
+                "error" to "Nao foi possivel ler o arquivo compartilhado: ${e.message ?: "erro desconhecido"}",
+                "sourceApp" to sourceApp
+            )
         }
     }
 

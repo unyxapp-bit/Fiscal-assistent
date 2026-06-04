@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
@@ -72,6 +73,23 @@ class MultimodalInboxService {
       MethodChannel('com.app.fiscal_assistant/shared_content');
 
   SupabaseClient get _client => SupabaseClientManager.client;
+
+  static void setSharedContentListener(
+    FutureOr<void> Function()? onContentAvailable,
+  ) {
+    if (onContentAvailable == null) {
+      _channel.setMethodCallHandler(null);
+      return;
+    }
+
+    _channel.setMethodCallHandler((call) async {
+      if (call.method == 'sharedContentAvailable') {
+        await onContentAvailable();
+        return null;
+      }
+      throw MissingPluginException('Metodo ${call.method} nao implementado.');
+    });
+  }
 
   Future<MultimodalInboxResult?> pickAndAnalyze() async {
     final item = await _pickSingleFile();
@@ -158,14 +176,24 @@ class MultimodalInboxService {
   }
 
   Future<List<MultimodalInboxResult>> consumeSharedContent() async {
-    final raw =
-        await _channel.invokeMethod<List<dynamic>>('consumeSharedContent');
+    final List<dynamic>? raw;
+    try {
+      raw = await _channel.invokeMethod<List<dynamic>>('consumeSharedContent');
+    } on MissingPluginException {
+      return const [];
+    }
     if (raw == null || raw.isEmpty) return const [];
 
     final results = <MultimodalInboxResult>[];
     for (final item in raw) {
       try {
         final map = _asMap(item);
+        final error = map['error']?.toString().trim();
+        if (error?.isNotEmpty == true) {
+          results.add(MultimodalInboxResult.error(error!));
+          continue;
+        }
+
         final bytesBase64 = map['bytesBase64']?.toString();
         final bytes =
             bytesBase64?.isNotEmpty == true ? base64Decode(bytesBase64!) : null;

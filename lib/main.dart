@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -369,15 +371,21 @@ class _AppHome extends StatefulWidget {
 class _AppHomeState extends State<_AppHome> with WidgetsBindingObserver {
   bool _loaded = false;
   bool _processingSharedContent = false;
+  Timer? _sharedContentDebounce;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    MultimodalInboxService.setSharedContentListener(
+      _onSharedContentAvailable,
+    );
   }
 
   @override
   void dispose() {
+    _sharedContentDebounce?.cancel();
+    MultimodalInboxService.setSharedContentListener(null);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -389,7 +397,7 @@ class _AppHomeState extends State<_AppHome> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       WhatsAppNotificationService.reset();
-      _processSharedContent();
+      _scheduleSharedContentProcessing();
     }
   }
 
@@ -425,6 +433,32 @@ class _AppHomeState extends State<_AppHome> with WidgetsBindingObserver {
     await _processSharedContent();
   }
 
+  Future<void> _onSharedContentAvailable() async {
+    if (!mounted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      AppNotif.show(
+        context,
+        titulo: 'Conteudo recebido',
+        mensagem: 'Analisando o compartilhamento...',
+        tipo: 'alerta',
+        cor: AppColors.info,
+        duracao: const Duration(seconds: 2),
+      );
+    });
+    _scheduleSharedContentProcessing();
+  }
+
+  void _scheduleSharedContentProcessing() {
+    _sharedContentDebounce?.cancel();
+    _sharedContentDebounce = Timer(
+      const Duration(milliseconds: 350),
+      () {
+        if (mounted) _processSharedContent();
+      },
+    );
+  }
+
   Future<void> _processSharedContent() async {
     if (_processingSharedContent) return;
     _processingSharedContent = true;
@@ -435,20 +469,52 @@ class _AppHomeState extends State<_AppHome> with WidgetsBindingObserver {
       if (!mounted) return;
       final success = results.where((result) => result.success).length;
       final failed = results.length - success;
+      final failedMessages = results
+          .where((result) => !result.success)
+          .map((result) => _cleanSharedContentError(result.message))
+          .where((message) => message.isNotEmpty)
+          .toList();
+      final skipped = results.where((result) => result.skipped).length;
       AppNotif.show(
         context,
-        titulo: failed == 0 ? 'Conteudo analisado' : 'Analise parcial',
+        titulo: failed == 0
+            ? skipped == results.length
+                ? 'Conteudo sem acao'
+                : 'Conteudo analisado'
+            : success == 0
+                ? 'Falha no compartilhamento'
+                : 'Analise parcial',
         mensagem: failed == 0
-            ? '$success item(ns) enviados para a IA.'
-            : '$success item(ns) analisados, $failed com erro.',
+            ? '$success item(ns) recebido(s) pelo Fiscal Assistant.'
+            : failedMessages.isNotEmpty
+                ? failedMessages.first
+                : '$success item(ns) analisados, $failed com erro.',
         tipo: failed == 0 ? 'saida' : 'alerta',
         cor: failed == 0 ? AppColors.success : AppColors.warning,
+        duracao: failed == 0
+            ? const Duration(seconds: 3)
+            : const Duration(seconds: 5),
       );
-    } catch (_) {
-      // Shared intents are opportunistic; normal app boot should not fail here.
+    } catch (e) {
+      if (!mounted) return;
+      AppNotif.show(
+        context,
+        titulo: 'Compartilhamento nao processado',
+        mensagem: _cleanSharedContentError(e.toString()),
+        tipo: 'alerta',
+        cor: AppColors.warning,
+        duracao: const Duration(seconds: 5),
+      );
     } finally {
       _processingSharedContent = false;
     }
+  }
+
+  String _cleanSharedContentError(String message) {
+    return message
+        .replaceFirst(RegExp(r'^Exception:\s*'), '')
+        .replaceFirst(RegExp(r'^PlatformException\([^,]+,\s*'), '')
+        .trim();
   }
 
   @override
