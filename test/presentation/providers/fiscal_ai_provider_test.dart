@@ -105,6 +105,7 @@ FiscalAiInsight _insight({String summary = 'Resumo'}) {
     chatAnswer: '',
     toolsUsed: const [],
     provider: 'local',
+    source: 'local_offline',
     model: null,
     warning: null,
   );

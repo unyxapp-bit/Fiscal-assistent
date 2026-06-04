@@ -240,6 +240,7 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
                     const SizedBox(height: Dimensions.spacingSM),
                     _AiStatusPanel(
                       provider: insight?.provider,
+                      source: insight?.source,
                       model: insight?.model,
                       warning: insight?.warning,
                       lastAnalyzedAt: aiProvider.lastAnalyzedAt,
@@ -553,6 +554,7 @@ class _MetricsPanel extends StatelessWidget {
 
 class _AiStatusPanel extends StatelessWidget {
   final String? provider;
+  final String? source;
   final String? model;
   final String? warning;
   final DateTime? lastAnalyzedAt;
@@ -561,6 +563,7 @@ class _AiStatusPanel extends StatelessWidget {
 
   const _AiStatusPanel({
     required this.provider,
+    required this.source,
     required this.model,
     required this.warning,
     required this.lastAnalyzedAt,
@@ -604,6 +607,12 @@ class _AiStatusPanel extends StatelessWidget {
             icon: Icons.memory_rounded,
             label: _providerLabel(provider, model),
             color: AppColors.info,
+            compact: true,
+          ),
+          StatusPill(
+            icon: _sourceIcon(source),
+            label: _sourceLabel(source),
+            color: _sourceColor(source),
             compact: true,
           ),
           if (actionsCount > 0)
@@ -780,6 +789,12 @@ class _InsightSummary extends StatelessWidget {
                           label:
                               _providerLabel(insight.provider, insight.model),
                           color: AppColors.info,
+                          compact: true,
+                        ),
+                        StatusPill(
+                          icon: _sourceIcon(insight.source),
+                          label: _sourceLabel(insight.source),
+                          color: _sourceColor(insight.source),
                           compact: true,
                         ),
                       ],
@@ -1480,6 +1495,7 @@ String _providerLabel(String? provider, String? model) {
   final providerText = switch (provider) {
     'openai' => 'OpenAI',
     'anthropic' => 'Anthropic',
+    'gemini' => 'Gemini',
     'fallback' => 'Fallback local',
     'local' => 'Analise local',
     null || '' => 'Aguardando IA',
@@ -1487,6 +1503,55 @@ String _providerLabel(String? provider, String? model) {
   };
   if (model == null || model.trim().isEmpty) return providerText;
   return '$providerText / ${model.trim()}';
+}
+
+String _sourceLabel(String? source) {
+  return switch (source) {
+    'ia_completa' => 'IA completa',
+    'ia_mini' => 'IA resumida',
+    'ia_gemini' => 'Gemini',
+    'ia_gemini_lite' => 'Gemini Lite',
+    'ia_anthropic' => 'Anthropic',
+    'local_edge' => 'Edge local',
+    'local_offline' => 'Modo local',
+    'sem_conexao' => 'Sem conexao',
+    'timeout_edge' => 'Timeout local',
+    'erro_edge' => 'Erro local',
+    'resposta_vazia' => 'Resposta local',
+    null || '' => 'Fonte pendente',
+    _ => source,
+  };
+}
+
+Color _sourceColor(String? source) {
+  return switch (source) {
+    'ia_completa' => AppColors.success,
+    'ia_mini' => AppColors.info,
+    'ia_gemini' || 'ia_gemini_lite' => AppColors.teal,
+    'ia_anthropic' => AppColors.deepPurple,
+    'local_edge' ||
+    'local_offline' ||
+    'sem_conexao' ||
+    'timeout_edge' ||
+    'erro_edge' ||
+    'resposta_vazia' =>
+      AppColors.statusAtencao,
+    _ => AppColors.blueGrey,
+  };
+}
+
+IconData _sourceIcon(String? source) {
+  return switch (source) {
+    'ia_completa' => Icons.check_circle_rounded,
+    'ia_mini' => Icons.compress_rounded,
+    'ia_gemini' || 'ia_gemini_lite' => Icons.auto_awesome_rounded,
+    'ia_anthropic' => Icons.psychology_alt_rounded,
+    'local_edge' || 'local_offline' => Icons.offline_bolt_rounded,
+    'sem_conexao' => Icons.wifi_off_rounded,
+    'timeout_edge' => Icons.timer_off_rounded,
+    'erro_edge' || 'resposta_vazia' => Icons.info_outline_rounded,
+    _ => Icons.route_rounded,
+  };
 }
 
 String _actionStatusLabel(String status) {

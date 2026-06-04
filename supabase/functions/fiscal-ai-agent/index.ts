@@ -6,6 +6,12 @@ const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") ?? "";
 const OPENAI_MODEL =
   Deno.env.get("OPENAI_AGENT_MODEL") ?? Deno.env.get("OPENAI_MODEL") ?? "gpt-5.4-mini";
+const OPENAI_MINI_MODEL =
+  Deno.env.get("OPENAI_MINI_MODEL") ?? "gpt-5.4-mini";
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") ?? "";
+const GEMINI_MODEL = Deno.env.get("GEMINI_MODEL") ?? "gemini-2.0-flash";
+const GEMINI_LITE_MODEL =
+  Deno.env.get("GEMINI_LITE_MODEL") ?? "gemini-2.0-flash-lite";
 const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY") ?? "";
 const ANTHROPIC_MODEL =
   Deno.env.get("ANTHROPIC_MODEL") ?? "claude-3-5-haiku-20241022";
@@ -20,6 +26,7 @@ type Severity = "normal" | "medio" | "alto" | "critico";
 type Priority = "baixa" | "media" | "alta";
 type Intent = "analyze" | "ask" | "resolve" | "act";
 type ToolName = "generate_balcao_report" | "create_followup_event";
+type ContextLevel = "full" | "reduced" | "minimal";
 
 interface FiscalAiInput {
   fiscal_id?: string | null;
@@ -45,7 +52,9 @@ interface FiscalAiInsight {
   resolution: Record<string, unknown>;
   chat_answer: string;
   tools_used: string[];
-  provider: "openai" | "anthropic" | "fallback" | "local";
+  provider: "openai" | "anthropic" | "gemini" | "fallback" | "local";
+  source: string;
+  fonte: string;
   model: string | null;
   warning?: string;
 }
@@ -73,6 +82,96 @@ function numberValue(value: unknown): number | null {
     if (Number.isFinite(parsed)) return parsed;
   }
   return null;
+}
+
+function truncateText(value: string, maxLength: number) {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  if (normalized.length <= maxLength) return normalized;
+  return `${normalized.slice(0, maxLength).trim()}...`;
+}
+
+function compactRecord(record: Record<string, unknown>, maxChars: number): Record<string, unknown> {
+  const output: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(record)) {
+    if (typeof value === "string") {
+      output[key] = truncateText(value, maxChars);
+    } else if (Array.isArray(value)) {
+      output[key] = value.slice(0, 12).map((item) =>
+        typeof item === "string"
+          ? truncateText(item, maxChars)
+          : asRecord(item)
+      );
+    } else if (value && typeof value === "object") {
+      output[key] = asRecord(value);
+    } else {
+      output[key] = value;
+    }
+  }
+  return output;
+}
+
+function eventRelevanceScore(event: Record<string, unknown>) {
+  let score = 0;
+  if (eventStatus(event) === "pending") score += 80;
+  if (eventPriority(event) === "critica") score += 70;
+  if (eventPriority(event) === "alta") score += 50;
+  if (eventCategory(event) === "caixa") score += 35;
+  if (eventCategory(event) === "problema_operacional") score += 35;
+  if (event.needs_review === true || event.analysis_status === "needs_review") score += 30;
+  if (event.analysis_status === "needs_file") score += 25;
+  return score;
+}
+
+function compactList(value: unknown, limit: number, maxChars: number) {
+  if (limit <= 0) return [];
+  return asArray(value)
+    .slice(0, limit)
+    .map((item) => compactRecord(item, maxChars));
+}
+
+function compactEvents(value: unknown, limit: number, maxChars: number) {
+  return [...asArray(value)]
+    .sort((a, b) => eventRelevanceScore(b) - eventRelevanceScore(a))
+    .slice(0, limit)
+    .map((event) => compactRecord(event, maxChars));
+}
+
+function compactContext(context: Record<string, unknown>, level: ContextLevel) {
+  const limits = {
+    full: { events: 45, colaboradores: 80, caixas: 80, alocacoes: 60, chars: 260 },
+    reduced: { events: 18, colaboradores: 30, caixas: 30, alocacoes: 20, chars: 170 },
+    minimal: { events: 8, colaboradores: 0, caixas: 8, alocacoes: 8, chars: 100 },
+  }[level];
+
+  return {
+    ...context,
+    context_policy: {
+      ...asRecord(context.context_policy),
+      edge_context_level: level,
+      edge_limits: limits,
+    },
+    fiscal_events: compactEvents(context.fiscal_events, limits.events, limits.chars),
+    colaboradores: compactList(context.colaboradores, limits.colaboradores, limits.chars),
+    caixas: compactList(context.caixas, limits.caixas, limits.chars),
+    alocacoes: compactList(context.alocacoes, limits.alocacoes, limits.chars),
+  };
+}
+
+function compactInput(input: FiscalAiInput, level: ContextLevel): FiscalAiInput {
+  return {
+    ...input,
+    context: compactContext(asRecord(input.context), level),
+  };
+}
+
+async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs = 25000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 function eventDate(event: Record<string, unknown>) {
@@ -386,6 +485,8 @@ function buildFallbackInsight(input: FiscalAiInput): FiscalAiInsight {
     chat_answer: chatAnswer,
     tools_used: ["local_context"],
     provider: "fallback",
+    source: "local_edge",
+    fonte: "local_edge",
     model: null,
   };
 }
@@ -430,6 +531,8 @@ function normalizeInsight(raw: Record<string, unknown>, fallback: FiscalAiInsigh
     chat_answer: text(raw.chat_answer, fallback.chat_answer),
     tools_used: Array.isArray(raw.tools_used) ? raw.tools_used.map((x) => String(x)) : fallback.tools_used,
     provider: text(raw.provider, fallback.provider) as FiscalAiInsight["provider"],
+    source: text(raw.source) || text(raw.fonte) || fallback.source,
+    fonte: text(raw.fonte) || text(raw.source) || fallback.fonte,
     model: text(raw.model, fallback.model ?? "") || fallback.model,
     warning: text(raw.warning) || fallback.warning,
   };
@@ -533,15 +636,21 @@ function openAiResponseText(data: Record<string, unknown>) {
   return chunks.join("");
 }
 
-async function callOpenAI(input: FiscalAiInput, fallback: FiscalAiInsight) {
-  const response = await fetch("https://api.openai.com/v1/responses", {
+async function callOpenAI(
+  input: FiscalAiInput,
+  fallback: FiscalAiInsight,
+  model: string,
+  source: string,
+  warning?: string,
+) {
+  const response = await fetchWithTimeout("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: OPENAI_MODEL,
+      model,
       max_output_tokens: 1600,
       truncation: "auto",
       input: [
@@ -563,12 +672,148 @@ async function callOpenAI(input: FiscalAiInput, fallback: FiscalAiInsight) {
   return normalizeInsight(parseJsonObject(raw), {
     ...fallback,
     provider: "openai",
-    model: OPENAI_MODEL,
+    source,
+    fonte: source,
+    model,
+    warning,
+  });
+}
+
+const fiscalAiGeminiSchema = {
+  type: "OBJECT",
+  properties: {
+    summary: { type: "STRING" },
+    overall_severity: { type: "STRING" },
+    risks: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: {
+          title: { type: "STRING" },
+          severity: { type: "STRING" },
+          reason: { type: "STRING" },
+          evidence: { type: "STRING" },
+          action: { type: "STRING" },
+          target: { type: "OBJECT" },
+        },
+      },
+    },
+    recommendations: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: {
+          title: { type: "STRING" },
+          description: { type: "STRING" },
+          priority: { type: "STRING" },
+          owner: { type: "STRING" },
+          requires_confirmation: { type: "BOOLEAN" },
+        },
+      },
+    },
+    next_action: {
+      type: "OBJECT",
+      properties: {
+        title: { type: "STRING" },
+        description: { type: "STRING" },
+        can_execute: { type: "BOOLEAN" },
+      },
+    },
+    action_plan: {
+      type: "OBJECT",
+      properties: {
+        mode: { type: "STRING" },
+        tool_name: { type: "STRING" },
+        description: { type: "STRING" },
+        confidence: { type: "NUMBER" },
+        arguments: { type: "OBJECT" },
+        arguments_summary: { type: "STRING" },
+        confirmation_required: { type: "BOOLEAN" },
+      },
+    },
+    action_result: { type: "OBJECT" },
+    resolution: { type: "OBJECT" },
+    chat_answer: { type: "STRING" },
+    tools_used: { type: "ARRAY", items: { type: "STRING" } },
+  },
+  required: [
+    "summary",
+    "overall_severity",
+    "risks",
+    "recommendations",
+    "next_action",
+    "action_plan",
+    "action_result",
+    "resolution",
+    "chat_answer",
+    "tools_used",
+  ],
+};
+
+function geminiResponseText(data: Record<string, unknown>) {
+  const candidates = Array.isArray(data.candidates) ? data.candidates : [];
+  const chunks: string[] = [];
+
+  for (const candidate of candidates) {
+    const content = asRecord(asRecord(candidate).content);
+    const parts = Array.isArray(content.parts) ? content.parts : [];
+    for (const part of parts) {
+      const value = text(asRecord(part).text);
+      if (value) chunks.push(value);
+    }
+  }
+
+  return chunks.join("");
+}
+
+async function callGemini(
+  input: FiscalAiInput,
+  fallback: FiscalAiInsight,
+  model: string,
+  source: string,
+  warning: string,
+) {
+  const endpoint =
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
+  const response = await fetchWithTimeout(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: `${systemPrompt}\n\nEntrada JSON:\n${JSON.stringify(input)}`,
+            },
+          ],
+        },
+      ],
+      generationConfig: {
+        temperature: 0.2,
+        maxOutputTokens: 1400,
+        responseMimeType: "application/json",
+        responseSchema: fiscalAiGeminiSchema,
+      },
+    }),
+  });
+
+  if (!response.ok) throw new Error(await response.text());
+  const data = await response.json();
+  const raw = geminiResponseText(asRecord(data));
+  if (!raw) throw new Error("Gemini returned an empty response.");
+  return normalizeInsight(parseJsonObject(raw), {
+    ...fallback,
+    provider: "gemini",
+    source,
+    fonte: source,
+    model,
+    warning,
   });
 }
 
 async function callAnthropic(input: FiscalAiInput, fallback: FiscalAiInsight) {
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
+  const response = await fetchWithTimeout("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -590,7 +835,10 @@ async function callAnthropic(input: FiscalAiInput, fallback: FiscalAiInsight) {
   return normalizeInsight(parseJsonObject(raw), {
     ...fallback,
     provider: "anthropic",
+    source: "ia_anthropic",
+    fonte: "ia_anthropic",
     model: ANTHROPIC_MODEL,
+    warning: "OpenAI/Gemini indisponiveis; usando Anthropic.",
   });
 }
 
@@ -599,15 +847,53 @@ async function buildAiInsight(input: FiscalAiInput) {
 
   if (OPENAI_API_KEY) {
     try {
-      return await callOpenAI(input, fallback);
+      return await callOpenAI(compactInput(input, "full"), fallback, OPENAI_MODEL, "ia_completa");
     } catch (error) {
-      console.warn("[fiscal-ai-agent] OpenAI fallback:", error);
+      console.warn("[fiscal-ai-agent] OpenAI primary fallback:", error);
+    }
+
+    try {
+      return await callOpenAI(
+        compactInput(input, "reduced"),
+        fallback,
+        OPENAI_MINI_MODEL,
+        "ia_mini",
+        "IA completa indisponivel; usando analise resumida.",
+      );
+    } catch (error) {
+      console.warn("[fiscal-ai-agent] OpenAI mini fallback:", error);
+    }
+  }
+
+  if (GEMINI_API_KEY) {
+    try {
+      return await callGemini(
+        compactInput(input, "reduced"),
+        fallback,
+        GEMINI_MODEL,
+        "ia_gemini",
+        "OpenAI indisponivel; usando Gemini.",
+      );
+    } catch (error) {
+      console.warn("[fiscal-ai-agent] Gemini fallback:", error);
+    }
+
+    try {
+      return await callGemini(
+        compactInput(input, "minimal"),
+        fallback,
+        GEMINI_LITE_MODEL,
+        "ia_gemini_lite",
+        "IA principal indisponivel; usando Gemini Lite com contexto minimo.",
+      );
+    } catch (error) {
+      console.warn("[fiscal-ai-agent] Gemini Lite fallback:", error);
     }
   }
 
   if (ANTHROPIC_API_KEY) {
     try {
-      return await callAnthropic(input, fallback);
+      return await callAnthropic(compactInput(input, "minimal"), fallback);
     } catch (error) {
       console.warn("[fiscal-ai-agent] Anthropic fallback:", error);
     }
@@ -616,9 +902,11 @@ async function buildAiInsight(input: FiscalAiInput) {
   return {
     ...fallback,
     provider: "local" as const,
-    warning: OPENAI_API_KEY || ANTHROPIC_API_KEY
+    source: "local_offline",
+    fonte: "local_offline",
+    warning: OPENAI_API_KEY || GEMINI_API_KEY || ANTHROPIC_API_KEY
       ? "IA externa falhou; usando analise local."
-      : "Configure OPENAI_API_KEY ou ANTHROPIC_API_KEY para respostas generativas.",
+      : "Configure OPENAI_API_KEY ou GEMINI_API_KEY para respostas generativas.",
   };
 }
 
@@ -895,10 +1183,17 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error("[fiscal-ai-agent]", error);
+    const fallback = buildFallbackInsight({ intent: "analyze", context: {} });
     return new Response(
-      JSON.stringify({ success: false, error: error instanceof Error ? error.message : String(error) }),
+      JSON.stringify({
+        ...fallback,
+        provider: "local",
+        source: "local_offline",
+        fonte: "local_offline",
+        warning: "A IA encontrou uma falha interna e usou analise local.",
+      }),
       {
-        status: 500,
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       },
     );

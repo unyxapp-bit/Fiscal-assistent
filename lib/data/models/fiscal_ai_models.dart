@@ -295,6 +295,7 @@ class FiscalAiInsight {
   final String chatAnswer;
   final List<String> toolsUsed;
   final String provider;
+  final String source;
   final String? model;
   final String? warning;
 
@@ -310,12 +311,20 @@ class FiscalAiInsight {
     required this.chatAnswer,
     required this.toolsUsed,
     required this.provider,
+    required this.source,
     required this.model,
     required this.warning,
   });
 
   bool get hasOperationalData =>
       summary.isNotEmpty || risks.isNotEmpty || recommendations.isNotEmpty;
+
+  bool get isLocalSource =>
+      source == 'local_offline' ||
+      source == 'sem_conexao' ||
+      source == 'timeout_edge' ||
+      source == 'erro_edge' ||
+      source == 'resposta_vazia';
 
   factory FiscalAiInsight.fromMap(Map<String, dynamic> map) => FiscalAiInsight(
         summary: _asString(map['summary']),
@@ -332,6 +341,9 @@ class FiscalAiInsight {
         chatAnswer: _asString(map['chat_answer']),
         toolsUsed: _asStringList(map['tools_used']),
         provider: _asString(map['provider'], 'local'),
+        source: _asString(map['source']).isEmpty
+            ? _asString(map['fonte'], _asString(map['provider'], 'local'))
+            : _asString(map['source']),
         model: _asString(map['model']).isEmpty ? null : _asString(map['model']),
         warning: _asString(map['warning']).isEmpty
             ? null
@@ -350,6 +362,7 @@ class FiscalAiInsight {
         chatAnswer: '',
         toolsUsed: const [],
         provider: 'local',
+        source: 'local_offline',
         model: null,
         warning: null,
       );

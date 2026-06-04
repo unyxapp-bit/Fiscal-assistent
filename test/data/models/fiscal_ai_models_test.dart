@@ -31,6 +31,7 @@ void main() {
           'confirmation_required': true,
         }),
         'provider': 'openai',
+        'fonte': 'ia_completa',
         'model': 'gpt-5.4-mini',
       });
 
@@ -40,6 +41,7 @@ void main() {
       expect(insight.actionPlan.toolName, 'create_followup_event');
       expect(insight.actionPlan.confirmationRequired, isTrue);
       expect(insight.provider, 'openai');
+      expect(insight.source, 'ia_completa');
       expect(insight.model, 'gpt-5.4-mini');
     });
 
