@@ -30,6 +30,10 @@ class FiscalAiScreen extends StatefulWidget {
 
 class _FiscalAiScreenState extends State<FiscalAiScreen> {
   final _questionController = TextEditingController();
+  final _scrollController = ScrollController();
+  final _resolutionSectionKey = GlobalKey();
+  final _actionResultSectionKey = GlobalKey();
+  final _questionSectionKey = GlobalKey();
   bool _bootstrapped = false;
   bool _analisandoMidia = false;
 
@@ -41,6 +45,7 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _questionController.dispose();
     super.dispose();
   }
@@ -157,11 +162,108 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
     final fiscalId = context.read<AuthProvider>().user?.id;
     if (fiscalId == null || fiscalId.isEmpty) return;
 
-    await context.read<FiscalAiProvider>().resolve(
-          fiscalId: fiscalId,
-          risk: risk,
-          context: _buildAiContext(context),
-        );
+    final aiProvider = context.read<FiscalAiProvider>();
+    await aiProvider.resolve(
+      fiscalId: fiscalId,
+      risk: risk,
+      context: _buildAiContext(context),
+    );
+
+    if (!mounted) return;
+    if (aiProvider.insight?.resolution.hasDraft == true) {
+      AppNotif.show(
+        context,
+        titulo: 'Diagnostico gerado',
+        mensagem: 'A IA preparou uma tratativa para esse alerta.',
+        tipo: 'saida',
+        cor: AppColors.success,
+      );
+      await _scrollToSection(_resolutionSectionKey);
+    } else if (aiProvider.error == null) {
+      AppNotif.show(
+        context,
+        titulo: 'Resolver',
+        mensagem: 'Nao foi possivel gerar uma tratativa agora.',
+        tipo: 'alerta',
+        cor: AppColors.statusAtencao,
+      );
+    }
+  }
+
+  Future<void> _registerResolutionTimeline(
+      FiscalAiResolution resolution) async {
+    final fiscalId = context.read<AuthProvider>().user?.id;
+    if (fiscalId == null || fiscalId.isEmpty) return;
+
+    final aiProvider = context.read<FiscalAiProvider>();
+    await aiProvider.runAction(
+      fiscalId: fiscalId,
+      toolName: 'register_timeline_event',
+      context: _buildAiContext(context),
+      confirmed: true,
+      arguments: {
+        'title': resolution.diagnosis.isNotEmpty
+            ? resolution.diagnosis
+            : 'Diagnostico da IA',
+        'description': [
+          if (resolution.recommendedMessage.isNotEmpty)
+            resolution.recommendedMessage,
+          if (resolution.immediateSteps.isNotEmpty)
+            'Passos: ${resolution.immediateSteps.join(' | ')}',
+        ].join('\n'),
+        'area': 'ia_fiscal',
+        'action': 'diagnostico_registrado',
+        'severity': resolution.severity,
+        'entity_type': 'fiscal_diagnostic',
+        'metadata': {
+          'immediate_steps': resolution.immediateSteps,
+          'preventive_actions': resolution.preventiveActions,
+        },
+      },
+    );
+
+    if (!mounted) return;
+    final result = aiProvider.insight?.actionResult;
+    if (result?.isExecuted == true) {
+      AppNotif.show(
+        context,
+        titulo: 'Linha do tempo atualizada',
+        mensagem: 'O diagnostico da IA foi salvo no historico operacional.',
+        tipo: 'saida',
+        cor: AppColors.success,
+      );
+      await _scrollToSection(_actionResultSectionKey);
+    }
+  }
+
+  Future<void> _askAboutRecommendation(FiscalAiRecommendation item) async {
+    final question = _questionFromRecommendation(item);
+    _questionController.text = question;
+    _questionController.selection = TextSelection.collapsed(
+      offset: _questionController.text.length,
+    );
+    await _sendQuestion();
+
+    if (!mounted) return;
+    await _scrollToSection(_questionSectionKey);
+  }
+
+  Future<void> _scrollToSection(GlobalKey key) async {
+    if (!mounted) return;
+
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted) return;
+
+    final refreshedContext = key.currentContext;
+    if (refreshedContext == null) return;
+    if (!refreshedContext.mounted) return;
+
+    await Scrollable.ensureVisible(
+      refreshedContext,
+      duration: const Duration(milliseconds: 420),
+      curve: Curves.easeOutCubic,
+      alignment: 0.08,
+    );
   }
 
   Future<void> _runQueuedAction(FiscalAiQueuedAction action) async {
@@ -198,6 +300,7 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
       body: RefreshIndicator(
         onRefresh: _runAnalysis,
         child: SingleChildScrollView(
+          controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
@@ -230,8 +333,6 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
                       actionsCount: aiProvider.actions.length,
                       running: isBusy,
                     ),
-                    const SizedBox(height: Dimensions.spacingMD),
-                    _SeverityOverviewGrid(metrics: metrics, insight: insight),
                     const SizedBox(height: Dimensions.spacingMD),
                     if (aiProvider.error != null) ...[
                       _InlineError(message: aiProvider.error!),
@@ -274,24 +375,42 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
                       const SizedBox(height: Dimensions.spacingMD),
                       if (insight.actionResult.hasMessage ||
                           insight.actionResult.hasArtifact) ...[
-                        _ActionResultPanel(result: insight.actionResult),
+                        KeyedSubtree(
+                          key: _actionResultSectionKey,
+                          child: _ActionResultPanel(
+                            result: insight.actionResult,
+                          ),
+                        ),
                         const SizedBox(height: Dimensions.spacingMD),
                       ],
                       if (insight.resolution.hasDraft) ...[
-                        _ResolutionPanel(resolution: insight.resolution),
+                        KeyedSubtree(
+                          key: _resolutionSectionKey,
+                          child: _ResolutionPanel(
+                            resolution: insight.resolution,
+                            isRunning: aiProvider.running,
+                            onRegisterTimeline: () =>
+                                _registerResolutionTimeline(insight.resolution),
+                          ),
+                        ),
                         const SizedBox(height: Dimensions.spacingMD),
                       ],
                       if (insight.recommendations.isNotEmpty) ...[
                         _RecommendationsPanel(
                           recommendations: insight.recommendations,
+                          isRunning: aiProvider.running,
+                          onAskAboutRecommendation: _askAboutRecommendation,
                         ),
                         const SizedBox(height: Dimensions.spacingMD),
                       ],
-                      _QuestionPanel(
-                        controller: _questionController,
-                        isRunning: aiProvider.running,
-                        chatAnswer: insight.chatAnswer,
-                        onSubmit: _sendQuestion,
+                      KeyedSubtree(
+                        key: _questionSectionKey,
+                        child: _QuestionPanel(
+                          controller: _questionController,
+                          isRunning: aiProvider.running,
+                          chatAnswer: insight.chatAnswer,
+                          onSubmit: _sendQuestion,
+                        ),
                       ),
                       const SizedBox(height: Dimensions.spacingSM),
                       Center(
@@ -654,7 +773,7 @@ class _OperationStatusCard extends StatelessWidget {
     final severity = insight?.overallSeverity ?? _severityFromMetrics(metrics);
     final color = running ? AppColors.info : _severityColor(severity);
     final confidence = _analysisConfidence(insight);
-    final sources = _sourceChecks(metrics);
+    final sources = _sourceChecks(metrics, hasInsight: insight != null);
 
     return AppSurface(
       elevated: true,
@@ -847,126 +966,6 @@ class _OperationStatusCard extends StatelessWidget {
             ],
           );
         },
-      ),
-    );
-  }
-}
-
-class _SeverityOverviewGrid extends StatelessWidget {
-  final Map<String, dynamic> metrics;
-  final FiscalAiInsight? insight;
-
-  const _SeverityOverviewGrid({
-    required this.metrics,
-    required this.insight,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final critical = _criticalCount(metrics, insight);
-    final attention = _attentionCount(metrics, insight);
-    final normal = _normalCount(metrics, critical, attention);
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        final columns = width >= 860
-            ? 3
-            : width >= 560
-                ? 2
-                : 1;
-        return GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: columns,
-          crossAxisSpacing: Dimensions.spacingMD,
-          mainAxisSpacing: Dimensions.spacingMD,
-          childAspectRatio: width < 560 ? 3.0 : 2.4,
-          children: [
-            _SeverityMetricCard(
-              title: 'Criticos',
-              value: critical,
-              subtitle: critical > 0 ? 'Acao imediata' : 'Sem criticos',
-              color: AppColors.danger,
-              icon: Icons.warning_rounded,
-            ),
-            _SeverityMetricCard(
-              title: 'Atencao',
-              value: attention,
-              subtitle:
-                  attention > 0 ? 'Precisam de atencao' : 'Sem pendencias',
-              color: AppColors.statusAtencao,
-              icon: Icons.notifications_active_rounded,
-            ),
-            _SeverityMetricCard(
-              title: 'Normal',
-              value: normal,
-              subtitle: 'Operando normalmente',
-              color: AppColors.success,
-              icon: Icons.check_circle_rounded,
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _SeverityMetricCard extends StatelessWidget {
-  final String title;
-  final int value;
-  final String subtitle;
-  final Color color;
-  final IconData icon;
-
-  const _SeverityMetricCard({
-    required this.title,
-    required this.value,
-    required this.subtitle,
-    required this.color,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AppSurface(
-      tint: color,
-      padding: const EdgeInsets.all(Dimensions.paddingMD),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  title.toUpperCase(),
-                  style: AppTextStyles.caption.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '$value',
-                  style: AppTextStyles.h1.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Icon(icon, color: color, size: 46),
-        ],
       ),
     );
   }
@@ -1625,8 +1624,14 @@ class _ActionResultPanel extends StatelessWidget {
 
 class _ResolutionPanel extends StatelessWidget {
   final FiscalAiResolution resolution;
+  final bool isRunning;
+  final VoidCallback? onRegisterTimeline;
 
-  const _ResolutionPanel({required this.resolution});
+  const _ResolutionPanel({
+    required this.resolution,
+    required this.isRunning,
+    required this.onRegisterTimeline,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1680,6 +1685,15 @@ class _ResolutionPanel extends StatelessWidget {
               color: AppColors.info,
             ),
           ],
+          const SizedBox(height: Dimensions.spacingSM),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: isRunning ? null : onRegisterTimeline,
+              icon: const Icon(Icons.timeline_rounded, size: 16),
+              label: const Text('Registrar na linha do tempo'),
+            ),
+          ),
         ],
       ),
     );
@@ -1688,8 +1702,15 @@ class _ResolutionPanel extends StatelessWidget {
 
 class _RecommendationsPanel extends StatelessWidget {
   final List<FiscalAiRecommendation> recommendations;
+  final bool isRunning;
+  final Future<void> Function(FiscalAiRecommendation item)
+      onAskAboutRecommendation;
 
-  const _RecommendationsPanel({required this.recommendations});
+  const _RecommendationsPanel({
+    required this.recommendations,
+    required this.isRunning,
+    required this.onAskAboutRecommendation,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1713,7 +1734,11 @@ class _RecommendationsPanel extends StatelessWidget {
             ...recommendations.map(
               (item) => Padding(
                 padding: const EdgeInsets.only(bottom: Dimensions.spacingXS),
-                child: _RecommendationTile(item: item),
+                child: _RecommendationTile(
+                  item: item,
+                  isRunning: isRunning,
+                  onTap: () => onAskAboutRecommendation(item),
+                ),
               ),
             ),
         ],
@@ -1724,84 +1749,103 @@ class _RecommendationsPanel extends StatelessWidget {
 
 class _RecommendationTile extends StatelessWidget {
   final FiscalAiRecommendation item;
+  final bool isRunning;
+  final VoidCallback onTap;
 
-  const _RecommendationTile({required this.item});
+  const _RecommendationTile({
+    required this.item,
+    required this.isRunning,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     final color = _priorityColor(item.priority);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 28,
-            height: 28,
-            decoration: AppStyles.softTile(
-              context: context,
-              tint: color,
-              radius: Dimensions.radiusSM,
-            ),
-            child: Icon(Icons.arrow_forward_rounded, color: color, size: 16),
-          ),
-          const SizedBox(width: Dimensions.spacingSM),
-          Expanded(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: AppColors.divider),
-                ),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: isRunning ? null : onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 28,
+              height: 28,
+              decoration: AppStyles.softTile(
+                context: context,
+                tint: color,
+                radius: Dimensions.radiusSM,
               ),
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: Dimensions.spacingSM),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      spacing: Dimensions.spacingXS,
-                      runSpacing: Dimensions.spacingXS,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
+              child: Icon(Icons.arrow_forward_rounded, color: color, size: 16),
+            ),
+            const SizedBox(width: Dimensions.spacingSM),
+            Expanded(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: AppColors.divider),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: Dimensions.spacingSM),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        spacing: Dimensions.spacingXS,
+                        runSpacing: Dimensions.spacingXS,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Text(
+                            item.title.isEmpty ? 'Acao sugerida' : item.title,
+                            style: AppTextStyles.body.copyWith(
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          StatusPill(
+                            label: 'prioridade ${item.priority}',
+                            color: color,
+                            compact: true,
+                          ),
+                        ],
+                      ),
+                      if (item.description.isNotEmpty) ...[
+                        const SizedBox(height: 3),
                         Text(
-                          item.title.isEmpty ? 'Acao sugerida' : item.title,
-                          style: AppTextStyles.body.copyWith(
-                            fontWeight: FontWeight.w900,
+                          item.description,
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.textSecondary,
+                            height: 1.35,
                           ),
                         ),
-                        StatusPill(
-                          label: 'prioridade ${item.priority}',
-                          color: color,
-                          compact: true,
+                      ],
+                      if (item.owner.isNotEmpty) ...[
+                        const SizedBox(height: 3),
+                        Text(
+                          'Responsavel: ${item.owner}',
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ],
-                    ),
-                    if (item.description.isNotEmpty) ...[
-                      const SizedBox(height: 3),
-                      Text(
-                        item.description,
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppColors.textSecondary,
-                          height: 1.35,
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton.icon(
+                          onPressed: isRunning ? null : onTap,
+                          icon: const Icon(Icons.question_answer_rounded,
+                              size: 16),
+                          label: const Text('Perguntar'),
                         ),
                       ),
                     ],
-                    if (item.owner.isNotEmpty) ...[
-                      const SizedBox(height: 3),
-                      Text(
-                        'Responsavel: ${item.owner}',
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ],
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -2003,26 +2047,34 @@ double? _analysisConfidence(FiscalAiInsight? insight) {
   return confidence;
 }
 
-List<_SourceCheck> _sourceChecks(Map<String, dynamic> metrics) {
+List<_SourceCheck> _sourceChecks(
+  Map<String, dynamic> metrics, {
+  required bool hasInsight,
+}) {
   return [
     _SourceCheck(
-      'Balcao Fiscal',
-      _metricInt(metrics, 'eventos_pendentes') > 0 ||
+      'Escala / equipe',
+      hasInsight || _metricInt(metrics, 'colaboradores_ativos') > 0,
+    ),
+    _SourceCheck(
+      'Caixas / alocacoes',
+      hasInsight ||
+          _metricInt(metrics, 'caixas_ativos') > 0 ||
+          _metricInt(metrics, 'caixas_manutencao') > 0 ||
+          _metricInt(metrics, 'alocacoes_ativas') > 0,
+    ),
+    _SourceCheck(
+      'Entregas / pausas',
+      hasInsight ||
+          _metricInt(metrics, 'entregas_aguardando') > 0 ||
+          _metricInt(metrics, 'pausas_em_atraso') > 0,
+    ),
+    _SourceCheck(
+      'Balcao / timeline',
+      hasInsight ||
+          _metricInt(metrics, 'eventos_pendentes') > 0 ||
           _metricInt(metrics, 'midias_pendentes') > 0 ||
           _metricDouble(metrics, 'valor_caixa_pendente') > 0,
-    ),
-    _SourceCheck(
-      'Equipe',
-      _metricInt(metrics, 'colaboradores_ativos') > 0,
-    ),
-    _SourceCheck(
-      'Caixas / PDVs',
-      _metricInt(metrics, 'caixas_ativos') > 0 ||
-          _metricInt(metrics, 'caixas_manutencao') > 0,
-    ),
-    _SourceCheck(
-      'Alocacoes',
-      _metricInt(metrics, 'alocacoes_ativas') > 0,
     ),
   ];
 }
@@ -2065,41 +2117,6 @@ String _operationDescription(
   return 'Execute uma analise para carregar o panorama fiscal do turno.';
 }
 
-int _criticalCount(Map<String, dynamic> metrics, FiscalAiInsight? insight) {
-  final aiCritical =
-      insight?.risks.where((risk) => risk.severity == 'critico').length ?? 0;
-  final metricCritical = _metricInt(metrics, 'ocorrencias_abertas') +
-      (_metricDouble(metrics, 'valor_caixa_pendente') >= 100 ? 1 : 0);
-  return aiCritical > metricCritical ? aiCritical : metricCritical;
-}
-
-int _attentionCount(Map<String, dynamic> metrics, FiscalAiInsight? insight) {
-  final aiAttention = insight?.risks
-          .where((risk) => risk.severity == 'alto' || risk.severity == 'medio')
-          .length ??
-      0;
-  final metricAttention = _metricInt(metrics, 'eventos_pendentes') +
-      _metricInt(metrics, 'midias_pendentes') +
-      _metricInt(metrics, 'caixas_manutencao') +
-      _metricInt(metrics, 'pausas_em_atraso') +
-      _metricInt(metrics, 'entregas_aguardando') +
-      _metricInt(metrics, 'lembretes_vencidos') +
-      _metricInt(metrics, 'checklists_pendentes');
-  return aiAttention > metricAttention ? aiAttention : metricAttention;
-}
-
-int _normalCount(
-  Map<String, dynamic> metrics,
-  int critical,
-  int attention,
-) {
-  final total = _metricInt(metrics, 'caixas_ativos') +
-      _metricInt(metrics, 'colaboradores_ativos') +
-      _metricInt(metrics, 'alocacoes_ativas');
-  final normal = total - critical - attention;
-  return normal > 0 ? normal : 0;
-}
-
 String _formatAiTimestamp(DateTime? value) {
   if (value == null) return 'Sem analise';
   final local = value.toLocal();
@@ -2116,7 +2133,7 @@ String _providerLabel(String? provider, String? model) {
     'anthropic' => 'Anthropic',
     'gemini' => 'Gemini',
     'fallback' => 'Fallback local',
-    'local' => 'Analise local',
+    'local' => 'Fallback local',
     null || '' => 'Aguardando IA',
     _ => provider,
   };
@@ -2131,12 +2148,12 @@ String _sourceLabel(String? source) {
     'ia_gemini' => 'Gemini',
     'ia_gemini_lite' => 'Gemini Lite',
     'ia_anthropic' => 'Anthropic',
-    'local_edge' => 'Edge local',
-    'local_offline' => 'Modo local',
+    'local_edge' => 'Fallback local',
+    'local_offline' => 'Fallback local',
     'sem_conexao' => 'Sem conexao',
-    'timeout_edge' => 'Timeout local',
-    'erro_edge' => 'Erro local',
-    'resposta_vazia' => 'Resposta local',
+    'timeout_edge' => 'Fallback local',
+    'erro_edge' => 'Fallback local',
+    'resposta_vazia' => 'Fallback local',
     null || '' => 'Fonte pendente',
     _ => source,
   };
@@ -2222,6 +2239,26 @@ String _severityLabel(String severity) {
     default:
       return 'Normal';
   }
+}
+
+String _questionFromRecommendation(FiscalAiRecommendation item) {
+  final title = item.title.trim().isEmpty ? 'esta sugestao' : item.title.trim();
+  final description = item.description.trim();
+  final owner = item.owner.trim();
+  final buffer = StringBuffer()
+    ..write('Explique como executar a sugestao "$title" no contexto atual');
+
+  if (description.isNotEmpty) {
+    buffer.write('. Detalhe da sugestao: $description');
+  }
+  if (owner.isNotEmpty) {
+    buffer.write('. Responsavel sugerido: $owner');
+  }
+
+  buffer.write(
+    '. Diga quais dados do app voce usou, o que precisa ser feito agora e se existe alguma acao que voce pode preparar.',
+  );
+  return buffer.toString();
 }
 
 String _riskTitle(FiscalAiRisk risk) {

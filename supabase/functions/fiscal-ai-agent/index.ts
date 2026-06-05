@@ -5,9 +5,9 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") ?? "";
 const OPENAI_MODEL =
-  Deno.env.get("OPENAI_AGENT_MODEL") ?? Deno.env.get("OPENAI_MODEL") ?? "gpt-5.4-mini";
+  Deno.env.get("OPENAI_AGENT_MODEL") ?? Deno.env.get("OPENAI_MODEL") ?? "gpt-5-mini";
 const OPENAI_MINI_MODEL =
-  Deno.env.get("OPENAI_MINI_MODEL") ?? "gpt-5.4-mini";
+  Deno.env.get("OPENAI_MINI_MODEL") ?? "gpt-5-nano";
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") ?? "";
 const GEMINI_MODEL = Deno.env.get("GEMINI_MODEL") ?? "gemini-2.0-flash";
 const GEMINI_LITE_MODEL =
@@ -570,6 +570,30 @@ function intValue(value: unknown, fallback = 0) {
   return parsed == null ? fallback : Math.trunc(parsed);
 }
 
+function normalizedStatus(value: unknown, fallback = "") {
+  return text(value, fallback).trim().toLowerCase();
+}
+
+function isClosedStatus(status: unknown) {
+  return [
+    "concluida",
+    "concluido",
+    "resolvida",
+    "resolvido",
+    "entregue",
+    "cancelada",
+    "cancelado",
+    "finalizado",
+    "finalizada",
+    "dismissed",
+    "executed",
+  ].includes(normalizedStatus(status));
+}
+
+function isOpenDelivery(row: Record<string, unknown>) {
+  return !isClosedStatus(row.status);
+}
+
 function addDays(date: Date, days: number) {
   const next = new Date(date);
   next.setUTCDate(next.getUTCDate() + days);
@@ -792,15 +816,11 @@ async function fetchTableContext(
 }
 
 function statusCount(rows: Record<string, unknown>[], status: string) {
-  return rows.filter((row) => text(row.status).toLowerCase() === status).length;
+  return rows.filter((row) => normalizedStatus(row.status) === status).length;
 }
 
 function openCount(rows: Record<string, unknown>[]) {
-  return rows.filter((row) => {
-    const status = text(row.status).toLowerCase();
-    if (!status) return true;
-    return !["concluida", "concluido", "resolvida", "resolvido", "entregue", "cancelada", "finalizado", "finalizada"].includes(status);
-  }).length;
+  return rows.filter((row) => !isClosedStatus(row.status)).length;
 }
 
 function buildOperationalMetrics(context: Record<string, unknown>) {
@@ -817,7 +837,7 @@ function buildOperationalMetrics(context: Record<string, unknown>) {
   const folgasHoje = escala.filter((turno) => boolValue(turno.folga));
   const pausasAtivas = pausas.filter((pausa) => !text(pausa.finalizado_em));
   const alocacoesAtivas = alocacoes.filter((alocacao) => {
-    const status = text(alocacao.status, "ativo").toLowerCase();
+    const status = normalizedStatus(alocacao.status, "ativo");
     return status === "ativo" && !text(alocacao.liberado_em);
   });
 
@@ -1063,7 +1083,7 @@ function buildReport(context: Record<string, unknown>, insight: FiscalAiInsight)
         "",
         "## Operacao de frente de caixa",
         ...alocacoes
-          .filter((item) => text(item.status, "ativo") === "ativo" && !text(item.liberado_em))
+          .filter((item) => normalizedStatus(item.status, "ativo") === "ativo" && !text(item.liberado_em))
           .slice(0, 12)
           .map((item) =>
             `- Alocado: ${text(item.colaborador_nome) || text(item.colaborador_id)} no caixa ${text(item.caixa_nome) || text(item.caixa_id)}`
@@ -1425,13 +1445,10 @@ function answerQuestionLocally(
   }
 
   if (q.includes("entrega")) {
-    const abertas = entregas.filter((entrega) => {
-      const status = text(entrega.status).toLowerCase();
-      return !["entregue", "cancelada", "finalizada"].includes(status);
-    });
+    const abertas = entregas.filter(isOpenDelivery);
     const porStatus = new Map<string, number>();
     for (const entrega of entregas) {
-      const status = text(entrega.status, "sem_status");
+      const status = normalizedStatus(entrega.status, "sem_status");
       porStatus.set(status, (porStatus.get(status) ?? 0) + 1);
     }
     const resumoStatus = Array.from(porStatus.entries())
@@ -1465,7 +1482,7 @@ function answerQuestionLocally(
 
   if (q.includes("aloca") || q.includes("caixa") || q.includes("pdv")) {
     const ativas = alocacoes.filter((alocacao) =>
-      text(alocacao.status, "ativo") === "ativo" && !text(alocacao.liberado_em)
+      normalizedStatus(alocacao.status, "ativo") === "ativo" && !text(alocacao.liberado_em)
     );
     if (q.includes("caixa") || q.includes("pdv")) {
       const linhas = ativas.slice(0, 18).map((alocacao) =>
