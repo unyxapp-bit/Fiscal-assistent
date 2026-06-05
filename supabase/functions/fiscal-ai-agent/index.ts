@@ -1575,6 +1575,37 @@ function parseJsonObject(raw: string): Record<string, unknown> {
   return JSON.parse(clean);
 }
 
+function safeErrorMessage(error: unknown) {
+  const raw = error instanceof Error ? error.message : String(error);
+  return truncateText(
+    raw
+      .replace(/sk-[A-Za-z0-9_-]+/g, "sk-***")
+      .replace(/AIza[A-Za-z0-9_-]+/g, "AIza***")
+      .replace(/Bearer\s+[A-Za-z0-9._-]+/gi, "Bearer ***"),
+    220,
+  );
+}
+
+function summarizeAiFailures(failures: string[]) {
+  const joined = failures.join(" ").toLowerCase();
+  if (
+    joined.includes("quota") ||
+    joined.includes("credit balance") ||
+    joined.includes("billing") ||
+    joined.includes("rate-limits") ||
+    joined.includes("429")
+  ) {
+    return "IA externa sem cota/credito disponivel em OpenAI/Gemini/Anthropic; usando analise local.";
+  }
+  if (joined.includes("api_key") || joined.includes("unauthorized") || joined.includes("401")) {
+    return "IA externa sem chave valida configurada; usando analise local.";
+  }
+  if (joined.includes("model") || joined.includes("not found") || joined.includes("unsupported")) {
+    return "Modelo da IA externa indisponivel ou invalido; usando analise local.";
+  }
+  return "IA externa falhou; usando analise local.";
+}
+
 const systemPrompt = `
 Voce e um agente operacional para fiscais de caixa de supermercado.
 Analise todo o contexto operacional do app: escala, colaboradores, caixas, alocacoes,
@@ -1708,9 +1739,7 @@ async function callOpenAI(
         { role: "system", content: systemPrompt },
         { role: "user", content: JSON.stringify(input) },
       ],
-      reasoning: { effort: "low" },
       text: {
-        verbosity: "low",
         format: { type: "json_object" },
       },
     }),
@@ -1895,11 +1924,13 @@ async function callAnthropic(input: FiscalAiInput, fallback: FiscalAiInsight) {
 
 async function buildAiInsight(input: FiscalAiInput) {
   const fallback = buildFallbackInsight(input);
+  const failures: string[] = [];
 
   if (OPENAI_API_KEY) {
     try {
       return await callOpenAI(compactInput(input, "full"), fallback, OPENAI_MODEL, "ia_completa");
     } catch (error) {
+      failures.push(`OpenAI ${OPENAI_MODEL}: ${safeErrorMessage(error)}`);
       console.warn("[fiscal-ai-agent] OpenAI primary fallback:", error);
     }
 
@@ -1912,8 +1943,11 @@ async function buildAiInsight(input: FiscalAiInput) {
         "IA completa indisponivel; usando analise resumida.",
       );
     } catch (error) {
+      failures.push(`OpenAI ${OPENAI_MINI_MODEL}: ${safeErrorMessage(error)}`);
       console.warn("[fiscal-ai-agent] OpenAI mini fallback:", error);
     }
+  } else {
+    failures.push("OpenAI: OPENAI_API_KEY nao configurada.");
   }
 
   if (GEMINI_API_KEY) {
@@ -1926,6 +1960,7 @@ async function buildAiInsight(input: FiscalAiInput) {
         "OpenAI indisponivel; usando Gemini.",
       );
     } catch (error) {
+      failures.push(`Gemini ${GEMINI_MODEL}: ${safeErrorMessage(error)}`);
       console.warn("[fiscal-ai-agent] Gemini fallback:", error);
     }
 
@@ -1938,16 +1973,22 @@ async function buildAiInsight(input: FiscalAiInput) {
         "IA principal indisponivel; usando Gemini Lite com contexto minimo.",
       );
     } catch (error) {
+      failures.push(`Gemini ${GEMINI_LITE_MODEL}: ${safeErrorMessage(error)}`);
       console.warn("[fiscal-ai-agent] Gemini Lite fallback:", error);
     }
+  } else {
+    failures.push("Gemini: GEMINI_API_KEY nao configurada.");
   }
 
   if (ANTHROPIC_API_KEY) {
     try {
       return await callAnthropic(compactInput(input, "minimal"), fallback);
     } catch (error) {
+      failures.push(`Anthropic ${ANTHROPIC_MODEL}: ${safeErrorMessage(error)}`);
       console.warn("[fiscal-ai-agent] Anthropic fallback:", error);
     }
+  } else {
+    failures.push("Anthropic: ANTHROPIC_API_KEY nao configurada.");
   }
 
   return {
@@ -1956,7 +1997,7 @@ async function buildAiInsight(input: FiscalAiInput) {
     source: "local_offline",
     fonte: "local_offline",
     warning: OPENAI_API_KEY || GEMINI_API_KEY || ANTHROPIC_API_KEY
-      ? "IA externa falhou; usando analise local."
+      ? summarizeAiFailures(failures)
       : "Configure OPENAI_API_KEY ou GEMINI_API_KEY para respostas generativas.",
   };
 }

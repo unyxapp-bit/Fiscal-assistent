@@ -334,6 +334,10 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
                       running: isBusy,
                     ),
                     const SizedBox(height: Dimensions.spacingMD),
+                    if (insight?.isLocalSource == true) ...[
+                      _AiRuntimeNotice(insight: insight!),
+                      const SizedBox(height: Dimensions.spacingMD),
+                    ],
                     if (aiProvider.error != null) ...[
                       _InlineError(message: aiProvider.error!),
                       const SizedBox(height: Dimensions.spacingMD),
@@ -771,9 +775,14 @@ class _OperationStatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final severity = insight?.overallSeverity ?? _severityFromMetrics(metrics);
-    final color = running ? AppColors.info : _severityColor(severity);
+    final isLocalAi = _isLocalAi(insight, provider, source);
+    final color = running
+        ? AppColors.info
+        : isLocalAi
+            ? AppColors.statusAtencao
+            : _severityColor(severity);
     final confidence = _analysisConfidence(insight);
-    final sources = _sourceChecks(metrics, hasInsight: insight != null);
+    final sources = _sourceChecks(metrics, insight: insight);
 
     return AppSurface(
       elevated: true,
@@ -794,9 +803,11 @@ class _OperationStatusCard extends StatelessWidget {
                 child: Icon(
                   running
                       ? Icons.sync_rounded
-                      : severity == 'normal'
-                          ? Icons.check_rounded
-                          : Icons.priority_high_rounded,
+                      : isLocalAi
+                          ? Icons.cloud_off_rounded
+                          : severity == 'normal'
+                              ? Icons.check_rounded
+                              : Icons.priority_high_rounded,
                   color: color,
                   size: 44,
                 ),
@@ -809,7 +820,9 @@ class _OperationStatusCard extends StatelessWidget {
                     Text(
                       running
                           ? 'Analisando operacao'
-                          : _operationTitle(severity, metrics),
+                          : isLocalAi
+                              ? 'IA externa indisponivel'
+                              : _operationTitle(severity, metrics),
                       style: AppTextStyles.h2.copyWith(
                         fontWeight: FontWeight.w900,
                       ),
@@ -865,9 +878,11 @@ class _OperationStatusCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                confidence == null
-                    ? 'Confianca indisponivel'
-                    : 'Confianca da acao',
+                isLocalAi
+                    ? 'Estado do agente'
+                    : confidence == null
+                        ? 'Confianca indisponivel'
+                        : 'Confianca da acao',
                 style: AppTextStyles.caption.copyWith(
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w800,
@@ -875,9 +890,17 @@ class _OperationStatusCard extends StatelessWidget {
               ),
               const SizedBox(height: Dimensions.spacingXS),
               Text(
-                confidence == null ? '--' : '${(confidence * 100).round()}%',
+                isLocalAi
+                    ? 'Fallback'
+                    : confidence == null
+                        ? '--'
+                        : '${(confidence * 100).round()}%',
                 style: AppTextStyles.h2.copyWith(
-                  color: confidence == null ? AppColors.textSecondary : color,
+                  color: isLocalAi
+                      ? AppColors.statusAtencao
+                      : confidence == null
+                          ? AppColors.textSecondary
+                          : color,
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -886,9 +909,13 @@ class _OperationStatusCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(99),
                 child: LinearProgressIndicator(
                   minHeight: 8,
-                  value: confidence ?? 0,
+                  value: isLocalAi ? 1 : confidence ?? 0,
                   backgroundColor: AppColors.divider,
-                  color: confidence == null ? AppColors.blueGrey : color,
+                  color: isLocalAi
+                      ? AppColors.statusAtencao
+                      : confidence == null
+                          ? AppColors.blueGrey
+                          : color,
                 ),
               ),
               const SizedBox(height: Dimensions.spacingMD),
@@ -1002,6 +1029,108 @@ class _DashboardTwoColumn extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class _AiRuntimeNotice extends StatelessWidget {
+  final FiscalAiInsight insight;
+
+  const _AiRuntimeNotice({required this.insight});
+
+  @override
+  Widget build(BuildContext context) {
+    final warning = insight.warning?.trim();
+    final message = warning == null || warning.isEmpty
+        ? 'A resposta veio da leitura local do app.'
+        : warning;
+
+    return AppSurface(
+      tint: AppColors.statusAtencao,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const OperationalSectionHeader(
+            icon: Icons.cloud_off_rounded,
+            title: 'IA generativa fora do ar',
+          ),
+          const SizedBox(height: Dimensions.spacingSM),
+          Text(
+            'O app carregou o contexto operacional do Supabase, mas a resposta nao veio das APIs externas. Neste momento a tela esta usando fallback local para resumir dados e manter a operacao visivel.',
+            style: AppTextStyles.body.copyWith(
+              color: AppColors.textSecondary,
+              height: 1.35,
+            ),
+          ),
+          const SizedBox(height: Dimensions.spacingSM),
+          _RuntimeStatusLine(
+            icon: Icons.storage_rounded,
+            label: 'Dados do app',
+            value: 'Carregados',
+            color: AppColors.success,
+          ),
+          _RuntimeStatusLine(
+            icon: Icons.auto_awesome_rounded,
+            label: 'OpenAI / Gemini / Anthropic',
+            value: 'Indisponivel',
+            color: AppColors.statusAtencao,
+          ),
+          _RuntimeStatusLine(
+            icon: Icons.info_outline_rounded,
+            label: 'Motivo',
+            value: message,
+            color: AppColors.statusAtencao,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RuntimeStatusLine extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  const _RuntimeStatusLine({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Dimensions.spacingXS),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 17, color: color),
+          const SizedBox(width: Dimensions.spacingSM),
+          SizedBox(
+            width: 126,
+            child: Text(
+              label,
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w800,
+                height: 1.3,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -2049,32 +2178,47 @@ double? _analysisConfidence(FiscalAiInsight? insight) {
 
 List<_SourceCheck> _sourceChecks(
   Map<String, dynamic> metrics, {
-  required bool hasInsight,
+  FiscalAiInsight? insight,
 }) {
+  final summary = insight?.summary.toLowerCase() ?? '';
+  final hasScaleContext = summary.contains('escala') ||
+      summary.contains('colaborador') ||
+      summary.contains('equipe') ||
+      _metricInt(metrics, 'colaboradores_ativos') > 0;
+  final hasCashContext = summary.contains('caixa') ||
+      summary.contains('aloc') ||
+      _metricInt(metrics, 'caixas_ativos') > 0 ||
+      _metricInt(metrics, 'caixas_manutencao') > 0 ||
+      _metricInt(metrics, 'alocacoes_ativas') > 0;
+  final hasDeliveryPauseContext = summary.contains('entrega') ||
+      summary.contains('pausa') ||
+      summary.contains('cafe') ||
+      summary.contains('intervalo') ||
+      _metricInt(metrics, 'entregas_aguardando') > 0 ||
+      _metricInt(metrics, 'pausas_em_atraso') > 0;
+  final hasTimelineContext = summary.contains('balcao') ||
+      summary.contains('timeline') ||
+      summary.contains('pendencia') ||
+      _metricInt(metrics, 'eventos_pendentes') > 0 ||
+      _metricInt(metrics, 'midias_pendentes') > 0 ||
+      _metricDouble(metrics, 'valor_caixa_pendente') > 0;
+
   return [
     _SourceCheck(
       'Escala / equipe',
-      hasInsight || _metricInt(metrics, 'colaboradores_ativos') > 0,
+      hasScaleContext,
     ),
     _SourceCheck(
       'Caixas / alocacoes',
-      hasInsight ||
-          _metricInt(metrics, 'caixas_ativos') > 0 ||
-          _metricInt(metrics, 'caixas_manutencao') > 0 ||
-          _metricInt(metrics, 'alocacoes_ativas') > 0,
+      hasCashContext,
     ),
     _SourceCheck(
       'Entregas / pausas',
-      hasInsight ||
-          _metricInt(metrics, 'entregas_aguardando') > 0 ||
-          _metricInt(metrics, 'pausas_em_atraso') > 0,
+      hasDeliveryPauseContext,
     ),
     _SourceCheck(
       'Balcao / timeline',
-      hasInsight ||
-          _metricInt(metrics, 'eventos_pendentes') > 0 ||
-          _metricInt(metrics, 'midias_pendentes') > 0 ||
-          _metricDouble(metrics, 'valor_caixa_pendente') > 0,
+      hasTimelineContext,
     ),
   ];
 }
@@ -2098,6 +2242,17 @@ String _operationDescription(
   FiscalAiInsight? insight,
 ) {
   final summary = insight?.summary.trim();
+  if (insight?.isLocalSource == true) {
+    final warning = insight?.warning?.trim();
+    final reason = warning == null || warning.isEmpty
+        ? 'A IA externa nao respondeu.'
+        : warning;
+    if (summary != null && summary.isNotEmpty) {
+      return '$reason Leitura local: $summary';
+    }
+    return '$reason Mostrando apenas leitura local do contexto carregado.';
+  }
+
   if (summary != null && summary.isNotEmpty) return summary;
 
   final pending = _metricInt(metrics, 'eventos_pendentes') +
@@ -2141,6 +2296,25 @@ String _providerLabel(String? provider, String? model) {
   return '$providerText / ${model.trim()}';
 }
 
+bool _isLocalAi(
+  FiscalAiInsight? insight,
+  String? provider,
+  String? source,
+) {
+  if (insight?.isLocalSource == true) return true;
+  if (provider == 'local' || provider == 'fallback') return true;
+  return switch (source) {
+    'local_edge' ||
+    'local_offline' ||
+    'sem_conexao' ||
+    'timeout_edge' ||
+    'erro_edge' ||
+    'resposta_vazia' =>
+      true,
+    _ => false,
+  };
+}
+
 String _sourceLabel(String? source) {
   return switch (source) {
     'ia_completa' => 'IA completa',
@@ -2182,7 +2356,7 @@ IconData _sourceIcon(String? source) {
     'ia_mini' => Icons.compress_rounded,
     'ia_gemini' || 'ia_gemini_lite' => Icons.auto_awesome_rounded,
     'ia_anthropic' => Icons.psychology_alt_rounded,
-    'local_edge' || 'local_offline' => Icons.offline_bolt_rounded,
+    'local_edge' || 'local_offline' => Icons.cloud_off_rounded,
     'sem_conexao' => Icons.wifi_off_rounded,
     'timeout_edge' => Icons.timer_off_rounded,
     'erro_edge' || 'resposta_vazia' => Icons.info_outline_rounded,
