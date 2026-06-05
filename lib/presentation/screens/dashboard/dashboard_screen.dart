@@ -709,11 +709,6 @@ class _DashboardScreenState extends State<DashboardScreen>
       }).length;
     }
 
-    final caixasOperacionais = [
-      ...(caixaProvider.caixasTodos.isNotEmpty
-          ? caixaProvider.caixasTodos
-          : caixaProvider.caixas),
-    ]..sort((a, b) => a.numero.compareTo(b.numero));
     final pausasRegistradas = eventoProvider.eventos.where((e) {
       final tipo = e.tipo.valor;
       return tipo.contains('cafe') || tipo.contains('intervalo');
@@ -870,7 +865,6 @@ class _DashboardScreenState extends State<DashboardScreen>
       emRota: emRota,
       alertas: alertas.length,
       metrics: operationalMetrics,
-      caixas: caixasOperacionais,
       quickActions: dashboardV2QuickActions,
       reportItems: dashboardV2ReportItems,
       onPrimaryAction: abrirTurnoOuTimeline,

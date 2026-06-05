@@ -8,7 +8,6 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../data/services/dashboard_quick_note_service.dart';
-import '../../../domain/entities/caixa.dart';
 import '../../widgets/common/operational_widgets.dart';
 
 const _v2Primary = Color(0xFF0F766E);
@@ -134,7 +133,6 @@ class DashboardV2Home extends StatelessWidget {
   final int emRota;
   final int alertas;
   final List<OperationalMetricData> metrics;
-  final List<Caixa> caixas;
   final List<DashboardV2QuickAction> quickActions;
   final List<DashboardV2ReportItem> reportItems;
   final VoidCallback onPrimaryAction;
@@ -165,7 +163,6 @@ class DashboardV2Home extends StatelessWidget {
     required this.emRota,
     required this.alertas,
     required this.metrics,
-    required this.caixas,
     required this.quickActions,
     required this.reportItems,
     required this.onPrimaryAction,
@@ -253,16 +250,6 @@ class DashboardV2Home extends StatelessWidget {
                       ],
                       SizedBox(height: sectionGap),
                       const _QuickNotePanel(),
-                      SizedBox(height: sectionGap),
-                      _OperationalMonitorCard(
-                        caixas: caixas,
-                        alertas: alertas,
-                        turnoCritico: turnoCritico,
-                        turnoEmAtencao: turnoEmAtencao,
-                        onTap: onCaixasTap,
-                        onAlertTap: onAlertTap,
-                        compact: isPhone,
-                      ),
                       SizedBox(height: sectionGap),
                       _DashboardMetricsGrid(
                         metrics: metrics,
@@ -1789,419 +1776,6 @@ class _MetricV2Card extends StatelessWidget {
   }
 }
 
-class _OperationalMonitorCard extends StatelessWidget {
-  final List<Caixa> caixas;
-  final int alertas;
-  final bool turnoCritico;
-  final bool turnoEmAtencao;
-  final VoidCallback onTap;
-  final VoidCallback? onAlertTap;
-  final bool compact;
-
-  const _OperationalMonitorCard({
-    required this.caixas,
-    required this.alertas,
-    required this.turnoCritico,
-    required this.turnoEmAtencao,
-    required this.onTap,
-    this.onAlertTap,
-    this.compact = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final visibleCaixas = caixas.take(compact ? 3 : 5).toList();
-    final hiddenCount = caixas.length - visibleCaixas.length;
-    final statusColor = turnoCritico
-        ? _v2Danger
-        : turnoEmAtencao
-            ? _v2Warning
-            : _v2Success;
-    final statusLabel = turnoCritico
-        ? 'Critico'
-        : turnoEmAtencao
-            ? 'Atencao'
-            : 'Estavel';
-    final alertTap = alertas > 0 ? onAlertTap : null;
-
-    return _V2Card(
-      padding: EdgeInsets.all(compact ? 14 : 20),
-      radius: compact ? 16 : 20,
-      onTap: onTap,
-      semanticLabel: 'Abrir central de caixas',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              _IconBubble(
-                icon: Icons.monitor_heart_outlined,
-                color: _v2Primary,
-                size: compact ? 28 : 32,
-                iconSize: compact ? 16 : 18,
-              ),
-              SizedBox(width: compact ? 8 : 12),
-              Expanded(
-                child: Text(
-                  'Monitor em tempo real',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: _textStyle(
-                    size: compact ? 15 : 18,
-                    color: _v2Text,
-                    weight: FontWeight.w900,
-                  ),
-                ),
-              ),
-              _StatusPill(
-                icon: Icons.circle,
-                label: statusLabel,
-                color: statusColor,
-                compact: true,
-                onTap: alertTap,
-                tooltip: alertTap != null
-                    ? 'Ver alertas da operacao'
-                    : 'Abrir central de caixas',
-              ),
-              SizedBox(width: compact ? 4 : 8),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: _v2Primary,
-                size: compact ? 20 : 24,
-              ),
-            ],
-          ),
-          SizedBox(height: compact ? 14 : 22),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final isWide = constraints.maxWidth >= 860;
-              final summary = _MonitorSummary(
-                alertas: alertas,
-                color: statusColor,
-                statusLabel: statusLabel,
-                compact: compact,
-                onTap: alertTap,
-              );
-              final caixasRow = _MonitorCaixasRow(
-                caixas: visibleCaixas,
-                hiddenCount: hiddenCount,
-                compact: compact,
-                onCaixasTap: onTap,
-              );
-
-              if (!isWide) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    summary,
-                    SizedBox(height: compact ? 12 : 18),
-                    caixasRow,
-                  ],
-                );
-              }
-
-              return Row(
-                children: [
-                  SizedBox(width: 420, child: summary),
-                  Container(width: 1, height: 70, color: _v2Border),
-                  const SizedBox(width: 20),
-                  Expanded(child: caixasRow),
-                ],
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MonitorSummary extends StatelessWidget {
-  final int alertas;
-  final Color color;
-  final String statusLabel;
-  final bool compact;
-  final VoidCallback? onTap;
-
-  const _MonitorSummary({
-    required this.alertas,
-    required this.color,
-    required this.statusLabel,
-    this.compact = false,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final title = alertas > 0
-        ? '$alertas ponto${alertas > 1 ? 's' : ''} exige${alertas > 1 ? 'm' : ''} atencao'
-        : 'Tudo em ordem, nenhum alerta no momento';
-    final subtitle = alertas > 0
-        ? 'Priorize as rotinas pendentes da operacao.'
-        : 'Sua operacao esta fluindo bem.';
-
-    final content = Row(
-      children: [
-        Icon(
-          alertas > 0 ? Icons.priority_high_rounded : Icons.check_circle,
-          color: color,
-          size: compact ? 26 : 34,
-        ),
-        SizedBox(width: compact ? 10 : 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                maxLines: compact ? 1 : 2,
-                overflow: TextOverflow.ellipsis,
-                style: _textStyle(
-                  size: compact ? 12 : 14,
-                  color: color,
-                  weight: FontWeight.w900,
-                ),
-              ),
-              if (!compact) ...[
-                const SizedBox(height: 6),
-                Text(
-                  subtitle,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: _textStyle(
-                    size: 13,
-                    color: _v2Muted,
-                    weight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ],
-    );
-
-    if (onTap == null) return content;
-
-    return Tooltip(
-      message: 'Ver alertas da operacao',
-      child: Semantics(
-        button: true,
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: compact ? 4 : 6),
-              child: content,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _MonitorCaixasRow extends StatelessWidget {
-  final List<Caixa> caixas;
-  final int hiddenCount;
-  final bool compact;
-  final VoidCallback onCaixasTap;
-
-  const _MonitorCaixasRow({
-    required this.caixas,
-    required this.hiddenCount,
-    required this.onCaixasTap,
-    this.compact = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (caixas.isEmpty) {
-      return Container(
-        constraints: BoxConstraints(minHeight: compact ? 52 : 64),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: _v2Background,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: _v2Border),
-        ),
-        child: Text(
-          'Nenhum caixa carregado',
-          style:
-              _textStyle(size: 13, color: _v2Subtle, weight: FontWeight.w700),
-        ),
-      );
-    }
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          for (final caixa in caixas) ...[
-            _CaixaStatusTile(
-              caixa: caixa,
-              compact: compact,
-              onTap: onCaixasTap,
-            ),
-            SizedBox(width: compact ? 8 : 12),
-          ],
-          if (hiddenCount > 0)
-            _MoreCaixasTile(
-              hiddenCount: hiddenCount,
-              compact: compact,
-              onTap: onCaixasTap,
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CaixaStatusTile extends StatelessWidget {
-  final Caixa caixa;
-  final bool compact;
-  final VoidCallback onTap;
-
-  const _CaixaStatusTile({
-    required this.caixa,
-    required this.onTap,
-    this.compact = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final status = _caixaStatus(caixa);
-    final radius = BorderRadius.circular(12);
-
-    return Tooltip(
-      message: 'Abrir central de caixas',
-      child: Material(
-        color: status.color.withValues(alpha: 0.06),
-        shape: RoundedRectangleBorder(
-          borderRadius: radius,
-          side: BorderSide(color: status.color.withValues(alpha: 0.22)),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: SizedBox(
-            width: compact ? 112 : 140,
-            height: compact ? 54 : 64,
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: compact ? 10 : 14,
-                vertical: compact ? 8 : 10,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: status.color,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      SizedBox(width: compact ? 6 : 8),
-                      Expanded(
-                        child: Text(
-                          _formatCaixaName(caixa),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: _textStyle(
-                            size: compact ? 11.5 : 13,
-                            color: _v2Text,
-                            weight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: compact ? 4 : 7),
-                  Text(
-                    status.label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: _textStyle(
-                      size: compact ? 10.5 : 12,
-                      color: status.color,
-                      weight: FontWeight.w800,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _MoreCaixasTile extends StatelessWidget {
-  final int hiddenCount;
-  final bool compact;
-  final VoidCallback onTap;
-
-  const _MoreCaixasTile({
-    required this.hiddenCount,
-    required this.onTap,
-    this.compact = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(12);
-
-    return Tooltip(
-      message: 'Abrir central de caixas',
-      child: Material(
-        color: const Color(0xFFF1F5F9),
-        shape: RoundedRectangleBorder(
-          borderRadius: radius,
-          side: const BorderSide(color: _v2Border),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: SizedBox(
-            width: compact ? 64 : 86,
-            height: compact ? 54 : 64,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '+$hiddenCount',
-                  style: _textStyle(
-                    size: compact ? 13 : 15,
-                    color: _v2Text,
-                    weight: FontWeight.w900,
-                  ),
-                ),
-                SizedBox(height: compact ? 2 : 4),
-                Text(
-                  'Caixas',
-                  style: _textStyle(
-                    size: compact ? 10.5 : 12,
-                    color: _v2Muted,
-                    weight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _DashboardBottomPanels extends StatelessWidget {
   final List<DashboardV2QuickAction> quickActions;
   final List<DashboardV2ReportItem> reportItems;
@@ -3108,78 +2682,6 @@ class _SectionTitle extends StatelessWidget {
   }
 }
 
-class _StatusPill extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final bool compact;
-  final VoidCallback? onTap;
-  final String? tooltip;
-
-  const _StatusPill({
-    required this.icon,
-    required this.label,
-    required this.color,
-    this.compact = false,
-    this.onTap,
-    this.tooltip,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final content = Container(
-      constraints: const BoxConstraints(minHeight: 38),
-      padding: EdgeInsets.symmetric(
-        horizontal: compact ? 12 : 16,
-        vertical: compact ? 8 : 10,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.18)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: color, size: compact ? 12 : 18),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: _textStyle(
-              size: compact ? 12 : 13,
-              color: color,
-              weight: FontWeight.w900,
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (onTap == null) return content;
-
-    final interactive = Semantics(
-      button: true,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(999),
-          child: content,
-        ),
-      ),
-    );
-
-    if (tooltip == null) return interactive;
-
-    return Tooltip(
-      message: tooltip!,
-      child: interactive,
-    );
-  }
-}
-
 class _SoftPill extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
@@ -3283,42 +2785,19 @@ class _V2Card extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
   final double radius;
-  final VoidCallback? onTap;
-  final String? semanticLabel;
 
   const _V2Card({
     required this.child,
     this.padding = const EdgeInsets.all(20),
     this.radius = 20,
-    this.onTap,
-    this.semanticLabel,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (onTap == null) {
-      return Container(
-        padding: padding,
-        decoration: _cardDecoration(radius: radius),
-        child: child,
-      );
-    }
-
-    return Semantics(
-      button: true,
-      label: semanticLabel,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(radius),
-          child: Ink(
-            decoration: _cardDecoration(radius: radius),
-            padding: padding,
-            child: child,
-          ),
-        ),
-      ),
+    return Container(
+      padding: padding,
+      decoration: _cardDecoration(radius: radius),
+      child: child,
     );
   }
 }
@@ -3364,23 +2843,6 @@ TextStyle _textStyle({
   );
 }
 
-_CaixaStatus _caixaStatus(Caixa caixa) {
-  if (caixa.emManutencao) {
-    return const _CaixaStatus('Manutencao', _v2Danger);
-  }
-  if (!caixa.ativo) {
-    return const _CaixaStatus('Inativo', Color(0xFF64748B));
-  }
-  if (caixa.colaboradorAlocadoId != null) {
-    return const _CaixaStatus('Alocado', _v2Success);
-  }
-  return const _CaixaStatus('Ativo', _v2Success);
-}
-
-String _formatCaixaName(Caixa caixa) {
-  return 'Caixa ${caixa.numero.toString().padLeft(2, '0')}';
-}
-
 String _formatDate(DateTime date) {
   try {
     return DateFormat("EEEE, d 'de' MMMM", 'pt_BR').format(date);
@@ -3412,11 +2874,4 @@ String _formatShortDate(DateTime date) {
 String _capitalize(String value) {
   if (value.isEmpty) return value;
   return value[0].toUpperCase() + value.substring(1);
-}
-
-class _CaixaStatus {
-  final String label;
-  final Color color;
-
-  const _CaixaStatus(this.label, this.color);
 }
