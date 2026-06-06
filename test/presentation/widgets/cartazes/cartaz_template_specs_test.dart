@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:fiscal_assistant/data/models/cartaz_form_data.dart';
 import 'package:fiscal_assistant/presentation/widgets/cartazes/cartaz_price_text.dart';
+import 'package:fiscal_assistant/presentation/widgets/cartazes/cartaz_promo_text.dart';
 import 'package:fiscal_assistant/presentation/widgets/cartazes/cartaz_text_adjustments.dart';
 import 'package:fiscal_assistant/presentation/widgets/cartazes/cartaz_template_specs.dart';
+import 'package:fiscal_assistant/presentation/widgets/cartazes/poster_canvas.dart';
 import 'package:fiscal_assistant/presentation/widgets/cartazes/poster_factory.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,6 +28,54 @@ void main() {
         reason: 'Asset ausente para ${spec.title}: ${spec.asset.path}',
       );
     }
+  });
+
+  test('tamanhos de impressao usam layout logico canonico', () {
+    const baseLayout = Size(420, 592);
+
+    for (final tamanho in CartazTamanho.values) {
+      final layoutSize = PosterCanvas.layoutSizeFor(tamanho);
+      final canvasSize = PosterCanvas.canvasSizeFor(tamanho);
+
+      if (tamanho.name.startsWith('a')) {
+        expect(layoutSize, baseLayout);
+      } else {
+        expect(layoutSize, canvasSize);
+      }
+    }
+
+    expect(PosterCanvas.canvasSizeFor(CartazTamanho.a4), isNot(baseLayout));
+  });
+
+  test('opcoes de fonte usam familias registradas do cartaz', () {
+    final families = cartazFontOptions.map((option) => option.family).toSet();
+
+    expect(families, contains(null));
+    expect(families, contains('CartazMontserrat'));
+    expect(families, contains('CartazOswald'));
+    expect(families, contains('CartazAnton'));
+    expect(families, contains('CartazBebasNeue'));
+    expect(families, isNot(contains('sans-serif')));
+  });
+
+  testWidgets('ajuste de fonte chega no texto renderizado', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Center(
+          child: CartazTextStyleScope(
+            adjustment: CartazTextAdjustment(fontFamily: 'CartazAnton'),
+            child: CartazFitTextBox(
+              text: 'OFERTA',
+              alignment: Alignment.center,
+              style: TextStyle(fontSize: 40, fontWeight: FontWeight.w900),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final text = tester.widget<Text>(find.text('OFERTA'));
+    expect(text.style?.fontFamily, 'CartazAnton');
   });
 
   testWidgets('super oferta renderiza com textos do formulario',

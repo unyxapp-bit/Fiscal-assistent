@@ -197,10 +197,23 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
   }
 
   double get _capturePixelRatio {
-    final longestSide = _posterSize.longestSide;
-    if (longestSide <= 900) return 2.0;
-    if (longestSide <= 1400) return 1.6;
-    return 1.0;
+    switch (widget.data.tamanho) {
+      case CartazTamanho.a6:
+        return 2.4;
+      case CartazTamanho.a5:
+        return 2.1;
+      case CartazTamanho.a4:
+        return 1.8;
+      case CartazTamanho.a3:
+        return 1.55;
+      case CartazTamanho.a2:
+        return 1.3;
+      case CartazTamanho.a1:
+        return 1.15;
+      case CartazTamanho.feedQuadrado:
+      case CartazTamanho.storyVertical:
+        return 1.0;
+    }
   }
 
   Widget _buildTemplate({bool showSelection = false}) {
@@ -241,7 +254,7 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
           marginTop: 0,
         ),
         build: (_) => pw.SizedBox.expand(
-          child: pw.Image(img, fit: pw.BoxFit.contain),
+          child: pw.Image(img, fit: pw.BoxFit.fill),
         ),
       ),
     );

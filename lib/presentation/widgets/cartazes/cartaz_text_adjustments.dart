@@ -31,9 +31,10 @@ class CartazFontOption {
 
 const cartazFontOptions = <CartazFontOption>[
   CartazFontOption(label: 'Padrao', family: null),
-  CartazFontOption(label: 'Sans', family: 'sans-serif'),
-  CartazFontOption(label: 'Serif', family: 'serif'),
-  CartazFontOption(label: 'Mono', family: 'monospace'),
+  CartazFontOption(label: 'Montserrat', family: 'CartazMontserrat'),
+  CartazFontOption(label: 'Oswald', family: 'CartazOswald'),
+  CartazFontOption(label: 'Anton', family: 'CartazAnton'),
+  CartazFontOption(label: 'Bebas Neue', family: 'CartazBebasNeue'),
 ];
 
 CartazTextElement? cartazTextElementFromName(String? name) {

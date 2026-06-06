@@ -77,3 +77,16 @@ flutter:
     - assets/icon/
     - templates/
 
+  fonts:
+    - family: CartazMontserrat
+      fonts:
+        - asset: assets/fonts/Montserrat.ttf
+    - family: CartazOswald
+      fonts:
+        - asset: assets/fonts/Oswald.ttf
+    - family: CartazAnton
+      fonts:
+        - asset: assets/fonts/Anton-Regular.ttf
+    - family: CartazBebasNeue
+      fonts:
+        - asset: assets/fonts/BebasNeue-Regular.ttf

@@ -62,8 +62,23 @@ class PosterCanvas extends StatelessWidget {
     }
   }
 
+  static Size layoutSizeFor(CartazTamanho tamanho) {
+    switch (tamanho) {
+      case CartazTamanho.a6:
+      case CartazTamanho.a5:
+      case CartazTamanho.a4:
+      case CartazTamanho.a3:
+      case CartazTamanho.a2:
+      case CartazTamanho.a1:
+        return const Size(420, 592);
+      case CartazTamanho.feedQuadrado:
+      case CartazTamanho.storyVertical:
+        return canvasSizeFor(tamanho);
+    }
+  }
+
   static EdgeInsets safePaddingFor(CartazTamanho tamanho) {
-    final size = canvasSizeFor(tamanho);
+    final size = layoutSizeFor(tamanho);
     return EdgeInsets.fromLTRB(
       size.width * 0.035,
       size.height * 0.028,
@@ -75,10 +90,10 @@ class PosterCanvas extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final canvasSize = canvasSizeFor(tamanho);
-
-    return SizedBox(
-      width: canvasSize.width,
-      height: canvasSize.height,
+    final layoutSize = layoutSizeFor(tamanho);
+    final content = SizedBox(
+      width: layoutSize.width,
+      height: layoutSize.height,
       child: ClipRect(
         child: DecoratedBox(
           decoration: BoxDecoration(
@@ -92,6 +107,18 @@ class PosterCanvas extends StatelessWidget {
             padding: safePadding,
             builder: builder,
           ),
+        ),
+      ),
+    );
+
+    return SizedBox(
+      width: canvasSize.width,
+      height: canvasSize.height,
+      child: ClipRect(
+        child: FittedBox(
+          fit: BoxFit.fill,
+          alignment: Alignment.topLeft,
+          child: content,
         ),
       ),
     );
