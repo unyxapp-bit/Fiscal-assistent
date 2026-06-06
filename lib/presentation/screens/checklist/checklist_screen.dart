@@ -119,6 +119,40 @@ class ChecklistScreen extends StatelessWidget {
     );
   }
 
+  void _abrirFormularioNovo(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const ChecklistTemplateFormScreen(),
+      ),
+    );
+  }
+
+  Future<void> _restaurarPadroes(
+    BuildContext context,
+    ChecklistProvider provider,
+  ) async {
+    try {
+      await provider.restaurarTemplatesPadrao();
+      if (!context.mounted) return;
+      AppNotif.show(
+        context,
+        titulo: 'Padrões restaurados',
+        mensagem: 'Abertura e Fechamento voltaram para a lista.',
+        tipo: 'sucesso',
+        cor: AppColors.success,
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      AppNotif.show(
+        context,
+        titulo: 'Erro ao restaurar',
+        mensagem: 'Não foi possível restaurar os checklists padrão.',
+        tipo: 'erro',
+        cor: AppColors.danger,
+      );
+    }
+  }
+
   Future<void> _abrirChecklist(
     BuildContext context,
     ChecklistProvider provider,
@@ -187,6 +221,79 @@ class ChecklistScreen extends StatelessWidget {
               color: color,
               fontWeight: FontWeight.w700,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(
+    BuildContext context,
+    ChecklistProvider provider,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(Dimensions.paddingMD),
+      decoration: AppStyles.softCard(
+        tint: AppColors.primary,
+        radius: Dimensions.radiusMD,
+        elevated: false,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: 22,
+                backgroundColor: AppColors.primary.withValues(alpha: 0.12),
+                child: Icon(
+                  Icons.checklist_rtl,
+                  color: AppColors.primary,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: Dimensions.spacingSM),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Nenhum checklist ativo', style: AppTextStyles.h4),
+                    const SizedBox(height: 4),
+                    Text(
+                      provider.temTemplatesExcluidos
+                          ? 'Os checklists excluídos não serão recriados automaticamente.'
+                          : 'Crie um fluxo do zero ou use os modelos padrão.',
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: Dimensions.spacingMD),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () => _abrirFormularioNovo(context),
+                icon: const Icon(Icons.add),
+                label: const Text('Novo checklist'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+              OutlinedButton.icon(
+                onPressed: () => _restaurarPadroes(context, provider),
+                icon: const Icon(Icons.restore),
+                label: const Text('Restaurar padrões'),
+              ),
+            ],
           ),
         ],
       ),
@@ -460,44 +567,83 @@ class ChecklistScreen extends StatelessWidget {
         );
         break;
       case 'deletar':
+        var excluirHistorico = true;
         showDialog(
           context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('Excluir checklist'),
-            content: Text(
-              'Excluir "${template.titulo}"? As execuções já registradas não serão afetadas.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text('Cancelar'),
+          builder: (ctx) => StatefulBuilder(
+            builder: (ctx, setDialogState) => AlertDialog(
+              title: const Text('Excluir checklist'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Excluir "${template.titulo}"? Ele sairá do turno, das pendências e não será recriado automaticamente.',
+                  ),
+                  const SizedBox(height: Dimensions.spacingSM),
+                  CheckboxListTile(
+                    value: excluirHistorico,
+                    onChanged: (value) {
+                      setDialogState(() {
+                        excluirHistorico = value ?? true;
+                      });
+                    },
+                    dense: true,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Remover histórico desse checklist'),
+                    subtitle: const Text(
+                      'As execuções antigas também deixam de aparecer aqui.',
+                    ),
+                  ),
+                ],
               ),
-              TextButton(
-                onPressed: () async {
-                  try {
-                    await provider.deletarTemplate(template.id);
-                    if (!ctx.mounted) return;
-                    Navigator.pop(ctx);
-                  } catch (_) {
-                    if (!ctx.mounted) return;
-                    // Deletado localmente; avisa que sync falhou
-                    AppNotif.show(
-                      ctx,
-                      titulo: 'Excluído localmente',
-                      mensagem:
-                          'Removido do dispositivo. Falha ao sincronizar com o servidor.',
-                      tipo: 'alerta',
-                      cor: AppColors.warning,
-                    );
-                    Navigator.pop(ctx);
-                  }
-                },
-                child: Text(
-                  'Excluir',
-                  style: TextStyle(color: AppColors.danger),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Cancelar'),
                 ),
-              ),
-            ],
+                TextButton(
+                  onPressed: () async {
+                    try {
+                      await provider.deletarTemplate(
+                        template.id,
+                        excluirHistorico: excluirHistorico,
+                      );
+                      if (!ctx.mounted) return;
+                      Navigator.pop(ctx);
+                      if (!context.mounted) return;
+                      AppNotif.show(
+                        context,
+                        titulo: 'Checklist excluído',
+                        mensagem: excluirHistorico
+                            ? 'Modelo e histórico removidos.'
+                            : 'Modelo removido. Histórico preservado.',
+                        tipo: 'sucesso',
+                        cor: AppColors.success,
+                      );
+                    } catch (_) {
+                      if (!ctx.mounted) return;
+                      Navigator.pop(ctx);
+                      if (!context.mounted) return;
+                      // Deletado localmente; avisa que sync falhou
+                      AppNotif.show(
+                        context,
+                        titulo: 'Excluído localmente',
+                        mensagem:
+                            'Removido do dispositivo. Falha ao sincronizar com o servidor.',
+                        tipo: 'alerta',
+                        cor: AppColors.warning,
+                      );
+                    }
+                  },
+                  child: Text(
+                    'Excluir',
+                    style: TextStyle(color: AppColors.danger),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
         break;
@@ -664,6 +810,14 @@ class ChecklistScreen extends StatelessWidget {
         title: Text('Checklist de Turno', style: AppTextStyles.h3),
         backgroundColor: AppColors.background,
         elevation: 0,
+        actions: [
+          if (provider.temPadroesExcluidos)
+            IconButton(
+              tooltip: 'Restaurar padrões',
+              onPressed: () => _restaurarPadroes(context, provider),
+              icon: const Icon(Icons.restore),
+            ),
+        ],
       ),
       body: LayoutBuilder(
         builder: (context, constraints) => SingleChildScrollView(
@@ -769,34 +923,7 @@ class ChecklistScreen extends StatelessWidget {
               Text('Turno de Hoje', style: AppTextStyles.h3),
               const SizedBox(height: Dimensions.spacingSM),
               if (templates.isEmpty)
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 40),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.checklist,
-                          size: 56,
-                          color: AppColors.inactive,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Nenhum checklist criado',
-                          style: AppTextStyles.h4.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Use o botão + para criar o primeiro',
-                          style: AppTextStyles.body.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
+                _buildEmptyState(context, provider)
               else if (ativos.isEmpty)
                 Container(
                   padding: const EdgeInsets.all(Dimensions.paddingSM),
@@ -876,11 +1003,7 @@ class ChecklistScreen extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => const ChecklistTemplateFormScreen(),
-          ),
-        ),
+        onPressed: () => _abrirFormularioNovo(context),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),

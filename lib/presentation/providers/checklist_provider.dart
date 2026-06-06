@@ -351,6 +351,11 @@ class ChecklistExecucao {
 class ChecklistProvider with ChangeNotifier {
   static const _table = 'checklist_execucoes';
   static const _tableT = 'checklist_templates';
+  static const _defaultNamespace = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
+  static final _defaultAberturaId =
+      const Uuid().v5(_defaultNamespace, 'checklist:abertura');
+  static final _defaultFechamentoId =
+      const Uuid().v5(_defaultNamespace, 'checklist:fechamento');
 
   final List<ChecklistExecucao> _execucoes = [];
   final List<ChecklistTemplate> _templates = [];
@@ -373,6 +378,12 @@ class ChecklistProvider with ChangeNotifier {
 
   List<ChecklistExecucao> get todas => _execucoes;
   List<ChecklistTemplate> get templates => _templates;
+  bool get temTemplatesExcluidos => _deletedTemplateIds.isNotEmpty;
+  bool get temPadroesExcluidos =>
+      _defaultAberturaFoiExcluido || _defaultFechamentoFoiExcluido;
+
+  bool templateFoiExcluido(String templateId) =>
+      _deletedTemplateIds.contains(templateId);
 
   ChecklistTemplate? templateById(String templateId) =>
       _templates.where((t) => t.id == templateId).firstOrNull;
@@ -509,6 +520,91 @@ class ChecklistProvider with ChangeNotifier {
     await _loadExecucoes();
   }
 
+  bool _deletedIdLooksLikeAbertura(String id) {
+    final titulo = (_titulosCache[id] ?? '').toLowerCase();
+    return id == _defaultAberturaId ||
+        id == 'abertura' ||
+        titulo == 'abertura da loja';
+  }
+
+  bool _deletedIdLooksLikeFechamento(String id) {
+    final titulo = (_titulosCache[id] ?? '').toLowerCase();
+    return id == _defaultFechamentoId ||
+        id == 'fechamento' ||
+        titulo == 'fechamento da loja';
+  }
+
+  bool get _defaultAberturaFoiExcluido =>
+      _deletedTemplateIds.any(_deletedIdLooksLikeAbertura);
+
+  bool get _defaultFechamentoFoiExcluido =>
+      _deletedTemplateIds.any(_deletedIdLooksLikeFechamento);
+
+  bool _templateLooksLikeDefaultAbertura(ChecklistTemplate t) {
+    final titulo = t.titulo.toLowerCase();
+    final parecePadrao = t.isDefault ||
+        t.id == _defaultAberturaId ||
+        titulo == 'abertura da loja';
+    return parecePadrao &&
+        (t.id == _defaultAberturaId ||
+            t.periodizacao == PeriodizacaoChecklist.abertura ||
+            titulo.contains('abertura'));
+  }
+
+  bool _templateLooksLikeDefaultFechamento(ChecklistTemplate t) {
+    final titulo = t.titulo.toLowerCase();
+    final parecePadrao = t.isDefault ||
+        t.id == _defaultFechamentoId ||
+        titulo == 'fechamento da loja';
+    return parecePadrao &&
+        (t.id == _defaultFechamentoId ||
+            t.periodizacao == PeriodizacaoChecklist.fechamento ||
+            titulo.contains('fechamento'));
+  }
+
+  bool _templateDeveFicarOculto(ChecklistTemplate t) {
+    if (_deletedTemplateIds.contains(t.id)) return true;
+    if (_defaultAberturaFoiExcluido && _templateLooksLikeDefaultAbertura(t)) {
+      return true;
+    }
+    if (_defaultFechamentoFoiExcluido &&
+        _templateLooksLikeDefaultFechamento(t)) {
+      return true;
+    }
+    return false;
+  }
+
+  void _registrarTemplateExcluido(String id, ChecklistTemplate? template) {
+    _deletedTemplateIds.add(id);
+    if (template != null) {
+      _titulosCache[template.id] = template.titulo;
+    }
+
+    final probe = template ??
+        ChecklistTemplate(
+          id: id,
+          titulo: _titulosCache[id] ?? id,
+          iconeKey: 'checklist',
+          corHex: '4CAF50',
+          itens: const [],
+          createdAt: DateTime.now(),
+        );
+
+    if (_templateLooksLikeDefaultAbertura(probe)) {
+      _deletedTemplateIds.add(_defaultAberturaId);
+    }
+    if (_templateLooksLikeDefaultFechamento(probe)) {
+      _deletedTemplateIds.add(_defaultFechamentoId);
+    }
+  }
+
+  void _limparExclusoesDeDefaults() {
+    _deletedTemplateIds.removeWhere(
+      (id) =>
+          _deletedIdLooksLikeAbertura(id) || _deletedIdLooksLikeFechamento(id),
+    );
+  }
+
   Future<void> _loadTemplates() async {
     try {
       final rows = await SupabaseClientManager.client
@@ -518,47 +614,69 @@ class ChecklistProvider with ChangeNotifier {
           .order('created_at');
 
       if (rows.isNotEmpty) {
-        _templates.clear();
-        _templates.addAll(rows.map(ChecklistTemplate.fromMap));
+        final remotos = rows.map(ChecklistTemplate.fromMap).toList();
+        final idsParaExcluirRemoto = <String>{};
 
-        // Aplica exclusoes locais, inclusive para templates padrao.
-        if (_deletedTemplateIds.isNotEmpty) {
-          final idsRemotos = _templates.map((t) => t.id).toSet();
-          _templates.removeWhere((t) => _deletedTemplateIds.contains(t.id));
-          for (final id in _deletedTemplateIds.intersection(idsRemotos)) {
-            try {
-              await SupabaseClientManager.client
-                  .from(_tableT)
-                  .delete()
-                  .eq('id', id);
-            } catch (_) {}
+        _templates.clear();
+        for (final template in remotos) {
+          if (_templateDeveFicarOculto(template)) {
+            idsParaExcluirRemoto.add(template.id);
+          } else {
+            _templates.add(template);
           }
-          await _saveDeletedIds();
         }
+
+        for (final id in idsParaExcluirRemoto) {
+          try {
+            await SupabaseClientManager.client
+                .from(_tableT)
+                .delete()
+                .eq('id', id)
+                .eq('fiscal_id', _fiscalId);
+          } catch (_) {}
+        }
+        if (idsParaExcluirRemoto.isNotEmpty) await _saveDeletedIds();
 
         _refreshTitulosCache();
         await _saveTemplatesToCache();
         await _saveTitulosCache();
         notifyListeners();
       } else if (_templates.isEmpty) {
-        // Nenhum dado local nem remoto → semear defaults
-        await _seedTemplates();
+        if (_deletedTemplateIds.isNotEmpty) {
+          await _saveTemplatesToCache();
+          notifyListeners();
+        } else {
+          // Nenhum dado local nem remoto → semear defaults
+          await _seedTemplates();
+        }
       } else {
+        _templates.removeWhere(_templateDeveFicarOculto);
+        await _saveTemplatesToCache();
+        if (_templates.isEmpty && _deletedTemplateIds.isNotEmpty) {
+          notifyListeners();
+          return;
+        }
+
         // Cache local presente mas Supabase vazio → tentar re-upload
         for (final t in _templates) {
           try {
             await _upsertTemplate(t);
           } catch (_) {}
         }
+        notifyListeners();
       }
     } catch (e) {
       if (kDebugMode) {
         debugPrint('[ChecklistProvider] Erro ao carregar templates: $e');
       }
-      if (_templates.isEmpty) {
+      _templates.removeWhere(_templateDeveFicarOculto);
+      if (_templates.isEmpty && _deletedTemplateIds.isEmpty) {
         _templates.addAll(
-          _buildDefaults().where((t) => !_deletedTemplateIds.contains(t.id)),
+          _buildDefaults().where((t) => !_templateDeveFicarOculto(t)),
         );
+        notifyListeners();
+      } else if (_deletedTemplateIds.isNotEmpty) {
+        await _saveTemplatesToCache();
         notifyListeners();
       }
     }
@@ -588,12 +706,14 @@ class ChecklistProvider with ChangeNotifier {
   // ── CRUD Templates ─────────────────────────────────────────────────────────
 
   Future<void> adicionarTemplate(ChecklistTemplate t) async {
+    final removeuExclusao = _deletedTemplateIds.remove(t.id);
     _templates.add(t);
     _titulosCache[t.id] = t.titulo;
     notifyListeners();
     // Salva localmente antes de tentar o Supabase
     await _saveTemplatesToCache();
     await _saveTitulosCache();
+    if (removeuExclusao) await _saveDeletedIds();
     try {
       await _upsertTemplate(t);
       unawaited(OperationAuditService.log(
@@ -619,11 +739,13 @@ class ChecklistProvider with ChangeNotifier {
   Future<void> atualizarTemplate(ChecklistTemplate t) async {
     final i = _templates.indexWhere((x) => x.id == t.id);
     if (i != -1) {
+      final removeuExclusao = _deletedTemplateIds.remove(t.id);
       _templates[i] = t;
       _titulosCache[t.id] = t.titulo;
       notifyListeners();
       await _saveTemplatesToCache();
       await _saveTitulosCache();
+      if (removeuExclusao) await _saveDeletedIds();
       try {
         await _upsertTemplate(t);
         unawaited(OperationAuditService.log(
@@ -646,15 +768,40 @@ class ChecklistProvider with ChangeNotifier {
     }
   }
 
-  Future<void> deletarTemplate(String id) async {
+  Future<void> deletarTemplate(
+    String id, {
+    bool excluirHistorico = false,
+  }) async {
     final removido = _templates.where((t) => t.id == id).firstOrNull;
     _templates.removeWhere((t) => t.id == id);
-    _deletedTemplateIds.add(id);
+    _registrarTemplateExcluido(id, removido);
+    if (excluirHistorico) {
+      _execucoes.removeWhere((e) => e.tipo == id);
+    }
     notifyListeners();
     await _saveTemplatesToCache();
+    if (excluirHistorico) await _saveExecucoesToCache();
     await _saveDeletedIds();
     try {
-      await SupabaseClientManager.client.from(_tableT).delete().eq('id', id);
+      await SupabaseClientManager.client
+          .from(_tableT)
+          .delete()
+          .eq('id', id)
+          .eq('fiscal_id', _fiscalId);
+      if (excluirHistorico) {
+        try {
+          await SupabaseClientManager.client
+              .from(_table)
+              .delete()
+              .eq('tipo', id)
+              .eq('fiscal_id', _fiscalId);
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint(
+                '[ChecklistProvider] Erro ao deletar histórico do template: $e');
+          }
+        }
+      }
       await _saveDeletedIds();
       unawaited(OperationAuditService.log(
         fiscalId: _fiscalId,
@@ -665,6 +812,9 @@ class ChecklistProvider with ChangeNotifier {
         severity: 'warning',
         title: 'Checklist removido',
         description: removido?.titulo,
+        metadata: {
+          'historico_removido': excluirHistorico,
+        },
       ));
     } catch (e) {
       if (kDebugMode) {
@@ -673,6 +823,44 @@ class ChecklistProvider with ChangeNotifier {
       }
       rethrow;
     }
+  }
+
+  Future<void> restaurarTemplatesPadrao() async {
+    _limparExclusoesDeDefaults();
+
+    final idsAtuais = _templates.map((t) => t.id).toSet();
+    final defaults =
+        _buildDefaults().where((t) => !idsAtuais.contains(t.id)).toList();
+
+    if (defaults.isEmpty) {
+      await _saveDeletedIds();
+      notifyListeners();
+      return;
+    }
+
+    _templates.addAll(defaults);
+    _refreshTitulosCache();
+    notifyListeners();
+    await _saveDeletedIds();
+    await _saveTemplatesToCache();
+    await _saveTitulosCache();
+
+    for (final template in defaults) {
+      try {
+        await _upsertTemplate(template);
+      } catch (_) {}
+    }
+
+    unawaited(OperationAuditService.log(
+      fiscalId: _fiscalId,
+      area: 'checklist',
+      action: 'defaults_restored',
+      entityType: 'checklist_template',
+      title: 'Checklists padrão restaurados',
+      metadata: {
+        'templates': defaults.map((t) => t.id).toList(),
+      },
+    ));
   }
 
   Future<void> _upsertTemplate(ChecklistTemplate t) async {
@@ -809,7 +997,8 @@ class ChecklistProvider with ChangeNotifier {
       await SupabaseClientManager.client
           .from(_table)
           .delete()
-          .eq('id', execucaoId);
+          .eq('id', execucaoId)
+          .eq('fiscal_id', _fiscalId);
       unawaited(OperationAuditService.log(
         fiscalId: _fiscalId,
         area: 'checklist',
@@ -886,9 +1075,8 @@ class ChecklistProvider with ChangeNotifier {
       };
 
   Future<void> _seedTemplates() async {
-    final defaults = _buildDefaults()
-        .where((t) => !_deletedTemplateIds.contains(t.id))
-        .toList();
+    final defaults =
+        _buildDefaults().where((t) => !_templateDeveFicarOculto(t)).toList();
     if (defaults.isEmpty) {
       await _saveTemplatesToCache();
       notifyListeners();
@@ -911,10 +1099,9 @@ class ChecklistProvider with ChangeNotifier {
 
   List<ChecklistTemplate> _buildDefaults() {
     final now = DateTime.now();
-    const ns = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
     return [
       ChecklistTemplate(
-        id: const Uuid().v5(ns, 'checklist:abertura'),
+        id: _defaultAberturaId,
         titulo: 'Abertura da Loja',
         descricao: 'Verificações necessárias para abertura',
         iconeKey: 'lock_open',
@@ -926,7 +1113,7 @@ class ChecklistProvider with ChangeNotifier {
         modoExecucao: ModoExecucaoChecklist.continuo,
       ),
       ChecklistTemplate(
-        id: const Uuid().v5(ns, 'checklist:fechamento'),
+        id: _defaultFechamentoId,
         titulo: 'Fechamento da Loja',
         descricao: 'Procedimentos para fechar corretamente',
         iconeKey: 'lock',
@@ -951,6 +1138,10 @@ class ChecklistProvider with ChangeNotifier {
   Future<void> _loadFromLocalCache() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      _deletedTemplateIds.clear();
+      _titulosCache.clear();
+      _templates.clear();
+      _execucoes.clear();
 
       // IDs deletados localmente
       final deletedJson = prefs.getString(_keyDeletedIds);
@@ -972,7 +1163,7 @@ class ChecklistProvider with ChangeNotifier {
         final list = jsonDecode(templatesJson) as List;
         final loaded = list
             .map((m) => ChecklistTemplate.fromMap(m as Map<String, dynamic>))
-            .where((t) => !_deletedTemplateIds.contains(t.id))
+            .where((t) => !_templateDeveFicarOculto(t))
             .toList();
         _templates.addAll(loaded);
       }
