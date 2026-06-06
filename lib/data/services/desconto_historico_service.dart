@@ -131,4 +131,22 @@ class DescontoHistoricoService {
         .from(_table)
         .insert(input.toMap(_fiscalId));
   }
+
+  static Future<void> excluir(String id) async {
+    final cleanId = id.trim();
+    if (cleanId.isEmpty) return;
+
+    await SupabaseClientManager.client
+        .from(_table)
+        .delete()
+        .eq('id', cleanId)
+        .eq('fiscal_id', _fiscalId);
+  }
+
+  static Future<void> limpar() async {
+    await SupabaseClientManager.client
+        .from(_table)
+        .delete()
+        .eq('fiscal_id', _fiscalId);
+  }
 }

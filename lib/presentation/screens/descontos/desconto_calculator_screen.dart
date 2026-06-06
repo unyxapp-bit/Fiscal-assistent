@@ -70,6 +70,8 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
   _DescontoModo _modo = _DescontoModo.comparacao;
   List<DescontoHistoricoItem> _historico = const [];
   bool _carregandoHistorico = false;
+  bool _limpandoHistorico = false;
+  final Set<String> _historicoRemovendoIds = <String>{};
   String? _historicoErro;
 
   @override
@@ -182,6 +184,111 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
         _carregandoHistorico = false;
       });
     }
+  }
+
+  Future<void> _excluirHistorico(DescontoHistoricoItem item) async {
+    final confirmed = await _confirmarAcaoHistorico(
+      titulo: 'Excluir registro?',
+      mensagem: 'Este calculo sera removido do historico.',
+      confirmarLabel: 'Excluir',
+    );
+    if (confirmed != true) return;
+
+    setState(() => _historicoRemovendoIds.add(item.id));
+
+    try {
+      await DescontoHistoricoService.excluir(item.id);
+      if (!mounted) return;
+      AppNotif.show(
+        context,
+        titulo: 'Historico atualizado',
+        mensagem: 'Registro removido.',
+        tipo: 'saida',
+        cor: AppColors.success,
+      );
+      await _carregarHistorico();
+    } catch (_) {
+      if (!mounted) return;
+      AppNotif.show(
+        context,
+        titulo: 'Nao foi possivel excluir',
+        mensagem: 'Confira a conexao e tente novamente.',
+        tipo: 'alerta',
+        cor: AppColors.warning,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _historicoRemovendoIds.remove(item.id));
+      }
+    }
+  }
+
+  Future<void> _limparHistorico() async {
+    if (_historico.isEmpty || _limpandoHistorico) return;
+
+    final confirmed = await _confirmarAcaoHistorico(
+      titulo: 'Limpar historico?',
+      mensagem: 'Todos os calculos de moedas e descontos serao removidos.',
+      confirmarLabel: 'Limpar',
+    );
+    if (confirmed != true) return;
+
+    setState(() => _limpandoHistorico = true);
+
+    try {
+      await DescontoHistoricoService.limpar();
+      if (!mounted) return;
+      setState(() => _historico = const []);
+      AppNotif.show(
+        context,
+        titulo: 'Historico limpo',
+        mensagem: 'Todos os registros foram removidos.',
+        tipo: 'saida',
+        cor: AppColors.success,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      AppNotif.show(
+        context,
+        titulo: 'Nao foi possivel limpar',
+        mensagem: 'Confira a conexao e tente novamente.',
+        tipo: 'alerta',
+        cor: AppColors.warning,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _limpandoHistorico = false);
+      }
+    }
+  }
+
+  Future<bool?> _confirmarAcaoHistorico({
+    required String titulo,
+    required String mensagem,
+    required String confirmarLabel,
+  }) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(titulo),
+        content: Text(mensagem),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () => Navigator.of(context).pop(true),
+            icon: const Icon(Icons.delete_outline_rounded, size: 18),
+            label: Text(confirmarLabel),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _selecionarModo(_DescontoModo modo) {
@@ -555,8 +662,12 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
                           historico: _historico,
                           loading: _carregandoHistorico,
                           errorText: _historicoErro,
+                          clearing: _limpandoHistorico,
+                          removingIds: _historicoRemovendoIds,
                           onRefresh: _carregarHistorico,
                           onCopy: _copiarHistorico,
+                          onDelete: _excluirHistorico,
+                          onClear: _limparHistorico,
                         ),
                       ],
                     ),
@@ -609,8 +720,12 @@ class _DescontoCalculatorScreenState extends State<DescontoCalculatorScreen> {
                 historico: _historico,
                 loading: _carregandoHistorico,
                 errorText: _historicoErro,
+                clearing: _limpandoHistorico,
+                removingIds: _historicoRemovendoIds,
                 onRefresh: _carregarHistorico,
                 onCopy: _copiarHistorico,
+                onDelete: _excluirHistorico,
+                onClear: _limparHistorico,
               ),
             ],
           );
@@ -1151,16 +1266,24 @@ class _ResumoCard extends StatelessWidget {
 class _HistoricoCard extends StatelessWidget {
   final List<DescontoHistoricoItem> historico;
   final bool loading;
+  final bool clearing;
+  final Set<String> removingIds;
   final String? errorText;
   final VoidCallback onRefresh;
   final ValueChanged<DescontoHistoricoItem> onCopy;
+  final ValueChanged<DescontoHistoricoItem> onDelete;
+  final VoidCallback onClear;
 
   const _HistoricoCard({
     required this.historico,
     required this.loading,
+    required this.clearing,
+    required this.removingIds,
     required this.errorText,
     required this.onRefresh,
     required this.onCopy,
+    required this.onDelete,
+    required this.onClear,
   });
 
   @override
@@ -1194,8 +1317,25 @@ class _HistoricoCard extends StatelessWidget {
               ),
               IconButton(
                 tooltip: 'Atualizar',
-                onPressed: onRefresh,
+                onPressed: loading || clearing ? null : onRefresh,
                 icon: const Icon(Icons.refresh_rounded),
+              ),
+              IconButton(
+                tooltip: 'Limpar historico',
+                onPressed:
+                    loading || clearing || historico.isEmpty ? null : onClear,
+                icon: clearing
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Icon(
+                        Icons.delete_sweep_outlined,
+                        color: historico.isEmpty
+                            ? AppColors.textSecondary
+                            : AppColors.danger,
+                      ),
               ),
             ],
           ),
@@ -1230,6 +1370,8 @@ class _HistoricoCard extends StatelessWidget {
                   (item) => _HistoricoTile(
                     item: item,
                     onCopy: () => onCopy(item),
+                    onDelete: () => onDelete(item),
+                    deleting: removingIds.contains(item.id),
                   ),
                 ),
         ],
@@ -1241,8 +1383,15 @@ class _HistoricoCard extends StatelessWidget {
 class _HistoricoTile extends StatelessWidget {
   final DescontoHistoricoItem item;
   final VoidCallback onCopy;
+  final VoidCallback onDelete;
+  final bool deleting;
 
-  const _HistoricoTile({required this.item, required this.onCopy});
+  const _HistoricoTile({
+    required this.item,
+    required this.onCopy,
+    required this.onDelete,
+    required this.deleting,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1292,8 +1441,23 @@ class _HistoricoTile extends StatelessWidget {
           ),
           IconButton(
             tooltip: 'Copiar',
-            onPressed: onCopy,
+            onPressed: deleting ? null : onCopy,
             icon: Icon(Icons.copy_rounded, color: AppColors.primary, size: 18),
+          ),
+          IconButton(
+            tooltip: 'Excluir',
+            onPressed: deleting ? null : onDelete,
+            icon: deleting
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Icon(
+                    Icons.delete_outline_rounded,
+                    color: AppColors.danger,
+                    size: 18,
+                  ),
           ),
         ],
       ),
