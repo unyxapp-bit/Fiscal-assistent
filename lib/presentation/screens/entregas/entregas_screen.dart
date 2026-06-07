@@ -300,6 +300,102 @@ class _EntregasScreenState extends State<EntregasScreen> {
     );
   }
 
+  Future<bool> _confirmarExcluirEntrega(Entrega entrega) async {
+    final confirmado = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          entrega.status == 'entregue'
+              ? 'Excluir entrega concluida?'
+              : 'Excluir entrega?',
+        ),
+        content: Text(
+          'Remover a NF ${entrega.numeroNota} de "${entrega.clienteNome}"? '
+          'Essa acao nao pode ser desfeita.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+    return confirmado ?? false;
+  }
+
+  Future<bool> _confirmarExcluirTodasConcluidas(int total) async {
+    final confirmado = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Excluir entregas concluidas?'),
+        content: Text(
+          'Serao removidas $total entrega(s) concluidas. '
+          'Entregas separadas, em rota ou canceladas nao serao afetadas.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Excluir todas'),
+          ),
+        ],
+      ),
+    );
+    return confirmado ?? false;
+  }
+
+  void _notificarEntregaRemovida(Entrega entrega) {
+    if (!mounted) return;
+    AppNotif.show(
+      context,
+      titulo: 'Entrega excluida',
+      mensagem: 'NF ${entrega.numeroNota} removida.',
+      tipo: 'alerta',
+      cor: AppColors.danger,
+    );
+  }
+
+  Future<void> _excluirEntrega(
+    EntregaProvider provider,
+    Entrega entrega,
+  ) async {
+    if (!await _confirmarExcluirEntrega(entrega)) return;
+    provider.removerEntrega(entrega.id);
+    _notificarEntregaRemovida(entrega);
+  }
+
+  Future<void> _excluirTodasConcluidas(EntregaProvider provider) async {
+    final total = provider.totalEntregues;
+    if (total == 0) return;
+    if (!await _confirmarExcluirTodasConcluidas(total)) return;
+
+    provider.removerEntregasConcluidas();
+    if (!mounted) return;
+    AppNotif.show(
+      context,
+      titulo: 'Entregas excluidas',
+      mensagem: '$total entrega(s) concluidas removidas.',
+      tipo: 'alerta',
+      cor: AppColors.danger,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<EntregaProvider>(context);
@@ -515,9 +611,12 @@ class _EntregasScreenState extends State<EntregasScreen> {
                   ),
                 ),
                 const SizedBox(height: 18),
-                ReferenceSectionTitle(
-                  title: 'Entregas de hoje',
-                  action: '${entregasFiltradas.length} resultado(s)',
+                _EntregasListHeader(
+                  count: entregasFiltradas.length,
+                  completedCount: provider.totalEntregues,
+                  onDeleteCompleted: provider.totalEntregues > 0
+                      ? () => _excluirTodasConcluidas(provider)
+                      : null,
                 ),
                 const SizedBox(height: 10),
                 if (entregasFiltradas.isEmpty)
@@ -547,36 +646,12 @@ class _EntregasScreenState extends State<EntregasScreen> {
                         Dismissible(
                           key: Key(entrega.id),
                           direction: DismissDirection.endToStart,
-                          confirmDismiss: (_) async {
-                            return await showDialog<bool>(
-                                  context: context,
-                                  builder: (ctx) => AlertDialog(
-                                    title: const Text('Excluir Entrega'),
-                                    content: Text(
-                                      'Deseja excluir a entrega de "${entrega.clienteNome}"?',
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(ctx, false),
-                                        child: const Text('Cancelar'),
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () =>
-                                            Navigator.pop(ctx, true),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: AppColors.danger,
-                                          foregroundColor: Colors.white,
-                                        ),
-                                        child: const Text('Excluir'),
-                                      ),
-                                    ],
-                                  ),
-                                ) ??
-                                false;
+                          confirmDismiss: (_) =>
+                              _confirmarExcluirEntrega(entrega),
+                          onDismissed: (_) {
+                            provider.removerEntrega(entrega.id);
+                            _notificarEntregaRemovida(entrega);
                           },
-                          onDismissed: (_) =>
-                              provider.removerEntrega(entrega.id),
                           background: Container(
                             alignment: Alignment.centerRight,
                             padding: const EdgeInsets.only(right: 20),
@@ -599,6 +674,9 @@ class _EntregasScreenState extends State<EntregasScreen> {
                             statusColor: _getStatusColor(entrega.status),
                             statusIcon: _getStatusIcon(entrega.status),
                             statusLabel: _getStatusLabel(entrega.status),
+                            onDelete: entrega.status == 'entregue'
+                                ? () => _excluirEntrega(provider, entrega)
+                                : null,
                             onTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -719,6 +797,71 @@ class _ReferenceKpiRows extends StatelessWidget {
                 width: width,
                 child: child,
               ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _EntregasListHeader extends StatelessWidget {
+  final int count;
+  final int completedCount;
+  final VoidCallback? onDeleteCompleted;
+
+  const _EntregasListHeader({
+    required this.count,
+    required this.completedCount,
+    required this.onDeleteCompleted,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    Widget deleteButton() {
+      return Tooltip(
+        message: 'Excluir todas as entregas concluidas',
+        child: OutlinedButton.icon(
+          onPressed: onDeleteCompleted,
+          icon: const Icon(Icons.delete_sweep_outlined, size: 17),
+          label: const Text('Excluir concluidas'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.danger,
+            side: BorderSide(color: AppColors.danger.withValues(alpha: 0.35)),
+            minimumSize: const Size(0, 36),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          ),
+        ),
+      );
+    }
+
+    final title = ReferenceSectionTitle(
+      title: 'Entregas de hoje',
+      action: '$count resultado(s)',
+    );
+
+    if (onDeleteCompleted == null || completedCount == 0) {
+      return title;
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 560) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              title,
+              const SizedBox(height: 8),
+              deleteButton(),
+            ],
+          );
+        }
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(child: title),
+            const SizedBox(width: 10),
+            deleteButton(),
           ],
         );
       },
@@ -994,6 +1137,7 @@ class _EntregaReferenceCard extends StatelessWidget {
   final Color statusColor;
   final IconData statusIcon;
   final String statusLabel;
+  final VoidCallback? onDelete;
   final VoidCallback onTap;
 
   const _EntregaReferenceCard({
@@ -1001,6 +1145,7 @@ class _EntregaReferenceCard extends StatelessWidget {
     required this.statusColor,
     required this.statusIcon,
     required this.statusLabel,
+    required this.onDelete,
     required this.onTap,
   });
 
@@ -1075,19 +1220,41 @@ class _EntregaReferenceCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    StatusPill(
-                      label: statusLabel,
-                      color: statusColor,
-                      compact: true,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        StatusPill(
+                          label: statusLabel,
+                          color: statusColor,
+                          compact: true,
+                        ),
+                        const SizedBox(height: 6),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          color: tokens.textSecondary,
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 6),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      color: tokens.textSecondary,
-                    ),
+                    if (onDelete != null) ...[
+                      const SizedBox(width: 6),
+                      Tooltip(
+                        message: 'Excluir entrega concluida',
+                        child: IconButton(
+                          onPressed: onDelete,
+                          icon: const Icon(Icons.delete_outline, size: 18),
+                          style: IconButton.styleFrom(
+                            backgroundColor:
+                                AppColors.danger.withValues(alpha: 0.08),
+                            foregroundColor: AppColors.danger,
+                            minimumSize: const Size(34, 34),
+                            padding: EdgeInsets.zero,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ],

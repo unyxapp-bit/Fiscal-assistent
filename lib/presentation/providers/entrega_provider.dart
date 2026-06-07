@@ -299,7 +299,12 @@ class EntregaProvider with ChangeNotifier {
     final removida = _entregas.where((e) => e.id == id).firstOrNull;
     _entregas.removeWhere((e) => e.id == id);
     notifyListeners();
-    SupabaseClientManager.client.from(_table).delete().eq('id', id).then((_) {
+    SupabaseClientManager.client
+        .from(_table)
+        .delete()
+        .eq('id', id)
+        .eq('fiscal_id', _fiscalId)
+        .then((_) {
       // ok
     }).catchError((e) {
       if (kDebugMode) debugPrint('[EntregaProvider] Erro ao remover: $e');
@@ -314,6 +319,47 @@ class EntregaProvider with ChangeNotifier {
       title: 'Entrega removida',
       description: removida?.numeroNota,
     ));
+  }
+
+  /// Remove todas as entregas concluidas do fiscal atual.
+  void removerEntregasConcluidas() {
+    final removidas = entregues;
+    if (removidas.isEmpty) return;
+
+    final ids = removidas.map((e) => e.id).toList();
+    _entregas.removeWhere((e) => e.status == 'entregue');
+    notifyListeners();
+
+    unawaited(_removerEntregasRemotas(ids));
+    unawaited(OperationAuditService.log(
+      fiscalId: _fiscalId,
+      area: 'entregas',
+      action: 'completed_deleted_bulk',
+      entityType: 'entrega',
+      severity: 'warning',
+      title: 'Entregas concluidas removidas',
+      description: '${ids.length} entrega(s) concluidas removidas',
+      metadata: {
+        'total': ids.length,
+        'notas': removidas.map((e) => e.numeroNota).toList(),
+      },
+    ));
+  }
+
+  Future<void> _removerEntregasRemotas(List<String> ids) async {
+    try {
+      for (final id in ids) {
+        await SupabaseClientManager.client
+            .from(_table)
+            .delete()
+            .eq('id', id)
+            .eq('fiscal_id', _fiscalId);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[EntregaProvider] Erro ao remover em lote: $e');
+      }
+    }
   }
 
   String _statusLabel(String status) {
