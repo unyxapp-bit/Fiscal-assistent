@@ -2473,7 +2473,7 @@ class _OperationsActionsGrid extends StatelessWidget {
         final columns = compact ? 2 : _operationsColumns(width, maxColumns);
         final gap = compact ? 10.0 : 14.0;
         final itemWidth = (width - gap * (columns - 1)) / columns;
-        final itemHeight = compact ? 68.0 : (large ? 204.0 : 156.0);
+        final itemHeight = compact ? 62.0 : (large ? 138.0 : 128.0);
 
         return Wrap(
           spacing: gap,
@@ -2515,7 +2515,7 @@ class _OperationsActionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(compact ? 14 : 16),
         onTap: action.onTap,
         child: Ink(
-          padding: EdgeInsets.all(compact ? 10 : (large ? 16 : 14)),
+          padding: EdgeInsets.all(compact ? 9 : (large ? 12 : 12)),
           decoration: _operationsCardDecoration(
             borderColor: action.highlighted
                 ? action.color.withValues(alpha: 0.34)
@@ -2568,8 +2568,8 @@ class _OperationsActionCard extends StatelessWidget {
                     Row(
                       children: [
                         Container(
-                          width: large ? 48 : 42,
-                          height: large ? 48 : 42,
+                          width: large ? 38 : 38,
+                          height: large ? 38 : 38,
                           decoration: BoxDecoration(
                             color: action.color.withValues(alpha: 0.11),
                             borderRadius: BorderRadius.circular(12),
@@ -2577,13 +2577,13 @@ class _OperationsActionCard extends StatelessWidget {
                           child: Icon(
                             action.icon,
                             color: action.color,
-                            size: large ? 25 : 22,
+                            size: large ? 21 : 20,
                           ),
                         ),
                         const Spacer(),
                         Container(
-                          width: 34,
-                          height: 34,
+                          width: 30,
+                          height: 30,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
@@ -2596,35 +2596,35 @@ class _OperationsActionCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: large ? 22 : 16),
+                    SizedBox(height: large ? 10 : 10),
                     Text(
                       action.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.h4.copyWith(
                         color: AppColors.textPrimary,
-                        fontSize: large ? 16 : 14,
+                        fontSize: large ? 14 : 13,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 3),
                     Text(
                       action.subtitle,
-                      maxLines: large ? 2 : 2,
+                      maxLines: large ? 1 : 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.body.copyWith(
                         color: AppColors.textSecondary,
-                        fontSize: 12,
-                        height: 1.25,
+                        fontSize: 11.5,
+                        height: 1.12,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     if (action.badge != null && action.badge!.isNotEmpty) ...[
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 6),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
+                          horizontal: 10,
+                          vertical: 4,
                         ),
                         decoration: BoxDecoration(
                           color: action.color.withValues(alpha: 0.10),
@@ -2636,6 +2636,7 @@ class _OperationsActionCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: AppTextStyles.caption.copyWith(
                             color: action.color,
+                            fontSize: 11,
                             fontWeight: FontWeight.w900,
                           ),
                         ),
