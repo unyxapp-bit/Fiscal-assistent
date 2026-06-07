@@ -4,7 +4,6 @@ import '../../../core/constants/app_styles.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/constants/dimensions.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../data/datasources/remote/caixa_remote_datasource.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/fiscal_provider.dart';
@@ -63,7 +62,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 8, vsync: this);
+    _tabController = TabController(length: 7, vsync: this);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) setState(() {});
     });
@@ -204,34 +203,28 @@ class _DashboardScreenState extends State<DashboardScreen>
         title: 'M\u00f3dulos',
         actions: [
           _MobileMoreAction(
-            label: 'Loja',
-            icon: Icons.store_rounded,
-            color: AppColors.warning,
-            onTap: () => _switchToTab(3),
-          ),
-          _MobileMoreAction(
             label: 'Cartaz',
             icon: Icons.local_offer_rounded,
             color: const Color(0xFFD6166A),
-            onTap: () => _switchToTab(4),
+            onTap: () => _switchToTab(3),
           ),
           _MobileMoreAction(
             label: 'Descontos',
             icon: Icons.percent_rounded,
             color: AppColors.success,
-            onTap: () => _switchToTab(5),
+            onTap: () => _switchToTab(4),
           ),
           _MobileMoreAction(
             label: 'Balc\u00e3o',
             icon: Icons.campaign_rounded,
             color: AppColors.info,
-            onTap: () => _switchToTab(6),
+            onTap: () => _switchToTab(5),
           ),
           _MobileMoreAction(
             label: 'IA Fiscal',
             icon: Icons.auto_awesome_rounded,
             color: AppColors.deepPurple,
-            onTap: () => _switchToTab(7),
+            onTap: () => _switchToTab(6),
           ),
         ],
       ),
@@ -275,6 +268,18 @@ class _DashboardScreenState extends State<DashboardScreen>
             icon: Icons.local_shipping_rounded,
             color: AppColors.primary,
             onTap: () => _openScreen(const EntregasScreen()),
+          ),
+          _MobileMoreAction(
+            label: 'Timeline',
+            icon: Icons.history_rounded,
+            color: AppColors.statusSelf,
+            onTap: () => _openScreen(const TimelineScreen()),
+          ),
+          _MobileMoreAction(
+            label: 'Folga',
+            icon: Icons.beach_access_rounded,
+            color: AppColors.teal,
+            onTap: () => _openScreen(const FolgaScreen()),
           ),
           _MobileMoreAction(
             label: 'Ocorr\u00eancias',
@@ -452,11 +457,6 @@ class _DashboardScreenState extends State<DashboardScreen>
         icon: Icons.build_outlined,
         selectedIcon: Icons.build,
         badgeCount: cafeProvider.totalEmAtraso,
-      ),
-      const _DashboardNavItem(
-        label: 'Loja',
-        icon: Icons.store_outlined,
-        selectedIcon: Icons.store,
       ),
       const _DashboardNavItem(
         label: 'Cartaz',
@@ -759,6 +759,24 @@ class _DashboardScreenState extends State<DashboardScreen>
         ),
       ),
       DashboardV2QuickAction(
+        icon: Icons.history_rounded,
+        title: 'Timeline',
+        subtitle: 'Eventos do turno',
+        color: AppColors.statusSelf,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const TimelineScreen()),
+        ),
+      ),
+      DashboardV2QuickAction(
+        icon: Icons.beach_access_rounded,
+        title: 'Modo Folga',
+        subtitle: 'Aus\u00eancias e cobertura',
+        color: AppColors.teal,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const FolgaScreen()),
+        ),
+      ),
+      DashboardV2QuickAction(
         icon: Icons.shield_outlined,
         title: 'Ocorr\u00eancias',
         subtitle: 'Registrar e acompanhar',
@@ -877,10 +895,10 @@ class _DashboardScreenState extends State<DashboardScreen>
       onCaixasTap: () => _openScreen(
         const GestaoScreen(initialIndex: GestaoScreen.centralIndex),
       ),
-      onCartazTap: () => _switchToTab(4),
-      onDescontoTap: () => _switchToTab(5),
-      onBalcaoTap: () => _switchToTab(6),
-      onAiTap: () => _switchToTab(7),
+      onCartazTap: () => _switchToTab(3),
+      onDescontoTap: () => _switchToTab(4),
+      onBalcaoTap: () => _switchToTab(5),
+      onAiTap: () => _switchToTab(6),
       onRefresh: _refreshData,
     );
 
@@ -1032,6 +1050,24 @@ class _DashboardScreenState extends State<DashboardScreen>
           ),
         ),
         _OperationsActionItem(
+          icon: Icons.history_rounded,
+          title: 'Timeline',
+          subtitle: 'Acompanhe os eventos do turno',
+          color: AppColors.statusSelf,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const TimelineScreen()),
+          ),
+        ),
+        _OperationsActionItem(
+          icon: Icons.beach_access_rounded,
+          title: 'Modo Folga',
+          subtitle: 'Registre aus\u00eancias e cobertura',
+          color: AppColors.teal,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const FolgaScreen()),
+          ),
+        ),
+        _OperationsActionItem(
           icon: Icons.note_alt_outlined,
           title: 'Anota\u00e7\u00f5es',
           subtitle: 'Crie e acompanhe notas r\u00e1pidas',
@@ -1081,85 +1117,6 @@ class _DashboardScreenState extends State<DashboardScreen>
         dashboardV2Home,
         const PizzaModuleScreen(),
         operacoesDashboardV2,
-        RefreshIndicator(
-          onRefresh: _refreshData,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(Dimensions.paddingMD),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const OperationalSectionHeader(
-                  icon: Icons.health_and_safety_outlined,
-                  title: 'Sa\u00fade do turno',
-                ),
-                const SizedBox(height: Dimensions.spacingSM),
-                _BannerSaudeTurno(
-                  critico: turnoCritico,
-                  atencao: turnoEmAtencao,
-                  onTap: onTapBannerSaude,
-                ),
-                const SizedBox(height: Dimensions.spacingMD),
-                if (fiscalProvider.fiscal != null) ...[
-                  const OperationalSectionHeader(
-                    icon: Icons.query_stats_rounded,
-                    title: 'Ocupa\u00e7\u00e3o do turno',
-                  ),
-                  const SizedBox(height: Dimensions.spacingSM),
-                  Container(
-                    decoration: AppStyles.softCard(
-                      context: context,
-                      tint: AppColors.primary,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(Dimensions.paddingMD),
-                      child: _OcupacaoBar(
-                        alocados: alocados,
-                        totalCaixas: totalCaixas,
-                        emPausa: emPausa,
-                        emRota: emRota,
-                      ),
-                    ),
-                  ),
-                ] else
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 60),
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                const SizedBox(height: Dimensions.spacingLG),
-                const OperationalSectionHeader(
-                  icon: Icons.build_outlined,
-                  title: 'Ferramentas r\u00e1pidas',
-                ),
-                const SizedBox(height: Dimensions.spacingSM),
-                _GridAcoes(
-                  botoes: [
-                    _BotaoAcao(
-                      icon: Icons.history,
-                      label: 'Timeline',
-                      color: AppColors.statusSelf,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const TimelineScreen()),
-                      ),
-                    ),
-                    _BotaoAcao(
-                      icon: Icons.beach_access,
-                      label: 'Modo Folga',
-                      color: AppColors.teal,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const FolgaScreen()),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: Dimensions.spacingXL),
-              ],
-            ),
-          ),
-        ),
         const CartazesHomePage(),
         const DescontoCalculatorScreen(),
         const FiscalEventsScreen(),
@@ -1649,62 +1606,6 @@ class _MobileMoreActionCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _BotaoAcao {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onPressed;
-
-  const _BotaoAcao({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onPressed,
-  });
-}
-
-class _GridAcoes extends StatelessWidget {
-  final List<_BotaoAcao> botoes;
-
-  const _GridAcoes({
-    required this.botoes,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return _buildList(context);
-  }
-
-  Widget _buildList(BuildContext context) {
-    final tokens = context.appTheme;
-    return Container(
-      decoration: AppStyles.softCard(
-        context: context,
-        tint: AppColors.primary,
-        radius: tokens.cardRadius,
-        elevated: false,
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        children: [
-          for (var i = 0; i < botoes.length; i++) ...[
-            OperationalActionTile(
-              icon: botoes[i].icon,
-              label: botoes[i].label,
-              color: botoes[i].color,
-              onTap: botoes[i].onPressed,
-              framed: false,
-              dense: true,
-            ),
-            if (i < botoes.length - 1)
-              Divider(height: 1, indent: 52, color: AppColors.cardBorder),
-          ],
-        ],
       ),
     );
   }
@@ -2908,264 +2809,4 @@ class _BannerSaudeDestino {
     required this.label,
     required this.onTap,
   });
-}
-
-class _BannerSaudeTurno extends StatelessWidget {
-  final bool critico;
-  final bool atencao;
-  final VoidCallback? onTap;
-
-  const _BannerSaudeTurno({
-    required this.critico,
-    required this.atencao,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.appTheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color cor;
-    final IconData icone;
-    final String titulo;
-    final String subtitulo;
-
-    if (critico) {
-      cor = AppColors.danger;
-      icone = Icons.error_outline;
-      titulo = 'Turno com alertas cr\u00edticos';
-      subtitulo = 'Verifique pausas em atraso ou lembretes vencidos';
-    } else if (atencao) {
-      cor = AppColors.warning;
-      icone = Icons.warning_amber_outlined;
-      titulo = 'Turno requer aten\u00e7\u00e3o';
-      subtitulo = 'H\u00e1 ocorr\u00eancias, entregas ou checklist pendentes';
-    } else {
-      cor = AppColors.success;
-      icone = Icons.check_circle_outline;
-      titulo = 'Tudo em ordem';
-      subtitulo = 'Nenhum alerta ativo no momento';
-    }
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(tokens.cardRadius),
-        child: Ink(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(
-              horizontal: Dimensions.paddingMD, vertical: Dimensions.paddingSM),
-          decoration: AppStyles.softCard(
-            context: context,
-            tint: cor,
-            radius: tokens.cardRadius,
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: AppStyles.softTile(
-                  context: context,
-                  tint: cor,
-                  radius: 16,
-                ),
-                child: Icon(icone, color: cor, size: 24),
-              ),
-              const SizedBox(width: Dimensions.spacingMD),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      titulo,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: cor,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitulo,
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: AppStyles.softTile(
-                  context: context,
-                  tint: cor,
-                  radius: 999,
-                ),
-                child: Text(
-                  critico
-                      ? 'Cr\u00edtico'
-                      : atencao
-                          ? 'Aten\u00e7\u00e3o'
-                          : 'Est\u00e1vel',
-                  style: AppTextStyles.caption.copyWith(
-                    color: cor,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              if (onTap != null) ...[
-                const SizedBox(width: Dimensions.spacingSM),
-                Icon(
-                  Icons.arrow_forward_rounded,
-                  color: isDark ? cor : AppColors.textSecondary,
-                  size: 16,
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _OcupacaoBar extends StatelessWidget {
-  final int alocados;
-  final int totalCaixas;
-  final int emPausa;
-  final int emRota;
-
-  const _OcupacaoBar({
-    required this.alocados,
-    required this.totalCaixas,
-    required this.emPausa,
-    required this.emRota,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final double progresso =
-        totalCaixas > 0 ? (alocados / totalCaixas).clamp(0.0, 1.0) : 0.0;
-    final int percentual = (progresso * 100).round();
-
-    final Color corBarra = percentual >= 90
-        ? AppColors.danger
-        : percentual >= 60
-            ? AppColors.warning
-            : AppColors.success;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              '$alocados de $totalCaixas caixas ocupados',
-              style: AppTextStyles.body.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-              decoration: AppStyles.softTile(
-                context: context,
-                tint: corBarra,
-                radius: 999,
-              ),
-              child: Text(
-                '$percentual%',
-                style: AppTextStyles.caption.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: corBarra,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: Dimensions.spacingSM),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(Dimensions.radiusSM),
-          child: LinearProgressIndicator(
-            value: progresso,
-            minHeight: 10,
-            backgroundColor: AppColors.cardBorder,
-            valueColor: AlwaysStoppedAnimation<Color>(corBarra),
-          ),
-        ),
-        const SizedBox(height: Dimensions.spacingMD),
-        Divider(height: 1, color: AppColors.cardBorder),
-        const SizedBox(height: Dimensions.spacingMD),
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatRow(
-                context,
-                Icons.coffee_outlined,
-                'Em Pausa',
-                emPausa.toString(),
-                AppColors.coffee,
-              ),
-            ),
-            const SizedBox(width: Dimensions.spacingMD),
-            Expanded(
-              child: _buildStatRow(
-                context,
-                Icons.local_shipping_outlined,
-                'Em Rota',
-                emRota.toString(),
-                AppColors.statusCafe,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatRow(
-    BuildContext context,
-    IconData icon,
-    String label,
-    String value,
-    Color color,
-  ) {
-    return Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: Dimensions.paddingSM,
-          vertical: Dimensions.paddingSM,
-        ),
-        decoration: AppStyles.softTile(
-          context: context,
-          tint: color,
-          radius: 18,
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 18, color: color),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value,
-                  style: AppTextStyles.body.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                ),
-                Text(
-                  label,
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ));
-  }
 }
