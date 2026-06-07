@@ -67,7 +67,7 @@ class CaixasCentralView extends StatelessWidget {
       color: AppColors.primary,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(14),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 1440),
@@ -79,19 +79,22 @@ class CaixasCentralView extends StatelessWidget {
                   gargalos: gargalos,
                   atrasos: cafe.totalEmAtraso,
                 ),
-                const SizedBox(height: 22),
+                const SizedBox(height: 12),
                 _CaixasSummaryGrid(
                   disponiveis: disponiveis.length,
                   alocados: alocacao.quantidadeAtivasAgora,
                   emPausa: cafe.totalAtivos,
                   risco: risco,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 14),
                 Text(
                   'Ações necessárias',
-                  style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.w900),
+                  style: AppTextStyles.h3.copyWith(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 17,
+                  ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 10),
                 _ActionGrid(
                   actions: [
                     if (sugestaoColaborador != null && sugestaoCaixa != null)
@@ -158,7 +161,7 @@ class CaixasCentralView extends StatelessWidget {
                       ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 18),
                 LayoutBuilder(
                   builder: (context, constraints) {
                     final wide = constraints.maxWidth >= 920;
@@ -234,30 +237,30 @@ class _CaixasHeroHeader extends StatelessWidget {
         : 'Sem atrasos ou gargalos previstos.';
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [Color(0xFF0F766E), Color(0xFF14B8A6)],
         ),
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(alpha: 0.14),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
           final alert = Container(
-            width: constraints.maxWidth >= 780 ? 286 : double.infinity,
-            padding: const EdgeInsets.all(14),
+            width: constraints.maxWidth >= 780 ? 260 : double.infinity,
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: Colors.black.withValues(alpha: 0.16),
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: Row(
               children: [
@@ -266,9 +269,9 @@ class _CaixasHeroHeader extends StatelessWidget {
                       ? Icons.notifications_active_rounded
                       : Icons.check_circle_outline_rounded,
                   color: color,
-                  size: 24,
+                  size: 18,
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -280,16 +283,16 @@ class _CaixasHeroHeader extends StatelessWidget {
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w900,
-                          fontSize: 14,
+                          fontSize: 12.5,
                         ),
                       ),
                       Text(
                         subtitle,
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.72),
-                          fontSize: 12.5,
+                          fontSize: 11,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -306,23 +309,23 @@ class _CaixasHeroHeader extends StatelessWidget {
               const Text(
                 'Central Operacional',
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 24,
                   fontWeight: FontWeight.w900,
                   color: Colors.white,
                   letterSpacing: 0,
                   height: 1.05,
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 3),
               Text(
                 'Decida quem alocar, quem liberar e onde existe risco de cobertura.',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.76),
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  height: 1.28,
+                  height: 1.18,
                 ),
               ),
             ],
@@ -331,14 +334,14 @@ class _CaixasHeroHeader extends StatelessWidget {
           if (constraints.maxWidth < 780) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [headline, const SizedBox(height: 12), alert],
+              children: [headline, const SizedBox(height: 8), alert],
             );
           }
 
           return Row(
             children: [
               Expanded(child: headline),
-              const SizedBox(width: 18),
+              const SizedBox(width: 12),
               alert,
             ],
           );
@@ -408,9 +411,9 @@ class _CaixasSummaryGrid extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: columns,
-            crossAxisSpacing: 14,
-            mainAxisSpacing: 14,
-            mainAxisExtent: 112,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            mainAxisExtent: 76,
           ),
           itemBuilder: (context, index) => _SummaryCard(info: items[index]),
         );
@@ -428,9 +431,9 @@ class _ActionGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = constraints.maxWidth >= 1080
+        final columns = constraints.maxWidth >= 820
             ? 3
-            : constraints.maxWidth >= 700
+            : constraints.maxWidth >= 560
                 ? 2
                 : 1;
 
@@ -440,9 +443,9 @@ class _ActionGrid extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: columns,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            mainAxisExtent: 178,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            mainAxisExtent: 108,
           ),
           itemBuilder: (context, index) =>
               _OperationalActionCard(action: actions[index]),
@@ -702,15 +705,17 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(10),
       decoration: _softCard(
         color: info.color.withValues(alpha: 0.06),
         borderColor: info.color.withValues(alpha: 0.18),
+        radius: 16,
+        elevated: false,
       ),
       child: Row(
         children: [
-          _IconBox(icon: info.icon, color: info.color, size: 48),
-          const SizedBox(width: 14),
+          _IconBox(icon: info.icon, color: info.color, size: 38),
+          const SizedBox(width: 9),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -721,14 +726,14 @@ class _SummaryCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 28,
+                    fontSize: 22,
                     fontWeight: FontWeight.w900,
                     color: info.color,
                     letterSpacing: 0,
                     height: 1,
                   ),
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 2),
                 Text(
                   info.title,
                   maxLines: 1,
@@ -736,6 +741,7 @@ class _SummaryCard extends StatelessWidget {
                   style: AppTextStyles.label.copyWith(
                     fontWeight: FontWeight.w900,
                     color: AppColors.textPrimary,
+                    fontSize: 11.5,
                   ),
                 ),
                 Text(
@@ -744,7 +750,7 @@ class _SummaryCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.caption.copyWith(
                     color: AppColors.textSecondary,
-                    fontSize: 12,
+                    fontSize: 10.5,
                   ),
                 ),
               ],
@@ -764,57 +770,61 @@ class _OperationalActionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(10),
       decoration: _softCard(
         color: action.color.withValues(alpha: 0.06),
         borderColor: action.color.withValues(alpha: 0.22),
+        radius: 16,
+        elevated: false,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              _IconBox(icon: action.icon, color: action.color, size: 34),
+              _IconBox(icon: action.icon, color: action.color, size: 28),
               const Spacer(),
-              Icon(Icons.chevron_right_rounded, color: action.color, size: 20),
+              Icon(Icons.chevron_right_rounded, color: action.color, size: 18),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 6),
           Text(
             action.title,
-            maxLines: 2,
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTextStyles.h4.copyWith(
               fontWeight: FontWeight.w900,
-              fontSize: 15,
-              height: 1.12,
+              fontSize: 12.5,
+              height: 1.05,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Expanded(
             child: Text(
               action.description,
-              maxLines: 2,
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppTextStyles.caption.copyWith(
                 color: AppColors.textSecondary,
-                height: 1.25,
+                fontSize: 10.5,
+                height: 1.05,
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 5),
           FilledButton(
             style: FilledButton.styleFrom(
               backgroundColor: action.color,
               foregroundColor: Colors.white,
-              minimumSize: const Size(0, 34),
+              minimumSize: const Size(0, 26),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               textStyle: AppTextStyles.caption.copyWith(
+                fontSize: 10.5,
                 fontWeight: FontWeight.w900,
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(9),
               ),
             ),
             onPressed: action.onTap,
@@ -1162,7 +1172,7 @@ class _IconBox extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(size <= 30 ? 9 : 12),
       ),
       child: Icon(icon, color: color, size: size * 0.48),
     );
