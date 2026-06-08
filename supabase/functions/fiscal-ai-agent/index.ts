@@ -1586,24 +1586,71 @@ function safeErrorMessage(error: unknown) {
   );
 }
 
-function summarizeAiFailures(failures: string[]) {
-  const joined = failures.join(" ").toLowerCase();
+function providerFromFailure(failure: string) {
+  const lower = failure.toLowerCase();
+  if (lower.startsWith("openai")) return "OpenAI";
+  if (lower.startsWith("gemini")) return "Gemini";
+  if (lower.startsWith("anthropic")) return "Anthropic";
+  return "IA externa";
+}
+
+function classifyFailure(failure: string) {
+  const lower = failure.toLowerCase();
   if (
-    joined.includes("quota") ||
-    joined.includes("credit balance") ||
-    joined.includes("billing") ||
-    joined.includes("rate-limits") ||
-    joined.includes("429")
+    lower.includes("quota") ||
+    lower.includes("credit balance") ||
+    lower.includes("billing") ||
+    lower.includes("rate-limits") ||
+    lower.includes("429")
   ) {
-    return "IA externa sem cota/credito disponivel em OpenAI/Gemini/Anthropic; usando analise local.";
+    return "sem cota/credito";
   }
-  if (joined.includes("api_key") || joined.includes("unauthorized") || joined.includes("401")) {
-    return "IA externa sem chave valida configurada; usando analise local.";
+  if (
+    lower.includes("api_key") ||
+    lower.includes("api key") ||
+    lower.includes("nao configurada") ||
+    lower.includes("unauthorized") ||
+    lower.includes("401")
+  ) {
+    return "sem chave valida";
   }
-  if (joined.includes("model") || joined.includes("not found") || joined.includes("unsupported")) {
-    return "Modelo da IA externa indisponivel ou invalido; usando analise local.";
+  if (
+    lower.includes("model") ||
+    lower.includes("not found") ||
+    lower.includes("unsupported")
+  ) {
+    return "com modelo indisponivel";
   }
-  return "IA externa falhou; usando analise local.";
+  return "falhou";
+}
+
+function summarizeAiFailures(failures: string[]) {
+  const byReason = new Map<string, Set<string>>();
+
+  for (const failure of failures) {
+    const reason = classifyFailure(failure);
+    const provider = providerFromFailure(failure);
+    const providers = byReason.get(reason) ?? new Set<string>();
+    providers.add(provider);
+    byReason.set(reason, providers);
+  }
+
+  if (byReason.size === 0) {
+    return "IA externa falhou; usando analise local.";
+  }
+
+  const priority = [
+    "sem cota/credito",
+    "sem chave valida",
+    "com modelo indisponivel",
+    "falhou",
+  ];
+  const details = priority
+    .filter((reason) => byReason.has(reason))
+    .map((reason) => `${Array.from(byReason.get(reason)!).join("/")} ${reason}`)
+    .join("; ");
+
+  return `IA externa indisponivel (${details}); usando analise local.`;
 }
 
 const systemPrompt = `
@@ -2626,8 +2673,11 @@ serve(async (req) => {
       insight = await executeAction(normalizedInput, insight, supabase);
     }
 
-    const snapshotId = await persistSnapshot(supabase, normalizedInput, insight);
-    await persistSuggestedAction(supabase, normalizedInput, insight, snapshotId);
+    const isRuntimeTest = asRecord(normalizedInput.context).runtime_test === true;
+    if (!isRuntimeTest) {
+      const snapshotId = await persistSnapshot(supabase, normalizedInput, insight);
+      await persistSuggestedAction(supabase, normalizedInput, insight, snapshotId);
+    }
 
     return new Response(JSON.stringify(insight), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

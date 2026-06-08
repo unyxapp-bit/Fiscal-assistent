@@ -7,6 +7,7 @@ import '../../../core/constants/dimensions.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../core/utils/app_notif.dart';
 import '../../../data/models/fiscal_ai_models.dart';
+import '../../../data/services/fiscal_ai_service.dart';
 import '../../../data/services/multimodal_inbox_service.dart';
 import '../../providers/alocacao_provider.dart';
 import '../../providers/auth_provider.dart';
@@ -36,6 +37,9 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
   final _questionSectionKey = GlobalKey();
   bool _bootstrapped = false;
   bool _analisandoMidia = false;
+  bool _testingExternalAi = false;
+  FiscalAiInsight? _lastApiTestInsight;
+  DateTime? _lastApiTestAt;
 
   @override
   void initState() {
@@ -92,9 +96,74 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
     if (fiscalId == null || fiscalId.isEmpty) return;
 
     await context.read<FiscalAiProvider>().analyze(
-          fiscalId: fiscalId,
-          context: _buildAiContext(context),
-        );
+      fiscalId: fiscalId,
+      context: _buildAiContext(context),
+    );
+  }
+
+  Future<void> _testExternalAi() async {
+    if (_testingExternalAi) return;
+
+    final fiscalId = context.read<AuthProvider>().user?.id;
+    if (fiscalId == null || fiscalId.isEmpty) {
+      AppNotif.show(
+        context,
+        titulo: 'Teste da IA',
+        mensagem: 'Entre com um usuario fiscal para testar a IA.',
+        tipo: 'alerta',
+        cor: AppColors.statusAtencao,
+      );
+      return;
+    }
+
+    setState(() => _testingExternalAi = true);
+
+    try {
+      final insight = await FiscalAiService().runAgent(
+        fiscalId: fiscalId,
+        intent: 'ask',
+        question:
+            'Teste rapido de conectividade. Responda apenas confirmando se a IA externa esta ativa.',
+        context: {
+          'runtime_test': true,
+          'generated_at': DateTime.now().toIso8601String(),
+          'context_policy': {'mode': 'runtime_test'},
+          'metrics': _buildAiMetrics(context),
+        },
+      );
+      if (!mounted) return;
+
+      final ok = _isExternalAiResult(insight);
+      setState(() {
+        _lastApiTestInsight = insight;
+        _lastApiTestAt = DateTime.now();
+      });
+
+      AppNotif.show(
+        context,
+        titulo: ok ? 'IA externa ativa' : 'IA ainda em fallback',
+        mensagem: ok
+            ? 'Teste OK via ${_providerLabel(insight.provider, insight.model)}.'
+            : (insight.warning?.trim().isNotEmpty == true
+                  ? insight.warning!
+                  : 'A chamada respondeu usando fallback local.'),
+        tipo: ok ? 'saida' : 'alerta',
+        cor: ok ? AppColors.success : AppColors.statusAtencao,
+        duracao: const Duration(seconds: 4),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      AppNotif.show(
+        context,
+        titulo: 'Teste da IA falhou',
+        mensagem: 'Nao foi possivel testar agora: $e',
+        tipo: 'alerta',
+        cor: AppColors.danger,
+        duracao: const Duration(seconds: 4),
+      );
+    } finally {
+      if (mounted) setState(() => _testingExternalAi = false);
+    }
   }
 
   Future<void> _analisarMidiaComIa() async {
@@ -111,9 +180,9 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
       final fiscalId = context.read<AuthProvider>().user?.id;
       if (fiscalId != null && fiscalId.isNotEmpty && result.success) {
         await context.read<FiscalAiProvider>().analyze(
-              fiscalId: fiscalId,
-              context: _buildAiContext(context),
-            );
+          fiscalId: fiscalId,
+          context: _buildAiContext(context),
+        );
       }
       if (!mounted) return;
 
@@ -138,10 +207,10 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
 
     _questionController.clear();
     await context.read<FiscalAiProvider>().analyze(
-          fiscalId: fiscalId,
-          question: question,
-          context: _buildAiContext(context),
-        );
+      fiscalId: fiscalId,
+      question: question,
+      context: _buildAiContext(context),
+    );
   }
 
   Future<void> _executePlan(FiscalAiActionPlan plan) async {
@@ -150,12 +219,12 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
     if (fiscalId == null || fiscalId.isEmpty || toolName == null) return;
 
     await context.read<FiscalAiProvider>().runAction(
-          fiscalId: fiscalId,
-          toolName: toolName,
-          context: _buildAiContext(context),
-          arguments: plan.arguments,
-          confirmed: plan.confirmationRequired,
-        );
+      fiscalId: fiscalId,
+      toolName: toolName,
+      context: _buildAiContext(context),
+      arguments: plan.arguments,
+      confirmed: plan.confirmationRequired,
+    );
   }
 
   Future<void> _resolveRisk(FiscalAiRisk risk) async {
@@ -191,7 +260,8 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
   }
 
   Future<void> _registerResolutionTimeline(
-      FiscalAiResolution resolution) async {
+    FiscalAiResolution resolution,
+  ) async {
     final fiscalId = context.read<AuthProvider>().user?.id;
     if (fiscalId == null || fiscalId.isEmpty) return;
 
@@ -271,10 +341,10 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
     if (fiscalId == null || fiscalId.isEmpty) return;
 
     await context.read<FiscalAiProvider>().runQueuedAction(
-          fiscalId: fiscalId,
-          action: action,
-          fallbackContext: _buildAiContext(context),
-        );
+      fiscalId: fiscalId,
+      action: action,
+      fallbackContext: _buildAiContext(context),
+    );
   }
 
   Future<void> _dismissQueuedAction(FiscalAiQueuedAction action) async {
@@ -282,9 +352,9 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
     if (fiscalId == null || fiscalId.isEmpty) return;
 
     await context.read<FiscalAiProvider>().dismissAction(
-          fiscalId: fiscalId,
-          action: action,
-        );
+      fiscalId: fiscalId,
+      action: action,
+    );
   }
 
   @override
@@ -318,10 +388,21 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
                     _AiDashboardHeader(
                       displayName: displayName,
                       isBusy: isBusy,
+                      isTestingExternalAi: _testingExternalAi,
                       onAnalyzeMedia: _analisarMidiaComIa,
+                      onTestExternalAi: _testExternalAi,
                       onRefresh: _runAnalysis,
                     ),
                     const SizedBox(height: Dimensions.spacingMD),
+                    if (_lastApiTestInsight != null) ...[
+                      _AiRuntimeTestNotice(
+                        insight: _lastApiTestInsight!,
+                        testedAt: _lastApiTestAt,
+                        isTesting: _testingExternalAi,
+                        onRetest: _testExternalAi,
+                      ),
+                      const SizedBox(height: Dimensions.spacingMD),
+                    ],
                     _OperationStatusCard(
                       metrics: metrics,
                       insight: insight,
@@ -499,8 +580,9 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
       };
     }).toList();
 
-    final colaboradores =
-        colaboradorProvider.todosColaboradores.take(80).map((colaborador) {
+    final colaboradores = colaboradorProvider.todosColaboradores.take(80).map((
+      colaborador,
+    ) {
       return {
         'id': colaborador.id,
         'nome': colaborador.nome,
@@ -531,17 +613,18 @@ class _FiscalAiScreenState extends State<FiscalAiScreen> {
         .where((alocacao) => alocacao.isAtiva)
         .take(60)
         .map((alocacao) {
-      return {
-        'id': alocacao.id,
-        'colaborador_id': alocacao.colaboradorId,
-        'caixa_id': alocacao.caixaId,
-        'alocado_em': alocacao.alocadoEm.toIso8601String(),
-        'liberado_em': alocacao.liberadoEm?.toIso8601String(),
-        'is_ativa': alocacao.isAtiva,
-        'duracao_minutos': alocacao.duracaoMinutos,
-        'intervalo_marcado_feito': alocacao.intervaloMarcadoFeito,
-      };
-    }).toList();
+          return {
+            'id': alocacao.id,
+            'colaborador_id': alocacao.colaboradorId,
+            'caixa_id': alocacao.caixaId,
+            'alocado_em': alocacao.alocadoEm.toIso8601String(),
+            'liberado_em': alocacao.liberadoEm?.toIso8601String(),
+            'is_ativa': alocacao.isAtiva,
+            'duracao_minutos': alocacao.duracaoMinutos,
+            'intervalo_marcado_feito': alocacao.intervaloMarcadoFeito,
+          };
+        })
+        .toList();
 
     return {
       'generated_at': DateTime.now().toIso8601String(),
@@ -632,13 +715,17 @@ class _InlineError extends StatelessWidget {
 class _AiDashboardHeader extends StatelessWidget {
   final String displayName;
   final bool isBusy;
+  final bool isTestingExternalAi;
   final VoidCallback onAnalyzeMedia;
+  final VoidCallback onTestExternalAi;
   final VoidCallback onRefresh;
 
   const _AiDashboardHeader({
     required this.displayName,
     required this.isBusy,
+    required this.isTestingExternalAi,
     required this.onAnalyzeMedia,
+    required this.onTestExternalAi,
     required this.onRefresh,
   });
 
@@ -712,6 +799,18 @@ class _AiDashboardHeader extends StatelessWidget {
                   : const Icon(Icons.upload_file_rounded, size: 18),
               label: const Text('Analisar midia'),
             ),
+            OutlinedButton.icon(
+              onPressed: isBusy || isTestingExternalAi
+                  ? null
+                  : onTestExternalAi,
+              icon: isTestingExternalAi
+                  ? const SizedBox.square(
+                      dimension: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.network_check_rounded, size: 18),
+              label: const Text('Testar IA'),
+            ),
             FilledButton.icon(
               onPressed: isBusy ? null : onRefresh,
               icon: isBusy
@@ -779,8 +878,8 @@ class _OperationStatusCard extends StatelessWidget {
     final color = running
         ? AppColors.info
         : isLocalAi
-            ? AppColors.statusAtencao
-            : _severityColor(severity);
+        ? AppColors.statusAtencao
+        : _severityColor(severity);
     final confidence = _analysisConfidence(insight);
     final sources = _sourceChecks(metrics, insight: insight);
 
@@ -804,10 +903,10 @@ class _OperationStatusCard extends StatelessWidget {
                   running
                       ? Icons.sync_rounded
                       : isLocalAi
-                          ? Icons.cloud_off_rounded
-                          : severity == 'normal'
-                              ? Icons.check_rounded
-                              : Icons.priority_high_rounded,
+                      ? Icons.cloud_off_rounded
+                      : severity == 'normal'
+                      ? Icons.check_rounded
+                      : Icons.priority_high_rounded,
                   color: color,
                   size: 44,
                 ),
@@ -821,8 +920,8 @@ class _OperationStatusCard extends StatelessWidget {
                       running
                           ? 'Analisando operacao'
                           : isLocalAi
-                              ? 'IA externa indisponivel'
-                              : _operationTitle(severity, metrics),
+                          ? 'IA externa indisponivel'
+                          : _operationTitle(severity, metrics),
                       style: AppTextStyles.h2.copyWith(
                         fontWeight: FontWeight.w900,
                       ),
@@ -881,8 +980,8 @@ class _OperationStatusCard extends StatelessWidget {
                 isLocalAi
                     ? 'Estado do agente'
                     : confidence == null
-                        ? 'Confianca indisponivel'
-                        : 'Confianca da acao',
+                    ? 'Confianca indisponivel'
+                    : 'Confianca da acao',
                 style: AppTextStyles.caption.copyWith(
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w800,
@@ -893,14 +992,14 @@ class _OperationStatusCard extends StatelessWidget {
                 isLocalAi
                     ? 'Fallback'
                     : confidence == null
-                        ? '--'
-                        : '${(confidence * 100).round()}%',
+                    ? '--'
+                    : '${(confidence * 100).round()}%',
                 style: AppTextStyles.h2.copyWith(
                   color: isLocalAi
                       ? AppColors.statusAtencao
                       : confidence == null
-                          ? AppColors.textSecondary
-                          : color,
+                      ? AppColors.textSecondary
+                      : color,
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -914,8 +1013,8 @@ class _OperationStatusCard extends StatelessWidget {
                   color: isLocalAi
                       ? AppColors.statusAtencao
                       : confidence == null
-                          ? AppColors.blueGrey
-                          : color,
+                      ? AppColors.blueGrey
+                      : color,
                 ),
               ),
               const SizedBox(height: Dimensions.spacingMD),
@@ -1002,10 +1101,7 @@ class _DashboardTwoColumn extends StatelessWidget {
   final Widget left;
   final Widget right;
 
-  const _DashboardTwoColumn({
-    required this.left,
-    required this.right,
-  });
+  const _DashboardTwoColumn({required this.left, required this.right});
 
   @override
   Widget build(BuildContext context) {
@@ -1087,6 +1183,106 @@ class _AiRuntimeNotice extends StatelessWidget {
   }
 }
 
+class _AiRuntimeTestNotice extends StatelessWidget {
+  final FiscalAiInsight insight;
+  final DateTime? testedAt;
+  final bool isTesting;
+  final VoidCallback onRetest;
+
+  const _AiRuntimeTestNotice({
+    required this.insight,
+    required this.testedAt,
+    required this.isTesting,
+    required this.onRetest,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final ok = _isExternalAiResult(insight);
+    final color = ok ? AppColors.success : AppColors.statusAtencao;
+    final warning = insight.warning?.trim();
+
+    return AppSurface(
+      tint: color,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+            ),
+            child: Icon(
+              ok ? Icons.cloud_done_rounded : Icons.cloud_off_rounded,
+              color: color,
+              size: 21,
+            ),
+          ),
+          const SizedBox(width: Dimensions.spacingSM),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  ok ? 'Teste da IA: ativa' : 'Teste da IA: fallback',
+                  style: AppTextStyles.body.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  ok
+                      ? 'Resposta recebida por ${_providerLabel(insight.provider, insight.model)} em ${_formatAiTimestamp(testedAt)}.'
+                      : (warning == null || warning.isEmpty
+                            ? 'A chamada de teste ainda voltou pela leitura local.'
+                            : warning),
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.3,
+                  ),
+                ),
+                const SizedBox(height: Dimensions.spacingXS),
+                Wrap(
+                  spacing: Dimensions.spacingXS,
+                  runSpacing: Dimensions.spacingXS,
+                  children: [
+                    StatusPill(
+                      icon: _sourceIcon(insight.source),
+                      label: _sourceLabel(insight.source),
+                      color: _sourceColor(insight.source),
+                      compact: true,
+                    ),
+                    StatusPill(
+                      icon: Icons.schedule_rounded,
+                      label: _formatAiTimestamp(testedAt),
+                      color: AppColors.blueGrey,
+                      compact: true,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: Dimensions.spacingSM),
+          IconButton(
+            tooltip: 'Testar novamente',
+            onPressed: isTesting ? null : onRetest,
+            icon: isTesting
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.refresh_rounded),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _RuntimeStatusLine extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -1142,7 +1338,7 @@ class _PriorityActionsCard extends StatelessWidget {
   final VoidCallback? onRunPlan;
   final Future<void> Function(FiscalAiQueuedAction action) onRunQueuedAction;
   final Future<void> Function(FiscalAiQueuedAction action)
-      onDismissQueuedAction;
+  onDismissQueuedAction;
 
   const _PriorityActionsCard({
     required this.insight,
@@ -1181,14 +1377,14 @@ class _PriorityActionsCard extends StatelessWidget {
               onRunPlan: onRunPlan,
             ),
           ...items.asMap().entries.map(
-                (entry) => _PriorityQueuedTile(
-                  number: entry.key + (insight.actionPlan.isEmpty ? 1 : 2),
-                  action: entry.value,
-                  isRunning: isRunning,
-                  onRun: () => onRunQueuedAction(entry.value),
-                  onDismiss: () => onDismissQueuedAction(entry.value),
-                ),
-              ),
+            (entry) => _PriorityQueuedTile(
+              number: entry.key + (insight.actionPlan.isEmpty ? 1 : 2),
+              action: entry.value,
+              isRunning: isRunning,
+              onRun: () => onRunQueuedAction(entry.value),
+              onDismiss: () => onDismissQueuedAction(entry.value),
+            ),
+          ),
           if (insight.actionPlan.isEmpty && items.isEmpty)
             _EmptyDashboardLine(
               icon: Icons.check_circle_outline_rounded,
@@ -1264,8 +1460,9 @@ class _PriorityQueuedTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color =
-        action.confirmationRequired ? AppColors.statusAtencao : AppColors.info;
+    final color = action.confirmationRequired
+        ? AppColors.statusAtencao
+        : AppColors.info;
     return _DashboardListTile(
       leading: _NumberBadge(number: number, color: color),
       title: action.title,
@@ -1337,7 +1534,9 @@ class _ActiveAlertsCard extends StatelessWidget {
               color: Color(0xFF0F766E),
             )
           else
-            ...risks.take(4).map(
+            ...risks
+                .take(4)
+                .map(
                   (risk) => _AlertRiskTile(
                     risk: risk,
                     isRunning: isRunning,
@@ -1461,8 +1660,9 @@ class _DashboardListTile extends StatelessWidget {
           );
 
           if (trailing == null) return content;
-          final trailingMaxWidth =
-              compact ? constraints.maxWidth : constraints.maxWidth * 0.42;
+          final trailingMaxWidth = compact
+              ? constraints.maxWidth
+              : constraints.maxWidth * 0.42;
           final trailingBox = ConstrainedBox(
             constraints: BoxConstraints(maxWidth: trailingMaxWidth),
             child: trailing!,
@@ -1495,10 +1695,7 @@ class _NumberBadge extends StatelessWidget {
   final int number;
   final Color color;
 
-  const _NumberBadge({
-    required this.number,
-    required this.color,
-  });
+  const _NumberBadge({required this.number, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -1506,10 +1703,7 @@ class _NumberBadge extends StatelessWidget {
       width: 26,
       height: 26,
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
       child: Text(
         '$number',
         style: AppTextStyles.caption.copyWith(
@@ -1798,12 +1992,12 @@ class _ResolutionPanel extends StatelessWidget {
             ),
             const SizedBox(height: Dimensions.spacingXS),
             ...resolution.immediateSteps.asMap().entries.map(
-                  (entry) => _NumberedStepLine(
-                    number: entry.key + 1,
-                    text: entry.value,
-                    color: color,
-                  ),
-                ),
+              (entry) => _NumberedStepLine(
+                number: entry.key + 1,
+                text: entry.value,
+                color: color,
+              ),
+            ),
           ],
           if (resolution.recommendedMessage.isNotEmpty) ...[
             const SizedBox(height: Dimensions.spacingSM),
@@ -1833,7 +2027,7 @@ class _RecommendationsPanel extends StatelessWidget {
   final List<FiscalAiRecommendation> recommendations;
   final bool isRunning;
   final Future<void> Function(FiscalAiRecommendation item)
-      onAskAboutRecommendation;
+  onAskAboutRecommendation;
 
   const _RecommendationsPanel({
     required this.recommendations,
@@ -1912,9 +2106,7 @@ class _RecommendationTile extends StatelessWidget {
             Expanded(
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: AppColors.divider),
-                  ),
+                  border: Border(bottom: BorderSide(color: AppColors.divider)),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: Dimensions.spacingSM),
@@ -1963,8 +2155,10 @@ class _RecommendationTile extends StatelessWidget {
                         alignment: Alignment.centerRight,
                         child: TextButton.icon(
                           onPressed: isRunning ? null : onTap,
-                          icon: const Icon(Icons.question_answer_rounded,
-                              size: 16),
+                          icon: const Icon(
+                            Icons.question_answer_rounded,
+                            size: 16,
+                          ),
                           label: const Text('Perguntar'),
                         ),
                       ),
@@ -2160,7 +2354,8 @@ String _severityFromMetrics(Map<String, dynamic> metrics) {
     return 'alto';
   }
 
-  final attention = _metricInt(metrics, 'eventos_pendentes') +
+  final attention =
+      _metricInt(metrics, 'eventos_pendentes') +
       _metricInt(metrics, 'midias_pendentes') +
       _metricInt(metrics, 'caixas_manutencao') +
       _metricInt(metrics, 'pausas_em_atraso') +
@@ -2181,22 +2376,26 @@ List<_SourceCheck> _sourceChecks(
   FiscalAiInsight? insight,
 }) {
   final summary = insight?.summary.toLowerCase() ?? '';
-  final hasScaleContext = summary.contains('escala') ||
+  final hasScaleContext =
+      summary.contains('escala') ||
       summary.contains('colaborador') ||
       summary.contains('equipe') ||
       _metricInt(metrics, 'colaboradores_ativos') > 0;
-  final hasCashContext = summary.contains('caixa') ||
+  final hasCashContext =
+      summary.contains('caixa') ||
       summary.contains('aloc') ||
       _metricInt(metrics, 'caixas_ativos') > 0 ||
       _metricInt(metrics, 'caixas_manutencao') > 0 ||
       _metricInt(metrics, 'alocacoes_ativas') > 0;
-  final hasDeliveryPauseContext = summary.contains('entrega') ||
+  final hasDeliveryPauseContext =
+      summary.contains('entrega') ||
       summary.contains('pausa') ||
       summary.contains('cafe') ||
       summary.contains('intervalo') ||
       _metricInt(metrics, 'entregas_aguardando') > 0 ||
       _metricInt(metrics, 'pausas_em_atraso') > 0;
-  final hasTimelineContext = summary.contains('balcao') ||
+  final hasTimelineContext =
+      summary.contains('balcao') ||
       summary.contains('timeline') ||
       summary.contains('pendencia') ||
       _metricInt(metrics, 'eventos_pendentes') > 0 ||
@@ -2204,22 +2403,10 @@ List<_SourceCheck> _sourceChecks(
       _metricDouble(metrics, 'valor_caixa_pendente') > 0;
 
   return [
-    _SourceCheck(
-      'Escala / equipe',
-      hasScaleContext,
-    ),
-    _SourceCheck(
-      'Caixas / alocacoes',
-      hasCashContext,
-    ),
-    _SourceCheck(
-      'Entregas / pausas',
-      hasDeliveryPauseContext,
-    ),
-    _SourceCheck(
-      'Balcao / timeline',
-      hasTimelineContext,
-    ),
+    _SourceCheck('Escala / equipe', hasScaleContext),
+    _SourceCheck('Caixas / alocacoes', hasCashContext),
+    _SourceCheck('Entregas / pausas', hasDeliveryPauseContext),
+    _SourceCheck('Balcao / timeline', hasTimelineContext),
   ];
 }
 
@@ -2255,7 +2442,8 @@ String _operationDescription(
 
   if (summary != null && summary.isNotEmpty) return summary;
 
-  final pending = _metricInt(metrics, 'eventos_pendentes') +
+  final pending =
+      _metricInt(metrics, 'eventos_pendentes') +
       _metricInt(metrics, 'midias_pendentes') +
       _metricInt(metrics, 'ocorrencias_abertas') +
       _metricInt(metrics, 'checklists_pendentes');
@@ -2296,11 +2484,7 @@ String _providerLabel(String? provider, String? model) {
   return '$providerText / ${model.trim()}';
 }
 
-bool _isLocalAi(
-  FiscalAiInsight? insight,
-  String? provider,
-  String? source,
-) {
+bool _isLocalAi(FiscalAiInsight? insight, String? provider, String? source) {
   if (insight?.isLocalSource == true) return true;
   if (provider == 'local' || provider == 'fallback') return true;
   return switch (source) {
@@ -2309,10 +2493,22 @@ bool _isLocalAi(
     'sem_conexao' ||
     'timeout_edge' ||
     'erro_edge' ||
-    'resposta_vazia' =>
-      true,
+    'resposta_vazia' => true,
     _ => false,
   };
+}
+
+bool _isExternalAiResult(FiscalAiInsight insight) {
+  final provider = insight.provider.toLowerCase();
+  final source = insight.source.toLowerCase();
+  return provider == 'openai' ||
+      provider == 'gemini' ||
+      provider == 'anthropic' ||
+      source == 'ia_completa' ||
+      source == 'ia_mini' ||
+      source == 'ia_gemini' ||
+      source == 'ia_gemini_lite' ||
+      source == 'ia_anthropic';
 }
 
 String _sourceLabel(String? source) {
@@ -2344,8 +2540,7 @@ Color _sourceColor(String? source) {
     'sem_conexao' ||
     'timeout_edge' ||
     'erro_edge' ||
-    'resposta_vazia' =>
-      AppColors.statusAtencao,
+    'resposta_vazia' => AppColors.statusAtencao,
     _ => AppColors.blueGrey,
   };
 }
