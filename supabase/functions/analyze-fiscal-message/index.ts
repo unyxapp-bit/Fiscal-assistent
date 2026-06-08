@@ -5,9 +5,9 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") ?? "";
 const OPENAI_MODEL =
-  Deno.env.get("OPENAI_ANALYSIS_MODEL") ?? Deno.env.get("OPENAI_MODEL") ?? "gpt-5.4-mini";
+  Deno.env.get("OPENAI_ANALYSIS_MODEL") ?? Deno.env.get("OPENAI_MODEL") ?? "gpt-5-mini";
 const OPENAI_MINI_MODEL =
-  Deno.env.get("OPENAI_MINI_MODEL") ?? OPENAI_MODEL;
+  Deno.env.get("OPENAI_MINI_MODEL") ?? "gpt-5-nano";
 const OPENAI_TRANSCRIBE_MODEL =
   Deno.env.get("OPENAI_TRANSCRIBE_MODEL") ?? "gpt-4o-transcribe";
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") ?? "";
