@@ -445,7 +445,7 @@ class _ActionGrid extends StatelessWidget {
             crossAxisCount: columns,
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
-            mainAxisExtent: 108,
+            mainAxisExtent: 122,
           ),
           itemBuilder: (context, index) =>
               _OperationalActionCard(action: actions[index]),
@@ -799,19 +799,17 @@ class _OperationalActionCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 2),
-          Expanded(
-            child: Text(
-              action.description,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
-                fontSize: 10.5,
-                height: 1.05,
-              ),
+          Text(
+            action.description,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
+              fontSize: 10.5,
+              height: 1.05,
             ),
           ),
-          const SizedBox(height: 5),
+          const Spacer(),
           FilledButton(
             style: FilledButton.styleFrom(
               backgroundColor: action.color,
@@ -828,7 +826,11 @@ class _OperationalActionCard extends StatelessWidget {
               ),
             ),
             onPressed: action.onTap,
-            child: Text(action.buttonText),
+            child: Text(
+              action.buttonText,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),

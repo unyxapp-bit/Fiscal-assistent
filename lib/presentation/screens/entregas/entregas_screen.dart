@@ -610,6 +610,14 @@ class _EntregasScreenState extends State<EntregasScreen> {
                     ],
                   ),
                 ),
+                if (_filtroStatus == 'entregue' &&
+                    provider.totalEntregues > 0) ...[
+                  const SizedBox(height: 12),
+                  _EntregasCompletedActionBar(
+                    count: provider.totalEntregues,
+                    onDeleteAll: () => _excluirTodasConcluidas(provider),
+                  ),
+                ],
                 const SizedBox(height: 18),
                 _EntregasListHeader(
                   count: entregasFiltradas.length,
@@ -820,13 +828,13 @@ class _EntregasListHeader extends StatelessWidget {
     Widget deleteButton() {
       return Tooltip(
         message: 'Excluir todas as entregas concluidas',
-        child: OutlinedButton.icon(
+        child: ElevatedButton.icon(
           onPressed: onDeleteCompleted,
           icon: const Icon(Icons.delete_sweep_outlined, size: 17),
-          label: const Text('Excluir concluidas'),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.danger,
-            side: BorderSide(color: AppColors.danger.withValues(alpha: 0.35)),
+          label: const Text('Excluir todas'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.danger,
+            foregroundColor: Colors.white,
             minimumSize: const Size(0, 36),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           ),
@@ -865,6 +873,85 @@ class _EntregasListHeader extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class _EntregasCompletedActionBar extends StatelessWidget {
+  final int count;
+  final VoidCallback onDeleteAll;
+
+  const _EntregasCompletedActionBar({
+    required this.count,
+    required this.onDeleteAll,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.appTheme;
+
+    return Material(
+      color: AppColors.danger.withValues(alpha: 0.06),
+      borderRadius: BorderRadius.circular(Dimensions.radiusMD),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: AppColors.danger.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.delete_sweep_outlined,
+                color: AppColors.danger,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Entregas concluidas',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.body.copyWith(
+                      color: tokens.textPrimary,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  Text(
+                    '$count finalizada(s)',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.caption.copyWith(
+                      color: tokens.textSecondary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            ElevatedButton.icon(
+              onPressed: onDeleteAll,
+              icon: const Icon(Icons.delete_outline, size: 17),
+              label: const Text('Excluir todas'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.danger,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(0, 38),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -1220,41 +1307,38 @@ class _EntregaReferenceCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        StatusPill(
-                          label: statusLabel,
-                          color: statusColor,
-                          compact: true,
-                        ),
-                        const SizedBox(height: 6),
-                        Icon(
-                          Icons.chevron_right_rounded,
-                          color: tokens.textSecondary,
-                        ),
-                      ],
+                    StatusPill(
+                      label: statusLabel,
+                      color: statusColor,
+                      compact: true,
                     ),
-                    if (onDelete != null) ...[
-                      const SizedBox(width: 6),
+                    const SizedBox(height: 6),
+                    if (onDelete != null)
                       Tooltip(
                         message: 'Excluir entrega concluida',
-                        child: IconButton(
+                        child: TextButton.icon(
                           onPressed: onDelete,
                           icon: const Icon(Icons.delete_outline, size: 18),
-                          style: IconButton.styleFrom(
+                          label: const Text('Excluir'),
+                          style: TextButton.styleFrom(
                             backgroundColor:
                                 AppColors.danger.withValues(alpha: 0.08),
                             foregroundColor: AppColors.danger,
-                            minimumSize: const Size(34, 34),
-                            padding: EdgeInsets.zero,
+                            minimumSize: const Size(0, 32),
+                            padding: const EdgeInsets.symmetric(horizontal: 9),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            visualDensity: VisualDensity.compact,
                           ),
                         ),
+                      )
+                    else
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: tokens.textSecondary,
                       ),
-                    ],
                   ],
                 ),
               ],
