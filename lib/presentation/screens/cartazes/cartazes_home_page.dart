@@ -9,6 +9,7 @@ import '../../../core/constants/dimensions.dart';
 import '../../../core/constants/text_styles.dart';
 import '../../../data/models/cartaz_form_data.dart';
 import '../../widgets/cartazes/cartaz_template_specs.dart';
+import '../../widgets/cartazes/poster_template_background.dart';
 import 'cartazes_salvos_page.dart';
 import 'criar_cartaz_page.dart';
 
@@ -20,7 +21,7 @@ class CartazesHomePage extends StatefulWidget {
 }
 
 class _CartazesHomePageState extends State<CartazesHomePage> {
-  CartazTemplateTipo? _tipoSelecionado;
+  CartazTemplateTipo? _tipoSelecionado = CartazTemplateTipo.proximoVencimento;
   CartazTamanho _tamanhoSelecionado = CartazTamanho.a6;
 
   void _abrirCartazesFeitos() {
@@ -145,7 +146,7 @@ class _CartazesHomePageState extends State<CartazesHomePage> {
                       const SizedBox(height: Dimensions.spacingSM),
                       _buildToolbar(constraints.maxWidth),
                       const SizedBox(height: Dimensions.spacingMD),
-                      _buildTemplateGrid(),
+                      _buildTemplatePicker(constraints.maxWidth),
                       const SizedBox(height: Dimensions.spacingMD),
                       _sectionLabel('2. Escolha o tamanho'),
                       const SizedBox(height: Dimensions.spacingSM),
@@ -229,6 +230,34 @@ class _CartazesHomePageState extends State<CartazesHomePage> {
           ],
         );
       },
+    );
+  }
+
+  Widget _buildTemplatePicker(double width) {
+    final selected = _specSelecionada;
+    final grid = _buildTemplateGrid();
+
+    if (selected == null) return grid;
+
+    final preview = _TemplatePreviewCard(spec: selected);
+    if (width >= 900) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(flex: 7, child: grid),
+          const SizedBox(width: Dimensions.spacingMD),
+          SizedBox(width: 280, child: preview),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        preview,
+        const SizedBox(height: Dimensions.spacingMD),
+        grid,
+      ],
     );
   }
 
@@ -432,6 +461,81 @@ class _TemplateCard extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _TemplatePreviewCard extends StatelessWidget {
+  final CartazTemplateSpec spec;
+
+  const _TemplatePreviewCard({required this.spec});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: AppStyles.softCard(context: context, radius: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: AppStyles.softTile(
+                  tint: spec.color,
+                  radius: Dimensions.radiusSM,
+                ),
+                child: Icon(spec.icon, color: spec.color, size: 18),
+              ),
+              const SizedBox(width: Dimensions.spacingSM),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      spec.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.body.copyWith(
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    Text(
+                      spec.description,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: Dimensions.spacingSM),
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 220),
+              child: AspectRatio(
+                aspectRatio: 420 / 592,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: AppColors.cardBorder),
+                    ),
+                    child: PosterTemplateBackground(tipo: spec.tipo),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

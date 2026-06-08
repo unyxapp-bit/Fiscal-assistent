@@ -5,6 +5,7 @@ import '../../../data/models/cartaz_form_data.dart';
 enum PosterTemplateAssetType {
   raster,
   svg,
+  generated,
 }
 
 class PosterTemplateAsset {
@@ -111,8 +112,8 @@ const cartazTemplateSpecs = <CartazTemplateSpec>[
     iconColor: Colors.black,
     icon: Icons.schedule_rounded,
     asset: PosterTemplateAsset(
-      path: 'templates/proximo vencimento.svg',
-      type: PosterTemplateAssetType.svg,
+      path: '',
+      type: PosterTemplateAssetType.generated,
     ),
     fields: CartazTemplateFieldHints(
       linha1Hint: 'Ex: TERERE LEAO',

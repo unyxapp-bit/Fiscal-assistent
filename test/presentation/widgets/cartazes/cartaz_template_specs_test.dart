@@ -22,6 +22,7 @@ void main() {
     for (final spec in cartazTemplateSpecs) {
       expect(spec.title.trim(), isNotEmpty);
       expect(spec.description.trim(), isNotEmpty);
+      if (spec.asset.type == PosterTemplateAssetType.generated) continue;
       expect(
         File(spec.asset.path).existsSync(),
         isTrue,
