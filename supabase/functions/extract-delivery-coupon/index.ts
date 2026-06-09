@@ -1,5 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
+const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") ?? "";
 const OPENAI_MODEL =
   Deno.env.get("OPENAI_VISION_MODEL") ?? Deno.env.get("OPENAI_MODEL") ?? "gpt-5-mini";
@@ -10,6 +13,7 @@ const GEMINI_MODEL =
   Deno.env.get("GEMINI_VISION_MODEL") ?? Deno.env.get("GEMINI_MODEL") ?? "gemini-2.0-flash";
 const GEMINI_LITE_MODEL =
   Deno.env.get("GEMINI_LITE_MODEL") ?? "gemini-2.0-flash-lite";
+const PROMPT_CACHE_KEY = "extract-delivery-coupon-v2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -227,6 +231,105 @@ function buildLocalDraft(
   });
 }
 
+async function sha256(value: string) {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(value),
+  );
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function validFiscalId(value: unknown): string | null {
+  const id = text(value);
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    .test(id)
+    ? id
+    : null;
+}
+
+function hasEnoughCouponConfidence(result: DeliveryCouponDraft) {
+  const required = ["numero_nota", "cliente_nome", "endereco", "bairro"];
+  const missingRequired = required.some((field) => result.missing_fields.includes(field));
+  return result.confidence >= 0.78 && !missingRequired;
+}
+
+async function getCachedCouponDraft(
+  supabase: ReturnType<typeof createClient>,
+  requestHash: string,
+) {
+  const { data, error } = await supabase
+    .from("ai_request_cache")
+    .select("result")
+    .eq("function_name", "extract-delivery-coupon")
+    .eq("request_hash", requestHash)
+    .gt("expires_at", new Date().toISOString())
+    .maybeSingle();
+
+  if (error) {
+    console.warn("[extract-delivery-coupon] cache lookup failed:", error.message);
+    return null;
+  }
+
+  const result = asRecord(data?.result);
+  return Object.keys(result).length ? normalizeDraft(result) : null;
+}
+
+async function setCachedCouponDraft(
+  supabase: ReturnType<typeof createClient>,
+  fiscalId: string | null,
+  requestHash: string,
+  result: DeliveryCouponDraft,
+) {
+  if (result.provider === "local") return;
+  const { error } = await supabase.from("ai_request_cache").upsert({
+    fiscal_id: validFiscalId(fiscalId),
+    function_name: "extract-delivery-coupon",
+    request_hash: requestHash,
+    result,
+    provider: result.provider ?? null,
+    model: result.model ?? null,
+    source: result.source ?? null,
+    expires_at: new Date(Date.now() + 30 * 24 * 60 * 60_000).toISOString(),
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "function_name,request_hash" });
+
+  if (error) {
+    console.warn("[extract-delivery-coupon] cache write failed:", error.message);
+  }
+}
+
+async function logAiUsage(
+  supabase: ReturnType<typeof createClient>,
+  params: {
+    fiscalId: string | null;
+    provider: string;
+    model?: string | null;
+    source?: string | null;
+    status: string;
+    cacheStatus?: string | null;
+    requestHash?: string | null;
+    metadata?: Record<string, unknown>;
+  },
+) {
+  const { error } = await supabase.from("ai_usage_logs").insert({
+    fiscal_id: validFiscalId(params.fiscalId),
+    function_name: "extract-delivery-coupon",
+    provider: params.provider,
+    model: params.model ?? null,
+    source: params.source ?? null,
+    status: params.status,
+    cache_status: params.cacheStatus ?? null,
+    request_hash: params.requestHash ?? null,
+    metadata: params.metadata ?? {},
+  });
+
+  if (error) {
+    console.warn("[extract-delivery-coupon] usage log failed:", error.message);
+  }
+}
+
 const systemPrompt = `
 Voce le cupons/impressos de ENTREGA EM DOMICILIO de supermercado.
 Extraia apenas os campos necessarios para criar uma entrega no app.
@@ -283,6 +386,7 @@ async function callOpenAI(params: {
       model: params.model,
       max_output_tokens: params.maxOutputTokens,
       truncation: "auto",
+      prompt_cache_key: PROMPT_CACHE_KEY,
       reasoning: { effort: "low" },
       input: [
         { role: "system", content: systemPrompt },
@@ -407,6 +511,7 @@ serve(async (req) => {
   }
 
   try {
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
     const body = await req.json() as ExtractDeliveryCouponRequest;
     const imageBase64 = text(body.image_base64);
     const fileName = text(body.file_name, "cupom-entrega.jpg");
@@ -421,34 +526,75 @@ serve(async (req) => {
 
     const cleanBase64 = imageBase64.replace(/^data:[^,]+,/, "");
     const dataUrl = `data:${mimeType};base64,${cleanBase64}`;
+    const requestHash = await sha256([
+      body.fiscal_id ?? "anon",
+      "extract-delivery-coupon",
+      mimeType,
+      cleanBase64,
+    ].join("|"));
     let result: DeliveryCouponDraft;
+
+    const cached = await getCachedCouponDraft(supabase, requestHash);
+    if (cached) {
+      await logAiUsage(supabase, {
+        fiscalId: body.fiscal_id ?? null,
+        provider: cached.provider ?? "cache",
+        model: cached.model ?? null,
+        source: cached.source ?? null,
+        status: "ok",
+        cacheStatus: "hit",
+        requestHash,
+      });
+      return new Response(JSON.stringify({
+        success: true,
+        result: {
+          ...cached,
+          warning: cached.warning ?? "Cupom reutilizado do cache economico.",
+        },
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     try {
       result = await callOpenAI({
         dataUrl,
         fileName,
         mimeType,
-        detail: "auto",
-        maxOutputTokens: 850,
-        model: OPENAI_MODEL,
-        source: "ia_completa",
+        detail: "low",
+        maxOutputTokens: 650,
+        model: OPENAI_MINI_MODEL,
+        source: "ia_mini",
+        warning: "Modo economico: leitura inicial com IA mini.",
       });
+      if (!hasEnoughCouponConfidence(result) && OPENAI_MODEL !== OPENAI_MINI_MODEL) {
+        result = await callOpenAI({
+          dataUrl,
+          fileName,
+          mimeType,
+          detail: "auto",
+          maxOutputTokens: 850,
+          model: OPENAI_MODEL,
+          source: "ia_completa",
+          warning: "Leitura economica com baixa confianca; usando IA completa.",
+        });
+      }
     } catch (error) {
-      console.warn("[extract-delivery-coupon] OpenAI principal falhou:", error);
+      console.warn("[extract-delivery-coupon] OpenAI economica falhou:", error);
       try {
         if (!isTokenLimitError(error) && OPENAI_MINI_MODEL === OPENAI_MODEL) throw error;
         result = await callOpenAI({
           dataUrl,
           fileName,
           mimeType,
-          detail: "low",
-          maxOutputTokens: 650,
-          model: OPENAI_MINI_MODEL,
-          source: "ia_mini",
-          warning: "IA completa indisponivel; usando leitura resumida.",
+          detail: "auto",
+          maxOutputTokens: 850,
+          model: OPENAI_MODEL,
+          source: "ia_completa",
+          warning: "IA mini indisponivel; usando leitura completa.",
         });
       } catch (miniError) {
-        console.warn("[extract-delivery-coupon] OpenAI mini falhou:", miniError);
+        console.warn("[extract-delivery-coupon] OpenAI completa falhou:", miniError);
         try {
           result = await callGemini({
             imageBase64: cleanBase64,
@@ -479,6 +625,18 @@ serve(async (req) => {
         }
       }
     }
+
+    await setCachedCouponDraft(supabase, body.fiscal_id ?? null, requestHash, result);
+    await logAiUsage(supabase, {
+      fiscalId: body.fiscal_id ?? null,
+      provider: result.provider ?? "local",
+      model: result.model ?? null,
+      source: result.source ?? null,
+      status: result.provider === "local" ? "fallback" : "ok",
+      cacheStatus: "miss",
+      requestHash,
+      metadata: { confidence: result.confidence },
+    });
 
     return new Response(JSON.stringify({ success: true, result }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

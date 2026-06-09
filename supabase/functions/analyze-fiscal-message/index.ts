@@ -15,6 +15,7 @@ const GEMINI_MODEL = Deno.env.get("GEMINI_MODEL") ?? "gemini-2.0-flash";
 const GEMINI_LITE_MODEL =
   Deno.env.get("GEMINI_LITE_MODEL") ?? "gemini-2.0-flash-lite";
 const MEDIA_BUCKET = "fiscal-media";
+const PROMPT_CACHE_KEY = "analyze-fiscal-message-v2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -509,6 +510,7 @@ async function categorizarComOpenAI(params: {
       model: params.model,
       max_output_tokens: params.maxOutputTokens ?? 900,
       truncation: "auto",
+      prompt_cache_key: PROMPT_CACHE_KEY,
       reasoning: { effort: "low" },
       input: [
         { role: "system", content: analysisPrompt },
@@ -743,6 +745,21 @@ async function categorizarComFallback(params: {
   audioDataUrl?: string | null;
 }) {
   if (OPENAI_API_KEY) {
+    const preferMini = params.contentType === "text" && OPENAI_MINI_MODEL !== OPENAI_MODEL;
+    if (preferMini) {
+      try {
+        return await categorizarComOpenAI({
+          ...params,
+          model: OPENAI_MINI_MODEL,
+          source: "ia_mini",
+          warning: "Modo economico: classificacao com IA mini.",
+          maxOutputTokens: 600,
+        });
+      } catch (error) {
+        console.warn("[analyze-fiscal-message] OpenAI mini falhou:", error);
+      }
+    }
+
     try {
       return await categorizarComOpenAI({
         ...params,
@@ -753,7 +770,7 @@ async function categorizarComFallback(params: {
       console.warn("[analyze-fiscal-message] OpenAI principal falhou:", error);
     }
 
-    if (OPENAI_MINI_MODEL !== OPENAI_MODEL) {
+    if (!preferMini && OPENAI_MINI_MODEL !== OPENAI_MODEL) {
       try {
         return await categorizarComOpenAI({
           ...params,
@@ -890,6 +907,90 @@ async function sha256(value: string) {
   return Array.from(new Uint8Array(digest))
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
+}
+
+function validFiscalId(value: unknown): string | null {
+  const id = text(value);
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    .test(id)
+    ? id
+    : null;
+}
+
+async function getCachedAnalysis(
+  supabase: ReturnType<typeof createClient>,
+  requestHash: string,
+) {
+  const { data, error } = await supabase
+    .from("ai_request_cache")
+    .select("result")
+    .eq("function_name", "analyze-fiscal-message")
+    .eq("request_hash", requestHash)
+    .gt("expires_at", new Date().toISOString())
+    .maybeSingle();
+
+  if (error) {
+    console.warn("[analyze-fiscal-message] cache lookup failed:", error.message);
+    return null;
+  }
+
+  const result = asRecord(data?.result);
+  return Object.keys(result).length ? normalizeRuleResult(result, "", "") : null;
+}
+
+async function setCachedAnalysis(
+  supabase: ReturnType<typeof createClient>,
+  fiscalId: string | null,
+  requestHash: string,
+  parsed: RuleResult,
+  ttlMinutes = 1440,
+) {
+  if (parsed.analysis_provider === "local") return;
+  const { error } = await supabase.from("ai_request_cache").upsert({
+    fiscal_id: validFiscalId(fiscalId),
+    function_name: "analyze-fiscal-message",
+    request_hash: requestHash,
+    result: parsed,
+    provider: parsed.analysis_provider ?? null,
+    model: parsed.analysis_model ?? null,
+    source: parsed.analysis_source ?? null,
+    expires_at: new Date(Date.now() + ttlMinutes * 60_000).toISOString(),
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "function_name,request_hash" });
+
+  if (error) {
+    console.warn("[analyze-fiscal-message] cache write failed:", error.message);
+  }
+}
+
+async function logAiUsage(
+  supabase: ReturnType<typeof createClient>,
+  params: {
+    fiscalId: string | null;
+    provider: string;
+    model?: string | null;
+    source?: string | null;
+    status: string;
+    cacheStatus?: string | null;
+    requestHash?: string | null;
+    metadata?: Record<string, unknown>;
+  },
+) {
+  const { error } = await supabase.from("ai_usage_logs").insert({
+    fiscal_id: validFiscalId(params.fiscalId),
+    function_name: "analyze-fiscal-message",
+    provider: params.provider,
+    model: params.model ?? null,
+    source: params.source ?? null,
+    status: params.status,
+    cache_status: params.cacheStatus ?? null,
+    request_hash: params.requestHash ?? null,
+    metadata: params.metadata ?? {},
+  });
+
+  if (error) {
+    console.warn("[analyze-fiscal-message] usage log failed:", error.message);
+  }
 }
 
 function minuteBucket(timestamp: string) {
@@ -1417,6 +1518,37 @@ serve(async (req) => {
       parsed = categorizarPorRegra(analysisText, sender, timestamp);
     }
 
+    const analysisRequestHash = await sha256([
+      fiscalId ?? "anon",
+      "analyze-fiscal-message",
+      contentHash,
+      contentType,
+      analysisText,
+      transcript ?? "",
+    ].join("|"));
+
+    if (!parsed) {
+      const cached = await getCachedAnalysis(supabase, analysisRequestHash);
+      if (cached) {
+        parsed = {
+          ...cached,
+          analysis_warning: cached.analysis_warning ??
+            "Analise reutilizada do cache economico.",
+        };
+        imageText = parsed.image_text ?? imageText;
+        mediaSummary = parsed.media_summary ?? mediaSummary;
+        await logAiUsage(supabase, {
+          fiscalId,
+          provider: parsed.analysis_provider ?? "cache",
+          model: parsed.analysis_model ?? null,
+          source: parsed.analysis_source ?? null,
+          status: "ok",
+          cacheStatus: "hit",
+          requestHash: analysisRequestHash,
+        });
+      }
+    }
+
     if (!parsed) {
       parsed = await categorizarComFallback({
         message: analysisText,
@@ -1435,6 +1567,17 @@ serve(async (req) => {
       } else if (analysisError === "transcricao_openai_indisponivel") {
         analysisError = parsed.analysis_warning ?? null;
       }
+      await setCachedAnalysis(supabase, fiscalId, analysisRequestHash, parsed);
+      await logAiUsage(supabase, {
+        fiscalId,
+        provider: parsed.analysis_provider ?? "local",
+        model: parsed.analysis_model ?? null,
+        source: parsed.analysis_source ?? null,
+        status: parsed.analysis_provider === "local" ? "fallback" : "ok",
+        cacheStatus: "miss",
+        requestHash: analysisRequestHash,
+        metadata: { content_type: contentType },
+      });
     }
 
     if (parsed.category === "nao_relevante") {

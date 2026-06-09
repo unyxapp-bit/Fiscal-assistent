@@ -15,6 +15,8 @@ const GEMINI_LITE_MODEL =
 const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY") ?? "";
 const ANTHROPIC_MODEL =
   Deno.env.get("ANTHROPIC_MODEL") ?? "claude-3-5-haiku-20241022";
+const PROMPT_CACHE_KEY = "fiscal-ai-agent-v2";
+const DEFAULT_FISCAL_ID = "00000000-0000-0000-0000-000000000000";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -749,6 +751,13 @@ function compactContext(context: Record<string, unknown>, level: ContextLevel) {
       : compactList(context[key], limit, limits.chars);
   }
 
+  const knowledgeMap = asRecord(context.knowledge_map);
+  if (Object.keys(knowledgeMap).length) {
+    output.knowledge_map = {
+      available_topics: Object.keys(knowledgeMap),
+    };
+  }
+
   return output;
 }
 
@@ -949,6 +958,242 @@ async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs = 2500
   } finally {
     clearTimeout(timer);
   }
+}
+
+function stableStringify(value: unknown): string {
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => stableStringify(item)).join(",")}]`;
+  }
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    return `{${Object.keys(record).sort().map((key) =>
+      `${JSON.stringify(key)}:${stableStringify(record[key])}`
+    ).join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+async function sha256Hex(value: string) {
+  const data = new TextEncoder().encode(value);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function validFiscalId(value: unknown): string | null {
+  const id = text(value);
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    .test(id)
+    ? id
+    : null;
+}
+
+function shouldCacheInput(input: FiscalAiInput) {
+  if (asRecord(input.context).runtime_test === true) return false;
+  if (input.intent === "act") return false;
+  return !input.action?.confirmed;
+}
+
+async function aiRequestHash(input: FiscalAiInput) {
+  const context = compactContext(asRecord(input.context), "minimal");
+  const fingerprint = {
+    fiscal_id: validFiscalId(input.fiscal_id),
+    intent: input.intent ?? "analyze",
+    question: text(input.question),
+    target: input.target ?? null,
+    action: input.action?.tool_name
+      ? {
+        tool_name: input.action.tool_name,
+        arguments: input.action.arguments ?? {},
+        confirmed: input.action.confirmed === true,
+      }
+      : null,
+    context,
+  };
+  return await sha256Hex(stableStringify(fingerprint));
+}
+
+async function getCachedInsight(
+  supabase: ReturnType<typeof createClient>,
+  functionName: string,
+  requestHash: string,
+) {
+  const { data, error } = await supabase
+    .from("ai_request_cache")
+    .select("result, provider, model, source, expires_at")
+    .eq("function_name", functionName)
+    .eq("request_hash", requestHash)
+    .gt("expires_at", new Date().toISOString())
+    .maybeSingle();
+
+  if (error) {
+    console.warn("[fiscal-ai-agent] cache lookup failed:", error.message);
+    return null;
+  }
+
+  const result = asRecord(data?.result);
+  return Object.keys(result).length ? normalizeInsight(result, buildFallbackInsight({})) : null;
+}
+
+async function setCachedInsight(
+  supabase: ReturnType<typeof createClient>,
+  input: FiscalAiInput,
+  requestHash: string,
+  insight: FiscalAiInsight,
+) {
+  if (insight.provider === "local" || insight.provider === "fallback") return;
+  const fiscalId = validFiscalId(input.fiscal_id);
+  const ttlMinutes = input.intent === "ask" ? 10 : 5;
+  const expiresAt = new Date(Date.now() + ttlMinutes * 60_000).toISOString();
+  const { error } = await supabase.from("ai_request_cache").upsert({
+    fiscal_id: fiscalId,
+    function_name: "fiscal-ai-agent",
+    request_hash: requestHash,
+    result: insight,
+    provider: insight.provider,
+    model: insight.model,
+    source: insight.source,
+    expires_at: expiresAt,
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "function_name,request_hash" });
+
+  if (error) {
+    console.warn("[fiscal-ai-agent] cache write failed:", error.message);
+  }
+}
+
+async function logAiUsage(
+  supabase: ReturnType<typeof createClient>,
+  input: FiscalAiInput,
+  params: {
+    provider: string;
+    model?: string | null;
+    source?: string | null;
+    status: string;
+    cacheStatus?: string | null;
+    requestHash?: string | null;
+    latencyMs?: number | null;
+    metadata?: Record<string, unknown>;
+  },
+) {
+  const { error } = await supabase.from("ai_usage_logs").insert({
+    fiscal_id: validFiscalId(input.fiscal_id),
+    function_name: "fiscal-ai-agent",
+    intent: input.intent ?? "analyze",
+    provider: params.provider,
+    model: params.model ?? null,
+    source: params.source ?? null,
+    status: params.status,
+    cache_status: params.cacheStatus ?? null,
+    request_hash: params.requestHash ?? null,
+    latency_ms: params.latencyMs ?? null,
+    metadata: params.metadata ?? {},
+  });
+
+  if (error) {
+    console.warn("[fiscal-ai-agent] usage log failed:", error.message);
+  }
+}
+
+async function isBudgetExceeded(
+  supabase: ReturnType<typeof createClient>,
+  fiscalId: string | null,
+) {
+  const policyIds = [fiscalId ?? DEFAULT_FISCAL_ID, DEFAULT_FISCAL_ID];
+  const { data: policies, error: policyError } = await supabase
+    .from("ai_budget_policies")
+    .select("daily_request_limit, enabled")
+    .in("fiscal_id", policyIds)
+    .order("fiscal_id", { ascending: false })
+    .limit(1);
+
+  if (policyError) {
+    console.warn("[fiscal-ai-agent] budget policy lookup failed:", policyError.message);
+    return false;
+  }
+
+  const policy = asRecord(Array.isArray(policies) ? policies[0] : null);
+  if (policy.enabled === false) return false;
+  const dailyLimit = numberValue(policy.daily_request_limit) ?? 80;
+  if (dailyLimit <= 0) return false;
+
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  let query = supabase
+    .from("ai_usage_logs")
+    .select("id", { count: "exact", head: true })
+    .eq("function_name", "fiscal-ai-agent")
+    .gte("created_at", start.toISOString())
+    .neq("cache_status", "hit");
+
+  if (fiscalId) query = query.eq("fiscal_id", fiscalId);
+  const { count, error } = await query;
+  if (error) {
+    console.warn("[fiscal-ai-agent] budget usage lookup failed:", error.message);
+    return false;
+  }
+  return (count ?? 0) >= dailyLimit;
+}
+
+async function isProviderCoolingDown(
+  supabase: ReturnType<typeof createClient>,
+  provider: string,
+) {
+  const { data, error } = await supabase
+    .from("ai_provider_health")
+    .select("status, cooldown_until")
+    .eq("provider", provider)
+    .maybeSingle();
+
+  if (error) {
+    console.warn("[fiscal-ai-agent] provider health lookup failed:", error.message);
+    return false;
+  }
+
+  const cooldownUntil = text(asRecord(data).cooldown_until);
+  return asRecord(data).status === "cooldown" &&
+    Boolean(cooldownUntil) &&
+    new Date(cooldownUntil).getTime() > Date.now();
+}
+
+async function recordProviderSuccess(
+  supabase: ReturnType<typeof createClient>,
+  provider: string,
+) {
+  await supabase.from("ai_provider_health").upsert({
+    provider,
+    status: "healthy",
+    failure_count: 0,
+    last_error: null,
+    cooldown_until: null,
+    updated_at: new Date().toISOString(),
+  });
+}
+
+async function recordProviderFailure(
+  supabase: ReturnType<typeof createClient>,
+  provider: string,
+  error: unknown,
+) {
+  const message = safeErrorMessage(error).slice(0, 500);
+  const { data } = await supabase
+    .from("ai_provider_health")
+    .select("failure_count")
+    .eq("provider", provider)
+    .maybeSingle();
+  const failureCount = (numberValue(asRecord(data).failure_count) ?? 0) + 1;
+  const cooldownMinutes = Math.min(30, Math.max(2, failureCount * 2));
+  await supabase.from("ai_provider_health").upsert({
+    provider,
+    status: failureCount >= 2 ? "cooldown" : "degraded",
+    failure_count: failureCount,
+    last_error: message,
+    cooldown_until: failureCount >= 2
+      ? new Date(Date.now() + cooldownMinutes * 60_000).toISOString()
+      : null,
+    updated_at: new Date().toISOString(),
+  });
 }
 
 function eventDate(event: Record<string, unknown>) {
@@ -1771,6 +2016,7 @@ async function callOpenAI(
   model: string,
   source: string,
   warning?: string,
+  maxOutputTokens = 1200,
 ) {
   const response = await fetchWithTimeout("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -1780,13 +2026,16 @@ async function callOpenAI(
     },
     body: JSON.stringify({
       model,
-      max_output_tokens: 1600,
+      max_output_tokens: maxOutputTokens,
       truncation: "auto",
+      prompt_cache_key: PROMPT_CACHE_KEY,
+      reasoning: { effort: "low" },
       input: [
         { role: "system", content: systemPrompt },
         { role: "user", content: JSON.stringify(input) },
       ],
       text: {
+        verbosity: "low",
         format: { type: "json_object" },
       },
     }),
@@ -1969,70 +2218,140 @@ async function callAnthropic(input: FiscalAiInput, fallback: FiscalAiInsight) {
   });
 }
 
-async function buildAiInsight(input: FiscalAiInput) {
+function shouldUseFullOpenAi(input: FiscalAiInput) {
+  if (input.intent === "ask" || input.intent === "resolve" || input.intent === "act") {
+    return true;
+  }
+  const context = asRecord(input.context);
+  const metrics = asRecord(context.operational_metrics);
+  const events = asArray(context.fiscal_events);
+  const criticalEvents = events.some((event) => {
+    const record = asRecord(event);
+    return eventPriority(record) === "critica" ||
+      eventPriority(record) === "critical" ||
+      eventStatus(record) === "overdue";
+  });
+  return criticalEvents ||
+    (numberValue(metrics.critical_events) ?? 0) > 0 ||
+    (numberValue(metrics.overdue_events) ?? 0) > 0;
+}
+
+async function buildAiInsight(
+  input: FiscalAiInput,
+  supabase: ReturnType<typeof createClient>,
+) {
   const fallback = buildFallbackInsight(input);
   const failures: string[] = [];
 
   if (OPENAI_API_KEY) {
-    try {
-      return await callOpenAI(compactInput(input, "full"), fallback, OPENAI_MODEL, "ia_completa");
-    } catch (error) {
-      failures.push(`OpenAI ${OPENAI_MODEL}: ${safeErrorMessage(error)}`);
-      console.warn("[fiscal-ai-agent] OpenAI primary fallback:", error);
-    }
+    const openAiCoolingDown = await isProviderCoolingDown(supabase, "openai");
+    if (openAiCoolingDown) {
+      failures.push("OpenAI: provedor em cooldown temporario.");
+    } else {
+      const useFull = shouldUseFullOpenAi(input);
+      const firstModel = useFull ? OPENAI_MODEL : OPENAI_MINI_MODEL;
+      const firstLevel: ContextLevel = useFull ? "reduced" : "minimal";
+      const firstSource = useFull ? "ia_completa" : "ia_mini";
+      const firstWarning = useFull ? undefined : "Modo economico: analise resumida com IA mini.";
 
-    try {
-      return await callOpenAI(
-        compactInput(input, "reduced"),
-        fallback,
-        OPENAI_MINI_MODEL,
-        "ia_mini",
-        "IA completa indisponivel; usando analise resumida.",
-      );
-    } catch (error) {
-      failures.push(`OpenAI ${OPENAI_MINI_MODEL}: ${safeErrorMessage(error)}`);
-      console.warn("[fiscal-ai-agent] OpenAI mini fallback:", error);
+      try {
+        const insight = await callOpenAI(
+          compactInput(input, firstLevel),
+          fallback,
+          firstModel,
+          firstSource,
+          firstWarning,
+          useFull ? 1400 : 900,
+        );
+        await recordProviderSuccess(supabase, "openai");
+        return insight;
+      } catch (error) {
+        failures.push(`OpenAI ${firstModel}: ${safeErrorMessage(error)}`);
+        console.warn("[fiscal-ai-agent] OpenAI first attempt failed:", error);
+        await recordProviderFailure(supabase, "openai", error);
+      }
+
+      const secondModel = firstModel === OPENAI_MODEL ? OPENAI_MINI_MODEL : OPENAI_MODEL;
+      if (secondModel !== firstModel) {
+        try {
+          const insight = await callOpenAI(
+            compactInput(input, firstModel === OPENAI_MODEL ? "minimal" : "reduced"),
+            fallback,
+            secondModel,
+            firstModel === OPENAI_MODEL ? "ia_mini" : "ia_completa",
+            firstModel === OPENAI_MODEL
+              ? "IA completa indisponivel; usando analise resumida."
+              : "IA mini nao concluiu; usando modelo completo.",
+            firstModel === OPENAI_MODEL ? 900 : 1400,
+          );
+          await recordProviderSuccess(supabase, "openai");
+          return insight;
+        } catch (error) {
+          failures.push(`OpenAI ${secondModel}: ${safeErrorMessage(error)}`);
+          console.warn("[fiscal-ai-agent] OpenAI second attempt failed:", error);
+          await recordProviderFailure(supabase, "openai", error);
+        }
+      }
     }
   } else {
     failures.push("OpenAI: OPENAI_API_KEY nao configurada.");
   }
 
   if (GEMINI_API_KEY) {
-    try {
-      return await callGemini(
-        compactInput(input, "reduced"),
-        fallback,
-        GEMINI_MODEL,
-        "ia_gemini",
-        "OpenAI indisponivel; usando Gemini.",
-      );
-    } catch (error) {
-      failures.push(`Gemini ${GEMINI_MODEL}: ${safeErrorMessage(error)}`);
-      console.warn("[fiscal-ai-agent] Gemini fallback:", error);
-    }
+    const geminiCoolingDown = await isProviderCoolingDown(supabase, "gemini");
+    if (geminiCoolingDown) {
+      failures.push("Gemini: provedor em cooldown temporario.");
+    } else {
+      try {
+        const insight = await callGemini(
+          compactInput(input, "reduced"),
+          fallback,
+          GEMINI_MODEL,
+          "ia_gemini",
+          "OpenAI indisponivel; usando Gemini.",
+        );
+        await recordProviderSuccess(supabase, "gemini");
+        return insight;
+      } catch (error) {
+        failures.push(`Gemini ${GEMINI_MODEL}: ${safeErrorMessage(error)}`);
+        console.warn("[fiscal-ai-agent] Gemini fallback:", error);
+        await recordProviderFailure(supabase, "gemini", error);
+      }
 
-    try {
-      return await callGemini(
-        compactInput(input, "minimal"),
-        fallback,
-        GEMINI_LITE_MODEL,
-        "ia_gemini_lite",
-        "IA principal indisponivel; usando Gemini Lite com contexto minimo.",
-      );
-    } catch (error) {
-      failures.push(`Gemini ${GEMINI_LITE_MODEL}: ${safeErrorMessage(error)}`);
-      console.warn("[fiscal-ai-agent] Gemini Lite fallback:", error);
+      try {
+        const insight = await callGemini(
+          compactInput(input, "minimal"),
+          fallback,
+          GEMINI_LITE_MODEL,
+          "ia_gemini_lite",
+          "IA principal indisponivel; usando Gemini Lite com contexto minimo.",
+        );
+        await recordProviderSuccess(supabase, "gemini");
+        return insight;
+      } catch (error) {
+        failures.push(`Gemini ${GEMINI_LITE_MODEL}: ${safeErrorMessage(error)}`);
+        console.warn("[fiscal-ai-agent] Gemini Lite fallback:", error);
+        await recordProviderFailure(supabase, "gemini", error);
+      }
     }
   } else {
     failures.push("Gemini: GEMINI_API_KEY nao configurada.");
   }
 
   if (ANTHROPIC_API_KEY) {
-    try {
-      return await callAnthropic(compactInput(input, "minimal"), fallback);
-    } catch (error) {
-      failures.push(`Anthropic ${ANTHROPIC_MODEL}: ${safeErrorMessage(error)}`);
-      console.warn("[fiscal-ai-agent] Anthropic fallback:", error);
+    const anthropicCoolingDown = await isProviderCoolingDown(supabase, "anthropic");
+    if (anthropicCoolingDown) {
+      failures.push("Anthropic: provedor em cooldown temporario.");
+    } else {
+      try {
+        const insight = await callAnthropic(compactInput(input, "minimal"), fallback);
+        await recordProviderSuccess(supabase, "anthropic");
+        return insight;
+      } catch (error) {
+        failures.push(`Anthropic ${ANTHROPIC_MODEL}: ${safeErrorMessage(error)}`);
+        console.warn("[fiscal-ai-agent] Anthropic fallback:", error);
+        await recordProviderFailure(supabase, "anthropic", error);
+      }
     }
   } else {
     failures.push("Anthropic: ANTHROPIC_API_KEY nao configurada.");
@@ -2641,7 +2960,61 @@ serve(async (req) => {
       },
     };
 
-    let insight = await buildAiInsight(normalizedInput);
+    const requestHash = await aiRequestHash(normalizedInput);
+    const canUseCache = shouldCacheInput(normalizedInput);
+    if (canUseCache) {
+      const cached = await getCachedInsight(supabase, "fiscal-ai-agent", requestHash);
+      if (cached) {
+        await logAiUsage(supabase, normalizedInput, {
+          provider: cached.provider,
+          model: cached.model,
+          source: cached.source,
+          status: "ok",
+          cacheStatus: "hit",
+          requestHash,
+        });
+        return new Response(JSON.stringify({
+          ...cached,
+          warning: cached.warning ?? "Resposta reutilizada do cache economico.",
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    if (!isRuntimeTest && await isBudgetExceeded(supabase, validFiscalId(normalizedInput.fiscal_id))) {
+      const budgetFallback = {
+        ...buildFallbackInsight(normalizedInput),
+        provider: "local" as const,
+        source: "local_budget",
+        fonte: "local_budget",
+        warning: "Limite diario economico de IA atingido; usando analise local.",
+      };
+      await logAiUsage(supabase, normalizedInput, {
+        provider: "local",
+        model: null,
+        source: "local_budget",
+        status: "budget_exceeded",
+        cacheStatus: "miss",
+        requestHash,
+      });
+      return new Response(JSON.stringify(budgetFallback), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const startedAt = Date.now();
+    let insight = await buildAiInsight(normalizedInput, supabase);
+    await logAiUsage(supabase, normalizedInput, {
+      provider: insight.provider,
+      model: insight.model,
+      source: insight.source,
+      status: insight.provider === "local" ? "fallback" : "ok",
+      cacheStatus: canUseCache ? "miss" : "bypass",
+      requestHash,
+      latencyMs: Date.now() - startedAt,
+      metadata: { warning: insight.warning ?? null },
+    });
 
     if (normalizedInput.intent === "resolve" && normalizedInput.target) {
       insight = {
@@ -2674,6 +3047,10 @@ serve(async (req) => {
 
     if (normalizedInput.intent === "act") {
       insight = await executeAction(normalizedInput, insight, supabase);
+    }
+
+    if (canUseCache) {
+      await setCachedInsight(supabase, normalizedInput, requestHash, insight);
     }
 
     if (!isRuntimeTest) {
