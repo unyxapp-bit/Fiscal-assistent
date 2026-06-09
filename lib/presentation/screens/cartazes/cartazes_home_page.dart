@@ -205,8 +205,8 @@ class _CartazesHomePageState extends State<CartazesHomePage> {
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
         final columns = availableWidth >= 1120
-            ? 4
-            : availableWidth >= 820
+            ? 3
+            : availableWidth >= 760
                 ? 3
                 : availableWidth >= 520
                     ? 2
@@ -251,14 +251,7 @@ class _CartazesHomePageState extends State<CartazesHomePage> {
       );
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        preview,
-        const SizedBox(height: Dimensions.spacingMD),
-        grid,
-      ],
-    );
+    return grid;
   }
 
   Widget _sectionLabel(String text) {
@@ -384,7 +377,8 @@ class _TemplateCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 72,
+      key: ValueKey('cartaz-template-${spec.tipo.name}'),
+      height: 238,
       child: Material(
         color: selecionado
             ? spec.color.withValues(alpha: 0.08)
@@ -394,6 +388,7 @@ class _TemplateCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           onTap: onTap,
           child: Container(
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
@@ -401,61 +396,82 @@ class _TemplateCard extends StatelessWidget {
                 width: selecionado ? 1.6 : 1,
               ),
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Container(
-                  width: 52,
-                  decoration: BoxDecoration(
-                    color: spec.color,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(8),
-                      bottomLeft: Radius.circular(8),
-                    ),
-                  ),
-                  child: Center(
-                    child: Icon(spec.icon, color: spec.iconColor, size: 26),
-                  ),
-                ),
-                const SizedBox(width: Dimensions.spacingSM),
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          spec.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.body.copyWith(
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          spec.description,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppColors.textSecondary,
-                            height: 1.2,
-                          ),
-                        ),
-                      ],
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: AppColors.cardBorder),
+                      ),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          PosterTemplateBackground(tipo: spec.tipo),
+                          if (selecionado)
+                            DecoratedBox(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: spec.color,
+                                  width: 3,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(right: Dimensions.spacingSM),
-                  child: Icon(
-                    selecionado
-                        ? Icons.check_circle_rounded
-                        : Icons.circle_outlined,
-                    color: selecionado ? spec.color : AppColors.cardBorder,
-                    size: 20,
-                  ),
+                const SizedBox(height: Dimensions.spacingSM),
+                Row(
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: AppStyles.softTile(
+                        tint: spec.color,
+                        radius: Dimensions.radiusSM,
+                      ),
+                      child: Icon(spec.icon, color: spec.color, size: 18),
+                    ),
+                    const SizedBox(width: Dimensions.spacingSM),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            spec.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.body.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            spec.description,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.textSecondary,
+                              height: 1.2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      selecionado
+                          ? Icons.check_circle_rounded
+                          : Icons.circle_outlined,
+                      color: selecionado ? spec.color : AppColors.cardBorder,
+                      size: 20,
+                    ),
+                  ],
                 ),
               ],
             ),

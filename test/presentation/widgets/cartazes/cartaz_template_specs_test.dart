@@ -7,6 +7,7 @@ import 'package:fiscal_assistant/presentation/widgets/cartazes/cartaz_text_adjus
 import 'package:fiscal_assistant/presentation/widgets/cartazes/cartaz_template_specs.dart';
 import 'package:fiscal_assistant/presentation/widgets/cartazes/poster_canvas.dart';
 import 'package:fiscal_assistant/presentation/widgets/cartazes/poster_factory.dart';
+import 'package:fiscal_assistant/presentation/screens/cartazes/cartazes_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -27,6 +28,30 @@ void main() {
         File(spec.asset.path).existsSync(),
         isTrue,
         reason: 'Asset ausente para ${spec.title}: ${spec.asset.path}',
+      );
+    }
+  });
+
+  testWidgets('home de cartazes monta todos os templates do seletor',
+      (tester) async {
+    tester.view.physicalSize = const Size(430, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(
+      const MaterialApp(home: CartazesHomePage()),
+    );
+    await tester.pump();
+
+    final pickerSpecs = cartazTemplateSpecs.where((spec) => spec.showInPicker);
+    for (final spec in pickerSpecs) {
+      expect(
+        find.byKey(ValueKey('cartaz-template-${spec.tipo.name}')),
+        findsOneWidget,
+        reason: 'Template ausente no seletor: ${spec.title}',
       );
     }
   });

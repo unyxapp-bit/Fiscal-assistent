@@ -28,6 +28,8 @@ class PosterTemplateBackground extends StatelessWidget {
         width: double.infinity,
         height: double.infinity,
         alignment: Alignment.center,
+        placeholderBuilder: (_) => const _TemplateLoadingBackground(),
+        errorBuilder: (_, __, ___) => _TemplateFallbackBackground(tipo: tipo),
       );
     }
 
@@ -52,8 +54,53 @@ class PosterTemplateBackground extends StatelessWidget {
           width: double.infinity,
           height: double.infinity,
           alignment: Alignment.center,
+          placeholderBuilder: (_) => const _TemplateLoadingBackground(),
+          errorBuilder: (_, __, ___) => _TemplateFallbackBackground(tipo: tipo),
         );
     }
+  }
+}
+
+class _TemplateLoadingBackground extends StatelessWidget {
+  const _TemplateLoadingBackground();
+
+  @override
+  Widget build(BuildContext context) {
+    return const DecoratedBox(
+      decoration: BoxDecoration(color: Color(0xFFF8FAFC)),
+      child: Center(
+        child: SizedBox(
+          width: 18,
+          height: 18,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
+    );
+  }
+}
+
+class _TemplateFallbackBackground extends StatelessWidget {
+  final CartazTemplateTipo tipo;
+
+  const _TemplateFallbackBackground({required this.tipo});
+
+  @override
+  Widget build(BuildContext context) {
+    final spec = cartazTemplateSpec(tipo);
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: spec.color.withValues(alpha: 0.10),
+        border: Border.all(color: spec.color.withValues(alpha: 0.24)),
+      ),
+      child: Center(
+        child: Icon(
+          spec.icon,
+          color: spec.color,
+          size: 42,
+        ),
+      ),
+    );
   }
 }
 
