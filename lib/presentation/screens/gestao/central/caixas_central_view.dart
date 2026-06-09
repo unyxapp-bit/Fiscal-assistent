@@ -3,17 +3,13 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/constants/colors.dart';
 import '../../../../core/constants/text_styles.dart';
-import '../../../../domain/entities/alocacao.dart';
 import '../../../../domain/entities/caixa.dart';
 import '../../../../domain/entities/colaborador.dart';
-import '../../../../domain/enums/departamento_tipo.dart';
 import '../../../providers/alocacao_provider.dart';
 import '../../../providers/cafe_provider.dart';
 import '../../../providers/caixa_provider.dart';
 import '../../../providers/colaborador_provider.dart';
 import '../../../providers/escala_provider.dart';
-import '../../mapa/widgets/colaborador_detalhes_sheet.dart';
-import '../gargalo_calculator.dart';
 import '../visao_gargalo_screen.dart';
 
 class CaixasCentralView extends StatelessWidget {
@@ -67,140 +63,99 @@ class CaixasCentralView extends StatelessWidget {
       color: AppColors.primary,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(14),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1440),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _CaixasHeroHeader(
-                  risco: risco,
-                  gargalos: gargalos,
-                  atrasos: cafe.totalEmAtraso,
-                ),
-                const SizedBox(height: 12),
-                _CaixasSummaryGrid(
-                  disponiveis: disponiveis.length,
-                  alocados: alocacao.quantidadeAtivasAgora,
-                  emPausa: cafe.totalAtivos,
-                  risco: risco,
-                ),
-                const SizedBox(height: 14),
-                Text(
-                  'Ações necessárias',
-                  style: AppTextStyles.h3.copyWith(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 17,
+        padding: const EdgeInsets.fromLTRB(0, 6, 0, 18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _CaixasHeroHeader(
+              risco: risco,
+              gargalos: gargalos,
+              atrasos: cafe.totalEmAtraso,
+            ),
+            const SizedBox(height: 12),
+            _CaixasSummaryGrid(
+              disponiveis: disponiveis.length,
+              alocados: alocacao.quantidadeAtivasAgora,
+              emPausa: cafe.totalAtivos,
+              risco: risco,
+            ),
+            const SizedBox(height: 14),
+            Text(
+              'Ações necessárias',
+              style: AppTextStyles.h3.copyWith(
+                fontWeight: FontWeight.w900,
+                fontSize: 17,
+              ),
+            ),
+            const SizedBox(height: 10),
+            _ActionGrid(
+              actions: [
+                if (sugestaoColaborador != null && sugestaoCaixa != null)
+                  _CentralAction(
+                    icon: Icons.auto_awesome_rounded,
+                    title:
+                        '${sugestaoColaborador.nome.split(' ').first} pode cobrir ${_caixaLabel(sugestaoCaixa)}',
+                    description:
+                        'Sugestão rápida usando colaborador livre e caixa sem alocação.',
+                    buttonText: 'Abrir alocação',
+                    color: AppColors.primary,
+                    onTap: onOpenAlocacao,
                   ),
-                ),
-                const SizedBox(height: 10),
-                _ActionGrid(
-                  actions: [
-                    if (sugestaoColaborador != null && sugestaoCaixa != null)
-                      _CentralAction(
-                        icon: Icons.auto_awesome_rounded,
-                        title:
-                            '${sugestaoColaborador.nome.split(' ').first} pode cobrir ${_caixaLabel(sugestaoCaixa)}',
-                        description:
-                            'Sugestão rápida usando colaborador livre e caixa sem alocação.',
-                        buttonText: 'Abrir alocação',
-                        color: AppColors.primary,
-                        onTap: onOpenAlocacao,
-                      ),
-                    if (cafe.totalEmAtraso > 0)
-                      _CentralAction(
-                        icon: Icons.timer_off_rounded,
-                        title: _countText(
-                          cafe.totalEmAtraso,
-                          'pausa em atraso',
-                          'pausas em atraso',
-                        ),
-                        description:
-                            'Retorne ou realoque antes de abrir nova pausa.',
-                        buttonText: 'Ver fila',
-                        color: AppColors.danger,
-                        onTap: onOpenCafe,
-                      ),
-                    if (queue.isNotEmpty)
-                      _CentralAction(
-                        icon: Icons.restaurant_rounded,
-                        title: _countText(
-                          queue.length,
-                          'pausa na fila',
-                          'pausas na fila',
-                        ),
-                        description: 'Organize substituições antes de liberar.',
-                        buttonText: 'Acompanhar',
-                        color: AppColors.statusCafe,
-                        onTap: onOpenCafe,
-                      ),
-                    if (gargalos > 0)
-                      _CentralAction(
-                        icon: Icons.insights_rounded,
-                        title: _countText(
-                          gargalos,
-                          'risco de gargalo',
-                          'riscos de gargalo',
-                        ),
-                        description:
-                            'Revise cobertura nas próximas faixas de horário.',
-                        buttonText: 'Ver gargalo',
-                        color: AppColors.warning,
-                        onTap: onOpenGargalo,
-                      ),
-                    if (risco == 0)
-                      _CentralAction(
-                        icon: Icons.check_circle_outline_rounded,
-                        title: 'Operação estável',
-                        description:
-                            'Sem atrasos ou gargalos previstos no momento.',
-                        buttonText: 'Abrir mapa',
-                        color: AppColors.success,
-                        onTap: onOpenMapa,
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 18),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final wide = constraints.maxWidth >= 920;
-                    final pause = _MiniPauseQueue(queue: queue);
-                    final map = _MiniCashierMap(
-                      caixas: caixasOperacionais,
-                      alocacoes: alocacoesAtivas,
-                      colaboradores: colaboradores.todosColaboradores,
-                      cafe: cafe,
-                      onOpenMapa: onOpenMapa,
-                    );
-
-                    if (!wide) {
-                      return Column(
-                        children: [pause, const SizedBox(height: 18), map],
-                      );
-                    }
-
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(child: pause),
-                        const SizedBox(width: 18),
-                        Expanded(child: map),
-                      ],
-                    );
-                  },
-                ),
-                const SizedBox(height: 24),
-                _MiniBottleneckPanel(
-                  escala: escala,
-                  alocacao: alocacao,
-                  cafe: cafe,
-                  onOpenGargalo: onOpenGargalo,
-                ),
-                const SizedBox(height: 24),
+                if (cafe.totalEmAtraso > 0)
+                  _CentralAction(
+                    icon: Icons.timer_off_rounded,
+                    title: _countText(
+                      cafe.totalEmAtraso,
+                      'pausa em atraso',
+                      'pausas em atraso',
+                    ),
+                    description:
+                        'Retorne ou realoque antes de abrir nova pausa.',
+                    buttonText: 'Ver fila',
+                    color: AppColors.danger,
+                    onTap: onOpenCafe,
+                  ),
+                if (queue.isNotEmpty)
+                  _CentralAction(
+                    icon: Icons.restaurant_rounded,
+                    title: _countText(
+                      queue.length,
+                      'pausa na fila',
+                      'pausas na fila',
+                    ),
+                    description: 'Organize substituições antes de liberar.',
+                    buttonText: 'Acompanhar',
+                    color: AppColors.statusCafe,
+                    onTap: onOpenCafe,
+                  ),
+                if (gargalos > 0)
+                  _CentralAction(
+                    icon: Icons.insights_rounded,
+                    title: _countText(
+                      gargalos,
+                      'risco de gargalo',
+                      'riscos de gargalo',
+                    ),
+                    description:
+                        'Revise cobertura nas próximas faixas de horário.',
+                    buttonText: 'Ver gargalo',
+                    color: AppColors.warning,
+                    onTap: onOpenGargalo,
+                  ),
+                if (risco == 0)
+                  _CentralAction(
+                    icon: Icons.check_circle_outline_rounded,
+                    title: 'Operação estável',
+                    description:
+                        'Sem atrasos ou gargalos previstos no momento.',
+                    buttonText: 'Abrir mapa',
+                    color: AppColors.success,
+                    onTap: onOpenMapa,
+                  ),
               ],
             ),
-          ),
+            const SizedBox(height: 8),
+          ],
         ),
       ),
     );
@@ -455,248 +410,6 @@ class _ActionGrid extends StatelessWidget {
   }
 }
 
-class _MiniPauseQueue extends StatelessWidget {
-  final List<_PauseQueueEntry> queue;
-
-  const _MiniPauseQueue({required this.queue});
-
-  @override
-  Widget build(BuildContext context) {
-    final visibleQueue = queue.take(4).toList();
-    return _GestaoPanel(
-      title: 'Próximas pausas',
-      icon: Icons.restaurant_rounded,
-      child: visibleQueue.isEmpty
-          ? const _PanelEmptyState(
-              icon: Icons.check_circle_outline_rounded,
-              title: 'Sem pausas pendentes',
-              message: 'Nenhum intervalo previsto agora.',
-            )
-          : Column(
-              children: [
-                for (int i = 0; i < visibleQueue.length; i++) ...[
-                  _PauseQueueCard(item: visibleQueue[i], position: i + 1),
-                  if (i < visibleQueue.length - 1) const SizedBox(height: 10),
-                ],
-              ],
-            ),
-    );
-  }
-}
-
-class _MiniCashierMap extends StatelessWidget {
-  final List<Caixa> caixas;
-  final List<Alocacao> alocacoes;
-  final List<Colaborador> colaboradores;
-  final CafeProvider cafe;
-  final VoidCallback onOpenMapa;
-
-  const _MiniCashierMap({
-    required this.caixas,
-    required this.alocacoes,
-    required this.colaboradores,
-    required this.cafe,
-    required this.onOpenMapa,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colabById = {for (final c in colaboradores) c.id: c};
-    final alocByCaixa = {for (final a in alocacoes) a.caixaId: a};
-    final visible = caixas.take(6).toList();
-
-    return _GestaoPanel(
-      title: 'Mapa rápido',
-      icon: Icons.map_rounded,
-      trailing: TextButton.icon(
-        onPressed: onOpenMapa,
-        icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-        label: const Text('Abrir mapa'),
-      ),
-      child: visible.isEmpty
-          ? const _PanelEmptyState(
-              icon: Icons.point_of_sale_outlined,
-              title: 'Nenhum caixa carregado',
-              message: 'Cadastre ou carregue os caixas para visualizar.',
-            )
-          : Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                for (final caixa in visible) ...[
-                  Builder(
-                    builder: (context) {
-                      final alocacao = alocByCaixa[caixa.id];
-                      final pausa = cafe.getPausaAtivaPorCaixa(caixa.id);
-                      final colaborador = colabById[alocacao?.colaboradorId] ??
-                          colabById[pausa?.colaboradorId];
-
-                      return _CashierMiniCard(
-                        caixa: caixa,
-                        alocacao: alocacao,
-                        colaborador: colaborador,
-                        pausa: pausa,
-                        onTap: () => _showCashierDetails(
-                          context,
-                          caixa,
-                          alocacao,
-                          colaborador,
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ],
-            ),
-    );
-  }
-
-  void _showCashierDetails(
-    BuildContext context,
-    Caixa caixa,
-    Alocacao? alocacao,
-    Colaborador? colaborador,
-  ) {
-    final alocacaoProvider = context.read<AlocacaoProvider>();
-    final escalaProvider = context.read<EscalaProvider>();
-    final cafeProvider = context.read<CafeProvider>();
-
-    TurnoLocal? turno;
-    if (colaborador != null) {
-      for (final item in escalaProvider.turnosHoje) {
-        if (item.colaboradorId == colaborador.id) {
-          turno = item;
-          break;
-        }
-      }
-    }
-
-    final pausa = colaborador != null
-        ? cafeProvider.getPausaAtiva(colaborador.id)
-        : cafeProvider.getPausaAtivaPorCaixa(caixa.id);
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (_) => ColaboradorDetalhesSheet(
-        caixa: caixa,
-        colaborador: colaborador,
-        alocacao: alocacao,
-        turno: turno,
-        pausa: pausa,
-        alocacaoProvider: alocacaoProvider,
-        providerContext: context,
-      ),
-    );
-  }
-}
-
-class _MiniBottleneckPanel extends StatelessWidget {
-  final EscalaProvider escala;
-  final AlocacaoProvider alocacao;
-  final CafeProvider cafe;
-  final VoidCallback onOpenGargalo;
-
-  const _MiniBottleneckPanel({
-    required this.escala,
-    required this.alocacao,
-    required this.cafe,
-    required this.onOpenGargalo,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final slots = _slotsCaixa(escala, alocacao, cafe);
-    final temGargalo = slots.any((slot) => slot.gargalo);
-    final peak = slots.fold<int>(
-      1,
-      (value, slot) => slot.quantidade > value ? slot.quantidade : value,
-    );
-
-    return _GestaoPanel(
-      title: 'Visão de gargalo',
-      icon: Icons.insights_rounded,
-      trailing: TextButton.icon(
-        onPressed: onOpenGargalo,
-        icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-        label: const Text('Ver detalhes'),
-      ),
-      child: slots.isEmpty
-          ? const _PanelEmptyState(
-              icon: Icons.insights_outlined,
-              title: 'Sem escala para analisar',
-              message: 'Importe ou gere a escala para prever cobertura.',
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Cobertura disponível por faixa de 30 minutos.',
-                  style: AppTextStyles.body.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 18),
-                SizedBox(
-                  height: 150,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      for (final slot in slots)
-                        Expanded(
-                          child: _BottleneckBar(slot: slot, peak: peak),
-                        ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: (temGargalo ? AppColors.warning : AppColors.success)
-                        .withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color:
-                          (temGargalo ? AppColors.warning : AppColors.success)
-                              .withValues(alpha: 0.18),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        temGargalo
-                            ? Icons.auto_awesome_rounded
-                            : Icons.check_circle_outline_rounded,
-                        color:
-                            temGargalo ? AppColors.warning : AppColors.success,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          temGargalo
-                              ? 'Sugestão: revise pausas e entradas nas faixas em amarelo/vermelho.'
-                              : 'Cobertura projetada estável nas próximas 4h.',
-                          style: AppTextStyles.label.copyWith(
-                            color: temGargalo
-                                ? AppColors.warning
-                                : AppColors.success,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-    );
-  }
-}
-
 class _SummaryCard extends StatelessWidget {
   final _SummaryInfo info;
 
@@ -838,328 +551,6 @@ class _OperationalActionCard extends StatelessWidget {
   }
 }
 
-class _GestaoPanel extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final Widget child;
-  final Widget? trailing;
-
-  const _GestaoPanel({
-    required this.title,
-    required this.icon,
-    required this.child,
-    this.trailing,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: _softCard(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              _IconBox(icon: icon, color: AppColors.primary, size: 34),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.h3.copyWith(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 20,
-                  ),
-                ),
-              ),
-              if (trailing != null) trailing!,
-            ],
-          ),
-          const SizedBox(height: 16),
-          child,
-        ],
-      ),
-    );
-  }
-}
-
-class _PauseQueueCard extends StatelessWidget {
-  final _PauseQueueEntry item;
-  final int position;
-
-  const _PauseQueueCard({required this.item, required this.position});
-
-  @override
-  Widget build(BuildContext context) {
-    final color = item.canGoNow ? AppColors.statusCafe : AppColors.primary;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: _softCard(
-        color: item.canGoNow ? const Color(0xFFFFF7ED) : Colors.white,
-        borderColor: color.withValues(alpha: 0.22),
-        radius: 18,
-        elevated: false,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Center(
-              child: Text(
-                '$position',
-                style: TextStyle(color: color, fontWeight: FontWeight.w900),
-              ),
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.name.toUpperCase(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.label.copyWith(
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                Text(
-                  '${item.role} - ${item.scheduledTime}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                Text(
-                  item.delay,
-                  style: AppTextStyles.caption.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          FilledButton.icon(
-            style: FilledButton.styleFrom(
-              backgroundColor: color,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
-            onPressed: item.canGoNow ? () {} : null,
-            icon: const Icon(Icons.restaurant_rounded, size: 18),
-            label: const Text('Pausa'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CashierMiniCard extends StatelessWidget {
-  final Caixa caixa;
-  final Alocacao? alocacao;
-  final Colaborador? colaborador;
-  final PausaCafe? pausa;
-  final VoidCallback onTap;
-
-  const _CashierMiniCard({
-    required this.caixa,
-    required this.alocacao,
-    required this.colaborador,
-    required this.pausa,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final status = _cashierStatus(caixa, alocacao, pausa);
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
-        child: Container(
-          width: 190,
-          height: 150,
-          padding: const EdgeInsets.all(16),
-          decoration: _softCard(
-            color: status.color.withValues(alpha: 0.06),
-            borderColor: status.color.withValues(alpha: 0.25),
-            radius: 18,
-            elevated: false,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: status.color,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const Spacer(),
-                  Icon(Icons.point_of_sale_rounded, color: status.color),
-                ],
-              ),
-              const Spacer(),
-              Text(
-                _caixaLabel(caixa),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.w900),
-              ),
-              Text(
-                caixa.localizacao?.trim().isNotEmpty == true
-                    ? caixa.localizacao!
-                    : caixa.tipo.nome,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.caption.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                colaborador?.nome ??
-                    pausa?.colaboradorNome ??
-                    status.operatorName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style:
-                    AppTextStyles.label.copyWith(fontWeight: FontWeight.w800),
-              ),
-              Text(
-                '${status.label} - ${status.note}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.caption.copyWith(
-                  color: status.color,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _BottleneckBar extends StatelessWidget {
-  final SlotDisponibilidade slot;
-  final int peak;
-
-  const _BottleneckBar({required this.slot, required this.peak});
-
-  @override
-  Widget build(BuildContext context) {
-    final color = slot.gargalo
-        ? (slot.quantidade < slot.capacidadeMinima
-            ? AppColors.danger
-            : AppColors.warning)
-        : AppColors.success;
-    final barHeight = (34 + (slot.quantidade / peak) * 74).clamp(34.0, 112.0);
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Text(
-          '${slot.quantidade}',
-          style: AppTextStyles.caption.copyWith(
-            color: color,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Container(
-          width: 46,
-          height: barHeight,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          _formatTime(slot.inicio),
-          style: AppTextStyles.caption.copyWith(
-            color: AppColors.textSecondary,
-            fontSize: 12,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _PanelEmptyState extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String message;
-
-  const _PanelEmptyState({
-    required this.icon,
-    required this.title,
-    required this.message,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.cardBorder),
-      ),
-      child: Row(
-        children: [
-          _IconBox(icon: icon, color: AppColors.primary, size: 42),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: AppTextStyles.label.copyWith(
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                Text(
-                  message,
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _IconBox extends StatelessWidget {
   final IconData icon;
   final Color color;
@@ -1228,20 +619,6 @@ class _PauseQueueEntry {
     required this.scheduledTime,
     required this.delay,
     required this.canGoNow,
-  });
-}
-
-class _CashierStatusInfo {
-  final String label;
-  final String operatorName;
-  final String note;
-  final Color color;
-
-  const _CashierStatusInfo({
-    required this.label,
-    required this.operatorName,
-    required this.note,
-    required this.color,
   });
 }
 
@@ -1335,89 +712,6 @@ List<_PauseQueueEntry> _buildPauseQueue(
   return entries;
 }
 
-List<SlotDisponibilidade> _slotsCaixa(
-  EscalaProvider escala,
-  AlocacaoProvider alocacao,
-  CafeProvider cafe,
-) {
-  final turnos = escala.turnosHoje;
-  if (turnos.isEmpty) return const [];
-
-  final alocacaoByColab = {
-    for (final a in alocacao.getAlocacoesAtivas()) a.colaboradorId: a,
-  };
-  final pausaByColab = {for (final p in cafe.pausasAtivas) p.colaboradorId: p};
-  final status = turnos
-      .map(
-        (t) => StatusColaboradorCompleto(
-          turno: t,
-          alocacao: alocacaoByColab[t.colaboradorId],
-          pausaAtiva: pausaByColab[t.colaboradorId],
-        ),
-      )
-      .toList();
-
-  final inicio = _floorToSlot(DateTime.now());
-  final fim = inicio.add(const Duration(hours: 4));
-  return GargaloCalculator(
-    status,
-    inicio: inicio,
-    fim: fim,
-  ).calcularPorSetor(DepartamentoTipo.caixa);
-}
-
-_CashierStatusInfo _cashierStatus(
-  Caixa caixa,
-  Alocacao? alocacao,
-  PausaCafe? pausa,
-) {
-  if (caixa.emManutencao) {
-    return _CashierStatusInfo(
-      label: 'Manutenção',
-      operatorName: 'Indisponível',
-      note: 'Aguardando ajuste',
-      color: AppColors.danger,
-    );
-  }
-  if (!caixa.ativo) {
-    return _CashierStatusInfo(
-      label: 'Fechado',
-      operatorName: 'Inativo',
-      note: 'Fora da operação',
-      color: AppColors.inactive,
-    );
-  }
-  if (pausa != null && alocacao == null) {
-    return _CashierStatusInfo(
-      label: 'Pausa',
-      operatorName: 'Em pausa',
-      note: 'Retorno pendente',
-      color: AppColors.statusCafe,
-    );
-  }
-  if (alocacao != null) {
-    return _CashierStatusInfo(
-      label: 'Ativo',
-      operatorName: 'Operando',
-      note: 'Operando normal',
-      color: AppColors.success,
-    );
-  }
-  return _CashierStatusInfo(
-    label: 'Livre',
-    operatorName: 'Livre',
-    note: 'Pronto para cobertura',
-    color: AppColors.primary,
-  );
-}
-
-DateTime _floorToSlot(DateTime dt) {
-  final base = DateTime(dt.year, dt.month, dt.day);
-  final totalMin = dt.hour * 60 + dt.minute;
-  final slotMin = (totalMin ~/ 30) * 30;
-  return base.add(Duration(minutes: slotMin));
-}
-
 DateTime? _parseTimeToday(String hhmm, DateTime base) {
   final parts = hhmm.split(':');
   if (parts.length < 2) return null;
@@ -1435,12 +729,6 @@ int _minutes(String hhmm) {
 
 String _countText(int count, String singular, String plural) {
   return '$count ${count == 1 ? singular : plural}';
-}
-
-String _formatTime(DateTime dt) {
-  final h = dt.hour.toString().padLeft(2, '0');
-  final m = dt.minute.toString().padLeft(2, '0');
-  return '$h:$m';
 }
 
 String _caixaLabel(Caixa caixa) {

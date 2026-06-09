@@ -133,56 +133,29 @@ class _GestaoScreenState extends State<GestaoScreen> {
       backgroundColor: tokens.background,
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final isWide = constraints.maxWidth >= 980;
+          final compact = constraints.maxWidth < 980;
 
-          if (!isWide) {
-            return Column(
-              children: [
-                SafeArea(
-                  bottom: false,
-                  child: GestaoTopNavigation(
-                    destinos: destinos,
-                    selectedIndex: _currentIndex,
-                    compact: true,
-                    onRefresh: _loadData,
-                    onSelected: (i) => setState(() => _currentIndex = i),
-                  ),
-                ),
-                Expanded(
-                  child: IndexedStack(index: _currentIndex, children: pages),
-                ),
-              ],
+          if (_currentIndex == 0) {
+            return SafeArea(
+              bottom: false,
+              child: IndexedStack(index: _currentIndex, children: pages),
             );
           }
 
-          return Row(
+          return Column(
             children: [
-              CaixasSidebarV3(
-                destinos: destinos,
-                selectedIndex: _currentIndex,
-                onSelected: (i) => setState(() => _currentIndex = i),
+              SafeArea(
+                bottom: false,
+                child: GestaoTopNavigation(
+                  destinos: destinos,
+                  selectedIndex: _currentIndex,
+                  compact: compact,
+                  onRefresh: _loadData,
+                  onSelected: (i) => setState(() => _currentIndex = i),
+                ),
               ),
               Expanded(
-                child: Column(
-                  children: [
-                    SafeArea(
-                      bottom: false,
-                      child: GestaoTopNavigation(
-                        destinos: destinos,
-                        selectedIndex: _currentIndex,
-                        showDestinations: false,
-                        onRefresh: _loadData,
-                        onSelected: (i) => setState(() => _currentIndex = i),
-                      ),
-                    ),
-                    Expanded(
-                      child: IndexedStack(
-                        index: _currentIndex,
-                        children: pages,
-                      ),
-                    ),
-                  ],
-                ),
+                child: IndexedStack(index: _currentIndex, children: pages),
               ),
             ],
           );
