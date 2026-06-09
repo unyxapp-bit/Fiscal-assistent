@@ -59,6 +59,7 @@ class AlocacaoProvider extends ChangeNotifier {
   String? _fiscalIdObservado;
   final Set<String> _saidasProcessadas = {};
   DateTime? _diaProcessado;
+  bool _verificandoSaidas = false;
 
   // Getters
   List<Alocacao> get alocacoes => _alocacoes;
@@ -113,51 +114,62 @@ class AlocacaoProvider extends ChangeNotifier {
     });
   }
 
-  void _verificarSaidasAutomaticas() {
-    final escala = _escalaProvider;
-    if (escala == null) return;
+  Future<void> _verificarSaidasAutomaticas() async {
+    if (_verificandoSaidas) return;
+    _verificandoSaidas = true;
 
-    final agora = DateTime.now();
-    final hoje = DateTime(agora.year, agora.month, agora.day);
-    if (_diaProcessado == null ||
-        _diaProcessado!.year != hoje.year ||
-        _diaProcessado!.month != hoje.month ||
-        _diaProcessado!.day != hoje.day) {
-      _saidasProcessadas.clear();
-      _intervalosMarcados.clear();
-      _aguardandoIntervalo.clear();
-      _aguardandoRealocacaoPosIntervalo.clear();
-      _diaProcessado = hoje;
-    }
+    try {
+      final escala = _escalaProvider;
+      if (escala == null) return;
 
-    for (final turno in escala.turnosHoje) {
-      if (turno.saida == null || turno.folga || turno.feriado) continue;
-      if (_saidasProcessadas.contains(turno.colaboradorId)) continue;
+      final agora = DateTime.now();
+      final hoje = DateTime(agora.year, agora.month, agora.day);
+      if (_diaProcessado == null ||
+          _diaProcessado!.year != hoje.year ||
+          _diaProcessado!.month != hoje.month ||
+          _diaProcessado!.day != hoje.day) {
+        _saidasProcessadas.clear();
+        _intervalosMarcados.clear();
+        _aguardandoIntervalo.clear();
+        _aguardandoRealocacaoPosIntervalo.clear();
+        _diaProcessado = hoje;
+      }
 
-      final partes = turno.saida!.split(':');
-      final h = int.tryParse(partes[0]) ?? -1;
-      final m = int.tryParse(partes.length > 1 ? partes[1] : '') ?? -1;
-      if (h < 0 || m < 0) continue;
+      for (final turno in escala.turnosHoje) {
+        if (turno.saida == null || turno.folga || turno.feriado) continue;
+        if (_saidasProcessadas.contains(turno.colaboradorId)) continue;
 
-      final saidaHoje = DateTime(agora.year, agora.month, agora.day, h, m);
-      if (!agora.isAfter(saidaHoje)) continue;
+        final partes = turno.saida!.split(':');
+        final h = int.tryParse(partes[0]) ?? -1;
+        final m = int.tryParse(partes.length > 1 ? partes[1] : '') ?? -1;
+        if (h < 0 || m < 0) continue;
 
-      final alocacaoAtiva = getAlocacaoColaborador(turno.colaboradorId);
-      if (alocacaoAtiva == null) continue;
+        final saidaHoje = DateTime(agora.year, agora.month, agora.day, h, m);
+        if (!agora.isAfter(saidaHoje)) continue;
 
-      _saidasProcessadas.add(turno.colaboradorId);
-      liberarAlocacao(
-        alocacaoAtiva.id,
-        'Encerramento automático — horário de saída atingido (${turno.saida})',
-      );
+        final alocacaoAtiva = getAlocacaoColaborador(turno.colaboradorId);
+        if (alocacaoAtiva == null) continue;
 
-      final notifId = turno.colaboradorId.hashCode.abs() % 100000;
-      NotificationService.instance.showImmediateAlert(
-        id: notifId,
-        title: 'Saída automática',
-        body:
-            '${turno.colaboradorNome} foi liberado(a) do caixa automaticamente.',
-      );
+        _saidasProcessadas.add(turno.colaboradorId);
+        await liberarAlocacao(
+          alocacaoAtiva.id,
+          'Encerramento automático — horário de saída atingido (${turno.saida})',
+        );
+
+        try {
+          final notifId = turno.colaboradorId.hashCode.abs() % 100000;
+          await NotificationService.instance.showImmediateAlert(
+            id: notifId,
+            title: 'Saída automática',
+            body:
+                '${turno.colaboradorNome} foi liberado(a) do caixa automaticamente.',
+          );
+        } catch (_) {
+          // Notificacao nao pode impedir a liberacao automatica.
+        }
+      }
+    } finally {
+      _verificandoSaidas = false;
     }
   }
 
@@ -177,8 +189,9 @@ class AlocacaoProvider extends ChangeNotifier {
 
   // Computados
   int get quantidadeAlocacoes => _alocacoes.length;
-  int get quantidadeAtivasAgora =>
-      _alocacoes.where((a) => a.liberadoEm == null).length;
+  bool _isAtivaAgora(Alocacao alocacao) =>
+      alocacao.liberadoEm == null && alocacao.isHoje;
+  int get quantidadeAtivasAgora => _alocacoes.where(_isAtivaAgora).length;
   int get quantidadeLiberadas =>
       _alocacoes.where((a) => a.liberadoEm != null).length;
   int get totalAlocacoes => quantidadeAtivasAgora;
@@ -190,11 +203,13 @@ class AlocacaoProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _alocacoes = await getAlocacoesAtivasUseCase(fiscalId);
+      _alocacoes = (await getAlocacoesAtivasUseCase(fiscalId))
+          .where(_isAtivaAgora)
+          .toList();
       // Restaura _intervalosMarcados a partir dos dados carregados
       _intervalosMarcados.addAll(
         _alocacoes
-            .where((a) => a.intervaloMarcadoFeito && a.liberadoEm == null)
+            .where((a) => a.intervaloMarcadoFeito && _isAtivaAgora(a))
             .map((a) => a.colaboradorId),
       );
       _loadingState = LoadingState.success;
@@ -215,7 +230,7 @@ class AlocacaoProvider extends ChangeNotifier {
     _fiscalIdObservado = fiscalId;
     _alocacoesSubscription = getAlocacoesAtivasUseCase.watch(fiscalId).listen(
       (alocacoes) {
-        _alocacoes = alocacoes;
+        _alocacoes = alocacoes.where(_isAtivaAgora).toList();
         notifyListeners();
       },
       onError: (error) {
@@ -290,10 +305,12 @@ class AlocacaoProvider extends ChangeNotifier {
         alocacaoId: alocacaoId,
         motivo: motivo,
       );
-      final liberada = _alocacoes.firstWhere((a) => a.id == alocacaoId,
-          orElse: () => _alocacoes.first);
-      _aguardandoIntervalo.remove(liberada.colaboradorId);
-      _aguardandoRealocacaoPosIntervalo.remove(liberada.colaboradorId);
+      final liberadas = _alocacoes.where((a) => a.id == alocacaoId).toList();
+      if (liberadas.isNotEmpty) {
+        final liberada = liberadas.first;
+        _aguardandoIntervalo.remove(liberada.colaboradorId);
+        _aguardandoRealocacaoPosIntervalo.remove(liberada.colaboradorId);
+      }
       _alocacoes.removeWhere((a) => a.id == alocacaoId);
       _loadingState = LoadingState.success;
     } catch (e) {
@@ -389,7 +406,7 @@ class AlocacaoProvider extends ChangeNotifier {
   Alocacao? getAlocacaoColaborador(String colaboradorId) {
     try {
       return _alocacoes.firstWhere(
-          (a) => a.colaboradorId == colaboradorId && a.liberadoEm == null);
+          (a) => a.colaboradorId == colaboradorId && _isAtivaAgora(a));
     } catch (e) {
       return null;
     }
@@ -399,7 +416,7 @@ class AlocacaoProvider extends ChangeNotifier {
   Alocacao? getAlocacaoCaixa(String caixaId) {
     try {
       return _alocacoes
-          .firstWhere((a) => a.caixaId == caixaId && a.liberadoEm == null);
+          .firstWhere((a) => a.caixaId == caixaId && _isAtivaAgora(a));
     } catch (e) {
       return null;
     }
@@ -408,13 +425,13 @@ class AlocacaoProvider extends ChangeNotifier {
   /// Retorna todas as alocações ativas de um caixa/balcão
   List<Alocacao> getAlocacoesCaixa(String caixaId) {
     return _alocacoes
-        .where((a) => a.caixaId == caixaId && a.liberadoEm == null)
+        .where((a) => a.caixaId == caixaId && _isAtivaAgora(a))
         .toList();
   }
 
   /// Busca todas as alocações ativas de um período
   List<Alocacao> getAlocacoesAtivas() {
-    return _alocacoes.where((a) => a.liberadoEm == null).toList();
+    return _alocacoes.where(_isAtivaAgora).toList();
   }
 
   /// Busca todas as alocações liberadas

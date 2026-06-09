@@ -7,14 +7,30 @@ import '../../../core/errors/exceptions.dart';
 class AlocacaoRemoteDataSource {
   final SupabaseClient _client = SupabaseClientManager.client;
 
+  ({DateTime inicio, DateTime fim}) _rangeHoje() {
+    final agora = DateTime.now();
+    final inicio = DateTime(agora.year, agora.month, agora.day);
+    return (inicio: inicio, fim: inicio.add(const Duration(days: 1)));
+  }
+
+  bool _isAlocacaoAtivaHoje(AlocacaoModel alocacao) {
+    final range = _rangeHoje();
+    return alocacao.liberadoEm == null &&
+        !alocacao.alocadoEm.isBefore(range.inicio) &&
+        alocacao.alocadoEm.isBefore(range.fim);
+  }
+
   /// Busca alocações ativas
   Future<List<AlocacaoModel>> getAlocacoesAtivas(String fiscalId) async {
     try {
+      final range = _rangeHoje();
       final response = await _client
           .from('alocacoes')
           .select()
           .eq('fiscal_id', fiscalId)
           .eq('status', 'ativo')
+          .gte('horario_inicio', range.inicio.toIso8601String())
+          .lt('horario_inicio', range.fim.toIso8601String())
           .order('horario_inicio', ascending: true);
 
       return (response as List)
@@ -30,11 +46,14 @@ class AlocacaoRemoteDataSource {
     String colaboradorId,
   ) async {
     try {
+      final range = _rangeHoje();
       final response = await _client
           .from('alocacoes')
           .select()
           .eq('colaborador_id', colaboradorId)
           .eq('status', 'ativo')
+          .gte('horario_inicio', range.inicio.toIso8601String())
+          .lt('horario_inicio', range.fim.toIso8601String())
           .order('horario_inicio', ascending: false)
           .limit(1)
           .maybeSingle();
@@ -153,7 +172,7 @@ class AlocacaoRemoteDataSource {
         .map(
           (data) => data
               .map((json) => AlocacaoModel.fromJson(json))
-              .where((alocacao) => alocacao.liberadoEm == null)
+              .where(_isAlocacaoAtivaHoje)
               .toList()
             ..sort((a, b) => a.alocadoEm.compareTo(b.alocadoEm)),
         );
