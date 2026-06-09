@@ -10,7 +10,7 @@ class FiscalAiService {
   static const _functionName = 'fiscal-ai-agent';
   static const _snapshotsTable = 'fiscal_ai_snapshots';
   static const _actionsTable = 'fiscal_ai_actions';
-  static const _agentTimeout = Duration(seconds: 35);
+  static const _agentTimeout = Duration(seconds: 90);
 
   SupabaseClient get _client => Supabase.instance.client;
 

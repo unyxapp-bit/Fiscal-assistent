@@ -2627,7 +2627,10 @@ serve(async (req) => {
     const input = (await req.json()) as FiscalAiInput;
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
     const clientContext = asRecord(input.context);
-    const backendContext = await fetchOperationalContext(supabase, input.fiscal_id);
+    const isRuntimeTest = clientContext.runtime_test === true;
+    const backendContext = isRuntimeTest
+      ? {}
+      : await fetchOperationalContext(supabase, input.fiscal_id);
     const normalizedInput: FiscalAiInput = {
       ...input,
       intent: input.intent ?? "analyze",
@@ -2673,7 +2676,6 @@ serve(async (req) => {
       insight = await executeAction(normalizedInput, insight, supabase);
     }
 
-    const isRuntimeTest = asRecord(normalizedInput.context).runtime_test === true;
     if (!isRuntimeTest) {
       const snapshotId = await persistSnapshot(supabase, normalizedInput, insight);
       await persistSuggestedAction(supabase, normalizedInput, insight, snapshotId);

@@ -24,7 +24,8 @@ class FiscalAiProvider with ChangeNotifier {
   bool get loading => _loading;
   bool get running => _running;
   String? get error => _error;
-  bool get hasInsight => _insight?.hasOperationalData == true;
+  bool get hasInsight =>
+      _insight?.hasOperationalData == true && _insight?.isLocalSource != true;
 
   void clearError() {
     _error = null;
