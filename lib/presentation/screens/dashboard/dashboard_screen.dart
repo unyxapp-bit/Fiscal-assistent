@@ -34,7 +34,7 @@ import '../notas/notas_screen.dart';
 import '../formularios/formularios_screen.dart';
 import '../folga/folga_screen.dart';
 import '../escala/escala_screen.dart';
-import '../relatorio/relatorio_diario_screen.dart';
+import '../relatorios/relatorios_dia_screen.dart';
 import '../pizzaria/pizza_module_screen.dart';
 // profile_screen.dart usado via ConfiguracoesScreen
 import '../configuracoes/configuracoes_screen.dart';
@@ -200,7 +200,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   Future<void> _showMobileMoreMenu() async {
     final sections = [
       _MobileMoreSection(
-        title: 'M\u00f3dulos',
+        title: 'Vendas & Ofertas',
         actions: [
           _MobileMoreAction(
             label: 'Cartaz',
@@ -215,29 +215,33 @@ class _DashboardScreenState extends State<DashboardScreen>
             onTap: () => _switchToTab(4),
           ),
           _MobileMoreAction(
+            label: 'Pizzaria',
+            icon: Icons.local_pizza_rounded,
+            color: AppColors.statusSaida,
+            onTap: () => _switchToTab(1),
+          ),
+          _MobileMoreAction(
             label: 'Balc\u00e3o',
             icon: Icons.campaign_rounded,
             color: AppColors.info,
             onTap: () => _switchToTab(5),
           ),
-          _MobileMoreAction(
-            label: 'IA Fiscal',
-            icon: Icons.auto_awesome_rounded,
-            color: AppColors.deepPurple,
-            onTap: () => _switchToTab(6),
-          ),
         ],
       ),
       _MobileMoreSection(
-        title: 'Opera\u00e7\u00e3o',
+        title: 'Escala & Equipe',
         actions: [
           _MobileMoreAction(
-            label: 'Central',
-            icon: Icons.dashboard_customize_rounded,
+            label: 'Colaboradores',
+            icon: Icons.groups_2_rounded,
+            color: AppColors.success,
+            onTap: () => _openScreen(const ColaboradoresListScreen()),
+          ),
+          _MobileMoreAction(
+            label: 'Escala',
+            icon: Icons.calendar_month_rounded,
             color: AppColors.primary,
-            onTap: () => _openScreen(
-              const GestaoScreen(initialIndex: GestaoScreen.centralIndex),
-            ),
+            onTap: () => _openScreen(const EscalaScreen()),
           ),
           _MobileMoreAction(
             label: 'Aloca\u00e7\u00e3o',
@@ -246,40 +250,41 @@ class _DashboardScreenState extends State<DashboardScreen>
             onTap: () => _openScreen(const GestaoScreen(initialIndex: 0)),
           ),
           _MobileMoreAction(
-            label: 'Caf\u00e9',
+            label: 'Folga',
+            icon: Icons.beach_access_rounded,
+            color: AppColors.teal,
+            onTap: () => _openScreen(const FolgaScreen()),
+          ),
+          _MobileMoreAction(
+            label: 'Passagem de turno',
+            icon: Icons.sync_alt_rounded,
+            color: AppColors.primary,
+            onTap: () => _openScreen(const PassagemTurnoScreen()),
+          ),
+          _MobileMoreAction(
+            label: 'Caf\u00e9 / Pausas',
             icon: Icons.restaurant_rounded,
             color: AppColors.statusCafe,
             onTap: () => _openScreen(const GestaoScreen(initialIndex: 2)),
           ),
+        ],
+      ),
+      _MobileMoreSection(
+        title: 'Opera\u00e7\u00e3o do turno',
+        actions: [
           _MobileMoreAction(
-            label: 'Gargalo',
-            icon: Icons.insights_rounded,
-            color: AppColors.statusAtencao,
-            onTap: () => _openScreen(const GestaoScreen(initialIndex: 3)),
-          ),
-          _MobileMoreAction(
-            label: 'Colaboradores',
-            icon: Icons.groups_2_rounded,
-            color: AppColors.success,
-            onTap: () => _openScreen(const ColaboradoresListScreen()),
+            label: 'Caixas',
+            icon: Icons.dashboard_customize_rounded,
+            color: AppColors.primary,
+            onTap: () => _openScreen(
+              const GestaoScreen(initialIndex: GestaoScreen.centralIndex),
+            ),
           ),
           _MobileMoreAction(
             label: 'Entregas',
             icon: Icons.local_shipping_rounded,
             color: AppColors.primary,
             onTap: () => _openScreen(const EntregasScreen()),
-          ),
-          _MobileMoreAction(
-            label: 'Timeline',
-            icon: Icons.history_rounded,
-            color: AppColors.statusSelf,
-            onTap: () => _openScreen(const TimelineScreen()),
-          ),
-          _MobileMoreAction(
-            label: 'Folga',
-            icon: Icons.beach_access_rounded,
-            color: AppColors.teal,
-            onTap: () => _openScreen(const FolgaScreen()),
           ),
           _MobileMoreAction(
             label: 'Ocorr\u00eancias',
@@ -294,16 +299,34 @@ class _DashboardScreenState extends State<DashboardScreen>
             onTap: () => _openScreen(const ChecklistScreen()),
           ),
           _MobileMoreAction(
-            label: 'Passagem',
-            icon: Icons.sync_alt_rounded,
-            color: AppColors.primary,
-            onTap: () => _openScreen(const PassagemTurnoScreen()),
+            label: 'Timeline',
+            icon: Icons.history_rounded,
+            color: AppColors.statusSelf,
+            onTap: () => _openScreen(const TimelineScreen()),
+          ),
+          _MobileMoreAction(
+            label: 'Gargalo',
+            icon: Icons.insights_rounded,
+            color: AppColors.statusAtencao,
+            onTap: () => _openScreen(const GestaoScreen(initialIndex: 3)),
+          ),
+          _MobileMoreAction(
+            label: 'Relat\u00f3rios do dia',
+            icon: Icons.assessment_rounded,
+            color: AppColors.info,
+            onTap: () => _openScreen(const RelatoriosDiaScreen()),
           ),
         ],
       ),
       _MobileMoreSection(
         title: 'Apoio',
         actions: [
+          _MobileMoreAction(
+            label: 'IA Fiscal',
+            icon: Icons.auto_awesome_rounded,
+            color: AppColors.deepPurple,
+            onTap: () => _switchToTab(6),
+          ),
           _MobileMoreAction(
             label: 'Guia r\u00e1pido',
             icon: Icons.help_outline_rounded,
@@ -327,36 +350,6 @@ class _DashboardScreenState extends State<DashboardScreen>
             icon: Icons.menu_book_rounded,
             color: AppColors.deepPurple,
             onTap: () => _openScreen(const ProcedimentosScreen()),
-          ),
-          _MobileMoreAction(
-            label: 'Notifica\u00e7\u00f5es',
-            icon: Icons.notifications_none_rounded,
-            color: AppColors.primary,
-            onTap: () => _openScreen(const NotificacoesScreen()),
-          ),
-          _MobileMoreAction(
-            label: 'Relat\u00f3rio',
-            icon: Icons.assessment_rounded,
-            color: AppColors.info,
-            onTap: () => _openScreen(const RelatorioDiarioScreen()),
-          ),
-          _MobileMoreAction(
-            label: 'Escala',
-            icon: Icons.calendar_month_rounded,
-            color: AppColors.primary,
-            onTap: () => _openScreen(const EscalaScreen()),
-          ),
-          _MobileMoreAction(
-            label: 'Folgas',
-            icon: Icons.event_busy_rounded,
-            color: AppColors.warning,
-            onTap: () => _openScreen(const FolgaScreen()),
-          ),
-          _MobileMoreAction(
-            label: 'Config.',
-            icon: Icons.settings_rounded,
-            color: AppColors.textSecondary,
-            onTap: () => _openScreen(const ConfiguracoesScreen()),
           ),
         ],
       ),
@@ -759,61 +752,6 @@ class _DashboardScreenState extends State<DashboardScreen>
         ),
       ),
       DashboardV2QuickAction(
-        icon: Icons.history_rounded,
-        title: 'Timeline',
-        subtitle: 'Eventos do turno',
-        color: AppColors.statusSelf,
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const TimelineScreen()),
-        ),
-      ),
-      DashboardV2QuickAction(
-        icon: Icons.beach_access_rounded,
-        title: 'Modo Folga',
-        subtitle: 'Aus\u00eancias e cobertura',
-        color: AppColors.teal,
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const FolgaScreen()),
-        ),
-      ),
-      DashboardV2QuickAction(
-        icon: Icons.shield_outlined,
-        title: 'Ocorr\u00eancias',
-        subtitle: 'Registrar e acompanhar',
-        color: AppColors.danger,
-        badge: ocorrenciaProvider.totalAbertas > 0
-            ? ocorrenciaProvider.totalAbertas.toString()
-            : null,
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const OcorrenciasScreen()),
-        ),
-      ),
-      DashboardV2QuickAction(
-        icon: Icons.local_shipping_outlined,
-        title: 'Entregas',
-        subtitle: 'Gerenciar entregas',
-        color: AppColors.success,
-        badge: entregaProvider.totalSeparadas + entregaProvider.totalEmRota > 0
-            ? (entregaProvider.totalSeparadas + entregaProvider.totalEmRota)
-                .toString()
-            : null,
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const EntregasScreen()),
-        ),
-      ),
-      DashboardV2QuickAction(
-        icon: Icons.check_circle_outline_rounded,
-        title: 'Checklists',
-        subtitle: 'Ver pend\u00eancias',
-        color: AppColors.success,
-        badge: checklistProvider.templatesPendentesAgora.isNotEmpty
-            ? checklistProvider.templatesPendentesAgora.length.toString()
-            : null,
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const ChecklistScreen()),
-        ),
-      ),
-      DashboardV2QuickAction(
         icon: Icons.local_offer_outlined,
         title: 'Cartaz',
         subtitle: 'Criar ofertas',
@@ -888,7 +826,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       onPrimaryAction: abrirTurnoOuTimeline,
       onAlertTap: onTapBannerSaude,
       onReportTap: () => Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const RelatorioDiarioScreen()),
+        MaterialPageRoute(builder: (_) => const RelatoriosDiaScreen()),
       ),
       onPizzariaTap: () => _switchToTab(1),
       onOperacoesTap: () => _switchToTab(2),
@@ -1267,14 +1205,18 @@ class _DashboardScreenState extends State<DashboardScreen>
             onTap: () => _switchToTab(0),
           ),
           _MobileDashboardNavEntry(
-            item: navItems[1],
-            selected: _tabController.index == 1,
-            onTap: () => _switchToTab(1),
-          ),
-          _MobileDashboardNavEntry(
             item: navItems[2],
             selected: _tabController.index == 2,
             onTap: () => _switchToTab(2),
+          ),
+          _MobileDashboardNavEntry(
+            item: const _DashboardNavItem(
+              label: 'Colaboradores',
+              icon: Icons.groups_2_outlined,
+              selectedIcon: Icons.groups_2_rounded,
+            ),
+            selected: false,
+            onTap: () => _openScreen(const ColaboradoresListScreen()),
           ),
           _MobileDashboardNavEntry(
             item: const _DashboardNavItem(
@@ -1282,7 +1224,7 @@ class _DashboardScreenState extends State<DashboardScreen>
               icon: Icons.apps_outlined,
               selectedIcon: Icons.apps_rounded,
             ),
-            selected: _tabController.index > 2,
+            selected: _tabController.index != 0 && _tabController.index != 2,
             onTap: _showMobileMoreMenu,
           ),
         ];
