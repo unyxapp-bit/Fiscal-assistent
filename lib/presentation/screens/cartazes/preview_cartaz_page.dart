@@ -14,6 +14,7 @@ import '../../widgets/cartazes/poster_canvas.dart';
 import '../../widgets/cartazes/poster_factory.dart';
 import 'cartaz_history_store.dart';
 import 'cartaz_workspace_layout.dart';
+import 'criar_cartaz_page.dart';
 
 class PreviewCartazPage extends StatefulWidget {
   final CartazFormData data;
@@ -423,6 +424,22 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
     );
   }
 
+  void _editar() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => CriarCartazPage(
+          tipo: widget.data.tipo,
+          tamanho: widget.data.tamanho,
+          customTemplateName: widget.data.customTemplateName,
+          customTemplateSvg: widget.data.customTemplateSvg,
+          initialData: widget.data,
+          savedCartazId: _savedCartazId,
+          initialTextAdjustments: _textAdjustments,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -460,7 +477,7 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
         CartazWorkspaceAction(
           label: 'Editar',
           icon: Icons.edit_rounded,
-          onPressed: _exporting ? null : () => Navigator.of(context).pop(),
+          onPressed: _exporting ? null : _editar,
         ),
         CartazWorkspaceAction(
           label: _adjusting ? 'Concluir' : 'Ajustar',
@@ -620,8 +637,7 @@ class _PreviewCartazPageState extends State<PreviewCartazPage> {
           children: [
             Expanded(
               child: OutlinedButton.icon(
-                onPressed:
-                    _exporting ? null : () => Navigator.of(context).pop(),
+                onPressed: _exporting ? null : _editar,
                 icon: const Icon(Icons.edit_rounded, size: 18),
                 label: const Text('Editar'),
                 style: OutlinedButton.styleFrom(

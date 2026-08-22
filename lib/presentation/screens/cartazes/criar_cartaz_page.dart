@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../data/models/cartaz_form_data.dart';
 import '../../widgets/cartazes/cartaz_template_specs.dart';
+import '../../widgets/cartazes/cartaz_text_adjustments.dart';
 import '../../widgets/cartazes/poster_canvas.dart';
 import '../../widgets/cartazes/poster_factory.dart';
 import 'cartaz_workspace_layout.dart';
@@ -12,6 +13,9 @@ class CriarCartazPage extends StatefulWidget {
   final CartazTamanho tamanho;
   final String? customTemplateName;
   final String? customTemplateSvg;
+  final CartazFormData? initialData;
+  final String? savedCartazId;
+  final CartazTextAdjustments? initialTextAdjustments;
 
   const CriarCartazPage({
     super.key,
@@ -19,6 +23,9 @@ class CriarCartazPage extends StatefulWidget {
     required this.tamanho,
     this.customTemplateName,
     this.customTemplateSvg,
+    this.initialData,
+    this.savedCartazId,
+    this.initialTextAdjustments,
   });
 
   @override
@@ -48,6 +55,29 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
     final customName = (widget.customTemplateName ?? '').trim();
     if (customName.isNotEmpty) return customName;
     return _spec.title;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final data = widget.initialData;
+    if (data != null) {
+      _linha1Ctrl.text = data.tituloLinha1;
+      _linha2Ctrl.text = data.tituloLinha2;
+      _subtituloCtrl.text = data.subtitulo;
+      _detalheCtrl.text = data.detalhe ?? '';
+      _precoCtrl.text = data.preco;
+      _precoAnteriorCtrl.text = data.precoAnterior ?? '';
+      _precoPorMedidaCtrl.text = data.precoPorMedida ?? '';
+      _unidadeCtrl.text = data.unidade;
+      _validadeCtrl.text = data.validade ?? '';
+      _condicaoCtrl.text = data.condicaoPromocao ?? '';
+      _limiteCtrl.text = data.limiteCliente ?? '';
+      _validadeOfertaCtrl.text = data.validadeOferta ?? '';
+      _validadeProdutoCtrl.text = data.validadeProduto ?? '';
+      _mensagemCtrl.text = data.mensagem ?? '';
+      _centavosMenores = data.centavosMenores;
+    }
   }
 
   @override
@@ -134,7 +164,13 @@ class _CriarCartazPageState extends State<CriarCartazPage> {
     }
 
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => PreviewCartazPage(data: _buildData())),
+      MaterialPageRoute(
+        builder: (_) => PreviewCartazPage(
+          data: _buildData(),
+          savedCartazId: widget.savedCartazId,
+          initialTextAdjustments: widget.initialTextAdjustments,
+        ),
+      ),
     );
   }
 
