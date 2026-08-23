@@ -211,7 +211,7 @@ class _GuiaRapidoFormScreenState extends State<GuiaRapidoFormScreen> {
                       ),
                     ),
                     child: sel
-                        ? const Icon(Icons.check, color: Colors.white, size: 18)
+                        ? Icon(Icons.check, color: AppColors.textOnColor, size: 18)
                         : null,
                   ),
                 );
@@ -327,7 +327,7 @@ class _GuiaRapidoFormScreenState extends State<GuiaRapidoFormScreen> {
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(Dimensions.buttonHeight),
                   backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.textOnColor,
                 ),
               ),
             ),

@@ -198,7 +198,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                           label: 'Normal',
                           descricao: 'Sem limite',
                           icon: Icons.shopping_cart,
-                          color: const Color(0xFF2196F3),
+                          color: AppColors.info,
                           selected: _tipoSelecionado == 'pdv',
                           onTap: () => setState(() => _tipoSelecionado = 'pdv'),
                         ),
@@ -209,7 +209,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                           label: 'Rápido',
                           descricao: 'Até 15 vol.',
                           icon: Icons.flash_on,
-                          color: const Color(0xFF4CAF50),
+                          color: AppColors.success,
                           selected: _tipoSelecionado == 'rapido',
                           onTap: () =>
                               setState(() => _tipoSelecionado = 'rapido'),
@@ -225,7 +225,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                           label: 'Preferencial',
                           descricao: 'Idosos, PCD',
                           icon: Icons.accessible_forward,
-                          color: const Color(0xFFFF9800),
+                          color: AppColors.statusAtencao,
                           selected: _tipoSelecionado == 'preferencial',
                           onTap: () =>
                               setState(() => _tipoSelecionado = 'preferencial'),
@@ -237,7 +237,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                           label: 'Self Checkout',
                           descricao: 'Autoatend.',
                           icon: Icons.computer,
-                          color: const Color(0xFF9C27B0),
+                          color: AppColors.statusSelf,
                           selected: _tipoSelecionado == 'self_service',
                           onTap: () =>
                               setState(() => _tipoSelecionado = 'self_service'),
@@ -253,7 +253,7 @@ class _CaixaFormScreenState extends State<CaixaFormScreen> {
                           label: 'Balcão',
                           descricao: 'Até 3 fiscais',
                           icon: Icons.support_agent,
-                          color: const Color(0xFF009688),
+                          color: AppColors.teal,
                           selected: _tipoSelecionado == 'balcao',
                           onTap: () =>
                               setState(() => _tipoSelecionado = 'balcao'),

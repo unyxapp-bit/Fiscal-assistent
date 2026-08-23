@@ -384,11 +384,11 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
                 child: ElevatedButton.icon(
                   onPressed: _importando ? null : _importar,
                   icon: _importando
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
+                              strokeWidth: 2, color: AppColors.textOnColor),
                         )
                       : const Icon(Icons.upload),
                   label: Text(_importando
@@ -396,7 +396,7 @@ class _ImportarEscalaScreenState extends State<ImportarEscalaScreen> {
                       : 'Importar $importaveis registro(s)'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: AppColors.textOnColor,
                     minimumSize: const Size(double.infinity, 48),
                   ),
                 ),

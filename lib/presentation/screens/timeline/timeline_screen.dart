@@ -57,7 +57,7 @@ class TimelineScreen extends StatelessWidget {
                   icon: const Icon(Icons.flag),
                   label: const Text('Final de Turno'),
                   backgroundColor: AppColors.danger,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.textOnColor,
                 )
               : null,
         );
@@ -121,7 +121,7 @@ class TimelineScreen extends StatelessWidget {
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.danger,
-                foregroundColor: Colors.white),
+                foregroundColor: AppColors.textOnColor),
             child: const Text('Encerrar'),
           ),
         ],
@@ -143,7 +143,7 @@ class TimelineScreen extends StatelessWidget {
         cor: AppColors.success,
         acao: SnackBarAction(
           label: 'Ver Relatório',
-          textColor: Colors.white,
+          textColor: AppColors.textOnColor,
           onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const RelatoriosDiaScreen()),
@@ -184,7 +184,7 @@ class TimelineScreen extends StatelessWidget {
       cor: AppColors.success,
       acao: SnackBarAction(
         label: 'Ver',
-        textColor: Colors.white,
+        textColor: AppColors.textOnColor,
         onPressed: () => showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
@@ -311,15 +311,15 @@ class _EventoCard extends StatelessWidget {
         ),
       TipoEvento.intervaloMarcadoFeito => (
           Icons.check_circle_outline,
-          Colors.green
+          AppColors.success
         ),
       TipoEvento.empacotadorAdicionado => (
           Icons.inventory_2,
-          const Color(0xFF795548)
+          AppColors.brown
         ),
       TipoEvento.empacotadorRemovido => (
           Icons.remove_circle_outline,
-          const Color(0xFF795548)
+          AppColors.brown
         ),
       TipoEvento.checklistConcluido => (Icons.checklist, AppColors.success),
       TipoEvento.entregaCadastrada => (Icons.local_shipping, AppColors.primary),
@@ -329,7 +329,7 @@ class _EventoCard extends StatelessWidget {
           AppColors.danger
         ),
       TipoEvento.ocorrenciaResolvida => (Icons.check_circle, AppColors.success),
-      TipoEvento.anotacaoCriada => (Icons.note_add, const Color(0xFF7B1FA2)),
+      TipoEvento.anotacaoCriada => (Icons.note_add, AppColors.deepPurple),
       TipoEvento.formularioRespondido => (
           Icons.assignment_turned_in,
           AppColors.primary

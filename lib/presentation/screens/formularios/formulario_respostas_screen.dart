@@ -226,7 +226,7 @@ class FormularioRespostasScreen extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey.shade300,
+                color: AppColors.cardBorder,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),

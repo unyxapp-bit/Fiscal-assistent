@@ -298,7 +298,7 @@ class _FormularioPreenchimentoScreenState
                       minimumSize:
                           const Size.fromHeight(Dimensions.buttonHeight),
                       backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: AppColors.textOnColor,
                     ),
                   ),
                 ),

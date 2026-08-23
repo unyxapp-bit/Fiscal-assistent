@@ -304,7 +304,7 @@ class _EscalaTurnoFormScreenState extends State<EscalaTurnoFormScreen> {
                 label: Text(editando ? 'Atualizar' : 'Salvar'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.textOnColor,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
               ),

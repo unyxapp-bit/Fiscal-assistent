@@ -467,7 +467,7 @@ class _OcorrenciasScreenState extends State<OcorrenciasScreen>
         icon: const Icon(Icons.add),
         label: const Text('Registrar'),
         backgroundColor: AppColors.danger,
-        foregroundColor: Colors.white,
+        foregroundColor: AppColors.textOnColor,
       ),
     );
   }

@@ -118,7 +118,7 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
         child: ListTile(
           leading: CircleAvatar(
             backgroundColor: proc.categoria.categoriaColor,
-            child: Icon(proc.categoria.categoriaIcon, color: Colors.white),
+            child: Icon(proc.categoria.categoriaIcon, color: AppColors.textOnColor),
           ),
           title: Text(proc.titulo, style: AppTextStyles.h4),
           subtitle: Column(
@@ -153,7 +153,7 @@ class _ProcedimentosScreenState extends State<ProcedimentosScreen> {
                   Icon(
                     proc.favorito ? Icons.star : Icons.star_outline,
                     size: 18,
-                    color: Colors.orange,
+                    color: AppColors.warning,
                   ),
                   const SizedBox(width: 8),
                   Text(proc.favorito

@@ -300,7 +300,7 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
                 icon,
                 size: 14,
                 color: isSelected
-                    ? Colors.white
+                    ? AppColors.textOnColor
                     : (iconColor ?? AppColors.textSecondary),
               ),
               const SizedBox(width: 4),
@@ -308,7 +308,7 @@ class _ColaboradoresListScreenState extends State<ColaboradoresListScreen>
             Text(
               label,
               style: AppTextStyles.label.copyWith(
-                color: isSelected ? Colors.white : AppColors.textPrimary,
+                color: isSelected ? AppColors.textOnColor : AppColors.textPrimary,
                 fontWeight:
                     isSelected ? FontWeight.bold : FontWeight.normal,
               ),

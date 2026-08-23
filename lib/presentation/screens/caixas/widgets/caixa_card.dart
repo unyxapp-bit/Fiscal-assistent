@@ -18,7 +18,7 @@ class CaixaGridCard extends StatelessWidget {
 
   Color _getStatusColor() {
     if (!caixa.ativo) return AppColors.textSecondary;
-    if (caixa.emManutencao) return Colors.orange;
+    if (caixa.emManutencao) return AppColors.statusAtencao;
     return AppColors.success;
   }
 
@@ -128,8 +128,8 @@ class CaixaGridCard extends StatelessWidget {
               ),
               if (caixa.ativo && !caixa.emManutencao)
                 ListTile(
-                  leading: const Icon(Icons.close, color: Colors.red),
-                  title: const Text('Desativar', style: TextStyle(color: Colors.red)),
+                  leading: Icon(Icons.close, color: AppColors.danger),
+                  title: Text('Desativar', style: TextStyle(color: AppColors.danger)),
                   onTap: () {
                     Navigator.pop(context);
                     Provider.of<CaixaProvider>(context, listen: false)
@@ -138,7 +138,7 @@ class CaixaGridCard extends StatelessWidget {
                 ),
               if (!caixa.ativo)
                 ListTile(
-                  leading: const Icon(Icons.check_circle, color: Colors.green),
+                  leading: Icon(Icons.check_circle, color: AppColors.success),
                   title: const Text('Ativar'),
                   onTap: () {
                     Navigator.pop(context);
@@ -148,7 +148,7 @@ class CaixaGridCard extends StatelessWidget {
                 ),
               if (caixa.ativo && !caixa.emManutencao)
                 ListTile(
-                  leading: const Icon(Icons.build, color: Colors.orange),
+                  leading: Icon(Icons.build, color: AppColors.statusAtencao),
                   title: const Text('Marcar manutenção'),
                   onTap: () {
                     Navigator.pop(context);
@@ -158,7 +158,7 @@ class CaixaGridCard extends StatelessWidget {
                 ),
               if (caixa.emManutencao)
                 ListTile(
-                  leading: const Icon(Icons.check, color: Colors.green),
+                  leading: Icon(Icons.check, color: AppColors.success),
                   title: const Text('Fim da manutenção'),
                   onTap: () {
                     Navigator.pop(context);
@@ -266,7 +266,7 @@ class CaixaCard extends StatelessWidget {
       return AppColors.textSecondary;
     }
     if (caixa.emManutencao) {
-      return Colors.orange;
+      return AppColors.statusAtencao;
     }
     return AppColors.success;
   }
@@ -401,11 +401,11 @@ class CaixaCard extends StatelessWidget {
                     ),
                     if (caixa.ativo && !caixa.emManutencao)
                       PopupMenuItem(
-                        child: const Row(
+                        child: Row(
                           children: [
-                            Icon(Icons.close, size: 20, color: Colors.red),
-                            SizedBox(width: 8),
-                            Text('Desativar'),
+                            Icon(Icons.close, size: 20, color: AppColors.danger),
+                            const SizedBox(width: 8),
+                            const Text('Desativar'),
                           ],
                         ),
                         onTap: () {
@@ -418,12 +418,12 @@ class CaixaCard extends StatelessWidget {
                       ),
                     if (!caixa.ativo)
                       PopupMenuItem(
-                        child: const Row(
+                        child: Row(
                           children: [
                             Icon(Icons.check_circle,
-                                size: 20, color: Colors.green),
-                            SizedBox(width: 8),
-                            Text('Ativar'),
+                                size: 20, color: AppColors.success),
+                            const SizedBox(width: 8),
+                            const Text('Ativar'),
                           ],
                         ),
                         onTap: () {
@@ -436,11 +436,11 @@ class CaixaCard extends StatelessWidget {
                       ),
                     if (caixa.ativo && !caixa.emManutencao)
                       PopupMenuItem(
-                        child: const Row(
+                        child: Row(
                           children: [
-                            Icon(Icons.build, size: 20, color: Colors.orange),
-                            SizedBox(width: 8),
-                            Text('Marcar manutenção'),
+                            Icon(Icons.build, size: 20, color: AppColors.statusAtencao),
+                            const SizedBox(width: 8),
+                            const Text('Marcar manutenção'),
                           ],
                         ),
                         onTap: () {
@@ -453,11 +453,11 @@ class CaixaCard extends StatelessWidget {
                       ),
                     if (caixa.emManutencao)
                       PopupMenuItem(
-                        child: const Row(
+                        child: Row(
                           children: [
-                            Icon(Icons.check, size: 20, color: Colors.green),
-                            SizedBox(width: 8),
-                            Text('Fim da manutenção'),
+                            Icon(Icons.check, size: 20, color: AppColors.success),
+                            const SizedBox(width: 8),
+                            const Text('Fim da manutenção'),
                           ],
                         ),
                         onTap: () {

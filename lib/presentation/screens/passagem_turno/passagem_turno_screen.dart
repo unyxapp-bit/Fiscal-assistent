@@ -12,10 +12,10 @@ import '../../../core/utils/app_notif.dart';
 
 const _turnos = ['manha', 'tarde', 'noite'];
 const _turnoLabels = {'manha': 'Manhã', 'tarde': 'Tarde', 'noite': 'Noite'};
-const _turnoCores = {
-  'manha': Color(0xFFFF9800), // laranja
-  'tarde': Color(0xFF2196F3), // azul
-  'noite': Color(0xFF3F51B5), // índigo
+Map<String, Color> get _turnoCores => {
+  'manha': AppColors.statusAtencao,
+  'tarde': AppColors.info,
+  'noite': AppColors.indigo,
 };
 
 class PassagemTurnoScreen extends StatefulWidget {

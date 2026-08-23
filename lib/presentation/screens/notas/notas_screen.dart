@@ -352,14 +352,14 @@ class _NotasScreenState extends State<NotasScreen> {
               color: AppColors.success,
               alignment: Alignment.centerLeft,
               padding: const EdgeInsets.only(left: 20),
-              child: const Icon(Icons.check, color: Colors.white),
+              child: Icon(Icons.check, color: AppColors.textOnColor),
             )
           : const SizedBox.shrink(),
       secondaryBackground: Container(
         color: AppColors.danger,
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
-        child: const Icon(Icons.delete, color: Colors.white),
+        child: Icon(Icons.delete, color: AppColors.textOnColor),
       ),
       confirmDismiss: (direction) async {
         if (direction == DismissDirection.startToEnd) {
@@ -456,10 +456,10 @@ class _NotasScreenState extends State<NotasScreen> {
                               color: AppColors.danger,
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: const Text(
+                            child: Text(
                               'Vencido',
                               style:
-                                  TextStyle(color: Colors.white, fontSize: 9),
+                                  TextStyle(color: AppColors.textOnColor, fontSize: 9),
                             ),
                           ),
                         ],

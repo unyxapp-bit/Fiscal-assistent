@@ -111,7 +111,7 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
                           icon: Icon(
                             proc.favorito ? Icons.star : Icons.star_outline,
                             color: proc.favorito
-                                ? Colors.orange
+                                ? AppColors.warning
                                 : AppColors.textSecondary,
                             size: Dimensions.iconXL,
                           ),
@@ -140,14 +140,14 @@ class _ProcedimentoDetailScreenState extends State<ProcedimentoDetailScreen> {
                         children: [
                           Icon(
                             proc.categoria.categoriaIcon,
-                            color: Colors.white,
+                            color: AppColors.textOnColor,
                             size: Dimensions.iconSM,
                           ),
                           const SizedBox(width: Dimensions.spacingXXS),
                           Text(
                             proc.categoria.categoriaNome,
                             style: AppTextStyles.label.copyWith(
-                              color: Colors.white,
+                              color: AppColors.textOnColor,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

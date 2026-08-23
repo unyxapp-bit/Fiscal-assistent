@@ -219,7 +219,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: AppColors.cardBorder,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -411,7 +411,7 @@ class _FormularioEditorScreenState extends State<FormularioEditorScreen> {
                             minimumSize:
                                 const Size.fromHeight(Dimensions.buttonHeight),
                             backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
+                            foregroundColor: AppColors.textOnColor,
                           ),
                           child: Text(_isEdicao ? 'Salvar' : 'Criar'),
                         ),

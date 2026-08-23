@@ -271,7 +271,7 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                   title: const Text('Marcar como favorito'),
                   secondary: Icon(
                     _favorito ? Icons.star : Icons.star_outline,
-                    color: _favorito ? Colors.orange : AppColors.textSecondary,
+                    color: _favorito ? AppColors.warning : AppColors.textSecondary,
                   ),
                 ),
               ),
@@ -335,7 +335,7 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                               child: Text(
                                 '${i + 1}',
                                 style: AppTextStyles.label.copyWith(
-                                  color: Colors.white,
+                                  color: AppColors.textOnColor,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -391,7 +391,7 @@ class _ProcedimentoFormScreenState extends State<ProcedimentoFormScreen> {
                         minimumSize:
                             const Size.fromHeight(Dimensions.buttonHeight),
                         backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: AppColors.textOnColor,
                       ),
                       child: Text(isNovo ? 'Criar' : 'Salvar'),
                     ),

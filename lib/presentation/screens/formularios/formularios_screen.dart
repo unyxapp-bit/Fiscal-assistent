@@ -252,8 +252,8 @@ class _FormulariosScreenState extends State<FormulariosScreen>
                                 ),
                                 child: Text(
                                   '$hoje',
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                  style: TextStyle(
+                                    color: AppColors.textOnColor,
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
                                   ),

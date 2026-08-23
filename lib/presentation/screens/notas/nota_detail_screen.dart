@@ -82,9 +82,9 @@ class NotaDetailScreen extends StatelessWidget {
                   backgroundColor: nota.tipo.cor.withValues(alpha: 0.12),
                 ),
                 if (nota.importante)
-                  const Chip(
-                    avatar: Icon(Icons.star, size: 16, color: Colors.orange),
-                    label: Text('Importante'),
+                  Chip(
+                    avatar: Icon(Icons.star, size: 16, color: AppColors.warning),
+                    label: const Text('Importante'),
                   ),
                 if (nota.concluida)
                   Chip(

@@ -298,7 +298,7 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
           IconButton(
             icon: Icon(
               _importante ? Icons.star : Icons.star_border,
-              color: _importante ? Colors.orange : null,
+              color: _importante ? AppColors.warning : null,
             ),
             onPressed: () => setState(() => _importante = !_importante),
             tooltip:
@@ -537,19 +537,19 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                 Container(
                   padding: const EdgeInsets.all(Dimensions.paddingSM),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.1),
+                    color: AppColors.warning.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(Dimensions.radiusMD),
                     border:
-                        Border.all(color: Colors.orange.withValues(alpha: 0.5)),
+                        Border.all(color: AppColors.warning.withValues(alpha: 0.5)),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.star, color: Colors.orange, size: 18),
+                      Icon(Icons.star, color: AppColors.warning, size: 18),
                       const SizedBox(width: 8),
                       Text(
                         'Marcado como importante',
                         style: AppTextStyles.caption.copyWith(
-                          color: Colors.orange.shade700,
+                          color: AppColors.warning,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -581,15 +581,15 @@ class _NotaFormScreenState extends State<NotaFormScreen> {
                         minimumSize:
                             const Size.fromHeight(Dimensions.buttonHeight),
                         backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: AppColors.textOnColor,
                       ),
                       child: _salvando
-                          ? const SizedBox(
+                          ? SizedBox(
                               width: 18,
                               height: 18,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Colors.white,
+                                color: AppColors.textOnColor,
                               ),
                             )
                           : Text(_isEdicao ? 'Salvar' : 'Criar'),

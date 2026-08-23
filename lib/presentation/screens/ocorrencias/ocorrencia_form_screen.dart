@@ -528,12 +528,12 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
                   child: ElevatedButton.icon(
                     onPressed: _salvando ? null : _salvar,
                     icon: _salvando
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Colors.white,
+                              color: AppColors.textOnColor,
                             ),
                           )
                         : Icon(_isEdicao ? Icons.check : Icons.save),
@@ -546,7 +546,7 @@ class _OcorrenciaFormScreenState extends State<OcorrenciaFormScreen> {
                       minimumSize:
                           const Size.fromHeight(Dimensions.buttonHeight),
                       backgroundColor: AppColors.danger,
-                      foregroundColor: Colors.white,
+                      foregroundColor: AppColors.textOnColor,
                     ),
                   ),
                 ),

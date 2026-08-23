@@ -285,7 +285,7 @@ class ChecklistScreen extends StatelessWidget {
                 label: const Text('Novo checklist'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.textOnColor,
                 ),
               ),
               OutlinedButton.icon(
@@ -1005,7 +1005,7 @@ class ChecklistScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _abrirFormularioNovo(context),
         backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: AppColors.textOnColor,
         icon: const Icon(Icons.add),
         label: const Text('Novo Checklist'),
       ),

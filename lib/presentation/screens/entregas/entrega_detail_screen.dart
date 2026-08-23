@@ -107,7 +107,7 @@ class EntregaDetailScreen extends StatelessWidget {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.textOnColor,
             ),
             child: const Text('Confirmar'),
           ),
@@ -157,7 +157,7 @@ class EntregaDetailScreen extends StatelessWidget {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.success,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.textOnColor,
             ),
             child: const Text('Confirmar'),
           ),
@@ -195,7 +195,7 @@ class EntregaDetailScreen extends StatelessWidget {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.danger,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.textOnColor,
             ),
             child: const Text('Sim, Cancelar'),
           ),
@@ -226,7 +226,7 @@ class EntregaDetailScreen extends StatelessWidget {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.danger,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.textOnColor,
             ),
             child: const Text('Excluir'),
           ),
@@ -297,7 +297,7 @@ class EntregaDetailScreen extends StatelessWidget {
                       ),
                       child: Icon(
                         _getStatusIcon(entrega.status),
-                        color: Colors.white,
+                        color: AppColors.textOnColor,
                         size: Dimensions.iconXL,
                       ),
                     ),
@@ -529,7 +529,7 @@ class EntregaDetailScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size.fromHeight(Dimensions.buttonHeight),
                     backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: AppColors.textOnColor,
                   ),
                 ),
               ),
@@ -546,7 +546,7 @@ class EntregaDetailScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size.fromHeight(Dimensions.buttonHeight),
                     backgroundColor: AppColors.success,
-                    foregroundColor: Colors.white,
+                    foregroundColor: AppColors.textOnColor,
                   ),
                 ),
               ),
@@ -623,7 +623,7 @@ class EntregaDetailScreen extends StatelessWidget {
           ),
           child: Icon(
             icon,
-            color: completed ? Colors.white : color,
+            color: completed ? AppColors.textOnColor : color,
             size: 20,
           ),
         ),

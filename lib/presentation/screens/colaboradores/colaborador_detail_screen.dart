@@ -85,7 +85,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
           );
         },
         backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: AppColors.textOnColor,
         icon: const Icon(Icons.add),
         label: const Text('Novo Registro'),
       ),
@@ -112,7 +112,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                           child: Text(
                             widget.colaborador.iniciais,
                             style:
-                                AppTextStyles.h2.copyWith(color: Colors.white),
+                                AppTextStyles.h2.copyWith(color: AppColors.textOnColor),
                           ),
                         ),
                         const SizedBox(width: Dimensions.spacingMD),
@@ -140,7 +140,7 @@ class _ColaboradorDetailScreenState extends State<ColaboradorDetailScreen> {
                                 child: Text(
                                   widget.colaborador.departamento.nome,
                                   style: AppTextStyles.caption
-                                      .copyWith(color: Colors.white),
+                                      .copyWith(color: AppColors.textOnColor),
                                 ),
                               ),
                               const SizedBox(height: 10),

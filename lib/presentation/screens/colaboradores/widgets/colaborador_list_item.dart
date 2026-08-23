@@ -124,8 +124,8 @@ class ColaboradorGridCard extends StatelessWidget {
                 radius: 22,
                 child: Text(
                   colaborador.gerarIniciais(),
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: AppColors.textOnColor,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
@@ -261,7 +261,7 @@ class ColaboradorListItem extends StatelessWidget {
           child: Text(
             colaborador.gerarIniciais(),
             style: AppTextStyles.title.copyWith(
-              color: Colors.white,
+              color: AppColors.textOnColor,
               fontSize: 16,
             ),
           ),

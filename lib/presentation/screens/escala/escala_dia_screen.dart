@@ -90,7 +90,7 @@ class EscalaDiaScreen extends StatelessWidget {
                     label: const Text('Adicionar Colaborador'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: AppColors.textOnColor,
                     ),
                   ),
                 ],
@@ -142,7 +142,7 @@ class EscalaDiaScreen extends StatelessWidget {
         icon: const Icon(Icons.person_add),
         label: const Text('Adicionar'),
         backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: AppColors.textOnColor,
       ),
     );
   }

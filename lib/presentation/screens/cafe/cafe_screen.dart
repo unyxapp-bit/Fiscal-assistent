@@ -493,7 +493,7 @@ class _CafeScreenState extends State<CafeScreen>
             icon: const Icon(Icons.add),
             label: const Text('Iniciar Cafe'),
             backgroundColor: AppColors.statusCafe,
-            foregroundColor: Colors.white,
+            foregroundColor: AppColors.textOnColor,
           ),
         );
       },
@@ -1197,7 +1197,7 @@ class _PausaAtivaCard extends StatelessWidget {
                 onPressed: onFinalizar,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.success,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.textOnColor,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   textStyle: AppTextStyles.caption,
@@ -1405,7 +1405,7 @@ class _SeletorRapidoSheet extends StatelessWidget {
                 label: Text('$d min'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.statusCafe,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.textOnColor,
                 ),
               );
             }).toList(),
@@ -1799,7 +1799,7 @@ class _ColaboradorIntervaloSheetState
                 label: const Text('Enviar para Intervalo'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.statusCafe,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.textOnColor,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
               ),
@@ -2033,7 +2033,7 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
                   selected: selecionado,
                   selectedColor: AppColors.statusCafe,
                   labelStyle: TextStyle(
-                    color: selecionado ? Colors.white : AppColors.textPrimary,
+                    color: selecionado ? AppColors.textOnColor : AppColors.textPrimary,
                     fontWeight:
                         selecionado ? FontWeight.bold : FontWeight.normal,
                   ),
@@ -2078,7 +2078,7 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
                               c.nome.substring(0, 1).toUpperCase(),
                               style: TextStyle(
                                 color: selecionado
-                                    ? Colors.white
+                                    ? AppColors.textOnColor
                                     : AppColors.textPrimary,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -2148,7 +2148,7 @@ class _SeletorPausaSheetState extends State<_SeletorPausaSheet> {
                 label: Text('Iniciar $_duracaoSelecionada min de café'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.statusCafe,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.textOnColor,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
               ),

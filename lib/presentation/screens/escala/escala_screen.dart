@@ -414,7 +414,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
               onPressed: () => Navigator.pop(ctx, 'substituir'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.textOnColor,
               ),
               child: const Text('Substituir tudo'),
             ),
@@ -443,7 +443,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
               onPressed: () => Navigator.pop(ctx, true),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.textOnColor,
               ),
               child: const Text('Gerar'),
             ),
@@ -491,7 +491,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
       acao: problemas.isNotEmpty
           ? SnackBarAction(
               label: 'Ver Alertas (${problemas.length})',
-              textColor: Colors.white,
+              textColor: AppColors.textOnColor,
               onPressed: () => _mostrarRelatorioCobertura(context, problemas),
             )
           : null,
@@ -736,7 +736,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color:
-                                  hoje ? Colors.white : AppColors.textPrimary,
+                                  hoje ? AppColors.textOnColor : AppColors.textPrimary,
                             ),
                           ),
                           Text(
@@ -746,7 +746,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
                             style: TextStyle(
                               fontSize: 10,
                               color: hoje
-                                  ? Colors.white70
+                                  ? AppColors.textOnColor.withValues(alpha: 0.7)
                                   : AppColors.textSecondary,
                             ),
                           ),

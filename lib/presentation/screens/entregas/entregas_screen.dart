@@ -322,7 +322,7 @@ class _EntregasScreenState extends State<EntregasScreen> {
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.danger,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.textOnColor,
             ),
             child: const Text('Excluir'),
           ),
@@ -350,7 +350,7 @@ class _EntregasScreenState extends State<EntregasScreen> {
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.danger,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.textOnColor,
             ),
             child: const Text('Excluir todas'),
           ),
@@ -415,7 +415,7 @@ class _EntregasScreenState extends State<EntregasScreen> {
         icon: const Icon(Icons.add_rounded),
         label: const Text('Nova entrega'),
         backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: AppColors.textOnColor,
       ),
       body: RefreshIndicator(
         onRefresh: () =>
@@ -671,9 +671,9 @@ class _EntregasScreenState extends State<EntregasScreen> {
                               borderRadius:
                                   BorderRadius.circular(Dimensions.radiusMD),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.delete_outline,
-                              color: Colors.white,
+                              color: AppColors.textOnColor,
                               size: 28,
                             ),
                           ),
@@ -834,7 +834,7 @@ class _EntregasListHeader extends StatelessWidget {
           label: const Text('Excluir todas'),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.danger,
-            foregroundColor: Colors.white,
+            foregroundColor: AppColors.textOnColor,
             minimumSize: const Size(0, 36),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           ),
@@ -943,7 +943,7 @@ class _EntregasCompletedActionBar extends StatelessWidget {
               label: const Text('Excluir todas'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.danger,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.textOnColor,
                 minimumSize: const Size(0, 38),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -1146,7 +1146,7 @@ class _CupomEntregaPreviewSheet extends StatelessWidget {
                         label: const Text('Criar entrega'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
+                          foregroundColor: AppColors.textOnColor,
                         ),
                       ),
                     ),

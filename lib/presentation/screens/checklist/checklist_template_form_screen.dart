@@ -338,7 +338,7 @@ class _ChecklistTemplateFormScreenState
                               color: c,
                               shape: BoxShape.circle,
                               border: sel
-                                  ? Border.all(color: Colors.white, width: 3)
+                                  ? Border.all(color: AppColors.textOnColor, width: 3)
                                   : null,
                               boxShadow: sel
                                   ? [
@@ -349,8 +349,8 @@ class _ChecklistTemplateFormScreenState
                                   : null,
                             ),
                             child: sel
-                                ? const Icon(Icons.check,
-                                    color: Colors.white, size: 18)
+                                ? Icon(Icons.check,
+                                    color: AppColors.textOnColor, size: 18)
                                 : null,
                           ),
                         );
@@ -562,7 +562,7 @@ class _ChecklistTemplateFormScreenState
                           minimumSize:
                               const Size.fromHeight(Dimensions.buttonHeight),
                           backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
+                          foregroundColor: AppColors.textOnColor,
                         ),
                       ),
                     ),

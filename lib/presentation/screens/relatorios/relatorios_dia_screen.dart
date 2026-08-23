@@ -9,9 +9,6 @@ import '../../../domain/entities/evento_turno.dart';
 import '../../../domain/entities/relatorio_dia.dart';
 import '../../providers/evento_turno_provider.dart';
 
-// Cor do departamento de açougue / empacotador (usada em eventos de empacotamento)
-const _kBrown = Color(0xFF795548);
-
 class RelatoriosDiaScreen extends StatelessWidget {
   const RelatoriosDiaScreen({super.key});
 
@@ -399,7 +396,7 @@ class _RelatorioCard extends StatelessWidget {
       (Icons.coffee, 'Cafés', r.totalCafes, AppColors.statusCafe),
       (Icons.restaurant, 'Intervalos', r.totalIntervalos,
           AppColors.statusAtencao),
-      (Icons.inventory_2, 'Empacotadores', r.totalEmpacotadores, _kBrown),
+      (Icons.inventory_2, 'Empacotadores', r.totalEmpacotadores, AppColors.brown),
     ];
 
     return LayoutBuilder(
@@ -594,7 +591,7 @@ class _RelatorioDetalheScreen extends StatelessWidget {
                           icon: Icons.inventory_2,
                           label: 'Empacotadores',
                           value: relatorio.totalEmpacotadores,
-                          color: _kBrown),
+                          color: AppColors.brown),
                     ],
                   ),
                 ],
@@ -739,8 +736,8 @@ class _RelatorioDetalheScreen extends StatelessWidget {
           Icons.pending_actions,
           AppColors.warning
         ),
-      TipoEvento.empacotadorAdicionado => (Icons.inventory_2, _kBrown),
-      TipoEvento.empacotadorRemovido => (Icons.remove_circle_outline, _kBrown),
+      TipoEvento.empacotadorAdicionado => (Icons.inventory_2, AppColors.brown),
+      TipoEvento.empacotadorRemovido => (Icons.remove_circle_outline, AppColors.brown),
       TipoEvento.checklistConcluido =>
         (Icons.checklist, AppColors.success),
       TipoEvento.entregaCadastrada =>
@@ -755,7 +752,7 @@ class _RelatorioDetalheScreen extends StatelessWidget {
         (Icons.check_circle, AppColors.success),
       TipoEvento.anotacaoCriada => (
           Icons.note_add,
-          const Color(0xFF7B1FA2)
+          AppColors.deepPurple
         ),
       TipoEvento.formularioRespondido => (
           Icons.assignment_turned_in,

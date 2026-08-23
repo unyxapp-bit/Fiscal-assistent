@@ -99,7 +99,7 @@ class _CaixasListScreenState extends State<CaixasListScreen> {
         icon: const Icon(Icons.add),
         label: const Text('Novo Caixa'),
         backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: AppColors.textOnColor,
       ),
     );
   }
@@ -119,7 +119,7 @@ class _CaixasListScreenState extends State<CaixasListScreen> {
           _buildStatItem(
             label: 'Manutenção',
             value: provider.totalEmManutencao.toString(),
-            color: Colors.orange,
+            color: AppColors.statusAtencao,
           ),
           _buildStatItem(
             label: 'Inativos',
@@ -191,7 +191,7 @@ class _CaixasListScreenState extends State<CaixasListScreen> {
                     Icon(
                       Icons.filter_list,
                       color: provider.mostrarApenasAtivos
-                          ? Colors.white
+                          ? AppColors.textOnColor
                           : AppColors.textPrimary,
                       size: 20,
                     ),
@@ -202,7 +202,7 @@ class _CaixasListScreenState extends State<CaixasListScreen> {
                           : 'Ver Todos',
                       style: AppTextStyles.label.copyWith(
                         color: provider.mostrarApenasAtivos
-                            ? Colors.white
+                            ? AppColors.textOnColor
                             : AppColors.textPrimary,
                         fontWeight: provider.mostrarApenasAtivos
                             ? FontWeight.bold

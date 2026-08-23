@@ -160,7 +160,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: AppColors.cardBorder,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -180,7 +180,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                   hintText:
                       'fiscal_id,cliente_nome,bairro,...\n[dados da entrega]',
                   hintStyle:
-                      TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                      TextStyle(color: AppColors.textSecondary, fontSize: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -201,7 +201,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                   label: const Text('Preencher Formulário'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: AppColors.textOnColor,
                     minimumSize: const Size.fromHeight(48),
                   ),
                   onPressed: () {
@@ -611,7 +611,7 @@ class _EntregaFormScreenState extends State<EntregaFormScreen> {
                         minimumSize:
                             const Size.fromHeight(Dimensions.buttonHeight),
                         backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: AppColors.textOnColor,
                       ),
                       child: Text(isNova ? 'Cadastrar' : 'Salvar'),
                     ),
